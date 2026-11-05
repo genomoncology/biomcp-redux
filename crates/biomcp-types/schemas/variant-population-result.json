@@ -7283,10 +7283,11 @@
           "description": "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."
         },
         "section": {
-          "description": "Sections.\nNamed source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
+          "description": "Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
           "items": {
             "$ref": "#/$defs/Reply_VariantSection"
           },
+          "title": "Sections.",
           "type": "array",
           "x-positional": 1
         },

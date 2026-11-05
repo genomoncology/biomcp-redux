@@ -332,10 +332,11 @@
           "description": "FDA product number.\nExplicit native application product number, only for approvals."
         },
         "section": {
-          "description": "Source sections.\nExplicit named disclosures; empty means identity only.",
+          "description": "Explicit named disclosures; empty means identity only.",
           "items": {
             "$ref": "#/$defs/Reply_DrugSection"
           },
+          "title": "Source sections.",
           "type": "array",
           "x-positional": 1
         },

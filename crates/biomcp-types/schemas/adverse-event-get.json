@@ -71,8 +71,9 @@
           "type": "null"
         }
       ],
-      "description": "FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event\nFAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
-      "x-positional": 1
+      "description": "FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event",
+      "x-positional": 1,
+      "x-section-rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only."
     },
     "section_limit": {
       "default": 5,

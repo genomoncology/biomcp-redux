@@ -22,10 +22,9 @@ struct Fields {
         rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates."]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
-    #[doc = "Sections.\n\
-        Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key."]
+    /// Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
+    #[cfg_attr(feature = "schema", schemars(title = "Sections.", extend("x-positional" = 1)))]
     section: Box<[VariantSection]>,
     /// Rows per named source section page; omitted uses the native source default.
     #[serde(

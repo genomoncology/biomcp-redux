@@ -101,6 +101,11 @@ fn compact(commands: &mut [HelpCommand]) {
 }
 
 #[cfg(test)]
+pub(crate) fn source_prose(text: &str) -> String {
+    discovery::plain(text)
+}
+
+#[cfg(test)]
 pub(crate) fn reference(root: &crate::grammar::Root) -> io::Result<Help> {
     let mut commands = commands(root)?;
     public_grammar::canonical(root, &mut commands)?;
@@ -128,9 +133,14 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
             description: command_description(verb, entity, &schema),
             arguments,
             section_rule: (!sections.is_empty()).then(|| {
+                let section = field(field(&schema, "properties"), "section");
                 text(
-                    field(field(&schema, "properties"), "section"),
-                    "description",
+                    section,
+                    if section.get("x-section-rule").is_some() {
+                        "x-section-rule"
+                    } else {
+                        "description"
+                    },
                 )
             }),
             sections,

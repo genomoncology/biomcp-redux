@@ -1035,8 +1035,6 @@ Arguments:
 
   [section]
           VAERS table; biomcp_help search adverse-event
-          VAERS table.
-          Independent VAERS table; omitted means reported symptoms.
 
 Options:
       --drug <drug>...
@@ -1135,8 +1133,6 @@ Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month
 - `--received-to`: Last date, YYYY-MM[-DD].
 Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 - `section`: VAERS table; biomcp_help search adverse-event
-VAERS table.
-Independent VAERS table; omitted means reported symptoms.
 - `--serious`: FAERS seriousness flag; biomcp_help search adverse-event
 FAERS seriousness flag.
 FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
@@ -1148,8 +1144,6 @@ FAERS by default; VAERS accepts only exact supported vaccine names.
 - `text`: Drug, device or vaccine.
 Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
-VAERS table; biomcp_help search adverse-event
-VAERS table.
 Independent VAERS table; omitted means reported symptoms.
 
 - `symptoms`: Source reported symptom rows.
@@ -2080,7 +2074,6 @@ Arguments:
 
   [section]
           Omit for the default card; all returns bounded first; biomcp_help get cell-line
-          Omit for the default card; all returns bounded first pages without an assay count.
 
 Options:
       --format <format>
@@ -2122,11 +2115,9 @@ Get cell line details and cross-references. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
 - `section`: Omit for the default card; all returns bounded first; biomcp_help get cell-line
-Omit for the default card; all returns bounded first pages without an assay count.
 - `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three.
 - `--section-offset`: Offset within each independently requested collection.
 
-Omit for the default card; all returns bounded first; biomcp_help get cell-line
 Omit for the default card; all returns bounded first pages without an assay count.
 
 - `names`: Source display names.
@@ -2149,7 +2140,6 @@ Arguments:
 
   [section]
           Association loci or study associations and ancestries; biomcp_help get gwas
-          Association loci or study associations and ancestries.
 
 Options:
       --format <format>
@@ -2194,12 +2184,10 @@ Get GWAS Catalog associations or studies. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
 - `section`: Association loci or study associations and ancestries; biomcp_help get gwas
-Association loci or study associations and ancestries.
 - `--section-limit`: Maximum source relation rows.
 - `--section-offset`: Source relation row offset.
 - `--snapshot`: Retained ancestry reply for a local page.
 
-Association loci or study associations and ancestries; biomcp_help get gwas
 Association loci or study associations and ancestries.
 
 - `loci`: Source association loci.
@@ -2228,7 +2216,6 @@ Options:
 
       --section <section>
           Select native sections or all bounded first pages;; biomcp_help get protein
-          Select native sections or all bounded first pages; function keeps one whole text record.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -2260,10 +2247,8 @@ Get protein details and source annotations. Sources: complex-portal, hgnc, inter
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 - `--section`: Select source sections or all bounded first pages;; biomcp_help get protein
-Select source sections or all bounded first pages; function keeps one whole text record.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs.
 
-Select source sections or all bounded first pages;; biomcp_help get protein
 Select source sections or all bounded first pages; function keeps one whole text record.
 
 - `features`: Source UniProt features.
@@ -2288,7 +2273,6 @@ Arguments:
 
   [section]
           Absent means the source identity card; biomcp_help get phenotype
-          Absent means the source identity card.
 
 Options:
       --format <format>
@@ -2337,14 +2321,12 @@ Get human phenotype details and relationships. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
 - `section`: Absent means the source identity card; biomcp_help get phenotype
-Absent means the source identity card.
 - `--section-limit`: Default five text/link rows or one complete association row.
 - `--section-offset`: Source section row offset.
 - `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes.
 - `--source`: HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
 HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
-Absent means the source identity card; biomcp_help get phenotype
 Absent means the source identity card.
 
 - `synonyms`: Source synonyms.
@@ -2366,7 +2348,6 @@ Arguments:
 
   [section]
           Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
-          Omit for the card; WikiPathways has summary and genes sections.
 
 Options:
       --format <format>
@@ -2413,11 +2394,9 @@ Get human pathway details. Sources: reactome, wikipathways.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 - `--pool`: Retained snapshot, when continuing a source relation.
 - `section`: Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
-Omit for the card; WikiPathways has summary and genes sections.
 - `--section-limit`: Bounded initial section size; each all section has its own first page.
 - `--section-offset`: Source relation offset for a selected genes or events section.
 
-Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
 Omit for the card; WikiPathways has summary and genes sections.
 
 - `summary`: Complete source description.
@@ -2438,7 +2417,6 @@ Arguments:
 
   [section]
           Omit for the card; all returns bounded first pages only; biomcp_help get study
-          Omit for the card; all returns bounded first pages only.
 
 Options:
       --format <format>
@@ -2488,11 +2466,9 @@ Get cancer genomics study details. Sources: cbioportal.
 - `id`: Exact source study ID; no default or repair.
 - `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile.
 - `section`: Omit for the card; all returns bounded first pages only; biomcp_help get study
-Omit for the card; all returns bounded first pages only.
 - `--section-limit`: Maximum records in each selected section.
 - `--section-offset`: Offset within one named section; all requires zero.
 
-Omit for the card; all returns bounded first pages only; biomcp_help get study
 Omit for the card; all returns bounded first pages only.
 
 - `profiles`: Five exact source molecular profile references.
@@ -2512,7 +2488,6 @@ Usage: biomcp get pgx [OPTIONS] --source <source> [section]
 Arguments:
   [section]
           One named section; omitted means the CPIC gene card; biomcp_help get pgx
-          One named section; omitted means the CPIC gene card.
 
 Options:
       --annotation-id <annotation_id>
@@ -2582,14 +2557,12 @@ Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 - `--kind`: One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
 One ClinPGx collection; clinical is the default only on annotations.
 - `section`: One named section; omitted means the CPIC gene card; biomcp_help get pgx
-One named section; omitted means the CPIC gene card.
 - `--section-limit`: Rows per page: three clinical, five elsewhere.
 - `--section-offset`: Offset within the selected section.
 - `--snapshot`: Retained collection for local continuation.
 - `--source`: Required source, checked against the section; biomcp_help get pgx
 Required source, checked against the section.
 
-One named section; omitted means the CPIC gene card; biomcp_help get pgx
 One named section; omitted means the CPIC gene card.
 
 - `recommendations`: Complete source recommendation contexts.
@@ -2610,8 +2583,6 @@ Arguments:
 
   [section]
           GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
-          GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
-          WHO, 510(k) and device recalls have no sections; omit for the card.
 
 Options:
       --bundle-revision <bundle_revision>
@@ -2665,8 +2636,6 @@ Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
 - `id`: Exact source identity, including version for GTR.
 - `section`: GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
-GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
-WHO, 510(k) and device recalls have no sections; omit for the card.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment.
 - `--section-offset`: Zero-based source row or fragment offset.
 - `--source`: Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
@@ -2674,7 +2643,6 @@ Explicit source: GTR accession/version, WHO Product ID, PMA P number,
 510(k) K number or device recall Z-NNNN-YYYY.
 - `--supplement`: Exact source PMA supplement; absent selects the base row.
 
-GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
 WHO, 510(k) and device recalls have no sections; omit for the card.
 
@@ -2698,7 +2666,6 @@ Arguments:
 
   [section]
           FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
-          FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
 Options:
       --drug-index <drug_index>
@@ -2751,14 +2718,12 @@ Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 - `--drug-index`: Absolute source-array index; required only for identifier sections.
 - `id`: Published report ID with no source prefix.
 - `section`: FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
-FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 - `--section-limit`: Whole source rows per section page.
 - `--section-offset`: Offset within the selected source section.
 - `--snapshot`: Checked retained report snapshot for source-free continuation.
 - `--source`: FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
 FAERS by default; MAUDE is explicit.
 
-FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
 - `drugs`: Independent source drug rows.
@@ -2786,7 +2751,6 @@ Arguments:
 
   [section]
           One named section; absent means identity card only; biomcp_help get disease
-          One named section; absent means identity card only.
 
 Options:
       --age-range <age_range>
@@ -2861,14 +2825,12 @@ One OLS ontology.
 - `--period`: Incidence-only source period code.
 - `--race`: Source race code.
 - `section`: One named section; absent means identity card only; biomcp_help get disease
-One named section; absent means identity card only.
 - `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.
 - `--section-offset`: Source row offset within the selected section.
 - `--sex`: Source sex code.
 - `--source`: Default MyDisease; no automatic fallback; biomcp_help get disease
 Default MyDisease; no automatic fallback.
 
-One named section; absent means identity card only; biomcp_help get disease
 One named section; absent means identity card only.
 
 - `synonyms`: Publisher scoped synonyms.
@@ -2893,8 +2855,6 @@ Arguments:
 
   [section]...
           Source sections; biomcp_help get drug
-          Source sections.
-          Explicit named disclosures; empty means identity only.
 
 Options:
       --civic-cursor <civic_cursor>
@@ -2995,15 +2955,11 @@ Exact published openFDA SPL section field, including table fields; required for 
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals.
 - `section`: Source sections; biomcp_help get drug
-Source sections.
-Explicit named disclosures; empty means identity only.
 - `--section-limit`: Named section page size, refused on an identity-only card.
 - `--section-offset`: Named section continuation, refused on an identity-only card.
 - `--source`: Omit to infer the source of an unambiguous section;; biomcp_help get drug
 Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
-Source sections; biomcp_help get drug
-Source sections.
 Explicit named disclosures; empty means identity only.
 
 - `xrefs`: All source identity cross-references and product links, mechanically paged.
@@ -3035,8 +2991,6 @@ Options:
 
       --section <section>
           Requested section words, preserving caller order and; biomcp_help get gene
-          Requested section words, preserving caller order and repetitions.
-          Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -3065,10 +3019,7 @@ Get gene identities and source annotations. Sources: civic, clingen, gencc, gnom
 
 - `input`: Gene symbols or checked identifiers, in input order.
 - `--section`: Requested section words, preserving caller order and; biomcp_help get gene
-Requested section words, preserving caller order and repetitions.
-Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
 
-Requested section words, preserving caller order and; biomcp_help get gene
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
 
@@ -3102,7 +3053,6 @@ Options:
 
       --section <section>
           Requested section words; trailing words and --section; biomcp_help get article
-          Requested section words; trailing words and --section share this field.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
@@ -3131,9 +3081,7 @@ Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtato
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
 - `--section`: Requested section words; trailing words and --section; biomcp_help get article
-Requested section words; trailing words and --section share this field.
 
-Requested section words; trailing words and --section; biomcp_help get article
 Requested section words; trailing words and --section share this field.
 
 - `annotations`: Normalized text-mined entities from PubTator3.
@@ -3183,7 +3131,6 @@ Options:
 
       --section <section>
           Optional intact source sections. Default cards only;; biomcp_help get trial
-          Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
       --source <source>
           Explicit provider; defaults to ClinicalTrials.gov and; biomcp_help get trial
@@ -3210,11 +3157,9 @@ Get clinical trial details. Sources: ctgov, nci.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
 - `--pool`: Checked stored source record, supplied by a continuation.
 - `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial
-Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and; biomcp_help get trial
 Explicit source; defaults to ClinicalTrials.gov and never falls back.
 
-Optional intact source sections. Default cards only;; biomcp_help get trial
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
 - `eligibility`: Intact criteria and structured age/sex fields.
@@ -3243,8 +3188,6 @@ Arguments:
 
   [section]...
           Sections; biomcp_help get variant
-          Sections.
-          Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
 Options:
       --build <build>
@@ -3349,15 +3292,11 @@ rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style geno
 Resolver.
 Resolver for reference-qualified notation; never repairs the input locally.
 - `section`: Sections; biomcp_help get variant
-Sections.
-Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 - `--section-limit`: Rows per named source section page; omitted uses the source default.
 - `--section-offset`: Source rows to skip independently of identity candidate paging.
 - `--tumor-type`: Tumor
 Explicit tumor context for keyed OncoKB annotation.
 
-Sections; biomcp_help get variant
-Sections.
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
 - `clinvar`: ClinVar source assertions.
@@ -3429,7 +3368,6 @@ Arguments:
 
   [section]
           Detailed disclosure when requested; biomcp_help author papers
-          Detailed disclosure when requested.
 
 Options:
       --format <format>
@@ -3484,9 +3422,7 @@ List an author's research papers. Sources: orcid, semantic-scholar.
 - `--offset`: Source or retained collection offset.
 - `--pool`: Retained collection identity.
 - `section`: Detailed disclosure when requested; biomcp_help author papers
-Detailed disclosure when requested.
 
-Detailed disclosure when requested; biomcp_help author papers
 Detailed disclosure when requested.
 
 - `details`: Source detailed metadata for the same paper window.

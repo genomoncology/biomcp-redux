@@ -128,8 +128,9 @@
           "type": "null"
         }
       ],
-      "description": "One named section; absent means identity card only; biomcp_help get disease\nOne named section; absent means identity card only.",
-      "x-positional": 1
+      "description": "One named section; absent means identity card only; biomcp_help get disease",
+      "x-positional": 1,
+      "x-section-rule": "One named section; absent means identity card only."
     },
     "section_limit": {
       "description": "Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.",

@@ -214,7 +214,8 @@
               "type": "null"
             }
           ],
-          "description": "VAERS table.\nIndependent VAERS table; omitted means reported symptoms.",
+          "description": "Independent VAERS table; omitted means reported symptoms.",
+          "title": "VAERS table.",
           "x-positional": 1
         },
         "serious": {

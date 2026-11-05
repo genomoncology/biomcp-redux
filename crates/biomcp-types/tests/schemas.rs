@@ -511,3 +511,8 @@ fn every_command_path_has_one_grammar_or_one_shared_rewrite()
         .collect::<Result<std::collections::BTreeSet<_>, Box<dyn std::error::Error>>>()?;
     commands::every_path_has_one_grammar_or_one_shared_rewrite(&schemas)
 }
+
+#[test]
+fn section_rules_keep_the_complete_source_owned_prose() -> Result<(), String> {
+    generation::section_rules_keep_the_complete_source_owned_prose()
+}
