@@ -111,4 +111,3 @@ class NightlyHarness:
             'scratch_dir': str(self.scratch_root)}))
         for name in ('BIOMCP_EVIDENCE_HOST', 'BIOMCP_EVIDENCE_DIR', 'BIOMCP_SCRATCH_DIR'):
             self.env.pop(name, None)
-

@@ -76,4 +76,3 @@ def deliver(scratch, host, evidence_dir):
         subprocess.run(['ssh', '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=30',
                         host, command], stdin=source, check=True)
     print('Verified evidence: ' + host + ':' + str(destination))
-
