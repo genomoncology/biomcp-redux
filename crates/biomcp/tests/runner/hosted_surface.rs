@@ -112,7 +112,8 @@ fn offered_help(server: &Server, mode: &str) -> Check {
             let words = command
                 .get("command")
                 .and_then(Value::as_array)
-                .ok_or("help command words")?;
+                .map(Vec::as_slice)
+                .unwrap_or_default();
             if matches!(
                 words.first().and_then(Value::as_str),
                 Some(
