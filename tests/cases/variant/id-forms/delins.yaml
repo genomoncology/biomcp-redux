@@ -28,7 +28,13 @@
         "/status": "failed",
         "/next": [],
         "/result/population/reason": "no-join-id"
-      }
+      },
+      "mcp": [
+        "variant",
+        "population",
+        "7-55174774-AATTAAGAGAAGCAACATC-T"
+      ],
+      "is_error": true
     },
     {
       "run": [
