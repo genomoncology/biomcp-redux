@@ -83,5 +83,21 @@
       "source": "monarch"
     },
     "option": "section"
+  },
+  {
+    "args": [
+      "search",
+      "pgx",
+      "--gene",
+      "DPYD",
+      "--source",
+      "not-a-source"
+    ],
+    "tool": "search_pgx",
+    "fields": {
+      "gene": "DPYD",
+      "source": "not-a-source"
+    },
+    "option": "--source"
   }
 ]
