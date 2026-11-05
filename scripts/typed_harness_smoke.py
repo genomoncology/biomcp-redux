@@ -103,7 +103,11 @@ def job(args):
         try:
             scripts = [str(Path(__file__).resolve()), str(Path(__file__).with_name("typed_harness_turn_limit.ts"))]
             subprocess.run(["scp", "-q", *scripts, f"{args.client_host}:{scratch}/"], check=True)
-            command = ["python3", f"{scratch}/typed_harness_smoke.py", "client", "--client", name, "--execute-approved-clients", "--server-host", args.server_host, "--server-python", sys.executable, "--recorder", str(root / "scripts/typed_harness_capture.py"), "--binary", str(Path(args.binary).resolve()), "--replay", str(root / "tests/replies/trial/get/NCT02563002"), "--output", str(output / name), "--pi-node", args.pi_node, "--pi-bundle", args.pi_bundle, "--claude", args.claude]
+            command = ["python3", f"{scratch}/typed_harness_smoke.py", "client", "--client", name, "--execute-approved-clients", "--server-host", args.server_host, "--server-python", sys.executable, "--recorder", str(root / "scripts/typed_harness_capture.py"), "--binary", str(Path(args.binary).resolve()), "--replay", str(root / "tests/replies/trial/get/NCT02563002"), "--output", str(output / name)]
+            if name == "pi":
+                command += ["--pi-node", args.pi_node, "--pi-bundle", args.pi_bundle]
+            else:
+                command += ["--claude", args.claude]
             if args.pi_subscription_evidence:
                 command += ["--pi-subscription-evidence", args.pi_subscription_evidence]
             with (output / f"{name}.events.jsonl").open("wb") as stdout, (output / f"{name}.stderr").open("wb") as stderr:
