@@ -24,6 +24,8 @@ def main():
          'search_adverse_event', {'drug': ['imatinib OR nilotinib']}, None),
         ('resolver', ['get', 'variant', 'CA123643', '--resolver', 'variantvalidator', '--build', 'GRCh38'],
          'get_variant', {'input': 'CA123643', 'resolver': 'variantvalidator', 'build': 'GRCh38'}, 'variant/id-forms'),
+        ('population-resolver', ['variant', 'population', '7-117559590-ATCT-A', '--resolver', 'variantvalidator'],
+         'variant_population', {'input': '7-117559590-ATCT-A', 'resolver': 'variantvalidator'}, 'variant/id-forms'),
         ('clingen', ['get', 'gene', 'MLH1', 'clingen'],
          'get_gene', {'input': ['MLH1'], 'section': ['clingen']}, 'gene/clingen'),
         ('diagnostic', ['search', 'diagnostic', '--source', 'fda-pma', '--manufacturer', 'Foundation Medicine'],
