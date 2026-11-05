@@ -387,7 +387,7 @@ supplement-indications-focused:
 	+$(MAKE) schema-generate
 	mkdir -p target/supplement-indications
 	tar -czf target/supplement-indications/schema.tar.gz crates/biomcp-types/schemas/drug-approvals.json
-	python3.13 scripts/trials.py --installed --case-file drug/supplement-purpose.yaml --case-file drug/supplement-purpose-missing.yaml --case-file drug/supplement-purpose-mismatch.yaml drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
+	python3.13 scripts/trials.py --installed --case-file drug/supplement-purpose.yaml --case-file drug/supplement-purpose-missing.yaml --case-file drug/supplement-purpose-mismatch.yaml --case-file drug/supplement-purpose-rejected.yaml drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
 
 .PHONY: supplement-letter-reproduce
 supplement-letter-reproduce:
