@@ -233,6 +233,48 @@ def same_window(old, new, left, right):
     return False
 
 
+def failed_status(status):
+    return status is None or type(status) is int and (status == 429 or 500 <= status < 600)
+
+
+def replacement_failure(item, before, after):
+    # Discovery may change a failed dependent's identity. Check the same full
+    # input selection rule with transport status removed from that comparison.
+    if not failed_status(item.get('status')):
+        return False
+    healthy = {key: dict(value, status=200) if value is item else value
+               for key, value in after.items()}
+    changes = discovery_changes(before, healthy)
+    return any(old.get('status') == 200 and dependent_change(
+        [old], [healthy[item['identity']]], changes, before, healthy,
+        (before, healthy), complete=True) == 'churn'
+        for key, old in before.items() if key not in after)
+
+
+def failure_plan(before, after, discoveries, peers, complete):
+    roots = {key: old for key, old in before.items() if key in after
+             and failed_status(after[key].get('status'))}
+    removed = [value for key, value in before.items() if key not in after]
+    added = [value for key, value in after.items() if key not in before]
+    def downstream(request):
+        provenance = request.get('provenance') or {}
+        inputs = provenance.get('inputs') or {}
+        ids = inputs.get('ids')
+        return (provenance.get('input_context') and valid_ids(ids) and bool(ids)
+                and any(set(ids) <= set(discovery_sequences(root).get(
+                    inputs.get('namespace'), [])) for root in roots.values()))
+    removed = [request for request in removed if not downstream(request)]
+    # A successful provider may also have changed the full selection while a
+    # sibling request failed. Preserve the ordinary discovery/context checks.
+    healthy = {key: dict(value, status=200) if failed_status(value.get('status')) else value
+               for key, value in after.items()}
+    added = [healthy[request['identity']] for request in added]
+    return dependent_change(removed, added, discoveries, before, healthy,
+                            (peers[0], {key: dict(value, status=200)
+                             if key in healthy and failed_status(value.get('status')) else value
+                             for key, value in peers[1].items()}), complete=True) if removed or added else 'healthy'
+
+
 def command_causes(command):
     if not isinstance(command, dict) or not all(
             isinstance(command.get(side), dict) and isinstance(command[side].get('requests'), list)
@@ -242,9 +284,9 @@ def command_causes(command):
     after = terminal(command['live']['requests'])
     throttled = {item['source'] for item in after.values() if item.get('status') == 429}
     outage = {item['source'] for key, item in after.items()
-              if key in before and before[key].get('status') == 200
-              and (item.get('status') is None or
-                   type(item.get('status')) is int and 500 <= item['status'] < 600)}
+              if failed_status(item.get('status')) and item.get('status') != 429
+              and (key in before and before[key].get('status') == 200
+                   or replacement_failure(item, before, after))}
     recovered = {item['source'] for key, item in after.items()
                  if key in before and before[key].get('status') != 200
                  and item.get('status') == 200}
@@ -255,7 +297,7 @@ def command_causes(command):
     return {'throttled': throttled, 'outage': outage, 'recovered': recovered}
 
 
-def cache_order_throttle(command, earlier_throttled):
+def cache_order_failure(command, earlier_failed):
     if command['baseline']['requests']:
         return False
     added = list(terminal(command['live']['requests']).values())
@@ -263,7 +305,7 @@ def cache_order_throttle(command, earlier_throttled):
         return False
     roots = [request for request in added
              if not (request.get('provenance') or {}).get('inputs')]
-    if len(roots) != 1 or roots[0]['source'] not in earlier_throttled:
+    if len(roots) != 1 or roots[0]['source'] not in earlier_failed:
         return False
     discoveries = discovery_sequences(roots[0])
     for request in added:
@@ -285,14 +327,17 @@ def command_classification(capture, discoveries, peers, complete=False, comparis
     for item in after.values():
         status = item.get('status')
         if not (type(status) is int and (200 <= status < 300 or status == 429)):
-            if not (item['identity'] in before and before[item['identity']].get('status') == 200
-                    and (status is None or type(status) is int and 500 <= status < 600)):
+            if not (failed_status(status) and (
+                    item['identity'] in before and before[item['identity']].get('status') == 200
+                    or replacement_failure(item, before, after))):
                 return 'failure'
     # A provider failure ends discovery and its downstream work in this command.
     # Other commands still have to explain their own request plans.
     for cause in ('outage', 'throttled'):
         if causes[cause]:
-            return cause if explained_source_failures(capture) else 'failure'
+            return cause if (explained_source_failures(capture)
+                and failure_plan(before, after, discoveries, peers, complete)
+                in ('healthy', 'churn')) else 'failure'
     comparison = comparison or {}
     removed = [before[key] for key in before.keys() - after.keys()]
     added = [after[key] for key in after.keys() - before.keys()]
@@ -385,9 +430,18 @@ def classify_case(row):
                             for request in command[side]['requests']])
                   for side in ('baseline', 'live'))
     outcomes = []
-    earlier_throttled = set()
+    earlier_failed = {}
+    earlier_roots = {}
+    previous_command, previous_outcome = None, None
     output_changes = {item for item in drift if ': output status changed:' in item}
     for command, comparison in zip(witness, result['commands']):
+        # An earlier failed root was never cached, so later commands may
+        # repeat it while their baseline consumed the successful cache entry.
+        original = command
+        command = dict(command, baseline=dict(command['baseline'], requests=[
+            *command['baseline']['requests'], *[root for key, root in earlier_roots.items()
+                if key not in terminal(command['baseline']['requests'])
+                and key in terminal(command['live']['requests'])]]))
         before = terminal(command['baseline']['requests'])
         after = terminal(command['live']['requests'])
         seen = before.keys() & after.keys()
@@ -400,15 +454,29 @@ def classify_case(row):
             current.extend(changes)
         complete = comparison.get('before_status') == comparison.get('after_status') == 'complete'
         outcome = command_classification(command, discoveries, peers, complete, comparison)
-        if outcome == 'uncertain' and cache_order_throttle(command, earlier_throttled):
-            outcome = 'throttled'
+        if outcome == 'uncertain' and cache_order_failure(command, earlier_failed):
+            root = next(request for request in command['live']['requests']
+                        if not (request.get('provenance') or {}).get('inputs'))
+            outcome = earlier_failed[root['source']]
+        if (outcome == 'healthy' and previous_outcome in ('outage', 'throttled')
+                and not before and not after and previous_command is not None
+                and all(original[side].get('output') == previous_command[side].get('output')
+                        for side in ('baseline', 'live'))
+                and comparison.get('before_status') != comparison.get('after_status')):
+            outcome = previous_outcome
         outcomes.append(outcome)
-        earlier_throttled.update(command_causes(command)['throttled'])
+        causes = command_causes(command)
+        for cause in ('throttled', 'outage'):
+            earlier_failed.update({source: cause for source in causes[cause]})
+        earlier_roots.update({key: before[key] for key in before.keys() & after.keys()
+                              if failed_status(after[key].get('status'))})
+        previous_command, previous_outcome = original, outcome
         matched = {item for item in output_changes
                    if item.startswith('command ' + str(command['ordinal'])
                                       + ': output status changed:')}
         if matched:
-            if not explained_output(command, comparison, outcomes[-1]):
+            if not (explained_output(command, comparison, outcomes[-1])
+                    or not before and not after and outcome in ('outage', 'throttled')):
                 return 'failure'
             output_changes -= matched
     if 'page continuation changed' in drift and not any(
