@@ -59,10 +59,27 @@
         "/next/0/args": [
           "search",
           "variant",
-          "--query",
-          "BRAF V600E",
-          "--source",
-          "myvariant"
+          "--query=BRAF V600E",
+          "--source=myvariant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "--",
+        "--help"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "search",
+          "variant",
+          "--query=--help",
+          "--source=myvariant"
         ]
       }
     },

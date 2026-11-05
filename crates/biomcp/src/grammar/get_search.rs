@@ -3,6 +3,7 @@ use biomcp_types::{QueryInvalid, UsageError};
 use serde_json::{Map, Value};
 
 pub(super) fn invalid(
+    root: &clap::Command,
     verb: &str,
     entity: &str,
     value: &Value,
@@ -23,7 +24,7 @@ pub(super) fn invalid(
         .map_or_else(|| std::slice::from_ref(supplied), Vec::as_slice);
     let next = inputs
         .iter()
-        .map(|input| search_step(entity, &search, input.as_str()?))
+        .map(|input| search_step(root, entity, &search, input.as_str()?))
         .collect::<Option<Vec<_>>>()?;
     if next.is_empty() {
         return None;
@@ -47,7 +48,12 @@ fn primary(schema: &Value) -> Option<(&str, &Value)> {
         })
 }
 
-fn search_step(entity: &str, schema: &Value, input: &str) -> Option<biomcp_types::Step> {
+fn search_step(
+    root: &clap::Command,
+    entity: &str,
+    schema: &Value,
+    input: &str,
+) -> Option<biomcp_types::Step> {
     let mut fields = if let Some(template) = schema.get("x-get-search") {
         let mut fields = template.as_object()?.clone();
         for value in fields.values_mut().filter(|value| value.is_null()) {
@@ -63,17 +69,11 @@ fn search_step(entity: &str, schema: &Value, input: &str) -> Option<biomcp_types
         };
         Map::from_iter([(name.into(), value)])
     };
-    let command = biomcp_types::COMMANDS
-        .iter()
-        .find(|command| (command.verb, command.entity) == ("search", entity))?;
-    crate::grammar::rewrite::request(command.via, "search", entity, Value::Object(fields.clone()))
-        .ok()?;
     // Spell options before the positional boundary, so a literal name stays data.
     let mut args: Vec<Box<str>> = vec!["search".into(), entity.into()];
     let positional = primary(schema).and_then(|(name, _)| fields.remove(name));
     for (name, value) in fields {
-        args.push(format!("--{}", name.replace('_', "-")).into());
-        args.push(value.as_str()?.into());
+        args.push(format!("--{}={}", name.replace('_', "-"), value.as_str()?).into());
     }
     if let Some(value) = positional {
         args.push("--".into());
@@ -83,6 +83,14 @@ fn search_step(entity: &str, schema: &Value, input: &str) -> Option<biomcp_types
         for value in values {
             args.push(value.as_str()?.into());
         }
+    }
+    let argv = args
+        .iter()
+        .map(std::ffi::OsString::from)
+        .collect::<Vec<_>>();
+    let parsed = crate::grammar::parse(root, &argv).ok()?;
+    if !matches!(parsed.action, Some(biomcp_query::Action::Run { .. })) {
+        return None;
     }
     Some(biomcp_types::Step {
         kind: biomcp_types::StepKind::Disambiguate,

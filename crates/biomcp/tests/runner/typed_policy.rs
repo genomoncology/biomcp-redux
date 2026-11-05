@@ -92,7 +92,26 @@ fn hosted(env: &Environment) -> Result<(), String> {
             return Err("typed save escaped hosted refusal".into());
         }
     }
+    literal_name(env)?;
     fresh_refusal(env)
+}
+fn literal_name(env: &Environment) -> Result<(), String> {
+    let frame = request(
+        json!(10),
+        "tools/call",
+        json!({"name":"get_variant","arguments":{"input":"--help"}}),
+    );
+    let replies = exchange_with_globals(env, &[frame], &["--offline".into()])?;
+    let text = replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/content/0/text"))
+        .and_then(Value::as_str)
+        .ok_or("literal name summary")?;
+    exact_next(
+        env,
+        text,
+        json!({"name":"search_variant","arguments":{"query":"--help","source":"myvariant"}}),
+    )
 }
 fn fresh_refusal(env: &Environment) -> Result<(), String> {
     let frame = request(
