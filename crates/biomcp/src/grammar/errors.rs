@@ -144,6 +144,13 @@ fn parser_correction(
     error: &clap::Error,
     args: &[std::ffi::OsString],
 ) -> Option<biomcp_types::Step> {
+    // A stopped value parse can omit later filters; never turn that partial input into a new query.
+    if !matches!(
+        error.kind(),
+        ErrorKind::MissingRequiredArgument | ErrorKind::UnknownArgument
+    ) {
+        return None;
+    }
     let [verb, entity] = path else { return None };
     let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
     let argument = invalid_argument(command, path, error)?;
@@ -157,14 +164,18 @@ fn parser_correction(
     {
         args.remove(index);
     }
-    let matches = root
-        .clone()
-        .ignore_errors(true)
-        .mut_subcommand(*verb, |command| {
-            command
-                .ignore_errors(true)
-                .mut_subcommand(*entity, |command| command.ignore_errors(true))
-        })
+    let parser = if error.kind() == ErrorKind::MissingRequiredArgument {
+        root.clone()
+            .ignore_errors(true)
+            .mut_subcommand(*verb, |command| {
+                command
+                    .ignore_errors(true)
+                    .mut_subcommand(*entity, |command| command.ignore_errors(true))
+            })
+    } else {
+        root.clone()
+    };
+    let matches = parser
         .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))
         .ok()?;
     let matches = matches
