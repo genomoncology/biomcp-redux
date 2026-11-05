@@ -414,6 +414,8 @@ fn compare(
         .get("name")
         .and_then(Value::as_str)
         .ok_or("tool name")?;
+    let mut typed_globals = globals.to_vec();
+    typed_globals.extend(["--tool-mode".into(), "typed".into()]);
     let reply = exchange_with_globals(
         env,
         &[request(
@@ -421,7 +423,7 @@ fn compare(
             "tools/call",
             json!({"name":name,"arguments":input}),
         )],
-        globals,
+        &typed_globals,
     )?;
     let reply = reply.first().ok_or("missing typed reply")?;
     *calls += 1;
