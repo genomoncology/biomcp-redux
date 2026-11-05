@@ -5,6 +5,9 @@ cd "$(dirname "$0")/.."
 case "${1:-local}" in
     local)
         sh scripts/make_goal.sh shell-check
+        uvx --offline --from ruff==0.17.2 ruff check --select F401,F841,ERA,BLE,E722,S110 \
+            scripts/windows_remote.py scripts/test_windows_remote.py
+        uvx --offline --from vulture==2.14 vulture scripts/windows_remote.py --min-confidence 60
         python3 scripts/test_windows_vm_lock.py
         python3 scripts/test_windows_remote.py
         ;;
