@@ -4,6 +4,27 @@ type Check<T> = Result<T, String>;
 
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
+    let source = |value: &Value| {
+        value
+            .as_str()
+            .is_some_and(|word| word.parse::<biomcp_types::Source>().is_ok())
+    };
+    if object
+        .get("x-required-component")
+        .is_some_and(|value| !source(value))
+    {
+        return Err("invalid required-component annotation".into());
+    }
+    if object.get("x-required-components").is_some_and(|value| {
+        !value.as_object().is_some_and(|map| {
+            !map.is_empty()
+                && map.iter().all(|(name, component)| {
+                    name.parse::<biomcp_types::Source>().is_ok() && source(component)
+                })
+        })
+    }) {
+        return Err("invalid source-component annotation".into());
+    }
     if object
         .get("x-identifier")
         .is_some_and(|value| value != &Value::Bool(true))

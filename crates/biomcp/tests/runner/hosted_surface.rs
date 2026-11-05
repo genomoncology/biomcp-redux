@@ -79,14 +79,7 @@ pub(super) fn check() -> Result<(), String> {
             "search adverse-event",
             "sources",
         ] {
-            let params = if mode == "typed" {
-                json!({"name":"biomcp_help","arguments":{"command":path}})
-            } else {
-                let mut args = vec!["help"];
-                args.extend(path.split_whitespace());
-                json!({"name":"biomcp","arguments":{"args":args}})
-            };
-            let reply = call(&server, params)?;
+            let reply = help(&server, mode, path)?;
             let commands = reply
                 .pointer("/result/commands")
                 .and_then(Value::as_array)
@@ -362,14 +355,7 @@ fn components(mode: &str) -> Result<(), String> {
         }
     }
     for path in ["get adverse-event", "search adverse-event"] {
-        let params = if mode == "typed" {
-            json!({"name":"biomcp_help","arguments":{"command":path}})
-        } else {
-            let mut args = vec!["help"];
-            args.extend(path.split_whitespace());
-            json!({"name":"biomcp","arguments":{"args":args}})
-        };
-        let help = call(&server, params)?;
+        let help = help(&server, mode, path)?;
         for command in help
             .pointer("/result/commands")
             .and_then(Value::as_array)
@@ -442,4 +428,15 @@ fn components(mode: &str) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn help(server: &Server, mode: &str, path: &str) -> Result<Value, String> {
+    let params = if mode == "typed" {
+        json!({"name":"biomcp_help","arguments":{"command":path}})
+    } else {
+        let mut args = vec!["help"];
+        args.extend(path.split_whitespace());
+        json!({"name":"biomcp","arguments":{"args":args}})
+    };
+    call(server, params)
 }
