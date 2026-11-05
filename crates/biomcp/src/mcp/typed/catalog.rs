@@ -57,13 +57,7 @@ fn filter(node: &mut Value, excluded: &BTreeSet<Source>) {
     match node {
         Value::Object(fields) => {
             if let Some(text) = fields.get("description").and_then(Value::as_str)
-                && text
-                    .split(|c: char| !c.is_alphanumeric() && c != '-')
-                    .any(|word| {
-                        word.to_lowercase()
-                            .parse::<Source>()
-                            .is_ok_and(|source| excluded.contains(&source))
-                    })
+                && mentions_excluded(text, excluded)
             {
                 fields.insert(
                     "description".into(),
@@ -112,4 +106,26 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
         &excluded.iter().map(ToString::to_string).collect(),
     )
     .map_err(|error| io::Error::other(error.to_string()))
+}
+
+fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool {
+    let text = text.to_lowercase();
+    excluded.iter().any(|source| {
+        [
+            source.to_string(),
+            biomcp_query::sources::display_name(*source).to_lowercase(),
+        ]
+        .iter()
+        .any(|name| {
+            text.match_indices(name).any(|(index, _)| {
+                text.get(..index)
+                    .and_then(|prefix| prefix.chars().next_back())
+                    .is_none_or(|c| !c.is_alphanumeric())
+                    && text
+                        .get(index + name.len()..)
+                        .and_then(|tail| tail.chars().next())
+                        .is_none_or(|c| !c.is_alphanumeric())
+            })
+        })
+    })
 }

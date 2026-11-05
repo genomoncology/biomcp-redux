@@ -31,6 +31,7 @@ pub(super) fn check() -> Result<(), String> {
             return Err(format!("wrong file capability hint: {name}"));
         }
     }
+    configured_exclusions(&env)?;
     hosted()
 }
 
@@ -184,6 +185,26 @@ fn refused_source(server: &Server) -> Result<(), String> {
         return Err(format!(
             "catalog source exclusion differs from execution: {reply}"
         ));
+    }
+    Ok(())
+}
+
+fn configured_exclusions(env: &Environment) -> Result<(), String> {
+    env.config(&json!({"mcp_tool_mode":"typed","disable_sources":["ctg"]}))
+        .map_err(|e| e.to_string())?;
+    let replies = exchange_with_globals(
+        env,
+        &[request(json!(1), "tools/list", json!({}))],
+        &["--offline".into()],
+    )?;
+    let reply = replies.first().ok_or("configured catalog")?;
+    capture("local-excluded-ctg", reply)?;
+    if reply
+        .to_string()
+        .to_lowercase()
+        .contains("clinicaltrials.gov")
+    {
+        return Err("excluded source display name remains in argument prose".into());
     }
     Ok(())
 }
