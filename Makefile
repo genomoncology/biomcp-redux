@@ -417,3 +417,9 @@ bench-honesty-recheck:
 bench-honesty-case-recheck:
 	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
+
+
+BENCH_HONESTY_ARTIFACTS ?= $(HOME)/workspace/t/biomcp-0678-351c61cba
+.PHONY: bench-honesty-fixture-recheck
+bench-honesty-fixture-recheck:
+	python3 scripts/trials.py --installed --runner "$(BENCH_HONESTY_ARTIFACTS)/cases" --executable "$(BENCH_HONESTY_ARTIFACTS)/biomcp" --case-file adverse-event/drug-boolean-refusal.yaml --case-file variant/resolver-provenance.yaml
