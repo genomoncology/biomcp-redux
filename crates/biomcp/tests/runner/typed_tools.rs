@@ -13,6 +13,13 @@ use super::super::{
 use serde_json::{Value, json};
 use std::io::Write;
 
+pub(super) fn description_contract() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed"}))
+        .map_err(|e| e.to_string())?;
+    policy::check_descriptions(&env)
+}
+
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))

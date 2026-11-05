@@ -8,11 +8,15 @@ use super::super::super::{
 };
 use serde_json::{Value, json};
 
+pub(super) fn check_descriptions(env: &Environment) -> Result<(), String> {
+    descriptions::check(env)
+}
+
 pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed","hosted_max_use":"commercial"}))
         .map_err(|e| e.to_string())?;
-    descriptions::check(&env)?;
+    check_descriptions(&env)?;
     hosted(&env)?;
     boundaries(&env)
 }
