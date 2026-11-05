@@ -2888,6 +2888,7 @@ Usage: biomcp get drug [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
+          Source ID, brand or generic name.
           Source-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
@@ -2915,7 +2916,6 @@ Options:
           Exclude source names or source terms groups.
 
       --civic-profile <civic_profile>
-          CIViC profile ID.
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
       --source_pacing <source_pacing>
@@ -2930,13 +2930,13 @@ Options:
           and 6144 escaped bytes per fragment. No-text scans are explicit.
 
       --evidence-level <evidence_level>...
-          Levels A–E; biomcp_help get drug
-          Levels A–E
+          A–E; biomcp_help get drug
+          A–E
           Native CIViC evidence levels; repeat to include several levels.
 
       --evidence-status <evidence_status>
-          Claim status; biomcp_help get drug
-          Claim status
+          Status; biomcp_help get drug
+          Status
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --label-section <label_section>
@@ -2954,7 +2954,6 @@ Options:
           [possible values: true, false]
 
       --section-limit <section_limit>
-          Section page size.
           Named section page size, refused on an identity-only card.
 
       --fresh[=<fresh>]
@@ -2964,7 +2963,6 @@ Options:
           [possible values: true, false]
 
       --section-offset <section_offset>
-          Section rows to skip.
           Named section continuation, refused on an identity-only card.
 
       --source <source>
@@ -2980,18 +2978,18 @@ Source continuation cursor for that exact drug, profile and claim collection.
 - `--civic-kind`: CIViC collection; biomcp_help get drug
 CIViC collection.
 Independent source evidence or assertion collection within the selected profile.
-- `--civic-profile`: CIViC profile ID.
-Selected source CIViC molecular profile for a drug-scoped claim stream.
+- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit.
-- `--evidence-level`: Levels A–E; biomcp_help get drug
-Levels A–E
+- `--evidence-level`: A–E; biomcp_help get drug
+A–E
 Source CIViC evidence levels; repeat to include several levels.
-- `--evidence-status`: Claim status; biomcp_help get drug
-Claim status
+- `--evidence-status`: Status; biomcp_help get drug
+Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-- `input`: Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
+- `input`: Source ID, brand or generic name.
+Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 - `--label-section`: Exact openFDA SPL field.
 Exact published openFDA SPL section field, including table fields; required for the label section.
 - `--product-number`: FDA product number.
@@ -2999,10 +2997,8 @@ Explicit source application product number, only for approvals.
 - `section`: Source sections; biomcp_help get drug
 Source sections.
 Explicit named disclosures; empty means identity only.
-- `--section-limit`: Section page size.
-Named section page size, refused on an identity-only card.
-- `--section-offset`: Section rows to skip.
-Named section continuation, refused on an identity-only card.
+- `--section-limit`: Named section page size, refused on an identity-only card.
+- `--section-offset`: Named section continuation, refused on an identity-only card.
 - `--source`: Omit to infer the source of an unambiguous section;; biomcp_help get drug
 Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
@@ -3242,7 +3238,7 @@ Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
-          rsID/CAid,clinvar:N/VCV,HGVS/VCF
+          rs/CA/clinvar:N/VCV/HGVS/VCF
           rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
@@ -3252,8 +3248,8 @@ Arguments:
 
 Options:
       --build <build>
-          GRCh37/38; biomcp_help get variant
-          GRCh37/38
+          Assembly; biomcp_help get variant
+          Assembly
           MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 
       --format <format>
@@ -3270,28 +3266,27 @@ Options:
           Exclude source names or source terms groups.
 
       --civic-kind <civic_kind>
-          Claim kind; biomcp_help get variant
-          Claim kind
+          Claims; biomcp_help get variant
+          Claims
           Native CIViC claim collection within the selected profile.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --civic-profile <civic_profile>
-          Profile ID
           Selected CIViC molecular profile for native claim paging.
 
       --config <config>
           Read configuration from this file.
 
       --evidence-level <evidence_level>...
-          Levels A–E; biomcp_help get variant
-          Levels A–E
+          A–E; biomcp_help get variant
+          A–E
           Native CIViC evidence levels; repeat to include several levels.
 
       --evidence-status <evidence_status>
-          Claim status; biomcp_help get variant
-          Claim status
+          Status; biomcp_help get variant
+          Status
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --limit <limit>
@@ -3329,25 +3324,24 @@ Options:
 
 ```
 
-Get genetic variant evidence. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
+Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
-- `--build`: GRCh37/38; biomcp_help get variant
-GRCh37/38
+- `--build`: Assembly; biomcp_help get variant
+Assembly
 MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 - `--civic-cursor`: Cursor
 Source CIViC cursor, retained unchanged.
-- `--civic-kind`: Claim kind; biomcp_help get variant
-Claim kind
+- `--civic-kind`: Claims; biomcp_help get variant
+Claims
 Source CIViC claim collection within the selected profile.
-- `--civic-profile`: Profile ID
-Selected CIViC molecular profile for source claim paging.
-- `--evidence-level`: Levels A–E; biomcp_help get variant
-Levels A–E
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging.
+- `--evidence-level`: A–E; biomcp_help get variant
+A–E
 Source CIViC evidence levels; repeat to include several levels.
-- `--evidence-status`: Claim status; biomcp_help get variant
-Claim status
+- `--evidence-status`: Status; biomcp_help get variant
+Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-- `input`: rsID/CAid,clinvar:N/VCV,HGVS/VCF
+- `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands.
 - `--offset`: Candidate rows to skip in source order.
