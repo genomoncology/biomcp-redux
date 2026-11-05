@@ -85,6 +85,22 @@ fn hosted(env: &Environment) -> Result<(), String> {
             return Err("typed save escaped hosted refusal".into());
         }
     }
+    fresh_refusal(env)
+}
+fn fresh_refusal(env: &Environment) -> Result<(), String> {
+    let frame = request(
+        json!(9),
+        "tools/call",
+        json!({"name":"get_gene","arguments":{"input":["BRAF"]}}),
+    );
+    let replies = exchange_with_globals(env, &[frame], &["--hosted".into(), "--fresh".into()])?;
+    let reply = replies.first().ok_or("hosted fresh reply")?;
+    let text = reply.pointer("/result/content/0/text").and_then(Value::as_str).ok_or("summary")?;
+    if reply.pointer("/result/structuredContent/error/code") != Some(&json!("usage.mcp_unavailable"))
+        || text.lines().next().is_some_and(|line| line.contains("search_"))
+    {
+        return Err(format!("hosted get refusal changed guidance: {reply}"));
+    }
     Ok(())
 }
 fn boundaries(env: &Environment) -> Result<(), String> {
@@ -144,7 +160,7 @@ fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), Stri
     Ok(())
 }
 
-fn frames() -> [Value; 7] {
+fn frames() -> [Value; 6] {
     [
         request(
             json!(1),
@@ -170,11 +186,6 @@ fn frames() -> [Value; 7] {
             json!(7),
             "tools/call",
             json!({"name":"get_variant","arguments":{"input":"unrecognized"}}),
-        ),
-        request(
-            json!(9),
-            "tools/call",
-            json!({"name":"get_gene","arguments":{"input":["BRAF"],"fresh":true}}),
         ),
         request(
             json!(3),

@@ -5,6 +5,7 @@ mod entry;
 pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
+mod get_search;
 mod metadata;
 mod tree;
 pub(crate) use tree::Root;
@@ -508,6 +509,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         .ok_or_else(ParseInvalid::default)?;
     rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
         errors::source_filter(command.via, verb, entity, &value, &cause)
+            .or_else(|| get_search::invalid(verb, entity, &value, &cause))
             .unwrap_or_else(|| errors::checked_invalid(verb, entity, &cause))
     })
 }
