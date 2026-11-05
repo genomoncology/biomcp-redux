@@ -42,7 +42,8 @@ if mode == 'nested-group':
     child = subprocess.Popen([sys.executable, '-c',
         'import signal,time; signal.signal(signal.SIGTERM, signal.SIG_IGN); '
         'open("nested-ready", "w").write("ready"); time.sleep(60)'], start_new_session=True)
-    pathlib.Path('nested-pid').write_text(str(child.pid))
+    pathlib.Path('nested-pid.tmp').write_text(str(child.pid))
+    pathlib.Path('nested-pid.tmp').replace('nested-pid')
     child.wait()
 if mode == 'baseline-failure':
     baseline['summary'] = 'Failure'
@@ -55,7 +56,8 @@ else:
     for mutant, summary in zip(selected, summaries):
         outcomes.append(dict(scenario=dict(Mutant=mutant), summary=summary,
                              phase_results=[phase(2)]))
-(output / 'outcomes.json').write_text(json.dumps(dict(outcomes=outcomes)))
+(output / 'outcomes.json.tmp').write_text(json.dumps(dict(outcomes=outcomes)))
+(output / 'outcomes.json.tmp').replace(output / 'outcomes.json')
 if mode == 'interrupted':
     time.sleep(60)
 sys.exit(4 if mode == 'baseline-failure' else 2)
@@ -80,9 +82,9 @@ class ReadyChild(subprocess.Popen):
     def wait(self, timeout=None):
         if not self.expired and self.args[0] == 'cargo' and '--shard' in self.args:
             self.expired = True
-            ready = pathlib.Path(os.environ['DEADLINE_READY'])
+            ready = [pathlib.Path(path) for path in json.loads(os.environ['DEADLINE_READY'])]
             guard = time.monotonic() + 15
-            while not ready.exists():
+            while not all(path.exists() for path in ready):
                 if self.poll() is not None or time.monotonic() >= guard:
                     raise RuntimeError('Native child never became ready')
                 time.sleep(0.01)
@@ -166,10 +168,10 @@ class MutationCommands(unittest.TestCase):
     def report(self):
         return json.loads((self.output / 'mutation-report.json').read_text())
 
-    def deadline_runner(self, ready):
+    def deadline_runner(self, *ready):
         runner = self.root / 'deadline-runner.py'
         runner.write_text(DEADLINE_RUNNER)
-        self.env['DEADLINE_READY'] = str(ready)
+        self.env['DEADLINE_READY'] = json.dumps([str(path) for path in ready])
         return [sys.executable, str(runner), self.script]
 
     def assert_shared_deadline_wait(self):
@@ -186,13 +188,13 @@ class MutationCommands(unittest.TestCase):
         self.prepare('--measure')
         self.env['FAKE_MODE'] = 'nested-group'
         command = ([sys.executable, self.script] if cancel else
-                   self.deadline_runner(self.root / 'nested-ready'))
+                   self.deadline_runner(self.root / 'nested-ready', self.root / 'nested-pid'))
         runner = subprocess.Popen([*command, 'shard', '--plan', str(self.plan),
                                    '--index', '0'], cwd=self.root, env=self.env,
                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.addCleanup(lambda: runner.poll() is None and runner.kill())
         deadline = time.monotonic() + 15
-        while not (self.root / 'nested-ready').exists():
+        while not all((self.root / name).exists() for name in ('nested-ready', 'nested-pid')):
             if runner.poll() is not None or time.monotonic() >= deadline:
                 self.fail('Native descendant never became ready')
             time.sleep(0.01)
