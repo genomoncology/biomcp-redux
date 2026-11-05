@@ -88,23 +88,21 @@ fn prepare_in(
     let config = case.config.clone().unwrap_or_else(|| json!({}));
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = response_cases::replay(env, case.replay.as_deref(), case.cache_acquired)?;
-    for step in case
-        .steps
-        .get(..index)
-        .ok_or("case step index")?
-        .iter()
-        .filter(|step| step.exit == 0)
-    {
-        let Some(setup) = &step.run else { continue };
-        let globals = env.globals(replay.as_deref(), step.offline);
-        let mut command = env.command(
-            binary,
-            &super::super::super::launch::arguments(setup, &globals),
-        );
-        let output = super::super::super::execution::output(&mut command, step.stdin.as_deref())?;
-        if !output.status.success() {
-            return Err(format!("recorded setup failed: {setup:?}"));
-        }
+    let environment = env.using_executable(binary);
+    let registry = super::super::super::schema::Registry::embedded()?;
+    let mut previous = None;
+    let mut previous_step = None;
+    for step in case.steps.get(..index).ok_or("case step index")? {
+        previous = Some(super::super::super::run_sequence(
+            step,
+            &environment,
+            &Vec::new(),
+            registry.as_ref(),
+            replay.as_deref(),
+            previous.as_ref(),
+            previous_step,
+        )?);
+        previous_step = Some(step);
     }
     let step = case.steps.get(index).ok_or("case step index")?;
     let globals = env.globals(replay.as_deref(), step.offline);
@@ -163,6 +161,12 @@ fn candidate(
         std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
     )?;
     let expected = cli_case(&env, &args, &globals, step)?;
+    reset_prepare(
+        &env,
+        case,
+        index,
+        std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
+    )?;
     config
         .as_object_mut()
         .ok_or("configuration object")?
