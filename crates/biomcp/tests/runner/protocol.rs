@@ -10,6 +10,8 @@ mod typed_bridge;
 mod typed_help;
 #[path = "typed_hosted.rs"]
 mod typed_hosted;
+#[path = "hosted_surface.rs"]
+mod hosted_surface;
 #[path = "typed_reply.rs"]
 mod typed_reply;
 #[path = "typed_schemas.rs"]
@@ -28,6 +30,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-hosted/served-surface-and-source-policy", || {
+            hosted_surface::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)
         }),
