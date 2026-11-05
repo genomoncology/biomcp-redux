@@ -1,9 +1,12 @@
 """Exercise recovery artifact consumption at its file and API boundaries."""
 import copy
 import json
+import os
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import urllib.request
 import zipfile
 
@@ -98,6 +101,37 @@ class RecoveryConsumption(unittest.TestCase):
         redirected = consumer.ObjectRedirect().redirect_request(request, None, 302, '', {},
                                                                 'https://objects.example/archive')
         self.assertIsNone(redirected.get_header('Authorization'))
+
+    def test_source_guard_rejects_packaging_changes_beyond_product_rust(self):
+        # Real independent Git checkouts exercise the source boundary, including normalization.
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def git(path, *args):
+                return subprocess.check_output(['git', '-C', str(path), *args], text=True,
+                                               stderr=subprocess.DEVNULL).strip()
+            for name, revision in [('product', consumer.PRODUCT), ('tooling', 'HEAD')]:
+                subprocess.run(['git', 'clone', '--shared', '--no-checkout', '.', str(root / name)],
+                               check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                git(root / name, 'checkout', '--detach', revision)
+            tooling = root / 'tooling'
+            workflow = tooling / '.github/workflows/release-stage-sections.yml'
+            (tooling / '.github/workflows/release.yml').write_bytes(workflow.read_bytes())
+            def commit():
+                git(tooling, 'add', '.')
+                git(tooling, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                    'commit', '-m', 'Normalize fixture deployment')
+                return git(tooling, 'rev-parse', 'HEAD')
+            with patch.dict(os.environ, {'GITHUB_SHA': commit(),
+                    'GITHUB_REF': 'refs/heads/rehearsal-0370-fixture',
+                    'GITHUB_WORKFLOW_REF': 'fixture/.github/workflows/release.yml@refs/heads/rehearsal-0370-fixture',
+                    'GITHUB_RUN_ID': '1'}):
+                identity = consumer.source_guard(root / 'product', tooling)
+                self.assertEqual(identity['product_revision'], consumer.PRODUCT)
+                self.assertNotEqual(identity['consumer_revision'], consumer.PRODUCT)
+                (tooling / 'release/install.sh').write_text('# changed packaging input\n')
+                os.environ['GITHUB_SHA'] = commit()
+                with self.assertRaisesRegex(ValueError, 'packaging input'):
+                    consumer.source_guard(root / 'product', tooling)
 
     def test_consumer_workflow_has_only_stage_signing_and_no_publication(self):
         # Keep this boundary check structural; the artifact cases above own aggregation behavior.

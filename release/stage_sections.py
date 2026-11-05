@@ -35,6 +35,8 @@ def source_guard(product, tooling):
     for root in (product, tooling):
         if git(root, 'status', '--porcelain', '--untracked-files=no'):
             raise ValueError('source checkout has modified tracked files')
+    if git(tooling, 'rev-parse', 'HEAD') != os.environ['GITHUB_SHA']:
+        raise ValueError('consumer checkout differs from actual signer source')
     changes = git(tooling, 'diff', '--name-only', PRODUCT, 'HEAD').splitlines()
     if any(path not in CONSUMER_PATHS and not path.startswith('sdlc/') for path in changes):
         raise ValueError('consumer changed a product or packaging input')
@@ -44,7 +46,9 @@ def source_guard(product, tooling):
     return {'product_revision': PRODUCT, 'product_tree': PRODUCT_TREE,
             'consumer_revision': git(tooling, 'rev-parse', 'HEAD'),
             'consumer_tree': git(tooling, 'rev-parse', 'HEAD^{tree}'),
-            'workflow_sha256': digest(canonical), 'publishing': False}
+            'workflow_sha256': digest(canonical), 'source_ref': os.environ['GITHUB_REF'],
+            'signer_workflow_ref': os.environ['GITHUB_WORKFLOW_REF'],
+            'run': os.environ['GITHUB_RUN_ID'], 'publishing': False}
 
 
 def digest(path):
