@@ -1,5 +1,5 @@
 {
-  "verified": "The declared actual ClinicalTrials.gov captures from 2026-10-24 accompany a synthetic HGNC subset. Nightly execution uses the public resolver and registry endpoints to check the real registry replies.",
+  "verified": "The declared actual ClinicalTrials.gov captures from 2026-10-24 accompany a synthetic HGNC subset. Nightly execution uses the public resolver and registry endpoints to check the real registry replies. Expanded gene-context request recordings reuse the original historical header bodies unchanged with explicitly synthetic expanded request metadata; omitted protocol fields are not invented.",
   "feature": "trial-search",
   "live_check": "public",
   "story": "A zero rare-variant registry search offers separate variant removal and gene eligibility-text alternatives. The captured variant-removal search returns 99 trials. Captured through actual CLI record requests on 2026-10-24; source processing timestamp 2026-10-23T09:00:04.",
