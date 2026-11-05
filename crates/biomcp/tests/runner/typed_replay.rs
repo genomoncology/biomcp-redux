@@ -7,7 +7,7 @@ use super::super::super::{
 };
 use serde_json::{Value, json};
 
-pub(super) fn check(tool: &Value) -> Result<(), String> {
+pub(super) fn check(tool: &Value, case_index: &mut usize) -> Result<(), String> {
     let name = tool
         .get("name")
         .and_then(Value::as_str)
@@ -33,6 +33,14 @@ pub(super) fn check(tool: &Value) -> Result<(), String> {
                 continue;
             }
             let label = format!("{name} {} step {}", path.display(), index + 1);
+            super::super::super::transcript::case_step(*case_index);
+            use std::io::Write;
+            writeln!(
+                std::io::stdout(),
+                "TYPED_REPLAY_CASE index={case_index} case={label}"
+            )
+            .map_err(|e| e.to_string())?;
+            *case_index += 1;
             match candidate(tool, args, &case, index, &label) {
                 Ok(true) => calls += 1,
                 Ok(false) => excluded += 1,
@@ -62,6 +70,21 @@ fn prepare(
     index: usize,
 ) -> Result<(Environment, Vec<String>, Value), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    let (globals, config) = prepare_in(
+        &env,
+        case,
+        index,
+        std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
+    )?;
+    Ok((env, globals, config))
+}
+
+fn prepare_in(
+    env: &Environment,
+    case: &case_data::Case,
+    index: usize,
+    binary: &std::path::Path,
+) -> Result<(Vec<String>, Value), String> {
     let config = case.config.clone().unwrap_or_else(|| json!({}));
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
@@ -75,7 +98,7 @@ fn prepare(
         let Some(setup) = &step.run else { continue };
         let globals = env.globals(replay.as_deref(), step.offline);
         let mut command = env.command(
-            env!("CARGO_BIN_EXE_biomcp"),
+            binary,
             &super::super::super::launch::arguments(setup, &globals),
         );
         let output = super::super::super::execution::output(&mut command, step.stdin.as_deref())?;
@@ -85,7 +108,7 @@ fn prepare(
     }
     let step = case.steps.get(index).ok_or("case step index")?;
     let globals = env.globals(replay.as_deref(), step.offline);
-    Ok((env, globals, config))
+    Ok((globals, config))
 }
 
 fn candidate(
@@ -99,21 +122,7 @@ fn candidate(
     let (args, extra) = query_arguments(args);
     globals.extend(extra);
     let step = case.steps.get(index).ok_or("case step index")?;
-    let output = env
-        .command(
-            env!("CARGO_BIN_EXE_biomcp"),
-            &super::super::super::launch::arguments(&args, &globals),
-        )
-        .output()
-        .map_err(|e| e.to_string())?;
-    if output.status.code() != Some(step.exit) {
-        return Err(format!(
-            "CLI exit changed: expected {}, actual {:?}: {args:?}",
-            step.exit,
-            output.status.code()
-        ));
-    }
-    let expected: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    let expected = cli_case(&env, &args, &globals, step)?;
     let verb = args.first().ok_or("command verb")?;
     let entity = args.get(1).ok_or("command entity")?;
     let (_, _, id) = biomcp_types::command_paths()
@@ -146,13 +155,103 @@ fn candidate(
         )
         .map_err(|e| e.to_string())?;
     }
+    let frozen_parity = single_parity(&env, case, index, &args, &globals);
+    // The raw comparison leaves the same root reset and prepared for this CLI/typed pair.
+    let expected = cli_case(&env, &args, &globals, step)?;
     config
         .as_object_mut()
         .ok_or("configuration object")?
         .insert("mcp_tool_mode".into(), json!("typed"));
     env.config(&config).map_err(|e| e.to_string())?;
-    compare(tool, &input, &expected, &args, &env, &globals)?;
-    Ok(true)
+    let typed_parity = compare(tool, &input, &expected, &args, &env, &globals);
+    match (frozen_parity, typed_parity) {
+        (Ok(()), Ok(())) => Ok(true),
+        (Err(error), Ok(())) | (Ok(()), Err(error)) => Err(error),
+        (Err(raw), Err(typed)) => Err(format!("{raw}\n{typed}")),
+    }
+}
+
+fn cli_case(
+    env: &Environment,
+    args: &[String],
+    globals: &[String],
+    step: &case_data::Step,
+) -> Result<Value, String> {
+    let mut command = env.command(
+        env!("CARGO_BIN_EXE_biomcp"),
+        &super::super::super::launch::arguments(args, globals),
+    );
+    let output = super::super::super::execution::output(&mut command, step.stdin.as_deref())?;
+    if output.status.code() != Some(step.exit) {
+        return Err(format!(
+            "CLI exit changed: expected {}, actual {:?}: {args:?}",
+            step.exit,
+            output.status.code()
+        ));
+    }
+    serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
+}
+
+fn reset_prepare(
+    env: &Environment,
+    case: &case_data::Case,
+    index: usize,
+    binary: &std::path::Path,
+) -> Result<(), String> {
+    for entry in std::fs::read_dir(env.root()).map_err(|e| e.to_string())? {
+        let path = entry.map_err(|e| e.to_string())?.path();
+        if path.is_dir() {
+            std::fs::remove_dir_all(path)
+        } else {
+            std::fs::remove_file(path)
+        }
+        .map_err(|e| e.to_string())?;
+    }
+    for directory in ["home", "config", "cache"] {
+        std::fs::create_dir(env.root().join(directory)).map_err(|e| e.to_string())?;
+    }
+    prepare_in(env, case, index, binary).map(|_| ())
+}
+
+fn single_parity(
+    env: &Environment,
+    case: &case_data::Case,
+    index: usize,
+    args: &[String],
+    globals: &[String],
+) -> Result<(), String> {
+    let frozen = super::super::super::launch::typed_baseline().ok_or("missing frozen baseline")?;
+    let current = std::path::Path::new(env!("CARGO_BIN_EXE_biomcp"));
+    let frames = [request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":args}}),
+    )];
+    let mut server_args = vec!["serve".into()];
+    server_args.extend_from_slice(globals);
+    reset_prepare(env, case, index, &frozen)?;
+    let old = super::baseline::exchange(env, &frozen, &server_args, &frames)?;
+    reset_prepare(env, case, index, current)?;
+    let new = super::baseline::exchange(env, current, &server_args, &frames)?;
+    let mut failure = None;
+    if old != new {
+        reset_prepare(env, case, index, current)?;
+        let control = super::baseline::exchange(env, current, &server_args, &frames)?;
+        failure = Some(if new == control {
+            format!(
+                "frozen/current deterministic single RAW mismatch: frozen={old:?}; current={new:?}"
+            )
+        } else {
+            format!(
+                "CURRENT/CURRENT nondeterministic single RAW mismatch in identical reset root: current={new:?}; control={control:?}; frozen={old:?}"
+            )
+        });
+    }
+    reset_prepare(env, case, index, current)?;
+    match failure {
+        Some(error) => Err(error),
+        None => Ok(()),
+    }
 }
 
 fn compare(
@@ -237,7 +336,7 @@ pub(super) fn rejects_overstrict_schema(tool: &Value) -> Result<(), String> {
     tool.as_object_mut()
         .ok_or("tool object")?
         .insert("inputSchema".into(), json!(false));
-    let error = match check(&tool) {
+    let error = match check(&tool, &mut 0) {
         Ok(()) => return Err("over-strict schema silently skipped recorded cases".into()),
         Err(error) => error,
     };

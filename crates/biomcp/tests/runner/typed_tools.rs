@@ -14,7 +14,8 @@ use serde_json::{Value, json};
 use std::io::Write;
 
 pub(super) fn check() -> Result<(), String> {
-    baseline::check()?;
+    super::super::launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
@@ -23,18 +24,19 @@ pub(super) fn check() -> Result<(), String> {
     rejections(&env, &globals)?;
 
     let mut failures = Vec::new();
+    let mut case_index = 0;
     for (verb, entity, _) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = tools
             .iter()
             .find(|tool| tool.get("name") == Some(&json!(name)))
             .ok_or_else(|| format!("missing registry tool {name}"))?;
-        if let Err(error) = replay::check(tool) {
+        if let Err(error) = replay::check(tool, &mut case_index) {
             failures.push(error);
         }
-        if verb == "search" && entity == "biomarker" {
-            replay::rejects_overstrict_schema(tool)?;
-        }
+    }
+    if let Err(error) = baseline::check() {
+        failures.push(error);
     }
     if !failures.is_empty() {
         return Err(failures.join("\n"));

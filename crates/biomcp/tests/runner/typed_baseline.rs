@@ -54,20 +54,25 @@ pub(super) fn check() -> Result<(), String> {
     }
     invalid_id_witness()
 }
-fn exchange(
+pub(super) fn exchange(
     env: &Environment,
     binary: &std::path::Path,
     args: &[String],
     frames: &[Value],
 ) -> Result<BTreeMap<String, String>, String> {
-    let child = env
-        .command(binary, args)
+    let mut transcript_args = args.to_vec();
+    transcript_args.extend(frames.iter().map(Value::to_string));
+    let mut command = env.command_with_arguments(binary, args, &transcript_args);
+    let child = command
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| e.to_string())?;
     let (status, stdout, stderr) = process::exchange(child, frames)?;
+    command
+        .record(status, &stdout, "mcp")
+        .map_err(|e| e.to_string())?;
     if !status.success() || !stderr.is_empty() {
         return Err(format!(
             "baseline process failed: {}",

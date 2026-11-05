@@ -21,6 +21,9 @@ cargo test --locked -p biomcp --test cases --no-run --message-format=json > "$ty
     python3 -c 'import json,sys; [print(v["message"].get("rendered","")) for s in open(sys.argv[1]) if (v:=json.loads(s)).get("reason")=="compiler-message"]' "$typed_scratch/runner.json"
     exit 1
 }
+mkdir -p target/typed-tools-transcript
+export BIOMCP_TRANSCRIPT_DIR="$(pwd)/target/typed-tools-transcript"
+echo "TYPED_EVIDENCE_DIR=$BIOMCP_TRANSCRIPT_DIR"
 typed_product=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="biomcp"))' "$typed_scratch/product.json")
 typed_runner=$(python3 -c 'import json,sys; print(next(v["executable"] for s in open(sys.argv[1]) if (v:=json.loads(s)).get("executable") and v["target"]["name"]=="cases"))' "$typed_scratch/runner.json")
 if [ "${3:-}" = guards ]; then
