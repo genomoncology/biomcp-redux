@@ -40,7 +40,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 &mut found,
                 query.source(),
                 format!(
-                    "The search for {input:?} returned no rows. {} record {} supplies the name {name:?}; the selected source was searched with that name. Returned rows and totals belong to the selected source.",
+                    "The search for {input:?} returned no rows. {} record {} supplies the name {name:?}; tried the selected source with that name. Returned rows and totals belong to the selected source.",
                     card.header.source, card.header.id
                 ),
             );
@@ -84,7 +84,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 &mut found,
                 query.source(),
                 format!(
-                    "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; the selected source resolved that name independently.",
+                    "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; tried resolving that name in the selected source. Only that source can supply its own record.",
                     card.header.source, card.header.id
                 ),
             );
