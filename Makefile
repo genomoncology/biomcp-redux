@@ -315,3 +315,7 @@ civic-evidence-structure:
 .PHONY: civic-evidence-combined
 civic-evidence-combined:
 	+sh scripts/check_civic_evidence.sh combined
+
+.PHONY: typed-reply-check
+typed-reply-check:
+	python3 scripts/trials.py --installed mcp-parity/typed-reply-forms-and-cap
