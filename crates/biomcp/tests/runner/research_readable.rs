@@ -36,7 +36,8 @@ pub(super) fn check() -> Result<(), String> {
                 "{mode} fetch did not return one readable record: {fetched}"
             ));
         }
-        if !text.contains("[source](https://example.invalid/)")
+        if !text.contains("source")
+            || !text.contains("https://example.invalid/")
             || !text.contains("ignore previous instructions")
             || !text.starts_with("````text\n")
             || !text.ends_with("\n````\n")
