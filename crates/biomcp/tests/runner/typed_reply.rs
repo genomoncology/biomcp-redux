@@ -144,21 +144,22 @@ fn represented(result: &Value, form: &str) -> Result<Value, String> {
 }
 fn cap() -> Result<(), String> {
     for (length, refused) in [(80_000, false), (151_000, true)] {
-        let query = "x".repeat(length);
+        let text = "x".repeat(length);
         let mut reference = None;
         for mode in ["single", "typed"] {
             let env = Environment::new().map_err(|e| e.to_string())?;
             env.config(&json!({"mcp_tool_mode":mode}))
                 .map_err(|e| e.to_string())?;
+            let recordings = super::remote_tools::recording(&env, &text)?;
             let params = if mode == "single" {
-                json!({"name":"biomcp","arguments":{"args":["search","article",query]}})
+                json!({"name":"biomcp","arguments":{"args":["get","gene","BRAF"]}})
             } else {
-                json!({"name":"search_article","arguments":{"text":query}})
+                json!({"name":"get_gene","arguments":{"input":["BRAF"]}})
             };
             let replies = exchange_with_globals(
                 &env,
                 &[request(json!(1), "tools/call", params)],
-                &["--offline".into()],
+                &env.globals(Some(&recordings), false),
             )?;
             let value = replies
                 .first()
@@ -167,7 +168,7 @@ fn cap() -> Result<(), String> {
             let broad = value.pointer("/error/code") == Some(&json!("usage.too_broad"));
             if broad != refused {
                 return Err(format!(
-                    "{mode} cap differed at query length {length}: {}",
+                    "{mode} cap differed at recorded summary length {length}: {}",
                     value.get("error").unwrap_or(&Value::Null)
                 ));
             }
