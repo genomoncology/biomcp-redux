@@ -1,0 +1,29 @@
+{
+  "feature": "variant-identity",
+  "live_check": "public; bounded current-main investigation, not routine",
+  "story": "Resolve a reference-qualified GRCh37 genomic HGVS before population and CIViC joins through typed MCP. The hosted report omitted its exact request; this is the stated existing-public-fixture assumption.",
+  "config": {
+    "mcp_tool_mode": "typed"
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "get_variant",
+        "arguments": {
+          "input": "NC_000012.11:g.25398284C>T",
+          "section": [
+            "clinvar",
+            "civic",
+            "hotspots",
+            "population"
+          ]
+        }
+      },
+      "expect": {
+        "/result/resolution": "resolved",
+        "/result/candidates/0/sections/civic/state": "data",
+        "/result/candidates/0/sections/population/state": "data"
+      }
+    }
+  ]
+}
