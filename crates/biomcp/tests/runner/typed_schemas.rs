@@ -128,9 +128,17 @@ fn size(tool: &Value) -> usize {
 }
 fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
-    if length > 2000 {
+    // search_trial exposes the complete supported filter set. Even with no descriptions,
+    // its required schema structure is 2058 characters; these optional filters cannot fit
+    // the ordinary budget. Keep the PM-approved sole exception bounded at 3500.
+    let limit = if tool["name"] == "search_trial" {
+        3500
+    } else {
+        2000
+    };
+    if length > limit {
         Err(format!(
-            "{}: {length} characters exceeds 2000",
+            "{}: {length} characters exceeds {limit}",
             tool["name"]
         ))
     } else {
