@@ -56,7 +56,11 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
                     && c.command.first() == path.first())
         })
         .collect();
-    if !public_grammar::overview(root, &mut commands, path)? {
+    let entity = path.len() == 1
+        && crate::grammar::command_paths()
+            .iter()
+            .any(|(_, entity, _)| path[0] == *entity);
+    if entity || !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }
     if path.is_empty() {
@@ -73,15 +77,6 @@ fn compact(commands: &mut [HelpCommand]) {
         command.reply_schemas.clear();
         command.examples.truncate(1);
         for argument in &mut command.arguments {
-            let accepted_form = argument
-                .description
-                .split(". ")
-                .next()
-                .unwrap_or_default()
-                .to_owned();
-            if argument.position.is_none() {
-                argument.description.clear();
-            }
             if !matches!(
                 argument.name.as_str(),
                 "--source" | "--sources" | "section" | "--section"
@@ -90,10 +85,10 @@ fn compact(commands: &mut [HelpCommand]) {
                     .iter()
                     .find(|(verb, entity, _)| command.command == [*verb, *entity])
             {
-                argument.description = format!(
-                    "{} allowed values; {accepted_form}. Full list: biomcp schema {schema}.",
+                argument.description.push_str(&format!(
+                    " {} allowed values. Full list: biomcp schema {schema}.",
                     argument.choices.len()
-                );
+                ));
                 argument.choices.clear();
             }
         }
@@ -163,7 +158,6 @@ pub(crate) fn commands(root: &crate::grammar::Root) -> io::Result<Vec<HelpComman
             command.reply_schemas = crate::schema::local_replies(&command.command);
         }
     }
-    source_settings::timing(&mut commands);
     Ok(commands)
 }
 fn command_description(verb: &str, entity: &str, schema: &Value) -> String {

@@ -65,7 +65,11 @@ fn check() -> Result<(), String> {
                 ("health", Some(commands)) => !commands.iter().any(|c| {
                     c.get("description")
                         .and_then(Value::as_str)
-                        .is_some_and(|s| s.contains("timed out") || s.contains("deadline exceeded"))
+                        .is_some_and(|s| {
+                            s.contains("timed out")
+                                || s.contains("deadline exceeded")
+                                || s.contains("refused this request")
+                        })
                 }),
                 _ => false,
             };
