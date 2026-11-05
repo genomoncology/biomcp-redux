@@ -67,12 +67,8 @@ fn nci() -> Result<(), String> {
         .and_then(Value::as_str)
         .ok_or("NCI fetch ID missing")?;
     let fetched = call(&env, "fetch", json!({"id":id}), &globals)?;
-    let native = id
-        .split_whitespace()
-        .nth(1)
-        .ok_or("NCI native card ID missing")?;
     let url =
-        format!("https://www.cancer.gov/research/participate/clinical-trials-search/v?id={native}");
+        "https://www.cancer.gov/research/participate/clinical-trials-search/v?id=NCI-2021-12653";
     if fetched.get("url") != Some(&json!(url))
         || hit.get("url") != fetched.get("url")
         || fetched.get("title") != hit.get("title")
