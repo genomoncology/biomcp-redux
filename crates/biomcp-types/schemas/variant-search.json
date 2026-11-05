@@ -148,5 +148,9 @@
     }
   },
   "title": "VariantSearch",
-  "type": "object"
+  "type": "object",
+  "x-get-search": {
+    "query": null,
+    "source": "myvariant"
+  }
 }

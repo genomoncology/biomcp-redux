@@ -4002,7 +4002,11 @@
       "required": [
         "command"
       ],
-      "type": "object"
+      "type": "object",
+      "x-get-search": {
+        "query": null,
+        "source": "myvariant"
+      }
     },
     {
       "additionalProperties": false,
