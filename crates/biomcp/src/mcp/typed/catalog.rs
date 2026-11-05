@@ -18,6 +18,19 @@ pub(super) fn excluded(context: crate::command::Context<'_>) -> io::Result<BTree
     Ok(sources)
 }
 
+pub(super) fn relevant(
+    verb: &str,
+    entity: &str,
+    schema: &Value,
+    excluded: &BTreeSet<Source>,
+) -> BTreeSet<Source> {
+    crate::help::coverage::command_sources(verb, entity, schema)
+        .into_iter()
+        .filter_map(|word| word.parse::<Source>().ok())
+        .filter(|source| excluded.contains(source))
+        .collect()
+}
+
 pub(super) fn schema(mut schema: Value, excluded: &BTreeSet<Source>) -> Value {
     filter(&mut schema, excluded);
     if excluded.is_empty() {
@@ -91,7 +104,8 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
         if crate::command::mcp_policy::always_refused(&query, context.globals.hosted) {
             continue;
         }
-        let query = schema(query, &excluded);
+        let relevant = relevant(verb, entity, &query, &excluded);
+        let query = schema(query, &relevant);
         schemas.insert(id.into(), query.to_string());
         commands.push((verb, entity, id));
     }
@@ -111,9 +125,14 @@ pub(super) fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool
             source.to_string(),
             biomcp_query::sources::display_name(*source).to_lowercase(),
         ]
-        .iter()
+        .into_iter()
+        .chain(
+            biomcp_query::sources::discovery_aliases(*source)
+                .iter()
+                .map(|alias| alias.to_lowercase()),
+        )
         .any(|name| {
-            text.match_indices(name).any(|(index, _)| {
+            text.match_indices(name.as_str()).any(|(index, _)| {
                 text.get(..index)
                     .and_then(|prefix| prefix.chars().next_back())
                     .is_none_or(|c| !c.is_alphanumeric())

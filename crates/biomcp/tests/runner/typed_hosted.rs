@@ -98,7 +98,15 @@ fn assert_hosted(hosted: &Value) -> Result<(), String> {
         if tool.pointer("/annotations/readOnlyHint") != Some(&json!(true)) {
             return Err("hosted catalog marks a refused write as writable".into());
         }
-        if tool.to_string().to_lowercase().contains("oncokb") || tool.to_string().contains("who-pq")
+        let advertised =
+            json!({"description":tool.get("description"),"inputSchema":tool.get("inputSchema")})
+                .to_string();
+        if advertised.to_lowercase().contains("oncokb")
+            || advertised.contains("who-pq")
+            || advertised
+                .to_lowercase()
+                .split(|c: char| !c.is_alphanumeric())
+                .any(|word| word == "who")
         {
             return Err(format!(
                 "restricted catalog advertises refused source: {}",
@@ -190,7 +198,7 @@ fn refused_source(server: &Server) -> Result<(), String> {
 }
 
 fn configured_exclusions(env: &Environment) -> Result<(), String> {
-    env.config(&json!({"mcp_tool_mode":"typed","disable_sources":["ctg"]}))
+    env.config(&json!({"mcp_tool_mode":"typed","disable_sources":["ctgov","who-pq"]}))
         .map_err(|e| e.to_string())?;
     let replies = exchange_with_globals(
         env,
@@ -198,13 +206,28 @@ fn configured_exclusions(env: &Environment) -> Result<(), String> {
         &["--offline".into()],
     )?;
     let reply = replies.first().ok_or("configured catalog")?;
-    capture("local-excluded-ctg", reply)?;
+    capture("local-excluded", reply)?;
+    if !reply.pointer("/result/tools").is_some_and(Value::is_array) {
+        return Err("configured catalog missing tools".into());
+    }
     if reply
         .to_string()
         .to_lowercase()
         .contains("clinicaltrials.gov")
     {
         return Err("excluded source display name remains in argument prose".into());
+    }
+    let marker = reply
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .and_then(|tools| {
+            tools
+                .iter()
+                .find(|tool| tool.get("name") == Some(&json!("search_diagnostic")))
+        })
+        .and_then(|tool| tool.pointer("/inputSchema/properties/marker/description"));
+    if marker != Some(&json!("WHO marker phrase.")) {
+        return Err("unrelated publisher exclusion hid allowed WHO diagnostic prose".into());
     }
     Ok(())
 }

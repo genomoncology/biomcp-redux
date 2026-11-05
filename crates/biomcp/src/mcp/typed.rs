@@ -83,6 +83,7 @@ pub(super) fn tools(
                 return Ok(None);
             }
             let read_only = read_only || !crate::command::mcp_policy::can_save(&schema);
+            let excluded = catalog::relevant(verb, entity, &schema, &excluded);
             let schema = catalog::schema(schema, &excluded);
             let mut tool = json!({"name":name(verb, entity),
             "description":description::render(verb, entity, &schema, &excluded),
