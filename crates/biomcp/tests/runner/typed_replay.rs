@@ -87,7 +87,7 @@ fn prepare_in(
 ) -> Result<(Vec<String>, Value), String> {
     let config = case.config.clone().unwrap_or_else(|| json!({}));
     env.config(&config).map_err(|e| e.to_string())?;
-    let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
+    let replay = response_cases::replay(env, case.replay.as_deref(), case.cache_acquired)?;
     for step in case
         .steps
         .get(..index)
@@ -214,8 +214,9 @@ fn reset_prepare(
     binary: &std::path::Path,
 ) -> Result<(), String> {
     for entry in std::fs::read_dir(env.root()).map_err(|e| e.to_string())? {
-        let path = entry.map_err(|e| e.to_string())?.path();
-        if path.is_dir() {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        if entry.file_type().map_err(|e| e.to_string())?.is_dir() {
             std::fs::remove_dir_all(path)
         } else {
             std::fs::remove_file(path)
