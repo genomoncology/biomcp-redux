@@ -130,10 +130,35 @@ pub(super) fn named_hint(
         return Ok(false);
     }
     let call = expected_next.pointer("/0/args").ok_or("named next args")?;
+    execute_named_next(env, server_args, call)?;
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "TYPED_NAMED_HINT args={args:?} exact_next_executed={call} ruling=m25441"
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
+fn execute_named_next(
+    env: &Environment,
+    server_args: &[String],
+    call: &Value,
+) -> Result<(), String> {
+    let mut recovery_args = server_args.to_vec();
+    // Validation-only cases have no source capture; keep the recovery probe offline.
+    if !server_args.iter().any(|arg| {
+        arg == "--replay"
+            || arg.starts_with("--replay=")
+            || arg == "--offline"
+            || arg == "--offline=true"
+    }) {
+        recovery_args.push("--offline".into());
+    }
     let replies = exchange(
         env,
         std::path::Path::new(env!("CARGO_BIN_EXE_biomcp")),
-        server_args,
+        &recovery_args,
         &[request(
             json!(1),
             "tools/call",
@@ -151,13 +176,7 @@ pub(super) fn named_hint(
             "approved named next call failed to execute: {call}: {reply}"
         ));
     }
-    use std::io::Write;
-    writeln!(
-        std::io::stdout(),
-        "TYPED_NAMED_HINT args={args:?} exact_next_executed={call} ruling=m25441"
-    )
-    .map_err(|e| e.to_string())?;
-    Ok(true)
+    Ok(())
 }
 
 fn named_next(args: &[String]) -> Option<Value> {
