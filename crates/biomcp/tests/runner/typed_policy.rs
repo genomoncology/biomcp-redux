@@ -14,28 +14,7 @@ pub(super) fn check() -> Result<(), String> {
     boundaries(&env)
 }
 fn hosted(env: &Environment) -> Result<(), String> {
-    let frames = [
-        request(
-            json!(1),
-            "tools/call",
-            json!({"name":"get_variant","arguments":{"input":"BRAF V600E"}}),
-        ),
-        request(
-            json!(2),
-            "tools/call",
-            json!({"name":"get_trial","arguments":{"input":["melanoma"]}}),
-        ),
-        request(
-            json!(5),
-            "tools/call",
-            json!({"name":"get_trial","arguments":{"input":["lung cancer"]}}),
-        ),
-        request(
-            json!(3),
-            "tools/call",
-            json!({"name":"article_pdf","arguments":{"input":"28944238","save":"saved.pdf"}}),
-        ),
-    ];
+    let frames = frames();
     let replies = exchange_with_globals(env, &frames, &["--offline".into(), "--hosted".into()])?;
     let server = Server::configured_globals(
         "127.0.0.1:0",
@@ -62,17 +41,33 @@ fn hosted(env: &Environment) -> Result<(), String> {
             .and_then(Value::as_str)
             .ok_or("summary")?;
         let expected = match index {
-            0 => "search_variant",
+            0 | 3 | 4 => "search_variant",
             1 | 2 => "search_trial",
             _ => "hosted",
         };
-        if index < 3 && !text.contains(expected) {
+        if index < 5 && !text.contains(expected) {
             return Err(format!("missing typed replacement {expected}: {text}"));
         }
         if index == 2 {
-            exact_next(env, text)?;
+            exact_next(
+                env,
+                text,
+                json!({"name":"search_trial","arguments":{"query":"lung cancer"}}),
+            )?;
         }
-        if index == 3
+        if index == 3 || index == 4 {
+            let query = if index == 3 {
+                "beta thalassemia"
+            } else {
+                "unrecognized"
+            };
+            exact_next(
+                env,
+                text,
+                json!({"name":"search_variant","arguments":{"query":query,"source":"myvariant"}}),
+            )?;
+        }
+        if index == 5
             && !stdio
                 .pointer("/result/structuredContent")
                 .ok_or("structured reply")?
@@ -116,10 +111,10 @@ fn boundaries(env: &Environment) -> Result<(), String> {
     Ok(())
 }
 
-fn exact_next(env: &Environment, text: &str) -> Result<(), String> {
+fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), String> {
     let (_, call) = text.split_once("next ").ok_or("typed next call missing")?;
     let call: Value = serde_json::from_str(call).map_err(|e| e.to_string())?;
-    if call != json!({"name":"search_trial","arguments":{"query":"lung cancer"}}) {
+    if call != expected {
         return Err(format!("wrong multiword name search: {call}"));
     }
     let replies = exchange_with_globals(
@@ -136,4 +131,39 @@ fn exact_next(env: &Environment, text: &str) -> Result<(), String> {
         return Err(format!("next call failed CLI validation: {reply}"));
     }
     Ok(())
+}
+
+fn frames() -> [Value; 6] {
+    [
+        request(
+            json!(1),
+            "tools/call",
+            json!({"name":"get_variant","arguments":{"input":"BRAF V600E"}}),
+        ),
+        request(
+            json!(2),
+            "tools/call",
+            json!({"name":"get_trial","arguments":{"input":["melanoma"]}}),
+        ),
+        request(
+            json!(5),
+            "tools/call",
+            json!({"name":"get_trial","arguments":{"input":["lung cancer"]}}),
+        ),
+        request(
+            json!(6),
+            "tools/call",
+            json!({"name":"get_variant","arguments":{"input":"beta thalassemia"}}),
+        ),
+        request(
+            json!(7),
+            "tools/call",
+            json!({"name":"get_variant","arguments":{"input":"unrecognized"}}),
+        ),
+        request(
+            json!(3),
+            "tools/call",
+            json!({"name":"article_pdf","arguments":{"input":"28944238","save":"saved.pdf"}}),
+        ),
+    ]
 }
