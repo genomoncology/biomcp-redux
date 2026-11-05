@@ -372,6 +372,7 @@ source-status-check:
 	cargo test --locked -p biomcp --test cases source-status $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases variant-hotspots/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases diagnostic/fda-cdx $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases local/commands $(TEST_THREADS)
 
 .PHONY: source-status-pre-review
 source-status-pre-review:
