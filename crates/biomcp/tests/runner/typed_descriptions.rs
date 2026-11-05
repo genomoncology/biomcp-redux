@@ -85,7 +85,7 @@ fn faers_drug(tools: &[Value]) -> Result<(), String> {
         .and_then(|tool| tool.pointer("/inputSchema/properties/drug/description"))
         .and_then(Value::as_str)
         .ok_or("typed FAERS drug description")?;
-    if !description.contains("FAERS") || !description.contains("repeat --drug") {
+    if description != "FAERS drug names; OR." {
         return Err(format!(
             "typed FAERS drug lost its owning description: {description}"
         ));
