@@ -414,3 +414,38 @@ label-display-check:
 label-display-baseline-check:
 	cd target/label-display-baseline && shasum -a 256 -c binary.sha256
 	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/label-display-baseline/biomcp" BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-baseline-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)
+
+.PHONY: help-contract-check
+help-contract-check:
+	cargo test --locked -p biomcp --bin biomcp every_rendered_flag_retains_its_schema_or_parser_description $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases schema-discovery/help-contract $(TEST_THREADS)
+
+.PHONY: help-metadata-prepare
+help-metadata-prepare:
+	+$(MAKE) schema-generate docs-generate help-contract-check
+
+.PHONY: help-metadata-final
+help-metadata-final:
+	+$(MAKE) schema-generate docs-generate help-contract-check
+	python3 scripts/refresh_help_cases.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+	cargo test --locked -p biomcp --test cases help $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+
+.PHONY: help-pre-review
+help-pre-review:
+	+$(MAKE) help-contract-check check-cheap current-schema-check schema-release-check
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: help-alias-check
+help-alias-check:
+	cargo test --locked -p biomcp --test cases help-entity-aliases $(TEST_THREADS)
+	cargo test --locked -p biomcp --test ratchets required_surface_has_asserted_calls $(TEST_THREADS)
+
+.PHONY: help-recovery-check
+help-recovery-check:
+	+$(MAKE) help-metadata-final check-cheap
+	cargo test --locked -p biomcp --test cases description-guidance $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
