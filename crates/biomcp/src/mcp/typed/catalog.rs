@@ -8,7 +8,9 @@ use std::{
     io,
 };
 
-pub(super) fn excluded(context: crate::command::Context<'_>) -> io::Result<BTreeSet<Source>> {
+pub(in crate::mcp) fn excluded(
+    context: crate::command::Context<'_>,
+) -> io::Result<BTreeSet<Source>> {
     let mut sources = crate::config::excluded_sources(context.globals, context.settings)
         .map_err(|error| io::Error::other(error.0))?;
     sources.extend(crate::command::hosted_use::disabled(
@@ -61,6 +63,60 @@ pub(super) fn schema(mut schema: Value, excluded: &BTreeSet<Source>) -> Value {
     schema
 }
 
+pub(in crate::mcp) fn section_allowed(
+    verb: &str,
+    entity: &str,
+    section: &str,
+    excluded: &BTreeSet<Source>,
+) -> bool {
+    let candidates = biomcp_query::sources::sources()
+        .map(|spec| spec.source)
+        .collect::<Vec<_>>();
+    biomcp_types::command_section_sources(verb, entity, section, &candidates).is_none_or(
+        |sources| {
+            sources
+                .into_iter()
+                .any(|source| !excluded.contains(&source))
+        },
+    )
+}
+
+pub(super) fn hosted_schema(
+    mut schema: Value,
+    verb: &str,
+    entity: &str,
+    excluded: &BTreeSet<Source>,
+) -> Value {
+    if let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) {
+        properties.remove("save");
+        properties.remove("replace");
+    }
+    filter_sections(&mut schema, verb, entity, excluded);
+    schema
+}
+
+fn filter_sections(node: &mut Value, verb: &str, entity: &str, excluded: &BTreeSet<Source>) {
+    match node {
+        Value::Object(fields) => {
+            if let Some(choices) = fields.get_mut("enum").and_then(Value::as_array_mut) {
+                choices.retain(|word| {
+                    word.as_str()
+                        .is_none_or(|word| section_allowed(verb, entity, word, excluded))
+                });
+            }
+            for value in fields.values_mut() {
+                filter_sections(value, verb, entity, excluded);
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                filter_sections(value, verb, entity, excluded);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn filter(node: &mut Value, excluded: &BTreeSet<Source>) {
     match node {
         Value::Object(fields) => {
@@ -105,7 +161,10 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
             continue;
         }
         let relevant = relevant(verb, entity, &query, &excluded);
-        let query = schema(query, &relevant);
+        let mut query = schema(query, &relevant);
+        if context.globals.hosted {
+            query = hosted_schema(query, verb, entity, &excluded);
+        }
         schemas.insert(id.into(), query.to_string());
         commands.push((verb, entity, id));
     }

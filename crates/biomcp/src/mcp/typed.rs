@@ -1,6 +1,6 @@
 //! Typed tools derive their contracts and CLI spelling from the command registry.
 mod arguments;
-mod catalog;
+pub(super) mod catalog;
 pub(super) use catalog::instructions;
 mod description;
 mod help;
@@ -84,7 +84,10 @@ pub(super) fn tools(
             }
             let read_only = read_only || !crate::command::mcp_policy::can_save(&schema);
             let excluded = catalog::relevant(verb, entity, &schema, &excluded);
-            let schema = catalog::schema(schema, &excluded);
+            let mut schema = catalog::schema(schema, &excluded);
+            if context.globals.hosted {
+                schema = catalog::hosted_schema(schema, verb, entity, &excluded);
+            }
             let mut tool = json!({"name":name(verb, entity),
             "description":description::render(verb, entity, &schema, &excluded),
             "inputSchema":arguments::input_with_limit(&schema, enum_limit),

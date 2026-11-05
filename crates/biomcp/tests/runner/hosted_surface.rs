@@ -7,8 +7,13 @@ pub(super) fn check() -> Result<(), String> {
     for mode in ["single", "typed"] {
         let server = Server::configured_globals(
             "127.0.0.1:0",
-            Some(json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov"]})),
-            None, None, None, &["--offline".into(), "--hosted".into()],
+            Some(
+                json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov"]}),
+            ),
+            None,
+            None,
+            None,
+            &["--offline".into(), "--hosted".into()],
         )?;
         for path in ["", "get gene", "sources"] {
             let params = if mode == "typed" {
@@ -19,51 +24,115 @@ pub(super) fn check() -> Result<(), String> {
                 json!({"name":"biomcp","arguments":{"args":args}})
             };
             let reply = call(&server, params)?;
-            let commands = reply.pointer("/result/commands").and_then(Value::as_array).ok_or("help commands")?;
+            let commands = reply
+                .pointer("/result/commands")
+                .and_then(Value::as_array)
+                .ok_or("help commands")?;
             for command in commands {
                 let path = command.get("command").cloned().unwrap_or(json!([]));
-                if matches!(path.get(0).and_then(Value::as_str), Some("health" | "sync" | "store" | "version" | "serve" | "key" | "mcp-config" | "skill")) {
+                if matches!(
+                    path.get(0).and_then(Value::as_str),
+                    Some(
+                        "health"
+                            | "sync"
+                            | "store"
+                            | "version"
+                            | "serve"
+                            | "key"
+                            | "mcp-config"
+                            | "skill"
+                    )
+                ) {
                     errors.push(format!("{mode}: unavailable command offered: {path}"));
                 }
-                if command.to_string().contains("--fresh") || command.to_string().contains("--config") {
+                if command.to_string().contains("--fresh")
+                    || command.to_string().contains("--config")
+                {
                     errors.push(format!("{mode}: host-only option in help {path}"));
                 }
             }
             if path == "sources" {
                 let text = reply.to_string();
-                if !text.contains("restricted") || !text.contains("operator") || !text.contains("self-hosted") {
+                if !text.contains("restricted")
+                    || !text.contains("operator")
+                    || !text.contains("self-hosted")
+                {
                     errors.push(format!("{mode}: source help lacks server policy"));
                 }
             }
         }
         for (verb, entity, args, input, expected) in [
-            ("search", "drug", vec!["artemether", "--source", "who-pq"], json!({"query":"artemether","source":"who-pq"}), "restricted"),
-            ("search", "trial", vec!["--condition", "melanoma"], json!({"condition":"melanoma"}), "operator"),
-            ("get", "gene", vec!["BRAF", "--source", "hgnc"], json!({"input":"BRAF","source":"hgnc"}), ""),
+            (
+                "search",
+                "drug",
+                vec!["artemether", "--source", "who-pq"],
+                json!({"query":"artemether","source":"who-pq"}),
+                "restricted",
+            ),
+            (
+                "search",
+                "trial",
+                vec!["--condition", "melanoma"],
+                json!({"condition":"melanoma"}),
+                "operator",
+            ),
+            (
+                "get",
+                "gene",
+                vec!["BRAF", "--source", "hgnc"],
+                json!({"input":"BRAF","source":"hgnc"}),
+                "",
+            ),
         ] {
             let params = if mode == "typed" {
                 json!({"name":format!("{verb}_{entity}"),"arguments":input})
             } else {
-                let mut words = vec![verb, entity]; words.extend(args);
+                let mut words = vec![verb, entity];
+                words.extend(args);
                 json!({"name":"biomcp","arguments":{"args":words}})
             };
             let reply = call(&server, params)?;
-            if !expected.is_empty() && (!reply.to_string().contains(expected) || !reply.to_string().contains("self-hosted")) {
-                errors.push(format!("{mode}: disabled source lacks {expected} explanation: {reply}"));
+            if !expected.is_empty()
+                && (!reply.to_string().contains(expected)
+                    || !reply.to_string().contains("self-hosted"))
+            {
+                errors.push(format!(
+                    "{mode}: disabled source lacks {expected} explanation: {reply}"
+                ));
             }
-            for step in reply.get("next").and_then(Value::as_array).into_iter().flatten() {
-                let args = step.get("args").and_then(Value::as_array).ok_or("next args")?;
-                if args.iter().any(|word| matches!(word.as_str(), Some("--fresh" | "--config" | "sync" | "health"))) {
+            for step in reply
+                .get("next")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+            {
+                let args = step
+                    .get("args")
+                    .and_then(Value::as_array)
+                    .ok_or("next args")?;
+                if args.iter().any(|word| {
+                    matches!(
+                        word.as_str(),
+                        Some("--fresh" | "--config" | "sync" | "health")
+                    )
+                }) {
                     errors.push(format!("{mode}: unavailable next: {step}"));
                 }
             }
         }
     }
-    if errors.is_empty() { Ok(()) } else { Err(errors.join("\n")) }
+    if errors.is_empty() {
+        Ok(())
+    } else {
+        Err(errors.join("\n"))
+    }
 }
 
 fn call(server: &Server, params: Value) -> Result<Value, String> {
     let frame = request(json!(1), "tools/call", params);
     let (_, reply) = server.request("POST", "/mcp", &frame.to_string())?;
-    reply.pointer("/result/structuredContent").cloned().ok_or_else(|| format!("missing tool reply: {reply}"))
+    reply
+        .pointer("/result/structuredContent")
+        .cloned()
+        .ok_or_else(|| format!("missing tool reply: {reply}"))
 }
