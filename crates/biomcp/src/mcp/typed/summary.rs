@@ -30,7 +30,7 @@ pub(super) fn render(
 }
 fn collect(root: &crate::grammar::Root, value: &Value, calls: &mut Vec<String>) {
     if let Some(args) = value.get("args").and_then(Value::as_array)
-        && let Some(call) = translate(root, args)
+        && let Some(call) = translate(root, args, true)
     {
         let text = call.to_string();
         if !calls.contains(&text) && calls.len() < 3 {
@@ -54,7 +54,7 @@ fn collect(root: &crate::grammar::Root, value: &Value, calls: &mut Vec<String>) 
         _ => {}
     }
 }
-fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
+fn translate(root: &crate::grammar::Root, args: &[Value], checked: bool) -> Option<Value> {
     let args = args.iter().map(Value::as_str).collect::<Option<Vec<_>>>()?;
     let mut argv = vec!["biomcp"];
     argv.extend(args);
@@ -97,6 +97,10 @@ fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
         arguments.insert(key.clone(), value);
     }
     let arguments = Value::Object(arguments);
+    if checked {
+        return checked_call(root, verb, entity, &schema, &arguments);
+    }
+    // Decode an invalid original getter so its name can be routed to a valid search.
     super::validation::valid(&input, &arguments)
         .then(|| json!({"name":super::name(verb, entity),"arguments":arguments}))
 }
@@ -108,7 +112,7 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
         .filter_map(|word| word.to_str())
         .map(Value::from)
         .collect::<Vec<_>>();
-    let original = translate(root, &values)?;
+    let original = translate(root, &values, false)?;
     let called = original.get("name")?.as_str()?.strip_prefix("get_")?;
     let entity = called.replace('_', "-");
     let (_, _, id) = crate::grammar::command_paths()
@@ -121,7 +125,6 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
     let input = input
         .as_str()
         .or_else(|| input.as_array()?.first()?.as_str())?;
-    let mut arguments = serde_json::Map::new();
     let words = input.split_whitespace().collect::<Vec<_>>();
     let shorthand = words.get(1).map(|change| {
         if change.starts_with("c.") {
@@ -133,32 +136,106 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
     if let [gene, change] = words.as_slice()
         && fields.contains_key("gene")
         && let Some(key) = shorthand.filter(|key| fields.contains_key(*key))
+        && let Some(call) = search_call(
+            root,
+            &entity,
+            &schema,
+            serde_json::Map::from_iter([("gene".into(), json!(gene)), (key.into(), json!(change))]),
+        )
     {
-        arguments.insert("gene".into(), json!(gene));
-        arguments.insert(key.into(), json!(change));
-    } else {
-        let key = fields
-            .iter()
-            .find(|(_, node)| node.get("x-positional").is_some())
-            .map(|(key, _)| key.as_str())
-            .or_else(|| {
-                ["query", "text", "name", "condition", "gene"]
-                    .into_iter()
-                    .find(|key| fields.contains_key(*key))
-            })?;
-        let node = super::arguments::resolve(fields.get(key)?, &schema);
-        arguments.insert(
-            key.into(),
-            if node["type"] == "array" {
-                json!([input])
-            } else {
-                json!(input)
-            },
-        );
+        return Some(call);
     }
-    let value = Value::Object(arguments);
-    super::validation::valid(&super::arguments::input(&schema), &value)
-        .then(|| json!({"name":super::name("search", &entity),"arguments":value}))
+    let key = fields
+        .iter()
+        .find(|(_, node)| node.get("x-positional").is_some())
+        .map(|(key, _)| key.as_str())
+        .or_else(|| {
+            ["query", "text", "name", "condition", "gene"]
+                .into_iter()
+                .find(|key| fields.contains_key(*key))
+        })?;
+    let value = if non_null_type(fields.get(key)?, &schema) == Some("array") {
+        json!([input])
+    } else {
+        json!(input)
+    };
+    search_call(
+        root,
+        &entity,
+        &schema,
+        serde_json::Map::from_iter([(key.into(), value)]),
+    )
+}
+
+// The command parser owns syntax and cross-field semantics, including source languages.
+fn search_call(
+    root: &crate::grammar::Root,
+    entity: &str,
+    schema: &Value,
+    mut arguments: serde_json::Map<String, Value>,
+) -> Option<Value> {
+    if let Some(call) = checked_call(
+        root,
+        "search",
+        entity,
+        schema,
+        &Value::Object(arguments.clone()),
+    ) {
+        return Some(call);
+    }
+    let input = super::arguments::input(schema);
+    let source = input.pointer("/properties/source")?;
+    for choice in choices(source) {
+        let value = if non_null_type(source, &input) == Some("array") {
+            json!([choice])
+        } else {
+            choice.clone()
+        };
+        arguments.insert("source".into(), value);
+        if let Some(call) = checked_call(
+            root,
+            "search",
+            entity,
+            schema,
+            &Value::Object(arguments.clone()),
+        ) {
+            return Some(call);
+        }
+    }
+    None
+}
+fn checked_call(
+    root: &crate::grammar::Root,
+    verb: &str,
+    entity: &str,
+    schema: &Value,
+    arguments: &Value,
+) -> Option<Value> {
+    if !super::validation::valid(&super::arguments::input(schema), arguments) {
+        return None;
+    }
+    let args = super::arguments::cli(root, verb, entity, schema, arguments)?;
+    let parsed = crate::grammar::parse(root, &args).ok()?;
+    matches!(parsed.action, Some(biomcp_query::Action::Run { .. }))
+        .then(|| json!({"name":super::name(verb,entity),"arguments":arguments}))
+}
+fn choices(node: &Value) -> Vec<&Value> {
+    if let Some(values) = node.get("enum").and_then(Value::as_array) {
+        return values.iter().collect();
+    }
+    if let Some(items) = node.get("items") {
+        return choices(items);
+    }
+    ["anyOf", "oneOf"]
+        .into_iter()
+        .flat_map(|key| {
+            node.get(key)
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .flat_map(choices)
+        })
+        .collect()
 }
 
 fn non_null_type<'a>(node: &'a Value, root: &'a Value) -> Option<&'a str> {
