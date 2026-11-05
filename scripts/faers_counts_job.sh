@@ -20,7 +20,10 @@ case "${1:-focused}" in
   scans)
     baseline=${2:?scans requires the current main baseline}
     mkdir -p target/0662-scans/baseline
-    git archive "$baseline" crates/biomcp-types/src/adverse_event crates/biomcp-query/src/adverse_event.rs crates/biomcp-query/src/adverse_event crates/biomcp-adapters/src/faers | tar -xf - -C target/0662-scans/baseline
+    git archive "$baseline" crates/biomcp-types/src/adverse_event crates/biomcp-query/src/adverse_event.rs crates/biomcp-query/src/adverse_event crates/biomcp-adapters/src/faers > target/0662-scans/baseline.tar
+    rm -rf target/0662-scans/baseline
+    mkdir -p target/0662-scans/baseline
+    tar -xf target/0662-scans/baseline.tar -C target/0662-scans/baseline
     for side in baseline current; do
       prefix=.
       test "$side" != baseline || prefix=target/0662-scans/baseline
