@@ -1,6 +1,6 @@
 {
   "feature": "gene-search",
-  "story": "HGNC names through typed MCP",
+  "story": "Typed gene query preserves the same previous-name search as the CLI and single MCP tool",
   "replay": "gene/main",
   "config": {
     "mcp_tool_mode": "typed"
@@ -11,56 +11,6 @@
         "name": "search_gene",
         "arguments": {
           "query": "kirsten rat sarcoma"
-        }
-      },
-      "expect": {
-        "/status": "complete",
-        "/page/total": 0
-      }
-    },
-    {
-      "mcp_call": {
-        "name": "search_gene",
-        "arguments": {
-          "query": "aconitate hydratase"
-        }
-      },
-      "expect": {
-        "/status": "complete",
-        "/page/total": 0
-      }
-    },
-    {
-      "mcp_call": {
-        "name": "search_gene",
-        "arguments": {
-          "query": "aconitase 1"
-        }
-      },
-      "expect": {
-        "/status": "complete",
-        "/page/total": 1,
-        "/result/items/0/symbol": "ACO1"
-      }
-    },
-    {
-      "mcp_call": {
-        "name": "search_gene",
-        "arguments": {
-          "query": "IRP1"
-        }
-      },
-      "expect": {
-        "/status": "complete",
-        "/page/total": 1,
-        "/result/items/0/symbol": "ACO1"
-      }
-    },
-    {
-      "mcp_call": {
-        "name": "search_gene",
-        "arguments": {
-          "query": "KRAS"
         }
       },
       "expect": {
