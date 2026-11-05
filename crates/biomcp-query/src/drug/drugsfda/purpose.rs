@@ -85,7 +85,9 @@ fn read(
                 status::reason(error),
             ));
         }
-        Err(RequestError::Input(biomcp_fetch::InputError::Host | biomcp_fetch::InputError::Path)) => {
+        Err(RequestError::Input(
+            biomcp_fetch::InputError::Host | biomcp_fetch::InputError::Path,
+        )) => {
             return Ok(unavailable(
                 "The linked FDA letter URL was rejected; its supplement purpose is unavailable.",
                 Some(document),

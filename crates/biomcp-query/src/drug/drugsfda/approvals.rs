@@ -3,7 +3,8 @@ use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugApprovals, DrugGet, DrugRecords, PageInfo, Reason, Request, Section, Source, StepKind,
+    DrugApprovals, DrugFdaSubmission, DrugGet, DrugRecords, PageInfo, Reason, Request, Section,
+    Source, StepKind,
 };
 pub(super) fn select(
     cx: &Ctx<'_>,
@@ -41,49 +42,9 @@ pub(super) fn select(
             },
         }
     } else {
-        let offset = query.section_offset().unwrap_or(0);
-        let mut records = row.submissions(
-            offset,
-            query
-                .section_limit()
-                .unwrap_or(biomcp_types::DEFAULT_DRUG_APPROVALS_LIMIT),
-        )?;
-        super::purpose::enrich(cx, &mut records, deadline, out)?;
-        let returned = records.len() as u32;
-        let total = row.submission_count() as u64;
-        out.page = Some(PageInfo {
-            offset,
-            returned,
-            total,
-            pool: None,
-            truncated: None,
-        });
-        if let Some(next) = offset
-            .checked_add(returned)
-            .filter(|n| returned > 0 && u64::from(*n) < total)
-            && let Some(request) = crate::next::checked(
-                query.at_section_offset(next),
-                biomcp_types::Source::Drugsfda,
-                &mut out.problems,
-            )
-        {
-            out.next.push(crate::next::Step::run(
-                StepKind::Page,
-                &[biomcp_types::Source::Drugsfda],
-                Request::GetDrug(request),
-                cx.fresh,
-            ));
-        }
         Section::Data {
             source: Source::Drugsfda,
-            data: DrugRecords {
-                records,
-                offset,
-                total: Some(total),
-                truncated: None,
-                version: None,
-                retrieved: received_date(fetched),
-            },
+            data: history(cx, query, row, fetched, deadline, out)?,
         }
     };
     out.body = (DrugApprovals {
@@ -95,4 +56,55 @@ pub(super) fn select(
     })
     .with_query(query.clone());
     Ok(())
+}
+
+fn history(
+    cx: &Ctx<'_>,
+    query: &DrugGet,
+    row: &source::Application,
+    fetched: Option<i64>,
+    deadline: biomcp_fetch::Deadline<'_>,
+    out: &mut Outcome,
+) -> Result<DrugRecords<DrugFdaSubmission>, RequestError> {
+    let offset = query.section_offset().unwrap_or(0);
+    let mut records = row.submissions(
+        offset,
+        query
+            .section_limit()
+            .unwrap_or(biomcp_types::DEFAULT_DRUG_APPROVALS_LIMIT),
+    )?;
+    super::purpose::enrich(cx, &mut records, deadline, out)?;
+    let returned = records.len() as u32;
+    let total = row.submission_count() as u64;
+    out.page = Some(PageInfo {
+        offset,
+        returned,
+        total,
+        pool: None,
+        truncated: None,
+    });
+    if let Some(next) = offset
+        .checked_add(returned)
+        .filter(|n| returned > 0 && u64::from(*n) < total)
+        && let Some(request) = crate::next::checked(
+            query.at_section_offset(next),
+            biomcp_types::Source::Drugsfda,
+            &mut out.problems,
+        )
+    {
+        out.next.push(crate::next::Step::run(
+            StepKind::Page,
+            &[biomcp_types::Source::Drugsfda],
+            Request::GetDrug(request),
+            cx.fresh,
+        ));
+    }
+    Ok(DrugRecords {
+        records,
+        offset,
+        total: Some(total),
+        truncated: None,
+        version: None,
+        retrieved: received_date(fetched),
+    })
 }
