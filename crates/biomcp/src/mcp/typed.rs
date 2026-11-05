@@ -80,8 +80,11 @@ pub(super) fn tools(
             "description":description::render(verb, entity, &schema),
             "inputSchema":arguments::input_with_limit(&schema, enum_limit),
             "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true}});
-            if output_schema {
-                tool["outputSchema"] = super::output_schema::for_command(verb, entity, id)?;
+            if output_schema && let Some(fields) = tool.as_object_mut() {
+                fields.insert(
+                    "outputSchema".into(),
+                    super::output_schema::for_command(verb, entity, id)?,
+                );
             }
             Ok(tool)
         })

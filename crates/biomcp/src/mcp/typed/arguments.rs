@@ -27,7 +27,7 @@ fn compact(node: &Value, root: &Value, optional: bool, enum_limit: usize) -> Val
                 result.insert(
                     key.clone(),
                     if kinds.len() == 1 {
-                        kinds[0].clone()
+                        kinds.first().cloned().unwrap_or(Value::Null)
                     } else {
                         json!(kinds)
                     },
@@ -59,7 +59,7 @@ fn compact(node: &Value, root: &Value, optional: bool, enum_limit: usize) -> Val
                     .map(|v| compact(v, root, optional, enum_limit))
                     .collect();
                 if branches.len() == 1 {
-                    if let Some(fields) = branches[0].as_object() {
+                    if let Some(fields) = branches.first().and_then(Value::as_object) {
                         result.extend(fields.clone());
                     }
                 } else {
@@ -75,8 +75,9 @@ pub(super) fn input(schema: &Value) -> Value {
     input_with_limit(schema, crate::config::DEFAULT_TYPED_ENUM_LIMIT)
 }
 pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
-    let properties = schema["properties"]
-        .as_object()
+    let properties = schema
+        .get("properties")
+        .and_then(Value::as_object)
         .into_iter()
         .flatten()
         .flat_map(|(key, node)| {
@@ -93,19 +94,24 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
                     .keys()
                     .map(|flag| {
                         let mut property = json!({"type":"boolean"});
-                        if let Some(text) = &description {
-                            property["description"] = json!(text);
+                        if let Some(text) = &description
+                            && let Some(fields) = property.as_object_mut()
+                        {
+                            fields.insert("description".into(), json!(text));
                         }
                         (flag.clone(), property)
                     })
                     .collect()
             } else {
-                let optional = !schema["required"]
-                    .as_array()
+                let optional = !schema
+                    .get("required")
+                    .and_then(Value::as_array)
                     .is_some_and(|v| v.contains(&json!(key)));
                 let mut property = compact(node, schema, optional, enum_limit);
-                if let Some(text) = description {
-                    property["description"] = json!(text);
+                if let Some(text) = description
+                    && let Some(fields) = property.as_object_mut()
+                {
+                    fields.insert("description".into(), json!(text));
                 }
                 vec![(key.clone(), property)]
             }
