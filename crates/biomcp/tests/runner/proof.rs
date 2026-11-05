@@ -69,7 +69,12 @@ fn put(root: &Path, relative: &str, step: &str) -> Check {
     fs::write(
         path,
         format!(
-            "live_check: Local runner contract proof; excluded from provider live checks.\nfeature: schema-discovery\nstory: Runner contract probe\nsteps:\n  - run: [schema, biomcp.source/1]\n{step}\n"
+            concat!(
+                "live_check: Local runner contract proof; excluded from provider live checks.\n",
+                "feature: schema-discovery\nstory: Runner contract probe\nsteps:\n",
+                "  - run: [schema, biomcp.source/1]\n{step}\n"
+            ),
+            step = step
         ),
     )
     .map_err(|error| error.to_string())
