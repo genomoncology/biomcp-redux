@@ -70,6 +70,10 @@ fn example(argument: &HelpArgument, examples: &[Vec<String>]) -> String {
         .first()
         .cloned()
         .or_else(|| argument.default.clone())
+        .or_else(|| {
+            (argument.value_type == "integer" || argument.value_type == "number")
+                .then(|| argument.minimum.unwrap_or(0).to_string())
+        })
         .unwrap_or_else(|| format!("<{}>", argument.value_type));
     format!(
         "{} {}",
