@@ -98,3 +98,15 @@ pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Opti
         arguments.next.insert(0, step);
     }
 }
+
+pub(super) fn guidance(next: Step, path: [&str; 2]) -> Vec<Step> {
+    let corrected = next
+        .args
+        .first()
+        .is_some_and(|word| word.as_ref() != "help");
+    let mut steps = vec![next];
+    if corrected {
+        steps.push(super::validation::help(path));
+    }
+    steps
+}

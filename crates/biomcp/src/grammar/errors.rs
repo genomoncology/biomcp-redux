@@ -304,7 +304,7 @@ pub(super) fn source_filter(
                     .message()
                     .or(Some(biomcp_types::ErrorMessage::UnsupportedFilter)),
                 valid_values: Some(valid.into()),
-                next: vec![next],
+                next: super::recovery::guidance(next, [verb, entity]),
             })),
             registered_argument: true,
         });
