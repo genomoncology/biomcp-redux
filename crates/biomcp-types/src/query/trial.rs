@@ -31,10 +31,10 @@ pub struct TrialSearch(Box<Fields>);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    #[doc = "clinicaltrials or nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."]
+    #[doc = "clinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."]
     #[serde(default, skip_serializing_if = "TrialSource::is_default")]
     source: TrialSource,
-    #[doc = "Registry text; OR.\n\
+    #[doc = "Text; OR.\n\
         Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(length(max = MAX_ALTERNATIVES)))]
@@ -143,7 +143,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "TrialSex"))]
     sex: Option<TrialSex>,
-    #[doc = "Age, years.\nAge in years; unstated source bounds count as no limit."]
+    #[doc = "Age years.\nAge in years; unstated source bounds count as no limit."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -159,12 +159,12 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     facility: Option<Text>,
-    #[doc = "Country label; biomcp_help search trial.\n\
+    #[doc = "Country; biomcp_help search trial.\n\
         Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter."]
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(schema_with = "country::schema"))]
     country: Box<[Box<str>]>,
-    #[doc = "Latitude, degrees.\nRadius center latitude in degrees."]
+    #[doc = "Latitude degrees.\nRadius center latitude in degrees."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -172,7 +172,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     lat: Option<Text>,
-    #[doc = "Longitude, degrees.\nRadius center longitude in degrees."]
+    #[doc = "Longitude degrees.\nRadius center longitude in degrees."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -236,10 +236,10 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     next_page: Option<Text>,
-    #[doc = "Rows to skip.\nZero-based offset of the first row in this continuation page."]
+    /// Zero-based offset of the first row in this continuation page.
     #[serde(default)]
     offset: u32,
-    #[doc = "Total only.\nSource total only; no returned study rows."]
+    #[doc = "Total.\nSource total only; no returned study rows."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
     #[doc = "Posted results.\nRequire posted source results."]

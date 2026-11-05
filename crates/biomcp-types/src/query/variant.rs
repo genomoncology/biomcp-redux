@@ -18,7 +18,7 @@ pub struct VariantGet(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    #[doc = "rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.\n\
+    #[doc = "rsID, CAid, clinvar:N, VCV, HGVS or VCF.\n\
         rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates."]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     input: VariantInput,
@@ -63,11 +63,11 @@ struct Fields {
         skip_serializing_if = "Option::is_none"
     )]
     build: Option<Build>,
-    #[doc = "Page size.\nCandidate rows per page; more remain reachable through typed next commands."]
+    /// Candidate rows per page; more remain reachable through typed next commands.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    #[doc = "Candidate offset.\nCandidate rows to skip in source order."]
+    /// Candidate rows to skip in source order.
     #[serde(default)]
     offset: u32,
 }
