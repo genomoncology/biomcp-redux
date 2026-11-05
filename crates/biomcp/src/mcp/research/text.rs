@@ -37,9 +37,13 @@ pub(super) fn source(text: &str) -> String {
     let mut out = String::new();
     let mut remaining = decoded.as_str();
     while let Some(start) = remaining.find('<') {
-        out.push_str(&remaining[..start]);
-        remaining = &remaining[start..];
-        let name = remaining.strip_prefix("</").unwrap_or(&remaining[1..]);
+        let (prefix, tail) = remaining.split_at(start);
+        out.push_str(prefix);
+        remaining = tail;
+        let name = remaining
+            .strip_prefix("</")
+            .or_else(|| remaining.strip_prefix('<'))
+            .unwrap_or(remaining);
         if name.starts_with(|ch: char| ch.is_ascii_alphabetic() || ch == '!') {
             let mut reader = Reader::from_str(remaining);
             reader.config_mut().check_end_names = false;
@@ -70,12 +74,12 @@ pub(super) fn source(text: &str) -> String {
             };
             if let Some(marker) = marker {
                 out.push_str(marker);
-                remaining = &remaining[reader.buffer_position() as usize..];
+                remaining = remaining.split_at(reader.buffer_position() as usize).1;
                 continue;
             }
         }
         out.push('<');
-        remaining = &remaining[1..];
+        remaining = remaining.split_at(1).1;
     }
     out.push_str(remaining);
     out
@@ -85,23 +89,24 @@ fn entities(text: &str) -> String {
     let mut out = String::new();
     let mut remaining = text;
     while let Some(start) = remaining.find('&') {
-        out.push_str(&remaining[..start]);
-        remaining = &remaining[start..];
+        let (prefix, tail) = remaining.split_at(start);
+        out.push_str(prefix);
+        remaining = tail;
         if let Some(end) = remaining
             .as_bytes()
             .iter()
             .take(64)
             .position(|ch| *ch == b';')
         {
-            let reference = &remaining[..=end];
+            let (reference, tail) = remaining.split_at(end + 1);
             if let Ok(decoded) = quick_xml::escape::unescape(reference) {
                 out.push_str(&decoded);
-                remaining = &remaining[end + 1..];
+                remaining = tail;
                 continue;
             }
         }
         out.push('&');
-        remaining = &remaining[1..];
+        remaining = remaining.split_at(1).1;
     }
     out.push_str(remaining);
     out
