@@ -43,38 +43,7 @@ pub(super) fn check() -> Check {
                     .filter(|rows| !rows.is_empty())
                     .ok_or_else(|| format!("{mode} {source} {filter}: {search}"))?;
                 if filter == "name" {
-                    let header = rows[0].get("header").ok_or("candidate header")?;
-                    let id = header
-                        .get(field)
-                        .and_then(Value::as_str)
-                        .ok_or("candidate ID")?;
-                    let mut args = vec![id.into()];
-                    let mut input = json!({"id":id,"source":source});
-                    if let Some(supplement) = header
-                        .get("supplement_number")
-                        .and_then(Value::as_str)
-                        .filter(|s| !s.is_empty())
-                    {
-                        args.extend(["--supplement".into(), supplement.into()]);
-                        input["supplement"] = json!(supplement);
-                    }
-                    let get = call(
-                        &env,
-                        mode,
-                        "get",
-                        source,
-                        &args,
-                        input,
-                        "device-search-roundtrip",
-                    )?;
-                    let pointer = if source == "fda-pma" {
-                        format!("/result/header/{field}")
-                    } else {
-                        format!("/result/{field}")
-                    };
-                    if get.pointer(&pointer) != Some(&json!(id)) {
-                        return Err(format!("returned ID did not open: {get}"));
-                    }
+                    open(&env, mode, source, &rows[0], field)?;
                 }
             }
             let empty = call(
@@ -175,4 +144,40 @@ fn call(
         return Err(format!("{mode} {verb} {source}: {reply}"));
     }
     Ok(body.clone())
+}
+
+fn open(env: &Environment, mode: &str, source: &str, row: &Value, field: &str) -> Check {
+    let header = row.get("header").ok_or("candidate header")?;
+    let id = header
+        .get(field)
+        .and_then(Value::as_str)
+        .ok_or("candidate ID")?;
+    let mut args = vec![id.into()];
+    let mut input = json!({"id":id,"source":source});
+    if let Some(supplement) = header
+        .get("supplement_number")
+        .and_then(Value::as_str)
+        .filter(|s| !s.is_empty())
+    {
+        args.extend(["--supplement".into(), supplement.into()]);
+        input["supplement"] = json!(supplement);
+    }
+    let get = call(
+        env,
+        mode,
+        "get",
+        source,
+        &args,
+        input,
+        "device-search-roundtrip",
+    )?;
+    let pointer = if source == "fda-pma" {
+        format!("/result/header/{field}")
+    } else {
+        format!("/result/{field}")
+    };
+    if get.pointer(&pointer) != Some(&json!(id)) {
+        return Err(format!("returned ID did not open: {get}"));
+    }
+    Ok(())
 }
