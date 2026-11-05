@@ -10,7 +10,7 @@ type Check<T = ()> = Result<T, String>;
 pub(super) fn check() -> Check {
     for mode in ["single", "typed"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
-        env.config(&json!({"mcp_tool_mode":mode,"typed_output_schema":true}))
+        env.config(&json!({"mcp_tool_mode":mode,"mcp_typed_output_schema":true}))
             .map_err(|e| e.to_string())?;
         discovery(&env, mode)?;
         for (source, name, manufacturer, field) in [
