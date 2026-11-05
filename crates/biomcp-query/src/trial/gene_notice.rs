@@ -2,10 +2,10 @@
 use biomcp_adapters::ctgov::{GeneContext, GeneMention};
 use biomcp_types::{SourceNotice, SourceOutcome};
 
-pub(super) fn append(gene: &str, contexts: Vec<GeneContext>, source: &mut SourceOutcome) {
+pub(super) fn append(gene: &str, contexts: &[GeneContext], source: &mut SourceOutcome) {
     for context in contexts {
         let id = context.nct_id;
-        let message = match context.mention {
+        let message = match &context.mention {
             GeneMention::ExclusionOnly { context } => format!(
                 "Trial {id}: {gene} appears only under the registered exclusion-criteria heading \
                  in the returned protocol fields: \"{context}\". This is not an eligibility assessment."
