@@ -4,6 +4,8 @@ mod reply_form;
 mod schemas;
 #[path = "typed_tools.rs"]
 mod typed;
+#[path = "typed_descriptions.rs"]
+mod typed_descriptions;
 #[path = "typed_help.rs"]
 mod typed_help;
 #[path = "typed_hosted.rs"]
@@ -26,6 +28,11 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/typed-description-contract", || {
+            let env = Environment::new()?;
+            env.config(&json!({"mcp_tool_mode":"typed"}))?;
+            typed_descriptions::check(&env).map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-hosted-catalog", || {
             typed_hosted::check().map_err(Into::into)
         }),
