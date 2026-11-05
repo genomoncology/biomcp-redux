@@ -6,6 +6,7 @@ mod policy;
 mod replay;
 // Installed-artifact typed tool discovery, schema refusal and CLI equivalence.
 use super::super::{
+    http::Server,
     launch::Environment,
     mcp::{exchange_with_globals, request},
 };
@@ -90,73 +91,55 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
     Ok(tools.clone())
 }
 fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
-    let refused = exchange_with_globals(
-        env,
-        &[request(
-            json!(3),
-            "tools/call",
-            json!({
-        "name":"search_trial","arguments":{"source":"not-a-source"}}),
-        )],
-        globals,
+    let server = Server::configured_globals(
+        "127.0.0.1:0", Some(json!({"mcp_tool_mode":"typed"})),
+        None, None, None, globals,
     )?;
-    if refused
-        .first()
-        .ok_or("missing rejection reply")?
-        .pointer("/error/code")
-        != Some(&json!(-32602))
-    {
-        return Err("wrong enum accepted".into());
-    }
-    for (name, arguments) in [
-        (
-            "get_variant",
-            json!({"input":"rs113488022","civic_profile":"1"}),
-        ),
-        ("search_disease", json!({"text":42})),
+    for arguments in [
+        json!({"source":"not-a-source"}),
+        json!({"limit":"not-a-number"}),
+        json!({"unexpected":"value"}),
+        json!([]),
     ] {
-        let reply = exchange_with_globals(
-            env,
-            &[request(
-                json!(9),
-                "tools/call",
-                json!({"name":name,"arguments":arguments}),
-            )],
-            globals,
-        )?;
-        if reply
-            .first()
-            .ok_or("missing rejection reply")?
-            .pointer("/error/code")
-            != Some(&json!(-32602))
+        let frame = request(json!(3), "tools/call",
+            json!({"name":"search_trial","arguments":arguments}));
+        let replies = exchange_with_globals(env, &[frame.clone()], globals)?;
+        let stdio = replies.first().ok_or("missing rejection reply")?;
+        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 || stdio["result"] != http["result"] {
+            return Err(format!("typed validation transports differ: {stdio} / {http}"));
+        }
+        let envelope = &stdio["result"]["structuredContent"];
+        if stdio.pointer("/result/isError") != Some(&json!(true))
+            || envelope["status"] != "usage"
+            || !envelope["error"]["option"].is_string()
+            || !envelope["error"]["valid_values"].is_array()
         {
-            return Err(format!(
-                "nullable scalar type accepted by {name}: {}",
-                reply.first().ok_or("missing rejection reply")?
-            ));
+            return Err(format!("missing recoverable usage envelope: {stdio}"));
+        }
+        let text = stdio.pointer("/result/content/0/text").and_then(Value::as_str)
+            .ok_or("missing summary")?;
+        let (_, next) = text.lines().next().ok_or("summary line")?
+            .split_once("next ").ok_or_else(|| format!("missing typed correction: {text}"))?;
+        let next: Value = serde_json::from_str(next).map_err(|e| e.to_string())?;
+        let frame = request(json!(4), "tools/call", next);
+        let replies = exchange_with_globals(env, &[frame.clone()], globals)?;
+        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 || replies[0]["result"] != http["result"]
+            || replies[0].pointer("/result/structuredContent/status") == Some(&json!("usage"))
+        {
+            return Err(format!("typed correction rejected: {replies:?} / {http}"));
         }
     }
-    for arguments in [
-        json!({"condition":42}),
-        json!({"unexpected":"value"}),
-        json!({"limit":"10"}),
-    ] {
-        let reply = exchange_with_globals(
-            env,
-            &[request(
-                json!(4),
-                "tools/call",
-                json!({"name":"search_trial","arguments":arguments}),
-            )],
-            globals,
-        )?;
-        if reply
-            .first()
-            .ok_or("missing rejection reply")?
-            .pointer("/error/code")
-            != Some(&json!(-32602))
+    for limit in [json!(10), json!("10")] {
+        let frame = request(json!(5), "tools/call",
+            json!({"name":"search_trial","arguments":{"limit":limit}}));
+        let replies = exchange_with_globals(env, &[frame.clone()], globals)?;
+        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 || replies[0]["result"] != http["result"]
+            || replies[0].pointer("/result/structuredContent/status") == Some(&json!("usage"))
         {
-            return Err("invalid argument shape accepted".into());
+            return Err(format!("CLI-compatible integer rejected: {replies:?} / {http}"));
         }
     }
     Ok(())
