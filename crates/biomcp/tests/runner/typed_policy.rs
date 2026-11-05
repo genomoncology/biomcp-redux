@@ -69,6 +69,9 @@ fn hosted(env: &Environment) -> Result<(), String> {
         if index < 3 && !text.contains(expected) {
             return Err(format!("missing typed replacement {expected}: {text}"));
         }
+        if index == 2 {
+            exact_next(env, text)?;
+        }
         if index == 3
             && !stdio
                 .pointer("/result/structuredContent")
@@ -109,6 +112,28 @@ fn boundaries(env: &Environment) -> Result<(), String> {
         != Some(&json!("biomcp"))
     {
         return Err("flag did not override config".into());
+    }
+    Ok(())
+}
+
+fn exact_next(env: &Environment, text: &str) -> Result<(), String> {
+    let (_, call) = text.split_once("next ").ok_or("typed next call missing")?;
+    let call: Value = serde_json::from_str(call).map_err(|e| e.to_string())?;
+    if call != json!({"name":"search_trial","arguments":{"query":"lung cancer"}}) {
+        return Err(format!("wrong multiword name search: {call}"));
+    }
+    let replies = exchange_with_globals(
+        env,
+        &[request(json!(20), "tools/call", call)],
+        &["--offline".into()],
+    )?;
+    let reply = replies.first().ok_or("next call reply missing")?;
+    let status = reply
+        .pointer("/result/structuredContent/status")
+        .and_then(Value::as_str)
+        .ok_or_else(|| format!("next call rejected: {reply}"))?;
+    if status == "usage" {
+        return Err(format!("next call failed CLI validation: {reply}"));
     }
     Ok(())
 }

@@ -123,18 +123,18 @@ fn replacement(root: &crate::grammar::Root, args: &[std::ffi::OsString]) -> Opti
         .or_else(|| input.as_array()?.first()?.as_str())?;
     let mut arguments = serde_json::Map::new();
     let words = input.split_whitespace().collect::<Vec<_>>();
-    if let [gene, change] = words.as_slice()
-        && fields.contains_key("gene")
-    {
-        arguments.insert("gene".into(), json!(gene));
-        let key = if change.starts_with("c.") {
+    let shorthand = words.get(1).map(|change| {
+        if change.starts_with("c.") {
             "coding"
         } else {
             "protein"
-        };
-        if !fields.contains_key(key) {
-            return None;
         }
+    });
+    if let [gene, change] = words.as_slice()
+        && fields.contains_key("gene")
+        && let Some(key) = shorthand.filter(|key| fields.contains_key(*key))
+    {
+        arguments.insert("gene".into(), json!(gene));
         arguments.insert(key.into(), json!(change));
     } else {
         let key = fields
