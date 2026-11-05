@@ -1,0 +1,140 @@
+{
+  "feature": "query-validation",
+  "live_check": "offline parser-only; no source requests",
+  "story": "Argument descriptions retain source guidance across nullable numeric and boolean forms.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "aspirin",
+        "--civic-profile",
+        "old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "aspirin",
+        "--section-limit",
+        "old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "aspirin",
+        "--section-offset",
+        "old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "rs113488022",
+        "--civic-profile",
+        "old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--count-only=old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--exact-condition=old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--has-results=old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "BRCA1",
+        "--no-preprints=old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "BRCA1",
+        "--open-access=old-value"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}
