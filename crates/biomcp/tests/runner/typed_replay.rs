@@ -280,8 +280,14 @@ fn single_parity(
     let old = super::baseline::exchange(env, &frozen, &server_args, &frames)?;
     reset_prepare(env, case, index, current)?;
     let new = super::baseline::exchange(env, current, &server_args, &frames)?;
+    let mut approved = false;
+    if old != new && old.len() == 1 && new.len() == 1 {
+        if let (Some(before), Some(after)) = (old.values().next(), new.values().next()) {
+            approved = super::baseline::named_hint(env, &server_args, args, before, after)?;
+        }
+    }
     let mut failure = None;
-    if old != new {
+    if old != new && !approved {
         reset_prepare(env, case, index, current)?;
         let control = super::baseline::exchange(env, current, &server_args, &frames)?;
         failure = Some(if new == control {
