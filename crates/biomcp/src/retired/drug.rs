@@ -8,7 +8,6 @@ pub(super) const SEARCH: &[(&str, ErrorMessage)] = &[
     ("--region", ErrorMessage::DrugRegion),
     ("--product-type", ErrorMessage::DrugProductType),
     ("--target", ErrorMessage::DrugUnproved),
-    ("--indication", ErrorMessage::DrugUnproved),
     ("--type", ErrorMessage::DrugUnproved),
     ("--atc", ErrorMessage::DrugUnproved),
     ("--pharm-class", ErrorMessage::DrugUnproved),

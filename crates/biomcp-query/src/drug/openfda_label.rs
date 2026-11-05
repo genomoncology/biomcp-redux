@@ -17,13 +17,16 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         })
         .with_query(query.clone()),
     );
-    let Some(name) = query.query() else {
-        return super::unsupported(query.source(), out);
-    };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let discovery = source::search(&leg, name, query.limit(), query.offset());
+    let discovery = match (query.indication(), query.query()) {
+        (Some(indication), name) => {
+            source::search_indication(&leg, indication, name, query.limit(), query.offset())
+        }
+        (None, Some(name)) => source::search(&leg, name, query.limit(), query.offset()),
+        (None, None) => return super::unsupported(query.source(), out),
+    };
     let result = discovery.page.and_then(|page| {
         out.problems.extend(page.problems);
         let items = page
@@ -32,7 +35,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             .iter()
             .map(|r| {
                 let mut header = r.header()?;
-                header.matched_name = r.name_match(name);
+                header.matched_name = query.query().and_then(|name| r.name_match(name));
                 Ok(header)
             })
             .collect::<Result<Vec<_>, RequestError>>()?;

@@ -3,7 +3,8 @@
   "live_check": "Synthetic indication selector and paging fixture; no live calls",
   "replay": "drug/indication",
   "config": {
-    "mcp_tool_mode": "typed"
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
   },
   "story": "Typed drug search maps the indication field to the same source-bound query.",
   "steps": [
