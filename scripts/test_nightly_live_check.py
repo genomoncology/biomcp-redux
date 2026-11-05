@@ -298,6 +298,42 @@ class NightlyCommand(unittest.TestCase):
             with self.subTest(change=change):
                 self.classified(classification_case(change), expected, code)
 
+    @unittest.skipUnless(os.environ.get('BIOMCP_NIGHTLY_REPLAY_HOST'), 'stored report replay is opt-in')
+    def test_stored_reports_change_only_failed_root_consequences(self):
+        import collections
+        if __package__:
+            from . import nightly_live_check as current
+        else:
+            import nightly_live_check as current
+        baseline = subprocess.check_output(['git', 'merge-base', 'HEAD', 'origin/main'],
+                                           cwd=ROOT, text=True).strip()
+        source = subprocess.check_output(['git', 'show', baseline + ':scripts/nightly_live_check.py'],
+                                         cwd=ROOT, text=True)
+        old = {'__name__': 'baseline_classifier'}
+        exec(compile(source, 'baseline_classifier', 'exec'), old)
+        reader = """import json,pathlib
+root=pathlib.Path('/home/ian/workspace/data/biomcp-redux/0068-scheduled')
+print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/report.json'))
+                  if p.parent.name[:8]>='20261027']))
+"""
+        import shlex
+        rows = json.loads(subprocess.check_output(['ssh', os.environ['BIOMCP_NIGHTLY_REPLAY_HOST'],
+            shlex.join(['python3', '-c', reader])], text=True))
+        self.assertTrue(rows)
+        for name, raw in rows:
+            report = json.loads(raw[raw.index('{'):])
+            changes, counts = [], collections.Counter()
+            for row in report.get('case_sample', []):
+                before, after = old['classify_case'](row), current.classify_case(row)
+                counts[after] += 1
+                if before != after:
+                    changes.append((row['case'], before, after))
+                    self.assertEqual((before, after), ('failure', 'outage'), row['case'])
+                    self.assertTrue(any(current.failed_status(request.get('status'))
+                        and request.get('status') != 429 for command in row['witness']
+                        for request in command['live']['requests']), row['case'])
+            print(json.dumps({'run': name, 'counts': dict(counts), 'changes': changes}), flush=True)
+
     def test_failed_discovery_explains_only_its_dependents_and_cached_retries(self):
         import copy
         for status in (429, 500, None):
