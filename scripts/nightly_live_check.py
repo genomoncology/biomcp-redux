@@ -274,8 +274,8 @@ def failure_plan(before, after, discoveries, peers):
     if (removed and not added and roots
             and all(not discovery_sequences(root) for root in roots.values())
             and all((request.get('provenance') or {}).get('input_context')
-                    and valid_ids((request.get('provenance') or {}).get('inputs', {}).get('ids'))
-                    and (request.get('provenance') or {}).get('inputs', {}).get('namespace')
+                    and valid_ids(((request.get('provenance') or {}).get('inputs') or {}).get('ids'))
+                    and ((request.get('provenance') or {}).get('inputs') or {}).get('namespace')
                     not in discoveries for request in removed)):
         return 'uncertain'
     return dependent_change(removed, added, discoveries, before, healthy,
