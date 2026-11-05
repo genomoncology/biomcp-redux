@@ -393,3 +393,8 @@ help-metadata-final:
 	python3 scripts/refresh_help_cases.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
 	cargo test --locked -p biomcp --test cases help $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+
+.PHONY: help-pre-review
+help-pre-review:
+	+$(MAKE) check-cheap current-schema-check schema-release-check
+	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
