@@ -32,6 +32,13 @@ drug-alias-review-check: drug-alias-check drug-alias-review-tools current-schema
 drug-alias-scans:
 	sh scripts/check_trial_results.sh scans $(DRUG_ALIAS_BASELINE)
 
+.PHONY: drug-alias-main-integration
+drug-alias-main-integration:
+	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	cargo test --locked -p biomcp --test cases drug/source-aliases
+	cargo test --locked -p biomcp --test cases drug/indication.yaml
+	$(MAKE) drug-alias-review-tools current-schema-check
+
 .PHONY: faers-counts-integration-check
 faers-counts-integration-check:
 	sh scripts/faers_counts_job.sh mechanical
