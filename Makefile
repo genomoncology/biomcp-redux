@@ -377,3 +377,7 @@ source-status-check:
 .PHONY: source-status-pre-review
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
+
+.PHONY: label-priority-check
+label-priority-check:
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-priority-evidence" cargo test --locked -p biomcp --test cases drug-label/indication-priority-and-native-pages $(TEST_THREADS)
