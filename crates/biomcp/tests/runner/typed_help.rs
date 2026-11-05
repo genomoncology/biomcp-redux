@@ -53,14 +53,17 @@ pub(super) fn discovery() -> Result<(), String> {
             request(json!(5), "server/discover", json!({})),
         ],
     )?;
-    let tools = reply(&typed, 1)?
+    discovery_contract(&single, &typed)
+}
+fn discovery_contract(single: &[Value], typed: &[Value]) -> Result<(), String> {
+    let tools = reply(typed, 1)?
         .pointer("/result/tools")
         .and_then(Value::as_array)
         .ok_or("typed catalog")?;
     if tools.len() != biomcp_types::command_paths().len() + 3 {
         return Err("typed catalog count".into());
     }
-    let original = reply(&single, 1)?
+    let original = reply(single, 1)?
         .pointer("/result/tools")
         .and_then(Value::as_array)
         .ok_or("single catalog")?;
@@ -74,17 +77,17 @@ pub(super) fn discovery() -> Result<(), String> {
         }
     }
     for id in [2, 3, 4] {
-        let expected = reply(&single, id)?
+        let expected = reply(single, id)?
             .pointer("/result/structuredContent")
             .ok_or("single result")?;
-        if reply(&typed, id)?.pointer("/result/structuredContent") != Some(expected) {
+        if reply(typed, id)?.pointer("/result/structuredContent") != Some(expected) {
             return Err(format!("typed parity {id}"));
         }
     }
-    if reply(&typed, 4)?.pointer("/result/isError") != Some(&json!(false)) {
+    if reply(typed, 4)?.pointer("/result/isError") != Some(&json!(false)) {
         return Err("help call refused".into());
     }
-    let instructions = reply(&typed, 5)?
+    let instructions = reply(typed, 5)?
         .pointer("/result/instructions")
         .and_then(Value::as_str)
         .ok_or("instructions")?;

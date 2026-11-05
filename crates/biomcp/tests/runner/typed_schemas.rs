@@ -13,9 +13,6 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 pub(super) fn check(env: &Environment) -> Result<(), String> {
     let tools = catalog(env, json!({"mcp_tool_mode":"typed"}))?;
     let mut failures = Vec::new();
-    if tools.len() != biomcp_types::command_paths().len() + 3 {
-        return Err("typed catalog must include every command plus help and research tools".into());
-    }
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = tools
@@ -101,12 +98,16 @@ fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
         &[request(json!(1), "tools/list", json!({}))],
         &["--offline".into()],
     )?;
-    replies
+    let tools = replies
         .first()
         .and_then(|r| r.pointer("/result/tools"))
         .and_then(Value::as_array)
         .cloned()
-        .ok_or("catalog missing".into())
+        .ok_or("catalog missing")?;
+    if tools.len() != biomcp_types::command_paths().len() + 3 {
+        return Err("typed catalog must include every command plus help and research tools".into());
+    }
+    Ok(tools)
 }
 fn nested_description(node: &Value, top: bool) -> bool {
     match node {
