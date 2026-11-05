@@ -9,6 +9,7 @@ mod next;
 mod openfda_label;
 mod recall;
 mod resolve;
+mod aliases;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::mychem;
@@ -17,6 +18,9 @@ use biomcp_types::{
 };
 /// Search the one selected source, without fan-out or selecting an identity.
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+    aliases::search(cx, query)
+}
+fn search_source(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::FdaDrugRecall {
         return recall::search(cx, query);
     }
@@ -71,7 +75,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 /// Get one exact native document, without fallback or automatic section expansion.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = if query.is_name() {
-        resolve::get(cx, query)
+        aliases::get(cx, query)
     } else {
         selected_get(cx, query)
     };

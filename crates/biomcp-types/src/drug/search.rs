@@ -127,6 +127,22 @@ impl TryFrom<SearchFields> for DrugSearch {
     }
 }
 impl DrugSearch {
+    /// Retry a source-stated name while preserving every native filter and page selector.
+    pub fn with_name(&self, name: Text) -> Self {
+        let mut query = self.clone();
+        query.0.query = Some(name);
+        query
+    }
+    /// Select the native ChEMBL synonym filter without changing the request's other fields.
+    pub fn with_name_selector(&self, selector: super::DrugNameSelector) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.name_selector = Some(selector);
+        fields.try_into()
+    }
+    /// Whether the caller chose a literal ChEMBL name filter.
+    pub fn explicit_name_selector(&self) -> bool {
+        self.0.name_selector.is_some()
+    }
     /// Inclusive WHO prequalification lower bound.
     pub fn prequalified_from(&self) -> Option<biodata::PartialDate> {
         self.0.prequalified_from
