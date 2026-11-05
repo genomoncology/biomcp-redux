@@ -65,7 +65,8 @@ pub(super) fn check() -> Result<(), String> {
                     return Err("HTTP tool call failed".into());
                 }
                 let http = http.get("result").ok_or("HTTP result missing")?;
-                let value = check_pair(stdio, http, form.unwrap_or("both"), index)?;
+                let value = check_pair(stdio, http, form.unwrap_or("both"), index)
+                    .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
                 } else if reference.get(index) != Some(&value) {
@@ -91,8 +92,20 @@ fn check_pair(stdio: &Value, http: &Value, form: &str, index: usize) -> Result<V
     if stdio.get("isError") != Some(&failed) || http.get("isError") != Some(&failed) {
         return Err("reply form lost tool error status".into());
     }
-    if check_content(http, form)? != value {
-        return Err("HTTP and stdio reply values differ".into());
+    let http_value = check_content(http, form)?;
+    if let Some(difference) = super::super::assertions::difference(&value, &http_value, "") {
+        if let Some(context) = super::super::transcript::current() {
+            context.record(
+                "trial/mcp-parity/reply-forms/mismatch",
+                &json!({
+                    "kind":"reply-form-mismatch", "form":form, "call":index,
+                    "stdio":&value, "http":&http_value
+                }),
+            )?;
+        }
+        return Err(format!(
+            "stdio/HTTP values differ form={form} call={index}: {difference}"
+        ));
     }
     Ok(value)
 }
