@@ -79,7 +79,7 @@ fn search(env: &Environment, mode: &str, query: &str, offset: u32) -> Result<Val
         .ok_or("search envelope missing".into())
 }
 
-// Exact reported command, using the retained native page projected to its default limit.
+// Exact reported command, using its unchanged retained native ten-row page.
 pub(super) fn display_names() -> Check {
     let mut failures = Vec::new();
     for mode in ["single", "typed"] {
@@ -102,7 +102,7 @@ pub(super) fn display_names() -> Check {
             .pointer("/result/structuredContent")
             .ok_or("display-name envelope missing")?;
         if reply.pointer("/result/isError") != Some(&json!(false))
-            || body.pointer("/page/returned") != Some(&json!(5))
+            || body.pointer("/page/returned") != Some(&json!(10))
             || body.pointer("/page/total") != Some(&json!(109))
         {
             return Err(format!("{mode} native label page changed: {reply}"));

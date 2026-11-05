@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "openfda-label",
-  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22chronic%20myeloid%20leukemia%22%20OR%20openfda.generic_name%3A%22chronic%20myeloid%20leukemia%22&limit=5&sort=effective_time%3Adesc",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22chronic%20myeloid%20leukemia%22%20OR%20openfda.generic_name.exact%3A%22chronic%20myeloid%20leukemia%22&limit=10&sort=effective_time%3Adesc",
   "exchanges": [
     {
       "status": 404,

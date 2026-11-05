@@ -409,3 +409,8 @@ label-priority-integration: fmt label-priority-check label-display-check
 label-display-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases drug/label-display-body.yaml $(TEST_THREADS)
+
+.PHONY: label-display-baseline-check
+label-display-baseline-check:
+	cd target/label-display-baseline && shasum -a 256 -c binary.sha256
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/label-display-baseline/biomcp" BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-baseline-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)
