@@ -283,7 +283,14 @@ fn every_rendered_flag_retains_its_schema_or_parser_description() -> Check {
                 .arguments
                 .iter()
                 .filter(|argument| {
-                    argument.name.starts_with("--") && argument.description.trim().is_empty()
+                    argument.name.starts_with("--")
+                        && argument
+                            .description
+                            .split(" Value form:")
+                            .next()
+                            .unwrap_or_default()
+                            .trim()
+                            .is_empty()
                 })
                 .map(|argument| format!("{} {}", command.command.join(" "), argument.name))
         })
