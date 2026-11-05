@@ -1,0 +1,204 @@
+{
+  "article/citations/citing.yaml step 1": [
+    "/next/0/args/6",
+    "/page/pool/created",
+    "/page/pool/expires",
+    "/page/pool/id"
+  ],
+  "article/citations/edge-cursors.yaml step 1": [
+    "/next/0/args/8",
+    "/page/pool/id"
+  ],
+  "article/citations/references.yaml step 1": [
+    "/next/0/args/6",
+    "/page/pool/id"
+  ],
+  "article/edges/anonymous-row.yaml step 1": [
+    "/next/0/args/8",
+    "/page/pool/id"
+  ],
+  "article/edges/references.yaml step 1": [
+    "/next/0/args/6",
+    "/page/pool/id"
+  ],
+  "article/edges/window.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "article/filters/since.yaml step 1": [
+    "/next/0/args/8",
+    "/page/pool/id"
+  ],
+  "article/filters/since.yaml step 2": [
+    "/next/0/args/8",
+    "/page/pool/id"
+  ],
+  "article/fold/failed-pubmed.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "article/litsense/licensed-subset.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "article/litvar/akt1-rsid-citations.yaml step 1": [
+    "/next/0/args/5",
+    "/page/pool/id"
+  ],
+  "article/litvar/akt1-rsid-citations.yaml step 2": [
+    "/next/0/args/7",
+    "/page/pool/id"
+  ],
+  "article/recommendations/multi.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "article/recommendations/single.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "article/recommendations/single.yaml step 2": [
+    "/page/pool/id"
+  ],
+  "article/search/synthetic-four-term-short.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "author/papers-details.yaml step 1": [
+    "/next/1/args/7"
+  ],
+  "author/papers-details.yaml step 2": [
+    "/next/1/args/7"
+  ],
+  "author/papers-disabled-pool.yaml step 1": [
+    "/next/1/args/6"
+  ],
+  "author/papers.yaml step 1": [
+    "/next/1/args/6"
+  ],
+  "author/search-disabled-pool.yaml step 1": [
+    "/next/2/args/6",
+    "/page/pool/id"
+  ],
+  "author/search.yaml step 1": [
+    "/next/2/args/6",
+    "/page/pool/id"
+  ],
+  "author/source-alias.yaml step 1": [
+    "/next/2/args/6",
+    "/page/pool/id"
+  ],
+  "author/source-alias.yaml step 2": [
+    "/next/2/args/6",
+    "/page/pool/created",
+    "/page/pool/expires",
+    "/page/pool/id"
+  ],
+  "gwas/examples.yaml step 3": [
+    "/next/0/args/7",
+    "/page/pool/id",
+    "/result/continuation/query/pool",
+    "/result/page/pool/id"
+  ],
+  "orcid/refused-member.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "orcid/refused-member.yaml step 2": [
+    "/page/pool/id"
+  ],
+  "orcid/visibility.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "pathway-sections/all.yaml step 1": [
+    "/next/5/args/6",
+    "/next/6/args/5",
+    "/next/7/args/6",
+    "/result/events/data/page/pool/id",
+    "/result/genes/data/page/pool/id"
+  ],
+  "pathway-sections/examples.yaml step 1": [
+    "/next/5/args/6",
+    "/next/6/args/5",
+    "/result/page/pool/id"
+  ],
+  "pathway-sections/examples.yaml step 2": [
+    "/next/5/args/7",
+    "/result/page/pool/id"
+  ],
+  "pathway-sections/examples.yaml step 3": [
+    "/next/0/args/6",
+    "/result/page/pool/id"
+  ],
+  "pathway-sections/examples.yaml step 4": [
+    "/next/0/args/8",
+    "/result/page/pool/created",
+    "/result/page/pool/expires",
+    "/result/page/pool/id"
+  ],
+  "protein/cards.yaml step 2": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 10": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 11": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 12": [
+    "/page/pool/created",
+    "/page/pool/expires",
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 2": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 3": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 4": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 5": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 6": [
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 7": [
+    "/next/0/args/6",
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 8": [
+    "/next/0/args/6",
+    "/page/pool/id"
+  ],
+  "protein/examples.yaml step 9": [
+    "/page/pool/id"
+  ],
+  "protein/native-reviewed.yaml step 1": [
+    "/page/pool/id"
+  ],
+  "protein/native-sections.yaml step 7": [
+    "/page/pool/id"
+  ],
+  "protein/paging.yaml step 1": [
+    "/next/5/args/6",
+    "/page/pool/created",
+    "/page/pool/expires",
+    "/page/pool/id"
+  ],
+  "protein/paging.yaml step 2": [
+    "/page/pool/id"
+  ],
+  "readme/article.yaml step 1": [
+    "/next/0/args/6",
+    "/page/pool/created",
+    "/page/pool/expires",
+    "/page/pool/id"
+  ],
+  "study/examples.yaml step 3": [
+    "/page/pool/id",
+    "/result/page/pool/id"
+  ],
+  "study/examples.yaml step 4": [
+    "/page/pool/id",
+    "/result/page/pool/id"
+  ]
+}
