@@ -57,9 +57,13 @@ fn filter(node: &mut Value, excluded: &BTreeSet<Source>) {
     match node {
         Value::Object(fields) => {
             if let Some(text) = fields.get("description").and_then(Value::as_str)
-                && excluded
-                    .iter()
-                    .any(|source| text.to_lowercase().contains(&source.to_string()))
+                && text
+                    .split(|c: char| !c.is_alphanumeric() && c != '-')
+                    .any(|word| {
+                        word.to_lowercase()
+                            .parse::<Source>()
+                            .is_ok_and(|source| excluded.contains(&source))
+                    })
             {
                 fields.insert(
                     "description".into(),
