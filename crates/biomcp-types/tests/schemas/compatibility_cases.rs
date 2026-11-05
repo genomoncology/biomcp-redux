@@ -253,37 +253,6 @@ fn cli_flag_annotations_are_metadata_with_checked_shape() {
 }
 
 #[test]
-fn required_component_annotations_are_metadata_with_checked_sources() {
-    let old = contract(json!({"name":{"type":"string"}}));
-    for annotation in [
-        json!({"x-required-component":"meddra"}),
-        json!({"x-required-components":{"maude":"gmdn"}}),
-    ] {
-        let mut new = old.clone();
-        new["properties"]["name"]
-            .as_object_mut()
-            .expect("property")
-            .extend(annotation.as_object().expect("annotation").clone());
-        assert!(check(&old, &new).is_ok());
-    }
-    for annotation in [
-        json!({"x-required-component":null}),
-        json!({"x-required-component":"unknown-component"}),
-        json!({"x-required-components":[]}),
-        json!({"x-required-components":{}}),
-        json!({"x-required-components":{"maude":false}}),
-        json!({"x-required-components":{"unknown":"gmdn"}}),
-    ] {
-        let mut new = old.clone();
-        new["properties"]["name"]
-            .as_object_mut()
-            .expect("property")
-            .extend(annotation.as_object().expect("annotation").clone());
-        assert!(check(&old, &new).is_err());
-    }
-}
-
-#[test]
 fn compatibility_checks_unique_array_items_without_waiving_versions() {
     let old = contract(json!({"rows":{"type":"array","items":{"type":"string"}}}));
     let mut unique = old.clone();

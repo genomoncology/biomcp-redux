@@ -84,3 +84,36 @@ fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
     }
     Ok(())
 }
+
+#[test]
+fn required_component_annotations_are_metadata_with_checked_sources() {
+    use serde_json::json;
+    let old = json!({"$id":"biodata.example/1", "type":"object", "properties":{"name":{"type":"string"}},
+        "required":["name"], "additionalProperties":false});
+    for annotation in [
+        json!({"x-required-component":"meddra"}),
+        json!({"x-required-components":{"maude":"gmdn"}}),
+    ] {
+        let mut new = old.clone();
+        new["properties"]["name"]
+            .as_object_mut()
+            .expect("property")
+            .extend(annotation.as_object().expect("annotation").clone());
+        assert!(super::compatibility::check(&old, &new).is_ok());
+    }
+    for annotation in [
+        json!({"x-required-component":null}),
+        json!({"x-required-component":"unknown-component"}),
+        json!({"x-required-components":[]}),
+        json!({"x-required-components":{}}),
+        json!({"x-required-components":{"maude":false}}),
+        json!({"x-required-components":{"unknown":"gmdn"}}),
+    ] {
+        let mut new = old.clone();
+        new["properties"]["name"]
+            .as_object_mut()
+            .expect("property")
+            .extend(annotation.as_object().expect("annotation").clone());
+        assert!(super::compatibility::check(&old, &new).is_err());
+    }
+}
