@@ -38,7 +38,10 @@ def identities(pid):
 
 
 def bind_fixtures(candidate, proof, output):
-    fixture_tree = subprocess.check_output(['git', 'ls-tree', '-rz', candidate, '--', 'tests', 'sdlc/planning/slices/gene.md'])
+    helpers = [str(Path('scripts') / path.relative_to(proof / 'fixtures/support/scripts'))
+               for path in (proof / 'fixtures/support/scripts').rglob('*') if path.is_file()]
+    fixture_tree = subprocess.check_output(['git', 'ls-tree', '-rz', candidate, '--', 'tests',
+                                            'sdlc/planning/slices/gene.md', *helpers])
     fixture_manifest = {}
     for entry in fixture_tree.split(b'\0'):
         if not entry:
@@ -52,7 +55,7 @@ def bind_fixtures(candidate, proof, output):
             raise ValueError('runtime fixture differs from candidate: ' + str(path))
         fixture_manifest[str(path)] = {'git_blob': expected, 'sha256': hashlib.sha256(data).hexdigest()}
     actual_paths = {str(path) for path in Path('tests').rglob('*') if path.is_file() or path.is_symlink()}
-    actual_paths.add('sdlc/planning/slices/gene.md')
+    actual_paths.update(['sdlc/planning/slices/gene.md', *helpers])
     if actual_paths != set(fixture_manifest):
         raise ValueError('runtime fixture file selection differs from candidate')
     (output / 'fixture-source.json').write_text(json.dumps(fixture_manifest, sort_keys=True, indent=2) + '\n')
@@ -149,7 +152,7 @@ def main():
                'tooling_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                'python': sys.version, 'retained_fixture_sha256': digest(output / 'retained-fixtures.json'),
                'toolchain': json.loads(Path('release/toolchain.json').read_text()),
-               'source_files': {str(path): digest(path) for path in [Path(__file__), Path('release/smoke.py'), Path('release/test_smoke.py')]}}
+               'source_files': {str(path): digest(path) for path in [Path(__file__), Path('release/smoke.py'), Path('release/test_smoke.py'), Path('release/gate.py')]}}
     (output / 'binding.json').write_text(json.dumps(binding, indent=2) + '\n')
     env = dict(os.environ, BIOMCP_INSTALLED_BINARY=str(binary), BIOMCP_CASE_RUNNER=str(proof / 'case-runner'),
                BIOMCP_TEST_FIXTURES=str(proof / 'fixtures'),
