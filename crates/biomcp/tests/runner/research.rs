@@ -65,7 +65,11 @@ pub(super) fn call_checked(
         .pointer("/content/0/text")
         .and_then(Value::as_str)
         .ok_or("missing text")?;
-    if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *value {
+    // Typed mode prefixes its summary; both modes retain the compact JSON as the last line.
+    if serde_json::from_str::<Value>(text.lines().last().unwrap_or_default())
+        .map_err(|e| e.to_string())?
+        != *value
+    {
         return Err("research text differs from structured content".into());
     }
     {
