@@ -166,7 +166,10 @@ if __name__ == "__main__":
         signal.signal(signal.SIGHUP, interrupted)
         own_process([sys.executable, __file__, "sleeper", sys.argv[2]], 180)
     elif action == "sleeper":
-        Path(sys.argv[2]).write_text(str(os.getpid()))
+        ready = Path(sys.argv[2])
+        staging = ready.with_name(ready.name + ".starting")
+        staging.write_text(str(os.getpid()))
+        staging.replace(ready)
         time.sleep(180)
     elif action == "transport":
         transport(sys.argv[2])
