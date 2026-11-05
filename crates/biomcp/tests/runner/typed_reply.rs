@@ -1,5 +1,6 @@
 //! Installed typed replies preserve configured representations and the JSON-value cap.
 use super::super::{
+    http::Server,
     launch::{self, Environment},
     mcp::{exchange_with_globals, request},
 };
@@ -31,7 +32,7 @@ fn forms() -> Result<(), String> {
             request(
                 json!(1),
                 "tools/call",
-                json!({"name":"search_trial","arguments":{"condition":"melanoma"}}),
+                json!({"name":"search_trial","arguments":{"condition":["melanoma"]}}),
             ),
             request(
                 json!(2),
@@ -49,16 +50,10 @@ fn forms() -> Result<(), String> {
                     .find(|reply| reply.get("id") == frame.get("id"))
                     .and_then(|reply| reply.get("result"))
                     .ok_or("tool result missing")?;
-                let value = represented(result, form.unwrap_or("both"))?;
-                if result.get("isError") != Some(&json!(index == 1)) {
-                    return Err("typed reply lost error status".into());
-                }
-                if index == 0 && value.get("status") != Some(&json!("complete")) {
-                    return Err(format!("recorded search did not succeed: {value}"));
-                }
-                Ok(value)
+                checked(result, form.unwrap_or("both"), index)
             })
             .collect::<Result<Vec<_>, String>>()?;
+        http_forms(config, &capture, &frames, form.unwrap_or("both"))?;
         if let Some(reference) = &reference {
             if reference != &values {
                 return Err("reply form changed typed JSON".into());
@@ -68,6 +63,42 @@ fn forms() -> Result<(), String> {
         }
     }
     Ok(())
+}
+fn http_forms(
+    config: Value,
+    capture: &std::path::Path,
+    frames: &[Value],
+    form: &str,
+) -> Result<(), String> {
+    let server = Server::configured_key(
+        "127.0.0.1:0",
+        Some(config),
+        Some(capture.to_owned()),
+        None,
+        None,
+    )?;
+    for (index, frame) in frames.iter().enumerate() {
+        let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 {
+            return Err("HTTP typed call failed".into());
+        }
+        checked(
+            reply.get("result").ok_or("HTTP result missing")?,
+            form,
+            index,
+        )?;
+    }
+    Ok(())
+}
+fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
+    let value = represented(result, form)?;
+    if result.get("isError") != Some(&json!(index == 1)) {
+        return Err("typed reply lost error status".into());
+    }
+    if index == 0 && value.get("status") != Some(&json!("complete")) {
+        return Err(format!("recorded search did not succeed: {value}"));
+    }
+    Ok(value)
 }
 fn represented(result: &Value, form: &str) -> Result<Value, String> {
     let text = result
@@ -132,7 +163,7 @@ fn cap() -> Result<(), String> {
                 .first()
                 .and_then(|reply| reply.pointer("/result/structuredContent"))
                 .ok_or("cap reply missing")?;
-            let broad = value.pointer("/error/code") == Some(&json!("usage.mcp_result_too_broad"));
+            let broad = value.pointer("/error/code") == Some(&json!("usage.too_broad"));
             if broad != refused {
                 return Err(format!(
                     "{mode} cap differed at query length {length}: {}",
