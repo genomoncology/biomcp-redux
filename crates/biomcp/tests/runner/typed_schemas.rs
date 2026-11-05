@@ -183,6 +183,22 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
             return Err("output schema setting changed input catalog".into());
         }
     }
+    let large = catalog(
+        env,
+        json!({"mcp_tool_mode":"typed", "mcp_typed_enum_limit":1000}),
+    )?;
+    if !large
+        .iter()
+        .any(|tool| oversized_enum(&tool["inputSchema"], 30))
+    {
+        return Err("raised enum limit did not restore large choices".into());
+    }
+    if !default
+        .iter()
+        .any(|tool| oversized_enum(&tool["inputSchema"], 1))
+    {
+        return Err("short enums lost their choices".into());
+    }
     let small = catalog(
         env,
         json!({"mcp_tool_mode":"typed", "mcp_typed_enum_limit":1}),
