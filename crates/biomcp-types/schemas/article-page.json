@@ -431,7 +431,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Pool items to skip.\nNumber of pool items to skip.",
+          "description": "Number of pool items to skip.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

@@ -409,7 +409,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Rows per page, 1–50.\nFive results by default; at most fifty source rows or product headers.",
+          "description": "Five results by default; at most fifty source rows or product headers.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -450,7 +450,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Source rows to skip.\nZero-based source result offset.",
+          "description": "Zero-based source result offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

@@ -2692,7 +2692,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Rows per page, 1–50.\nFive results by default; at most fifty source rows or product headers.",
+          "description": "Five results by default; at most fifty source rows or product headers.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -2733,7 +2733,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Source rows to skip.\nZero-based source result offset.",
+          "description": "Zero-based source result offset.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -2861,7 +2861,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Rows per page.\nNative report headers or VAERS rows per page; default five.",
+          "description": "Native report headers or VAERS rows per page; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -2880,7 +2880,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Source rows to skip.\nNative row offset. VAERS continuation requires its retained snapshot.",
+          "description": "Native row offset. VAERS continuation requires its retained snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3417,7 +3417,7 @@
           "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
         },
         "evidence_level": {
-          "description": "CIViC evidence levels.\nNative CIViC evidence levels; repeat to include several levels.",
+          "description": "Levels A–E\nNative CIViC evidence levels; repeat to include several levels.",
           "items": {
             "$ref": "#/$defs/CivicEvidenceLevel"
           },
@@ -3432,7 +3432,7 @@
               "type": "null"
             }
           ],
-          "description": "CIViC evidence status.\nNative CIViC evidence status; omitted preserves the source's existing default."
+          "description": "Claim status\nNative CIViC evidence status; omitted preserves the source's existing default."
         },
         "input": {
           "$ref": "#/$defs/DrugId"
@@ -3784,7 +3784,7 @@
               "type": "null"
             }
           ],
-          "description": "GRCh37 or GRCh38.\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."
+          "description": "GRCh37/38\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."
         },
         "civic_cursor": {
           "anyOf": [
@@ -3795,7 +3795,7 @@
               "type": "null"
             }
           ],
-          "description": "CIViC cursor.\nNative CIViC cursor, retained unchanged."
+          "description": "Cursor\nNative CIViC cursor, retained unchanged."
         },
         "civic_kind": {
           "anyOf": [
@@ -3806,10 +3806,10 @@
               "type": "null"
             }
           ],
-          "description": "CIViC claims.\nNative CIViC claim collection within the selected profile."
+          "description": "Claim kind\nNative CIViC claim collection within the selected profile."
         },
         "civic_profile": {
-          "description": "CIViC profile.\nSelected CIViC molecular profile for native claim paging.",
+          "description": "Profile ID\nSelected CIViC molecular profile for native claim paging.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -3823,7 +3823,7 @@
           "type": "string"
         },
         "evidence_level": {
-          "description": "CIViC evidence levels.\nNative CIViC evidence levels; repeat to include several levels.",
+          "description": "Levels A–E\nNative CIViC evidence levels; repeat to include several levels.",
           "items": {
             "$ref": "#/$defs/CivicEvidenceLevel"
           },
@@ -3838,11 +3838,11 @@
               "type": "null"
             }
           ],
-          "description": "CIViC evidence status.\nNative CIViC evidence status; omitted preserves the source's existing default."
+          "description": "Claim status\nNative CIViC evidence status; omitted preserves the source's existing default."
         },
         "input": {
           "$ref": "#/$defs/VariantInput",
-          "description": "rsID, CAid, clinvar:N, VCV, HGVS or VCF.\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
+          "description": "rsID/CAid,clinvar:N/VCV,HGVS/VCF\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
           "x-positional": 0
         },
         "limit": {
@@ -3874,7 +3874,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Section page size.\nRows per named source section page; omitted uses the native source default.",
+          "description": "Rows per named source section page; omitted uses the native source default.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3882,7 +3882,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Section offset.\nSource rows to skip independently of identity candidate paging.",
+          "description": "Source rows to skip independently of identity candidate paging.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3896,7 +3896,7 @@
               "type": "null"
             }
           ],
-          "description": "OncoKB tumor.\nExplicit tumor context for keyed OncoKB annotation."
+          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [
@@ -4104,7 +4104,7 @@
       "description": "Search clinical trials.",
       "properties": {
         "age": {
-          "description": "Age years.\nAge in years; unstated source bounds count as no limit.",
+          "description": "Age in years; unstated source bounds count as no limit.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -4423,7 +4423,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Page size.\nHeaders per page; NCI applies its own lower publisher limit.",
+          "description": "Headers per page; NCI applies its own lower publisher limit.",
           "format": "uint32",
           "maximum": 100,
           "minimum": 1,
@@ -4967,7 +4967,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Pool items to skip.\nNumber of pool items to skip.",
+          "description": "Number of pool items to skip.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"

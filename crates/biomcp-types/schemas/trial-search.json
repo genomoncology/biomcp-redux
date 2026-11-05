@@ -134,7 +134,7 @@
   "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
   "properties": {
     "age": {
-      "description": "Age years.\nAge in years; unstated source bounds count as no limit.",
+      "description": "Age in years; unstated source bounds count as no limit.",
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
@@ -145,7 +145,7 @@
     },
     "biomarker_use": {
       "$ref": "#/$defs/NciBiomarkerUse",
-      "description": "NCI criterion text; biomcp_help search trial\nNCI criterion.\nFilter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems."
+      "description": "NCI criterion; biomcp_help search trial\nNCI criterion.\nFilter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems."
     },
     "condition": {
       "description": "Disease or NCIt.\nCondition alternatives joined with OR; NCI requires NCIt codes.",
@@ -449,7 +449,7 @@
     },
     "limit": {
       "default": 10,
-      "description": "Page size.\nHeaders per page; NCI applies its own lower publisher limit.",
+      "description": "Headers per page; NCI applies its own lower publisher limit.",
       "format": "uint32",
       "maximum": 100,
       "minimum": 1,
@@ -472,7 +472,7 @@
     },
     "phase": {
       "$ref": "#/$defs/TrialPhaseFilter",
-      "description": "Native phase text; biomcp_help search trial\nNative phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
+      "description": "Native phase; biomcp_help search trial\nNative phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
     },
     "query": {
       "$ref": "#/$defs/Text",
@@ -481,11 +481,11 @@
     },
     "sex": {
       "$ref": "#/$defs/TrialSex",
-      "description": "Registry sex facet text; biomcp_help search trial\nRegistry sex facet."
+      "description": "Registry sex facet; biomcp_help search trial\nRegistry sex facet."
     },
     "source": {
       "$ref": "#/$defs/TrialSource",
-      "description": "clinicaltrials/nci text; biomcp_help search trial\nclinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
+      "description": "clinicaltrials/nci; biomcp_help search trial\nclinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
     },
     "sponsor": {
       "$ref": "#/$defs/Text",
@@ -493,15 +493,15 @@
     },
     "sponsor_type": {
       "$ref": "#/$defs/SponsorType",
-      "description": "Funding class text; biomcp_help search trial\nFunding class.\nRegistry sponsor funding category; use --sponsor for a sponsor name."
+      "description": "Funding class; biomcp_help search trial\nFunding class.\nRegistry sponsor funding category; use --sponsor for a sponsor name."
     },
     "status": {
       "$ref": "#/$defs/TrialStatusFilter",
-      "description": "Native status text; biomcp_help search trial\nNative status.\nExact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels."
+      "description": "Native status; biomcp_help search trial\nNative status.\nExact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels."
     },
     "study_type": {
       "$ref": "#/$defs/StudyType",
-      "description": "Study type text; biomcp_help search trial\nStudy type.\nExact registry study type."
+      "description": "Study type; biomcp_help search trial\nStudy type.\nExact registry study type."
     },
     "updated_since": {
       "$ref": "#/$defs/PartialDate",

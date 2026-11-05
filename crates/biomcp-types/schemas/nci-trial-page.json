@@ -1399,7 +1399,7 @@
       "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
         "age": {
-          "description": "Age years.\nAge in years; unstated source bounds count as no limit.",
+          "description": "Age in years; unstated source bounds count as no limit.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1714,7 +1714,7 @@
         },
         "limit": {
           "default": 10,
-          "description": "Page size.\nHeaders per page; NCI applies its own lower publisher limit.",
+          "description": "Headers per page; NCI applies its own lower publisher limit.",
           "format": "uint32",
           "maximum": 100,
           "minimum": 1,
