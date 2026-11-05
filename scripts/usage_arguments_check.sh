@@ -10,6 +10,8 @@ binary="${CARGO_TARGET_DIR:-target}/debug/biomcp"
 cargo test --locked -p biomcp --test cases --no-run --message-format=json > "${CARGO_TARGET_DIR:-target}/argument-runner.jsonl"
 runner=$(python3 -c 'import json,sys; print(next(r["executable"] for s in open(sys.argv[1]) if (r:=json.loads(s)).get("executable") and r["target"]["name"]=="cases"))' "${CARGO_TARGET_DIR:-target}/argument-runner.jsonl")
 python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed query-validation/argument-recovery
+python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed \
+    mcp-parity/typed-cli-bridge mcp-parity/typed-help-next-recovery
 if [ "${1:-focused}" = focused ]; then
     python3 scripts/trials.py --runner "$runner" --executable "$binary" --installed \
         --case-file grammar/source-filter-errors.yaml \

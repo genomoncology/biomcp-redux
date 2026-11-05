@@ -199,7 +199,7 @@ pub(super) fn parse_invalid(
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
-            registered_argument,
+            prefer_argument_error: registered_argument,
         };
     }
     let message = match path.as_slice() {
@@ -210,7 +210,7 @@ pub(super) fn parse_invalid(
     super::ParseInvalid {
         argument: None,
         usage: message.map(UsageError::message),
-        registered_argument: false,
+        prefer_argument_error: false,
     }
 }
 
@@ -233,12 +233,11 @@ pub(super) fn checked_invalid(
         })
         .map(UsageError::Arguments)
         .or_else(|| cause.message().map(UsageError::message));
-    let registered_argument =
-        matches!(&usage, Some(UsageError::Arguments(arguments)) if arguments.argument.is_some());
     super::ParseInvalid {
         argument: None,
         usage,
-        registered_argument,
+        // A rejected value may still be an explicitly retired spelling.
+        prefer_argument_error: false,
     }
 }
 
@@ -309,7 +308,7 @@ pub(super) fn source_filter(
                 valid_values: Some(valid.into()),
                 next: super::recovery::guidance(next, [verb, entity]),
             })),
-            registered_argument: true,
+            prefer_argument_error: true,
         });
     }
     None

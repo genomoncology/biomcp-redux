@@ -136,11 +136,7 @@ pub(super) fn recovery() -> Result<(), String> {
         &globals,
     )?;
     for (name, arguments, command) in [
-        (
-            "search_trial",
-            json!({"limit":"bad","source":"bad"}),
-            "search trial",
-        ),
+        ("search_trial", json!({"unexpected":"bad"}), "search trial"),
         ("get_gene", json!({}), "get gene"),
     ] {
         let initial = request(

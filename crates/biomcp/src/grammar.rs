@@ -197,7 +197,7 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
 pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
     pub(crate) usage: Option<biomcp_types::UsageError>,
-    pub(crate) registered_argument: bool,
+    pub(crate) prefer_argument_error: bool,
 }
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let args = entry::arguments(args, root);

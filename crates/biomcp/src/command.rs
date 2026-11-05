@@ -123,8 +123,7 @@ fn parse_arguments(
     let parsed = match crate::grammar::parse(root, args) {
         Ok(parsed) => parsed,
         Err(cause) => {
-            let outcome = if (!cause.registered_argument
-                || crate::retired::retired_source(root, args))
+            let outcome = if !cause.prefer_argument_error
                 && let Some(message) = retired
             {
                 usage_envelope(UsageError::Retired(message), encoding)
