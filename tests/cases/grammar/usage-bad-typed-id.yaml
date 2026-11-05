@@ -1,13 +1,13 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Missing options, unknown options, bad enum values and bad typed IDs each name one argument, its accepted form and command help.",
+  "story": "A refused get identifier offers the same entity search with the unchanged input.",
   "steps": [
     {
       "run": [
         "get",
         "trial",
-        "invalid"
+        "lung cancer"
       ],
       "exit": 2,
       "is_error": true,
@@ -18,6 +18,83 @@
         "/error/valid_values": [
           "Canonical ClinicalTrials.gov identifier."
         ],
+        "/next/0/args": [
+          "search",
+          "trial",
+          "--",
+          "lung cancer"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "lung cancer"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "input",
+        "/next/0/args": [
+          "search",
+          "article",
+          "--",
+          "lung cancer"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "BRAF V600E"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "input",
+        "/next/0/args": [
+          "search",
+          "variant",
+          "--query=BRAF V600E",
+          "--source=myvariant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "--",
+        "--help"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "search",
+          "variant",
+          "--query=--help",
+          "--source=myvariant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02563002",
+        "--offset",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
         "/next/0/args": [
           "help",
           "get",

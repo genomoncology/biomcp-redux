@@ -4,6 +4,22 @@ type Check<T> = Result<T, String>;
 
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
+    if let Some(template) = object.get("x-get-search") {
+        let fields = template
+            .as_object()
+            .ok_or("invalid get-search annotation")?;
+        if fields.values().filter(|value| value.is_null()).count() != 1
+            || fields.iter().any(|(name, value)| {
+                !(value.is_null() || value.is_string())
+                    || object
+                        .get("properties")
+                        .and_then(|properties| properties.get(name))
+                        .is_none()
+            })
+        {
+            return Err("invalid get-search annotation".into());
+        }
+    }
     if object
         .get("x-identifier")
         .is_some_and(|value| value != &Value::Bool(true))

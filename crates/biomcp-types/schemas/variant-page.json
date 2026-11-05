@@ -8409,7 +8409,11 @@
           "description": "Explicit source language; required for a raw query."
         }
       },
-      "type": "object"
+      "type": "object",
+      "x-get-search": {
+        "query": null,
+        "source": "myvariant"
+      }
     },
     "Reply_VariantSearchExclusionReason": {
       "description": "Fixed fallback exclusion reasons.",

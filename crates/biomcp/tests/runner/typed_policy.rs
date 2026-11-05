@@ -58,8 +58,10 @@ fn hosted(env: &Environment) -> Result<(), String> {
                 json!({"name":"search_trial","arguments":{"query":"lung cancer"}}),
             )?;
         }
-        if index == 3 || index == 4 {
-            let query = if index == 3 {
+        if index == 0 || index == 3 || index == 4 {
+            let query = if index == 0 {
+                "BRAF V600E"
+            } else if index == 3 {
                 "beta thalassemia"
             } else {
                 "unrecognized"
@@ -70,7 +72,17 @@ fn hosted(env: &Environment) -> Result<(), String> {
                 json!({"name":"search_variant","arguments":{"query":query,"source":"myvariant"}}),
             )?;
         }
-        if index == 5
+        if index >= 5
+            && text
+                .lines()
+                .next()
+                .is_some_and(|line| line.contains("search_"))
+        {
+            return Err(format!(
+                "hosted refusal acquired a search suggestion: {text}"
+            ));
+        }
+        if index >= 5
             && !stdio
                 .pointer("/result/structuredContent")
                 .ok_or("structured reply")?
@@ -79,6 +91,48 @@ fn hosted(env: &Environment) -> Result<(), String> {
         {
             return Err("typed save escaped hosted refusal".into());
         }
+    }
+    literal_name(env)?;
+    fresh_refusal(env)
+}
+fn literal_name(env: &Environment) -> Result<(), String> {
+    let frame = request(
+        json!(10),
+        "tools/call",
+        json!({"name":"get_variant","arguments":{"input":"--help"}}),
+    );
+    let replies = exchange_with_globals(env, &[frame], &["--offline".into()])?;
+    let text = replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/content/0/text"))
+        .and_then(Value::as_str)
+        .ok_or("literal name summary")?;
+    exact_next(
+        env,
+        text,
+        json!({"name":"search_variant","arguments":{"query":"--help","source":"myvariant"}}),
+    )
+}
+fn fresh_refusal(env: &Environment) -> Result<(), String> {
+    let frame = request(
+        json!(9),
+        "tools/call",
+        json!({"name":"get_gene","arguments":{"input":["BRAF"]}}),
+    );
+    let replies = exchange_with_globals(env, &[frame], &["--hosted".into(), "--fresh".into()])?;
+    let reply = replies.first().ok_or("hosted fresh reply")?;
+    let text = reply
+        .pointer("/result/content/0/text")
+        .and_then(Value::as_str)
+        .ok_or("summary")?;
+    if reply.pointer("/result/structuredContent/error/code")
+        != Some(&json!("usage.mcp_unavailable"))
+        || text
+            .lines()
+            .next()
+            .is_some_and(|line| line.contains("search_"))
+    {
+        return Err(format!("hosted get refusal changed guidance: {reply}"));
     }
     Ok(())
 }

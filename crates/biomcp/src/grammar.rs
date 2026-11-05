@@ -5,6 +5,7 @@ mod entry;
 pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
+mod get_search;
 mod metadata;
 mod tree;
 pub(crate) use tree::Root;
@@ -299,7 +300,7 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
         }
     } else {
         let (entity, matches) = matches.subcommand().ok_or_else(ParseInvalid::default)?;
-        let request = request(verb, entity, matches)?;
+        let request = request(root, verb, entity, matches)?;
         Action::Run {
             request,
             fresh: globals.fresh,
@@ -500,7 +501,12 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
     Ok(())
 }
 
-fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Request, ParseInvalid> {
+fn request(
+    root: &Command,
+    verb: &str,
+    entity: &str,
+    matches: &clap::ArgMatches,
+) -> Result<Request, ParseInvalid> {
     let value = request_arguments(verb, entity, matches)?;
     let command = biomcp_types::COMMANDS
         .iter()
@@ -508,6 +514,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         .ok_or_else(ParseInvalid::default)?;
     rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
         errors::source_filter(command.via, verb, entity, &value, &cause)
+            .or_else(|| get_search::invalid(root, verb, entity, &value, &cause))
             .unwrap_or_else(|| errors::checked_invalid(verb, entity, &cause))
     })
 }
