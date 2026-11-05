@@ -425,7 +425,9 @@ fn input(args: &[String], query: &Value) -> Option<Value> {
                     .map_or_else(|_| json!(word), |value| json!(value))
             } else if kind == Some("number") {
                 word.parse::<f64>()
-                    .map_or_else(|_| json!(word), |value| json!(value))
+                    .ok()
+                    .filter(|value| value.is_finite())
+                    .map_or_else(|| json!(word), |value| json!(value))
             } else if kind == Some("array") {
                 let mut values = if property["x-comma-separated"] == true {
                     word.split(',').map(str::to_owned).collect::<Vec<_>>()
