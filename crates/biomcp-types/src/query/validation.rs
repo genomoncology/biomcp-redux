@@ -6,7 +6,6 @@ use serde::Deserializer;
 pub struct QueryInvalid {
     arguments: Box<[Box<str>]>,
     message: Option<crate::ErrorMessage>,
-    decode_failure: bool,
 }
 impl QueryInvalid {
     /// Retain argument identities only; callers must never pass rejected values.
@@ -14,19 +13,7 @@ impl QueryInvalid {
         Self {
             arguments: arguments.iter().map(|name| Box::from(*name)).collect(),
             message: None,
-            decode_failure: false,
         }
-    }
-    /// Mark a field rejected by its owning deserializer, before constructor checks.
-    #[doc(hidden)]
-    pub fn decoded_invalid(mut self) -> Self {
-        self.decode_failure = true;
-        self
-    }
-    /// Whether the owning field deserializer refused the supplied value.
-    #[doc(hidden)]
-    pub fn is_decode_failure(&self) -> bool {
-        self.decode_failure
     }
     /// Preserve fixed refusal guidance from the checked constructor.
     pub fn with_message(mut self, message: crate::ErrorMessage) -> Self {

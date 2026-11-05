@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "A refused get identifier offers the same entity search with the unchanged input.",
+  "story": "Unclassified getter input failures retain command help rather than inventing a search.",
   "steps": [
     {
       "run": [
@@ -19,10 +19,9 @@
           "Canonical ClinicalTrials.gov identifier."
         ],
         "/next/0/args": [
-          "search",
-          "trial",
-          "--",
-          "lung cancer"
+          "help",
+          "get",
+          "trial"
         ]
       }
     },
@@ -38,10 +37,9 @@
         "/error/code": "usage.arguments",
         "/error/option": "input",
         "/next/0/args": [
-          "search",
-          "article",
-          "--",
-          "lung cancer"
+          "help",
+          "get",
+          "article"
         ]
       }
     },
@@ -57,10 +55,9 @@
         "/error/code": "usage.arguments",
         "/error/option": "input",
         "/next/0/args": [
-          "search",
-          "variant",
-          "--query=BRAF V600E",
-          "--source=myvariant"
+          "help",
+          "get",
+          "variant"
         ]
       }
     },
@@ -76,10 +73,9 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/next/0/args": [
-          "search",
-          "variant",
-          "--query=--help",
-          "--source=myvariant"
+          "help",
+          "get",
+          "variant"
         ]
       }
     },
@@ -90,6 +86,58 @@
         "NCT02563002",
         "--offset",
         "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "help",
+          "get",
+          "trial"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "author",
+        "123"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "help",
+          "get",
+          "author"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "secret-input",
+        "indexing"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/args": [
+          "help",
+          "get",
+          "article"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00000000"
       ],
       "exit": 2,
       "is_error": true,

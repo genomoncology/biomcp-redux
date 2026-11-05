@@ -32,6 +32,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-parity/typed-help-research-discovery", || {
             typed_help::discovery().map_err(Into::into)
         }),
+        transcript_trial("mcp-parity/typed-getter-help", || {
+            typed::getter_help().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-help-next-recovery", || {
             typed_help::recovery().map_err(Into::into)
         }),
