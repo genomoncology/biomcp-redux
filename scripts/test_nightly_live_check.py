@@ -337,7 +337,7 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
     def test_failed_discovery_explains_only_its_dependents_and_cached_retries(self):
         import copy
         for status in (429, 500, None):
-            for change in ('dependent', 'cached-retry', 'unrelated', 'shape', 'plan', 'nonempty-cache'):
+            for change in ('dependent', 'cached-retry', 'unrelated', 'shape', 'plan', 'plan-output', 'nonempty-cache'):
                 with self.subTest(status=status, change=change):
                     row = classification_case('order')
                     command = row['witness'][0]
@@ -369,13 +369,20 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                         command['baseline']['requests'][-1]['provenance']['inputs']['ids'] = ['unrelated']
                     elif change == 'shape':
                         row['result']['drift'].append('search: field removed: /id')
-                    elif change == 'plan':
+                    elif change in ('plan', 'plan-output'):
                         command['live']['requests'].append({'identity': 'unexplained',
                             'source': 'other', 'role': 'Search', 'status': 200})
                         row['result']['drift'].append('unexplained: request-plan-added')
+                        if change == 'plan-output':
+                            command['baseline']['output'] = {'status': 'complete'}
+                            command['live']['output'] = {'status': 'failed', 'sources': [
+                                {'source': 'pubmed', 'state': 'failed', 'reason': 'unavailable'}]}
+                            row['result']['drift'].extend([
+                                'command 1: output status changed: complete -> failed',
+                                'page continuation changed'])
                     positive = change in ('dependent', 'cached-retry')
                     self.classified(row, ('throttled' if status == 429 else 'outage')
-                                    if positive else 'uncertain' if change in ('plan', 'nonempty-cache') else 'failure',
+                                    if positive else 'uncertain' if change in ('plan', 'plan-output', 'nonempty-cache') else 'failure',
                                     int(not positive))
 
     def test_cached_failed_output_requires_the_same_output_and_transition(self):

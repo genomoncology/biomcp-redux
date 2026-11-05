@@ -430,7 +430,7 @@ def classify_case(row):
     peers = tuple(terminal([request for command in witness
                             for request in command[side]['requests']])
                   for side in ('baseline', 'live'))
-    outcomes = []
+    outcomes, effects = [], []
     earlier_failed = {}
     earlier_roots = {}
     previous_command, previous_outcome, previous_comparison = None, None, {}
@@ -471,6 +471,9 @@ def classify_case(row):
             outcome = previous_outcome
         outcomes.append(outcome)
         causes = command_causes(command)
+        effect = next((cause for cause in ('outage', 'throttled')
+                       if causes[cause]), outcome) if outcome == 'uncertain' else outcome
+        effects.append(effect)
         for cause in ('throttled', 'outage'):
             earlier_failed.update({source: cause for source in causes[cause]})
         for key, request in after.items():
@@ -483,12 +486,12 @@ def classify_case(row):
                    if item.startswith('command ' + str(command['ordinal'])
                                       + ': output status changed:')}
         if matched:
-            if not (explained_output(command, comparison, outcomes[-1])
+            if not (explained_output(command, comparison, effect)
                     or not before and not after and outcome in ('outage', 'throttled')):
                 return 'failure'
             output_changes -= matched
     if 'page continuation changed' in drift and not any(
-            outcome in ('throttled', 'outage', 'recovered', 'churn') for outcome in outcomes):
+            outcome in ('throttled', 'outage', 'recovered', 'churn') for outcome in effects):
         return 'failure'
     if output_changes:
         return 'failure'
