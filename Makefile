@@ -10,11 +10,11 @@ drug-alias-prepare:
 	$(MAKE) schema-generate docs-generate
 	mkdir -p dist
 	COPYFILE_DISABLE=1 tar -czf dist/drug-alias-generated.tar.gz crates/biomcp-query/src/drug.rs crates/biomcp-query/src/drug/aliases.rs crates/biomcp-query/src/drug/resolve.rs crates/biomcp-types/src/drug/query.rs crates/biomcp-types/src/drug/search.rs crates/biomcp-types/schemas docs/reference/commands.md
+	$(MAKE) drug-alias-check
 
 drug-alias-check:
 	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
-	cargo test --locked -p biomcp --test cases drug/source-aliases
-	cargo test --locked -p biomcp --test cases drug/recall-empty
+	cargo test --locked -p biomcp --test cases drug/
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases.yaml --exact
 
 # Cargo and the test harnesses do not interpret pm's fractional core booking.

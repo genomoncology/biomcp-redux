@@ -192,6 +192,7 @@ fn zero(out: &Outcome, source: DrugSource) -> bool {
         && !out.dropped
         && out
             .page
+            .as_ref()
             .is_some_and(|page| page.total == 0 && page.returned == 0)
 }
 
