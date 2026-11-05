@@ -1,5 +1,9 @@
 .DEFAULT_GOAL := landing-gate
 
+.PHONY: drug-alias-baseline
+drug-alias-baseline: plain-cli-build
+	python3 scripts/drug_alias_probe.py
+
 # Cargo and the test harnesses do not interpret pm's fractional core booking.
 ifneq ($(strip $(PM_JOB_CORES)),)
 PM_WORKERS := $(shell python3 -c 'import math,os; print(max(1, math.floor(float(os.environ["PM_JOB_CORES"]))))')
