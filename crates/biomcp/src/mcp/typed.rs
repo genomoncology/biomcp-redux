@@ -79,7 +79,7 @@ pub(super) fn tools(
         .iter()
         .map(|&(verb, entity, id)| {
             let schema = schema(id)?;
-            if crate::command::mcp_policy::always_refused(&schema, context.globals.hosted) {
+            if !catalog::available(verb, entity, &schema, &excluded, context.globals.hosted) {
                 return Ok(None);
             }
             let read_only = read_only || !crate::command::mcp_policy::can_save(&schema);

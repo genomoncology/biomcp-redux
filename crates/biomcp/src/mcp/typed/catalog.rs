@@ -8,6 +8,26 @@ use std::{
     io,
 };
 
+pub(in crate::mcp) fn available(
+    verb: &str,
+    entity: &str,
+    schema: &Value,
+    excluded: &BTreeSet<Source>,
+    hosted: bool,
+) -> bool {
+    if crate::command::mcp_policy::always_refused(schema, hosted) {
+        return false;
+    }
+    let sources = crate::help::coverage::command_sources(verb, entity, schema);
+    !hosted
+        || sources.is_empty()
+        || sources.iter().any(|word| {
+            !word
+                .parse::<Source>()
+                .is_ok_and(|source| excluded.contains(&source))
+        })
+}
+
 pub(in crate::mcp) fn excluded(
     context: crate::command::Context<'_>,
 ) -> io::Result<BTreeSet<Source>> {
@@ -157,7 +177,7 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
     let mut schemas = BTreeMap::new();
     for (verb, entity, id) in crate::grammar::command_paths() {
         let query = super::schema(id)?;
-        if crate::command::mcp_policy::always_refused(&query, context.globals.hosted) {
+        if !available(verb, entity, &query, &excluded, context.globals.hosted) {
             continue;
         }
         let relevant = relevant(verb, entity, &query, &excluded);

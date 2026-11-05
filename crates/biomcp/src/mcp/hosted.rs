@@ -18,8 +18,13 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
     if value.get("schema") == Some(&json!("biomcp.help/6")) {
         let mut help: Help = serde_json::from_value(value["result"].clone())?;
         let excluded = super::typed::catalog::excluded(cx)?;
-        help.commands
-            .retain(|command| offered(&command.command, cx));
+        let mut offered_commands = Vec::new();
+        for command in help.commands {
+            if offered(&command.command, cx, &excluded)? {
+                offered_commands.push(command);
+            }
+        }
+        help.commands = offered_commands;
         for command in &mut help.commands {
             if command.command.is_empty() {
                 command.description = instructions(cx)?;
@@ -170,7 +175,7 @@ pub(super) fn instructions(cx: Context<'_>) -> io::Result<String> {
         let schema: Value = serde_json::from_str(
             crate::schema::find(id).ok_or_else(|| io::Error::other("query schema"))?,
         )?;
-        if crate::command::mcp_policy::always_refused(&schema, true) {
+        if !super::typed::catalog::available(verb, entity, &schema, &excluded, true) {
             continue;
         }
         let sources = crate::help::coverage::command_sources(verb, entity, &schema)
@@ -196,25 +201,28 @@ fn next_allowed(words: &[String], cx: Context<'_>) -> bool {
     })
 }
 
-fn offered(path: &[String], cx: Context<'_>) -> bool {
+fn offered(
+    path: &[String],
+    cx: Context<'_>,
+    excluded: &std::collections::BTreeSet<Source>,
+) -> io::Result<bool> {
     if path.is_empty() {
-        return true;
+        return Ok(true);
     }
-    if crate::grammar::command_paths()
-        .iter()
-        .any(|(verb, entity, id)| {
-            let command = [verb.to_string(), entity.to_string()];
-            command.starts_with(path)
-                && crate::schema::find(id)
-                    .and_then(|text| serde_json::from_str::<Value>(text).ok())
-                    .is_some_and(|schema| {
-                        !crate::command::mcp_policy::always_refused(&schema, true)
-                    })
-        })
-    {
-        return true;
+    let mut known = false;
+    for (verb, entity, id) in crate::grammar::command_paths() {
+        if ![verb.to_string(), entity.to_string()].starts_with(path) {
+            continue;
+        }
+        known = true;
+        let schema: Value = serde_json::from_str(
+            crate::schema::find(id).ok_or_else(|| io::Error::other("query schema"))?,
+        )?;
+        if super::typed::catalog::available(verb, entity, &schema, excluded, true) {
+            return Ok(true);
+        }
     }
-    next_allowed(path, cx)
+    Ok(!known && next_allowed(path, cx))
 }
 
 fn reason(source: Source, cx: Context<'_>) -> io::Result<String> {
