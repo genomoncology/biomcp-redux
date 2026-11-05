@@ -21,7 +21,7 @@ pub(super) fn render(
     if calls.is_empty() {
         format!("{status}: JSON reply is in structuredContent.")
     } else {
-        format!("{status}: next {}", calls.join("; "))
+        format!("{status}: next {}", calls.join("\nnext "))
     }
 }
 // The parser names the rejected option; omit it and let the parser check the correction.
