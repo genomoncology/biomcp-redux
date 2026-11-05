@@ -12,12 +12,23 @@ mod components;
 type Check = Result<(), String>;
 
 pub(super) fn check() -> Check {
+    let mut failures = Vec::new();
     for mode in ["single", "typed"] {
-        continuation(mode)?;
-        components::check(mode)?;
-        surface(mode)?;
+        for (claim, result) in [
+            ("continuation", continuation(mode)),
+            ("components", components::check(mode)),
+            ("surface", surface(mode)),
+        ] {
+            if let Err(error) = result {
+                failures.push(format!("{mode}/{claim}: {error}"));
+            }
+        }
     }
-    Ok(())
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
 }
 
 fn surface(mode: &str) -> Check {
@@ -109,11 +120,10 @@ fn offered_help(server: &Server, mode: &str) -> Check {
             .and_then(Value::as_array)
             .ok_or("help commands")?;
         for command in commands {
-            let words = command
-                .get("command")
-                .and_then(Value::as_array)
-                .map(Vec::as_slice)
-                .unwrap_or_default();
+            let words = match command.get("command") {
+                None => &[][..],
+                Some(value) => value.as_array().ok_or("help command words")?.as_slice(),
+            };
             if matches!(
                 words.first().and_then(Value::as_str),
                 Some(
