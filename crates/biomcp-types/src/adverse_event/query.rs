@@ -42,12 +42,15 @@ struct SearchFields {
     #[doc = "MAUDE manufacturer.\n\
         MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     manufacturer: Option<Text>,
     #[doc = "MAUDE product codes; OR.\nMAUDE exact native device.device_report_product_code; repeated codes join with OR."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     product_code: Vec<Text>,
     #[doc = "MAUDE product problem.\nMAUDE phrase on native product_problems."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     problem: Option<Text>,
     #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
     #[serde(default = "default_source")]
