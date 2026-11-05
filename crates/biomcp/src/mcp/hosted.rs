@@ -151,8 +151,9 @@ pub(super) fn instructions(cx: Context<'_>) -> io::Result<String> {
 fn next_allowed(words: &[String], cx: Context<'_>) -> bool {
     let args = words.iter().map(OsString::from).collect::<Vec<_>>();
     crate::grammar::parse(cx.root, &args).is_ok_and(|mut parsed| {
-        parsed.globals.hosted = true;
-        parsed.action.is_some() && crate::command::mcp_policy::refusal(&parsed, true).is_none()
+        parsed.globals.inherit(cx.globals).is_ok()
+            && parsed.action.is_some()
+            && crate::command::mcp_policy::refusal(&parsed, true).is_none()
     })
 }
 
