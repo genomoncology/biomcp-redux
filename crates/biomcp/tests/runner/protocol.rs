@@ -1,11 +1,11 @@
+#[path = "label_priority.rs"]
+mod label_priority;
 #[path = "mcp_reply_form.rs"]
 mod reply_form;
 #[path = "protocol_schemas.rs"]
 mod schemas;
 #[path = "typed_tools.rs"]
 mod typed;
-#[path = "label_priority.rs"]
-mod label_priority;
 #[path = "typed_bridge.rs"]
 mod typed_bridge;
 #[path = "typed_help.rs"]
