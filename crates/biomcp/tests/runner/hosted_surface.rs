@@ -52,8 +52,13 @@ fn surface(mode: &str) -> Check {
             return Err("hosted gene schema disagrees with supported input/OncoKB policy".into());
         }
     }
-    offered_help(&server, mode)?;
-    source_notices(&server, mode)
+    let help = offered_help(&server, mode);
+    let notices = source_notices(&server, mode);
+    match (help, notices) {
+        (Err(help), Err(notices)) => Err(format!("{help}\n{notices}")),
+        (Err(error), _) | (_, Err(error)) => Err(error),
+        _ => Ok(()),
+    }
 }
 
 fn server(mode: &str, disabled: &[&str], replay: &str) -> Result<(Server, Environment), String> {
