@@ -396,19 +396,17 @@ bench-honesty-repro:
 	cargo build --locked -p biomcp --bin biomcp
 	python3 scripts/bench_honesty.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
 
-.PHONY: bench-honesty-focused bench-honesty-generate bench-honesty-mechanical
+.PHONY: bench-honesty-focused bench-honesty-cases bench-honesty-tools bench-honesty-generate bench-honesty-mechanical bench-honesty-lint
 bench-honesty-focused:
-	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases faers-literals-and-cap $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases faers-several-names $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases resolver-variantvalidator $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases diagnostic/device-approvals $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases gene/sections/clingen-validity $(TEST_THREADS)
+	+$(MAKE) --keep-going bench-honesty-cases bench-honesty-tools bench-honesty-mechanical
+bench-honesty-cases:
+	python3 scripts/trials.py --installed query-validation/argument-recovery --case-file adverse-event/drug-boolean-refusal.yaml --case-file adverse-event/faers-literals-and-cap.yaml --case-file adverse-event/faers-several-names.yaml --case-file variant/resolver-provenance.yaml --case-file variant/resolver-variantvalidator.yaml --case-file diagnostic/device-approvals.yaml --case-file gene/sections/clingen-validity.yaml
+bench-honesty-tools:
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" adverse-event-search/adverse-event/drug-boolean-refusal.yaml --exact
 bench-honesty-generate:
 	cargo fmt --all
 	$(MAKE) schema-generate docs-generate
 bench-honesty-mechanical:
-	+$(MAKE) --keep-going check-cheap
+	+$(MAKE) --keep-going fmt bench-honesty-lint ratchets docs-check current-schema-check
+bench-honesty-lint:
+	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
