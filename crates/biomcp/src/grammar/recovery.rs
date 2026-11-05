@@ -81,7 +81,13 @@ fn candidates(schema: &Value, property: &Value) -> Vec<Value> {
     if super::property_type(property) == Some("array") {
         values = values
             .into_iter()
-            .map(|value| Value::Array(vec![value]))
+            .map(|value| {
+                if value.is_array() {
+                    value
+                } else {
+                    Value::Array(vec![value])
+                }
+            })
             .collect();
     }
     values
