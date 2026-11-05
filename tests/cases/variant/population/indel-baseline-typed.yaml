@@ -1,0 +1,45 @@
+{
+  "feature": "variant-population",
+  "live_check": "recorded public CAR indel identity; baseline-only expected refusal, exclude from live calls",
+  "story": "Immutable current-main product refuses both the original literal and get-variant HGVS in typed mode.",
+  "replay": "variant/id-forms",
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "variant_population",
+        "arguments": {
+          "input": "7-117559590-ATCT-A"
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/problems/*/field": {
+          "includes_all_of": [
+            "input: requires one source-qualified GRCh38 SNV (CAid or reference-qualified genomic HGVS); indels need a padded source representation; convert with get variant <ID> and select an exact candidate"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant_population",
+        "arguments": {
+          "input": "NC_000007.14:g.117559592_117559594del"
+        }
+      },
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/problems/*/field": {
+          "includes_all_of": [
+            "input: requires one source-qualified GRCh38 SNV (CAid or reference-qualified genomic HGVS); indels need a padded source representation; convert with get variant <ID> and select an exact candidate"
+          ]
+        }
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed"
+  }
+}
