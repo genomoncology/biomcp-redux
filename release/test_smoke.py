@@ -143,6 +143,7 @@ finally:
                         env["TMPDIR"] = str(parent)
                     selected = installed / ("absent" if fail else binary.name)
                     result = subprocess.run([sys.executable, "-c", script, str(selected), str(installed / ("case-runner" + runner.suffix)), str(fixtures), version], env=env, capture_output=True, text=True, timeout=300)
+                    print(result.stdout, end="", flush=True)
                     self.assertEqual(result.returncode == 0, not fail, result.stdout + result.stderr)
                     roots = json.loads(result.stdout.splitlines()[-1])["temporary_roots"]
                     self.assertEqual(len(roots), 1 if fail else 2)
