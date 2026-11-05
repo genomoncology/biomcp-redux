@@ -1,6 +1,8 @@
 #!/bin/sh
 set -eu
 PATH="$HOME/.local/bin:$PATH"
+research_python_bin=$(python3.13 -c 'import os, sys; print(os.path.dirname(os.path.realpath(sys.executable)))')
+PATH="$research_python_bin:$PATH"
 export PATH
 case "${1:-focused}" in
 reproduce) exec python3.13 scripts/check_research_fetch.py ;;
