@@ -60,7 +60,7 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     let entity = path.len() == 1
         && crate::grammar::command_paths()
             .iter()
-            .any(|(_, entity, _)| path[0] == *entity);
+            .any(|(_, entity, _)| path.first().is_some_and(|word| word.as_str() == *entity));
     if entity || !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }

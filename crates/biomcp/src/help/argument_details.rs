@@ -7,13 +7,16 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .command
             .get(..2)
             .and_then(|path| {
+                let [verb, entity] = path else {
+                    return None;
+                };
                 crate::grammar::command_paths()
                     .iter()
                     .find(|(verb, entity, _)| path == [*verb, *entity])
                     .and_then(|(_, _, id)| crate::schema::find(id))
                     .and_then(|text| serde_json::from_str::<serde_json::Value>(text).ok())
                     .map(|schema| {
-                        super::coverage::command_sources(&path[0], &path[1], &schema)
+                        super::coverage::command_sources(verb, entity, &schema)
                             .into_iter()
                             .collect::<Vec<_>>()
                             .join(", ")
