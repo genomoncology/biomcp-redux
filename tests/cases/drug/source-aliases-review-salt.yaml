@@ -51,8 +51,10 @@
         "/sources/0/source": "opentargets",
         "/sources/0/state": "ok",
         "/query/input": "EX-66",
-        "/sources/0/notices/0/kind": "request-guidance"
-      }
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/status": "absent"
+      },
+      "exit": 1
     }
   ]
 }
