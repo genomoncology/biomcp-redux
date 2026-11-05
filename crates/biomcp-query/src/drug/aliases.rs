@@ -3,8 +3,8 @@ use super::resolve::within;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_types::{
-    DrugCard, DrugGet, DrugNameSelector, DrugSearch, DrugSource, ReplyData, Request, SourceNotice,
-    SourceOutcome, SourceState, StepKind, ReplyBody,
+    DrugCard, DrugGet, DrugNameSelector, DrugSearch, DrugSource, ReplyBody, ReplyData, Request,
+    SourceNotice, SourceOutcome, SourceState, StepKind,
 };
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -207,9 +207,9 @@ fn ambiguous(card: &DrugCard) -> bool {
 }
 
 fn literal_name(card: &DrugCard, input: &Text) -> bool {
-    names(card).iter().any(|name| {
-        biomcp_types::DrugNameMatch::same_name(name.as_str(), input.as_str())
-    })
+    names(card)
+        .iter()
+        .any(|name| biomcp_types::DrugNameMatch::same_name(name.as_str(), input.as_str()))
 }
 
 fn names(card: &DrugCard) -> Vec<&Text> {
@@ -252,13 +252,7 @@ fn notice(out: &mut Outcome, selected: DrugSource, message: String) {
     }
 }
 
-fn hint(
-    out: &mut Outcome,
-    card: &DrugCard,
-    input: &Text,
-    selected: DrugSource,
-    fresh: bool,
-) {
+fn hint(out: &mut Outcome, card: &DrugCard, input: &Text, selected: DrugSource, fresh: bool) {
     if ambiguous(card) || !literal_name(card, input) {
         notice(
             out,
