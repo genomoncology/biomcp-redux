@@ -142,9 +142,12 @@ fn offered_argument(name: &str) -> bool {
 
 fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
     let path = value
-        .pointer("/next/0/args")
+        .get("next")
         .and_then(Value::as_array)
-        .filter(|words| words.first() == Some(&json!("help")))
+        .into_iter()
+        .flatten()
+        .filter_map(|step| step.get("args").and_then(Value::as_array))
+        .find(|words| words.first() == Some(&json!("help")))
         .and_then(|words| {
             crate::grammar::command_paths()
                 .iter()
