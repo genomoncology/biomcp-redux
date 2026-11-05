@@ -152,6 +152,7 @@ def main():
                'source_files': {str(path): digest(path) for path in [Path(__file__), Path('release/smoke.py'), Path('release/test_smoke.py')]}}
     (output / 'binding.json').write_text(json.dumps(binding, indent=2) + '\n')
     env = dict(os.environ, BIOMCP_INSTALLED_BINARY=str(binary), BIOMCP_CASE_RUNNER=str(proof / 'case-runner'),
+               BIOMCP_TEST_FIXTURES=str(proof / 'fixtures'),
                BIOMCP_INSTALLED_VERSION=record['version'], BIOMCP_EVIDENCE_DIR=str(output / 'fixture-evidence'),
                BIOMCP_SMOKE_PHASE_FILE=str(output / 'phases.jsonl'))
     command = [sys.executable, '-m', 'unittest', '-v',
