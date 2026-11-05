@@ -16,6 +16,11 @@ def main():
     output = Path.home() / 'workspace/t' / ('biomcp-0678-' + subprocess.check_output(
         ['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip())
     output.mkdir(parents=True, exist_ok=True)
+    binary_digest = hashlib.sha256(binary.read_bytes()).hexdigest()
+    version_root = output / 'version-environment'
+    version_root.mkdir(exist_ok=True)
+    version = subprocess.check_output([str(binary), 'version', '--verbose'], env=environment(version_root), text=True)
+    (output / 'version.txt').write_text(version)
     probes = [
         ('trial-search', ['search', 'trial', '--condition', 'melanoma', '--offset', '10'],
          'search_trial', {'condition': ['melanoma'], 'offset': 10}, None),
@@ -42,6 +47,9 @@ def main():
             config = root / 'config/biomcp'
             config.mkdir(parents=True)
             globals_ = ['--replay', str(ROOT / 'tests/replies' / replay)] if replay else ['--offline']
+            recording = next((arg.split('=', 1)[1] for arg in sys.argv[4:] if arg.startswith('--faers-recording=')), None)
+            if label == 'faers-or' and recording:
+                globals_ = ['--replay', recording]
             live_faers = label == 'faers-or' and '--live-faers' in sys.argv[4:]
             if live_faers:
                 globals_ = ['--record', str(output / 'faers-native')]
@@ -74,9 +82,10 @@ def main():
                 if isinstance(body, dict):
                     summary['sources'] = [{key: row.get(key) for key in ('source', 'state', 'reason')} for row in body.get('sources', [])]
                 print(json.dumps({'probe': label, 'mode': mode, 'reply': summary}), flush=True)
+    assert hashlib.sha256(binary.read_bytes()).hexdigest() == binary_digest, 'probe executable changed during the run'
     (output / 'bindings.json').write_text(json.dumps({
         'source_revision': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
-        'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest(),
+        'binary_sha256': binary_digest,
         'live_check': 'exclude: bounded diagnostic script, not a case; fixture classes are synthetic variant routing and FAERS header bodies plus retained ClinGen/FDA replies; --live-faers replaces only FAERS with one native CLI capture then replays both MCP modes',
         'live_faers': '--live-faers' in sys.argv[4:],
         'fixture_paths': [replay for *_, replay in probes if replay],
