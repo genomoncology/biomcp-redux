@@ -70,12 +70,13 @@ fn http_forms(
     frames: &[Value],
     form: &str,
 ) -> Result<(), String> {
-    let server = Server::configured_key(
+    let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(config),
         Some(capture.to_owned()),
         None,
         None,
+        &[],
     )?;
     for (index, frame) in frames.iter().enumerate() {
         let (status, reply) = server.request("POST", "/mcp", &frame.to_string())?;
