@@ -409,7 +409,8 @@ help-metadata-final:
 
 .PHONY: help-pre-review
 help-pre-review:
-	+$(MAKE) check-cheap current-schema-check schema-release-check
+	+$(MAKE) help-contract-check check-cheap current-schema-check schema-release-check
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
 
 .PHONY: help-alias-check
