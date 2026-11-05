@@ -112,6 +112,8 @@ class InstalledCli(unittest.TestCase):
                 result = subprocess.run(command, cwd=source, env=rejected,
                                         capture_output=True, text=True)
                 self.assertNotEqual(result.returncode, 0, 'archive accepted missing or malformed identity')
+                self.assertIn('not a git repository' if invalid is None else
+                              'source revision must be a full Git commit', result.stderr)
                 self.assertFalse(cargo_log.exists(), 'invalid identity reached Cargo')
             env['BIOMCP_BUILD_REVISION'] = tooling
             result = subprocess.run(command, cwd=source, env=env, capture_output=True, text=True)
