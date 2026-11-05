@@ -4,6 +4,8 @@ mod reply_form;
 mod schemas;
 #[path = "typed_tools.rs"]
 mod typed;
+#[path = "typed_help.rs"]
+mod typed_help;
 #[path = "typed_reply.rs"]
 mod typed_reply;
 #[path = "typed_schemas.rs"]
@@ -24,6 +26,12 @@ pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
         transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
             typed::guards().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-help-research-discovery", || {
+            typed_help::discovery().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-help-next-recovery", || {
+            typed_help::recovery().map_err(Into::into)
         }),
         transcript_trial("mcp-parity/compact-typed-schemas", || {
             let env = Environment::new()?;

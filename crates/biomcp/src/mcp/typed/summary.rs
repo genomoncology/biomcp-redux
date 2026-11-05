@@ -80,6 +80,9 @@ fn collect(root: &crate::grammar::Root, value: &Value, calls: &mut Vec<String>) 
 }
 fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
     let args = args.iter().map(Value::as_str).collect::<Option<Vec<_>>>()?;
+    if let Some(call) = super::help::next(root, &args) {
+        return Some(call);
+    }
     let mut argv = vec!["biomcp"];
     argv.extend(args);
     let matches = clap::Command::clone(root).try_get_matches_from(argv).ok()?;

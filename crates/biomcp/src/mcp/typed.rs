@@ -1,6 +1,7 @@
 //! Typed tools derive their contracts and CLI spelling from the command registry.
 mod arguments;
 mod description;
+mod help;
 mod summary;
 mod validation;
 pub(super) fn tool_result(
@@ -67,12 +68,12 @@ fn schema(id: &str) -> io::Result<Value> {
     .map_err(Into::into)
 }
 pub(super) fn tools(
-    _root: &crate::grammar::Root,
+    root: &crate::grammar::Root,
     read_only: bool,
     settings: &crate::config::Settings,
 ) -> io::Result<Vec<Value>> {
     let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(settings);
-    crate::grammar::command_paths()
+    let mut tools = crate::grammar::command_paths()
         .iter()
         .map(|&(verb, entity, id)| {
             let schema = schema(id)?;
@@ -88,7 +89,10 @@ pub(super) fn tools(
             }
             Ok(tool)
         })
-        .collect()
+        .collect::<io::Result<Vec<_>>>()?;
+    tools.push(help::tool());
+    tools.extend(super::research::tools(root)?);
+    Ok(tools)
 }
 pub(super) fn parse(
     root: &crate::grammar::Root,
@@ -99,6 +103,12 @@ pub(super) fn parse(
         return super::research::parse(params).map(Ok);
     }
     let called = params.get("name")?.as_str()?;
+    if called == "biomcp_help" {
+        return help::parse(params).map(Ok);
+    }
+    if matches!(called, "search" | "fetch") {
+        return super::research::parse(params).map(Ok);
+    }
     let &(verb, entity, id) = crate::grammar::command_paths()
         .iter()
         .find(|&&(verb, entity, _)| name(verb, entity) == called)?;
