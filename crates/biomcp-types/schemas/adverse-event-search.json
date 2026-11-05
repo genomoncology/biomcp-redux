@@ -114,7 +114,8 @@
           "type": "null"
         }
       ],
-      "description": "MAUDE manufacturer.\nMAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices."
+      "description": "MAUDE manufacturer.\nMAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.",
+      "x-required-component": "gmdn"
     },
     "offset": {
       "default": 0,
@@ -132,14 +133,16 @@
           "type": "null"
         }
       ],
-      "description": "MAUDE product problem.\nMAUDE phrase on native product_problems."
+      "description": "MAUDE product problem.\nMAUDE phrase on native product_problems.",
+      "x-required-component": "gmdn"
     },
     "product_code": {
       "description": "MAUDE product codes; OR.\nMAUDE exact native device.device_report_product_code; repeated codes join with OR.",
       "items": {
         "$ref": "#/$defs/Text"
       },
-      "type": "array"
+      "type": "array",
+      "x-required-component": "gmdn"
     },
     "reaction": {
       "anyOf": [
