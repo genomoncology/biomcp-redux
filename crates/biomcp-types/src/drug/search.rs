@@ -10,7 +10,9 @@ fn default_limit() -> u32 {
     10
 }
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
-    status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Other sources require a name."]
+    status, reason and initiation dates; counts are recall records. \
+    WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. \
+    Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
