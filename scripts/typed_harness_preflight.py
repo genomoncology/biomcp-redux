@@ -101,6 +101,15 @@ def check():
     check_sources()
     with tempfile.TemporaryDirectory(prefix="typed-harness-preflight-") as temporary:
         root = Path(temporary)
+        dead = subprocess.Popen([sys.executable, "-c", "raise SystemExit(7)"])
+        dead.wait(timeout=15)
+        try:
+            wait_started(dead, root / "never-ready")
+        except RuntimeError as error:
+            if "died before reporting startup" not in str(error):
+                raise
+        else:
+            raise RuntimeError("dead child passed startup preflight")
         inputs = request(1, "NCT02563002") + request(2, "lung cancer")
         successful = root / "successful"
         successful.mkdir()
