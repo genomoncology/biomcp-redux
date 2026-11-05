@@ -3,7 +3,7 @@ use biomcp_types::{Reason, Source, SourceOutcome, SourceStatus, VariantHotspots}
 use serde_json::json;
 
 #[test]
-fn source_status_is_atomic_across_updates_clones_and_wire_input() {
+fn source_status_is_atomic_across_updates_clones_and_wire_input() -> Result<(), serde_json::Error> {
     let mut source = SourceOutcome::new(
         Source::FdaCdx,
         biomcp_types::Use::Open,
@@ -19,24 +19,39 @@ fn source_status_is_atomic_across_updates_clones_and_wire_input() {
         SourceStatus::Syncing,
     ] {
         source.set_status(status);
-        let wire = serde_json::to_value(source.clone()).unwrap();
-        let restored: SourceOutcome = serde_json::from_value(wire).unwrap();
-        assert_eq!(restored.status(), status);
+        let wire = serde_json::to_value(source.clone())?;
+        let restored: SourceOutcome = serde_json::from_value(wire)?;
+        assert_eq!(
+            restored.status(),
+            status,
+            "valid source status survives serialization"
+        );
     }
     source.set_status(SourceStatus::Ok);
     for reason in ["unsupported", "no-join-id"] {
-        let mut wire = serde_json::to_value(&source).unwrap();
+        let mut wire = serde_json::to_value(&source)?;
         wire["reason"] = json!(reason);
-        assert!(serde_json::from_value::<SourceOutcome>(wire).is_err());
+        assert!(
+            serde_json::from_value::<SourceOutcome>(wire).is_err(),
+            "current answer cannot import reason {reason}"
+        );
     }
+    Ok(())
 }
 
 #[test]
-fn hotspot_data_cannot_import_a_whole_section_failure_reason() {
+fn hotspot_data_cannot_import_a_whole_section_failure_reason() -> Result<(), serde_json::Error> {
     let wire = json!({"records":[],"page":{"offset":0,"returned":0,"total":0}});
-    let data: VariantHotspots = serde_json::from_value(wire.clone()).unwrap();
-    assert!(serde_json::to_value(data).unwrap().get("reason").is_none());
+    let data: VariantHotspots = serde_json::from_value(wire.clone())?;
+    assert!(
+        serde_json::to_value(data)?.get("reason").is_none(),
+        "data has no failure reason"
+    );
     let mut contradiction = wire;
     contradiction["reason"] = json!("no-join-id");
-    assert!(serde_json::from_value::<VariantHotspots>(contradiction).is_err());
+    assert!(
+        serde_json::from_value::<VariantHotspots>(contradiction).is_err(),
+        "hotspot data rejects a failure reason"
+    );
+    Ok(())
 }
