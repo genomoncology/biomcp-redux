@@ -62,8 +62,8 @@ def main():
         os.sched_setaffinity(0, affinity)
         cores = len(affinity)
     count = math.ceil(cores * 1.5) if loaded else 0
-    metadata = {'mode': 'load' if loaded else 'focused', 'cores': cores, 'burners': count,
-                'host_load': os.getloadavg(), 'physical_cores': os.cpu_count(),
+    metadata = {'mode': 'load' if loaded else 'focused', 'allocated_cores': cores, 'burners': count,
+                'host_load': os.getloadavg(), 'logical_cpus': os.cpu_count(),
                 'affinity': affinity, 'python': sys.version}
     (root / 'run.jsonl').write_text(json.dumps(metadata) + '\n')
     print(json.dumps(metadata), flush=True)

@@ -8,8 +8,10 @@ import sys
 import tempfile
 import unittest
 
+from release.smoke import configured_timeout_seconds
 
-INSTALLED_SMOKE_HANG_GUARD_SECONDS = float(os.environ.get("BIOMCP_INSTALLED_SMOKE_HANG_GUARD_SECONDS", "600"))
+
+INSTALLED_SMOKE_HANG_GUARD_SECONDS = configured_timeout_seconds("BIOMCP_INSTALLED_SMOKE_HANG_GUARD_SECONDS", "600")
 
 
 class InstalledTemporarySpace(unittest.TestCase):

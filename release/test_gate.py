@@ -61,6 +61,25 @@ else:
 '''
 
 
+class TimeoutConfiguration(unittest.TestCase):
+    def test_configured_guards_require_positive_finite_seconds(self):
+        for module, variable, constant in [
+            ('release.smoke', 'BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS', 'SUITE_TIMEOUT_FLOOR_SECONDS'),
+            ('release.test_smoke', 'BIOMCP_INSTALLED_SMOKE_HANG_GUARD_SECONDS', 'INSTALLED_SMOKE_HANG_GUARD_SECONDS'),
+        ]:
+            script = f'from {module} import {constant}; assert {constant} == 0.1'
+            for value in ('0', '-1', 'nan', 'inf', '-inf', 'invalid', '0.1'):
+                with self.subTest(variable=variable, value=value):
+                    env = dict(os.environ, **{variable: value})
+                    result = subprocess.run([sys.executable, '-c', script], env=env,
+                                            capture_output=True, text=True, timeout=15)
+                    if value == '0.1':
+                        self.assertEqual(result.returncode, 0, result.stderr)
+                    else:
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn(f'{variable} must be a positive finite number', result.stderr)
+
+
 @unittest.skipIf(os.name == 'nt', 'synthetic executables use POSIX shebangs')
 class InstalledCli(unittest.TestCase):
     def test_suite_timeout_floor_retains_margin_and_rejects_real_overrun(self):

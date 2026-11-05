@@ -2,6 +2,7 @@
 """Run one installed executable with copied fixtures and no checkout dependency."""
 import concurrent.futures
 import json
+import math
 import os
 import re
 import shutil
@@ -13,8 +14,20 @@ import time
 import threading
 
 SCHEMA_ID = "biomcp.problem/2"
+
+
+def configured_timeout_seconds(name, default):
+    try:
+        value = float(os.environ.get(name, default))
+    except ValueError:
+        raise ValueError(f"{name} must be a positive finite number") from None
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError(f"{name} must be a positive finite number")
+    return value
+
+
 # Later channels retain the first channel’s 15% margin, with startup headroom.
-SUITE_TIMEOUT_FLOOR_SECONDS = float(os.environ.get("BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS", "60"))
+SUITE_TIMEOUT_FLOOR_SECONDS = configured_timeout_seconds("BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS", "60")
 
 
 def phase(name):
