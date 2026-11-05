@@ -14,22 +14,33 @@ use serde_json::{Value, json};
 use std::io::Write;
 
 pub(super) fn check() -> Result<(), String> {
+    baseline::check()?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
     let globals = vec!["--offline".into()];
     let tools = discovery(&env, &globals)?;
     rejections(&env, &globals)?;
-    // Every entity gets one search and get through both command boundaries.
-    for tool in tools.iter().filter(|tool| {
-        tool["name"]
-            .as_str()
-            .is_some_and(|name| name.starts_with("search_") || name.starts_with("get_"))
-    }) {
-        replay::check(tool)?;
+
+    let mut failures = Vec::new();
+    for (verb, entity, _) in biomcp_types::command_paths() {
+        let name = format!("{verb}_{entity}").replace('-', "_");
+        let tool = tools
+            .iter()
+            .find(|tool| tool.get("name") == Some(&json!(name)))
+            .ok_or_else(|| format!("missing registry tool {name}"))?;
+        if let Err(error) = replay::check(tool) {
+            failures.push(error);
+        }
+        if verb == "search" && entity == "biomarker" {
+            replay::rejects_overstrict_schema(tool)?;
+        }
+    }
+    if !failures.is_empty() {
+        return Err(failures.join("\n"));
     }
     policy::check()?;
-    baseline::check()
+    Ok(())
 }
 fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String> {
     let replies = exchange_with_globals(

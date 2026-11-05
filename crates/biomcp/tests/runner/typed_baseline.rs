@@ -8,9 +8,8 @@ use serde_json::{Value, json};
 use std::{collections::BTreeMap, process::Stdio};
 
 pub(super) fn check() -> Result<(), String> {
-    let Some(baseline) = launch::typed_baseline() else {
-        return Ok(());
-    };
+    let baseline = launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let frames = [
         request(json!(1), "server/discover", json!({})),

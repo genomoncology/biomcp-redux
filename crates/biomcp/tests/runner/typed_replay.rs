@@ -8,46 +8,56 @@ use super::super::super::{
 use serde_json::{Value, json};
 
 pub(super) fn check(tool: &Value) -> Result<(), String> {
-    let name = tool["name"].as_str().ok_or("tool name")?;
-    let (verb, entity) = name.split_once('_').ok_or("tool path")?;
-    let entity = entity.replace('_', "-");
+    let name = tool
+        .get("name")
+        .and_then(Value::as_str)
+        .ok_or("tool name")?;
+    let (verb, entity, _) = biomcp_types::command_paths()
+        .into_iter()
+        .find(|(verb, entity, _)| format!("{verb}_{entity}").replace('-', "_") == name)
+        .ok_or_else(|| format!("{name}: absent from query registry"))?;
     let mut paths = Vec::new();
     let cases = super::super::super::launch::fixtures().join("cases");
     case_data::collect(&cases, &mut paths).map_err(|e| e.to_string())?;
-    paths.sort_by_key(|path| {
-        (
-            path.strip_prefix(&cases)
-                .ok()
-                .and_then(|path| path.components().next())
-                .is_none_or(|part| part.as_os_str() != entity.as_str()),
-            path.clone(),
-        )
-    });
+    paths.sort();
+    let mut calls = 0;
+    let mut failures = Vec::new();
     for path in paths {
         let case = case_data::read_case(&path)?;
-        if case.replay.is_none() {
-            continue;
-        }
         for (index, step) in case
             .steps
             .iter()
             .enumerate()
-            .filter(|(_, step)| step.exit == 0 && !step.offline)
+            .filter(|(_, step)| step.exit == 0)
         {
-            let Some(args) = &step.run else {
-                continue;
-            };
-            if args.first().map(String::as_str) != Some(verb) || args.get(1) != Some(&entity) {
+            let Some(args) = &step.run else { continue };
+            if args.first().map(String::as_str) != Some(verb)
+                || args.get(1).map(String::as_str) != Some(entity)
+            {
                 continue;
             }
-            if candidate(tool, args, &case, index)? {
-                return Ok(());
+            let label = format!("{name} {} step {}", path.display(), index + 1);
+            match candidate(tool, args, &case, index) {
+                Ok(()) => calls += 1,
+                Err(error) => failures.push(format!("{label}: {error}")),
             }
         }
     }
-    Err(format!(
-        "no successful recorded search/get witness for {name}"
-    ))
+    if calls == 0 {
+        failures.push(format!("{name}: no successful recorded case; no exemption"));
+    }
+    use std::io::Write;
+    writeln!(
+        std::io::stdout(),
+        "TYPED_REPLAY tool={name} calls={calls} failures={}",
+        failures.len()
+    )
+    .map_err(|e| e.to_string())?;
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
 }
 
 fn prepare(
@@ -58,56 +68,53 @@ fn prepare(
     let config = case.config.clone().unwrap_or_else(|| json!({}));
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = response_cases::replay(&env, case.replay.as_deref(), case.cache_acquired)?;
-    let globals = env.globals(replay.as_deref(), false);
-    for setup in case
+    for step in case
         .steps
         .get(..index)
         .ok_or("case step index")?
         .iter()
-        .filter_map(|step| step.run.as_ref())
-        .filter(|args| args.first().is_some_and(|word| word == "sync"))
+        .filter(|step| step.exit == 0)
     {
-        let output = env
-            .command(
-                env!("CARGO_BIN_EXE_biomcp"),
-                &super::super::super::launch::arguments(setup, &globals),
-            )
-            .output()
-            .map_err(|e| e.to_string())?;
+        let Some(setup) = &step.run else { continue };
+        let globals = env.globals(replay.as_deref(), step.offline);
+        let mut command = env.command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &super::super::super::launch::arguments(setup, &globals),
+        );
+        let output = super::super::super::execution::output(&mut command, step.stdin.as_deref())?;
         if !output.status.success() {
-            return Err(format!("recorded case setup failed: {setup:?}"));
+            return Err(format!("recorded setup failed: {setup:?}"));
         }
     }
-
+    let step = case.steps.get(index).ok_or("case step index")?;
+    let globals = env.globals(replay.as_deref(), step.offline);
     Ok((env, globals, config))
 }
+
 fn candidate(
     tool: &Value,
     args: &[String],
     case: &case_data::Case,
     index: usize,
-) -> Result<bool, String> {
+) -> Result<(), String> {
     let name = tool
         .get("name")
         .and_then(Value::as_str)
         .ok_or("tool name")?;
-    let (env, globals, mut config) = prepare(case, index)?;
+    let (env, mut globals, mut config) = prepare(case, index)?;
+    let (args, extra) = query_arguments(args);
+    globals.extend(extra);
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
-            &super::super::super::launch::arguments(args, &globals),
+            &super::super::super::launch::arguments(&args, &globals),
         )
         .output()
         .map_err(|e| e.to_string())?;
     if !output.status.success() {
-        return Ok(false);
+        return Err(format!("recorded CLI failed: {args:?}"));
     }
     let expected: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    if expected.get("status") == Some(&json!("usage"))
-        || expected.get("status") == Some(&json!("failed"))
-    {
-        return Ok(false);
-    }
     let verb = args.first().ok_or("command verb")?;
     let entity = args.get(1).ok_or("command entity")?;
     let (_, _, id) = biomcp_types::command_paths()
@@ -119,15 +126,9 @@ fn candidate(
         .output()
         .map_err(|e| e.to_string())?;
     let query: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let Some(input) = input(args, &query) else {
-        return Ok(false);
-    };
-    if !jsonschema::validator_for(&tool["inputSchema"])
-        .map_err(|e| e.to_string())?
-        .is_valid(&input)
-    {
-        return Ok(false);
-    }
+    let input =
+        input(&args, &query).ok_or_else(|| format!("cannot translate recorded CLI: {args:?}"))?;
+    validate_input(tool, &input)?;
     config
         .as_object_mut()
         .ok_or("configuration object")?
@@ -150,16 +151,65 @@ fn candidate(
         != serde_json::to_vec(&expected).map_err(|e| e.to_string())?
     {
         return Err(format!(
-            "{name} recorded CLI mismatch : {actual} versus {expected}"
+            "{name} decoded CLI JSON mismatch: {actual} versus {expected}"
         ));
     }
-    if !jsonschema::validator_for(&tool["outputSchema"])
-        .map_err(|e| e.to_string())?
-        .is_valid(actual)
-    {
-        return Err(format!("{name} output schema mismatch"));
+    if let Some(schema) = tool.get("outputSchema") {
+        if !jsonschema::validator_for(schema)
+            .map_err(|e| e.to_string())?
+            .is_valid(actual)
+        {
+            return Err(format!("{name} output schema mismatch"));
+        }
     }
-    Ok(true)
+    Ok(())
+}
+
+fn validate_input(tool: &Value, input: &Value) -> Result<(), String> {
+    let schema = tool.get("inputSchema").ok_or("missing input schema")?;
+    let validator = jsonschema::validator_for(schema).map_err(|e| e.to_string())?;
+    validator
+        .validate(input)
+        .map_err(|e| format!("typed schema rejected recorded case: {e}; input={input}"))
+}
+
+fn query_arguments(args: &[String]) -> (Vec<String>, Vec<String>) {
+    let mut query = Vec::new();
+    let mut globals = Vec::new();
+    let mut words = args.iter();
+    while let Some(word) = words.next() {
+        match word.as_str() {
+            "--format" => {
+                words.next();
+            }
+            "--disable-sources" => {
+                globals.push(word.clone());
+                if let Some(value) = words.next() {
+                    globals.push(value.clone());
+                }
+            }
+            "--offline" | "--fresh" => globals.push(word.clone()),
+            _ => query.push(word.clone()),
+        }
+    }
+    (query, globals)
+}
+
+pub(super) fn rejects_overstrict_schema(tool: &Value) -> Result<(), String> {
+    let mut tool = tool.clone();
+    tool.as_object_mut()
+        .ok_or("tool object")?
+        .insert("inputSchema".into(), json!(false));
+    let error = match check(&tool) {
+        Ok(()) => return Err("over-strict schema silently skipped recorded cases".into()),
+        Err(error) => error,
+    };
+    if !error.contains("typed schema rejected recorded case") {
+        return Err(format!(
+            "over-strict replay failed for the wrong reason: {error}"
+        ));
+    }
+    Ok(())
 }
 fn resolved<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
     if let Some(reference) = node.get("$ref").and_then(Value::as_str) {

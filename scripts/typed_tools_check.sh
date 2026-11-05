@@ -9,6 +9,8 @@ if [ "$#" -gt 0 ]; then
     cp "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
     export BIOMCP_TYPED_BASELINE="$typed_scratch/baseline"
 fi
+: "${BIOMCP_TYPED_BASELINE:?a verified frozen baseline executable is required}"
+test -x "$BIOMCP_TYPED_BASELINE"
 cargo build --locked -p biomcp --bin biomcp --message-format=json > "$typed_scratch/product.json" || {
     python3 -c 'import json,sys; [print(v["message"].get("rendered","")) for s in open(sys.argv[1]) if (v:=json.loads(s)).get("reason")=="compiler-message"]' "$typed_scratch/product.json"
     exit 1
