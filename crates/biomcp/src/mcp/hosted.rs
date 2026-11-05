@@ -32,13 +32,20 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
     if value.get("schema") == Some(&json!(Help::SCHEMA)) {
         let mut help: Help = serde_json::from_value(value["result"].clone())?;
         help.commands = commands(help.commands, cx)?;
-        if let Some(relation) = help
+        if help
             .commands
-            .iter_mut()
-            .find(|command| command.command == ["help", "relations"])
+            .iter()
+            .any(|command| command.command == ["help", "relations"])
         {
             let available = commands(crate::help::commands(cx.root)?, cx)?;
-            relation.description = crate::help::relations(&available);
+            let description = crate::help::relations(&available);
+            for relation in help
+                .commands
+                .iter_mut()
+                .filter(|command| command.command == ["help", "relations"])
+            {
+                relation.description = description.clone();
+            }
         }
         value["result"] = serde_json::to_value(help)?;
     }
