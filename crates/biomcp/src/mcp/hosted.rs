@@ -184,7 +184,8 @@ fn reason(source: Source, cx: Context<'_>) -> io::Result<String> {
     let explanation = if operator.contains(&source) {
         "The server operator disabled this source.".to_owned()
     } else if crate::command::hosted_use::disabled(cx.declared_use, cx.secrets).contains(&source) {
-        let ceiling = crate::config::hosted_max_use(cx.settings).map_err(io::Error::other)?;
+        let ceiling =
+            crate::config::hosted_max_use(cx.settings).map_err(|e| io::Error::other(e.0))?;
         format!(
             "This source is disabled by hosted use policy; the server ceiling permits {} use.",
             ceiling.allowed()

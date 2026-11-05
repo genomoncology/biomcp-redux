@@ -114,13 +114,7 @@ pub(super) fn check() -> Result<(), String> {
                 json!({"condition":"melanoma"}),
                 "operator",
             ),
-            (
-                "get",
-                "gene",
-                vec!["BRAF", "--source", "hgnc"],
-                json!({"input":["BRAF"],"source":"hgnc"}),
-                "",
-            ),
+            ("get", "gene", vec!["BRAF"], json!({"input":["BRAF"]}), ""),
         ] {
             let params = if mode == "typed" {
                 json!({"name":format!("{verb}_{entity}"),"arguments":input})
