@@ -43,33 +43,16 @@ fn hosted(env: &Environment) -> Result<(), String> {
             .pointer("/result/content/0/text")
             .and_then(Value::as_str)
             .ok_or("summary")?;
-        let expected = match index {
-            0 | 3 | 4 => "search_variant",
-            1 | 2 => "search_trial",
-            _ => "hosted",
-        };
-        if index < 5 && !text.contains(expected) {
-            return Err(format!("missing typed replacement {expected}: {text}"));
-        }
-        if index == 2 {
-            exact_next(
-                env,
-                text,
-                json!({"name":"search_trial","arguments":{"query":"lung cancer"}}),
-            )?;
-        }
-        if index == 0 || index == 3 || index == 4 {
-            let query = if index == 0 {
-                "BRAF V600E"
-            } else if index == 3 {
-                "beta thalassemia"
+        if index < 5 {
+            let command = if index == 1 || index == 2 {
+                "get trial"
             } else {
-                "unrecognized"
+                "get variant"
             };
             exact_next(
                 env,
                 text,
-                json!({"name":"search_variant","arguments":{"query":query,"source":"myvariant"}}),
+                json!({"name":"biomcp_help","arguments":{"command":command}}),
             )?;
         }
         if index >= 5
@@ -87,31 +70,59 @@ fn hosted(env: &Environment) -> Result<(), String> {
                 .pointer("/result/structuredContent")
                 .ok_or("structured reply")?
                 .to_string()
-                .contains(expected)
+                .contains("hosted")
         {
             return Err("typed save escaped hosted refusal".into());
         }
     }
-    literal_name(env)?;
+    get_help(env)?;
     fresh_refusal(env)
 }
-fn literal_name(env: &Environment) -> Result<(), String> {
-    let frame = request(
-        json!(10),
-        "tools/call",
-        json!({"name":"get_variant","arguments":{"input":"--help"}}),
-    );
-    let replies = exchange_with_globals(env, &[frame], &["--offline".into()])?;
-    let text = replies
-        .first()
-        .and_then(|reply| reply.pointer("/result/content/0/text"))
-        .and_then(Value::as_str)
-        .ok_or("literal name summary")?;
-    exact_next(
-        env,
-        text,
-        json!({"name":"search_variant","arguments":{"query":"--help","source":"myvariant"}}),
-    )
+fn get_help(env: &Environment) -> Result<(), String> {
+    for (name, arguments, command) in [
+        ("get_author", json!({"ids":["123"]}), "get author"),
+        (
+            "get_article",
+            json!({"input":["secret-input","indexing"]}),
+            "get article",
+        ),
+        (
+            "get_article",
+            json!({"input":["lung cancer"]}),
+            "get article",
+        ),
+        ("get_trial", json!({"input":["NCT00000000"]}), "get trial"),
+        ("get_variant", json!({"input":"--help"}), "get variant"),
+        ("get_trial", json!({"input":["lung cancer"]}), "get trial"),
+        ("get_variant", json!({"input":"BRAF V600E"}), "get variant"),
+    ] {
+        let frame = request(
+            json!(10),
+            "tools/call",
+            json!({"name":name,"arguments":arguments}),
+        );
+        let replies = exchange_with_globals(env, &[frame], &["--offline".into()])?;
+        let reply = replies.first().ok_or("invalid getter reply")?;
+        let expected = command
+            .split_whitespace()
+            .map(Value::from)
+            .collect::<Vec<_>>();
+        let mut next = vec![json!("help")];
+        next.extend(expected);
+        if reply.pointer("/result/structuredContent/next/0/args") != Some(&json!(next)) {
+            return Err(format!("getter lost CLI-owned help: {reply}"));
+        }
+        let text = reply
+            .pointer("/result/content/0/text")
+            .and_then(Value::as_str)
+            .ok_or("getter summary")?;
+        exact_next(
+            env,
+            text,
+            json!({"name":"biomcp_help","arguments":{"command":command}}),
+        )?;
+    }
+    Ok(())
 }
 fn fresh_refusal(env: &Environment) -> Result<(), String> {
     let frame = request(
@@ -175,7 +186,7 @@ fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), Stri
         .ok_or("typed next call missing")?;
     let call: Value = serde_json::from_str(call).map_err(|e| e.to_string())?;
     if call != expected {
-        return Err(format!("wrong multiword name search: {call}"));
+        return Err(format!("wrong CLI help translation: {call}"));
     }
     let replies = exchange_with_globals(
         env,
@@ -187,7 +198,9 @@ fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), Stri
         .pointer("/result/structuredContent/status")
         .and_then(Value::as_str)
         .ok_or_else(|| format!("next call rejected: {reply}"))?;
-    if status == "usage" {
+    if status != "complete"
+        || reply.pointer("/result/structuredContent/schema") != Some(&json!("biomcp.help/6"))
+    {
         return Err(format!("next call failed CLI validation: {reply}"));
     }
     Ok(())
