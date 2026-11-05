@@ -25,18 +25,13 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         hint(&mut out, &card, &evidence, input, query.source(), cx.fresh);
         return out;
     }
-    let mut tried = vec![input.clone()];
     for name in names(&card) {
-        if tried
-            .iter()
-            .any(|old| biomcp_types::DrugNameMatch::same_name(old.as_str(), name.as_str()))
-        {
+        if biomcp_types::DrugNameMatch::same_name(input.as_str(), name.as_str()) {
             continue;
         }
         if deadline.remaining().is_zero() {
             break;
         }
-        tried.push(name.clone());
         let retry = query.with_name(name.clone());
         let mut found = search_spelling(&within(cx, deadline.remaining()), &retry);
         if !zero(&found, query.source()) {
@@ -175,16 +170,13 @@ fn ambiguous(card: &DrugCard) -> bool {
 }
 
 fn names(card: &DrugCard) -> Vec<&Text> {
-    let mut names: Vec<&Text> = Vec::new();
-    for name in card.header.name.iter().chain(card.alternate_names.iter()) {
-        if !names
-            .iter()
-            .any(|old| biomcp_types::DrugNameMatch::same_name(old.as_str(), name.as_str()))
-        {
-            names.push(name);
-        }
-    }
-    names
+    let mut seen = std::collections::BTreeSet::new();
+    card.header
+        .name
+        .iter()
+        .chain(card.alternate_names.iter())
+        .filter(|name| seen.insert(name.as_str().to_lowercase()))
+        .collect()
 }
 
 fn usable(out: &Outcome, source: DrugSource) -> bool {
