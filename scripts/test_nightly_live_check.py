@@ -385,6 +385,35 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                                     if positive else 'uncertain' if change in ('plan', 'plan-output', 'nonempty-cache') else 'failure',
                                     int(not positive))
 
+    def test_missing_discovery_proof_keeps_two_command_outcome_uncertain(self):
+        import copy
+        for change in ('missing-proof', 'unrelated-output'):
+            with self.subTest(change=change):
+                row = classification_case('order')
+                first = row['witness'][0]
+                first['live']['requests'].reverse()
+                root = first['live']['requests'][0]
+                first['baseline']['requests'][0]['provenance'] = {}
+                root['status'], root['provenance'] = 429, {}
+                first['live']['requests'] = [root]
+                first['baseline']['output'] = {'status': 'complete'}
+                first['live']['output'] = {'status': 'failed', 'sources': [
+                    {'source': 'pubmed', 'state': 'failed', 'reason': 'rate-limited'}]}
+                dependent = copy.deepcopy(first['baseline']['requests'][1])
+                dependent['identity'] = 'next-page'
+                later = {'ordinal': 2, 'baseline': {'requests': [dependent]},
+                         'live': {'requests': [dict(root, status=200), dependent]}}
+                row['witness'].append(later)
+                row['result']['commands'].append({'ordinal': 2})
+                row['result']['drift'] = ['search: HTTP status 200 -> 429',
+                    'old-id: request-plan-removed', 'search: request-plan-added',
+                    'command 1: output status changed: complete -> failed',
+                    'page continuation changed']
+                if change == 'unrelated-output':
+                    first['live']['output']['sources'].append({
+                        'source': 'unrelated', 'state': 'failed', 'reason': 'unavailable'})
+                self.classified(row, 'uncertain' if change == 'missing-proof' else 'failure', 1)
+
     def test_cached_failed_output_requires_the_same_output_and_transition(self):
         import copy
         for change in ('cached', 'output', 'transition', 'missing-output', 'shape'):
