@@ -236,7 +236,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     next_page: Option<Text>,
-    /// Zero-based offset of the first row in this continuation page.
+    #[doc = "Page offset.\nZero-based offset of the first row in this continuation page."]
     #[serde(default)]
     offset: u32,
     #[doc = "Total.\nSource total only; no returned study rows."]
@@ -245,7 +245,7 @@ struct Fields {
     #[doc = "Posted results.\nClinicalTrials.gov only: require posted source results."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
-    /// Headers per page; NCI applies its own lower publisher limit.
+    #[doc = "Page size.\nHeaders per page; NCI applies its own lower publisher limit."]
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
     limit: u32,

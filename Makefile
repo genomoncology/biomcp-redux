@@ -417,3 +417,11 @@ help-pre-review:
 help-alias-check:
 	cargo test --locked -p biomcp --test cases help-entity-aliases $(TEST_THREADS)
 	cargo test --locked -p biomcp --test ratchets required_surface_has_asserted_calls $(TEST_THREADS)
+
+.PHONY: help-recovery-check
+help-recovery-check:
+	+$(MAKE) help-metadata-final check-cheap
+	cargo test --locked -p biomcp --test cases description-guidance $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
