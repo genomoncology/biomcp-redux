@@ -24,25 +24,28 @@ pub(super) fn schema(
     mut schema: Value,
     excluded: &BTreeSet<Source>,
 ) -> Value {
-    let allowed = crate::help::coverage::command_sources(verb, entity, &schema)
-        .into_iter()
-        .filter(|word| {
-            word.parse::<Source>()
-                .is_ok_and(|source| !excluded.contains(&source))
-        })
-        .collect::<Vec<_>>();
     filter(&mut schema, excluded);
+    if excluded.is_empty() {
+        return schema;
+    }
     for key in ["source", "sources", "resolver"] {
+        let mut allowed = BTreeSet::new();
+        if let Some(node) = schema.pointer(&format!("/properties/{key}")) {
+            crate::help::coverage::source_words(node, &schema, &mut allowed);
+        }
         if let Some(node) = schema.pointer_mut(&format!("/properties/{key}"))
             && let Some(fields) = node.as_object_mut()
         {
             fields.insert(
                 "description".into(),
                 json!(
-                    format!("Source: {}", allowed.join(","))
-                        .chars()
-                        .take(80)
-                        .collect::<String>()
+                    format!(
+                        "Source: {}",
+                        allowed.into_iter().collect::<Vec<_>>().join(",")
+                    )
+                    .chars()
+                    .take(80)
+                    .collect::<String>()
                 ),
             );
         }

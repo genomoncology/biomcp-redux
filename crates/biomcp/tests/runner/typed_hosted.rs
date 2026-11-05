@@ -12,6 +12,7 @@ pub(super) fn check() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let frames = [request(json!(1), "tools/list", json!({}))];
     let local = exchange_with_globals(&env, &frames, &["--offline".into()])?;
+    capture("local", local.first().ok_or("local reply")?)?;
     let tools = local
         .first()
         .and_then(|r| r.pointer("/result/tools"))
@@ -34,7 +35,6 @@ pub(super) fn check() -> Result<(), String> {
 }
 
 fn hosted() -> Result<(), String> {
-    let frames = [request(json!(1), "tools/list", json!({}))];
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"mcp_tool_mode":"typed"})),
@@ -43,29 +43,27 @@ fn hosted() -> Result<(), String> {
         None,
         &["--offline".into(), "--hosted".into()],
     )?;
-    let (status, hosted) = server.request(
-        "POST",
-        "/mcp",
-        &frames.first().ok_or("list frame")?.to_string(),
-    )?;
-    if status != 200 {
-        return Err(format!("catalog status {status}"));
-    }
-    let tools = hosted
-        .pointer("/result/tools")
-        .and_then(Value::as_array)
-        .ok_or("hosted tools")?;
-    for tool in tools {
-        if matches!(
-            tool.get("name").and_then(Value::as_str),
-            Some("article_pdf" | "trial_document")
-        ) {
-            return Err("hosted catalog advertises mandatory save".into());
-        }
-        if tool.to_string().contains("oncokb") {
+    let hosted = catalog(&server, None)?;
+    capture("restricted", &hosted)?;
+    assert_hosted(&hosted)?;
+    for usage in ["commercial", "academic"] {
+        let reply = catalog(&server, Some(usage))?;
+        capture(usage, &reply)?;
+        let expected = usage == "academic";
+        let choices = reply
+            .pointer("/result/tools")
+            .and_then(Value::as_array)
+            .and_then(|tools| {
+                tools
+                    .iter()
+                    .find(|tool| tool.get("name") == Some(&json!("search_drug")))
+            })
+            .and_then(|tool| tool.pointer("/inputSchema/properties/source/enum"))
+            .and_then(Value::as_array)
+            .ok_or("drug source choices")?;
+        if choices.contains(&json!("who-pq")) != expected {
             return Err(format!(
-                "restricted catalog advertises refused source: {}",
-                tool.get("name").unwrap_or(&Value::Null)
+                "{usage} source choices disagree with WHO source policy"
             ));
         }
     }
@@ -79,6 +77,83 @@ fn hosted() -> Result<(), String> {
         != Some(&json!("usage.mcp_unavailable"))
     {
         return Err(format!("omitted tool escaped execution policy: {reply}"));
+    }
+    Ok(())
+}
+
+fn assert_hosted(hosted: &Value) -> Result<(), String> {
+    let tools = hosted
+        .pointer("/result/tools")
+        .and_then(Value::as_array)
+        .ok_or("hosted tools")?;
+    for tool in tools {
+        if matches!(
+            tool.get("name").and_then(Value::as_str),
+            Some("article_pdf" | "trial_document")
+        ) {
+            return Err("hosted catalog advertises mandatory save".into());
+        }
+        if tool.pointer("/annotations/readOnlyHint") != Some(&json!(true)) {
+            return Err("hosted catalog marks a refused write as writable".into());
+        }
+        if tool.to_string().to_lowercase().contains("oncokb") || tool.to_string().contains("who-pq")
+        {
+            return Err(format!(
+                "restricted catalog advertises refused source: {}",
+                tool.get("name").unwrap_or(&Value::Null)
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn catalog(server: &Server, usage: Option<&str>) -> Result<Value, String> {
+    let frame = request(json!(1), "tools/list", json!({}));
+    let usage = usage
+        .map(|usage| format!("x-biomcp-use: {usage}\r\n"))
+        .unwrap_or_default();
+    let headers = format!(
+        "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/list\r\n{usage}"
+    );
+    let (status, reply, _) = server.raw(
+        "POST",
+        "/mcp",
+        &server.address.to_string(),
+        &headers,
+        &frame.to_string(),
+    )?;
+    if status != 200 {
+        return Err(format!("catalog status {status}"));
+    }
+    let reply = reply.ok_or("catalog reply")?;
+    let frame = request(json!(3), "server/discover", json!({}));
+    let (_, discovery, _) = server.raw(
+        "POST",
+        "/mcp",
+        &server.address.to_string(),
+        &headers.replace("Mcp-Method: tools/list", "Mcp-Method: server/discover"),
+        &frame.to_string(),
+    )?;
+    let discovery = discovery.ok_or("discovery reply")?;
+    let instructions = discovery
+        .pointer("/result/instructions")
+        .and_then(Value::as_str)
+        .ok_or("instructions")?;
+    if instructions.chars().count() > 4096
+        || usage.is_empty()
+            && (instructions.contains("oncokb")
+                || instructions.contains("article_pdf")
+                || instructions.contains("trial_document"))
+    {
+        return Err("hosted instructions advertise refused tools/sources or exceed budget".into());
+    }
+    capture(&format!("instructions-{usage}"), &discovery)?;
+    Ok(reply)
+}
+
+fn capture(label: &str, reply: &Value) -> Result<(), String> {
+    if let Some(transcript) = super::super::transcript::current() {
+        transcript.record(&format!("typed-catalog/{label}"), reply.clone())?;
     }
     Ok(())
 }

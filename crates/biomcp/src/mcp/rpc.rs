@@ -63,7 +63,7 @@ pub(super) fn message(
         "ping" => json!({}),
         "server/discover" => current::discover(mode, context),
         "tools/list" => match if mode == crate::config::ToolMode::Typed {
-            super::typed::tools(context)
+            super::typed::tools(context, read_only)
         } else {
             protocol::tools(context.root, read_only)
         } {

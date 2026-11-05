@@ -69,7 +69,10 @@ fn schema(id: &str) -> io::Result<Value> {
     )
     .map_err(Into::into)
 }
-pub(super) fn tools(context: crate::command::Context<'_>) -> io::Result<Vec<Value>> {
+pub(super) fn tools(
+    context: crate::command::Context<'_>,
+    read_only: bool,
+) -> io::Result<Vec<Value>> {
     let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(context.settings);
     let excluded = catalog::excluded(context)?;
     let mut tools = crate::grammar::command_paths()
@@ -79,7 +82,7 @@ pub(super) fn tools(context: crate::command::Context<'_>) -> io::Result<Vec<Valu
             if crate::command::mcp_policy::always_refused(&schema, context.globals.hosted) {
                 return Ok(None);
             }
-            let read_only = !crate::command::mcp_policy::can_save(&schema);
+            let read_only = read_only || !crate::command::mcp_policy::can_save(&schema);
             let schema = catalog::schema(verb, entity, schema, &excluded);
             let mut tool = json!({"name":name(verb, entity),
             "description":description::render(verb, entity, &schema, &excluded),
