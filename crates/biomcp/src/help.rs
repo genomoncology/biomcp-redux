@@ -101,6 +101,11 @@ fn compact(commands: &mut [HelpCommand]) {
 }
 
 #[cfg(test)]
+pub(crate) fn source_prose(text: &str) -> String {
+    discovery::plain(text)
+}
+
+#[cfg(test)]
 pub(crate) fn reference(root: &crate::grammar::Root) -> io::Result<Help> {
     let mut commands = commands(root)?;
     public_grammar::canonical(root, &mut commands)?;

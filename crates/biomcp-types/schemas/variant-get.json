@@ -186,12 +186,14 @@
       "description": "Resolver; biomcp_help get variant\nResolver.\nResolver for reference-qualified notation; never repairs the input locally."
     },
     "section": {
-      "description": "Sections; biomcp_help get variant\nSections.\nNamed source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
+      "description": "Sections; biomcp_help get variant",
       "items": {
         "$ref": "#/$defs/VariantSection"
       },
+      "title": "Sections.",
       "type": "array",
-      "x-positional": 1
+      "x-positional": 1,
+      "x-section-rule": "Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key."
     },
     "section_limit": {
       "description": "Rows per named source section page; omitted uses the native source default.",

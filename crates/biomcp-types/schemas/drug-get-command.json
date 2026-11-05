@@ -175,12 +175,14 @@
       "description": "FDA product number.\nExplicit native application product number, only for approvals."
     },
     "section": {
-      "description": "Source sections; biomcp_help get drug\nSource sections.\nExplicit named disclosures; empty means identity only.",
+      "description": "Source sections; biomcp_help get drug",
       "items": {
         "$ref": "#/$defs/DrugSection"
       },
+      "title": "Source sections.",
       "type": "array",
-      "x-positional": 1
+      "x-positional": 1,
+      "x-section-rule": "Explicit named disclosures; empty means identity only."
     },
     "section_limit": {
       "description": "Named section page size, refused on an identity-only card.",

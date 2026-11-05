@@ -55,8 +55,9 @@
     },
     "section": {
       "$ref": "#/$defs/PhenotypeSection",
-      "description": "Absent means the source identity card; biomcp_help get phenotype\nAbsent means the source identity card.",
-      "x-positional": 1
+      "description": "Absent means the source identity card; biomcp_help get phenotype",
+      "x-positional": 1,
+      "x-section-rule": "Absent means the source identity card."
     },
     "section_limit": {
       "description": "Default five text/link rows or one complete association row.",

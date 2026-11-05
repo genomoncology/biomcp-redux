@@ -137,8 +137,7 @@ fn choice_form(node: &Value, root: &Value) -> Option<&'static str> {
     })
 }
 
-#[test]
-fn section_rules_keep_the_complete_source_owned_prose() -> Result<(), String> {
+pub(super) fn section_rules_keep_the_complete_source_owned_prose() -> Result<(), String> {
     for contract in super::commands::registry() {
         if !biomcp_types::COMMANDS
             .iter()
