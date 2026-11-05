@@ -205,7 +205,8 @@ pub(super) fn raw(case: &str, step: usize, before: &str, after: &str) -> Result<
 fn raw_fields(paths: &[String], before: &str, after: &str) -> Result<bool, String> {
     let old: Value = serde_json::from_str(before).map_err(|error| error.to_string())?;
     let new: Value = serde_json::from_str(after).map_err(|error| error.to_string())?;
-    if old.to_string() != before {
+    let serialized_old = old.to_string();
+    if serialized_old != before {
         return Err("single raw reply is not in its existing canonical wire form".into());
     }
     let old_body = old
@@ -220,7 +221,8 @@ fn raw_fields(paths: &[String], before: &str, after: &str) -> Result<bool, Strin
         .pointer("/result/content/0/text")
         .and_then(Value::as_str)
     {
-        if text != old_body.to_string() {
+        let serialized_body = old_body.to_string();
+        if text != serialized_body {
             return Err("single text is not the exact existing serialized structured reply".into());
         }
         *expected
@@ -230,5 +232,6 @@ fn raw_fields(paths: &[String], before: &str, after: &str) -> Result<bool, Strin
     *expected
         .pointer_mut("/result/structuredContent")
         .ok_or("single structured reply")? = expected_body;
-    Ok(expected.to_string() == after)
+    let serialized_expected = expected.to_string();
+    Ok(serialized_expected == after)
 }

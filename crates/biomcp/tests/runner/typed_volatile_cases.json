@@ -115,8 +115,10 @@
     ]
   },
   "article/recommendations/single.yaml step 2": {
-    "capture_sha256": "5445daac4c5ea7c9f1bdd35436906b66b46f3b7f318b9246104d9bc672dc5a5c",
+    "capture_sha256": "f8bae7b2b38328c24c2da29ccb8d411160c204f9152c4a5925e679dd3f530795",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -226,16 +228,20 @@
     ]
   },
   "pathway-sections/examples.yaml step 2": {
-    "capture_sha256": "65858fc183ba885d9b0164cdef251fa978292fa14c78d87b83d66952a2647711",
+    "capture_sha256": "5eb795557bb04ec244eb9b4bf8802ce9b49a9bc5e3bdf35d63c36277b3d9b91a",
     "pointers": [
       "/next/5/args/7",
+      "/result/page/pool/created",
+      "/result/page/pool/expires",
       "/result/page/pool/id"
     ]
   },
   "pathway-sections/examples.yaml step 3": {
-    "capture_sha256": "5a1f1045e6a04372277ef9660a9eb2248d29b66725bd207da398f832e9a4f2e4",
+    "capture_sha256": "86ffeb7876bfa040007e0bae4d76d49e21af0361efec83a08f2e72116cd8f2e6",
     "pointers": [
       "/next/0/args/6",
+      "/result/page/pool/created",
+      "/result/page/pool/expires",
       "/result/page/pool/id"
     ]
   },
@@ -249,8 +255,10 @@
     ]
   },
   "protein/cards.yaml step 2": {
-    "capture_sha256": "ec985a087f3ae394232a5285f8aa5b6580ab8b4e5eaa33cb4f7877177ea62928",
+    "capture_sha256": "afe64cb1c31c878ce8cca5daa85697be879a6785a1bfe3ec5ba383122b5f7f4f",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -299,8 +307,10 @@
     ]
   },
   "protein/examples.yaml step 5": {
-    "capture_sha256": "8898197e9bc3f1c83e887bec8d062fad78f1c91ac189b93f38594676ff18f33e",
+    "capture_sha256": "4c64e188f32c6db9d4b496880229e7e3e577cb892c91f94a7cd347c46c7778e6",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -311,16 +321,20 @@
     ]
   },
   "protein/examples.yaml step 7": {
-    "capture_sha256": "9f80af6c38c7cff479453d71a936af76cac7577f85645777bd8b8cc17b496123",
+    "capture_sha256": "f3a166230786aafafda90d48bf599d7354cbc20e7ec74b1466d031d00d2badba",
     "pointers": [
       "/next/0/args/6",
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
   "protein/examples.yaml step 8": {
-    "capture_sha256": "0b1c3b33a82ad9303ebe1493667fa181ce254e3541ec1bcd860da8537fd30b64",
+    "capture_sha256": "ce5c5e6cd6ab2201d6b38b437d4d984aa89438fc6198f48f1391c8d8504994f2",
     "pointers": [
       "/next/0/args/6",
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
