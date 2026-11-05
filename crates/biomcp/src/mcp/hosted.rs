@@ -26,6 +26,15 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
         }
         help.commands = offered_commands;
         for command in &mut help.commands {
+            let schema = crate::grammar::command_paths()
+                .iter()
+                .find(|(verb, entity, _)| command.command == [*verb, *entity])
+                .map(|(_, _, id)| super::typed::schema(id))
+                .transpose()?;
+            let command_exclusions = schema
+                .as_ref()
+                .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
+                .unwrap_or_else(|| excluded.clone());
             if command.command.is_empty() {
                 command.description = instructions(cx)?;
             }
@@ -33,10 +42,12 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                 command.description = sources(cx)?;
             } else {
                 command.description =
-                    super::typed::catalog::summary(&command.description, &excluded);
+                    super::typed::catalog::summary(&command.description, &command_exclusions);
             }
             command.arguments.retain(|argument| {
-                !matches!(
+                schema.as_ref().is_none_or(|schema| {
+                    super::typed::catalog::argument_allowed(schema, &argument.name, &excluded)
+                }) && !matches!(
                     argument.name.as_str(),
                     "--fresh"
                         | "--config"
@@ -74,11 +85,11 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                 argument.choices.retain(|word| {
                     !word
                         .parse::<Source>()
-                        .is_ok_and(|source| excluded.contains(&source))
+                        .is_ok_and(|source| command_exclusions.contains(&source))
                 });
                 if argument.default.as_ref().is_some_and(|word| {
                     word.parse::<Source>()
-                        .is_ok_and(|source| excluded.contains(&source))
+                        .is_ok_and(|source| command_exclusions.contains(&source))
                 }) {
                     argument.default = None;
                 }
@@ -186,6 +197,12 @@ fn next_allowed(words: &[String], cx: Context<'_>) -> bool {
         parsed.globals.inherit(cx.globals).is_ok()
             && parsed.action.is_some()
             && crate::command::mcp_policy::refusal(&parsed, true).is_none()
+            && parsed.action.as_ref().is_none_or(|action| match action {
+                biomcp_query::Action::Run { request, .. } => super::typed::catalog::excluded(cx)
+                    .and_then(|excluded| super::typed::catalog::request_allowed(request, &excluded))
+                    .unwrap_or(false),
+                _ => true,
+            })
     })
 }
 

@@ -18,6 +18,7 @@ pub(in crate::mcp) fn available(
     if crate::command::mcp_policy::always_refused(schema, hosted) {
         return false;
     }
+    let excluded = capability_excluded(schema, excluded);
     let sources = crate::help::coverage::command_sources(verb, entity, schema);
     !hosted
         || sources.is_empty()
@@ -37,6 +38,19 @@ pub(in crate::mcp) fn excluded(
         context.declared_use,
         context.secrets,
     ));
+    if context.globals.hosted
+        && let Ok(fetch) = context.fetch
+    {
+        let effective = crate::command::hosted_use::restrict(
+            fetch.restrict_sources(Default::default()),
+            Some(context),
+        );
+        sources.extend(
+            biomcp_query::sources::components()
+                .filter(|component| component.disabled(&effective))
+                .filter_map(|component| component.native_source),
+        );
+    }
     Ok(sources)
 }
 
@@ -89,6 +103,11 @@ pub(in crate::mcp) fn section_allowed(
     section: &str,
     excluded: &BTreeSet<Source>,
 ) -> bool {
+    if biomcp_types::command_section_component(verb, entity, section)
+        .is_some_and(|source| excluded.contains(&source))
+    {
+        return false;
+    }
     let candidates = biomcp_query::sources::sources()
         .map(|spec| spec.source)
         .collect::<Vec<_>>();
@@ -107,12 +126,104 @@ pub(super) fn hosted_schema(
     entity: &str,
     excluded: &BTreeSet<Source>,
 ) -> Value {
+    let source_exclusions = capability_excluded(&schema, excluded);
+    filter(&mut schema, &source_exclusions);
+    let allowed = schema
+        .get("properties")
+        .and_then(Value::as_object)
+        .map(|fields| {
+            fields
+                .keys()
+                .filter(|name| argument_allowed(&schema, name, excluded))
+                .cloned()
+                .collect::<BTreeSet<_>>()
+        })
+        .unwrap_or_default();
     if let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) {
+        properties.retain(|name, _| allowed.contains(name));
         properties.remove("save");
         properties.remove("replace");
     }
     filter_sections(&mut schema, verb, entity, excluded);
     schema
+}
+
+pub(in crate::mcp) fn capability_excluded(
+    schema: &Value,
+    excluded: &BTreeSet<Source>,
+) -> BTreeSet<Source> {
+    let mut result = excluded.clone();
+    if let Some(required) = schema
+        .pointer("/properties/source/x-required-components")
+        .and_then(Value::as_object)
+    {
+        for (source, component) in required {
+            if component
+                .as_str()
+                .and_then(|word| word.parse::<Source>().ok())
+                .is_some_and(|component| excluded.contains(&component))
+                && let Ok(source) = source.parse::<Source>()
+            {
+                result.insert(source);
+            }
+        }
+    }
+    result
+}
+
+pub(in crate::mcp) fn argument_allowed(
+    schema: &Value,
+    name: &str,
+    excluded: &BTreeSet<Source>,
+) -> bool {
+    schema
+        .get("properties")
+        .and_then(|fields| fields.get(name.trim_start_matches('-').replace('-', "_")))
+        .and_then(|property| property.get("x-required-component"))
+        .and_then(Value::as_str)
+        .and_then(|word| word.parse::<Source>().ok())
+        .is_none_or(|source| !excluded.contains(&source))
+}
+
+pub(in crate::mcp) fn request_allowed(
+    request: &biomcp_types::Request,
+    excluded: &BTreeSet<Source>,
+) -> io::Result<bool> {
+    let schema = super::schema(crate::grammar::query_schema(request))?;
+    let source_exclusions = capability_excluded(&schema, excluded);
+    let query = crate::grammar::rewrite::query_value(request)?;
+    let (verb, entity) = request.path();
+    for (name, value) in query.as_object().into_iter().flatten() {
+        if value.is_null() {
+            continue;
+        }
+        if name == "source"
+            && value
+                .as_str()
+                .and_then(|word| word.parse::<Source>().ok())
+                .is_some_and(|source| source_exclusions.contains(&source))
+        {
+            return Ok(false);
+        }
+        if !argument_allowed(&schema, name, excluded) {
+            return Ok(false);
+        }
+        if matches!(name.as_str(), "section" | "sections") {
+            for section in value
+                .as_array()
+                .map(Vec::as_slice)
+                .unwrap_or(std::slice::from_ref(value))
+            {
+                if section
+                    .as_str()
+                    .is_some_and(|word| !section_allowed(verb, entity, word, excluded))
+                {
+                    return Ok(false);
+                }
+            }
+        }
+    }
+    Ok(true)
 }
 
 fn filter_sections(node: &mut Value, verb: &str, entity: &str, excluded: &BTreeSet<Source>) {

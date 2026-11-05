@@ -63,7 +63,7 @@ use std::io;
 fn name(verb: &str, entity: &str) -> String {
     format!("{verb}_{entity}").replace('-', "_")
 }
-fn schema(id: &str) -> io::Result<Value> {
+pub(in crate::mcp) fn schema(id: &str) -> io::Result<Value> {
     serde_json::from_str(
         crate::schema::find(id).ok_or_else(|| io::Error::other("missing query schema"))?,
     )
@@ -83,8 +83,8 @@ pub(super) fn tools(
                 return Ok(None);
             }
             let read_only = read_only || !crate::command::mcp_policy::can_save(&schema);
-            let excluded = catalog::relevant(verb, entity, &schema, &excluded);
-            let mut schema = catalog::schema(schema, &excluded);
+            let relevant = catalog::relevant(verb, entity, &schema, &excluded);
+            let mut schema = catalog::schema(schema, &relevant);
             if context.globals.hosted {
                 schema = catalog::hosted_schema(schema, verb, entity, &excluded);
             }

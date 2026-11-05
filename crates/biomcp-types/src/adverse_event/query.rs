@@ -51,6 +51,7 @@ struct SearchFields {
     problem: Option<Text>,
     #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
     #[serde(default = "default_source")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
     source: AdverseEventSource,
     /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -61,6 +62,7 @@ struct SearchFields {
     snapshot: Option<Text>,
     #[doc = "FAERS MedDRA phrase.\nFAERS MedDRA term phrase match, not exact equality."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSection::Reactions.required_component())))]
     reaction: Option<Text>,
     #[doc = "FAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."]
     #[serde(default, skip_serializing_if = "Option::is_none")]

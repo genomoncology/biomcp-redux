@@ -376,7 +376,13 @@ hosted-surface-mechanical:
 	cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
 
 .PHONY: hosted-surface-development
-hosted-surface-development: hosted-surface-check hosted-surface-mechanical
+hosted-surface-development:
+	+$(MAKE) --keep-going hosted-surface-check hosted-surface-mechanical
+
+.PHONY: hosted-surface-generate
+hosted-surface-generate:
+	+$(MAKE) schema-generate docs-generate
+	tar -czf target/hosted-surface-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
 
 .PHONY: source-status-check
 source-status-check:

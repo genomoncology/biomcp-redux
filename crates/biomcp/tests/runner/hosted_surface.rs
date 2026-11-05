@@ -10,8 +10,14 @@ pub(super) fn check() -> Result<(), String> {
     let mut errors = Vec::new();
     for mode in ["single", "typed"] {
         continuation(mode)?;
+        components(mode)?;
         let config_owner = Environment::new().map_err(|e| e.to_string())?;
-        config_owner.config(&json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["ctgov","meddra","reactome"]})).map_err(|e| e.to_string())?;
+        config_owner
+            .config(&json!({
+                "mcp_tool_mode":mode, "hosted_max_use":"restricted",
+                "disable_sources":["ctgov","meddra","gmdn","reactome"]
+            }))
+            .map_err(|e| e.to_string())?;
         let server = Server::configured_globals(
             "127.0.0.1:0",
             None,
@@ -48,7 +54,14 @@ pub(super) fn check() -> Result<(), String> {
                 errors.push("typed: disabled OncoKB section offered".into());
             }
         }
-        for path in ["", "get gene", "get pathway", "sources"] {
+        for path in [
+            "",
+            "get gene",
+            "get pathway",
+            "get adverse-event",
+            "search adverse-event",
+            "sources",
+        ] {
             let params = if mode == "typed" {
                 json!({"name":"biomcp_help","arguments":{"command":path}})
             } else {
@@ -217,9 +230,15 @@ fn continuation(mode: &str) -> Result<(), String> {
         ],
     )?;
     let params = if mode == "typed" {
-        json!({"name":"get_variant","arguments":{"input":"CA123643","section":["civic"],"section_limit":2,"evidence_level":"A","evidence_status":"submitted"}})
+        json!({"name":"get_variant","arguments":{
+            "input":"CA123643","section":["civic"],"section_limit":2,
+            "evidence_level":["A"],"evidence_status":"submitted"
+        }})
     } else {
-        json!({"name":"biomcp","arguments":{"args":["get","variant","CA123643","civic","--section-limit","2","--evidence-level","A","--evidence-status","submitted"]}})
+        json!({"name":"biomcp","arguments":{"args":[
+            "get","variant","CA123643","civic","--section-limit","2",
+            "--evidence-level","A","--evidence-status","submitted"
+        ]}})
     };
     let reply = call(&server, params)?;
     let page = reply
@@ -231,12 +250,150 @@ fn continuation(mode: &str) -> Result<(), String> {
         ("/next/input", json!("CA123643")),
         ("/next/civic_profile", json!(12)),
         ("/next/civic_kind", json!("evidence")),
-        ("/next/evidence_level", json!("A")),
+        ("/next/evidence_level", json!(["A"])),
+        ("/next/civic_cursor", json!("0:E2")),
+        ("/next/section", json!(["civic"])),
+        ("/next/evidence_status", json!("submitted")),
     ] {
         if page.pointer(pointer) != Some(&expected) {
             return Err(format!(
                 "{mode}: typed CIViC continuation changed at {pointer}: {page}"
             ));
+        }
+    }
+    Ok(())
+}
+
+fn components(mode: &str) -> Result<(), String> {
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(
+            json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":["meddra","gmdn"]}),
+        ),
+        Some(fixtures().join("replies/adverse-event/faers-synthetic")),
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    let (_, catalog) = server.request(
+        "POST",
+        "/mcp",
+        &request(json!(2), "tools/list", json!({})).to_string(),
+    )?;
+    if mode == "typed" {
+        let tools = catalog
+            .pointer("/result/tools")
+            .and_then(Value::as_array)
+            .ok_or("component tools")?;
+        let get = tools
+            .iter()
+            .find(|tool| tool["name"] == "get_adverse_event")
+            .ok_or("get adverse event")?;
+        let validator =
+            jsonschema::validator_for(&get["inputSchema"]).map_err(|e| e.to_string())?;
+        if !validator.is_valid(&json!({"id":"100","source":"faers","section":"drugs"}))
+            || !validator.is_valid(&json!({"id":"123","source":"maude","section":"narrative"}))
+        {
+            return Err("component-free report sections disappeared".into());
+        }
+        for (source, section) in [("faers", "reactions"), ("maude", "devices")] {
+            if validator.is_valid(&json!({"id":"100","source":source,"section":section})) {
+                return Err(format!(
+                    "{section} offered with its required component disabled"
+                ));
+            }
+        }
+        let search = tools
+            .iter()
+            .find(|tool| tool["name"] == "search_adverse_event")
+            .ok_or("search adverse event")?;
+        let validator =
+            jsonschema::validator_for(&search["inputSchema"]).map_err(|e| e.to_string())?;
+        if !validator.is_valid(&json!({"text":"Synthetic medicine","source":"faers"}))
+            || validator.is_valid(&json!({"text":"device","source":"maude"}))
+            || search.pointer("/inputSchema/properties/reaction").is_some()
+        {
+            return Err("search component capabilities disagree with admission".into());
+        }
+    }
+    for path in ["get adverse-event", "search adverse-event"] {
+        let params = if mode == "typed" {
+            json!({"name":"biomcp_help","arguments":{"command":path}})
+        } else {
+            let mut args = vec!["help"];
+            args.extend(path.split_whitespace());
+            json!({"name":"biomcp","arguments":{"args":args}})
+        };
+        let help = call(&server, params)?;
+        for command in help
+            .pointer("/result/commands")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
+            for section in command
+                .get("sections")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+            {
+                if matches!(section["word"].as_str(), Some("reactions" | "devices")) {
+                    return Err(format!("{mode}: component-disabled section in help"));
+                }
+            }
+            for argument in command
+                .get("arguments")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+            {
+                let choices = argument.get("choices").and_then(Value::as_array);
+                let blocked_section = choices.is_some_and(|choices| {
+                    choices
+                        .iter()
+                        .any(|word| matches!(word.as_str(), Some("reactions" | "devices")))
+                });
+                let blocked_source = path == "search adverse-event"
+                    && choices.is_some_and(|choices| choices.contains(&json!("maude")));
+                if argument["name"] == "--reaction" || blocked_section || blocked_source {
+                    return Err(format!(
+                        "{mode}: component-disabled option in help: {argument}"
+                    ));
+                }
+            }
+        }
+    }
+    let card = if mode == "typed" {
+        json!({"name":"get_adverse_event","arguments":{"id":"100"}})
+    } else {
+        json!({"name":"biomcp","arguments":{"args":["get","adverse-event","100"]}})
+    };
+    let card = call(&server, card)?;
+    if card["status"] != "complete" {
+        return Err(format!("card failed: {card}"));
+    }
+    if card
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .any(|step| {
+            step["args"]
+                .as_array()
+                .is_some_and(|args| args.contains(&json!("reactions")))
+        })
+    {
+        return Err("disabled reaction section offered by next".into());
+    }
+    for (source, section) in [("faers", "reactions"), ("maude", "devices")] {
+        let params = if mode == "typed" {
+            json!({"name":"get_adverse_event","arguments":{"id":"100","source":source,"section":section}})
+        } else {
+            json!({"name":"biomcp","arguments":{"args":["get","adverse-event","100",section,"--source",source]}})
+        };
+        let refused = call(&server, params)?;
+        if refused.pointer("/sources/0/reason") != Some(&json!("disabled")) {
+            return Err(format!("component refusal changed: {refused}"));
         }
     }
     Ok(())
