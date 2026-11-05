@@ -40,13 +40,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -86,9 +86,9 @@ schema: List every schema identity and description with biomcp schema, or print 
 help: Describe commands and their arguments.
 
 - `--format`: Choose JSON or Markdown output; configuration can change the default. Value form: string. Example: --format json. Local command option; independent of source selection.
-- `--disable-sources`: Exclude source names or source terms groups. Value form: string. Example: --disable-sources '<string>'. Local command option; independent of source selection.
-- `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Value form: string. Example: --source_pacing '<string>'. Local command option; independent of source selection.
-- `--config`: Read configuration from this file. Value form: string. Example: --config '<string>'. Local command option; independent of source selection.
+- `--disable-sources`: Exclude source names or source terms groups. Example: --disable-sources civic. Value form: string. Local command option; independent of source selection.
+- `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'. Value form: string. Local command option; independent of source selection.
+- `--config`: Read configuration from this file. Example: --config config.json. Value form: string. Local command option; independent of source selection.
 - `--offline`: Read local data without source requests. Value form: boolean. Example: --offline. Local command option; independent of source selection.
 - `--fresh`: Request fresh source data instead of cached replies. Value form: boolean. Example: --fresh. Local command option; independent of source selection.
 - `--help`: Print scoped command help without source requests. Value form: boolean. Example: --help. Local command option; independent of source selection.
@@ -130,13 +130,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -173,7 +173,7 @@ Options:
           Maximum headers per local page.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --name <name>
           Native partial name or synonym search.
@@ -182,10 +182,10 @@ Options:
           Offset within the complete retained observation.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Snapshot identity retained by continuation commands.
@@ -213,7 +213,7 @@ Search NCI biomarker concepts by name or synonym. Sources: nci.
 - `--limit`: Maximum headers per local page. Value form: integer. Example: --limit 5. Command sources: nci; source restrictions in the field description apply.
 - `--name`: Source partial name or synonym search. Value form: string. Example: --name PD-L1. Command sources: nci; source restrictions in the field description apply.
 - `--offset`: Offset within the complete retained observation. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
-- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool '<string>'. Command sources: nci; source restrictions in the field description apply.
+- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: nci; source restrictions in the field description apply.
 - `--source`: Explicit keyed NCI source; biomcp_help search biomarker
 Explicit keyed NCI source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
 
@@ -239,7 +239,7 @@ Options:
           Bounded source page size.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native offset.
@@ -248,10 +248,10 @@ Options:
           Retained page identity.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --source <source>
           Native author source; biomcp_help search author
@@ -275,7 +275,7 @@ Search research paper authors. Sources: semantic-scholar.
 
 - `--limit`: Bounded source page size. Value form: integer. Example: --limit 5. Command sources: semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Retained page identity. Value form: string. Example: --pool '<string>'. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Retained page identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: semantic-scholar; source restrictions in the field description apply.
 - `query`: Exact query from the positional argument.
 - `--source`: Source author source; biomcp_help search author
 Source author source. Value form: string. Example: --source semanticscholar. Command sources: semantic-scholar; source restrictions in the field description apply.
@@ -301,16 +301,16 @@ Options:
           Native organization country.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --distance <distance>
           Positive radius with explicit mi or km units.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --family <family>
           Native organization family.
@@ -368,7 +368,7 @@ Search clinical research organizations. Sources: nci.
 - `--lon`: Radius center longitude in degrees; requires lat and distance. Value form: string. Example: --lon -71.1025. Command sources: nci; source restrictions in the field description apply.
 - `--name`: NCI partial organization name; names are not unique. Value form: string. Example: --name Dana-Farber. Command sources: nci; source restrictions in the field description apply.
 - `--offset`: Offset within the complete retained organization snapshot. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
-- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool '<string>'. Command sources: nci; source restrictions in the field description apply.
+- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: nci; source restrictions in the field description apply.
 - `--postal-code`: Source postal code. Value form: string. Example: --postal-code 02215. Command sources: nci; source restrictions in the field description apply.
 - `--source`: Explicit keyed NCI source; biomcp_help search organization
 Explicit keyed NCI source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
@@ -396,7 +396,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
   -l, --limit <limit>
           Native page size.
@@ -405,10 +405,10 @@ Options:
           Native start offset.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --species <species>
           Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606).
@@ -460,7 +460,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
   -g, --gene <gene>
           Exact native mapped gene; legacy positional query aliases this field.
@@ -472,10 +472,10 @@ Options:
           [possible values: true, false]
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
   -l, --limit <limit>
           Maximum association rows.
@@ -532,7 +532,7 @@ Search genetic associations in GWAS Catalog. Sources: gwas.
 - `--limit`: Maximum association rows. Value form: integer. Example: --limit 3. Command sources: gwas; source restrictions in the field description apply.
 - `--offset`: Source association offset. Value form: integer. Example: --offset 3. Command sources: gwas; source restrictions in the field description apply.
 - `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end. Value form: string. Example: --p-value 4e-254. Command sources: gwas; source restrictions in the field description apply.
-- `--pool`: Retained threshold walk identity; requires a threshold. Value form: string. Example: --pool '<string>'. Command sources: gwas; source restrictions in the field description apply.
+- `--pool`: Retained threshold walk identity; requires a threshold. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: gwas; source restrictions in the field description apply.
 - `--pubmed`: Exact source publication identity. Value form: string. Example: --pubmed 17529967. Command sources: gwas; source restrictions in the field description apply.
 - `query`: Exact source mapped gene; legacy positional query aliases this field.
 - `--studies`: Return study records for the selected publication instead of associations. Value form: boolean. Example: --studies. Command sources: gwas; source restrictions in the field description apply.
@@ -564,7 +564,7 @@ Options:
           Exact native gene field, without identifier inference.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Five rows by default; no more than 25.
@@ -573,10 +573,10 @@ Options:
           Source/retained result offset.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Exact retained collection identity.
@@ -606,7 +606,7 @@ Search reviewed human proteins in UniProt. Sources: uniprot.
 - `--gene`: Exact source gene field, without identifier inference. Value form: string. Example: --gene BRAF. Command sources: uniprot; source restrictions in the field description apply.
 - `--limit`: Five rows by default; no more than 25. Value form: integer. Example: --limit 25. Command sources: uniprot; source restrictions in the field description apply.
 - `--offset`: Source/retained result offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Exact retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Exact retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
 - `query`: Exact text, exclusive with gene.
 - `--reviewed`: Reviewed human scope stays enabled; unreviewed search is deferred. Value form: boolean. Example: --reviewed. Command sources: uniprot; source restrictions in the field description apply.
 
@@ -632,7 +632,7 @@ Options:
           Maximum native headers, default five.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native source row offset.
@@ -642,10 +642,10 @@ Options:
           Monarch only; HPO search is unsupported.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -694,7 +694,7 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --gene <gene>
           Human gene input for exact resolution and UniProt mapping; Reactome only.
@@ -703,10 +703,10 @@ Options:
           Five rows by default, one to fifty. Reactome rows equals this limit without refill.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Native Reactome Start row or retained WikiPathways catalog offset.
@@ -738,10 +738,10 @@ Search human biological pathways. Sources: reactome, wikipathways.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only. Value form: string. Example: --gene HGNC:1097. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--offset`: Source Reactome Start row or retained WikiPathways catalog offset. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--pool`: Retained snapshot identity for deterministic continuation. Value form: string. Example: --pool '<string>'. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--pool`: Retained snapshot identity for deterministic continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `query`: Exact source query; exclusive with gene and top-level discovery.
 - `--source`: Sources in caller order; repeated sources take; biomcp_help search pathway
-Sources in caller order; repeated sources take turns without title joins. Value form: array. Example: --source reactome. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+Sources in caller order; repeated sources take turns without title joins. Value form: repeatable values (repeat the flag). Example: --source reactome. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene. Value form: boolean. Example: --top-level. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
 ## biomcp search study
@@ -766,7 +766,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Maximum headers per page.
@@ -775,10 +775,10 @@ Options:
           Zero-based offset in the checked snapshot.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Opaque continuation retaining the catalog revision and selectors.
@@ -802,7 +802,7 @@ Search cancer genomics studies in cBioPortal. Sources: cbioportal.
 - `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion. Value form: string. Example: --cancer-type mixed. Command sources: cbioportal; source restrictions in the field description apply.
 - `--limit`: Maximum headers per page. Value form: integer. Example: --limit 1. Command sources: cbioportal; source restrictions in the field description apply.
 - `--offset`: Zero-based offset in the checked snapshot. Value form: integer. Example: --offset 0. Command sources: cbioportal; source restrictions in the field description apply.
-- `--pool`: Opaque continuation retaining the catalog revision and selectors. Value form: string. Example: --pool '<string>'. Command sources: cbioportal; source restrictions in the field description apply.
+- `--pool`: Opaque continuation retaining the catalog revision and selectors. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: cbioportal; source restrictions in the field description apply.
 - `text`: Exact study ID, name or description text, without synonyms or typo repair.
 
 ## biomcp search pgx
@@ -823,7 +823,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --gene <gene>
           Explicit source gene symbol.
@@ -832,10 +832,10 @@ Options:
           Rows per native page.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Native source offset.
@@ -890,17 +890,17 @@ Options:
           Immutable stored bundle revision retained by a continuation.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --condition-id <condition_id>
           Exact MedGen:CUI.
           Exact MedGen:CUI identifier only.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --decision-from <decision_from>
           First date, YYYY-MM-DD.
@@ -1048,7 +1048,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Native report headers or VAERS rows per page; default five.
@@ -1058,10 +1058,10 @@ Options:
           MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Native row offset. VAERS continuation requires its retained snapshot.
@@ -1117,7 +1117,7 @@ Options:
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
 - `--drug`: FAERS drug names; OR.
-FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: array. Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
+FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers or VAERS rows per page; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1125,7 +1125,7 @@ MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list sever
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--product-code`: MAUDE product codes; OR.
-MAUDE exact source device.device_report_product_code; repeated codes join with OR. Value form: array. Example: --product-code ABC. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+MAUDE exact source device.device_report_product_code; repeated codes join with OR. Value form: repeatable values (repeat the flag). Example: --product-code ABC. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--reaction`: FAERS MedDRA phrase.
 FAERS MedDRA term phrase match, not exact equality. Value form: string. Example: --reaction 'synthetic reaction'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-from`: First date, YYYY-MM[-DD].
@@ -1137,7 +1137,7 @@ Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month
 FAERS seriousness flag.
 FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--snapshot`: VAERS snapshot.
-Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot '<string>'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--source`: Source; default FAERS; biomcp_help search adverse-event
 Source; default FAERS.
 FAERS by default; VAERS accepts only exact supported vaccine names. Value form: string. Example: --source maude. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1172,7 +1172,7 @@ Options:
           Maximum source rows on one page.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native row offset.
@@ -1182,10 +1182,10 @@ Options:
           Exactly one ontology, default MONDO.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --source <source>
           One explicit source, default OLS; biomcp_help search disease
@@ -1241,7 +1241,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --firm <firm>
           Literal published recalling firm phrase; drug recalls only.
@@ -1250,10 +1250,10 @@ Options:
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --initiated-to <initiated_to>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
@@ -1342,7 +1342,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Number of results per page.
@@ -1352,10 +1352,10 @@ Options:
           Optional HGNC locus group intersected with the selector.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Number of results to skip.
@@ -1393,12 +1393,12 @@ Usage: biomcp search article [OPTIONS] [text]
 Arguments:
   [text]
           Source search words.
-          Words sent to each named source in its default fields.
+          Words sent to each named source in its default fields; unsupported by LitVar, which requires a variant selector.
 
 Options:
       --author <author>
-          PubMed author words.
-          Author words sent to PubMed's author field.
+          PubMed/Europe PMC author words.
+          PubMed and Europe PMC only: author words sent to the source's author field.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1407,34 +1407,36 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --disease <disease>
           Disease words.
+          Available for command sources except LitVar.
 
       --drug <drug>
           Drug words.
+          Available for command sources except LitVar.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --gene <gene>
           Gene symbol or ID.
           Gene input; PubMed resolves it through HGNC.
 
       --journal <journal>
-          PubMed journal words.
-          Journal words sent to PubMed's journal field.
+          PubMed/Europe PMC journal words.
+          PubMed and Europe PMC only: journal words sent to the source's journal field.
 
       --limit <limit>
           Maximum page length.
 
       --no-preprints[=<no_preprints>]
           Exclude preprints.
-          Exclude preprints using the source's native filter.
+          PubMed and Europe PMC only: exclude preprints using the source's native filter.
 
           [default: false]
           [possible values: true, false]
@@ -1450,7 +1452,7 @@ Options:
 
       --open-access[=<open_access>]
           Native open access.
-          Require the source's native open-access filter; Semantic Scholar means a public PDF.
+          PubMed, Europe PMC and Semantic Scholar only: require native open access; Semantic Scholar means a public PDF.
 
           [default: false]
           [possible values: true, false]
@@ -1473,7 +1475,7 @@ Options:
 
       --since <since>
           First publication date.
-          Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
+          PubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date.
 
       --sort <sort>
           rank, date or citations; biomcp_help search article
@@ -1496,12 +1498,13 @@ Options:
           pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
 
       --type <type>
-          Publication-type filter; biomcp_help search article
-          Publication-type filter.
+          Publication type; biomcp_help search article
+          Publication type.
+          PubMed and Europe PMC only: native publication-type filter.
 
       --until <until>
           Last publication date.
-          Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
+          PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date.
 
       --variant <variant>
           Variant words.
@@ -1513,30 +1516,32 @@ Options:
 
 Search research articles and biomedical papers. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
 
-- `--author`: PubMed author words.
-Author words sent to PubMed's author field. Value form: string. Example: --author Carpten. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--disease`: Disease words. Value form: string. Example: --disease meningioma. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--drug`: Drug words. Value form: string. Example: --drug 'drug words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--author`: PubMed/Europe PMC author words.
+PubMed and Europe PMC only: author words sent to the source's author field. Value form: string. Example: --author Carpten. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--disease`: Disease words.
+Available for command sources except LitVar. Value form: string. Example: --disease meningioma. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--drug`: Drug words.
+Available for command sources except LitVar. Value form: string. Example: --drug 'drug words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--gene`: Gene symbol or ID.
 Gene input; PubMed resolves it through HGNC. Value form: string. Example: --gene NF2. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--journal`: PubMed journal words.
-Journal words sent to PubMed's journal field. Value form: string. Example: --journal 'journal words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--journal`: PubMed/Europe PMC journal words.
+PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string. Example: --journal 'journal words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--limit`: Maximum page length. Value form: integer. Example: --limit 5. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--no-preprints`: Exclude preprints.
-Exclude preprints using the source's source filter. Value form: boolean. Example: --no-preprints. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed and Europe PMC only: exclude preprints using the source's source filter. Value form: boolean. Example: --no-preprints. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 5. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--open-access`: Source open access.
-Require the source's source open-access filter; Semantic Scholar means a public PDF. Value form: boolean. Example: --open-access. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF. Value form: boolean. Example: --open-access. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Stable result snapshot.
-Stable snapshot from an earlier response. Value form: string. Example: --pool '<string>'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Stable snapshot from an earlier response. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--exclude-retracted`: Retraction filter; biomcp_help search article
 Retraction filter.
-Include retracted papers by default, or exclude them using a source filter. Value form: boolean. Example: --exclude-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean. Example: --exclude-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--include-retracted`: Retraction filter; biomcp_help search article
 Retraction filter.
-Include retracted papers by default, or exclude them using a source filter. Value form: boolean. Example: --include-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean. Example: --include-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--since`: First publication date.
-Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date. Value form: string. Example: --since 2024. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date. Value form: string. Example: --since 2024. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--sort`: rank, date or citations; biomcp_help search article
 rank, date or citations.
 rank (default): source order; several sources take turns; source search cost.
@@ -1552,15 +1557,16 @@ europepmc: words in open full text and preprints; incidental mentions are possib
 litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
 semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
 litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
-pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. Value form: array. Example: --source europepmc. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. Value form: repeatable values (repeat the flag). Example: --source europepmc. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `text`: Source search words.
-Words sent to each named source in its default fields.
-- `--type`: Publication-type filter; biomcp_help search article
-Publication-type filter. Value form: string. Example: --type review. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Words sent to each named source in its default fields; unsupported by LitVar, which requires a variant selector.
+- `--type`: Publication type; biomcp_help search article
+Publication type.
+PubMed and Europe PMC only: source publication-type filter. Value form: string. Example: --type review. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--until`: Last publication date.
-Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date. Value form: string. Example: --until 2020. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string. Example: --until 2020. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--variant`: Variant words. Value form: string. Example: --variant rs121434592. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--query`: Alias for positional article text. Value form: string. Example: --query '<string>'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--query`: Alias for positional article text. Value form: string. Example: --query <query> (syntax; replace the placeholder with your retained value). Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp search trial
 
@@ -1576,7 +1582,8 @@ Arguments:
 
 Options:
       --age <age>
-          Age in years; unstated source bounds count as no limit.
+          Age in years.
+          ClinicalTrials.gov only; unstated source bounds count as no limit.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1589,7 +1596,7 @@ Options:
           Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --biomarker-use <biomarker_use>
           NCI criterion; biomcp_help search trial
@@ -1597,14 +1604,14 @@ Options:
           Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --condition <condition>...
           Disease or NCIt.
           Condition alternatives joined with OR; NCI requires NCIt codes.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --condition-id <condition_id>
           MONDO/DOID/NCIT:C.
@@ -1623,11 +1630,11 @@ Options:
 
       --criteria <criteria>
           Criteria text.
-          Search literal registry eligibility text for discovery only; no eligibility judgment.
+          ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment.
 
       --distance <distance>
           Radius, mi or km.
-          Source distance with explicit mi or km units.
+          ClinicalTrials.gov only: source distance with explicit mi or km units.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1658,14 +1665,14 @@ Options:
 
       --has-results[=<has_results>]
           Posted results.
-          Require posted source results.
+          ClinicalTrials.gov only: require posted source results.
 
           [default: false]
           [possible values: true, false]
 
       --id <id>
           NCT identifier.
-          Exact NCT identity in a conjunction with other filters.
+          ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters.
 
       --intervention <intervention>...
           Treatment terms; OR.
@@ -1677,14 +1684,14 @@ Options:
 
       --lat <lat>
           Latitude degrees.
-          Radius center latitude in degrees.
+          ClinicalTrials.gov only: radius center latitude in degrees.
 
       --limit <limit>
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
           Longitude degrees.
-          Radius center longitude in degrees.
+          ClinicalTrials.gov only: radius center longitude in degrees.
 
       --next-page <next_page>
           Page token.
@@ -1699,8 +1706,8 @@ Options:
           Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
-          Registry sex facet; biomcp_help search trial
-          Registry sex facet.
+          ClinicalTrials.gov only: registry sex facet; biomcp_help search trial
+          ClinicalTrials.gov only: registry sex facet.
 
       --source <source>
           clinicaltrials/nci; biomcp_help search trial
@@ -1709,12 +1716,12 @@ Options:
 
       --sponsor <sponsor>
           Sponsor.
-          Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
+          ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category.
 
       --sponsor-type <sponsor_type>
           Funding class; biomcp_help search trial
           Funding class.
-          Registry sponsor funding category; use --sponsor for a sponsor name.
+          ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name.
 
       --status <status>
           Native status; biomcp_help search trial
@@ -1724,15 +1731,15 @@ Options:
       --study-type <study_type>
           Study type; biomcp_help search trial
           Study type.
-          Exact registry study type.
+          ClinicalTrials.gov only: exact registry study type.
 
       --updated-since <updated_since>
           First date.
-          First included registry update date.
+          ClinicalTrials.gov only: first included registry update date.
 
       --updated-until <updated_until>
           Last date.
-          Last included registry update date.
+          ClinicalTrials.gov only: last included registry update date.
 
       --variant <variant>
           Variant text.
@@ -1742,24 +1749,25 @@ Options:
 
 Search clinical trials. Sources: ctgov, nci.
 
-- `--age`: Age in years; unstated source bounds count as no limit. Value form: integer. Example: --age 18. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--age`: Age in years.
+ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer. Example: --age 18. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--biomarker-code`: NCI NCIt code.
 Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string. Example: --biomarker-code C96022. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--biomarker-use`: NCI criterion; biomcp_help search trial
 NCI criterion.
 Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string. Example: --biomarker-use inclusion. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--condition`: Disease or NCIt.
-Condition alternatives joined with OR; NCI requires NCIt codes. Value form: array. Example: --condition melanoma. Command sources: ctgov, nci; source restrictions in the field description apply.
+Condition alternatives joined with OR; NCI requires NCIt codes. Value form: repeatable values (repeat the flag). Example: --condition melanoma. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--condition-id`: MONDO/DOID/NCIT:C.
 Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string. Example: --condition-id NCIT:C3224. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--count-only`: Total.
 Source total only; no returned study rows. Value form: boolean. Example: --count-only. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--country`: Country label; biomcp_help search trial.
-Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: array. Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
+Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--criteria`: Criteria text.
-Search exact registry eligibility text for discovery only; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--distance`: Radius, mi or km.
-Source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean. Example: --exact-condition. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--facility`: Facility.
@@ -1767,46 +1775,46 @@ Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI match
 - `--gene`: Gene symbol/ID.
 ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string. Example: --gene KIT. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--has-results`: Posted results.
-Require posted source results. Value form: boolean. Example: --has-results true. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: require posted source results. Value form: boolean. Example: --has-results true. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--id`: NCT identifier.
-Exact NCT identity in a conjunction with other filters. Value form: string. Example: --id NCT05273554. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters. Value form: string. Example: --id NCT05273554. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--intervention`: Treatment terms; OR.
-Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: array. Example: --intervention pembrolizumab. Command sources: ctgov, nci; source restrictions in the field description apply.
+Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: repeatable values (repeat the flag). Example: --intervention pembrolizumab. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--keyword`: Text; OR.
-Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: array. Example: --keyword survival. Command sources: ctgov, nci; source restrictions in the field description apply.
+Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: repeatable values (repeat the flag). Example: --keyword survival. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--lat`: Latitude degrees.
-Radius center latitude in degrees. Value form: string. Example: --lat 42.3601. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: radius center latitude in degrees. Value form: string. Example: --lat 42.3601. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--limit`: Headers per page; NCI applies its own lower publisher limit. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--lon`: Longitude degrees.
-Radius center longitude in degrees. Value form: string. Example: --lon -71.0589. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: radius center longitude in degrees. Value form: string. Example: --lon -71.0589. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--next-page`: Page token.
-Opaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
+Opaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page <next-page> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--offset`: Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--phase`: Source phase; biomcp_help search trial
 Source phase.
 Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string. Example: --phase 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `query`: Trial text.
 General registry discovery text.
-- `--sex`: Registry sex facet; biomcp_help search trial
-Registry sex facet. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--sex`: ClinicalTrials.gov only: registry sex facet; biomcp_help search trial
+ClinicalTrials.gov only: registry sex facet. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--source`: clinicaltrials/nci; biomcp_help search trial
 clinicaltrials/nci.
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--sponsor`: Sponsor.
-Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string. Example: --sponsor 'MD Anderson'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string. Example: --sponsor 'MD Anderson'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--sponsor-type`: Funding class; biomcp_help search trial
 Funding class.
-Registry sponsor funding category; use --sponsor for a sponsor name. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--status`: Source status; biomcp_help search trial
 Source status.
 Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status COMPLETED. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--study-type`: Study type; biomcp_help search trial
 Study type.
-Exact registry study type. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: exact registry study type. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--updated-since`: First date.
-First included registry update date. Value form: string. Example: --updated-since '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: first included registry update date. Value form: string. Example: --updated-since <updated-since> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--updated-until`: Last date.
-Last included registry update date. Value form: string. Example: --updated-until '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: last included registry update date. Value form: string. Example: --updated-until <updated-until> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--variant`: Variant text.
 ClinicalTrials.gov only: exact variant text for registry discovery; no eligibility judgment. Value form: string. Example: --variant L576P. Command sources: ctgov, nci; source restrictions in the field description apply.
 
@@ -1832,16 +1840,16 @@ Options:
           Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --condition <condition>
           Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --gene <gene>
           Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
@@ -1940,13 +1948,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1988,13 +1996,13 @@ Options:
           NCI is the biomarker concept source.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2035,13 +2043,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2086,16 +2094,16 @@ Options:
           Explicit row limit for each requested collection; native variation defaults to three.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --section-offset <section_offset>
           Offset within each independently requested collection.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2152,7 +2160,7 @@ Options:
           Maximum native relation rows.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --section-offset <section_offset>
           Native relation row offset.
@@ -2161,10 +2169,10 @@ Options:
           Retained ancestry reply for a local page.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2186,7 +2194,7 @@ Get GWAS Catalog associations or studies. Sources: gwas.
 - `section`: Association loci or study associations and ancestries; biomcp_help get gwas
 - `--section-limit`: Maximum source relation rows. Value form: integer. Example: --section-limit 1. Command sources: gwas; source restrictions in the field description apply.
 - `--section-offset`: Source relation row offset. Value form: integer. Example: --section-offset 0. Command sources: gwas; source restrictions in the field description apply.
-- `--snapshot`: Retained ancestry reply for a local page. Value form: string. Example: --snapshot '<string>'. Command sources: gwas; source restrictions in the field description apply.
+- `--snapshot`: Retained ancestry reply for a local page. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: gwas; source restrictions in the field description apply.
 
 Association loci or study associations and ancestries.
 
@@ -2218,16 +2226,16 @@ Options:
           Select native sections or all bounded first pages;; biomcp_help get protein
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --section-limit <section_limit>
           First-page row limit; function keeps one whole native text record and does not page its paragraphs.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2246,7 +2254,7 @@ Options:
 Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
-- `--section`: Select source sections or all bounded first pages;; biomcp_help get protein Value form: array. Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
+- `--section`: Select source sections or all bounded first pages;; biomcp_help get protein Value form: repeatable values (repeat the flag). Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer. Example: --section-limit 2. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 
 Select source sections or all bounded first pages; function keeps one whole text record.
@@ -2285,7 +2293,7 @@ Options:
           Default five text/link rows or one complete association row.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --section-offset <section_offset>
           Native section row offset.
@@ -2294,10 +2302,10 @@ Options:
           Retained exact source reply for local text and link pages; unsupported for diseases and genes.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --source <source>
           HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
@@ -2323,7 +2331,7 @@ Get human phenotype details and relationships. Sources: hpo, monarch.
 - `section`: Absent means the source identity card; biomcp_help get phenotype
 - `--section-limit`: Default five text/link rows or one complete association row. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot '<string>'. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
 HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
 
@@ -2363,7 +2371,7 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --pool <pool>
           Retained snapshot, when continuing a source relation.
@@ -2372,10 +2380,10 @@ Options:
           Bounded initial section size; each all section has its own first page.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --section-offset <section_offset>
           Native relation offset for a selected genes or events section.
@@ -2392,7 +2400,7 @@ Get human pathway details. Sources: reactome, wikipathways.
 
 - `--fresh`: Request a new source observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
-- `--pool`: Retained snapshot, when continuing a source relation. Value form: string. Example: --pool '<string>'. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--pool`: Retained snapshot, when continuing a source relation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `section`: Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
 - `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer. Example: --section-limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer. Example: --section-offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
@@ -2429,7 +2437,7 @@ Options:
           Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --molecular-profile <molecular_profile>
           Exact mutation profile ID; omitted selects the study's first mutation profile.
@@ -2438,10 +2446,10 @@ Options:
           Maximum records in each selected section.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --section-offset <section_offset>
           Offset within one named section; all requires zero.
@@ -2503,16 +2511,16 @@ Options:
           Unchanged declared expression required for the diplotype section only.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --drug-id <drug_id>
           Exact published CPIC drug key; recommendations only.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --gene <gene>
           Explicit source gene symbol.
@@ -2550,16 +2558,16 @@ Options:
 
 Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 
-- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string. Example: --annotation-id '<string>'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string. Example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string. Example: --diplotype '*1/*2A'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id '<string>'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id <drug-id> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--kind`: One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
 One ClinPGx collection; clinical is the default only on annotations. Value form: string. Example: --kind clinical. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `section`: One named section; omitted means the CPIC gene card; biomcp_help get pgx
 - `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer. Example: --section-limit 1. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--section-offset`: Offset within the selected section. Value form: integer. Example: --section-offset 0. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--snapshot`: Retained collection for local continuation. Value form: string. Example: --snapshot '<string>'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--snapshot`: Retained collection for local continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--source`: Required source, checked against the section; biomcp_help get pgx
 Required source, checked against the section. Value form: string. Example: --source cpic. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 
@@ -2595,7 +2603,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --section-limit <section_limit>
           Maximum native rows; omitted means five rows, or one regulatory fragment.
@@ -2604,10 +2612,10 @@ Options:
           Zero-based native row or fragment offset.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --source <source>
           Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
@@ -2633,7 +2641,7 @@ Options:
 
 Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
 
-- `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision '<string>'. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value). Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `id`: Exact source identity, including version for GTR.
 - `section`: GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer. Example: --section-limit 2. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
@@ -2678,7 +2686,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --section-limit <section_limit>
           Whole source rows per section page.
@@ -2687,10 +2695,10 @@ Options:
           Offset within the selected native section.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --snapshot <snapshot>
           Checked retained report snapshot for provider-free continuation.
@@ -2720,7 +2728,7 @@ Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 - `section`: FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
 - `--section-limit`: Whole source rows per section page. Value form: integer. Example: --section-limit 1. Command sources: faers, maude; source restrictions in the field description apply.
 - `--section-offset`: Offset within the selected source section. Value form: integer. Example: --section-offset 0. Command sources: faers, maude; source restrictions in the field description apply.
-- `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string. Example: --snapshot '<string>'. Command sources: faers, maude; source restrictions in the field description apply.
+- `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude; source restrictions in the field description apply.
 - `--source`: FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
 FAERS by default; MAUDE is explicit. Value form: string. Example: --source maude. Command sources: faers, maude; source restrictions in the field description apply.
 
@@ -2766,16 +2774,16 @@ Options:
           Requested native dataset selector, not proof of returned membership.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --interval <interval>
           Survival-only interval code.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --ontology <ontology>
           One OLS ontology; biomcp_help get disease
@@ -2873,16 +2881,16 @@ Options:
           Independent native evidence or assertion collection within the selected profile.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-profile <civic_profile>
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --document-id <document_id>
           FDA letter document ID.
@@ -2944,7 +2952,7 @@ Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 1
 and 6144 escaped bytes per fragment. No-text scans are explicit. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-level`: A–E; biomcp_help get drug
 A–E
-Source CIViC evidence levels; repeat to include several levels. Value form: array. Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Source CIViC evidence levels; repeat to include several levels. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-status`: Status; biomcp_help get drug
 Status
 Source CIViC evidence status; omitted preserves the source's existing default. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
@@ -2993,13 +3001,13 @@ Options:
           Requested section words, preserving caller order and; biomcp_help get gene
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3018,7 +3026,7 @@ Options:
 Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
-- `--section`: Requested section words, preserving caller order and; biomcp_help get gene Value form: array. Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
+- `--section`: Requested section words, preserving caller order and; biomcp_help get gene Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
@@ -3055,13 +3063,13 @@ Options:
           Requested section words; trailing words and --section; biomcp_help get article
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3080,7 +3088,7 @@ Options:
 Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
-- `--section`: Requested section words; trailing words and --section; biomcp_help get article Value form: array. Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--section`: Requested section words; trailing words and --section; biomcp_help get article Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 
 Requested section words; trailing words and --section share this field.
 
@@ -3115,7 +3123,7 @@ Options:
           Whole-record count per source collection page; text fragments follow the text budget.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections.
@@ -3124,10 +3132,10 @@ Options:
           Checked stored source record, supplied by a continuation.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --section <section>
           Optional intact source sections. Default cards only;; biomcp_help get trial
@@ -3155,8 +3163,8 @@ Get clinical trial details. Sources: ctgov, nci.
 - `input`: One to twenty exact NCT identifiers, in caller order.
 - `--limit`: Whole-record count per source collection page; text fragments follow the text budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool '<string>'. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial Value form: array. Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial Value form: repeatable values (repeat the flag). Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and; biomcp_help get trial
 Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 
@@ -3206,7 +3214,7 @@ Options:
           Native CIViC cursor, retained unchanged.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-kind <civic_kind>
           Claims; biomcp_help get variant
@@ -3214,13 +3222,13 @@ Options:
           Native CIViC claim collection within the selected profile.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --civic-profile <civic_profile>
           Selected CIViC molecular profile for native claim paging.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --evidence-level <evidence_level>...
           A–E; biomcp_help get variant
@@ -3280,7 +3288,7 @@ Source CIViC claim collection within the selected profile. Value form: string. E
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer. Example: --civic-profile 12. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-level`: A–E; biomcp_help get variant
 A–E
-Source CIViC evidence levels; repeat to include several levels. Value form: array. Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+Source CIViC evidence levels; repeat to include several levels. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-status`: Status; biomcp_help get variant
 Status
 Source CIViC evidence status; omitted preserves the source's existing default. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
@@ -3295,7 +3303,7 @@ Resolver for reference-qualified notation; never repairs the input locally. Valu
 - `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer. Example: --section-limit 2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer. Example: --section-offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--tumor-type`: Tumor
-Explicit tumor context for keyed OncoKB annotation. Value form: string. Example: --tumor-type '<string>'. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+Explicit tumor context for keyed OncoKB annotation. Value form: string. Example: --tumor-type <tumor-type> (syntax; replace the placeholder with your retained value). Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
@@ -3330,13 +3338,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3383,7 +3391,7 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
   -l, --limit <limit>
           Bounded row count.
@@ -3392,10 +3400,10 @@ Options:
           Native or retained collection offset.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Retained collection identity.
@@ -3420,7 +3428,7 @@ List an author's research papers. Sources: orcid, semantic-scholar.
 - `id`: Exact qualified source record.
 - `--limit`: Bounded row count. Value form: integer. Example: --limit 5. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Source or retained collection offset. Value form: integer. Example: --offset 0. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `section`: Detailed disclosure when requested; biomcp_help author papers
 
 Detailed disclosure when requested.
@@ -3445,13 +3453,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3489,13 +3497,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3540,13 +3548,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3587,7 +3595,7 @@ Options:
           Five rows by default, at most 25.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native or retained page offset.
@@ -3596,10 +3604,10 @@ Options:
           Retained collection identity.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --position <position>
           Native one-based residue; zero fails during deserialization.
@@ -3626,7 +3634,7 @@ Get protein features by residue or region. Sources: uniprot.
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
 - `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
 - `--position`: Source one-based residue; zero fails during deserialization. Value form: integer. Example: --position 25. Command sources: uniprot; source restrictions in the field description apply.
 - `--type`: Exact UniProt source label, without an alias map. Value form: string. Example: --type Chain. Command sources: uniprot; source restrictions in the field description apply.
 
@@ -3652,7 +3660,7 @@ Options:
           Five rows by default, at most 25.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native or retained page offset.
@@ -3661,10 +3669,10 @@ Options:
           Retained collection identity.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3685,7 +3693,7 @@ Get protein isoforms and alternative products. Sources: uniprot.
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
 - `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
 
 ## biomcp protein domains
 
@@ -3709,7 +3717,7 @@ Options:
           Five rows by default, at most 25.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native or retained page offset.
@@ -3718,10 +3726,10 @@ Options:
           Retained collection identity.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --type <type>
           Exact native InterPro type, not a normalized domain label.
@@ -3745,8 +3753,8 @@ Get protein domains and families from InterPro. Sources: interpro.
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: interpro; source restrictions in the field description apply.
 - `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: interpro; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: interpro; source restrictions in the field description apply.
-- `--type`: Exact source InterPro type, not a normalized domain label. Value form: string. Example: --type '<string>'. Command sources: interpro; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: interpro; source restrictions in the field description apply.
+- `--type`: Exact source InterPro type, not a normalized domain label. Value form: string. Example: --type <type> (syntax; replace the placeholder with your retained value). Command sources: interpro; source restrictions in the field description apply.
 
 ## biomcp protein complexes
 
@@ -3770,7 +3778,7 @@ Options:
           Five rows by default, at most 25.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native or retained page offset.
@@ -3779,10 +3787,10 @@ Options:
           Retained collection identity.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3803,7 +3811,7 @@ List protein complexes containing a protein. Sources: complex-portal.
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply.
 - `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: complex-portal; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: complex-portal; source restrictions in the field description apply.
 
 ## biomcp protein complex-members
 
@@ -3827,7 +3835,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Five rows by default, at most 25.
@@ -3836,10 +3844,10 @@ Options:
           Native or retained page offset.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Retained collection identity.
@@ -3864,7 +3872,7 @@ List the members of a protein complex. Sources: complex-portal.
 - `--complex`: Exact complex whose source participants contain the anchor. Value form: string. Example: --complex CPX-715. Command sources: complex-portal; source restrictions in the field description apply.
 - `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply.
 - `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: complex-portal; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: complex-portal; source restrictions in the field description apply.
 
 ## biomcp protein structures
 
@@ -3888,7 +3896,7 @@ Options:
           Five rows by default, at most 25.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Native or retained page offset.
@@ -3897,10 +3905,10 @@ Options:
           Retained collection identity.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3921,7 +3929,7 @@ Get protein structure references from PDB. Sources: uniprot.
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
 - `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool '<string>'. Command sources: uniprot; source restrictions in the field description apply.
+- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
 
 ## biomcp protein sequence
 
@@ -3943,13 +3951,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3988,13 +3996,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4039,7 +4047,7 @@ Options:
           Five complete relation rows by default, at most fifty.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Offset within the retained selected relation.
@@ -4048,10 +4056,10 @@ Options:
           Immutable relation snapshot.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4074,7 +4082,7 @@ Include every physical entity context for these references; never clips source t
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool '<string>'. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
 ## biomcp pathway events
 
@@ -4098,7 +4106,7 @@ Options:
           Five complete relation rows by default, at most fifty.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Offset within the retained selected relation.
@@ -4107,10 +4115,10 @@ Options:
           Immutable relation snapshot.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4131,7 +4139,7 @@ List events within a biological pathway. Sources: reactome.
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 50. Command sources: reactome; source restrictions in the field description apply.
 - `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome; source restrictions in the field description apply.
-- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool '<string>'. Command sources: reactome; source restrictions in the field description apply.
+- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome; source restrictions in the field description apply.
 
 ## biomcp article
 
@@ -4157,13 +4165,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4207,7 +4215,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Matching-row or text-fragment offset.
@@ -4219,16 +4227,16 @@ Options:
           [possible values: true, false]
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --rows <rows>
           Inclusive original row range.
 
       --save <save>
-          Save the whole original document to an explicit file or existing folder.
+          Save the whole original document to an explicit file or existing folder. Example: --save article-output.
 
       --sheet <sheet>
           Sheet name for row selection.
@@ -4258,7 +4266,7 @@ Read a research article supplementary file. Sources: pmc-oa, pubmed.
 - `--offset`: Matching-row or text-fragment offset. Value form: integer. Example: --offset 3. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 - `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 - `--rows`: Inclusive original row range. Value form: string. Example: --rows 84-86. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
-- `--save`: Save the whole original document to an explicit file or existing folder. Value form: string. Example: --save '<string>'. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--save`: Save the whole original document to an explicit file or existing folder. Example: --save article-output. Value form: string. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 - `--sheet`: Sheet name for row selection. Value form: string. Example: --sheet ST2. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 - `--variant`: Explicit protein substitution. Value form: string. Example: --variant P245S. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
 
@@ -4287,16 +4295,16 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --save <save>
           Destination file or existing folder.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4340,7 +4348,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Number of matching rows already returned.
@@ -4349,10 +4357,10 @@ Options:
           One-based outline part number.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --replace[=<replace>]
           Replace an existing destination only when explicitly requested with save.
@@ -4361,10 +4369,10 @@ Options:
           [possible values: true, false]
 
       --save <save>
-          Save the whole original document to an explicit file or existing folder.
+          Save the whole original document to an explicit file or existing folder. Example: --save article-output.
 
       --variant <variant>
-          Explicit checked protein substitution.
+          Explicit checked protein substitution. Example: --variant p.V600E.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4387,8 +4395,8 @@ Read research article full text. Sources: europepmc, pmc-oa, pubmed.
 - `--offset`: Number of matching rows already returned. Value form: integer. Example: --offset 0. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `--part`: One-based outline part number. Value form: integer. Example: --part 1. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--save`: Save the whole original document to an explicit file or existing folder. Value form: string. Example: --save '<string>'. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--variant`: Explicit checked protein substitution. Value form: string. Example: --variant '<string>'. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--save`: Save the whole original document to an explicit file or existing folder. Example: --save article-output. Value form: string. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--variant`: Explicit checked protein substitution. Example: --variant p.V600E. Value form: string. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 
 ## biomcp article citations
 
@@ -4412,7 +4420,7 @@ Options:
           Maximum papers on one page.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Number of pool items to skip.
@@ -4421,10 +4429,10 @@ Options:
           Fixed snapshot from an earlier page.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --source <source>
           Graph provider; iCite remains the default; biomcp_help article citations
@@ -4449,7 +4457,7 @@ List research papers citing an article. Sources: icite, pubmed, semantic-scholar
 - `--limit`: Maximum papers on one page. Value form: integer. Example: --limit 1. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 0. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
-- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool '<string>'. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--source`: Graph source; iCite remains the default; biomcp_help article citations
 Graph source; iCite remains the default. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 
@@ -4475,7 +4483,7 @@ Options:
           Maximum papers on one page.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Number of pool items to skip.
@@ -4484,10 +4492,10 @@ Options:
           Fixed snapshot from an earlier page.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --source <source>
           Graph provider; iCite remains the default; biomcp_help article citations
@@ -4512,7 +4520,7 @@ List research papers referenced by an article. Sources: icite, pubmed, semantic-
 - `--limit`: Maximum papers on one page. Value form: integer. Example: --limit 1. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 112. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
-- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool '<string>'. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--source`: Graph source; iCite remains the default; biomcp_help article citations
 Graph source; iCite remains the default. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 
@@ -4544,7 +4552,7 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --offset <offset>
           Context fragment position returned by the advancing step.
@@ -4553,10 +4561,10 @@ Options:
           Full-text fragment position returned by the advancing step.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Stored checked source scan and original hit positions.
@@ -4582,7 +4590,7 @@ Get research article citation evidence. Sources: pmc-oa, pubmed, semantic-schola
 - `--fulltext`: Include the citing paper's own explicit reference paragraphs. Value form: boolean. Example: --fulltext. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Context fragment position returned by the advancing step. Value form: integer. Example: --offset 0. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--paragraph-offset`: Full-text fragment position returned by the advancing step. Value form: integer. Example: --paragraph-offset 0. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Stored checked source scan and original hit positions. Value form: string. Example: --pool '<string>'. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Stored checked source scan and original hit positions. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article recommendations
 
@@ -4606,7 +4614,7 @@ Options:
           Maximum recommendations requested, in native order.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --negative <negative>...
           Up to ten negative paper identities.
@@ -4615,10 +4623,10 @@ Options:
           Number of stored recommendations to skip.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --pool <pool>
           Fixed recommendation pool.
@@ -4640,9 +4648,9 @@ Options:
 Get related research article recommendations. Sources: semantic-scholar.
 
 - `--limit`: Maximum recommendations requested, in source order. Value form: integer. Example: --limit 5. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--negative`: Up to ten negative paper identities. Value form: array. Example: --negative 33433946. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--negative`: Up to ten negative paper identities. Value form: repeatable values (repeat the flag). Example: --negative 33433946. Command sources: semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Number of stored recommendations to skip. Value form: integer. Example: --offset 1. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Fixed recommendation pool. Value form: string. Example: --pool '<string>'. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Fixed recommendation pool. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: semantic-scholar; source restrictions in the field description apply.
 - `seeds`: One to ten positive paper identities.
 
 ## biomcp trial
@@ -4663,13 +4671,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4716,16 +4724,16 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --save <save>
           Caller-owned file or existing folder.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4769,13 +4777,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4820,16 +4828,16 @@ Options:
           Identity lookup assembly; omitted uses the shared GRCh38 default.
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Assertions per page; omitted uses the native source default.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Assertions to skip in source order.
@@ -4896,16 +4904,16 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --limit <limit>
           Maximum rows per page.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Native rows to skip.
@@ -4962,7 +4970,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --gene <gene>
           HGNC symbol resolved to the source's Entrez gene identifier.
@@ -4971,10 +4979,10 @@ Options:
           Source mutation rows per page, including excluded alleles.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --page <page>
           Zero-based native source page.
@@ -5039,7 +5047,7 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --hgvs <hgvs>
           Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
@@ -5049,10 +5057,10 @@ Options:
           Source mapping rows per service, with typed continuation for remaining rows.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offset <offset>
           Source mapping rows to skip per service.
@@ -5108,13 +5116,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5155,13 +5163,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5197,13 +5205,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5239,13 +5247,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5285,13 +5293,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5338,13 +5346,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5388,13 +5396,13 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5437,13 +5445,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5480,13 +5488,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5525,13 +5533,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5563,13 +5571,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5610,13 +5618,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5652,13 +5660,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5704,13 +5712,13 @@ Options:
           [possible values: true, false]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5752,13 +5760,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5800,7 +5808,7 @@ Options:
           [possible values: single, typed]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --hosted[=<hosted>]
           Refuse host file saves, health details and store or key changes over MCP.
@@ -5814,22 +5822,22 @@ Options:
           [default: 1]
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --http [<http>]
           Listen on an HTTP address; omit its value for the loopback default.
 
       --http_max_calls <http_max_calls>
-          Limit tool calls in flight.
+          Limit tool calls in flight. Example: --http_max_calls 8.
 
       --http_max_connections <http_max_connections>
-          Limit open HTTP connections; must cover http_max_calls.
+          Limit open HTTP connections; must cover http_max_calls. Example: --http_max_connections 64.
 
       --allow-host <allow-host>
-          Allow an HTTP Host authority; required for non-loopback listeners.
+          Allow an HTTP Host authority; required for non-loopback listeners. Example: --allow-host api.example.org.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5854,9 +5862,9 @@ Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host H
 - `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean. Example: --hosted. Local command option; independent of source selection.
 - `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string. Example: --rate-share 1. Local command option; independent of source selection.
 - `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string. Example: --http 127.0.0.1:8080. Local command option; independent of source selection.
-- `--http_max_calls`: Limit tool calls in flight. Value form: string. Example: --http_max_calls '<string>'. Local command option; independent of source selection.
-- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls. Value form: string. Example: --http_max_connections '<string>'. Local command option; independent of source selection.
-- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners. Value form: string. Example: --allow-host '<string>'. Local command option; independent of source selection.
+- `--http_max_calls`: Limit tool calls in flight. Example: --http_max_calls 8. Value form: string. Local command option; independent of source selection.
+- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls. Example: --http_max_connections 64. Value form: string. Local command option; independent of source selection.
+- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners. Example: --allow-host api.example.org. Value form: string. Local command option; independent of source selection.
 
 ## biomcp schema
 
@@ -5877,13 +5885,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5983,13 +5991,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6044,13 +6052,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6082,13 +6090,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6122,13 +6130,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6160,13 +6168,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6200,13 +6208,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6238,13 +6246,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6278,13 +6286,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6316,13 +6324,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6356,13 +6364,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6394,13 +6402,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6432,13 +6440,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6470,13 +6478,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6508,13 +6516,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6546,13 +6554,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6584,13 +6592,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6622,13 +6630,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6662,13 +6670,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6702,13 +6710,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6742,13 +6750,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6802,13 +6810,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6840,13 +6848,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6880,13 +6888,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6920,13 +6928,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6958,13 +6966,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -6998,13 +7006,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7036,13 +7044,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7076,13 +7084,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7114,13 +7122,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7152,13 +7160,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7190,13 +7198,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7228,13 +7236,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7266,13 +7274,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7304,13 +7312,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7342,13 +7350,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7382,13 +7390,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7422,13 +7430,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7462,13 +7470,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7500,13 +7508,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7543,13 +7551,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7581,13 +7589,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7624,13 +7632,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7662,13 +7670,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7711,13 +7719,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7749,13 +7757,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7787,13 +7795,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7825,13 +7833,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7863,13 +7871,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7901,13 +7909,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7939,13 +7947,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -7977,13 +7985,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8021,13 +8029,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8059,13 +8067,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8097,13 +8105,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8146,13 +8154,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8184,13 +8192,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8222,13 +8230,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8260,13 +8268,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8298,13 +8306,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8336,13 +8344,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8374,13 +8382,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8412,13 +8420,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8455,13 +8463,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8493,13 +8501,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8539,13 +8547,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8577,13 +8585,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8615,13 +8623,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8653,13 +8661,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8691,13 +8699,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8744,13 +8752,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8782,13 +8790,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8820,13 +8828,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8858,13 +8866,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8896,13 +8904,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8934,13 +8942,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -8972,13 +8980,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9010,13 +9018,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9048,13 +9056,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9086,13 +9094,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9124,13 +9132,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9162,13 +9170,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9206,13 +9214,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9246,13 +9254,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9284,13 +9292,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9322,13 +9330,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9360,13 +9368,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9398,13 +9406,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9436,13 +9444,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9476,13 +9484,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9519,13 +9527,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9557,13 +9565,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9608,13 +9616,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9649,13 +9657,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9687,13 +9695,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9725,13 +9733,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9765,13 +9773,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9803,13 +9811,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9841,13 +9849,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9879,13 +9887,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9917,13 +9925,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9955,13 +9963,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -9993,13 +10001,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10031,13 +10039,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10069,13 +10077,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10107,13 +10115,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10145,13 +10153,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10183,13 +10191,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10221,13 +10229,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10259,13 +10267,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10297,13 +10305,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10335,13 +10343,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10373,13 +10381,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10411,13 +10419,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10449,13 +10457,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10487,13 +10495,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10525,13 +10533,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10563,13 +10571,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10601,13 +10609,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10639,13 +10647,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10677,13 +10685,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10715,13 +10723,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10753,13 +10761,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10791,13 +10799,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10829,13 +10837,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10867,13 +10875,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10905,13 +10913,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10943,13 +10951,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -10981,13 +10989,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11019,13 +11027,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11057,13 +11065,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11095,13 +11103,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11139,13 +11147,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11184,13 +11192,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11223,13 +11231,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11261,13 +11269,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11301,13 +11309,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -11348,13 +11356,13 @@ Options:
           [possible values: json, md]
 
       --disable-sources <disable-sources>
-          Exclude source names or source terms groups.
+          Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
-          Read configuration from this file.
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.

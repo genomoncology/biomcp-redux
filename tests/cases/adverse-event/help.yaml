@@ -35,7 +35,7 @@
           "count": 1
         }
       },
-      "max_bytes": 5492,
+      "max_bytes": 6187,
       "run": [
         "help",
         "search",
@@ -80,7 +80,7 @@
           "narrative"
         ]
       },
-      "max_bytes": 4004,
+      "max_bytes": 3560,
       "run": [
         "help",
         "get",

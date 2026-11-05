@@ -9,7 +9,7 @@
         "sync",
         "who-ivd"
       ],
-      "max_bytes": 1391,
+      "max_bytes": 395,
       "expect": {
         "/result/commands/0/command": [
           "sync",
