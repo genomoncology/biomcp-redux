@@ -113,16 +113,22 @@ pub(super) fn invalid_id_witness() -> Result<(), String> {
             frozen = Some(replies.clone());
         } else if frozen.as_ref() != Some(&replies) {
             for raw in replies.values() {
-                writeln!(std::io::stdout(), "TYPED_INVALID_ID_RAW {label} {raw}")
-                    .map_err(|e| e.to_string())?;
+                writeln!(
+                    std::io::stdout(),
+                    "TYPED_INVALID_ID_RAW {label} mode=serve-offline isolated-config=default {raw}"
+                )
+                .map_err(|e| e.to_string())?;
             }
             return Err(
                 "unapproved invalid-ID single-mode wire difference; PM ruling required".into(),
             );
         }
         for raw in replies.values() {
-            writeln!(std::io::stdout(), "TYPED_INVALID_ID_RAW {label} {raw}")
-                .map_err(|e| e.to_string())?;
+            writeln!(
+                std::io::stdout(),
+                "TYPED_INVALID_ID_RAW {label} mode=serve-offline isolated-config=default {raw}"
+            )
+            .map_err(|e| e.to_string())?;
         }
     }
     Ok(())

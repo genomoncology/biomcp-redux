@@ -248,6 +248,16 @@ pub(super) fn guards() -> Result<(), String> {
         .find(|tool| tool.get("name") == Some(&json!("search_biomarker")))
         .ok_or("missing search_biomarker registry tool")?;
     replay::rejects_overstrict_schema(tool)?;
-    baseline::invalid_id_witness()?;
-    baseline::check()
+    let mut failures = Vec::new();
+    if let Err(error) = baseline::invalid_id_witness() {
+        failures.push(error);
+    }
+    if let Err(error) = baseline::check() {
+        failures.push(error);
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
 }
