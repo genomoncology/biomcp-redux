@@ -52,11 +52,15 @@ pub(super) fn read(cx: &Ctx<'_>, rows: &[VariantHeader], deadline: Deadline<'_>)
     let error = result.as_ref().err().copied();
     join.sources
         .push(status::source(Source::AlleleRegistry, leg.finish(), error));
-    join.local = error.and_then(status::local);
-    join.reason = error.and_then(status::reason);
-    if let Ok(mapped) = result {
-        join.id = mapped.value.map(|id| id.to_string());
-        join.problems = mapped.problems;
+    match result {
+        Ok(mapped) => {
+            join.id = mapped.value.map(|id| id.to_string());
+            join.problems = mapped.problems;
+        }
+        Err(error) => {
+            join.local = status::local(error);
+            join.reason = Some(status::reason(error).unwrap_or(Reason::Unavailable));
+        }
     }
     join
 }
