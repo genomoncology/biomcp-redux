@@ -129,6 +129,19 @@
       "expect": {
         "/error/code": "usage.arguments"
       }
+    },
+    {
+      "run": [
+        "disease",
+        "drugs",
+        "breast cancer"
+      ],
+      "offline": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "use: search drug --source openfda-label --indication <TEXT>; no disease synonym expansion"
+      }
     }
   ]
 }
