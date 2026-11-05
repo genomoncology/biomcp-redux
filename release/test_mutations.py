@@ -269,11 +269,20 @@ class MutationCommands(unittest.TestCase):
 
     def test_version_check_obeys_the_shared_deadline(self):
         self.env['FAKE_MODE'] = 'version-hang'
-        self.call('plan', '--previous', self.previous, '--output', self.output,
-                  '--started', time.time() - 90 * 60 + 2, '--measure', ok=False)
-        self.assertFalse(self.plan.exists())
-        calls = [json.loads(line) for line in (self.root / 'cargo-calls.jsonl').read_text().splitlines()]
-        self.assertEqual(len(calls), 1)
+        for remaining in (2, -1):
+            with self.subTest(remaining=remaining):
+                output = self.root / f'version-deadline-{remaining}'
+                log = self.root / 'cargo-calls.jsonl'
+                log.unlink(missing_ok=True)
+                result = self.call('plan', '--previous', self.previous, '--output', output,
+                                   '--started', time.time() - 90 * 60 + remaining,
+                                   '--measure', ok=False)
+                self.assertIn('Install the pinned cargo-mutants before planning', result.stderr)
+                self.assertFalse((output / 'plan.json').exists())
+                calls = [json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+                self.assertIn(len(calls), (0, 1) if remaining > 0 else (0,))
+                for call in calls:
+                    self.assertEqual(call['args'], ['mutants', '--version'])
 
     def test_expired_shard_lists_every_mutant_as_unrun(self):
         self.prepare('--measure')
