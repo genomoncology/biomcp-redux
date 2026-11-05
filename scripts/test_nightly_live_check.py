@@ -337,7 +337,7 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
     def test_failed_discovery_explains_only_its_dependents_and_cached_retries(self):
         import copy
         for status in (429, 500, None):
-            for change in ('dependent', 'cached-retry', 'unrelated', 'shape', 'plan'):
+            for change in ('dependent', 'cached-retry', 'unrelated', 'shape', 'plan', 'nonempty-cache'):
                 with self.subTest(status=status, change=change):
                     row = classification_case('order')
                     command = row['witness'][0]
@@ -355,6 +355,16 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                         row['witness'].append(later)
                         row['result']['commands'].append({'ordinal': 2})
                         row['result']['drift'].append('search: request-plan-added')
+                    elif change == 'nonempty-cache':
+                        later = copy.deepcopy(command)
+                        later['ordinal'] = 2
+                        unrelated = {'identity': 'unrelated', 'source': 'other',
+                                     'role': 'Search', 'status': 200}
+                        later['baseline']['requests'] = [unrelated]
+                        later['live']['requests'] = [unrelated, dict(root, status=200)]
+                        row['witness'].append(later)
+                        row['result']['commands'].append({'ordinal': 2})
+                        row['result']['drift'].append('search: request-plan-added')
                     elif change == 'unrelated':
                         command['baseline']['requests'][-1]['provenance']['inputs']['ids'] = ['unrelated']
                     elif change == 'shape':
@@ -365,7 +375,8 @@ print(json.dumps([(p.parent.name,p.read_text()) for p in sorted(root.glob('*/rep
                         row['result']['drift'].append('unexplained: request-plan-added')
                     positive = change in ('dependent', 'cached-retry')
                     self.classified(row, ('throttled' if status == 429 else 'outage')
-                                    if positive else 'failure', int(not positive))
+                                    if positive else 'uncertain' if change == 'nonempty-cache' else 'failure',
+                                    int(not positive))
 
     def test_cached_failed_output_requires_the_same_output_and_transition(self):
         import copy

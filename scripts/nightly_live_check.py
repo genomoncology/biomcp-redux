@@ -441,7 +441,8 @@ def classify_case(row):
         command = dict(command, baseline=dict(command['baseline'], requests=[
             *command['baseline']['requests'], *[root for key, root in earlier_roots.items()
                 if key not in terminal(command['baseline']['requests'])
-                and key in terminal(command['live']['requests'])]]))
+                and key in terminal(command['live']['requests'])
+                and failed_status(terminal(command['live']['requests'])[key].get('status'))]]))
         before = terminal(command['baseline']['requests'])
         after = terminal(command['live']['requests'])
         seen = before.keys() & after.keys()
