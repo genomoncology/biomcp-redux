@@ -150,7 +150,7 @@ fn cap() -> Result<(), String> {
             let env = Environment::new().map_err(|e| e.to_string())?;
             env.config(&json!({"mcp_tool_mode":mode}))
                 .map_err(|e| e.to_string())?;
-            let recordings = super::remote_tools::recording(&env, &text)?;
+            let recordings = super::super::remote_tools::recording(&env, &text)?;
             let params = if mode == "single" {
                 json!({"name":"biomcp","arguments":{"args":["get","gene","BRAF"]}})
             } else {
