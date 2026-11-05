@@ -400,7 +400,7 @@ label-priority-check:
 	cargo test --locked -p biomcp --test cases member-values/openfda-label $(TEST_THREADS)
 
 .PHONY: label-priority-integration
-label-priority-integration: fmt label-priority-check
+label-priority-integration: fmt label-priority-check label-display-check
 	cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp --all-targets -- -D warnings
 	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
 	python3 scripts/check_docs.py
@@ -408,3 +408,4 @@ label-priority-integration: fmt label-priority-check
 .PHONY: label-display-check
 label-display-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases drug/label-display-body.yaml $(TEST_THREADS)

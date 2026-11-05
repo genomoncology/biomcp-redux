@@ -18,7 +18,7 @@ pub(super) fn check() -> Check {
                 "pancreatic",
                 0,
                 3,
-                vec!["Indication therapy", "Native unnamed therapy"],
+                vec!["Indication therapy", "00000000-0000-4000-8000-000000000002"],
             ),
             (
                 "pancreatic",
