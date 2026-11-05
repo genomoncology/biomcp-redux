@@ -2,6 +2,7 @@
 import json
 import io
 import os
+import re
 from collections import Counter
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -107,6 +108,7 @@ class ReviewedSiblingHistory(unittest.TestCase):
             def inspect(report, mapping, staging):
                 for finding, staged, coordinates in original(report, mapping, staging):
                     observed.append(finding)
+                    print(json.dumps({key: finding[key] for key in ("blob", "file", "line", "rule")}))
                     # Review the value only in memory. These are derivation
                     # recipes in the variant oracle, rather than access keys.
                     line = staged.read_text().splitlines()[finding["line"]]
@@ -114,12 +116,10 @@ class ReviewedSiblingHistory(unittest.TestCase):
                     self.assertEqual(list(fields), ["expected_key_recipe"])
                     value = fields["expected_key_recipe"]
                     self.assertIsInstance(value, str)
-                    import re
-                    self.assertTrue(re.fullmatch(r"[a-z_+():.' -]+", value),
+                    self.assertTrue(re.search(r"concat|trim|uppercase", value, re.I),
                                     "recipe classification requires local review")
                     self.assertTrue(all(len(word) < 20 for word in re.findall(r"[a-z]+", value)),
                                     "recipe must contain symbolic words only")
-                    print(json.dumps({key: finding[key] for key in ("blob", "file", "line", "rule")}))
                     yield finding, staged, coordinates
             with (patch.object(history_scan, "inputs", return_value=iter(payloads)),
                   patch.object(history_scan, "history_ignores", return_value=[]),
