@@ -1,0 +1,349 @@
+# Reuse only completed recovery sections. This workflow cannot publish.
+name: Stage recovered release sections
+'on':
+  workflow_dispatch:
+    inputs:
+      win_amd64:
+        description: Exact reviewed recovery run
+        type: string
+        required: true
+        default: '42039129684'
+      manylinux_2_28_aarch64:
+        description: Exact reviewed recovery run
+        type: string
+        required: true
+        default: '42039285107'
+      macosx_11_0_arm64:
+        description: Exact reviewed recovery run
+        type: string
+        required: true
+        default: '42039290253'
+      manylinux_2_28_x86_64:
+        description: Exact reviewed recovery run
+        type: string
+        required: true
+        default: '42039294596'
+      macosx_11_0_x86_64:
+        description: Exact reviewed recovery run
+        type: string
+        required: true
+        default: '42039298821'
+      product_revision:
+        description: Frozen product source
+        type: string
+        required: true
+        default: 1bb97e64f41634b19efc42b937b195e55a20ece4
+      rehearsal:
+        description: Required publication-disabled rehearsal
+        type: boolean
+        default: true
+        required: true
+permissions: {}
+concurrency:
+  group: stage-sections-${{ github.ref }}
+  cancel-in-progress: false
+env:
+  PRODUCT_REVISION: ${{ inputs.product_revision }}
+jobs:
+  stage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+      attestations: write
+    outputs:
+      version: ${{ steps.inputs.outputs.version }}
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ github.sha }}
+        path: tooling
+        fetch-depth: 2147483647
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+        path: product
+    - name: Validate and retrieve the five successful recovery sections
+      id: inputs
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REHEARSAL: ${{ inputs.rehearsal }}
+        RECOVERY_RUNS: '{"win_amd64":"${{ inputs.win_amd64 }}","manylinux_2_28_aarch64":"${{ inputs.manylinux_2_28_aarch64
+          }}","macosx_11_0_arm64":"${{ inputs.macosx_11_0_arm64 }}","manylinux_2_28_x86_64":"${{ inputs.manylinux_2_28_x86_64
+          }}","macosx_11_0_x86_64":"${{ inputs.macosx_11_0_x86_64 }}"}'
+      run: python3 tooling/release/stage_sections.py --product product --tooling tooling --output artifacts --receipts receipts
+    - name: Prepare every channel publication payload without uploading it
+      working-directory: product
+      run: 'python3 release/workflow.py stage --artifacts ../artifacts --plugin . --version 1.0.0 --revision "$PRODUCT_REVISION"
+        --output ../staged
+
+        ruby -c ../staged/biomcp.rb'
+    - name: Scan every staged publication artifact for secrets
+      run: python3 product/release/secrets.py artifacts staged
+    - name: Enumerate every staged artifact for attestation
+      run: python3 product/release/workflow.py subjects --artifacts staged --output "$RUNNER_TEMP/subjects.sha256"
+    - name: Attest every staged artifact
+      id: provenance
+      uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6
+      with:
+        subject-checksums: ${{ runner.temp }}/subjects.sha256
+        create-storage-record: false
+        push-to-registry: false
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: release-candidate
+        path: staged
+        if-no-files-found: error
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: release-subject-checksums
+        path: ${{ runner.temp }}/subjects.sha256
+        if-no-files-found: error
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: recovery-inputs
+        path: receipts
+        if-no-files-found: error
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: recovered-native-inputs
+        path: artifacts
+        if-no-files-found: error
+  staged-homebrew:
+    needs:
+    - stage
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: macos-15-intel
+          platform: macosx_11_0_x86_64
+        - os: macos-15
+          platform: macosx_11_0_arm64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - name: Read release tool pins
+      id: tools
+      run: python3 release/toolchain.py outputs >> "$GITHUB_OUTPUT"
+    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+      with:
+        python-version: ${{ steps.tools.outputs.python }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: recovered-native-inputs
+        path: native
+    - name: Install the staged two-architecture Homebrew formula
+      run: python release/gate.py --artifacts "native/${{ matrix.platform }}" --scratch "$GITHUB_WORKSPACE/formula" --staged-formula
+        staged/biomcp.rb
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: staged-homebrew-${{ matrix.platform }}
+        path: ${{ github.workspace }}/formula/report.json
+        if-no-files-found: error
+    if: success() && inputs.rehearsal == true
+  publish-github:
+    needs:
+    - stage
+    - staged-homebrew
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+  publish-ghcr:
+    needs:
+    - stage
+    - staged-homebrew
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+  publish-pypi:
+    needs:
+    - stage
+    - staged-homebrew
+    - publish-ghcr
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+  publish-homebrew:
+    needs:
+    - stage
+    - staged-homebrew
+    - publish-github
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+  publish-installer:
+    needs:
+    - stage
+    - staged-homebrew
+    - publish-github
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+  publish-registry:
+    needs:
+    - stage
+    - staged-homebrew
+    - publish-pypi
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Rehearsal reached; no channel authentication or publication attempted.' >> "$GITHUB_STEP_SUMMARY"
+  post-publish:
+    needs:
+    - stage
+    - publish-github
+    - publish-ghcr
+    - publish-pypi
+    - publish-homebrew
+    - publish-installer
+    - publish-registry
+    if: success() && inputs.rehearsal == true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - channel: pypi
+          os: ubuntu-24.04
+        - channel: ghcr
+          os: ubuntu-24.04
+        - channel: homebrew
+          os: macos-15
+        - channel: installer
+          os: ubuntu-24.04
+        - channel: registry
+          os: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - name: Report the install rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Dispatch skips public channel installs; promotion follows these no-op jobs.' >> "$GITHUB_STEP_SUMMARY"
+  publish-latest:
+    needs:
+    - stage
+    - publish-ghcr
+    - post-publish
+    if: success() && inputs.rehearsal == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: release-latest
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        persist-credentials: false
+        ref: ${{ env.PRODUCT_REVISION }}
+    - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+      with:
+        name: release-candidate
+        path: staged
+    - name: Report the rehearsal boundary
+      if: inputs.rehearsal
+      run: echo 'Promotion rehearsal reached; latest pointers stay unchanged.' >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,128 @@
+"""Exercise recovery artifact consumption at its file and API boundaries."""
+import copy
+import json
+from pathlib import Path
+import tempfile
+import unittest
+import urllib.request
+import zipfile
+
+from release import stage_sections as consumer
+
+
+class RecoveryConsumption(unittest.TestCase):
+    def fixture(self, root, platform='macosx_11_0_arm64'):
+        dist = root / 'workspace/product/dist'
+        dist.mkdir(parents=True)
+        record = {'revision': consumer.PRODUCT, 'platform': platform,
+                  'distribution': 'biomcp-cli', 'version': '1.0.0'}
+        (dist / 'release.json').write_text(json.dumps(record))
+        kinds = ['wheel', 'desktop-extension', 'mcp-registry', 'install-script',
+                 'download-install-script', 'homebrew-formula']
+        report = [{'artifact': kind, 'platform': platform, 'result': 'pass',
+                   'cases': 611, 'trials': 611, 'checks': ['candidate-bytes',
+                   'concurrent-first-opens', 'all-cases-and-trials', 'mcp-all-stdout']}
+                  for kind in kinds]
+        (dist / 'install-report.json').write_text(json.dumps(report))
+        evidence = root / 'workspace/section-evidence'
+        evidence.mkdir()
+        identities = {'product': {'revision': consumer.PRODUCT, 'tree': consumer.PRODUCT_TREE},
+                      'tooling': {'revision': consumer.RECOVERY, 'tree': consumer.RECOVERY_TREE}}
+        (evidence / 'sources.json').write_text(json.dumps({**identities,
+            'publishing': False, 'original_run': '42030695983'}))
+        receipt = {**identities, 'run': consumer.RUNS[platform], 'section': platform,
+                   'sha256': {'dist/' + path.name: consumer.digest(path) for path in dist.iterdir()}}
+        (evidence / 'artifacts.json').write_text(json.dumps(receipt))
+        return dist, evidence
+
+    def test_nested_final_recovery_consumes_only_bound_file_inventory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dist, _ = self.fixture(root)
+            selected, evidence = consumer.validate_payload(root, 'macosx_11_0_arm64',
+                                                           consumer.RUNS['macosx_11_0_arm64'])
+            self.assertEqual(selected, dist)
+            self.assertEqual(evidence['sources']['product']['revision'], consumer.PRODUCT)
+            (dist / 'unlisted.whl').write_bytes(b'foreign bytes')
+            with self.assertRaisesRegex(ValueError, 'inventory'):
+                consumer.validate_payload(root, 'macosx_11_0_arm64', consumer.RUNS['macosx_11_0_arm64'])
+
+    def test_source_platform_and_incomplete_qualification_are_rejected(self):
+        mutations = [('sources.json', lambda x: x['product'].update(revision='f' * 40)),
+                     ('artifacts.json', lambda x: x.update(section='win_amd64')),
+                     ('artifacts.json', lambda x: x['sha256'].update({'dist/release.json': '0' * 64}))]
+        for name, mutate in mutations:
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                _, evidence = self.fixture(root)
+                path = evidence / name
+                record = json.loads(path.read_text()); mutate(record)
+                path.write_text(json.dumps(record))
+                with self.assertRaises(ValueError):
+                    consumer.validate_payload(root, 'macosx_11_0_arm64', consumer.RUNS['macosx_11_0_arm64'])
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dist, evidence = self.fixture(root)
+            report = json.loads((dist / 'install-report.json').read_text())[:-1]
+            (dist / 'install-report.json').write_text(json.dumps(report))
+            record = json.loads((evidence / 'artifacts.json').read_text())
+            record['sha256']['dist/install-report.json'] = consumer.digest(dist / 'install-report.json')
+            (evidence / 'artifacts.json').write_text(json.dumps(record))
+            with self.assertRaisesRegex(ValueError, 'channel inventory'):
+                consumer.validate_payload(root, 'macosx_11_0_arm64', consumer.RUNS['macosx_11_0_arm64'])
+
+    def test_recovery_api_requires_exact_successful_run_source(self):
+        run = {'id': int(consumer.RUNS['win_amd64']), 'head_sha': consumer.RECOVERY,
+               'event': 'workflow_dispatch', 'path': '.github/workflows/release.yml',
+               'repository': {'full_name': consumer.REPOSITORY},
+               'head_repository': {'full_name': consumer.REPOSITORY},
+               'status': 'completed', 'conclusion': 'success', 'run_attempt': 1,
+               'head_branch': 'rehearsal-0642-reviewed'}
+        consumer.validate_run(run, 'win_amd64')
+        for key, value in [('id', 1), ('head_sha', consumer.PRODUCT), ('conclusion', 'failure'),
+                           ('event', 'push'), ('run_attempt', 2), ('head_branch', 'main')]:
+            altered = copy.deepcopy(run); altered[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                consumer.validate_run(altered, 'win_amd64')
+
+    def test_unsafe_zip_and_cross_host_token_forwarding_are_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with zipfile.ZipFile(root / 'bad.zip', 'w') as archive:
+                archive.writestr('../outside', b'bad')
+            with self.assertRaises(ValueError):
+                consumer.unpack(root / 'bad.zip', root / 'output')
+            self.assertFalse((root / 'outside').exists())
+        request = urllib.request.Request('https://api.github.com/repos/example',
+                                         headers={'Authorization': 'Bearer fixture'})
+        redirected = consumer.ObjectRedirect().redirect_request(request, None, 302, '', {},
+                                                                'https://objects.example/archive')
+        self.assertIsNone(redirected.get_header('Authorization'))
+
+    def test_consumer_workflow_has_only_stage_signing_and_no_publication(self):
+        # Keep this boundary check structural; the artifact cases above own aggregation behavior.
+        import yaml
+        workflow = yaml.safe_load(Path('.github/workflows/release-stage-sections.yml').read_text())
+        self.assertEqual(set(workflow['on']), {'workflow_dispatch'})
+        jobs = workflow['jobs']
+        self.assertNotIn('if', jobs['stage'])  # Invalid inputs fail the helper rather than skipping green.
+        for name, job in jobs.items():
+            self.assertNotIn('environment', job)
+            writes = {key for key, value in job['permissions'].items() if value == 'write'}
+            self.assertEqual(writes, {'id-token', 'attestations'} if name == 'stage' else set())
+            for step in job['steps']:
+                self.assertNotIn('secrets.', json.dumps(step))
+                self.assertNotIn('publication.py', step.get('run', ''))
+                self.assertNotIn('published.py', step.get('run', ''))
+        attest, = [step for step in jobs['stage']['steps'] if step.get('uses', '').startswith('actions/attest@')]
+        self.assertNotIn('if', attest)
+        self.assertFalse(attest['with']['push-to-registry'])
+        brew = jobs['staged-homebrew']
+        self.assertEqual(len(brew['strategy']['matrix']['include']), 2)
+        gate, = [step for step in brew['steps'] if 'release/gate.py' in step.get('run', '')]
+        self.assertIn('$GITHUB_WORKSPACE/formula', gate['run'])
+        self.assertNotIn('sandbox', gate['run'])
+
+
+if __name__ == '__main__':
+    unittest.main()
