@@ -1,0 +1,93 @@
+{
+  "feature": "gene-search",
+  "story": "HGNC names through single MCP",
+  "replay": "gene/main",
+  "config": {
+    "mcp_tool_mode": "single"
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "biomcp",
+        "arguments": {
+          "args": [
+            "search",
+            "gene",
+            "kirsten rat sarcoma"
+          ]
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "biomcp",
+        "arguments": {
+          "args": [
+            "search",
+            "gene",
+            "aconitate hydratase"
+          ]
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "biomcp",
+        "arguments": {
+          "args": [
+            "search",
+            "gene",
+            "aconitase 1"
+          ]
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/symbol": "ACO1"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "biomcp",
+        "arguments": {
+          "args": [
+            "search",
+            "gene",
+            "IRP1"
+          ]
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/symbol": "ACO1"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "biomcp",
+        "arguments": {
+          "args": [
+            "search",
+            "gene",
+            "KRAS"
+          ]
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/symbol": "KRAS"
+      }
+    }
+  ]
+}
