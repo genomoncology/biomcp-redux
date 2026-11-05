@@ -37,7 +37,13 @@ fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                 .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
                 .unwrap_or_else(|| excluded.clone());
             if command.command.is_empty() {
-                command.description = instructions(cx)?;
+                command.description = if crate::config::mcp_tool_mode(cx.globals, cx.settings)
+                    == crate::config::ToolMode::Typed
+                {
+                    super::typed::catalog::instructions(cx)?
+                } else {
+                    instructions(cx)?
+                };
             }
             if command.command == ["help", "sources"] {
                 command.description = sources(cx)?;
@@ -219,12 +225,13 @@ pub(super) fn instructions(cx: Context<'_>) -> io::Result<String> {
         if !super::typed::catalog::available(verb, entity, &schema, &excluded, true) {
             continue;
         }
+        let source_exclusions = super::typed::catalog::capability_excluded(&schema, &excluded);
         let sources = crate::help::coverage::command_sources(verb, entity, &schema)
             .into_iter()
             .filter(|word| {
                 !word
                     .parse::<Source>()
-                    .is_ok_and(|source| excluded.contains(&source))
+                    .is_ok_and(|source| source_exclusions.contains(&source))
             })
             .collect::<Vec<_>>()
             .join(", ");
