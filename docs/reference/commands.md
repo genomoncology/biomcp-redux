@@ -1224,7 +1224,9 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Search phrase; optional for FDA drug recalls, WHO date ranges and openFDA indication searches. Drugs@FDA searches brands and ingredients,
+          Name phrase; optional with supported source filters.
+          FDA drug recalls, WHO date ranges and label indication searches allow no name.
+          Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
           then label text (including indications) when no names match; source matches need not be exact names.
           Harmonized recall names match but never become display names.
@@ -1247,8 +1249,9 @@ Options:
           Literal published recalling firm phrase; drug recalls only.
 
       --indication <indication>
-          Literal phrase in the label's Indications and Usage section; openFDA labels only.
-          An optional name query further narrows the same source search. No disease synonym expansion.
+          Literal label indication; openFDA labels only.
+          Search the native Indications and Usage field without disease synonym expansion.
+          An optional name query further narrows the same source search.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
@@ -1307,8 +1310,9 @@ Search drugs and medicines by name or source label indication. Sources: chembl, 
 - `--classification`: Source FDA classification; drug recalls only; biomcp_help search drug
 Source FDA classification; drug recalls only.
 - `--firm`: Exact published recalling firm phrase; drug recalls only.
-- `--indication`: Exact phrase in the label's Indications and Usage section; openFDA labels only.
-An optional name query further narrows the same source search. No disease synonym expansion.
+- `--indication`: Exact label indication; openFDA labels only.
+Search the source Indications and Usage field without disease synonym expansion.
+An optional name query further narrows the same source search.
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 - `--limit`: Source candidate rows per page.
@@ -1317,7 +1321,9 @@ Explicit ChEMBL source name selector; omitted means preferred name.
 - `--offset`: Source rows to skip.
 - `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
 - `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
-- `query`: Search phrase; optional for FDA drug recalls, WHO date ranges and openFDA indication searches. Drugs@FDA searches brands and ingredients,
+- `query`: Name phrase; optional with supported source filters.
+FDA drug recalls, WHO date ranges and label indication searches allow no name.
+Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
