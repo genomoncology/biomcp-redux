@@ -398,3 +398,8 @@ help-metadata-final:
 help-pre-review:
 	+$(MAKE) check-cheap current-schema-check schema-release-check
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: help-alias-check
+help-alias-check:
+	cargo test --locked -p biomcp --test cases help-entity-aliases $(TEST_THREADS)
+	cargo test --locked -p biomcp --test ratchets required_surface_has_asserted_calls $(TEST_THREADS)
