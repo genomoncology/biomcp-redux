@@ -12,17 +12,14 @@ pub(super) fn tool_result(
     root: &crate::grammar::Root,
     args: &[std::ffi::OsString],
 ) -> Value {
-    let reply = super::protocol::tool_result(
-        id,
-        outcome,
-        modern,
-        crate::config::tool_reply_form(globals, settings),
-    );
+    let form = crate::config::mcp_reply_form(settings);
+    let reply = super::protocol::tool_result(id, outcome, modern, form);
     summarize(
         reply,
         root,
         crate::config::mcp_tool_mode(globals, settings),
         args,
+        form,
     )
 }
 
@@ -31,20 +28,27 @@ fn summarize(
     root: &crate::grammar::Root,
     mode: crate::config::ToolMode,
     args: &[std::ffi::OsString],
+    form: crate::config::ReplyForm,
 ) -> Value {
-    if mode == crate::config::ToolMode::Typed
-        && let Some(value) = reply.pointer("/result/structuredContent")
-    {
-        let text = summary::render(root, value, args);
-        let content = json!([{"type":"text","text":text}]);
-        if let Some(result) = reply.get_mut("result") {
-            let mut candidate = result.clone();
-            if let Some(fields) = candidate.as_object_mut() {
-                fields.insert("content".into(), content);
-            }
-            if super::protocol::within_cap(&candidate) {
-                *result = candidate;
-            }
+    if mode != crate::config::ToolMode::Typed {
+        return reply;
+    }
+    let value = reply
+        .pointer("/result/structuredContent")
+        .cloned()
+        .or_else(|| {
+            let text = reply.pointer("/result/content/0/text")?.as_str()?;
+            serde_json::from_str(text).ok()
+        });
+    if let Some(value) = value {
+        let summary = summary::render(root, &value, args);
+        let text = if matches!(form, crate::config::ReplyForm::StructuredOnly) {
+            summary
+        } else {
+            format!("{summary}\n{value}")
+        };
+        if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut) {
+            result.insert("content".into(), json!([{"type":"text","text":text}]));
         }
     }
     reply

@@ -101,9 +101,8 @@ pub(super) fn tool_result(
     let Ok(value) = outcome.value() else {
         return self::error(id, -32603, "Internal error");
     };
-    let reply = result(id.clone(), content(value.clone(), failed, form), modern);
-    if reply.get("result").is_some_and(within_cap) {
-        return reply;
+    if within_cap(value) {
+        return result(id, content(value.clone(), failed, form), modern);
     }
     let Ok(error) = serde_json::to_value(biomcp_types::ErrorEnvelope::from(
         biomcp_types::UsageError::McpResultTooBroad {
@@ -127,12 +126,8 @@ fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
         }
     }
 }
-pub(super) fn within_cap(result: &Value) -> bool {
+pub(super) fn within_cap(value: &Value) -> bool {
+    // Admit the JSON value once, independent of its configured wire representation.
     // Count Unicode scalars after JSON escaping, not UTF-8 bytes or source text.
-    result
-        .to_string()
-        .chars()
-        .take(RESULT_CHARACTER_CAP)
-        .count()
-        < RESULT_CHARACTER_CAP
+    value.to_string().chars().take(RESULT_CHARACTER_CAP).count() < RESULT_CHARACTER_CAP
 }

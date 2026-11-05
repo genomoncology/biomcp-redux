@@ -4,6 +4,8 @@ mod reply_form;
 mod schemas;
 #[path = "typed_tools.rs"]
 mod typed;
+#[path = "typed_reply.rs"]
+mod typed_reply;
 use super::{
     launch::Environment,
     mcp::{exchange, request},
@@ -18,6 +20,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/typed-reply-forms-and-cap", || {
+            typed_reply::check().map_err(Into::into)
+        }),
         transcript_trial(super::pool_contract::TYPED_TOOLS.0, || {
             typed::check().map_err(Into::into)
         }),

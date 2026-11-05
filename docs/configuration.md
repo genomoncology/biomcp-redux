@@ -12,7 +12,7 @@ Mount a Docker named volume at the container's `XDG_CACHE_HOME` path to keep the
 
 ## MCP tools
 
-`biomcp serve --tool-mode typed` advertises one named tool for each registered command, with typed arguments, source and section choices, structured replies and a one-line summary. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The flag overrides configuration. `single` remains the default and keeps the CLI-argument tool and research compatibility tools. Hosted restrictions apply in either mode. Typed mode always returns structured content, regardless of `mcp_reply_form`.
+`biomcp serve --tool-mode typed` advertises one named tool for each registered command, with typed arguments, source and section choices, structured replies and a one-line summary. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The flag overrides configuration. `single` remains the default and keeps the CLI-argument tool and research compatibility tools. Hosted restrictions apply in either mode. Typed mode follows `mcp_reply_form`: text begins with a one-line summary and includes the serialized JSON when the chosen form carries JSON text. The result cap counts the JSON value once in either tool mode.
 
 ## HTTP capacity
 
