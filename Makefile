@@ -14,6 +14,7 @@ drug-alias-prepare:
 drug-alias-check:
 	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
 	cargo test --locked -p biomcp --test cases drug/source-aliases
+	cargo test --locked -p biomcp --test cases drug/recall-empty
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases.yaml --exact
 
 # Cargo and the test harnesses do not interpret pm's fractional core booking.

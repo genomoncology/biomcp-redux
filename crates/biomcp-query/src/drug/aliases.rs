@@ -198,8 +198,9 @@ fn usable(out: &Outcome, source: DrugSource) -> bool {
 fn zero(out: &Outcome, source: DrugSource) -> bool {
     usable(out, source)
         && !out.dropped
-        && matches!(&out.body,
-        ReplyData::DrugPage { body: Some(page), .. } if page.items.is_empty() && page.total == Some(0))
+        && out
+            .page
+            .is_some_and(|page| page.total == 0 && page.returned == 0)
 }
 
 fn notice(out: &mut Outcome, selected: DrugSource, message: String) {
