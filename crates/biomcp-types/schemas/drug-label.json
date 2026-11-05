@@ -156,7 +156,7 @@
               "type": "null"
             }
           ],
-          "description": "Native continuation cursor for that exact drug, profile and claim collection."
+          "description": "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection."
         },
         "civic_kind": {
           "anyOf": [
@@ -167,10 +167,10 @@
               "type": "null"
             }
           ],
-          "description": "Independent native evidence or assertion collection within the selected profile."
+          "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
         },
         "civic_profile": {
-          "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+          "description": "CIViC profile ID.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -188,7 +188,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
+          "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
         },
         "evidence_level": {
           "description": "Native CIViC evidence levels; repeat to include several levels.",
@@ -220,7 +220,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact published openFDA SPL section field, including table fields; required for the label section."
+          "description": "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields; required for the label section."
         },
         "product_number": {
           "anyOf": [
@@ -231,10 +231,10 @@
               "type": "null"
             }
           ],
-          "description": "Explicit native application product number, only for approvals."
+          "description": "FDA product number.\nExplicit native application product number, only for approvals."
         },
         "section": {
-          "description": "Explicit named disclosures; empty means identity only.",
+          "description": "Source sections.\nExplicit named disclosures; empty means identity only.",
           "items": {
             "$ref": "#/$defs/Reply_DrugSection"
           },
@@ -242,7 +242,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.",
+          "description": "Section page size.\nNamed section page size, refused on an identity-only card.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -252,7 +252,7 @@
           ]
         },
         "section_offset": {
-          "description": "Named section continuation, refused on an identity-only card.",
+          "description": "Section rows to skip.\nNamed section continuation, refused on an identity-only card.",
           "format": "uint32",
           "minimum": 0,
           "type": [

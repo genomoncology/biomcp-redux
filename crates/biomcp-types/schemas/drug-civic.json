@@ -1194,7 +1194,7 @@
               "type": "null"
             }
           ],
-          "description": "Native continuation cursor for that exact drug, profile and claim collection."
+          "description": "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection."
         },
         "civic_kind": {
           "anyOf": [
@@ -1205,10 +1205,10 @@
               "type": "null"
             }
           ],
-          "description": "Independent native evidence or assertion collection within the selected profile."
+          "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
         },
         "civic_profile": {
-          "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+          "description": "CIViC profile ID.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -1226,7 +1226,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
+          "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
         },
         "evidence_level": {
           "description": "Native CIViC evidence levels; repeat to include several levels.",
@@ -1258,7 +1258,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact published openFDA SPL section field, including table fields; required for the label section."
+          "description": "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields; required for the label section."
         },
         "product_number": {
           "anyOf": [
@@ -1269,10 +1269,10 @@
               "type": "null"
             }
           ],
-          "description": "Explicit native application product number, only for approvals."
+          "description": "FDA product number.\nExplicit native application product number, only for approvals."
         },
         "section": {
-          "description": "Explicit named disclosures; empty means identity only.",
+          "description": "Source sections.\nExplicit named disclosures; empty means identity only.",
           "items": {
             "$ref": "#/$defs/Reply_DrugSection"
           },
@@ -1280,7 +1280,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.",
+          "description": "Section page size.\nNamed section page size, refused on an identity-only card.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -1290,7 +1290,7 @@
           ]
         },
         "section_offset": {
-          "description": "Named section continuation, refused on an identity-only card.",
+          "description": "Section rows to skip.\nNamed section continuation, refused on an identity-only card.",
           "format": "uint32",
           "minimum": 0,
           "type": [
@@ -3761,7 +3761,7 @@
               "type": "null"
             }
           ],
-          "description": "MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."
+          "description": "Assembly; default GRCh38.\nMyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build."
         },
         "civic_cursor": {
           "anyOf": [
@@ -3772,7 +3772,7 @@
               "type": "null"
             }
           ],
-          "description": "Native CIViC cursor, retained unchanged."
+          "description": "CIViC continuation.\nNative CIViC cursor, retained unchanged."
         },
         "civic_kind": {
           "anyOf": [
@@ -3783,10 +3783,10 @@
               "type": "null"
             }
           ],
-          "description": "Native CIViC claim collection within the selected profile."
+          "description": "CIViC collection.\nNative CIViC claim collection within the selected profile."
         },
         "civic_profile": {
-          "description": "Selected CIViC molecular profile for native claim paging.",
+          "description": "CIViC profile ID.\nSelected CIViC molecular profile for native claim paging.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -3815,12 +3815,12 @@
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantInput",
-          "description": "rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
+          "description": "rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.\nrsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.",
           "x-positional": 0
         },
         "limit": {
           "default": 10,
-          "description": "Candidate rows per page; more remain reachable through typed next commands.",
+          "description": "Candidate page size.\nCandidate rows per page; more remain reachable through typed next commands.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3828,7 +3828,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Candidate rows to skip in source order.",
+          "description": "Candidates to skip.\nCandidate rows to skip in source order.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3836,10 +3836,10 @@
         "resolver": {
           "$ref": "#/$defs/Reply_VariantResolver",
           "default": "car",
-          "description": "Resolver for reference-qualified notation; never repairs the input locally."
+          "description": "Notation resolver.\nResolver for reference-qualified notation; never repairs the input locally."
         },
         "section": {
-          "description": "Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
+          "description": "Source sections.\nNamed source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.",
           "items": {
             "$ref": "#/$defs/Reply_VariantSection"
           },
@@ -3847,7 +3847,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Rows per named source section page; omitted uses the native source default.",
+          "description": "Source rows per page.\nRows per named source section page; omitted uses the native source default.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3855,7 +3855,7 @@
         },
         "section_offset": {
           "default": 0,
-          "description": "Source rows to skip independently of identity candidate paging.",
+          "description": "Source rows to skip.\nSource rows to skip independently of identity candidate paging.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3869,7 +3869,7 @@
               "type": "null"
             }
           ],
-          "description": "Explicit tumor context for keyed OncoKB annotation."
+          "description": "OncoKB tumor context.\nExplicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [

@@ -864,6 +864,7 @@ Usage: biomcp search diagnostic [OPTIONS] --source <source>
 
 Options:
       --biomarker <biomarker>
+          Exact table-0 cell.
           Exact table-0 biomarker cell; unsupported in the group table.
 
       --format <format>
@@ -873,12 +874,14 @@ Options:
           [possible values: json, md]
 
       --bundle-revision <bundle_revision>
+          Stored bundle revision.
           Immutable stored bundle revision retained by a continuation.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
       --condition-id <condition_id>
+          Exact MedGen:CUI.
           Exact MedGen:CUI identifier only.
 
       --source_pacing <source_pacing>
@@ -888,21 +891,27 @@ Options:
           Read configuration from this file.
 
       --decision-from <decision_from>
+          First date, YYYY-MM-DD.
           Inclusive native decision date, YYYY-MM-DD; PMA and 510(k) only.
 
       --decision-to <decision_to>
+          Last date, YYYY-MM-DD.
           Inclusive native decision date, YYYY-MM-DD; PMA and 510(k) only.
 
       --device-id <device_id>
+          PMA or K identifier.
           Exact PMA application, application/supplement or native K identity.
 
       --drug-application <drug_application>
+          NDA/BLA application.
           Cell-owned typed NDA/BLA application.
 
       --gene <gene>
+          Exact gene symbol.
           Exact source gene_symbol field, without alias expansion.
 
       --gene-id <gene_id>
+          Exact NCBI GeneID.
           Exact source GeneID, exclusive with gene symbol.
 
       --offline[=<offline>]
@@ -918,58 +927,87 @@ Options:
           [possible values: true, false]
 
       --initiated-from <initiated_from>
+          First date, YYYY-MM-DD.
           Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 
       --initiated-to <initiated_to>
+          Last date, YYYY-MM-DD.
           Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 
       --limit <limit>
+          Rows per page, 1–50.
           Five results by default; at most fifty source rows or product headers.
 
       --manufacturer <manufacturer>
+          Manufacturer phrase.
           WHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase.
 
       --marker <marker>
+          WHO marker phrase.
           Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
 
       --name <name>
+          Native device name.
           Native trade_name (PMA) or device_name (510(k)) phrase.
 
       --offset <offset>
+          Source rows to skip.
           Zero-based source result offset.
 
       --product-code <product_code>
+          FDA product code.
           Exact native FDA device recall product code.
 
       --source <source>
+          Native diagnostic source.
           Explicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
 
       --type <type>
+          Native test_type.
           Exact native test_type value.
 
 ```
 
 Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
 
-- `--biomarker`: Exact table-0 biomarker cell; unsupported in the group table.
-- `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
-- `--condition-id`: Exact MedGen:CUI identifier only.
-- `--decision-from`: Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
-- `--decision-to`: Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
-- `--device-id`: Exact PMA application, application/supplement or source K identity.
-- `--drug-application`: Cell-owned typed NDA/BLA application.
-- `--gene`: Exact source gene_symbol field, without alias expansion.
-- `--gene-id`: Exact source GeneID, exclusive with gene symbol.
-- `--initiated-from`: Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
-- `--initiated-to`: Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
-- `--limit`: Five results by default; at most fifty source rows or product headers.
-- `--manufacturer`: WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase.
-- `--marker`: Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell.
-- `--name`: Source trade_name (PMA) or device_name (510(k)) phrase.
-- `--offset`: Zero-based source result offset.
-- `--product-code`: Exact source FDA device recall product code.
-- `--source`: Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
-- `--type`: Exact source test_type value.
+- `--biomarker`: Exact table-0 cell.
+Exact table-0 biomarker cell; unsupported in the group table.
+- `--bundle-revision`: Stored bundle revision.
+Immutable stored bundle revision retained by a continuation.
+- `--condition-id`: Exact MedGen:CUI.
+Exact MedGen:CUI identifier only.
+- `--decision-from`: First date, YYYY-MM-DD.
+Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
+- `--decision-to`: Last date, YYYY-MM-DD.
+Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only.
+- `--device-id`: PMA or K identifier.
+Exact PMA application, application/supplement or source K identity.
+- `--drug-application`: NDA/BLA application.
+Cell-owned typed NDA/BLA application.
+- `--gene`: Exact gene symbol.
+Exact source gene_symbol field, without alias expansion.
+- `--gene-id`: Exact NCBI GeneID.
+Exact source GeneID, exclusive with gene symbol.
+- `--initiated-from`: First date, YYYY-MM-DD.
+Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+- `--initiated-to`: Last date, YYYY-MM-DD.
+Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
+- `--limit`: Rows per page, 1–50.
+Five results by default; at most fifty source rows or product headers.
+- `--manufacturer`: Manufacturer phrase.
+WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase.
+- `--marker`: WHO marker phrase.
+Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell.
+- `--name`: Source device name.
+Source trade_name (PMA) or device_name (510(k)) phrase.
+- `--offset`: Source rows to skip.
+Zero-based source result offset.
+- `--product-code`: FDA product code.
+Exact source FDA device recall product code.
+- `--source`: Source diagnostic source.
+Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
+- `--type`: Source test_type.
+Exact source test_type value.
 
 ## biomcp search adverse-event
 
@@ -980,13 +1018,16 @@ Usage: biomcp search adverse-event [OPTIONS] [text] [section]
 
 Arguments:
   [text]
+          Drug, device or vaccine.
           Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
   [section]
+          VAERS table.
           Independent VAERS table; omitted means reported symptoms.
 
 Options:
       --drug <drug>...
+          FAERS drug names; OR.
           FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 
       --format <format>
@@ -999,9 +1040,11 @@ Options:
           Exclude source names or source terms groups.
 
       --limit <limit>
+          Rows per page.
           Native report headers or VAERS rows per page; default five.
 
       --manufacturer <manufacturer>
+          MAUDE manufacturer.
           MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 
       --source_pacing <source_pacing>
@@ -1011,18 +1054,23 @@ Options:
           Read configuration from this file.
 
       --offset <offset>
+          Source rows to skip.
           Native row offset. VAERS continuation requires its retained snapshot.
 
       --problem <problem>
+          MAUDE product problem.
           MAUDE phrase on native product_problems.
 
       --product-code <product_code>...
+          MAUDE product codes; OR.
           MAUDE exact native device.device_report_product_code; repeated codes join with OR.
 
       --reaction <reaction>
+          FAERS MedDRA phrase.
           FAERS MedDRA term phrase match, not exact equality.
 
       --received-from <received_from>
+          First date, YYYY-MM[-DD].
           Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
       --offline[=<offline>]
@@ -1032,6 +1080,7 @@ Options:
           [possible values: true, false]
 
       --received-to <received_to>
+          Last date, YYYY-MM[-DD].
           Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 
       --fresh[=<fresh>]
@@ -1041,33 +1090,51 @@ Options:
           [possible values: true, false]
 
       --serious <serious>
+          FAERS seriousness flag.
           FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 
       --snapshot <snapshot>
+          VAERS snapshot.
           Retained VAERS table for provider-free continuation.
 
       --source <source>
+          Source; default FAERS.
           FAERS by default; VAERS accepts only exact supported vaccine names.
 
 ```
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
-- `--drug`: FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
-- `--limit`: Source report headers or VAERS rows per page; default five.
-- `--manufacturer`: MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
-- `--offset`: Source row offset. VAERS continuation requires its retained snapshot.
-- `--problem`: MAUDE phrase on source product_problems.
-- `--product-code`: MAUDE exact source device.device_report_product_code; repeated codes join with OR.
-- `--reaction`: FAERS MedDRA term phrase match, not exact equality.
-- `--received-from`: Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
-- `--received-to`: Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
-- `section`: Independent VAERS table; omitted means reported symptoms.
-- `--serious`: FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
-- `--snapshot`: Retained VAERS table for source-free continuation.
-- `--source`: FAERS by default; VAERS accepts only exact supported vaccine names.
-- `text`: Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
+- `--drug`: FAERS drug names; OR.
+FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+- `--limit`: Rows per page.
+Source report headers or VAERS rows per page; default five.
+- `--manufacturer`: MAUDE manufacturer.
+MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
+- `--offset`: Source rows to skip.
+Source row offset. VAERS continuation requires its retained snapshot.
+- `--problem`: MAUDE product problem.
+MAUDE phrase on source product_problems.
+- `--product-code`: MAUDE product codes; OR.
+MAUDE exact source device.device_report_product_code; repeated codes join with OR.
+- `--reaction`: FAERS MedDRA phrase.
+FAERS MedDRA term phrase match, not exact equality.
+- `--received-from`: First date, YYYY-MM[-DD].
+Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+- `--received-to`: Last date, YYYY-MM[-DD].
+Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
+- `section`: VAERS table.
+Independent VAERS table; omitted means reported symptoms.
+- `--serious`: FAERS seriousness flag.
+FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
+- `--snapshot`: VAERS snapshot.
+Retained VAERS table for source-free continuation.
+- `--source`: Source; default FAERS.
+FAERS by default; VAERS accepts only exact supported vaccine names.
+- `text`: Drug, device or vaccine.
+Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
+VAERS table.
 Independent VAERS table; omitted means reported symptoms.
 
 - `symptoms`: Source reported symptom rows.
@@ -1304,10 +1371,12 @@ Usage: biomcp search article [OPTIONS] [text]
 
 Arguments:
   [text]
+          Source search words.
           Words sent to each named source in its default fields.
 
 Options:
       --author <author>
+          PubMed author words.
           Author words sent to PubMed's author field.
 
       --format <format>
@@ -1332,21 +1401,25 @@ Options:
           Read configuration from this file.
 
       --gene <gene>
+          Gene symbol or ID.
           Gene input; PubMed resolves it through HGNC.
 
       --journal <journal>
+          PubMed journal words.
           Journal words sent to PubMed's journal field.
 
       --limit <limit>
           Maximum page length.
 
       --no-preprints[=<no_preprints>]
+          Exclude preprints.
           Exclude preprints using the source's native filter.
 
           [default: false]
           [possible values: true, false]
 
       --offset <offset>
+          Pool items to skip.
           Number of pool items to skip.
 
       --offline[=<offline>]
@@ -1356,6 +1429,7 @@ Options:
           [possible values: true, false]
 
       --open-access[=<open_access>]
+          Native open access.
           Require the source's native open-access filter; Semantic Scholar means a public PDF.
 
           [default: false]
@@ -1368,6 +1442,7 @@ Options:
           [possible values: true, false]
 
       --pool <pool>
+          Stable result snapshot.
           Stable snapshot from an earlier response.
 
       --exclude-retracted
@@ -1377,15 +1452,18 @@ Options:
 
 
       --since <since>
+          First publication date.
           Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
 
       --sort <sort>
+          rank, date or citations.
           rank (default): native provider order; several sources take turns; native search cost.
           date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
           citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
           All sources support citations.
 
       --source <source>
+          Sources; default pubmed.
           Sources to search in caller order, comma separated. Default: pubmed.
           Several sources take turns, remove duplicates and show every native rank.
           pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
@@ -1399,6 +1477,7 @@ Options:
           Publication-type filter.
 
       --until <until>
+          Last publication date.
           Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
 
       --variant <variant>
@@ -1411,24 +1490,36 @@ Options:
 
 Search research articles and biomedical papers. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
 
-- `--author`: Author words sent to PubMed's author field.
+- `--author`: PubMed author words.
+Author words sent to PubMed's author field.
 - `--disease`: Disease words.
 - `--drug`: Drug words.
-- `--gene`: Gene input; PubMed resolves it through HGNC.
-- `--journal`: Journal words sent to PubMed's journal field.
+- `--gene`: Gene symbol or ID.
+Gene input; PubMed resolves it through HGNC.
+- `--journal`: PubMed journal words.
+Journal words sent to PubMed's journal field.
 - `--limit`: Maximum page length.
-- `--no-preprints`: Exclude preprints using the source's source filter.
-- `--offset`: Number of pool items to skip.
-- `--open-access`: Require the source's source open-access filter; Semantic Scholar means a public PDF.
-- `--pool`: Stable snapshot from an earlier response.
-- `--exclude-retracted`: Include retracted papers by default, or exclude them using a source filter.
-- `--include-retracted`: Include retracted papers by default, or exclude them using a source filter.
-- `--since`: Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
-- `--sort`: rank (default): source order; several sources take turns; source search cost.
+- `--no-preprints`: Exclude preprints.
+Exclude preprints using the source's source filter.
+- `--offset`: Pool items to skip.
+Number of pool items to skip.
+- `--open-access`: Source open access.
+Require the source's source open-access filter; Semantic Scholar means a public PDF.
+- `--pool`: Stable result snapshot.
+Stable snapshot from an earlier response.
+- `--exclude-retracted`: Retraction filter.
+Include retracted papers by default, or exclude them using a source filter.
+- `--include-retracted`: Retraction filter.
+Include retracted papers by default, or exclude them using a source filter.
+- `--since`: First publication date.
+Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date.
+- `--sort`: rank, date or citations.
+rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
 citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
 All sources support citations.
-- `--source`: Sources to search in caller order, comma separated. Default: pubmed.
+- `--source`: Sources; default pubmed.
+Sources to search in caller order, comma separated. Default: pubmed.
 Several sources take turns, remove duplicates and show every source rank.
 pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
 europepmc: words in open full text and preprints; incidental mentions are possible.
@@ -1436,9 +1527,11 @@ litvar: exact variant publications; requires --variant and a protein change need
 semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
 litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
 pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
-- `text`: Words sent to each named source in its default fields.
+- `text`: Source search words.
+Words sent to each named source in its default fields.
 - `--type`: Publication-type filter.
-- `--until`: Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
+- `--until`: Last publication date.
+Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date.
 - `--variant`: Variant words.
 - `--query`: Alias for positional article text.
 
@@ -1451,10 +1544,12 @@ Usage: biomcp search trial [OPTIONS] [query]
 
 Arguments:
   [query]
+          Registry text.
           General registry discovery text.
 
 Options:
       --age <age>
+          Age in years.
           Age in years; unstated source bounds count as no limit.
 
       --format <format>
@@ -1464,39 +1559,47 @@ Options:
           [possible values: json, md]
 
       --biomarker-code <biomarker_code>
+          NCI NCIt biomarker.
           Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
       --biomarker-use <biomarker_use>
+          NCI inclusion/exclusion.
           Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --condition <condition>...
+          Disease terms or NCIt.
           Condition alternatives joined with OR; NCI requires NCIt codes.
 
       --config <config>
           Read configuration from this file.
 
       --condition-id <condition_id>
+          MONDO, DOID or NCIT:C.
           Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
 
       --count-only[=<count_only>]
+          Source total only.
           Source total only; no returned study rows.
 
           [default: false]
           [possible values: true, false]
 
       --country <country>...
+          Country label; biomcp_help search trial.
           Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
 
       --criteria <criteria>
+          Eligibility text.
           Search literal registry eligibility text for discovery only; no eligibility judgment.
 
       --distance <distance>
+          Radius in mi or km.
           Source distance with explicit mi or km units.
 
       --offline[=<offline>]
@@ -1506,6 +1609,7 @@ Options:
           [possible values: true, false]
 
       --exact-condition[=<exact_condition>]
+          Exact registry phrase.
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
 
           [default: false]
@@ -1518,107 +1622,158 @@ Options:
           [possible values: true, false]
 
       --facility <facility>
+          Facility name.
           Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
 
       --gene <gene>
+          Gene symbol or ID.
           Resolve one checked gene for registry text discovery only; no eligibility judgment.
 
       --has-results[=<has_results>]
+          Posted results only.
           Require posted source results.
 
           [default: false]
           [possible values: true, false]
 
       --id <id>
+          Exact NCT identifier.
           Exact NCT identity in a conjunction with other filters.
 
       --intervention <intervention>...
+          Intervention terms; OR.
           Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
 
       --keyword <keyword>...
+          Registry text; OR.
           Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
 
       --lat <lat>
+          Latitude in degrees.
           Radius center latitude in degrees.
 
       --limit <limit>
+          Headers per page.
           Headers per page; NCI applies its own lower publisher limit.
 
       --lon <lon>
+          Longitude in degrees.
           Radius center longitude in degrees.
 
       --next-page <next_page>
+          Opaque continuation.
           Opaque registry continuation; keep filters unchanged.
 
       --offset <offset>
+          Source rows to skip.
           Zero-based offset of the first row in this continuation page.
 
       --phase <phase>
+          Native registry phase.
           Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
           Registry sex facet.
 
       --source <source>
+          clinicaltrials or nci.
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --sponsor <sponsor>
+          Sponsor name.
           Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
 
       --sponsor-type <sponsor_type>
+          Registry funding class.
           Registry sponsor funding category; use --sponsor for a sponsor name.
 
       --status <status>
+          Native registry status.
           Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 
       --study-type <study_type>
+          Registry study type.
           Exact registry study type.
 
       --updated-since <updated_since>
+          First update date.
           First included registry update date.
 
       --updated-until <updated_until>
+          Last update date.
           Last included registry update date.
 
       --variant <variant>
+          Variant discovery text.
           Literal variant text for registry discovery only; no eligibility judgment.
 
 ```
 
 Search clinical trials. Sources: ctgov, nci.
 
-- `--age`: Age in years; unstated source bounds count as no limit.
-- `--biomarker-code`: Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
-- `--biomarker-use`: Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
-- `--condition`: Condition alternatives joined with OR; NCI requires NCIt codes.
-- `--condition-id`: Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
-- `--count-only`: Source total only; no returned study rows.
-- `--country`: Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
-- `--criteria`: Search exact registry eligibility text for discovery only; no eligibility judgment.
-- `--distance`: Source distance with explicit mi or km units.
-- `--exact-condition`: Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
-- `--facility`: Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
-- `--gene`: Resolve one checked gene for registry text discovery only; no eligibility judgment.
-- `--has-results`: Require posted source results.
-- `--id`: Exact NCT identity in a conjunction with other filters.
-- `--intervention`: Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
-- `--keyword`: Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
-- `--lat`: Radius center latitude in degrees.
-- `--limit`: Headers per page; NCI applies its own lower publisher limit.
-- `--lon`: Radius center longitude in degrees.
-- `--next-page`: Opaque registry continuation; keep filters unchanged.
-- `--offset`: Zero-based offset of the first row in this continuation page.
-- `--phase`: Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
-- `query`: General registry discovery text.
+- `--age`: Age in years.
+Age in years; unstated source bounds count as no limit.
+- `--biomarker-code`: NCI NCIt biomarker.
+Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
+- `--biomarker-use`: NCI inclusion/exclusion.
+Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
+- `--condition`: Disease terms or NCIt.
+Condition alternatives joined with OR; NCI requires NCIt codes.
+- `--condition-id`: MONDO, DOID or NCIT:C.
+Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
+- `--count-only`: Source total only.
+Source total only; no returned study rows.
+- `--country`: Country label; biomcp_help search trial.
+Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
+- `--criteria`: Eligibility text.
+Search exact registry eligibility text for discovery only; no eligibility judgment.
+- `--distance`: Radius in mi or km.
+Source distance with explicit mi or km units.
+- `--exact-condition`: Exact registry phrase.
+Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
+- `--facility`: Facility name.
+Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
+- `--gene`: Gene symbol or ID.
+Resolve one checked gene for registry text discovery only; no eligibility judgment.
+- `--has-results`: Posted results only.
+Require posted source results.
+- `--id`: Exact NCT identifier.
+Exact NCT identity in a conjunction with other filters.
+- `--intervention`: Intervention terms; OR.
+Intervention alternatives joined with OR; supported by ClinicalTrials.gov.
+- `--keyword`: Registry text; OR.
+Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword.
+- `--lat`: Latitude in degrees.
+Radius center latitude in degrees.
+- `--limit`: Headers per page.
+Headers per page; NCI applies its own lower publisher limit.
+- `--lon`: Longitude in degrees.
+Radius center longitude in degrees.
+- `--next-page`: Opaque continuation.
+Opaque registry continuation; keep filters unchanged.
+- `--offset`: Source rows to skip.
+Zero-based offset of the first row in this continuation page.
+- `--phase`: Source registry phase.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
+- `query`: Registry text.
+General registry discovery text.
 - `--sex`: Registry sex facet.
-- `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back.
-- `--sponsor`: Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
-- `--sponsor-type`: Registry sponsor funding category; use --sponsor for a sponsor name.
-- `--status`: Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
-- `--study-type`: Exact registry study type.
-- `--updated-since`: First included registry update date.
-- `--updated-until`: Last included registry update date.
-- `--variant`: Exact variant text for registry discovery only; no eligibility judgment.
+- `--source`: clinicaltrials or nci.
+Explicit source; defaults to ClinicalTrials.gov and never falls back.
+- `--sponsor`: Sponsor name.
+Sponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category.
+- `--sponsor-type`: Registry funding class.
+Registry sponsor funding category; use --sponsor for a sponsor name.
+- `--status`: Source registry status.
+Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
+- `--study-type`: Registry study type.
+Exact registry study type.
+- `--updated-since`: First update date.
+First included registry update date.
+- `--updated-until`: Last update date.
+Last included registry update date.
+- `--variant`: Variant discovery text.
+Exact variant text for registry discovery only; no eligibility judgment.
 
 ## biomcp search variant
 
@@ -2643,10 +2798,12 @@ Arguments:
           Source-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
+          Source sections.
           Explicit named disclosures; empty means identity only.
 
 Options:
       --civic-cursor <civic_cursor>
+          CIViC continuation.
           Native continuation cursor for that exact drug, profile and claim collection.
 
       --format <format>
@@ -2656,12 +2813,14 @@ Options:
           [possible values: json, md]
 
       --civic-kind <civic_kind>
+          CIViC collection.
           Independent native evidence or assertion collection within the selected profile.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
       --civic-profile <civic_profile>
+          CIViC profile ID.
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
       --source_pacing <source_pacing>
@@ -2671,6 +2830,7 @@ Options:
           Read configuration from this file.
 
       --document-id <document_id>
+          FDA letter document ID.
           Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
           and 6144 escaped bytes per fragment. No-text scans are explicit.
 
@@ -2681,9 +2841,11 @@ Options:
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --label-section <label_section>
+          Exact openFDA SPL field.
           Exact published openFDA SPL section field, including table fields; required for the label section.
 
       --product-number <product_number>
+          FDA product number.
           Explicit native application product number, only for approvals.
 
       --offline[=<offline>]
@@ -2693,6 +2855,7 @@ Options:
           [possible values: true, false]
 
       --section-limit <section_limit>
+          Section page size.
           Named section page size, refused on an identity-only card.
 
       --fresh[=<fresh>]
@@ -2702,6 +2865,7 @@ Options:
           [possible values: true, false]
 
       --section-offset <section_offset>
+          Section rows to skip.
           Named section continuation, refused on an identity-only card.
 
       --source <source>
@@ -2711,21 +2875,31 @@ Options:
 
 Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
-- `--civic-cursor`: Source continuation cursor for that exact drug, profile and claim collection.
-- `--civic-kind`: Independent source evidence or assertion collection within the selected profile.
-- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream.
-- `--document-id`: Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
+- `--civic-cursor`: CIViC continuation.
+Source continuation cursor for that exact drug, profile and claim collection.
+- `--civic-kind`: CIViC collection.
+Independent source evidence or assertion collection within the selected profile.
+- `--civic-profile`: CIViC profile ID.
+Selected source CIViC molecular profile for a drug-scoped claim stream.
+- `--document-id`: FDA letter document ID.
+Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit.
 - `--evidence-level`: Source CIViC evidence levels; repeat to include several levels.
 - `--evidence-status`: Source CIViC evidence status; omitted preserves the source's existing default.
 - `input`: Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
-- `--label-section`: Exact published openFDA SPL section field, including table fields; required for the label section.
-- `--product-number`: Explicit source application product number, only for approvals.
-- `section`: Explicit named disclosures; empty means identity only.
-- `--section-limit`: Named section page size, refused on an identity-only card.
-- `--section-offset`: Named section continuation, refused on an identity-only card.
+- `--label-section`: Exact openFDA SPL field.
+Exact published openFDA SPL section field, including table fields; required for the label section.
+- `--product-number`: FDA product number.
+Explicit source application product number, only for approvals.
+- `section`: Source sections.
+Explicit named disclosures; empty means identity only.
+- `--section-limit`: Section page size.
+Named section page size, refused on an identity-only card.
+- `--section-offset`: Section rows to skip.
+Named section continuation, refused on an identity-only card.
 - `--source`: Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
+Source sections.
 Explicit named disclosures; empty means identity only.
 
 - `xrefs`: All source identity cross-references and product links, mechanically paged.
@@ -2949,13 +3123,16 @@ Usage: biomcp get variant [OPTIONS] <input> [section]...
 
 Arguments:
   <input>
+          rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.
           rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
+          Source sections.
           Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
 Options:
       --build <build>
+          Assembly; default GRCh38.
           MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 
       --format <format>
@@ -2965,18 +3142,21 @@ Options:
           [possible values: json, md]
 
       --civic-cursor <civic_cursor>
+          CIViC continuation.
           Native CIViC cursor, retained unchanged.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups.
 
       --civic-kind <civic_kind>
+          CIViC collection.
           Native CIViC claim collection within the selected profile.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values.
 
       --civic-profile <civic_profile>
+          CIViC profile ID.
           Selected CIViC molecular profile for native claim paging.
 
       --config <config>
@@ -2989,9 +3169,11 @@ Options:
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --limit <limit>
+          Candidate page size.
           Candidate rows per page; more remain reachable through typed next commands.
 
       --offset <offset>
+          Candidates to skip.
           Candidate rows to skip in source order.
 
       --offline[=<offline>]
@@ -3001,6 +3183,7 @@ Options:
           [possible values: true, false]
 
       --resolver <resolver>
+          Notation resolver.
           Resolver for reference-qualified notation; never repairs the input locally.
 
       --fresh[=<fresh>]
@@ -3010,33 +3193,49 @@ Options:
           [possible values: true, false]
 
       --section-limit <section_limit>
+          Source rows per page.
           Rows per named source section page; omitted uses the native source default.
 
       --section-offset <section_offset>
+          Source rows to skip.
           Source rows to skip independently of identity candidate paging.
 
       --tumor-type <tumor_type>
+          OncoKB tumor context.
           Explicit tumor context for keyed OncoKB annotation.
 
 ```
 
 Get genetic variant evidence. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
-- `--build`: MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
-- `--civic-cursor`: Source CIViC cursor, retained unchanged.
-- `--civic-kind`: Source CIViC claim collection within the selected profile.
-- `--civic-profile`: Selected CIViC molecular profile for source claim paging.
+- `--build`: Assembly; default GRCh38.
+MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
+- `--civic-cursor`: CIViC continuation.
+Source CIViC cursor, retained unchanged.
+- `--civic-kind`: CIViC collection.
+Source CIViC claim collection within the selected profile.
+- `--civic-profile`: CIViC profile ID.
+Selected CIViC molecular profile for source claim paging.
 - `--evidence-level`: Source CIViC evidence levels; repeat to include several levels.
 - `--evidence-status`: Source CIViC evidence status; omitted preserves the source's existing default.
-- `input`: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
-- `--limit`: Candidate rows per page; more remain reachable through typed next commands.
-- `--offset`: Candidate rows to skip in source order.
-- `--resolver`: Resolver for reference-qualified notation; never repairs the input locally.
-- `section`: Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
-- `--section-limit`: Rows per named source section page; omitted uses the source default.
-- `--section-offset`: Source rows to skip independently of identity candidate paging.
-- `--tumor-type`: Explicit tumor context for keyed OncoKB annotation.
+- `input`: rsID, CAid, clinvar:N, VCV, HGVS or VCF coordinates.
+rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
+- `--limit`: Candidate page size.
+Candidate rows per page; more remain reachable through typed next commands.
+- `--offset`: Candidates to skip.
+Candidate rows to skip in source order.
+- `--resolver`: Notation resolver.
+Resolver for reference-qualified notation; never repairs the input locally.
+- `section`: Source sections.
+Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
+- `--section-limit`: Source rows per page.
+Rows per named source section page; omitted uses the source default.
+- `--section-offset`: Source rows to skip.
+Source rows to skip independently of identity candidate paging.
+- `--tumor-type`: OncoKB tumor context.
+Explicit tumor context for keyed OncoKB annotation.
 
+Source sections.
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
 - `clinvar`: ClinVar source assertions.
