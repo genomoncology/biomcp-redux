@@ -251,7 +251,7 @@ def replacement_failure(item, before, after):
         for key, old in before.items() if key not in after)
 
 
-def failure_plan(before, after, discoveries, peers, complete):
+def failure_plan(before, after, discoveries, peers):
     roots = {key: old for key, old in before.items() if key in after
              and failed_status(after[key].get('status'))}
     removed = [value for key, value in before.items() if key not in after]
@@ -336,7 +336,7 @@ def command_classification(capture, discoveries, peers, complete=False, comparis
     for cause in ('outage', 'throttled'):
         if causes[cause]:
             return cause if (explained_source_failures(capture)
-                and failure_plan(before, after, discoveries, peers, complete)
+                and failure_plan(before, after, discoveries, peers)
                 in ('healthy', 'churn')) else 'failure'
     comparison = comparison or {}
     removed = [before[key] for key in before.keys() - after.keys()]
@@ -432,7 +432,7 @@ def classify_case(row):
     outcomes = []
     earlier_failed = {}
     earlier_roots = {}
-    previous_command, previous_outcome = None, None
+    previous_command, previous_outcome, previous_comparison = None, None, {}
     output_changes = {item for item in drift if ': output status changed:' in item}
     for command, comparison in zip(witness, result['commands']):
         # An earlier failed root was never cached, so later commands may
@@ -462,7 +462,9 @@ def classify_case(row):
                 and not before and not after and previous_command is not None
                 and all(original[side].get('output') == previous_command[side].get('output')
                         for side in ('baseline', 'live'))
-                and comparison.get('before_status') != comparison.get('after_status')):
+                and comparison.get('before_status') != comparison.get('after_status')
+                and all(comparison.get(key) == previous_comparison.get(key)
+                        for key in ('before_status', 'after_status'))):
             outcome = previous_outcome
         outcomes.append(outcome)
         causes = command_causes(command)
@@ -470,7 +472,7 @@ def classify_case(row):
             earlier_failed.update({source: cause for source in causes[cause]})
         earlier_roots.update({key: before[key] for key in before.keys() & after.keys()
                               if failed_status(after[key].get('status'))})
-        previous_command, previous_outcome = original, outcome
+        previous_command, previous_outcome, previous_comparison = original, outcome, comparison
         matched = {item for item in output_changes
                    if item.startswith('command ' + str(command['ordinal'])
                                       + ': output status changed:')}
