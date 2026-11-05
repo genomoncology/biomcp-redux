@@ -2,7 +2,7 @@
 use crate::Ctx;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, SourceState, VariantGet,
+    AssertionSource, Problem, Reason, Section, Source, SourceOutcome, VariantGet,
     VariantHeader, VariantSection, VariantSections,
 };
 pub(super) type Result<T> = (
@@ -164,9 +164,7 @@ fn permitted<T>(
                 Section::unavailable(source, Reason::Disabled)
             },
             vec![biomcp_adapters::registry::outcome(
-                source,
-                SourceState::Skipped,
-                Some(Reason::Disabled),
+                source, biomcp_types::SourceStatus::Skipped(Some(Reason::Disabled)),
             )],
             Vec::new(),
             None,

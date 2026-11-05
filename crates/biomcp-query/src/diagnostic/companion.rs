@@ -4,7 +4,7 @@ use biomcp_adapters::fda_cdx;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, Reason, Request, Source,
+    DiagnosticCompanion, DiagnosticSearch, DrugGet, DrugSource, PageInfo, Request, Source,
     SourceState, Status, StepKind,
 };
 use std::collections::HashSet;
@@ -24,7 +24,6 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let leg = cx.fetch.leg(&fda_cdx::SPEC, deadline);
     let result = fda_cdx::search(&leg, q);
     let error = result.as_ref().err().copied();
-    let mut group_unsupported = false;
     if let Ok(page) = result {
         let q = page
             .info
@@ -47,7 +46,6 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             let unavailable = false;
             crate::status::item(&mut out, true, false, unavailable);
         };
-        group_unsupported = page.group_unsupported;
         out.problems.extend(page.problems);
         out.page = Some(PageInfo {
             offset: q.offset(),
@@ -64,10 +62,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         .with_query(echo.clone());
     }
     out.local = error.and_then(status::local);
-    let mut source = status::source(Source::FdaCdx, leg.finish(), error);
-    if group_unsupported {
-        source.reason = Some(Reason::Unsupported);
-    }
+    let source = status::source(Source::FdaCdx, leg.finish(), error);
     if matches!(source.state, SourceState::Stale) && out.status() == Status::Complete {
         crate::status::item(&mut out, true, false, true);
     }

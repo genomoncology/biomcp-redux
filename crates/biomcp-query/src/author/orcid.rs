@@ -17,9 +17,7 @@ pub(super) fn papers(cx: &Ctx<'_>, q: &AuthorPapersQuery, id: &OrcidId) -> Outco
         out.local = status::local(error);
         if out.sources.is_empty() {
             out.sources.push(biomcp_adapters::registry::outcome(
-                Source::Orcid,
-                SourceState::Failed,
-                None,
+                Source::Orcid, biomcp_types::SourceStatus::Failed(None),
             ));
         }
         if matches!(error, RequestError::Source(e) if e.reason == Reason::NotFound) {
@@ -50,9 +48,7 @@ fn execute(
 ) -> Result<(), RequestError> {
     if cx.fetch.disabled(Source::Orcid) {
         out.sources.push(biomcp_adapters::registry::outcome(
-            Source::Orcid,
-            SourceState::Skipped,
-            Some(Reason::Disabled),
+            Source::Orcid, biomcp_types::SourceStatus::Skipped(Some(Reason::Disabled)),
         ));
         return Err(SourceError::disabled(Source::Orcid).into());
     }

@@ -112,9 +112,7 @@ fn read_inner(
     if cx.fetch.disabled(source) {
         let error: RequestError = SourceError::disabled(source).into();
         out.sources.push(biomcp_adapters::registry::outcome(
-            source,
-            biomcp_types::SourceState::Skipped,
-            Some(Reason::Disabled),
+            source, biomcp_types::SourceStatus::Skipped(Some(Reason::Disabled)),
         ));
         return Err(error);
     }
