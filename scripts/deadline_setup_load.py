@@ -52,6 +52,7 @@ def main():
         raise ValueError('installed proof binary differs from source commit')
     env = dict(os.environ, BIOMCP_INSTALLED_BINARY=str(installed / 'biomcp'),
                BIOMCP_CASE_RUNNER=str(installed / 'case-runner'), BIOMCP_INSTALLED_VERSION=identity.splitlines()[0].removeprefix('biomcp '),
+               BIOMCP_TEST_PYTHON=sys.executable,
                BIOMCP_EVIDENCE_DIR=str(root / 'fixture-evidence'))
     commands = [
         [sys.executable, '-m', 'unittest', '-v', '-f',
@@ -59,6 +60,8 @@ def main():
         [sys.executable, '-m', 'unittest', '-v', '-f', 'release.test_checks', 'release.test_gate'],
         [sys.executable, 'scripts/typed_harness_preflight.py', 'check'],
         [binaries['cases'], 'gene-sections/gencc-first-publisher', '--test-threads', '2'],
+        [binaries['tools'], '--proofs', 'mcp-http/readiness-rejects-eof-and-hung-child', '--exact'],
+        [binaries['cases'], 'mcp-parity/mcp-typed-tools', '--exact'],
     ]
     loaded = sys.argv[1:] == ['load']
     if loaded:

@@ -392,7 +392,7 @@ source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
 
 .PHONY: deadline-setup-focused deadline-setup-load
-deadline-setup-focused:
+deadline-setup-focused: fmt lint-tools
 	python3 scripts/deadline_setup_load.py
 
 deadline-setup-load:
