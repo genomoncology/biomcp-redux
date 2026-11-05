@@ -4,7 +4,11 @@ use biomcp_types::{Help, Source};
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
-pub(super) fn project(out: &mut crate::command::Outcome, cx: Context<'_>) -> io::Result<()> {
+pub(super) fn project(
+    out: &mut crate::command::Outcome,
+    cx: Context<'_>,
+    args: &[OsString],
+) -> io::Result<()> {
     if !cx.globals.hosted {
         return Ok(());
     }
@@ -12,89 +16,113 @@ pub(super) fn project(out: &mut crate::command::Outcome, cx: Context<'_>) -> io:
     help(value, cx)?;
     recovery(value, cx)?;
     next(value, cx);
-    notices(value, cx)
+    let required = match crate::grammar::parse(cx.root, args)
+        .ok()
+        .and_then(|parsed| parsed.action)
+    {
+        Some(biomcp_query::Action::Run { request, .. }) => {
+            super::typed::catalog::required_components(&request)?
+        }
+        _ => Default::default(),
+    };
+    notices(value, cx, &required)
 }
 
 fn help(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
     if value.get("schema") == Some(&json!("biomcp.help/6")) {
         let mut help: Help = serde_json::from_value(value["result"].clone())?;
-        let excluded = super::typed::catalog::excluded(cx)?;
-        let mut offered_commands = Vec::new();
-        for command in help.commands {
-            if offered(&command.command, cx, &excluded)? {
-                offered_commands.push(command);
-            }
-        }
-        help.commands = offered_commands;
-        for command in &mut help.commands {
-            let schema = crate::grammar::command_paths()
-                .iter()
-                .find(|(verb, entity, _)| command.command == [*verb, *entity])
-                .map(|(_, _, id)| super::typed::schema(id))
-                .transpose()?;
-            let command_exclusions = schema
-                .as_ref()
-                .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
-                .unwrap_or_else(|| excluded.clone());
-            if command.command.is_empty() {
-                command.description = if crate::config::mcp_tool_mode(cx.globals, cx.settings)
-                    == crate::config::ToolMode::Typed
-                {
-                    super::typed::catalog::instructions(cx)?
-                } else {
-                    instructions(cx)?
-                };
-            }
-            if command.command == ["help", "sources"] {
-                command.description = sources(cx)?;
-            } else {
-                command.description =
-                    super::typed::catalog::summary(&command.description, &command_exclusions);
-            }
-            command.arguments.retain(|argument| {
-                schema.as_ref().is_none_or(|schema| {
-                    super::typed::catalog::argument_allowed(schema, &argument.name, &excluded)
-                }) && offered_argument(&argument.name)
-            });
-            if let [verb, entity] = command.command.as_slice() {
-                command.sections.retain(|section| {
-                    super::typed::catalog::section_allowed(verb, entity, &section.word, &excluded)
-                });
-            }
-            for argument in &mut command.arguments {
-                argument.description =
-                    super::typed::catalog::summary(&argument.description, &excluded);
-                if matches!(
-                    argument.name.trim_start_matches('-'),
-                    "section" | "sections"
-                ) && let [verb, entity] = command.command.as_slice()
-                {
-                    argument.choices.retain(|word| {
-                        super::typed::catalog::section_allowed(verb, entity, word, &excluded)
-                    });
-                    if argument.default.as_ref().is_some_and(|word| {
-                        !super::typed::catalog::section_allowed(verb, entity, word, &excluded)
-                    }) {
-                        argument.default = None;
-                    }
-                }
-                argument.choices.retain(|word| {
-                    !word
-                        .parse::<Source>()
-                        .is_ok_and(|source| command_exclusions.contains(&source))
-                });
-                if argument.default.as_ref().is_some_and(|word| {
-                    word.parse::<Source>()
-                        .is_ok_and(|source| command_exclusions.contains(&source))
-                }) {
-                    argument.default = None;
-                }
-            }
-            command.examples.retain(|args| next_allowed(args, cx));
+        help.commands = commands(help.commands, cx)?;
+        if let Some(relation) = help
+            .commands
+            .iter_mut()
+            .find(|command| command.command == ["help", "relations"])
+        {
+            let available = commands(crate::help::commands(cx.root)?, cx)?;
+            relation.description = crate::help::relations(&available);
         }
         value["result"] = serde_json::to_value(help)?;
     }
     Ok(())
+}
+
+fn commands(
+    mut commands: Vec<biomcp_types::HelpCommand>,
+    cx: Context<'_>,
+) -> io::Result<Vec<biomcp_types::HelpCommand>> {
+    let excluded = super::typed::catalog::excluded(cx)?;
+    let mut offered_commands = Vec::new();
+    for command in commands {
+        if offered(&command.command, cx, &excluded)? {
+            offered_commands.push(command);
+        }
+    }
+    commands = offered_commands;
+    for command in &mut commands {
+        let schema = crate::grammar::command_paths()
+            .iter()
+            .find(|(verb, entity, _)| command.command == [*verb, *entity])
+            .map(|(_, _, id)| super::typed::schema(id))
+            .transpose()?;
+        let command_exclusions = schema
+            .as_ref()
+            .map(|schema| super::typed::catalog::capability_excluded(schema, &excluded))
+            .unwrap_or_else(|| excluded.clone());
+        if command.command.is_empty() {
+            command.description = if crate::config::mcp_tool_mode(cx.globals, cx.settings)
+                == crate::config::ToolMode::Typed
+            {
+                super::typed::catalog::instructions(cx)?
+            } else {
+                instructions(cx)?
+            };
+        }
+        if command.command == ["help", "sources"] || command.command == ["help", "config"] {
+            command.description = sources(cx)?;
+        } else {
+            command.description =
+                super::typed::catalog::summary(&command.description, &command_exclusions);
+        }
+        command.arguments.retain(|argument| {
+            schema.as_ref().is_none_or(|schema| {
+                super::typed::catalog::argument_allowed(schema, &argument.name, &excluded)
+            }) && offered_argument(&argument.name)
+        });
+        if let [verb, entity] = command.command.as_slice() {
+            command.sections.retain(|section| {
+                super::typed::catalog::section_allowed(verb, entity, &section.word, &excluded)
+            });
+        }
+        for argument in &mut command.arguments {
+            argument.description = super::typed::catalog::summary(&argument.description, &excluded);
+            if matches!(
+                argument.name.trim_start_matches('-'),
+                "section" | "sections"
+            ) && let [verb, entity] = command.command.as_slice()
+            {
+                argument.choices.retain(|word| {
+                    super::typed::catalog::section_allowed(verb, entity, word, &excluded)
+                });
+                if argument.default.as_ref().is_some_and(|word| {
+                    !super::typed::catalog::section_allowed(verb, entity, word, &excluded)
+                }) {
+                    argument.default = None;
+                }
+            }
+            argument.choices.retain(|word| {
+                !word
+                    .parse::<Source>()
+                    .is_ok_and(|source| command_exclusions.contains(&source))
+            });
+            if argument.default.as_ref().is_some_and(|word| {
+                word.parse::<Source>()
+                    .is_ok_and(|source| command_exclusions.contains(&source))
+            }) {
+                argument.default = None;
+            }
+        }
+        command.examples.retain(|args| next_allowed(args, cx));
+    }
+    Ok(commands)
 }
 
 fn offered_argument(name: &str) -> bool {
@@ -192,12 +220,12 @@ fn next_step(step: &mut Value, cx: Context<'_>) -> bool {
     };
     // Inherited server globals precede any positional end-of-options separator.
     let mut index = 0;
-    while index < args.len() {
-        if args[index] == "--" {
+    while let Some(word) = args.get(index) {
+        if word == "--" {
             break;
         }
         if matches!(
-            args[index].as_str(),
+            word.as_str(),
             Some("--config" | "--replay" | "--record" | "--case-cache" | "--observe")
         ) {
             let end = (index + 2).min(args.len());
@@ -216,7 +244,11 @@ fn next_step(step: &mut Value, cx: Context<'_>) -> bool {
     next_allowed(&words, cx)
 }
 
-fn notices(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
+fn notices(
+    value: &mut Value,
+    cx: Context<'_>,
+    required: &std::collections::BTreeSet<Source>,
+) -> io::Result<()> {
     if let Some(rows) = value.get_mut("sources").and_then(Value::as_array_mut) {
         for row in rows {
             if row.get("reason") != Some(&json!("disabled")) {
@@ -224,7 +256,7 @@ fn notices(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
             }
             let source: Source = serde_json::from_value(row["source"].clone())?;
             let notice = serde_json::to_value(biomcp_types::SourceNotice::RequestGuidance {
-                message: reason(source, cx)?.into(),
+                message: reason(source, cx, required)?.into(),
                 retry_after_seconds: None,
             })?;
             if let Some(fields) = row.as_object_mut() {
@@ -304,7 +336,11 @@ fn offered(
     Ok(!known && next_allowed(path, cx))
 }
 
-fn reason(source: Source, cx: Context<'_>) -> io::Result<String> {
+fn reason(
+    source: Source,
+    cx: Context<'_>,
+    required: &std::collections::BTreeSet<Source>,
+) -> io::Result<String> {
     let operator = crate::config::excluded_sources(cx.globals, cx.settings)
         .map_err(|e| io::Error::other(e.0))?;
     let component_disabled = |hosted| {
@@ -317,8 +353,13 @@ fn reason(source: Source, cx: Context<'_>) -> io::Result<String> {
             } else {
                 fetch.restrict_sources(Default::default())
             };
-            biomcp_query::sources::components()
-                .any(|component| component.source == source && component.disabled(&effective))
+            biomcp_query::sources::components().any(|component| {
+                component.source == source
+                    && component
+                        .native_source
+                        .is_some_and(|source| required.contains(&source))
+                    && component.disabled(&effective)
+            })
         })
     };
     let explanation = if operator.contains(&source) || component_disabled(false) {
@@ -337,7 +378,7 @@ fn reason(source: Source, cx: Context<'_>) -> io::Result<String> {
             ceiling.allowed()
         )
     } else {
-        "This request disabled the source or a required component.".to_owned()
+        "This source or a required component is disabled for this request.".to_owned()
     };
     Ok(format!(
         "{explanation} A self-hosted install can enable it subject to the publisher's terms."
@@ -350,7 +391,7 @@ fn sources(cx: Context<'_>) -> io::Result<String> {
     for spec in biomcp_query::sources::sources() {
         let source = spec.source;
         rows.push(if excluded.contains(&source) {
-            format!("{source}: {}", reason(source, cx)?)
+            format!("{source}: {}", reason(source, cx, &Default::default())?)
         } else { format!("{source}: served by this server; publisher terms and credential requirements apply.") });
     }
     Ok(rows.join("\n"))

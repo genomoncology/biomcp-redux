@@ -189,6 +189,12 @@ pub(in crate::mcp) fn request_allowed(
     request: &biomcp_types::Request,
     excluded: &BTreeSet<Source>,
 ) -> io::Result<bool> {
+    if required_components(request)?
+        .iter()
+        .any(|component| excluded.contains(component))
+    {
+        return Ok(false);
+    }
     let schema = super::schema(crate::grammar::query_schema(request))?;
     let source_exclusions = capability_excluded(&schema, excluded);
     let query = crate::grammar::rewrite::query_value(request)?;
@@ -224,6 +230,52 @@ pub(in crate::mcp) fn request_allowed(
         }
     }
     Ok(true)
+}
+
+pub(in crate::mcp) fn required_components(
+    request: &biomcp_types::Request,
+) -> io::Result<BTreeSet<Source>> {
+    let schema = super::schema(crate::grammar::query_schema(request))?;
+    let query = crate::grammar::rewrite::query_value(request)?;
+    let (verb, entity) = request.path();
+    let mut required = BTreeSet::new();
+    for (name, value) in query
+        .as_object()
+        .into_iter()
+        .flatten()
+        .filter(|(_, value)| !value.is_null())
+    {
+        let property = schema.get("properties").and_then(|fields| fields.get(name));
+        if let Some(component) = property
+            .and_then(|field| field.get("x-required-component"))
+            .and_then(Value::as_str)
+            .and_then(|word| word.parse::<Source>().ok())
+        {
+            required.insert(component);
+        }
+        for word in value
+            .as_array()
+            .map(Vec::as_slice)
+            .unwrap_or(std::slice::from_ref(value))
+            .iter()
+            .filter_map(Value::as_str)
+        {
+            if let Some(component) = property
+                .and_then(|field| field.get("x-required-components"))
+                .and_then(|map| map.get(word))
+                .and_then(Value::as_str)
+                .and_then(|word| word.parse::<Source>().ok())
+            {
+                required.insert(component);
+            }
+            if matches!(name.as_str(), "section" | "sections")
+                && let Some(component) = biomcp_types::command_section_component(verb, entity, word)
+            {
+                required.insert(component);
+            }
+        }
+    }
+    Ok(required)
 }
 
 fn filter_sections(node: &mut Value, verb: &str, entity: &str, excluded: &BTreeSet<Source>) {

@@ -212,7 +212,7 @@ pub(super) fn rejection(
     }
     let mut outcome =
         crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
-    super::hosted::project(&mut outcome, context)?;
+    super::hosted::project(&mut outcome, context, &rejected.args)?;
     Ok(tool_result(
         id,
         &outcome,
