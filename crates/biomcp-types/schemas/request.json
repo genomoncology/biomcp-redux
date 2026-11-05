@@ -2867,7 +2867,8 @@
               "type": "null"
             }
           ],
-          "description": "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero."
+          "description": "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.",
+          "x-required-component": "meddra"
         },
         "command": {
           "const": "search-adverse-event",
