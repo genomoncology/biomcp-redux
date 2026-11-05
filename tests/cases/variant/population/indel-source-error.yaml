@@ -19,13 +19,13 @@
       "is_error": true,
       "expect": {
         "/status": "failed",
-        "/next": [],
         "/problems/*/field": {
           "excludes": "GRCh38_allele"
         },
         "": {
           "omits": [
-            "result"
+            "result",
+            "next"
           ]
         },
         "/sources/1/reason": "bad-reply"
@@ -44,9 +44,13 @@
         "/result/resolution": "resolved",
         "/result/candidates/0/identity/ids/0": "CA180574",
         "/result/candidates/0/sections/population/reason": "bad-reply",
-        "/next": [],
         "/problems/*/field": {
           "excludes": "GRCh38_allele"
+        },
+        "": {
+          "omits": [
+            "next"
+          ]
         }
       }
     }

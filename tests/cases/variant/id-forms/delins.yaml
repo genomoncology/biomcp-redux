@@ -26,10 +26,10 @@
       "exit": 4,
       "expect": {
         "/status": "failed",
-        "/next": [],
         "": {
           "omits": [
-            "result"
+            "result",
+            "next"
           ]
         }
       },

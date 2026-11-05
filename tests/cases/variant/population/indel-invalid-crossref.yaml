@@ -17,7 +17,6 @@
       "is_error": true,
       "expect": {
         "/status": "failed",
-        "/next": [],
         "/problems/*/field": {
           "includes_all_of": [
             "externalRecords.gnomAD_4.id"
@@ -25,7 +24,8 @@
         },
         "": {
           "omits": [
-            "result"
+            "result",
+            "next"
           ]
         }
       }
