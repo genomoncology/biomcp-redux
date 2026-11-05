@@ -63,30 +63,53 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         same.extend(other);
         format!("Sections=source: {}", same.join(";"))
     };
-    let prefix = format!("{verb} {entity} source records. ");
+    let summary = biomcp_types::COMMANDS
+        .iter()
+        .find(|row| row.verb == verb && row.entity == entity)
+        .map_or("", |row| row.summary.trim());
+    let prefix = format!("{summary} ");
     let input = input_description(schema);
     let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
     let input = input.chars().take(budget).collect::<String>();
-    format!("{prefix}{input} {provenance}.")
+    [summary, input.as_str(), provenance.as_str()]
+        .into_iter()
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
+        + "."
 }
 
 fn input_description(schema: &Value) -> String {
-    let input = schema["properties"]
-        .as_object()
+    let Some((_, name, node)) = schema
+        .get("properties")
+        .and_then(Value::as_object)
         .into_iter()
         .flatten()
-        .find(|(_, node)| node.get("x-positional").is_some())
-        .and_then(|(_, node)| node.get("description"))
+        .filter_map(|(name, node)| {
+            node.get("x-positional")
+                .and_then(Value::as_u64)
+                .map(|position| (position, name, node))
+        })
+        .min_by_key(|(position, _, _)| *position)
+    else {
+        return String::new();
+    };
+    let description = node
+        .get("description")
         .and_then(Value::as_str)
         .unwrap_or_default()
         .split(". ")
         .next()
+        .unwrap_or_default()
+        .split(';')
+        .next()
         .unwrap_or_default();
-    input
+    let description = description
         .replace("identifiers", "IDs")
         .replace(" accession", "")
         .replace("reference-qualified ", "")
         .replace("VCF-style genomic coordinates", "VCF")
         .replace(", in input order", "")
-        .replace(", in caller order", "")
+        .replace(", in caller order", "");
+    format!("{name}: {description}")
 }

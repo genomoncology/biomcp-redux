@@ -1,4 +1,6 @@
-//! Both transports retain hosted policy while typed errors name executable next calls.
+#[path = "typed_descriptions.rs"]
+mod descriptions;
+// Both transports retain hosted policy while typed errors name executable next calls.
 use super::super::super::{
     http::Server,
     launch::Environment,
@@ -10,6 +12,7 @@ pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed","hosted_max_use":"commercial"}))
         .map_err(|e| e.to_string())?;
+    descriptions::check(&env)?;
     hosted(&env)?;
     boundaries(&env)
 }
@@ -112,7 +115,10 @@ fn boundaries(env: &Environment) -> Result<(), String> {
 }
 
 fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), String> {
-    let (_, call) = text.split_once("next ").ok_or("typed next call missing")?;
+    let first_line = text.lines().next().ok_or("typed summary missing")?;
+    let (_, call) = first_line
+        .split_once("next ")
+        .ok_or("typed next call missing")?;
     let call: Value = serde_json::from_str(call).map_err(|e| e.to_string())?;
     if call != expected {
         return Err(format!("wrong multiword name search: {call}"));

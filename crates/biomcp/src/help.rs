@@ -161,13 +161,11 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
         .into_iter()
         .collect::<Vec<_>>()
         .join(", ");
-    let description = text(schema, "description");
-    let first = description
-        .split(". ")
-        .next()
-        .unwrap_or_default()
-        .trim_end_matches('.');
-    format!("{first}. Sources: {sources}.")
+    let summary = biomcp_types::COMMANDS
+        .iter()
+        .find(|row| row.verb == verb && row.entity == entity)
+        .map_or("", |row| row.summary.trim());
+    format!("{summary} Sources: {sources}.")
 }
 
 fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
