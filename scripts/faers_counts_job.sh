@@ -29,7 +29,7 @@ case "${1:-focused}" in
     ;;
   mechanical)
     cargo fmt --all -- --check
-    cargo clippy --locked -p biomcp-types -p biomcp-adapters -p biomcp-query --all-targets --features biomcp-types/schema -- -D warnings
+    cargo clippy --keep-going --locked -p biomcp-types -p biomcp-adapters -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
     cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
     ;;
   routine)
