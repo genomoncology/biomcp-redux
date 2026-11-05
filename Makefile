@@ -367,7 +367,7 @@ typed-hosted-check:
 
 .PHONY: source-status-check
 source-status-check:
-	cargo test --locked -p biomcp-types --test source_status $(TEST_THREADS)
+	cargo test --locked -p biomcp-types --test rust_api $(TEST_THREADS)
 	cargo test --locked -p biomcp-types --doc $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases source-status $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases variant-hotspots/ $(TEST_THREADS)

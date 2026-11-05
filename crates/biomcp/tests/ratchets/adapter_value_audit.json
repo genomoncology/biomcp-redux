@@ -1562,7 +1562,7 @@
     },
     {
       "path": "crates/biomcp-query/src/diagnostic/companion.rs",
-      "site": "search: ) . copied ( ) ; let mut group_unsupported = false ; if let Ok ( page ) = result { let q = page . info .",
+      "site": "search: as_ref ( ) . err ( ) . copied ( ) ; if let Ok ( page ) = result { let q = page . info .",
       "maximum": 1,
       "class": "migrated",
       "owner": "diagnostic",
