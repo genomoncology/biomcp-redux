@@ -164,6 +164,7 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
         env,
         json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true}),
     )?;
+    report(&enabled)?;
     for tool in enabled {
         if tool
             .pointer("/outputSchema/anyOf/0/properties/schema/enum")

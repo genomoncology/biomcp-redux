@@ -72,7 +72,7 @@ fn compact(node: &Value, root: &Value, optional: bool, enum_limit: usize) -> Val
     Value::Object(result)
 }
 pub(super) fn input(schema: &Value) -> Value {
-    input_with_limit(schema, 30)
+    input_with_limit(schema, crate::config::DEFAULT_TYPED_ENUM_LIMIT)
 }
 pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
     let properties = schema["properties"]
