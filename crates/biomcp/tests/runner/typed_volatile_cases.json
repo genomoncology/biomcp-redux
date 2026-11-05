@@ -9,16 +9,20 @@
     ]
   },
   "article/citations/edge-cursors.yaml step 1": {
-    "capture_sha256": "108514d4abc13ba53305436b599da4dc16ac8ee397d8e3cabee3259b44af1ddc",
+    "capture_sha256": "0551f951578e740570d31d044205a262ecc7ee3d2ef64f97f59f6caedaa523b9",
     "pointers": [
       "/next/0/args/8",
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
   "article/citations/references.yaml step 1": {
-    "capture_sha256": "14c8e4948557e41d9980c0303d90d4769b5c6c4a7150ae33d2a0024b96ce4bba",
+    "capture_sha256": "c9729f21be65470cd38d57cdfe0f0bafb76c2dadb082a4c05da83eb3b1e9bf81",
     "pointers": [
       "/next/0/args/6",
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -49,9 +53,11 @@
     ]
   },
   "article/filters/include-retracted.yaml step 1": {
-    "capture_sha256": "39b0e1c7a6ee9c6c16ae925f7dcb75ee15858569e65f370120da1d863a74284b",
+    "capture_sha256": "2338cfe404c37caa75c8a2d8555b0d06ec061cd6ce1f2b29b0881d3b02a7bbcd",
     "pointers": [
       "/next/0/args/6",
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -89,9 +95,11 @@
     ]
   },
   "article/litvar/akt1-rsid-citations.yaml step 1": {
-    "capture_sha256": "dfa9c8d7bc6a39f46648d48a38a38afb80aad7d833840817b8b6d20a5b9a5255",
+    "capture_sha256": "5b49b8d55cd37bac1cd5910087ab902cccbba92e705ced2bfb037b4ad1270470",
     "pointers": [
       "/next/0/args/5",
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -152,6 +160,12 @@
       "/next/1/args/6"
     ]
   },
+  "author/papers.yaml step 2": {
+    "capture_sha256": "698dba9b6024d0cfe14047a734ffe29cdc5754b81729058169b876cdc7427e68",
+    "pointers": [
+      "/next/1/args/6"
+    ]
+  },
   "author/search-disabled-pool.yaml step 1": {
     "capture_sha256": "8473317bb727e86d874b9e7b7facd603503e957f4ef9e44ad38bf7da9f3da1ae",
     "pointers": [
@@ -192,8 +206,10 @@
     ]
   },
   "orcid/refused-member.yaml step 1": {
-    "capture_sha256": "8c20a6a6606f9de90763d0112cfcd93582fe9dd8329fada0d45db39393ad7197",
+    "capture_sha256": "cf964e3e8d73d6f6d8395d4a6c1a359b8e7cc0649cbf5729aa517a5883b06aab",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -220,10 +236,12 @@
     ]
   },
   "pathway-sections/examples.yaml step 1": {
-    "capture_sha256": "e3483f4c43c33961337edcb93196b6a0b9a7e0e1a8979bf9934896595429d2d7",
+    "capture_sha256": "6552ec3e9a0c70b03a4a126407b900d47826fa74a95f540b04ab616a6057c20a",
     "pointers": [
       "/next/5/args/6",
       "/next/6/args/5",
+      "/result/page/pool/created",
+      "/result/page/pool/expires",
       "/result/page/pool/id"
     ]
   },
@@ -275,8 +293,10 @@
     ]
   },
   "protein/examples.yaml step 11": {
-    "capture_sha256": "33156e1851f197f1bd9ec072823f14aac1a75744e16c46fefc128ab4e0506fd4",
+    "capture_sha256": "dd08d0535f9df587e9e17b6310f7df3d04d898c47dec35158eb77b45a9b7e835",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -295,8 +315,10 @@
     ]
   },
   "protein/examples.yaml step 3": {
-    "capture_sha256": "feb9bfd5b7b7fc381a70ed2ac90e926e1cfe69326d9843af74cbf438de30130b",
+    "capture_sha256": "11090b85a4293c97eeb4e0934a80fac34a0e177c2ca86253e78c76c85bce6df6",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -339,8 +361,10 @@
     ]
   },
   "protein/examples.yaml step 9": {
-    "capture_sha256": "4a9547ceede8b3630f115ac9e30f64624d517aa8fe3679a718bce4f253862ede",
+    "capture_sha256": "910485655ef0ff4840b706b7e75529278bf79c8f526fce91dff974df30c4cbb7",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -351,8 +375,10 @@
     ]
   },
   "protein/native-sections.yaml step 7": {
-    "capture_sha256": "8cc09c643d4ac16e46ae79c5cff78a9b623de547e8862b6e0570e4265093ad45",
+    "capture_sha256": "a1e1ec59562f77c3ea673670dfbb11df4678b45253fbfc63851bbb2f919e4557",
     "pointers": [
+      "/page/pool/created",
+      "/page/pool/expires",
       "/page/pool/id"
     ]
   },
@@ -392,6 +418,12 @@
     "pointers": [
       "/page/pool/id",
       "/result/page/pool/id"
+    ]
+  },
+  "study/examples.yaml step 5": {
+    "capture_sha256": "a439c0c0fbde819f3412f68c36c00c2373fadc6541b410d15ae43431fa15d70d",
+    "pointers": [
+      "/result/snapshot/acquired"
     ]
   }
 }

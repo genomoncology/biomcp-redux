@@ -1,82 +1,82 @@
 {
   "article/citations/edge-cursors.yaml step 1": {
-    "capture_sha256": "4802186972f4e7515368daf600decdde5ccecb3b534059174042a33b74b53853",
+    "capture_sha256": "0551f951578e740570d31d044205a262ecc7ee3d2ef64f97f59f6caedaa523b9",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "article/citations/references.yaml step 1": {
-    "capture_sha256": "7e162719d72cb19784d3e7c0aaa760bbc2e5ac467cb61b059bcd370d46a4672a",
+    "capture_sha256": "c9729f21be65470cd38d57cdfe0f0bafb76c2dadb082a4c05da83eb3b1e9bf81",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "article/filters/include-retracted.yaml step 1": {
-    "capture_sha256": "1c3ff7ac9cbe761d0d532dfa0c5eac011e372e7957ddc600b27b243e173673dd",
+    "capture_sha256": "2338cfe404c37caa75c8a2d8555b0d06ec061cd6ce1f2b29b0881d3b02a7bbcd",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "article/litvar/akt1-rsid-citations.yaml step 1": {
-    "capture_sha256": "192a1dc7afe267316440aca4c09cddf264c78b7eb9cfc1bdd5c4285613520d1e",
+    "capture_sha256": "5b49b8d55cd37bac1cd5910087ab902cccbba92e705ced2bfb037b4ad1270470",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "author/papers.yaml step 2": {
-    "capture_sha256": "5d3e1c4ce4c0d402b1cb371f996589391407d51ee928dc3e3cca63bd718061e8",
+    "capture_sha256": "698dba9b6024d0cfe14047a734ffe29cdc5754b81729058169b876cdc7427e68",
     "pointers": [
       "/next/1/args/6"
     ]
   },
   "orcid/refused-member.yaml step 1": {
-    "capture_sha256": "fddc7aff600eda7b3d8b46e4f8edb25d6bb8d18b553333185e02a1ed0329cf9c",
+    "capture_sha256": "cf964e3e8d73d6f6d8395d4a6c1a359b8e7cc0649cbf5729aa517a5883b06aab",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "pathway-sections/examples.yaml step 1": {
-    "capture_sha256": "22d2b5f26bce17397ff77db066be7bd60fdf6ffeb80d709e5339654bc838d551",
+    "capture_sha256": "6552ec3e9a0c70b03a4a126407b900d47826fa74a95f540b04ab616a6057c20a",
     "pointers": [
       "/result/page/pool/created",
       "/result/page/pool/expires"
     ]
   },
   "protein/examples.yaml step 11": {
-    "capture_sha256": "6ad4e658a91ccdb0f834f4054de1ce8e56cf28c6146503d05c7088b732e8eada",
+    "capture_sha256": "dd08d0535f9df587e9e17b6310f7df3d04d898c47dec35158eb77b45a9b7e835",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "protein/examples.yaml step 3": {
-    "capture_sha256": "8bc366034fa39948b77607d82533deaf7bf9290f897e57297445e3a30dfd0394",
+    "capture_sha256": "11090b85a4293c97eeb4e0934a80fac34a0e177c2ca86253e78c76c85bce6df6",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "protein/examples.yaml step 9": {
-    "capture_sha256": "0737cd2b1cf43f3c8d9f835f774dbfea33c15025d0dadaf82a291b10bfb8546b",
+    "capture_sha256": "910485655ef0ff4840b706b7e75529278bf79c8f526fce91dff974df30c4cbb7",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "protein/native-sections.yaml step 7": {
-    "capture_sha256": "1103ca62ef4b8701e264c0026660130713387be88e8cceea263d53cc6a2ee638",
+    "capture_sha256": "a1e1ec59562f77c3ea673670dfbb11df4678b45253fbfc63851bbb2f919e4557",
     "pointers": [
       "/page/pool/created",
       "/page/pool/expires"
     ]
   },
   "study/examples.yaml step 5": {
-    "capture_sha256": "ae6697c3960e5b4913551a32a122ce901f92b17a94ca7df99116fff37792f453",
+    "capture_sha256": "a439c0c0fbde819f3412f68c36c00c2373fadc6541b410d15ae43431fa15d70d",
     "pointers": [
       "/result/snapshot/acquired"
     ]

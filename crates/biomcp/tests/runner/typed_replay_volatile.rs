@@ -44,9 +44,12 @@ fn project(paths: &[String], before: &Value, after: &Value) -> Result<Value, Str
         let new = after
             .pointer(path)
             .ok_or_else(|| format!("missing approved field {path}"))?;
-        if path.ends_with("/created") || path.ends_with("/expires") {
+        if path.ends_with("/created")
+            || path.ends_with("/expires")
+            || path == "/result/snapshot/acquired"
+        {
             if old.as_u64().is_none() || new.as_u64().is_none() {
-                return Err(format!("approved pool timestamp changed type at {path}"));
+                return Err(format!("approved local timestamp changed type at {path}"));
             }
         } else {
             let old = handle(old, path)?;
