@@ -3,8 +3,40 @@ use crate::help::coverage;
 use serde_json::Value;
 use std::collections::{BTreeMap, BTreeSet};
 
-pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
-    let sources = coverage::command_sources(verb, entity, schema);
+pub(super) fn render(
+    verb: &str,
+    entity: &str,
+    schema: &Value,
+    excluded: &BTreeSet<biomcp_types::Source>,
+) -> String {
+    let sources = coverage::command_sources(verb, entity, schema)
+        .into_iter()
+        .filter(|word| word.parse().is_ok_and(|source| !excluded.contains(&source)))
+        .collect::<BTreeSet<_>>();
+    let provenance = provenance(verb, entity, schema, &sources, excluded);
+    let summary = biomcp_types::COMMANDS
+        .iter()
+        .find(|row| row.verb == verb && row.entity == entity)
+        .map_or("", |row| row.summary.trim());
+    let prefix = format!("{summary} ");
+    let input = input_description(schema);
+    let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
+    let input = input.chars().take(budget).collect::<String>();
+    [summary, input.as_str(), provenance.as_str()]
+        .into_iter()
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
+        + "."
+}
+
+fn provenance(
+    verb: &str,
+    entity: &str,
+    schema: &Value,
+    sources: &BTreeSet<String>,
+    excluded: &BTreeSet<biomcp_types::Source>,
+) -> String {
     let candidates = sources
         .iter()
         .filter_map(|source| source.parse().ok())
@@ -38,18 +70,22 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
                     .map(|sources| {
                         sources
                             .into_iter()
+                            .filter(|source| !excluded.contains(source))
                             .map(|s| s.to_string())
                             .collect::<BTreeSet<_>>()
                     })
                     .unwrap_or_else(|| sources.clone());
+            if publishers.is_empty() {
+                continue;
+            }
             groups
                 .entry(publishers.into_iter().collect::<Vec<_>>().join(","))
                 .or_default()
                 .push(section.into());
         }
     }
-    let provenance = if groups.is_empty() {
-        sources.into_iter().collect::<Vec<_>>().join(",")
+    if groups.is_empty() {
+        sources.iter().cloned().collect::<Vec<_>>().join(",")
     } else {
         let mut same = Vec::new();
         let mut other = Vec::new();
@@ -62,21 +98,7 @@ pub(super) fn render(verb: &str, entity: &str, schema: &Value) -> String {
         }
         same.extend(other);
         format!("Sections=source: {}", same.join(";"))
-    };
-    let summary = biomcp_types::COMMANDS
-        .iter()
-        .find(|row| row.verb == verb && row.entity == entity)
-        .map_or("", |row| row.summary.trim());
-    let prefix = format!("{summary} ");
-    let input = input_description(schema);
-    let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
-    let input = input.chars().take(budget).collect::<String>();
-    [summary, input.as_str(), provenance.as_str()]
-        .into_iter()
-        .filter(|part| !part.is_empty())
-        .collect::<Vec<_>>()
-        .join(" ")
-        + "."
+    }
 }
 
 fn input_description(schema: &Value) -> String {
