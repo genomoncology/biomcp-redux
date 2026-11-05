@@ -36,9 +36,9 @@ SCANNER
           --reporters json --output "target/nightly-scans/$side-$name"
       done
     done
-    uvx --from vulture==2.14 vulture scripts/nightly_live_check.py scripts/nightly_evidence.py scripts/nightly_evidence.py --min-confidence 60
+    uvx --from vulture==2.14 vulture scripts/nightly_live_check.py scripts/nightly_evidence.py --min-confidence 60
     ruff --version
-    ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/nightly_live_check.py scripts/nightly_evidence.py scripts/test_nightly_live_check.py scripts/test_nightly_classification.py scripts/nightly_test_support.py scripts/nightly_recommendation_cases.py
+    ruff check --select F401,F841,ERA,BLE,E722,S110 scripts/nightly_live_check.py scripts/nightly_evidence.py scripts/test_nightly_live_check.py scripts/test_nightly_classification.py scripts/nightly_test_support.py scripts/nightly_recommendation_cases.py release/gate.py
     exit ;;
   focused) ;;
   *) echo 'usage: check_nightly_tests.sh [focused|scans BASE_COMMIT|routine]' >&2; exit 2 ;;
