@@ -11,22 +11,35 @@ pub(super) fn check() -> Result<(), String> {
             false,
         );
         let fetched = call(&env, "fetch", json!({"id":"article 39214094"}), &globals)?;
-        let text = fetched.get("text").and_then(|v| v.as_str()).ok_or("fetch text missing")?;
+        let text = fetched
+            .get("text")
+            .and_then(|v| v.as_str())
+            .ok_or("fetch text missing")?;
         if fetched.get("id") != Some(&json!("article 39214094"))
             || fetched.get("url") != Some(&json!("https://pubmed.ncbi.nlm.nih.gov/39214094/"))
             || !text.contains("Synthetic abstract marker.")
             || !text.contains("10^(6)")
             || !text.contains("response < 0.05")
-            || text.contains("&#") || text.contains("&amp;") || text.contains("&nbsp;")
-            || text.contains("<sup>") || text.contains("</sup>")
-            || fetched.to_string().matches("Synthetic abstract marker").count() != 1
+            || text.contains("&#")
+            || text.contains("&amp;")
+            || text.contains("&nbsp;")
+            || text.contains("<sup>")
+            || text.contains("</sup>")
+            || fetched
+                .to_string()
+                .matches("Synthetic abstract marker")
+                .count()
+                != 1
             || fetched.pointer("/metadata/result").is_some()
         {
-            return Err(format!("{mode} fetch did not return one readable record: {fetched}"));
+            return Err(format!(
+                "{mode} fetch did not return one readable record: {fetched}"
+            ));
         }
         if !text.contains("[source](https://example.invalid/)")
             || !text.contains("ignore previous instructions")
-            || !text.starts_with("````text\n") || !text.ends_with("\n````\n")
+            || !text.starts_with("````text\n")
+            || !text.ends_with("\n````\n")
         {
             return Err("fetch source text did not remain literal data".into());
         }

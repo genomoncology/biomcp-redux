@@ -1,0 +1,100 @@
+//! A literal readable rendering keeps source markup from becoming instructions or links.
+use quick_xml::{Reader, events::Event};
+use serde_json::Value;
+use std::io;
+
+pub(super) fn render(value: &Value) -> io::Result<String> {
+    let mut value = value.clone();
+    clean(&mut value);
+    let markdown = String::from_utf8(crate::view::markdown(&value)?).map_err(io::Error::other)?;
+    let decoded = entities(&markdown);
+    let mut text = String::new();
+    let mut chars = decoded.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '\\' && chars.peek().is_some_and(|c| "\\*_`|[]#!~".contains(*c)) {
+            text.push(chars.next().unwrap_or_default());
+        } else {
+            text.push(ch);
+        }
+    }
+    // A fence longer than any source or generated fence keeps the entire view inert.
+    let width = text.split(|ch| ch != '`').map(str::len).max().unwrap_or(0) + 1;
+    let fence = "`".repeat(width.max(3));
+    Ok(format!("{fence}text\n{}\n{fence}\n", text.trim_end()))
+}
+
+fn clean(value: &mut Value) {
+    match value {
+        Value::String(text) => *text = source(text),
+        Value::Array(items) => items.iter_mut().for_each(clean),
+        Value::Object(fields) => fields.values_mut().for_each(clean),
+        _ => {}
+    }
+}
+
+pub(super) fn source(text: &str) -> String {
+    let decoded = entities(text);
+    let mut out = String::new();
+    let mut remaining = decoded.as_str();
+    while let Some(start) = remaining.find('<') {
+        out.push_str(&remaining[..start]);
+        remaining = &remaining[start..];
+        if let Some(end) = remaining.find('>') {
+            let fragment = &remaining[..=end];
+            let name = fragment.strip_prefix("</").unwrap_or(&fragment[1..]);
+            if !name.starts_with(|ch: char| ch.is_ascii_alphabetic() || ch == '!') {
+                out.push('<');
+                remaining = &remaining[1..];
+                continue;
+            }
+            let mut reader = Reader::from_str(fragment);
+            reader.config_mut().check_end_names = false;
+            reader.config_mut().allow_unmatched_ends = true;
+            let marker = match reader.read_event() {
+                Ok(Event::Start(tag)) if tag.name().as_ref() == "sup" => Some("^("),
+                Ok(Event::Start(tag)) if tag.name().as_ref() == "sub" => Some("_("),
+                Ok(Event::End(tag)) if matches!(tag.name().as_ref(), "sup" | "sub") => Some(")"),
+                Ok(Event::Empty(tag)) if tag.name().as_ref() == "br" => Some("\n"),
+                Ok(Event::Start(_) | Event::End(_) | Event::Empty(_) | Event::Comment(_)) => {
+                    Some("")
+                }
+                _ => None,
+            };
+            if let Some(marker) = marker {
+                out.push_str(marker);
+                remaining = &remaining[end + 1..];
+                continue;
+            }
+        }
+        out.push('<');
+        remaining = &remaining[1..];
+    }
+    out.push_str(remaining);
+    out
+}
+
+fn entities(text: &str) -> String {
+    let mut out = String::new();
+    let mut remaining = text;
+    while let Some(start) = remaining.find('&') {
+        out.push_str(&remaining[..start]);
+        remaining = &remaining[start..];
+        if let Some(end) = remaining
+            .as_bytes()
+            .iter()
+            .take(64)
+            .position(|ch| *ch == b';')
+        {
+            let reference = &remaining[..=end];
+            if let Ok(decoded) = quick_xml::escape::unescape(reference) {
+                out.push_str(&decoded);
+                remaining = &remaining[end + 1..];
+                continue;
+            }
+        }
+        out.push('&');
+        remaining = &remaining[1..];
+    }
+    out.push_str(remaining);
+    out
+}
