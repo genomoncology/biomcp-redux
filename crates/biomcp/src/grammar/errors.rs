@@ -293,7 +293,8 @@ pub(super) fn source_filter(
             corrected
                 .as_object_mut()?
                 .insert((*replacement).into(), filter_value.clone());
-            replacement_step(verb, entity, &schema, &corrected)?
+            replacement_step(via, verb, entity, &schema, &corrected)
+                .unwrap_or_else(|| super::validation::help([verb, entity]))
         } else {
             super::recovery::corrected(via, (verb, entity), &schema, value, &[name])
                 .unwrap_or_else(|| super::validation::help([verb, entity]))
@@ -407,11 +408,13 @@ fn accepts_filter(
 }
 
 fn replacement_step(
+    via: biomcp_types::Rewrite,
     verb: &str,
     entity: &str,
     schema: &serde_json::Value,
     value: &serde_json::Value,
 ) -> Option<biomcp_types::Step> {
+    super::rewrite::request(via, verb, entity, value.clone()).ok()?;
     let mut args: Vec<Box<str>> = vec![verb.into(), entity.into()];
     let properties = schema.get("properties")?.as_object()?;
     for (name, property) in properties {
