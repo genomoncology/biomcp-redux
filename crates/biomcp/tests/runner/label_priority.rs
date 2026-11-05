@@ -69,7 +69,7 @@ fn search(env: &Environment, mode: &str, query: &str, offset: u32) -> Result<Val
         &[request(json!(1), "tools/call", params)],
         &env.globals(Some(&replay), false),
     )?;
-    let reply = &replies[0];
+    let reply = replies.first().ok_or("search reply missing")?;
     if reply.pointer("/result/isError") != Some(&json!(false)) {
         return Err(format!("search failed: {reply}"));
     }
