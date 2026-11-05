@@ -154,6 +154,7 @@ fn candidate(
             "{name} decoded CLI JSON mismatch: {actual} versus {expected}"
         ));
     }
+    super::super::super::schema::Registry::embedded()?.validate(actual, &args, true)?;
     if let Some(schema) = tool.get("outputSchema") {
         if !jsonschema::validator_for(schema)
             .map_err(|e| e.to_string())?
