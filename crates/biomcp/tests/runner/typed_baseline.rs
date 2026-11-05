@@ -90,7 +90,8 @@ fn exchange(
 // Diagnostic evidence only: any changed hint still needs a product ruling.
 pub(super) fn invalid_id_witness() -> Result<(), String> {
     use std::io::Write;
-    let baseline = launch::typed_baseline().ok_or("missing frozen baseline")?;
+    let baseline = launch::typed_baseline()
+        .ok_or("BIOMCP_TYPED_BASELINE is required for single-mode wire parity")?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     let frames = [request(
         json!(1),
