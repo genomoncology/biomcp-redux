@@ -67,9 +67,11 @@ pub(super) fn source(text: &str) -> String {
                 {
                     Some("\n")
                 }
-                Ok(Event::Start(_) | Event::End(_) | Event::Empty(_) | Event::Comment(_)) => {
+                Ok(Event::Comment(comment)) => {
+                    out.push_str(comment.as_ref());
                     Some("")
                 }
+                Ok(Event::Start(_) | Event::End(_) | Event::Empty(_)) => Some(""),
                 _ => None,
             };
             if let Some(marker) = marker {

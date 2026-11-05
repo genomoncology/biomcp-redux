@@ -37,7 +37,7 @@ def main():
         print(json.dumps({"mode": mode, "isError": reply.get("isError"),
                           "id": record.get("id"), "title": record.get("title"),
                           "escaped_period": "&#46;" in text,
-                          "sup_tag": "sup" in text,
+                          "sup_tag": "<sup" in text or "&lt;sup" in text,
                           "duplicate_record": "result" in record.get("metadata", {}),
                           "retained": str(output / (mode + ".jsonl"))}), flush=True)
 
