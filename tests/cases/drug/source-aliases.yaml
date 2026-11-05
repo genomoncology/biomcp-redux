@@ -117,6 +117,28 @@
           "mychem"
         ]
       }
+    },
+    {
+      "expect": {
+        "/status": "complete",
+        "/result/header/id": "CHEMBL941",
+        "/query/input": "CHEMBL941",
+        "/sources/0/notices/0/kind": "request-guidance"
+      },
+      "run": [
+        "get",
+        "drug",
+        "EX-66",
+        "--source",
+        "chembl"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "EX-66",
+        "--source",
+        "chembl"
+      ]
     }
   ]
 }
