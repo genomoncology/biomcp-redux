@@ -31,6 +31,40 @@
         "/page/total": 0,
         "/page/returned": 0
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "EX-66",
+        "--source",
+        "opentargets"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "EX-66",
+        "--source",
+        "opentargets"
+      ],
+      "expect": {
+        "/sources/0/source": "opentargets",
+        "/sources/0/state": "ok",
+        "/sources/3/source": "chembl",
+        "/sources/3/state": "failed",
+        "/status": "absent",
+        "/query/input": "EX-66",
+        "/query/source": "opentargets",
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "EX-66",
+          "--source",
+          "mychem"
+        ]
+      },
+      "exit": 1
     }
   ]
 }

@@ -52,7 +52,15 @@
         "/sources/0/state": "ok",
         "/query/input": "EX-66",
         "/sources/0/notices/0/kind": "request-guidance",
-        "/status": "absent"
+        "/status": "absent",
+        "/query/source": "opentargets",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "EX-66",
+          "--source",
+          "mychem"
+        ]
       },
       "exit": 1
     }
