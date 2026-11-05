@@ -153,6 +153,20 @@ impl Server {
         ) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
         };
+        let call = match call {
+            Ok(call) => call,
+            Err(rejected) => {
+                return typed::rejection(
+                    id,
+                    rejected,
+                    modern,
+                    &self.globals,
+                    &self.settings,
+                    &self.root,
+                )
+                .map(Some);
+            }
+        };
         let key = id.to_string();
         if self.active.contains_key(&key) {
             return Ok(Some(protocol::error(id, -32600, "Request already active")));

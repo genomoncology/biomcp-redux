@@ -14,6 +14,12 @@ pub(super) fn render(
     collect(root, value, &mut calls);
     if calls.is_empty()
         && status == "usage"
+        && let Some(call) = correction(root, value, args)
+    {
+        calls.push(call.to_string());
+    }
+    if calls.is_empty()
+        && status == "usage"
         && value
             .pointer("/error/option")
             .and_then(Value::as_str)
@@ -27,6 +33,34 @@ pub(super) fn render(
     } else {
         format!("{status}: next {}", calls.join("; "))
     }
+}
+// The parser names the rejected option; omit it and let the parser check the correction.
+fn correction(
+    root: &crate::grammar::Root,
+    value: &Value,
+    args: &[std::ffi::OsString],
+) -> Option<Value> {
+    let option = value.pointer("/error/option")?.as_str()?;
+    let mut skip = false;
+    let values = args
+        .iter()
+        .filter_map(|arg| {
+            let arg = arg.to_str()?;
+            if skip {
+                skip = false;
+                return None;
+            }
+            if option.starts_with("--") && arg == option {
+                skip = true;
+                return None;
+            }
+            if option.starts_with("--") && arg.starts_with(&format!("{option}=")) {
+                return None;
+            }
+            Some(Value::from(arg))
+        })
+        .collect::<Vec<_>>();
+    translate(root, &values, true)
 }
 fn collect(root: &crate::grammar::Root, value: &Value, calls: &mut Vec<String>) {
     if let Some(args) = value.get("args").and_then(Value::as_array)

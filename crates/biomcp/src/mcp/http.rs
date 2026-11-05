@@ -309,6 +309,26 @@ impl Service {
                 Some(revision),
             );
         };
+        let call = match call {
+            Ok(call) => call,
+            Err(rejected) => {
+                return (
+                    200,
+                    Some(
+                        super::typed::rejection(
+                            id.clone(),
+                            rejected,
+                            modern,
+                            &self.globals,
+                            &self.settings,
+                            &self.root,
+                        )
+                        .unwrap_or_else(|_| super::protocol::error(id, -32603, "Internal error")),
+                    ),
+                    Some(revision),
+                );
+            }
+        };
         let keys = if self.globals.hosted {
             let keys = match request.source_keys() {
                 Ok(keys) => keys,

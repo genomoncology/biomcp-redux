@@ -83,9 +83,9 @@ pub(super) fn parse(
     root: &crate::grammar::Root,
     params: &Value,
     mode: crate::config::ToolMode,
-) -> Option<super::research::Call> {
+) -> Option<Result<super::research::Call, Rejected>> {
     if mode == crate::config::ToolMode::Single {
-        return super::research::parse(params);
+        return super::research::parse(params).map(Ok);
     }
     let called = params.get("name")?.as_str()?;
     let &(verb, entity, id) = crate::grammar::command_paths()
@@ -93,13 +93,64 @@ pub(super) fn parse(
         .find(|&&(verb, entity, _)| name(verb, entity) == called)?;
     let schema = schema(id).ok()?;
     let input = arguments::input(&schema);
-    let values = params.get("arguments")?;
+    let values = params.get("arguments").unwrap_or(&Value::Null);
     if !validation::valid(&input, values) {
-        return None;
+        let fields = values.as_object();
+        let key = fields.and_then(|fields| {
+            fields
+                .keys()
+                .find(|key| input["properties"].get(*key).is_none())
+        });
+        let error = biomcp_types::UsageError::argument_values(
+            key.map_or_else(|| "arguments".into(), |key| key.clone().into()),
+            input["properties"]
+                .as_object()?
+                .keys()
+                .map(|key| biodata::Text::new(key).ok())
+                .collect::<Option<Vec<_>>>()?
+                .into(),
+        );
+        let known = fields
+            .map(|fields| {
+                Value::Object(
+                    fields
+                        .iter()
+                        .filter(|(key, _)| input["properties"].get(*key).is_some())
+                        .map(|(key, value)| (key.clone(), value.clone()))
+                        .collect(),
+                )
+            })
+            .unwrap_or_else(|| json!({}));
+        let args = arguments::cli(root, verb, entity, &schema, &known)?;
+        return Some(Err(Rejected { error, args }));
     }
     let args = arguments::cli(root, verb, entity, &schema, values)?;
-    Some(super::research::Call {
+    Some(Ok(super::research::Call {
         args,
         projection: super::research::Projection::Cli,
-    })
+    }))
+}
+
+pub(super) struct Rejected {
+    error: biomcp_types::UsageError,
+    args: Vec<std::ffi::OsString>,
+}
+pub(super) fn rejection(
+    id: Value,
+    rejected: Rejected,
+    modern: bool,
+    globals: &crate::grammar::Globals,
+    settings: &crate::config::Settings,
+    root: &crate::grammar::Root,
+) -> io::Result<Value> {
+    let outcome = crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
+    Ok(tool_result(
+        id,
+        &outcome,
+        modern,
+        globals,
+        settings,
+        root,
+        &rejected.args,
+    ))
 }

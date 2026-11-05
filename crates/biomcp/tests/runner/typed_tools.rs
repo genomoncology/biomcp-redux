@@ -92,22 +92,34 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
 }
 fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
     let server = Server::configured_globals(
-        "127.0.0.1:0", Some(json!({"mcp_tool_mode":"typed"})),
-        None, None, None, globals,
+        "127.0.0.1:0",
+        Some(json!({"mcp_tool_mode":"typed"})),
+        None,
+        None,
+        None,
+        globals,
     )?;
     for arguments in [
         json!({"source":"not-a-source"}),
         json!({"limit":"not-a-number"}),
+        json!({"limit":true}),
+        json!({"limit":null}),
+        json!({"limit":{"value":10}}),
         json!({"unexpected":"value"}),
         json!([]),
     ] {
-        let frame = request(json!(3), "tools/call",
-            json!({"name":"search_trial","arguments":arguments}));
-        let replies = exchange_with_globals(env, &[frame.clone()], globals)?;
+        let frame = request(
+            json!(3),
+            "tools/call",
+            json!({"name":"search_trial","arguments":arguments}),
+        );
+        let replies = exchange_with_globals(env, std::slice::from_ref(&frame), globals)?;
         let stdio = replies.first().ok_or("missing rejection reply")?;
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
         if status != 200 || stdio["result"] != http["result"] {
-            return Err(format!("typed validation transports differ: {stdio} / {http}"));
+            return Err(format!(
+                "typed validation transports differ: {stdio} / {http}"
+            ));
         }
         let envelope = &stdio["result"]["structuredContent"];
         if stdio.pointer("/result/isError") != Some(&json!(true))
@@ -117,29 +129,42 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
         {
             return Err(format!("missing recoverable usage envelope: {stdio}"));
         }
-        let text = stdio.pointer("/result/content/0/text").and_then(Value::as_str)
+        let text = stdio
+            .pointer("/result/content/0/text")
+            .and_then(Value::as_str)
             .ok_or("missing summary")?;
-        let (_, next) = text.lines().next().ok_or("summary line")?
-            .split_once("next ").ok_or_else(|| format!("missing typed correction: {text}"))?;
+        let (_, next) = text
+            .lines()
+            .next()
+            .ok_or("summary line")?
+            .split_once("next ")
+            .ok_or_else(|| format!("missing typed correction: {text}"))?;
         let next: Value = serde_json::from_str(next).map_err(|e| e.to_string())?;
         let frame = request(json!(4), "tools/call", next);
-        let replies = exchange_with_globals(env, &[frame.clone()], globals)?;
+        let replies = exchange_with_globals(env, std::slice::from_ref(&frame), globals)?;
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200 || replies[0]["result"] != http["result"]
+        if status != 200
+            || replies[0]["result"] != http["result"]
             || replies[0].pointer("/result/structuredContent/status") == Some(&json!("usage"))
         {
             return Err(format!("typed correction rejected: {replies:?} / {http}"));
         }
     }
     for limit in [json!(10), json!("10")] {
-        let frame = request(json!(5), "tools/call",
-            json!({"name":"search_trial","arguments":{"limit":limit}}));
-        let replies = exchange_with_globals(env, &[frame.clone()], globals)?;
+        let frame = request(
+            json!(5),
+            "tools/call",
+            json!({"name":"search_trial","arguments":{"limit":limit}}),
+        );
+        let replies = exchange_with_globals(env, std::slice::from_ref(&frame), globals)?;
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200 || replies[0]["result"] != http["result"]
+        if status != 200
+            || replies[0]["result"] != http["result"]
             || replies[0].pointer("/result/structuredContent/status") == Some(&json!("usage"))
         {
-            return Err(format!("CLI-compatible integer rejected: {replies:?} / {http}"));
+            return Err(format!(
+                "CLI-compatible integer rejected: {replies:?} / {http}"
+            ));
         }
     }
     Ok(())
