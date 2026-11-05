@@ -237,6 +237,7 @@ fn descriptions(node: &Value) -> Result<(), String> {
 }
 
 pub(super) fn guards() -> Result<(), String> {
+    baseline::invalid_id_witness()?;
     baseline::check()?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed"}))

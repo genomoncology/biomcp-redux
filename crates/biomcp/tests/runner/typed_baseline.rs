@@ -47,7 +47,9 @@ pub(super) fn check() -> Result<(), String> {
             &frames,
         )?;
         if actual != expected {
-            return Err("single mode changed baseline wire bytes".into());
+            return Err(format!(
+                "single mode changed baseline wire bytes: frozen={expected:?}; current={actual:?}"
+            ));
         }
     }
     invalid_id_witness()

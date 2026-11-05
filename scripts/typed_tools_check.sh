@@ -5,6 +5,7 @@ trap 'rm -rf "$typed_scratch"' EXIT HUP INT TERM
 if [ "$#" -gt 0 ]; then
     cp "$1" "$typed_scratch/baseline"
     test "$(shasum -a 256 "$typed_scratch/baseline" | cut -d ' ' -f 1)" = "$2"
+    echo "TYPED_BASELINE_RECEIVED sha256=$2"
     mkdir -p target/typed-tools-baseline
     cp -f "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
     chmod a-w "$typed_scratch/baseline" target/typed-tools-baseline/biomcp
