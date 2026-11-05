@@ -15,9 +15,13 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             .iter()
             .find(|t| t["name"] == name)
             .ok_or("missing tool")?;
-        if tool["description"].as_str().is_some_and(|s| s.contains('
-')) {
-            failures.push(format!("{name}: full schema prose leaked into tool summary"));
+        if tool["description"]
+            .as_str()
+            .is_some_and(|s| s.contains('\n'))
+        {
+            failures.push(format!(
+                "{name}: full schema prose leaked into tool summary"
+            ));
         }
         if tool.get("outputSchema").is_some() {
             failures.push(format!("{name}: outputSchema must default off"));
