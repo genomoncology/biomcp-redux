@@ -4,6 +4,8 @@ mod reply_form;
 mod schemas;
 #[path = "typed_tools.rs"]
 mod typed;
+#[path = "typed_bridge.rs"]
+mod typed_bridge;
 #[path = "typed_help.rs"]
 mod typed_help;
 #[path = "typed_hosted.rs"]
@@ -26,6 +28,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-parity/typed-cli-bridge", || {
+            typed_bridge::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-hosted-catalog", || {
             typed_hosted::check().map_err(Into::into)
         }),
