@@ -50,7 +50,7 @@ pub(super) fn check() -> Result<(), String> {
             return Err("single mode changed baseline wire bytes".into());
         }
     }
-    Ok(())
+    invalid_id_witness()
 }
 fn exchange(
     env: &Environment,
