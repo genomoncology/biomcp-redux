@@ -377,3 +377,7 @@ source-status-check:
 .PHONY: source-status-pre-review
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
+
+.PHONY: help-contract-check
+help-contract-check:
+	cargo test --locked -p biomcp --test cases schema-discovery/help-contract $(TEST_THREADS)
