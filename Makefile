@@ -1,5 +1,10 @@
 .DEFAULT_GOAL := landing-gate
 
+.PHONY: drug-alias-review-regressions
+drug-alias-review-regressions:
+	cargo test --locked -p biomcp --test cases drug/source-aliases-review
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases-review-later.yaml --exact
+
 .PHONY: drug-alias-baseline
 drug-alias-baseline: plain-cli-build
 	python3 scripts/drug_alias_probe.py
