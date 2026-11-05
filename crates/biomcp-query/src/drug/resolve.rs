@@ -120,7 +120,7 @@ fn chosen_name(
 fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut query = search.clone();
-    let mut out = super::search(&within(cx, deadline.remaining()), &query);
+    let mut out = super::search_source(&within(cx, deadline.remaining()), &query);
     let mut candidates = Vec::new();
     let mut incomplete = false;
     let mut problems = Vec::new();
@@ -160,7 +160,7 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
             break;
         };
         query = next_query;
-        let next = super::search(&within(cx, deadline.remaining()), &query);
+        let next = super::search_source(&within(cx, deadline.remaining()), &query);
         if next
             .sources
             .iter()
