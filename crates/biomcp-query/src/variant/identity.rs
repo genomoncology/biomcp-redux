@@ -190,9 +190,12 @@ pub(super) fn missing(source: Source) -> Problem {
         Source::ClinVar => "one clinvar:N or VCV accession",
         Source::Erepo | Source::Civic => "one CAid",
         Source::Gwas => "one rsID",
-        Source::Gnomad => {
-            "one source-qualified GRCh38 SNV (CAid or reference-qualified genomic HGVS); indels need a padded source representation"
-        }
+        Source::Gnomad => return Problem {
+            source,
+            record: None,
+            field: "input: no unique source-qualified GRCh38 allele or registry gnomAD v4 cross-reference; population lookup cannot proceed for this allele".into(),
+            code: biomcp_types::ProblemCode::ValueUnknown,
+        },
         _ => {
             "one exact source-qualified allele (CAid or reference-qualified genomic HGVS) with the source's required annotations"
         }

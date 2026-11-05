@@ -104,7 +104,15 @@ fn read(
             return read;
         }
     }
-    let Some(id) = super::population::join(&read.candidates) else {
+    let joined = super::population_identity::read(cx, &read.candidates, deadline);
+    read.sources.extend(joined.sources);
+    read.problems.extend(joined.problems);
+    read.local = read.local.or(joined.local);
+    if let Some(reason) = joined.reason {
+        read.population = Section::unavailable(Source::Gnomad, reason);
+        return read;
+    }
+    let Some(id) = joined.id else {
         if read.candidates.len() < 2 {
             read.problems.push(biomcp_types::Problem {
                 source: Source::Gnomad,
@@ -140,6 +148,7 @@ fn choices(
 ) -> Vec<crate::next::Step> {
     candidates
         .iter()
+        .filter(|_| candidates.len() > 1)
         .filter_map(|row| {
             let (request, source) = super::identity::choice(row, problems)?;
             let (request, sources) = match request {
