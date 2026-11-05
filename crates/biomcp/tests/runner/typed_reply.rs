@@ -168,8 +168,9 @@ fn cap() -> Result<(), String> {
             let broad = value.pointer("/error/code") == Some(&json!("usage.too_broad"));
             if broad
                 && mode == "typed"
-                && replies[0]
-                    .pointer("/result/content/0/text")
+                && replies
+                    .first()
+                    .and_then(|reply| reply.pointer("/result/content/0/text"))
                     .and_then(Value::as_str)
                     .and_then(|text| text.lines().next())
                     .is_some_and(|text| text.contains("search_"))
