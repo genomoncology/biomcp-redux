@@ -163,17 +163,20 @@ finally:
             root = Path(directory).resolve()
             binary = Path(os.environ["BIOMCP_INSTALLED_BINARY"]).resolve()
             runner = Path(os.environ["BIOMCP_CASE_RUNNER"]).resolve()
+            # Discover a declared owner distinct from smoke's initial schema probe,
+            # so the planted mismatch is still caught by the named installed case.
+            schema_id = json.loads(subprocess.check_output([str(binary), "help"]))["schema"]
             planted = root / "changed-schema"
             planted.write_text(f"#!{sys.executable}\nimport os, sys, json, subprocess\n"
-                               "if sys.argv[1:] == ['schema', 'biodata.source/1']:\n"
+                               f"if sys.argv[1:] == ['schema', {schema_id!r}]:\n"
                                f"    value = json.loads(subprocess.check_output([{str(binary)!r}] + sys.argv[1:]))\n"
                                "    value['$id'] = 'changed.source/1'\n"
                                "    print(json.dumps(value))\n"
                                f"else:\n    os.execv({str(binary)!r}, [{str(binary)!r}] + sys.argv[1:])\n")
             planted.chmod(0o755)
-            original_schema = json.loads(subprocess.check_output([str(binary), "schema", "biodata.source/1"]))
-            changed_schema = json.loads(subprocess.check_output([str(planted), "schema", "biodata.source/1"]))
-            self.assertEqual(original_schema["$id"], "biodata.source/1")
+            original_schema = json.loads(subprocess.check_output([str(binary), "schema", schema_id]))
+            changed_schema = json.loads(subprocess.check_output([str(planted), "schema", schema_id]))
+            self.assertEqual(original_schema["$id"], schema_id)
             self.assertEqual(changed_schema["$id"], "changed.source/1")
             restored_schema = {**changed_schema, "$id": original_schema["$id"]}
             self.assertEqual(restored_schema, original_schema)
@@ -185,13 +188,13 @@ finally:
             (fixtures / "support" / provenance).parent.mkdir(parents=True)
             shutil.copy2(provenance, fixtures / "support" / provenance)
             case = fixtures / "cases/installed-schema.yaml"
-            case.write_text("feature: schema-discovery\nstory: Installed schema identity\nsteps:\n  - run: [schema, biodata.source/1]\n    expect: {'/$id': biodata.source/1}\n")
+            case.write_text(f"feature: schema-discovery\nstory: Installed schema identity\nsteps:\n  - run: [schema, {schema_id}]\n    expect: {{'/$id': {schema_id}}}\n")
             script = "from release.smoke import smoke; import sys; smoke(*sys.argv[1:])"
             result = subprocess.run([sys.executable, "-c", script, str(planted), str(runner), str(fixtures),
                                      os.environ["BIOMCP_INSTALLED_VERSION"]], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("installed-schema.yaml", result.stdout + result.stderr)
-            diagnostic = "Installed schema identity; step 1: schema validation: raw artifact differs from requested biodata.source/1"
+            diagnostic = f"Installed schema identity; step 1: schema validation: raw artifact differs from requested {schema_id}"
             self.assertIn(diagnostic, result.stdout + result.stderr)
             print(json.dumps({"planted_schema_id": "changed.source/1", "rehearsal_rejected": True,
                               "case": "installed-schema.yaml", "diagnostic": diagnostic}), flush=True)

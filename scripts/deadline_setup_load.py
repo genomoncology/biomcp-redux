@@ -32,26 +32,38 @@ def main():
     root = Path('target/deadline-setup').resolve()
     root.mkdir(parents=True, exist_ok=True)
     with (root / 'build.jsonl').open('w') as output:
-        subprocess.run(['cargo', 'build', '--locked', '-p', 'biomcp', '--bin', 'biomcp',
+        subprocess.run(['cargo', 'build', '--release', '--locked', '-p', 'biomcp', '--bin', 'biomcp',
                         '--test', 'cases', '--test', 'tools', '--message-format=json'], stdout=output, check=True)
-    binaries = {row['target']['name']: row['executable']
-                for line in (root / 'build.jsonl').read_text().splitlines()
-                if (row := json.loads(line)).get('reason') == 'compiler-artifact' and row.get('executable')}
+    artifacts = {row['target']['name']: row
+                 for line in (root / 'build.jsonl').read_text().splitlines()
+                 if (row := json.loads(line)).get('reason') == 'compiler-artifact' and row.get('executable')}
+    binaries = {name: row['executable'] for name, row in artifacts.items()}
+    source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
     installed = root / 'installed'
     installed.mkdir(exist_ok=True)
+    bindings = {}
     for name, target in [('biomcp', 'biomcp'), ('cases', 'case-runner'), ('tools', 'tool-runner')]:
-        shutil.copy2(binaries[name], installed / target)
+        destination = installed / target
+        shutil.copy2(binaries[name], destination)
+        bindings[name] = {'path': str(destination), 'sha256': hashlib.sha256(destination.read_bytes()).hexdigest(),
+                          'cargo_profile': artifacts[name]['profile']}
+    identity = subprocess.check_output([str(installed / 'biomcp'), 'version', '--verbose'], text=True)
+    if f'Commit: {source}' not in identity.splitlines():
+        raise ValueError('installed proof binary differs from source commit')
     env = dict(os.environ, BIOMCP_INSTALLED_BINARY=str(installed / 'biomcp'),
-               BIOMCP_CASE_RUNNER=str(installed / 'case-runner'), BIOMCP_INSTALLED_VERSION='1.0.0',
+               BIOMCP_CASE_RUNNER=str(installed / 'case-runner'), BIOMCP_INSTALLED_VERSION=identity.splitlines()[0].removeprefix('biomcp '),
                BIOMCP_EVIDENCE_DIR=str(root / 'fixture-evidence'))
     commands = [
-        [sys.executable, '-m', 'unittest', '-v', 'release.test_checks', 'release.test_gate'],
+        [sys.executable, '-m', 'unittest', '-v', '-f', 'release.test_checks', 'release.test_gate'],
         [sys.executable, 'scripts/typed_harness_preflight.py', 'check'],
         [binaries['cases'], 'gene-sections/gencc-first-publisher', '--test-threads', '2'],
     ]
     loaded = sys.argv[1:] == ['load']
     if loaded:
-        commands.append([sys.executable, '-m', 'unittest', '-v', 'release.test_smoke'])
+        commands.append([sys.executable, '-m', 'unittest', '-v', '-f', 'release.test_smoke'])
+    else:
+        commands.insert(0, [sys.executable, '-m', 'unittest', '-v', '-f',
+                            'release.test_smoke.InstalledTemporarySpace.test_installed_schema_change_names_the_case'])
     cores = float(os.environ.get('PM_JOB_CORES', os.cpu_count() or 1))
     affinity = None
     if loaded:
@@ -62,7 +74,8 @@ def main():
         os.sched_setaffinity(0, affinity)
         cores = len(affinity)
     count = math.ceil(cores * 1.5) if loaded else 0
-    metadata = {'mode': 'load' if loaded else 'focused', 'allocated_cores': cores, 'burners': count,
+    metadata = {'source_commit': source, 'profile': 'release', 'artifacts': bindings,
+                'mode': 'load' if loaded else 'focused', 'allocated_cores': cores, 'burners': count,
                 'host_load': os.getloadavg(), 'logical_cpus': os.cpu_count(),
                 'affinity': affinity, 'python': sys.version}
     (root / 'run.jsonl').write_text(json.dumps(metadata) + '\n')
@@ -85,6 +98,9 @@ def main():
                 if result.returncode:
                     print(path.read_text(), flush=True)
                     failures += 1
+                    break
+            if failures:
+                break
     finally:
         for child in burners:
             child.terminate()
