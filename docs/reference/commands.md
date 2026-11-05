@@ -207,7 +207,7 @@ Options:
 
 ```
 
-Find NCI biomarker concepts by name or synonym. Sources: nci.
+Search NCI biomarker concepts by name or synonym. Sources: nci.
 
 - `--limit`: Maximum headers per local page.
 - `--name`: Source partial name or synonym search.
@@ -268,7 +268,7 @@ Options:
 
 ```
 
-Exact author name query and source window; positional text maps to query. Sources: semantic-scholar.
+Search research paper authors. Sources: semantic-scholar.
 
 - `--limit`: Bounded source page size.
 - `--offset`: Source offset.
@@ -352,7 +352,7 @@ Options:
 
 ```
 
-Find NCI organizations. Sources: nci.
+Search clinical research organizations. Sources: nci.
 
 - `--city`: Source organization city.
 - `--country`: Source organization country.
@@ -421,7 +421,7 @@ Options:
 
 ```
 
-One source cell line search with optional text, species and NCIt disease filters. Sources: cellosaurus.
+Search cell lines by name or identifier. Sources: cellosaurus.
 
 - `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224).
 - `--limit`: Source page size.
@@ -518,7 +518,7 @@ Options:
 
 ```
 
-Source associations in default p-value-ascending order. Sources: gwas.
+Search genetic associations in GWAS Catalog. Sources: gwas.
 
 - `--extended-geneset`: Source extended gene set; requires gene.
 - `--gene`: Exact source mapped gene; legacy positional query aliases this field.
@@ -595,8 +595,7 @@ Options:
 
 ```
 
-Search five reviewed human UniProt headers by exact text or exact gene.
-No variant effect, structure, interaction or clinical meaning is inferred. Sources: uniprot.
+Search reviewed human proteins in UniProt. Sources: uniprot.
 
 - `--gene`: Exact source gene field, without identifier inference.
 - `--limit`: Five rows by default; no more than 25.
@@ -655,7 +654,7 @@ Options:
 
 ```
 
-Search exact human HP term candidates through Monarch with bounded source pages. Sources: hpo, monarch.
+Search human phenotypes in HPO. Sources: hpo, monarch.
 
 - `--limit`: Maximum source headers, default five.
 - `--offset`: Source source row offset.
@@ -724,7 +723,7 @@ Options:
 
 ```
 
-Search Reactome (default) or WikiPathways human pathways. Sources: reactome, wikipathways.
+Search human biological pathways. Sources: reactome, wikipathways.
 
 - `--fresh`: Request a new retained observation.
 - `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only.
@@ -788,7 +787,7 @@ Options:
 
 ```
 
-Exact stored metadata search; text is never parsed as a query language. Sources: cbioportal.
+Search cancer genomics studies in cBioPortal. Sources: cbioportal.
 
 - `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion.
 - `--limit`: Maximum headers per page.
@@ -848,7 +847,7 @@ Options:
 
 ```
 
-Checked gene-keyed CPIC pair search. Sources: cpic.
+Search pharmacogenomic gene and drug pairs. Sources: cpic.
 
 - `--cpic-level`: Exact source level, including compound levels such as B/C.
 - `--gene`: Explicit source gene symbol.
@@ -950,7 +949,7 @@ Options:
 
 ```
 
-Search five source records by default. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
+Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
 
 - `--biomarker`: Exact table-0 biomarker cell; unsupported in the group table.
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
@@ -1052,7 +1051,7 @@ Options:
 
 ```
 
-Search five report headers by default. Sources: faers, maude, vaers.
+Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
 - `--drug`: FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 - `--limit`: Source report headers or VAERS rows per page; default five.
@@ -1128,7 +1127,7 @@ Options:
 
 ```
 
-Exact discovery text or an explicit SEER catalog page. Sources: monarch, mydisease, ols, seer.
+Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
 
 - `--limit`: Maximum source rows on one page.
 - `--offset`: Source row offset.
@@ -1216,7 +1215,7 @@ Options:
 
 ```
 
-Search one drug source. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Search drugs and medicines by name. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--classification`: Source FDA classification; drug recalls only.
 - `--firm`: Exact published recalling firm phrase; drug recalls only.
@@ -1288,7 +1287,7 @@ Options:
 
 ```
 
-Search genes by text, cytoband, or their intersection. Sources: hgnc.
+Search human genes by name or identifier. Sources: hgnc.
 
 - `--band`: A cytoband prefix.
 - `--limit`: Number of results per page.
@@ -1410,7 +1409,7 @@ Options:
 
 ```
 
-Checked search selectors and pool cursor. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
+Search research articles and biomedical papers. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
 
 - `--author`: Author words sent to PubMed's author field.
 - `--disease`: Disease words.
@@ -1586,7 +1585,7 @@ Options:
 
 ```
 
-Search ClinicalTrials.gov or keyed NCI with source counts. Sources: ctgov, nci.
+Search clinical trials. Sources: ctgov, nci.
 
 - `--age`: Age in years; unstated source bounds count as no limit.
 - `--biomarker-code`: Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility.
@@ -1694,7 +1693,7 @@ Options:
 
 ```
 
-Discover source candidates using one declared selector, without interpreting free text. Sources: myvariant.
+Search genetic variants by gene, change or region. Sources: myvariant.
 
 - `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript.
@@ -1814,7 +1813,7 @@ Options:
 
 ```
 
-Search NCI by exact NCIt code. Sources: nci.
+Get NCI biomarker concepts by code. Sources: nci.
 
 - `id`: Exact NCIt code, such as C96022.
 - `--source`: NCI is the biomarker concept source.
@@ -1860,7 +1859,7 @@ Options:
 
 ```
 
-Exact qualified records in caller order, with no name reconciliation. Sources: orcid, semantic-scholar.
+Get research author details. Sources: orcid, semantic-scholar.
 
 - `ids`: One or more exact qualified IDs.
 
@@ -1914,7 +1913,7 @@ Options:
 
 ```
 
-One exact identity and an optional bounded named section. Sources: cellosaurus.
+Get cell line details and cross-references. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
 - `section`: Omit for the default card; all returns bounded first pages without an assay count.
@@ -1983,7 +1982,7 @@ Options:
 
 ```
 
-Source association or study and source context. Sources: gwas.
+Get GWAS Catalog associations or studies. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
 - `section`: Association loci or study associations and ancestries.
@@ -2046,9 +2045,7 @@ Options:
 
 ```
 
-Read source protein cards; a symbol returns candidates without choosing a protein.
-Sections disclose source facts with independent row bounds; function keeps all paragraphs.
-No variant effect, structure, interaction or clinical meaning is inferred. Sources: complex-portal, hgnc, interpro, uniprot.
+Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 - `--section`: Select source sections or all bounded first pages; function keeps one whole text record.
@@ -2121,7 +2118,7 @@ Options:
 
 ```
 
-Read an exact HP term from HPO or Monarch, or page source sections. Sources: hpo, monarch.
+Get human phenotype details and relationships. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
 - `section`: Absent means the source identity card.
@@ -2191,7 +2188,7 @@ Options:
 
 ```
 
-Get an exact human Reactome R-HSA or WikiPathways WP card. Sources: reactome, wikipathways.
+Get human pathway details. Sources: reactome, wikipathways.
 
 - `--fresh`: Request a new source observation.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
@@ -2263,7 +2260,7 @@ Options:
 
 ```
 
-Exact case-sensitive study card or bounded metadata section. Sources: cbioportal.
+Get cancer genomics study details. Sources: cbioportal.
 
 - `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations.
 - `id`: Exact source study ID; no default or repair.
@@ -2349,7 +2346,7 @@ Options:
 
 ```
 
-PGx card or section. Sources: clinpgx, cpic.
+Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 
 - `--annotation-id`: Checked ClinPGx accession, never a shared PaId.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only.
@@ -2430,7 +2427,7 @@ Options:
 
 ```
 
-Get one exact source record or supported section. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
+Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation.
 - `id`: Exact source identity, including version for GTR.
@@ -2511,7 +2508,7 @@ Options:
 
 ```
 
-Exact source report identity and an optional independently paged section. Sources: faers, maude.
+Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections.
 - `id`: Published report ID with no source prefix.
@@ -2609,7 +2606,7 @@ Options:
 
 ```
 
-Exact concept or source SEER site with independently paged section. Sources: monarch, mydisease, ols, seer.
+Get disease details and source statistics. Sources: monarch, mydisease, ols, seer.
 
 - `--age-range`: Source age-range code.
 - `--dataset`: Requested source dataset selector, not proof of returned membership.
@@ -2712,7 +2709,7 @@ Options:
 
 ```
 
-Retrieve a drug by source ID, brand or generic name, with explicit source-scoped sections. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--civic-cursor`: Source continuation cursor for that exact drug, profile and claim collection.
 - `--civic-kind`: Independent source evidence or assertion collection within the selected profile.
@@ -2785,7 +2782,7 @@ Options:
 
 ```
 
-Get one to twenty human gene inputs in their original order. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
+Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
 - `--section`: Requested section words, preserving caller order and repetitions.
@@ -2848,7 +2845,7 @@ Options:
 
 ```
 
-Get one to twenty article inputs in caller order. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
+Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
 - `--section`: Requested section words; trailing words and --section share this field.
@@ -2920,7 +2917,7 @@ Options:
 
 ```
 
-Retrieve exact trial cards in input order; request bounded intact source sections with independent continuations. Sources: ctgov, nci.
+Get clinical trial details. Sources: ctgov, nci.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 - `--limit`: Whole-record count per source collection page; text fragments follow the text budget.
@@ -3023,7 +3020,7 @@ Options:
 
 ```
 
-Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
+Get genetic variant evidence. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
 - `--build`: MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 - `--civic-cursor`: Source CIViC cursor, retained unchanged.
@@ -3157,7 +3154,7 @@ Options:
 
 ```
 
-One exact source record's publication window. Sources: orcid, semantic-scholar.
+List an author's research papers. Sources: orcid, semantic-scholar.
 
 - `--full`: Legacy alias for details; normalized on construction.
 - `id`: Exact qualified source record.
@@ -3254,7 +3251,7 @@ Options:
 
 ```
 
-A separate assay-count request, never implicit in metadata or all. Sources: chembl.
+Get a cell line's ChEMBL assay count. Sources: chembl.
 
 - `id`: Exact ChEMBL cell identity returned by metadata.
 
@@ -3364,7 +3361,7 @@ Options:
 
 ```
 
-Page five source UniProt features by exact type and displayed residue. Sources: uniprot.
+Get protein features by residue or region. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3423,7 +3420,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Sources: uniprot.
+Get protein isoforms and alternative products. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3483,7 +3480,7 @@ Options:
 
 ```
 
-Page five source InterPro matches with original types and fragments. Sources: interpro.
+Get protein domains and families from InterPro. Sources: interpro.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3541,7 +3538,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Sources: complex-portal.
+List protein complexes containing a protein. Sources: complex-portal.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3601,7 +3598,7 @@ Options:
 
 ```
 
-Page five source participants of an exact Complex Portal complex containing the anchor. Sources: complex-portal.
+List the members of a protein complex. Sources: complex-portal.
 
 - `accession`: Exact source protein sequence identity.
 - `--complex`: Exact complex whose source participants contain the anchor.
@@ -3659,7 +3656,7 @@ Options:
 
 ```
 
-Page five source isoforms, exact-participant complexes or PDB links. Sources: uniprot.
+Get protein structure references from PDB. Sources: uniprot.
 
 - `accession`: Exact source protein sequence identity.
 - `--limit`: Five rows by default, at most 25.
@@ -3708,8 +3705,7 @@ Options:
 
 ```
 
-Read one complete source sequence for an exact source accession.
-No variant effect, structure or clinical meaning is inferred; no bioinformatics tool runs. Sources: uniprot.
+Get a source protein sequence. Sources: uniprot.
 
 - `isoform`: Exact isoform or base accession; no canonical suffix is synthesized.
 
@@ -3810,7 +3806,7 @@ Options:
 
 ```
 
-Read Reactome exact references or WikiPathways GeneProduct data nodes. Sources: reactome, wikipathways.
+List genes in a biological pathway. Sources: reactome, wikipathways.
 
 - `details`: Include every physical entity context for these references; never clips source text.
 - `id`: Checked source-owned human pathway identity.
@@ -3868,7 +3864,7 @@ Options:
 
 ```
 
-Read Reactome event objects and unresolved source integer references in source order. Sources: reactome.
+List events within a biological pathway. Sources: reactome.
 
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty.
@@ -3992,7 +3988,7 @@ Options:
 
 ```
 
-Read a checked supplement file or page its original rows. Sources: pmc-oa, pubmed.
+Read a research article supplementary file. Sources: pmc-oa, pubmed.
 
 - `file`: Exact file name from the supplements section.
 - `--find`: Exact case-insensitive needle.
@@ -4054,7 +4050,7 @@ Options:
 
 ```
 
-Download one publisher PDF to an explicit file or existing folder. Sources: semantic-scholar.
+Save a research article PDF. Sources: semantic-scholar.
 
 - `input`: Article identity.
 - `--replace`: Replace an existing file only when explicitly requested.
@@ -4122,7 +4118,7 @@ Options:
 
 ```
 
-Read one bounded body part, find matching rows, or save the complete Markdown document. Sources: europepmc, pmc-oa, pubmed.
+Read research article full text. Sources: europepmc, pmc-oa, pubmed.
 
 - `--find`: Case-insensitive exact text to find.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
@@ -4185,7 +4181,7 @@ Options:
 
 ```
 
-Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, pubmed, semantic-scholar.
+List research papers citing an article. Sources: icite, pubmed, semantic-scholar.
 
 - `--limit`: Maximum papers on one page.
 - `--offset`: Number of pool items to skip.
@@ -4246,7 +4242,7 @@ Options:
 
 ```
 
-Page the citing or referenced PubMed papers of one checked PMID. Sources: icite, pubmed, semantic-scholar.
+List research papers referenced by an article. Sources: icite, pubmed, semantic-scholar.
 
 - `--limit`: Maximum papers on one page.
 - `--offset`: Number of pool items to skip.
@@ -4313,7 +4309,7 @@ Options:
 
 ```
 
-Read every source context and optional explicit full-text citation paragraph. Sources: pmc-oa, pubmed, semantic-scholar.
+Get research article citation evidence. Sources: pmc-oa, pubmed, semantic-scholar.
 
 - `cited`: Cited PMID, PMC identity or DOI.
 - `citing`: Citing PMID, PMC identity or DOI.
@@ -4375,7 +4371,7 @@ Options:
 
 ```
 
-Recommendations in the source's recent-paper pool order. Sources: semantic-scholar.
+Get related research article recommendations. Sources: semantic-scholar.
 
 - `--limit`: Maximum recommendations requested, in source order.
 - `--negative`: Up to ten negative paper identities.
@@ -4479,7 +4475,7 @@ Options:
 
 ```
 
-Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; never read its text. Sources: ctgov.
+Save a clinical trial document. Sources: ctgov.
 
 - `file`: Exact filename from the registry manifest; never a URL or inferred path.
 - `input`: Exact registry identity.
@@ -4591,7 +4587,7 @@ Options:
 
 ```
 
-Page assertions from one explicitly selected evidence source. Sources: clinvar, erepo.
+Get genetic variant assertions from ClinVar or ClinGen. Sources: clinvar, erepo.
 
 - `--assertion`: Source assertion accession or document ID.
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default.
@@ -4660,7 +4656,7 @@ Options:
 
 ```
 
-Read a bounded ancestry-detail page from the exact source-given GRCh38 allele. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
+Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
 - `--build`: Explicit source assembly when required by identity input.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually.
@@ -4734,7 +4730,7 @@ Options:
 
 ```
 
-Observe exact-allele samples within one caller-selected source page. Sources: cbioportal.
+Get genetic variant observations in a cohort. Sources: cbioportal.
 
 - `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier.
@@ -4799,7 +4795,7 @@ Options:
 
 ```
 
-Send unchanged reference-qualified notation to explicitly named services. Sources: car, mutalyzer, variantvalidator.
+Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
 
 - `--build`: Caller assembly; required when VariantValidator is selected.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
