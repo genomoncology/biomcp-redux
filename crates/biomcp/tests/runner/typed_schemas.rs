@@ -15,6 +15,10 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             .iter()
             .find(|t| t["name"] == name)
             .ok_or("missing tool")?;
+        if tool["description"].as_str().is_some_and(|s| s.contains('
+')) {
+            failures.push(format!("{name}: full schema prose leaked into tool summary"));
+        }
         if tool.get("outputSchema").is_some() {
             failures.push(format!("{name}: outputSchema must default off"));
         }
@@ -129,7 +133,7 @@ fn size(tool: &Value) -> usize {
 fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
-    // its required schema structure is 2058 characters; these optional filters cannot fit
+    // its supported filter schema structure is 2058 characters; these optional filters cannot fit
     // the ordinary budget. Keep the PM-approved sole exception bounded at 3500.
     let limit = if tool["name"] == "search_trial" {
         3500
