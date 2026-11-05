@@ -20,12 +20,16 @@ pub(super) fn render(
     let summary = biomcp_types::COMMANDS
         .iter()
         .find(|row| row.verb == verb && row.entity == entity)
-        .map_or("", |row| row.summary.trim());
+        .map_or("", |row| row.summary.trim())
+        .split_whitespace()
+        .filter(|word| !super::catalog::mentions_excluded(word, excluded))
+        .collect::<Vec<_>>()
+        .join(" ");
     let prefix = format!("{summary} ");
     let input = input_description(schema);
     let budget = 300_usize.saturating_sub(prefix.chars().count() + provenance.chars().count() + 2);
     let input = input.chars().take(budget).collect::<String>();
-    [summary, input.as_str(), provenance.as_str()]
+    [summary.as_str(), input.as_str(), provenance.as_str()]
         .into_iter()
         .filter(|part| !part.is_empty())
         .collect::<Vec<_>>()

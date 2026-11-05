@@ -108,7 +108,7 @@ pub(in crate::mcp) fn instructions(context: crate::command::Context<'_>) -> io::
     .map_err(|error| io::Error::other(error.to_string()))
 }
 
-fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool {
+pub(super) fn mentions_excluded(text: &str, excluded: &BTreeSet<Source>) -> bool {
     let text = text.to_lowercase();
     excluded.iter().any(|source| {
         [

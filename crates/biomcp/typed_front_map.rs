@@ -38,6 +38,12 @@ pub(crate) fn generate(
     }
     lines.push("biomcp_help: command path (e.g. search trial, sources); search/fetch: research results and exact result IDs.".into());
     for trap in TRAPS.iter().skip(1) {
+        if trap
+            .split(|c: char| !c.is_alphanumeric() && c != '-')
+            .any(|word| excluded.contains(&word.to_lowercase()))
+        {
+            continue;
+        }
         let mut line = (*trap).to_owned();
         for (verb, entity, _) in biomcp_types::command_paths() {
             line = line.replace(
