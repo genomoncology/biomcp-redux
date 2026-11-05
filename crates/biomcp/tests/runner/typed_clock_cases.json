@@ -1,6 +1,6 @@
 {
   "study/examples.yaml step 6": {
-    "capture_sha256": "49373d82abbed23dad19a0f0daa70d7875188c9d20710da78dfe07525e35c91b",
+    "capture_sha256": "bf44efc59b2420d3bb4588082c54a21a6411befbefbde771ab90ec0d6e26a5b5",
     "pointers": [
       "/result/snapshot/acquired"
     ]
