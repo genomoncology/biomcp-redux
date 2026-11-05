@@ -14,6 +14,16 @@ Mount a Docker named volume at the container's `XDG_CACHE_HOME` path to keep the
 
 `biomcp serve --tool-mode typed` advertises one named tool for each registered command, with typed arguments, source and section choices, structured replies and a one-line summary. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The flag overrides configuration. `single` remains the default and keeps the CLI-argument tool and research compatibility tools. Hosted restrictions apply in either mode. Typed mode follows `mcp_reply_form`: text begins with a one-line summary and includes the serialized JSON when the chosen form carries JSON text. The result cap counts the JSON value once in either tool mode.
 
+Typed discovery omits `outputSchema` by default. Set `"mcp_typed_output_schema": true` to include the command reply envelope schemas. `mcp_typed_enum_limit` sets the largest choice list advertised inline (default 30); larger lists use strings, with accepted values checked by the CLI parser. Both settings apply only to typed discovery. For example:
+
+```json
+{
+  "mcp_tool_mode": "typed",
+  "mcp_typed_output_schema": true,
+  "mcp_typed_enum_limit": 30
+}
+```
+
 ## HTTP capacity
 
 `http_max_calls` limits tool calls in flight. `http_max_connections` limits open non-health HTTP connections. Each key accepts a positive integer. The server refuses `http_max_connections` when it is below `http_max_calls`. Pending framing readers and active requests share the connection cap. Framing readers follow the connection setting and reserve a reader to classify health checks. `/health` uses neither the connection cap nor the tool call cap.

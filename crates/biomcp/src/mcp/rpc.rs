@@ -19,6 +19,7 @@ pub(super) fn message(
     read_only: bool,
     root: &crate::grammar::Root,
     mode: crate::config::ToolMode,
+    settings: &crate::config::Settings,
 ) -> Message {
     let Ok(value) = serde_json::from_slice::<Value>(frame) else {
         return Message::Reply(protocol::error(Value::Null, -32700, "Parse error"));
@@ -63,7 +64,7 @@ pub(super) fn message(
         "ping" => json!({}),
         "server/discover" => current::discover(mode),
         "tools/list" => match if mode == crate::config::ToolMode::Typed {
-            super::typed::tools(root, read_only)
+            super::typed::tools(root, read_only, settings)
         } else {
             protocol::tools(root, read_only)
         } {
