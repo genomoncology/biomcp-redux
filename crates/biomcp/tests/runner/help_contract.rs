@@ -13,7 +13,13 @@ fn check() -> Result<(), String> {
         let env = Environment::new().map_err(|e| e.to_string())?;
         env.config(&json!({"mcp_tool_mode":mode}))
             .map_err(|e| e.to_string())?;
-        for path in ["search trial", "drug", "search pgx", "health"] {
+        for path in [
+            "search trial",
+            "search adverse-event",
+            "drug",
+            "search pgx",
+            "health",
+        ] {
             let (name, arguments) = if mode == "single" {
                 let mut args = vec!["help"];
                 args.extend(path.split_whitespace());
@@ -39,17 +45,7 @@ fn check() -> Result<(), String> {
                 ("drug", Some(commands)) => commands
                     .iter()
                     .any(|c| c.get("command") == Some(&json!(["search", "drug"]))),
-                ("search trial", Some(commands)) => commands
-                    .first()
-                    .and_then(|c| c.get("arguments"))
-                    .and_then(Value::as_array)
-                    .is_some_and(|args| {
-                        args.iter().all(|arg| {
-                            arg.get("description")
-                                .and_then(Value::as_str)
-                                .is_some_and(|s| !s.is_empty())
-                        })
-                    }),
+                ("search trial" | "search adverse-event", Some(commands)) => descriptions(commands),
                 ("search pgx", Some(commands)) => commands
                     .iter()
                     .flat_map(|c| {
@@ -83,4 +79,21 @@ fn check() -> Result<(), String> {
     } else {
         Err(failures.join("\n"))
     }
+}
+fn descriptions(commands: &[Value]) -> bool {
+    commands
+        .first()
+        .and_then(|c| c.get("arguments"))
+        .and_then(Value::as_array)
+        .is_some_and(|args| {
+            args.iter().all(|arg| {
+                arg.get("description")
+                    .and_then(Value::as_str)
+                    .is_some_and(|s| {
+                        !s.is_empty()
+                            && (arg.get("name") != Some(&json!("--drug"))
+                                || (s.contains("FAERS") && s.contains("repeat --drug")))
+                    })
+            })
+        })
 }
