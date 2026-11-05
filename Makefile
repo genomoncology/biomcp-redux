@@ -378,7 +378,7 @@ hosted-surface-check:
 .PHONY: hosted-surface-mechanical
 hosted-surface-mechanical:
 	cargo fmt --all -- --check
-	cargo clippy --keep-going --locked -p biomcp --all-targets -- -D warnings
+	+$(MAKE) hosted-surface-lint
 	cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
 
 .PHONY: hosted-surface-development
@@ -408,3 +408,13 @@ source-status-check:
 .PHONY: source-status-pre-review
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
+
+.PHONY: hosted-surface-annotations
+hosted-surface-annotations:
+	cargo fmt --all -- --check
+	cargo test --locked -p biomcp-types --features schema --test schemas required_component_annotations_are_metadata_with_checked_sources -- --exact
+	+$(MAKE) hosted-surface-lint
+
+.PHONY: hosted-surface-lint
+hosted-surface-lint:
+	cargo clippy --keep-going --locked -p biomcp -p biomcp-types --all-targets --all-features -- -D warnings

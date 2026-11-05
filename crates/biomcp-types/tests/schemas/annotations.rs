@@ -85,7 +85,7 @@ fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
     Ok(())
 }
 
-pub(super) fn required_component_annotations_are_metadata_with_checked_sources() {
+pub(super) fn required_component_annotations_are_metadata_with_checked_sources() -> Check<()> {
     use serde_json::json;
     let old = json!({"$id":"biodata.example/1", "type":"object", "properties":{"name":{"type":"string"}},
         "required":["name"], "additionalProperties":false});
@@ -93,12 +93,11 @@ pub(super) fn required_component_annotations_are_metadata_with_checked_sources()
         json!({"x-required-component":"meddra"}),
         json!({"x-required-components":{"maude":"gmdn"}}),
     ] {
-        let mut new = old.clone();
-        new["properties"]["name"]
-            .as_object_mut()
-            .expect("property")
-            .extend(annotation.as_object().expect("annotation").clone());
-        assert!(super::compatibility::check(&old, &new).is_ok());
+        let new = annotated(&old, &annotation)?;
+        assert!(
+            super::compatibility::check(&old, &new).is_ok(),
+            "valid component metadata must preserve compatibility: {annotation}"
+        );
     }
     for annotation in [
         json!({"x-required-component":null}),
@@ -108,11 +107,25 @@ pub(super) fn required_component_annotations_are_metadata_with_checked_sources()
         json!({"x-required-components":{"maude":false}}),
         json!({"x-required-components":{"unknown":"gmdn"}}),
     ] {
-        let mut new = old.clone();
-        new["properties"]["name"]
-            .as_object_mut()
-            .expect("property")
-            .extend(annotation.as_object().expect("annotation").clone());
-        assert!(super::compatibility::check(&old, &new).is_err());
+        let new = annotated(&old, &annotation)?;
+        assert!(
+            super::compatibility::check(&old, &new).is_err(),
+            "invalid component metadata must fail compatibility: {annotation}"
+        );
     }
+    Ok(())
+}
+
+fn annotated(old: &Value, annotation: &Value) -> Check<Value> {
+    let mut new = old.clone();
+    new.pointer_mut("/properties/name")
+        .and_then(Value::as_object_mut)
+        .ok_or("schema fixture needs an object name property")?
+        .extend(
+            annotation
+                .as_object()
+                .ok_or("annotation fixture must be an object")?
+                .clone(),
+        );
+    Ok(new)
 }

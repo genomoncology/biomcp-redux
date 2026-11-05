@@ -518,6 +518,6 @@ fn section_rules_keep_the_complete_source_owned_prose() -> Result<(), String> {
 }
 
 #[test]
-fn required_component_annotations_are_metadata_with_checked_sources() {
-    annotations::required_component_annotations_are_metadata_with_checked_sources();
+fn required_component_annotations_are_metadata_with_checked_sources() -> Result<(), String> {
+    annotations::required_component_annotations_are_metadata_with_checked_sources()
 }
