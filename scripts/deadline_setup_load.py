@@ -54,6 +54,8 @@ def main():
                BIOMCP_CASE_RUNNER=str(installed / 'case-runner'), BIOMCP_INSTALLED_VERSION=identity.splitlines()[0].removeprefix('biomcp '),
                BIOMCP_EVIDENCE_DIR=str(root / 'fixture-evidence'))
     commands = [
+        [sys.executable, '-m', 'unittest', '-v', '-f',
+         'release.test_smoke.InstalledTemporarySpace.test_installed_schema_change_names_the_case'],
         [sys.executable, '-m', 'unittest', '-v', '-f', 'release.test_checks', 'release.test_gate'],
         [sys.executable, 'scripts/typed_harness_preflight.py', 'check'],
         [binaries['cases'], 'gene-sections/gencc-first-publisher', '--test-threads', '2'],
@@ -61,9 +63,6 @@ def main():
     loaded = sys.argv[1:] == ['load']
     if loaded:
         commands.append([sys.executable, '-m', 'unittest', '-v', '-f', 'release.test_smoke'])
-    else:
-        commands.insert(0, [sys.executable, '-m', 'unittest', '-v', '-f',
-                            'release.test_smoke.InstalledTemporarySpace.test_installed_schema_change_names_the_case'])
     cores = float(os.environ.get('PM_JOB_CORES', os.cpu_count() or 1))
     affinity = None
     if loaded:
