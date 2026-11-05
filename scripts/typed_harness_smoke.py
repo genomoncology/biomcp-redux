@@ -169,6 +169,9 @@ def job(args):
             with (output / f"{name}.events.jsonl").open("wb") as stdout, (output / f"{name}.stderr").open("wb") as stderr:
                 remote = shlex.join(["zsh", "-lc", shlex.join(command)])
                 own_process(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=8", args.client_host, remote], 195, stdout=stdout, stderr=stderr)
+            # The client can exit zero after two tool errors. Scope still failed.
+            from typed_harness_capture import validate_transcript
+            validate_transcript(output / name)
         finally:
             cleanup_remote_scratch(args.client_host, scratch)
 

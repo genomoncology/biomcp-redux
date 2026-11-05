@@ -14,17 +14,25 @@ from typed_harness_capture import exchange
 from typed_harness_smoke import check_sources, cleanup_remote_scratch, copy_script, interrupted, own_process, remote_scratch, ssh
 
 
-def server():
+def server(both_errors=False):
     for line in sys.stdin.buffer:
         frame = json.loads(line)
         # Whitespace is intentional: forwarding must retain the original bytes.
-        response = b'{ "jsonrpc": "2.0", "id": ' + json.dumps(frame["id"]).encode() + b', "result": {"synthetic":true} }\n'
+        usage = frame["params"]["arguments"]["input"] == ["lung cancer"]
+        body = {"status": "usage" if usage else "complete"}
+        if usage:
+            body["error"] = {"code": "usage.arguments"}
+        elif both_errors:
+            body = {"status": "local", "error": {"code": "local.failure"}}
+        result = {"synthetic": True, "isError": usage or both_errors, "structuredContent": body}
+        response = b'{ "jsonrpc": "2.0", "id": ' + json.dumps(frame["id"]).encode() + b', "result": ' + json.dumps(result, separators=(",", ":")).encode() + b' }\n'
         sys.stdout.buffer.write(response)
         sys.stdout.buffer.flush()
 
 
-def bridge(path):
-    child = subprocess.Popen([sys.executable, __file__, "server"], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+def bridge(path, both_errors=False):
+    command = [sys.executable, __file__, "server"] + (["both-errors"] if both_errors else [])
+    child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     try:
         exchange(child, Path(path))
         child.wait(timeout=3)
@@ -81,8 +89,13 @@ def check():
         run = subprocess.run([sys.executable, __file__, "bridge", str(refused)], input=inputs + request(3, "lung cancer"), capture_output=True, timeout=5)
         if run.returncode == 0 or b"unexpected tools/call" not in run.stderr:
             raise RuntimeError("third-call bound failed")
+        both_errors = root / "both-errors"
+        both_errors.mkdir()
+        run = subprocess.run([sys.executable, __file__, "bridge", str(both_errors), "both-errors"], input=inputs, capture_output=True, timeout=5)
+        if run.returncode == 0 or b"expected complete success" not in run.stderr:
+            raise RuntimeError("two-error pair silently passed")
         cancellation(root)
-    print("Synthetic byte forwarding, third-call refusal and TERM/HUP cleanup pass; no product/client/provider ran")
+    print("Synthetic complete+usage pass, two-error rejection, byte forwarding, call bound and TERM/HUP cleanup pass; no product/client/provider ran")
 
 
 def transport(host):
@@ -109,9 +122,9 @@ def transport(host):
 if __name__ == "__main__":
     action = sys.argv[1] if len(sys.argv) > 1 else "check"
     if action == "server":
-        server()
+        server(len(sys.argv) > 2 and sys.argv[2] == "both-errors")
     elif action == "bridge":
-        bridge(sys.argv[2])
+        bridge(sys.argv[2], len(sys.argv) > 3 and sys.argv[3] == "both-errors")
     elif action == "check":
         check()
     elif action == "owner":
