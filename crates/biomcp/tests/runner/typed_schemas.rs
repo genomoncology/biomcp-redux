@@ -17,7 +17,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = tools
             .iter()
-            .find(|t| field(t, "name") == name)
+            .find(|t| field(t, "name").as_str() == Some(name.as_str()))
             .ok_or("missing tool")?;
         if field(tool, "description")
             .as_str()
@@ -254,7 +254,7 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
         let name = field(tool, "name");
         let compact = small
             .iter()
-            .find(|t| field(t, "name") == name)
+            .find(|t| field(t, "name").as_str() == Some(name.as_str()))
             .ok_or("lowered tool")?;
         for (key, property) in field(field(tool, "inputSchema"), "properties")
             .as_object()
