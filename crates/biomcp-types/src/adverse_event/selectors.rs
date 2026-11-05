@@ -116,4 +116,3 @@ biodata::wire_enum! { described
         Reactions => "reactions",
     }
 }
-

@@ -4,8 +4,8 @@ use super::{
 use crate::{ComponentLabel, ResponseBody};
 use biodata::{FaersPatient, FaersReporter, FaersSeriousness, ReportId, Text};
 use serde::{Deserialize, Serialize};
-mod rows;
 mod counts;
+mod rows;
 pub use counts::{AdverseEventReactionCount, AdverseEventReactionCounts};
 pub use rows::{
     AdverseEventDevice, AdverseEventDrug, AdverseEventIdentityCounts, AdverseEventNarrativeItem,

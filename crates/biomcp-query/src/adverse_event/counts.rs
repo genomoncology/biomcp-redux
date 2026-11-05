@@ -1,7 +1,9 @@
 //! Count buckets keep their own shape instead of pretending to be report pages.
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::faers;
-use biomcp_types::{AdverseEventPage, AdverseEventReactionCounts, AdverseEventSearch, ReplyBody, ReportUnit, Source};
+use biomcp_types::{
+    AdverseEventPage, AdverseEventReactionCounts, AdverseEventSearch, ReplyBody, ReportUnit, Source,
+};
 
 pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -11,7 +13,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     let error = reply.as_ref().err().copied();
     let mut body = AdverseEventPage {
         reaction_counts: None,
-        reaction_match: query.reaction().map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
+        reaction_match: query
+            .reaction()
+            .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),
         source_query: query.faers_expression().into_boxed_str(),
         source_updated: None,
         fetched: None,
@@ -25,7 +29,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
             items: page.items.into(),
         });
         body.source_updated = page.updated.map(Into::into);
-        body.fetched = page.metadata.fetched.and_then(|value| u64::try_from(value).ok());
+        body.fetched = page
+            .metadata
+            .fetched
+            .and_then(|value| u64::try_from(value).ok());
         body.components = page.components;
     }
     let mut out = status::finish(

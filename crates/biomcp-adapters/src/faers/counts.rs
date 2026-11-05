@@ -21,8 +21,13 @@ pub struct CountPage {
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 enum Response {
-    Page { meta: Meta, results: Vec<AdverseEventReactionCount> },
-    Absent { error: crate::openfda::Absence },
+    Page {
+        meta: Meta,
+        results: Vec<AdverseEventReactionCount>,
+    },
+    Absent {
+        error: crate::openfda::Absence,
+    },
 }
 #[derive(Debug, Deserialize)]
 struct Meta {
@@ -37,7 +42,10 @@ impl Reply for Response {
         }
     }
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
-        if matches!((self, status), (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)) {
+        if matches!(
+            (self, status),
+            (Self::Page { .. }, 200) | (Self::Absent { .. }, 404)
+        ) {
             Ok(())
         } else {
             Err(BadReply)
@@ -52,7 +60,8 @@ pub fn reactions(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<CountPage,
     }
     crate::adverse_event_sources::components::meddra(leg)?;
     let components = crate::adverse_event_sources::components::labels(
-        biomcp_types::Source::Faers, biomcp_types::Source::Meddra,
+        biomcp_types::Source::Faers,
+        biomcp_types::Source::Meddra,
     )?;
     let selector = query.faers_expression();
     let endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
@@ -74,5 +83,10 @@ pub fn reactions(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<CountPage,
         Response::Page { meta, results } => (results, meta.last_updated),
         Response::Absent { .. } => (Vec::new(), None),
     };
-    Ok(CountPage { items, updated, metadata: received.meta, components })
+    Ok(CountPage {
+        items,
+        updated,
+        metadata: received.meta,
+        components,
+    })
 }
