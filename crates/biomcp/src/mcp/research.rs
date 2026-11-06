@@ -41,6 +41,7 @@ pub(super) enum Projection {
 pub(super) struct Call {
     pub(super) args: Vec<OsString>,
     pub(super) projection: Projection,
+    pub(super) catalog: Option<super::typed::Catalog>,
 }
 pub(super) fn parse(params: &Value) -> Option<Call> {
     let name = params.get("name")?.as_str()?;
@@ -58,6 +59,7 @@ pub(super) fn parse(params: &Value) -> Option<Call> {
         return Some(Call {
             args,
             projection: Projection::Cli,
+            catalog: None,
         });
     }
     let key = match name {
@@ -76,6 +78,7 @@ pub(super) fn parse(params: &Value) -> Option<Call> {
     Some(Call {
         args: args.into_iter().map(OsString::from).collect(),
         projection,
+        catalog: None,
     })
 }
 fn search_args(input: &str) -> Vec<String> {

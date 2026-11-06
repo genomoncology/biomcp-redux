@@ -3,7 +3,7 @@ use serde_json::{Value, json};
 use std::io;
 
 #[derive(Default)]
-pub(super) struct Catalog {
+pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
     commands: Vec<Value>,
 }
@@ -23,8 +23,9 @@ fn direct(name: &str) -> bool {
 pub(super) fn catalog(
     context: crate::command::Context<'_>,
     read_only: bool,
-    commands: Vec<Value>,
+    definitions: Vec<(Value, Value)>,
 ) -> io::Result<Catalog> {
+    let (commands, canonical): (Vec<_>, Vec<_>) = definitions.into_iter().unzip();
     let (mut tools, grouped): (Vec<_>, Vec<_>) = commands
         .iter()
         .cloned()
@@ -62,7 +63,10 @@ pub(super) fn catalog(
             ),
         ));
     }
-    Ok(Catalog { tools, commands })
+    Ok(Catalog {
+        tools,
+        commands: canonical,
+    })
 }
 
 fn reference(commands: &[Value]) -> Value {
@@ -98,12 +102,16 @@ pub(super) fn unwrap(params: &Value) -> Option<Value> {
 pub(super) fn call(canonical: Value, catalog: &Catalog) -> Option<Value> {
     let tools = &catalog.tools;
     let name = canonical.get("name")?.as_str()?;
+    let command = catalog.commands.iter().find(|tool| tool["name"] == name);
+    if command
+        .is_some_and(|tool| !super::followups::allowed(&canonical, std::slice::from_ref(tool)))
+    {
+        return None;
+    }
     if tools.iter().any(|tool| tool["name"] == name) {
         return super::followups::allowed(&canonical, tools).then_some(canonical);
     }
-    if !super::followups::allowed(&canonical, &catalog.commands) {
-        return None;
-    }
+    command?;
     let reference = tools
         .iter()
         .find(|tool| tool["name"] == "biomcp_reference")?;

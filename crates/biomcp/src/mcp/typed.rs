@@ -5,6 +5,7 @@ pub(super) use catalog::instructions;
 mod description;
 mod followups;
 mod grouping;
+pub(super) use grouping::Catalog;
 mod help;
 mod summary;
 mod validation;
@@ -105,7 +106,9 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
                     super::output_schema::for_command(verb, entity, id)?,
                 );
             }
-            Ok(Some(tool))
+            let canonical = json!({"name":name(verb, entity),
+                "inputSchema":arguments::input_with_limit(&schema, usize::MAX)});
+            Ok(Some((tool, canonical)))
         })
         .collect::<io::Result<Vec<_>>>()?
         .into_iter()
@@ -114,24 +117,36 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
     grouping::catalog(context, read_only, tools)
 }
 pub(super) fn parse(
-    root: &crate::grammar::Root,
+    context: crate::command::Context<'_>,
     params: &Value,
     mode: crate::config::ToolMode,
     fresh: bool,
+    read_only: bool,
 ) -> Option<Result<super::research::Call, Rejected>> {
     if mode == crate::config::ToolMode::Single {
         return super::research::parse(params).map(Ok);
     }
-    let reference = (params.get("name")?.as_str()? == "biomcp_reference")
-        .then(|| grouping::unwrap(params))
-        .flatten();
+    let root = context.root;
+    let catalog = catalog(context, read_only).ok()?;
+    let reference = if params.get("name")?.as_str()? == "biomcp_reference" {
+        if !followups::allowed(params, &catalog.tools) {
+            return None;
+        }
+        Some(grouping::unwrap(params)?)
+    } else {
+        None
+    };
     let params = reference.as_ref().unwrap_or(params);
     let called = params.get("name")?.as_str()?;
     if called == "biomcp_help" {
-        return help::parse(params).map(Ok);
+        let mut call = help::parse(params)?;
+        call.catalog = Some(catalog);
+        return Some(Ok(call));
     }
     if matches!(called, "biomcp" | "search" | "fetch") {
-        return super::research::parse(params).map(Ok);
+        let mut call = super::research::parse(params)?;
+        call.catalog = Some(catalog);
+        return Some(Ok(call));
     }
     let &(verb, entity, id) = crate::grammar::command_paths()
         .iter()
@@ -171,7 +186,11 @@ pub(super) fn parse(
             })
             .unwrap_or_else(|| json!({}));
         let args = arguments::cli(root, verb, entity, &schema, &known)?;
-        return Some(Err(Rejected { error, args }));
+        return Some(Err(Rejected {
+            error,
+            args,
+            catalog: Some(catalog),
+        }));
     }
     let mut args = arguments::cli(root, verb, entity, &schema, values)?;
     if fresh {
@@ -180,12 +199,14 @@ pub(super) fn parse(
     Some(Ok(super::research::Call {
         args,
         projection: super::research::Projection::Cli,
+        catalog: Some(catalog),
     }))
 }
 
 pub(super) struct Rejected {
     error: biomcp_types::UsageError,
     args: Vec<std::ffi::OsString>,
+    catalog: Option<Catalog>,
 }
 pub(super) fn rejection(
     id: Value,

@@ -148,10 +148,11 @@ impl Server {
 
     fn admit(&mut self, id: Value, params: &Value, modern: bool) -> io::Result<Option<Value>> {
         let Some(call) = typed::parse(
-            &self.root,
+            crate::command::Context::new(&self.globals, &self.fetch, &self.root, &self.settings),
             params,
             crate::config::mcp_tool_mode(&self.globals, &self.settings),
             self.globals.fresh,
+            false,
         ) else {
             return Ok(Some(protocol::error(id, -32602, "Invalid params")));
         };
