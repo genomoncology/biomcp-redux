@@ -45,7 +45,7 @@ pub(super) fn check() -> Result<(), String> {
     ] {
         let mut args = super::args();
         *args.get_mut(2).ok_or("recurrence input")? = input.into();
-        *args.last_mut().ok_or("recurrence limit")? = "100".into();
+        args.truncate(args.len() - 2);
         let cli = super::call(&env, &args, 0)?;
         observed(&cli, input)?;
         let single = mcp::call_with_globals(&env, &args, false, &[])?;
@@ -56,7 +56,7 @@ pub(super) fn check() -> Result<(), String> {
             json!({
                 "input":input,"source":"cbioportal","gene":"BRAF",
                 "study":"msk_impact_2017","profile":"msk_impact_2017_mutations",
-                "sample_set":"msk_impact_2017_all","limit":100
+                "sample_set":"msk_impact_2017_all"
             }),
         )?;
         observed(&typed, input)?;

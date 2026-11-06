@@ -33,14 +33,14 @@ struct Fields {
     sample_set: Text,
     /// Source mutation rows per page, including excluded alleles.
     #[serde(default = "limit")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 100)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = VariantRecurrenceQuery::MAX_LIMIT)))]
     limit: u32,
     /// Zero-based native source page.
     #[serde(default)]
     page: u32,
 }
 fn limit() -> u32 {
-    10
+    VariantRecurrenceQuery::MAX_LIMIT
 }
 crate::query::validation::checked_query!(VariantRecurrenceQuery, Fields);
 impl TryFrom<Fields> for VariantRecurrenceQuery {
@@ -51,7 +51,7 @@ impl TryFrom<Fields> for VariantRecurrenceQuery {
             crate::VariantResolver::Car,
             Some(identity_build(v.build)),
         )?;
-        if !(1..=100).contains(&v.limit) {
+        if !(1..=Self::MAX_LIMIT).contains(&v.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
         if v.page.checked_mul(v.limit).is_none() {
@@ -72,6 +72,8 @@ impl TryFrom<Fields> for VariantRecurrenceQuery {
     }
 }
 impl VariantRecurrenceQuery {
+    /// Default and largest source page: one call reads a common variant's whole cohort.
+    pub const MAX_LIMIT: u32 = 5_000;
     /// Source evidence required for exact recurrence matching and its public guidance.
     pub const INPUT_REQUIREMENT: &str = concat!(
         "one unique source-qualified genomic replacement with nonempty reference and alternate alleles ",
