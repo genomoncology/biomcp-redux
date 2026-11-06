@@ -759,6 +759,7 @@ trial-provenance-check:
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 
+
 .PHONY: typed-owned-followups-check
 typed-owned-followups-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-owned-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-owned- $(TEST_THREADS)
@@ -854,3 +855,19 @@ accepted-batch-article-finish:
 	cargo test --locked -p biomcp --test cases variant/identity $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article/fulltext/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article/preprint/ $(TEST_THREADS)
+
+.PHONY: hosted-resilience-focused
+hosted-resilience-focused:
+	cargo test --locked -p biomcp --bin biomcp mcp::http::call::tests $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-hosted/replay-partial-at-deadline $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-hosted/pacing/whole-call-deadline $(TEST_THREADS)
+
+.PHONY: hosted-resilience-mechanical
+hosted-resilience-mechanical:
+	+$(MAKE) --no-print-directory check-cheap
+	+$(MAKE) --no-print-directory hosted-resilience-focused
+
+.PHONY: commercial-config-check
+commercial-config-check:
+	python3 scripts/trials.py --case-file readme/gene.yaml --case-file readme/article.yaml --case-file readme/trial.yaml mcp-hosted/use/commercial-config
