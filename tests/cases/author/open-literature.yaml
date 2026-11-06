@@ -94,6 +94,26 @@
         "/sources/0/reason": "disabled"
       },
       "max_bytes": 1200
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Unavailable query",
+        "--offset",
+        "5",
+        "--disable-sources",
+        "noncommercial,orcid"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "pubmed",
+        "/sources/0/state": "failed",
+        "/next/0/kind": "fresh"
+      },
+      "max_bytes": 1500
     }
   ]
 }

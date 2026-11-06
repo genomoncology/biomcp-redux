@@ -86,6 +86,9 @@ fn execute(
     };
     source.count = count;
     source.notices = notices;
+    out.sources.push(source);
+    // Offset stays: no pool ties this page, and a step naming a disabled source is dropped.
+    super::retry(out, Request::SearchAuthor(q.clone()));
     // The source can explain PubMed's query interpretation without claiming identity resolution.
     if q.source() == AuthorSearchSource::Auto && cx.fetch.disabled(Source::SemanticScholar) {
         out.sources.push(biomcp_adapters::registry::outcome(
@@ -93,7 +96,6 @@ fn execute(
             biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Disabled)),
         ));
     }
-    out.sources.push(source);
     if result.is_ok() {
         status::item(out, true, false, false);
     }
