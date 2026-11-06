@@ -124,7 +124,7 @@ fn execute<'a>(
                 retry(query, None, out);
                 return Ok(());
             }
-            filter_text(cx, deadline, &mut items);
+            filter_text(cx, deadline, &mut items, out);
             store.set_deadline(*deadline);
             match crate::publish::keep(
                 store
@@ -150,11 +150,12 @@ fn filter_text<'a>(
     cx: &Ctx<'a>,
     deadline: &mut Deadline<'a>,
     items: &mut [biomcp_types::ArticleItem],
+    out: &mut Outcome,
 ) {
     if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
         let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, *deadline);
         let started = leg.remaining();
-        biomcp_adapters::article_rights::items(&leg, items);
+        out.dropped |= biomcp_adapters::article_rights::items(&leg, items);
         *deadline = consume(*deadline, started, leg.remaining());
     }
 }

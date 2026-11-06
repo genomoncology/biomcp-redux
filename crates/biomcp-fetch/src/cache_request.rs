@@ -150,7 +150,7 @@ impl Leg<'_> {
         entry.fetched_at = acquired;
         entry.content_range = range;
         entry.pagination = pagination;
-        if (200..300).contains(&status) && codec.cacheable(&reply) {
+        if (200..300).contains(&status) && codec.cacheable(&reply) && !self.license_unchecked() {
             self.cache_result(cache.write(
                 &prepared.identity,
                 self.spec.source,
@@ -308,13 +308,16 @@ impl Leg<'_> {
             }
             if filtered.as_ref() != entry.body.as_slice() {
                 entry.body = filtered.into_owned();
-                cache.write(
-                    &prepared.identity,
-                    self.spec.source,
-                    &prepared.url,
-                    entry,
-                    self.budget(),
-                )?;
+                // Text filtered on an unfinished lookup serves this read only.
+                if !self.license_unchecked() {
+                    cache.write(
+                        &prepared.identity,
+                        self.spec.source,
+                        &prepared.url,
+                        entry,
+                        self.budget(),
+                    )?;
+                }
             }
         }
         Ok(())

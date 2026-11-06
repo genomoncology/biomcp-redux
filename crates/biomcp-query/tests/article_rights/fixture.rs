@@ -3,8 +3,8 @@ use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use biomcp_test_support::network_stub::Stub;
 use biomcp_types::ReplyData;
 use std::{path::Path, time::Duration};
-pub(super) fn record(dir: &Path) {
-    let stub = Stub::for_sources(
+fn stub(reply: impl FnMut(&str) -> Result<String, String> + Send + 'static) -> Stub {
+    Stub::for_sources(
         &[
             "www.ncbi.nlm.nih.gov",
             "eutils.ncbi.nlm.nih.gov",
@@ -19,9 +19,79 @@ pub(super) fn record(dir: &Path) {
                 "application/json"
             }
         },
-        response,
+        reply,
     )
-    .unwrap();
+    .unwrap()
+}
+/// A restricted client on a synthetic network, for replies a recording cannot vary.
+pub(super) fn live(
+    dir: &Path,
+    reply: impl FnMut(&str) -> Result<String, String> + Send + 'static,
+) -> (Stub, Fetch) {
+    let stub = stub(reply);
+    let fetch = Fetch::open(FetchConfig {
+        proxy: Some(biomcp_fetch::Secret::new(format!(
+            "http://{}",
+            stub.address
+        ))),
+        network: biomcp_fetch::Network::new(
+            None,
+            None,
+            "",
+            biomcp_fetch::Certificates::from_pem(stub.certificate.as_bytes()).unwrap(),
+        )
+        .unwrap(),
+        cache: Some(dir.join("live.sqlite")),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..FetchConfig::default()
+    })
+    .unwrap()
+    .restrict_uses([biomcp_types::Use::PerRecord].into())
+    .with_hosted_secrets(biomcp_fetch::Secrets::default());
+    (stub, fetch)
+}
+/// More papers than one lookup may check, each permitted when checked.
+pub(super) fn many_papers(request: &str, papers: &[u32]) -> String {
+    if request.contains("sentences") {
+        let rows: Vec<_> = papers
+            .iter()
+            .map(
+                |id| serde_json::json!({"pmid":id,"section":"RESULTS","text":format!("body {id}")}),
+            )
+            .collect();
+        return serde_json::Value::from(rows).to_string();
+    }
+    let asked: Vec<_> = papers
+        .iter()
+        .filter(|id| request.contains(&id.to_string()))
+        .collect();
+    if request.contains("esummary") {
+        let mut result = serde_json::json!({"uids": asked
+            .iter()
+            .map(|id| id.to_string())
+            .collect::<Vec<_>>()});
+        for id in &asked {
+            result[id.to_string()] = serde_json::json!({
+                "uid":id.to_string(),"title":format!("Paper {id}"),
+                "articleids":[{"idtype":"pmc","value":format!("PMC{id}")}]
+            });
+        }
+        return serde_json::json!({ "result": result }).to_string();
+    }
+    let id = asked.first().copied().copied().unwrap_or_default();
+    if request.contains("list-type") {
+        return format!(
+            "<ListBucketResult><IsTruncated>false</IsTruncated><Contents><Key>PMC{id}.1/PMC{id}.1.json</Key></Contents></ListBucketResult>"
+        );
+    }
+    serde_json::json!({
+        "pmcid":format!("PMC{id}"), "pmid":id, "license_code":"CC BY",
+        "xml_url":format!("https://pmc-oa-opendata.s3.amazonaws.com/PMC{id}.1/PMC{id}.1.xml")
+    })
+    .to_string()
+}
+pub(super) fn record(dir: &Path) {
+    let stub = stub(response);
     let store = tempfile::tempdir().unwrap();
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Record { dir: dir.into() },
@@ -139,7 +209,7 @@ fn record_other_routes(fetch: &Fetch) {
     .unwrap();
 }
 
-fn response(request: &str) -> Result<String, String> {
+pub(super) fn response(request: &str) -> Result<String, String> {
     if request.contains("sentences") {
         if request.contains("abstract") {
             return Ok(include_str!("abstract-sentences.json").into());

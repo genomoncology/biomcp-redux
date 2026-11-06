@@ -1,10 +1,8 @@
 //! PubTator passage text is checked before native replies reach the cache.
-use super::{is_abstract, licenses, permitted, pmid};
-use biodata::Pmid;
+use super::{Licenses, is_abstract, licenses, permitted, pmid};
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::Use;
 use serde_json::Value;
-use std::collections::BTreeMap;
 /// Strip publisher passages, including fields ignored by the annotation mapper.
 pub(crate) fn filter(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
     if !leg.disabled_use(Use::PerRecord) {
@@ -22,16 +20,13 @@ pub(crate) fn filter(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
     let licenses = licenses(leg, &ids);
     pubtator_body(root, &licenses)
 }
-fn pubtator_body(
-    mut root: Value,
-    licenses: &BTreeMap<Pmid, biodata::License>,
-) -> Result<Vec<u8>, BadReply> {
+fn pubtator_body(mut root: Value, licenses: &Licenses) -> Result<Vec<u8>, BadReply> {
     for document in root
         .get_mut("PubTator3")
         .and_then(Value::as_array_mut)
         .ok_or(BadReply)?
     {
-        let license = pmid(&document["id"]).and_then(|id| licenses.get(&id).copied());
+        let license = pmid(&document["id"]).and_then(|id| licenses.get(id));
         if let Some(passages) = document.get_mut("passages").and_then(Value::as_array_mut) {
             for passage in passages {
                 let abstract_text = passage

@@ -29,7 +29,8 @@ pub enum ArticleKey {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct WithheldArticleText {
-    /// The current use policy does not admit the record's text.
+    /// `disabled` when the use policy refuses the record's text; `unavailable`
+    /// when its license could not be checked, so body text was left out.
     pub reason: crate::Reason,
     /// Public record where the caller can read the paper.
     #[serde(skip_serializing_if = "Option::is_none")]

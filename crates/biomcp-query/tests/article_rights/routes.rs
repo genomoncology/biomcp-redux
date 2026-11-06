@@ -162,6 +162,11 @@ fn exhausted_license_budget_returns_papers_without_text_or_license_requests() {
     .unwrap();
     let fetch = hosted(delayed.path());
     let out = run(&fetch);
+    assert_eq!(
+        out.status(),
+        biomcp_types::Status::Partial,
+        "a timed-out lookup is not a whole answer"
+    );
     let ReplyData::ArticlePage {
         body: Some(page), ..
     } = out.body

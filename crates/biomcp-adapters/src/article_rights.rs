@@ -4,6 +4,9 @@ mod policy;
 pub(crate) mod pubmed;
 pub(crate) mod pubtator;
 pub(crate) mod semantic;
-pub(crate) use policy::{europepmc, litsense, permitted, withheld, withheld_item};
+pub use policy::{
+    Licenses, item_unchecked, items, licenses, snapshot, text_unchecked, text_withheld,
+    unchecked_notice,
+};
+pub(crate) use policy::{europepmc, litsense, permitted, unchecked, withheld, withheld_item};
 use policy::{is_abstract, pmid};
-pub use policy::{items, licenses, snapshot, text_withheld};

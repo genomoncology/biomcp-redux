@@ -1,10 +1,9 @@
 //! Citation contexts belong to the citing paper; abstracts follow source terms.
-use super::{licenses, permitted, pmid};
-use biodata::{License, Pmid};
+use super::{Licenses, licenses, permitted, pmid};
+use biodata::Pmid;
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::Use;
 use serde_json::Value;
-use std::collections::BTreeMap;
 
 pub(crate) fn filter(
     leg: &Leg<'_>,
@@ -35,7 +34,7 @@ fn filter_input(
     }
     collect(&root, &mut ids, saved);
     let licenses = if ids.is_empty() {
-        BTreeMap::new()
+        Licenses::default()
     } else {
         licenses(leg, &ids)
     };
@@ -44,7 +43,7 @@ fn filter_input(
 pub(super) fn filter_with_licenses(
     mut root: Value,
     parent: Option<Pmid>,
-    licenses: &BTreeMap<Pmid, License>,
+    licenses: &Licenses,
     saved: bool,
 ) -> Result<Vec<u8>, BadReply> {
     apply(&mut root, parent, licenses, saved)?;
@@ -95,7 +94,7 @@ fn collect(value: &Value, ids: &mut Vec<Pmid>, saved: bool) {
 fn apply(
     value: &mut Value,
     inherited: Option<Pmid>,
-    licenses: &BTreeMap<Pmid, License>,
+    licenses: &Licenses,
     saved: bool,
 ) -> Result<(), BadReply> {
     // A nested paper owns its text even when it has no resolvable PMID.
@@ -107,11 +106,11 @@ fn apply(
     let citing = value
         .get("citingPaper")
         .map_or(own, |paper| id(paper, saved));
-    let license = own.and_then(|id| licenses.get(&id).copied());
+    let license = own.and_then(|id| licenses.get(id));
     match value {
         Value::Object(object) => {
             super::abstracts::filter(object, own, license)?;
-            let context_license = citing.and_then(|id| licenses.get(&id).copied());
+            let context_license = citing.and_then(|id| licenses.get(id));
             object.remove("biomcpContextLicense");
             if object.contains_key("contexts")
                 && let Some(value) = context_license
@@ -124,13 +123,18 @@ fn apply(
             if !permitted(context_license, false)
                 && object.get("contexts").is_some_and(has_contexts)
             {
-                let notice =
-                    citing
-                        .map(super::withheld)
-                        .unwrap_or(biomcp_types::WithheldArticleText {
-                            reason: biomcp_types::Reason::Disabled,
-                            url: None,
-                        });
+                let notice = citing
+                    .map(|id| {
+                        if licenses.unchecked(id) {
+                            super::unchecked(id)
+                        } else {
+                            super::withheld(id)
+                        }
+                    })
+                    .unwrap_or(biomcp_types::WithheldArticleText {
+                        reason: biomcp_types::Reason::Disabled,
+                        url: None,
+                    });
                 object.insert(
                     "biomcpTextWithheld".into(),
                     serde_json::to_value(notice).map_err(|_| BadReply)?,

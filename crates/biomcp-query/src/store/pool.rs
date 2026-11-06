@@ -257,13 +257,13 @@ impl Store<'_> {
     pub(crate) fn rewrite_article_text(
         &mut self,
         pool: &str,
-        rows: &[StoredItem],
+        rows: &[biomcp_types::ArticleItem],
     ) -> Result<(), CacheError> {
         let policy = self.policy();
         self.write(|tx| {
             policy.authorize(tx, super::ownership::Table::Pool, pool)?;
             for row in rows {
-                let mut item = row.item.clone();
+                let mut item = row.clone();
                 item.header = None;
                 let identity = item
                     .key

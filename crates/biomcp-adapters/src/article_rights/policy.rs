@@ -13,37 +13,63 @@ use std::{
 const MAX_RECORDS: usize = 20;
 const LOOKUP_BUDGET: Duration = Duration::from_secs(3);
 const FINISH_BUDGET: Duration = Duration::from_millis(200);
+/// A settled refusal kept in LitSense's cached rows.
+const WITHHELD: &str = "biomcp_text_withheld";
+
+/// One bounded lookup: the licenses found and the papers it actually settled.
+#[derive(Debug, Default)]
+pub struct Licenses {
+    known: BTreeMap<Pmid, biodata::License>,
+    checked: BTreeSet<Pmid>,
+}
+impl Licenses {
+    /// The paper's explicit license, when the lookup found one.
+    pub fn get(&self, id: Pmid) -> Option<biodata::License> {
+        self.known.get(&id).copied()
+    }
+    /// A failed or capped lookup settles nothing, which is not a refusal.
+    pub fn unchecked(&self, id: Pmid) -> bool {
+        !self.checked.contains(&id)
+    }
+}
 
 /// Resolve explicit PMC commercial licenses; unavailable metadata grants no rights.
-pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License> {
+/// Any paper left unchecked keeps this leg's reply out of the source cache.
+pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> Licenses {
     let mut seen = BTreeSet::new();
-    let ids: Vec<_> = ids
-        .iter()
-        .copied()
-        .filter(|id| seen.insert(*id))
-        .take(MAX_RECORDS)
-        .collect();
+    let ids: Vec<_> = ids.iter().copied().filter(|id| seen.insert(*id)).collect();
+    let found = bounded(leg, &ids[..ids.len().min(MAX_RECORDS)]);
+    if ids.iter().any(|id| found.unchecked(*id)) {
+        leg.note_license_unchecked();
+    }
+    found
+}
+fn bounded(leg: &Leg<'_>, ids: &[Pmid]) -> Licenses {
+    let mut found = Licenses::default();
     if ids.is_empty() {
-        return BTreeMap::new();
+        return found;
     }
     let deadline = leg.local_deadline();
     let mut remaining = LOOKUP_BUDGET.min(leg.remaining().saturating_sub(FINISH_BUDGET));
     if remaining.is_zero() {
-        return BTreeMap::new();
+        return found;
     }
     let before = leg.remaining();
     let headers = leg.dependency(&crate::pubmed::SPEC, remaining, |dependency| {
-        crate::pubmed::summaries(dependency, &ids, None)
+        crate::pubmed::summaries(dependency, ids, None)
     });
     remaining = remaining.saturating_sub(before.saturating_sub(leg.remaining()));
-    let mut allowed = BTreeMap::new();
-    // Failed metadata never grants record text rights; the caller retains the paper and refusal.
+    // Failed metadata never grants record text rights; the caller retains the paper and reason.
     let headers = match headers {
         Ok(headers) => headers,
-        Err(_) => return allowed,
+        Err(_) => return found,
     };
     for header in headers.value {
-        let (Some(id), Some(pmcid)) = (header.pmid, header.pmcid) else {
+        let Some(id) = header.pmid else {
+            continue;
+        };
+        let Some(pmcid) = header.pmcid else {
+            found.checked.insert(id);
             continue;
         };
         if remaining.is_zero() || deadline.expired() {
@@ -59,11 +85,12 @@ pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License>
             Ok(license) => license,
             Err(_) => continue,
         };
+        found.checked.insert(id);
         if let Some(license) = license {
-            allowed.insert(id, license);
+            found.known.insert(id, license);
         }
     }
-    allowed
+    found
 }
 
 /// Filter LitSense's original bytes before either raw or mapped persistence.
@@ -77,18 +104,21 @@ pub(crate) fn litsense(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> 
         .iter()
         .filter_map(|row| pmid(&row["pmid"]))
         .collect();
-    let allowed = licenses(leg, &ids);
-    litsense_body(rows, &allowed)
+    let found = licenses(leg, &ids);
+    litsense_body(rows, &found)
 }
-fn litsense_body(
-    mut rows: Value,
-    allowed: &BTreeMap<Pmid, biodata::License>,
-) -> Result<Vec<u8>, BadReply> {
+fn litsense_body(mut rows: Value, found: &Licenses) -> Result<Vec<u8>, BadReply> {
     for row in rows.as_array_mut().ok_or(BadReply)? {
-        let license = pmid(&row["pmid"]).and_then(|id| allowed.get(&id).copied());
+        let id = pmid(&row["pmid"]);
+        let license = id.and_then(|id| found.get(id));
+        let refused = row.get(WITHHELD).is_some();
+        let unchecked = !refused && id.is_some_and(|id| found.unchecked(id));
         if let Some(row) = row.as_object_mut() {
             // Cache only the native fields this route actually consumes.
-            row.retain(|key, _| matches!(key.as_str(), "pmid" | "section" | "text"));
+            row.retain(|key, _| matches!(key.as_str(), "pmid" | "section" | "text" | WITHHELD));
+            if unchecked {
+                row.insert("biomcp_text_unchecked".into(), Value::Bool(true));
+            }
             if let Some(license) = license {
                 row.insert(
                     "biomcp_license".into(),
@@ -102,16 +132,19 @@ fn litsense_body(
         {
             row.remove("text");
             row.remove("section");
-            row.insert("biomcp_text_withheld".into(), Value::Bool(true));
+            if !unchecked {
+                row.insert(WITHHELD.into(), Value::Bool(true));
+            }
         }
     }
     serde_json::to_vec(&rows).map_err(|_| BadReply)
 }
 
 /// Stored article pools repeat the current rule before returning or rewriting rows.
-pub fn items(leg: &Leg<'_>, rows: &mut [ArticleItem]) {
+/// Returns whether any row's license is left unchecked, so its pool is not whole.
+pub fn items(leg: &Leg<'_>, rows: &mut [ArticleItem]) -> bool {
     if !leg.disabled_use(Use::PerRecord) {
-        return;
+        return false;
     }
     let ids: Vec<_> = rows
         .iter()
@@ -122,22 +155,32 @@ pub fn items(leg: &Leg<'_>, rows: &mut [ArticleItem]) {
         })
         .filter_map(|row| row.pmid)
         .collect();
-    let allowed = if ids.is_empty() {
-        BTreeMap::new()
+    let found = if ids.is_empty() {
+        Licenses::default()
     } else {
         licenses(leg, &ids)
     };
-    for row in rows {
-        if let Some(sentence) = &mut row.sentence {
-            sentence.license = sentence
-                .license
-                .or_else(|| row.pmid.and_then(|id| allowed.get(&id).copied()));
+    for row in rows.iter_mut() {
+        let mut unchecked = false;
+        if let Some(sentence) = &mut row.sentence
+            && sentence.license.is_none()
+            && let Some(id) = row.pmid
+        {
+            sentence.license = found.get(id);
+            unchecked = found.unchecked(id);
         }
-        filter_item(row);
+        filter_item(row, unchecked);
     }
+    rows.iter().any(item_unchecked)
+}
+/// Whether this row's text rests on a license lookup that did not finish.
+pub fn item_unchecked(row: &ArticleItem) -> bool {
+    row.text_withheld
+        .as_ref()
+        .is_some_and(|notice| notice.reason == biomcp_types::Reason::Unavailable)
 }
 /// Apply the same per-record rule to a checked stored item without provider access.
-fn filter_item(row: &mut ArticleItem) -> bool {
+fn filter_item(row: &mut ArticleItem, unchecked: bool) {
     let license = row.sentence.as_ref().and_then(|sentence| sentence.license);
     let abstract_text = row
         .sentence
@@ -156,10 +199,15 @@ fn filter_item(row: &mut ArticleItem) -> bool {
     if contexts {
         row.contexts = None;
     }
-    if sentence || contexts {
-        row.text_withheld = Some(withheld_item(row));
+    if sentence || contexts || unchecked {
+        let mut notice = withheld_item(row);
+        if unchecked {
+            notice.reason = biomcp_types::Reason::Unavailable;
+        }
+        row.text_withheld = Some(notice);
+    } else if row.sentence.is_some() && item_unchecked(row) {
+        row.text_withheld = None;
     }
-    sentence || contexts
 }
 
 pub(crate) fn withheld_item(row: &ArticleItem) -> biomcp_types::WithheldArticleText {
@@ -181,6 +229,26 @@ pub(crate) fn withheld_item(row: &ArticleItem) -> biomcp_types::WithheldArticleT
 }
 pub(crate) fn withheld(id: Pmid) -> biomcp_types::WithheldArticleText {
     text_withheld(&biomcp_types::ArticleInput::Pmid(id))
+}
+pub(crate) fn unchecked(id: Pmid) -> biomcp_types::WithheldArticleText {
+    text_unchecked(&biomcp_types::ArticleInput::Pmid(id))
+}
+/// Explain text left out because its license could not be checked, which is not a refusal.
+pub fn text_unchecked(input: &biomcp_types::ArticleInput) -> biomcp_types::WithheldArticleText {
+    biomcp_types::WithheldArticleText {
+        reason: biomcp_types::Reason::Unavailable,
+        ..text_withheld(input)
+    }
+}
+/// State on the source that a bounded license lookup did not settle every paper.
+pub fn unchecked_notice() -> biomcp_types::SourceNotice {
+    biomcp_types::SourceNotice::RequestGuidance {
+        message: "Some papers' licenses could not be checked within the lookup limit, so their \
+                  body text was left out and this reply was not stored. Those papers are marked \
+                  `unavailable`; try again or read them at the link given."
+            .into(),
+        retry_after_seconds: None,
+    }
 }
 /// Explain a text policy refusal and point to the requested paper's public record.
 pub fn text_withheld(input: &biomcp_types::ArticleInput) -> biomcp_types::WithheldArticleText {

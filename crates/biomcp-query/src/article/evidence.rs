@@ -114,7 +114,7 @@ fn execute<'a>(
     } else {
         Snapshot::empty()
     };
-    context_rights(cx, query, deadline, &mut snapshot);
+    context_rights(cx, query, deadline, &mut snapshot, out);
     if restrict_text(
         &mut snapshot,
         cx.fetch.disabled_use(biomcp_types::Use::PerRecord),
@@ -251,6 +251,7 @@ fn context_rights<'a>(
     query: &ArticleEvidence,
     deadline: &mut Deadline<'a>,
     snapshot: &mut Snapshot,
+    out: &mut Outcome,
 ) {
     if !cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
         return;
@@ -258,15 +259,16 @@ fn context_rights<'a>(
     let Section::Data { data, .. } = &mut snapshot.graph else {
         return;
     };
+    let mut unchecked = false;
     if data.license.is_none()
         && !data.contexts.items.is_empty()
         && let biomcp_types::ArticleInput::Pmid(id) = query.citing()
     {
         let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, *deadline);
         let started = leg.remaining();
-        data.license = biomcp_adapters::article_rights::licenses(&leg, &[*id])
-            .get(id)
-            .copied();
+        let found = biomcp_adapters::article_rights::licenses(&leg, &[*id]);
+        data.license = found.get(*id);
+        unchecked = found.unchecked(*id);
         *deadline = super::consume(*deadline, started, leg.remaining());
     }
     if !data
@@ -274,9 +276,12 @@ fn context_rights<'a>(
         .is_some_and(biomcp_adapters::pmc_oa::commercial)
         && !data.contexts.items.is_empty()
     {
-        data.text_withheld = Some(biomcp_adapters::article_rights::text_withheld(
-            query.citing(),
-        ));
+        out.dropped |= unchecked;
+        data.text_withheld = Some(if unchecked {
+            biomcp_adapters::article_rights::text_unchecked(query.citing())
+        } else {
+            biomcp_adapters::article_rights::text_withheld(query.citing())
+        });
     }
 }
 fn restrict_text(snapshot: &mut Snapshot, restricted: bool) -> bool {
