@@ -536,4 +536,5 @@ typed-followups-parity typed-followups-toolcases: export BIOMCP_TRANSCRIPT_DIR :
 typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 typed-followups-toolcases:
-	python3 scripts/trials.py --target tools --case-file drug/source-aliases.yaml --case-file drug/source-aliases-review-evidence.yaml --case-file drug/source-aliases-review-later.yaml --case-file drug/source-aliases-review-salt.yaml --case-file adverse-event/faers-reaction-counts.yaml
+	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases --test-threads 2
+	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml --test-threads 2
