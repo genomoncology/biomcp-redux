@@ -19,7 +19,7 @@ case "${1:-focused}" in
   prepare)
     make schema-generate docs-generate
     mkdir -p dist
-    tar -czf dist/drug-search-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+    COPYFILE_DISABLE=1 tar -czf dist/drug-search-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
     ;;
   routine) exec sh scripts/check_nightly_tests.sh routine ;;
   *) exit 2 ;;
