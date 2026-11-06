@@ -114,6 +114,20 @@ fn execute<'a>(
     } else {
         Snapshot::empty()
     };
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+        if let Section::Data { data, .. } = &mut snapshot.graph {
+            if data.license.is_none() && !data.contexts.items.is_empty() {
+                if let biomcp_types::ArticleInput::Pmid(id) = query.citing() {
+                    let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, *deadline);
+                    let started = leg.remaining();
+                    data.license = biomcp_adapters::article_rights::licenses(&leg, &[*id])
+                        .get(id)
+                        .copied();
+                    *deadline = super::consume(*deadline, started, leg.remaining());
+                }
+            }
+        }
+    }
     if restrict_text(
         &mut snapshot,
         cx.fetch.disabled_use(biomcp_types::Use::PerRecord),
@@ -246,6 +260,23 @@ fn decode(payload: &str) -> Result<Option<Snapshot>, CacheError> {
 }
 
 fn restrict_text(snapshot: &mut Snapshot, restricted: bool) -> bool {
+    let mut changed = false;
+    if restricted {
+        if let Section::Data { data, .. } = &mut snapshot.graph {
+            if !data
+                .license
+                .is_some_and(biomcp_adapters::pmc_oa::commercial)
+                && !data.contexts.items.is_empty()
+            {
+                data.contexts.items = Box::default();
+                data.text_withheld = Some(biomcp_types::WithheldArticleText {
+                    reason: biomcp_types::Reason::Disabled,
+                    url: None,
+                });
+                changed = true;
+            }
+        }
+    }
     if restricted
         && snapshot.fulltext.as_ref().is_some_and(|section| {
             matches!(section,
@@ -258,5 +289,5 @@ fn restrict_text(snapshot: &mut Snapshot, restricted: bool) -> bool {
         ));
         return true;
     }
-    false
+    changed
 }

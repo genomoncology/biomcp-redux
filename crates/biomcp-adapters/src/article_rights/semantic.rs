@@ -14,7 +14,7 @@ pub(crate) fn filter(
     if !leg.disabled_use(Use::PerRecord) {
         return Ok(body.to_vec());
     }
-    let mut root: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
+    let root: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
     let mut ids = Vec::new();
     if let Some(parent) = parent {
         ids.push(parent);

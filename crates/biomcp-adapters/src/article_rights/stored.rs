@@ -91,7 +91,7 @@ impl StoredRights {
         let result = match source {
             Source::LitSense => super::litsense_body(
                 serde_json::from_slice(body).map_err(|_| BadReply)?,
-                &licenses,
+                licenses,
             )?,
             Source::PubTator => {
                 let value: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
@@ -105,7 +105,8 @@ impl StoredRights {
                 super::pubmed::filter_with_licenses(body, licenses)?
             }
             Source::SemanticScholar => {
-                let parent = url
+                let decoded = url.replace("PMID%3A", "PMID:");
+                let parent = decoded
                     .split("PMID:")
                     .nth(1)
                     .and_then(|rest| rest.split('/').next())
