@@ -31,6 +31,11 @@ pub(super) fn prepare_with_catalog(
     args: &[std::ffi::OsString],
     advertised: &Catalog,
 ) -> io::Result<Option<String>> {
+    if crate::config::mcp_tool_mode(context.globals, context.settings)
+        != crate::config::ToolMode::Typed
+    {
+        return Ok(None);
+    }
     let value = outcome.value_mut()?;
     let calls = followups::project(context.root, value, advertised)?;
     Ok(Some(summary::render(

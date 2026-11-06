@@ -1,4 +1,5 @@
 //! Hosted discovery and follow-ups describe this server's actual authority.
+//! live_check: local HTTP/stdio transport replay with recorded public replies; no live calls.
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
@@ -72,7 +73,7 @@ fn server(mode: &str, disabled: &[&str], replay: &str) -> Result<(Server, Enviro
     let config = Environment::new().map_err(|e| e.to_string())?;
     config
         .config(
-            &json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":disabled}),
+            &json!({"mcp_tool_mode":mode,"mcp_typed_output_schema":true,"hosted_max_use":"restricted","disable_sources":disabled}),
         )
         .map_err(|e| e.to_string())?;
     let server = Server::configured_globals(

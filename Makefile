@@ -669,3 +669,17 @@ typed-grouped-integration-check:
 	cargo test --locked -p biomcp --test cases mcp-research/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases variant-population/variant/population/indel- $(TEST_THREADS)
+
+.PHONY: typed-followups-hosted-recovery
+# Reuse the owner trial without rebuilding an installed release binary.
+typed-followups-hosted-recovery: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-hosted-recovery
+typed-followups-hosted-recovery:
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	+$(MAKE) --keep-going typed-followups-recovery typed-followups-parity check-cheap
+
+.PHONY: typed-catalog-followups-composition-check
+typed-catalog-followups-composition-check: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-catalog-followups-composition
+typed-catalog-followups-composition-check:
+	+$(MAKE) --keep-going check-cheap typed-followups-parity typed-followups-research
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
