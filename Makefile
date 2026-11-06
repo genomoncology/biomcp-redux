@@ -879,3 +879,13 @@ accepted-batch-article-finish:
 	cargo test --locked -p biomcp --test cases variant/identity $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article/fulltext/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article/preprint/ $(TEST_THREADS)
+
+.PHONY: recurrence-indel-capture
+recurrence-indel-capture: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/recurrence-indel-raw
+recurrence-indel-capture: export BIOMCP_TEST_EXECUTABLE := $(CURDIR)/target/debug/biomcp
+recurrence-indel-capture: export LLVM_PROFILE_FILE := $(CURDIR)/target/recurrence-indel-raw/bin-%p.profraw
+recurrence-indel-capture:
+	test -x "$(RECURRENCE_CASE_RUNNER)" -a -x "$(BIOMCP_TEST_EXECUTABLE)"
+	mkdir -p target/recurrence-indel-raw/cases
+	cp tests/cases/variant/id-forms/deletion.yaml tests/cases/variant/id-forms/insertion.yaml target/recurrence-indel-raw/cases/
+	python3 -c 'import os,subprocess,sys; command=[os.environ["RECURRENCE_CASE_RUNNER"],"--cases","target/recurrence-indel-raw/cases"]; results=[subprocess.run(command+["variant-identity/"+name+".yaml","--exact"]).returncode for name in ("deletion","insertion")]; sys.exit(max(results))'
