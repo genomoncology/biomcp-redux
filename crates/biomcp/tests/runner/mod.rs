@@ -1,3 +1,4 @@
+mod argument_recovery;
 mod corporate;
 mod credential_containment;
 mod drug_identity;
@@ -52,6 +53,7 @@ mod evidence;
 mod faers_get;
 mod gene_names;
 mod held_proxy;
+mod help_contract;
 mod hgnc_sync;
 mod hosted_deadline;
 mod hosted_pacing;
@@ -255,6 +257,7 @@ fn run_case_owned(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
+    trials.extend(argument_recovery::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
     trials.extend(configuration::trials());
@@ -312,6 +315,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
+    trials.push(help_contract::trial());
     trials.push(wikipathways::trial());
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());

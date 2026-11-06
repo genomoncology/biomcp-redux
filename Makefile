@@ -1,5 +1,68 @@
 .DEFAULT_GOAL := landing-gate
 
+.PHONY: drug-alias-review-regressions drug-alias-review-tools
+drug-alias-review-regressions:
+	cargo test --locked -p biomcp --test cases drug/source-aliases-review
+	$(MAKE) drug-alias-review-tools
+
+drug-alias-review-tools:
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases-review
+
+.PHONY: drug-alias-baseline
+drug-alias-baseline: plain-cli-build
+	python3 scripts/drug_alias_probe.py
+
+.PHONY: drug-alias-prepare drug-alias-check drug-alias-review-check drug-alias-scans
+DRUG_ALIAS_BASELINE ?= d590e1c7bf92fbcf8b0dc299814d9fe2983244b5
+drug-alias-prepare:
+	cargo fmt --all
+	$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	COPYFILE_DISABLE=1 tar -czf dist/drug-alias-generated.tar.gz crates/biomcp-query/src/drug.rs crates/biomcp-query/src/drug/aliases.rs crates/biomcp-query/src/drug/resolve.rs crates/biomcp-types/src/drug/query.rs crates/biomcp-types/src/drug/search.rs crates/biomcp-types/schemas docs/reference/commands.md
+	$(MAKE) drug-alias-check
+
+drug-alias-check:
+	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	cargo test --locked -p biomcp --test cases drug/
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases.yaml --exact
+
+drug-alias-review-check: drug-alias-check drug-alias-review-tools current-schema-check schema-release-check
+	$(MAKE) drug-alias-scans
+
+drug-alias-scans:
+	sh scripts/check_trial_results.sh scans $(DRUG_ALIAS_BASELINE)
+
+.PHONY: drug-alias-main-integration
+drug-alias-main-integration:
+	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	cargo test --locked -p biomcp --test cases drug/source-aliases
+	cargo test --locked -p biomcp --test cases drug/indication.yaml
+	$(MAKE) drug-alias-review-tools current-schema-check
+
+.PHONY: drug-alias-cache-regressions
+drug-alias-cache-regressions:
+	cargo test --locked -p biomcp --test cases drug-native-sources/chembl-search-cache-admission -- --exact
+	cargo test --locked -p biomcp --test cases drug-native-sources/mychem-search-cache-admission -- --exact
+
+.PHONY: drug-label-alias-integration
+drug-label-alias-integration: fmt
+	cargo clippy --keep-going --locked -p biomcp-adapters -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	cargo test --locked -p biomcp --test cases drug/source-aliases $(TEST_THREADS)
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" drug-native-sources/drug/source-aliases
+	cargo test --locked -p biomcp --test cases drug/indication.yaml $(TEST_THREADS)
+	$(MAKE) label-priority-check label-display-check
+
+.PHONY: drug-source-guidance-check
+drug-source-guidance-check:
+	+$(MAKE) schema-generate docs-generate
+	+$(MAKE) --keep-going typed-schema-check typed-hosted-check
+
+.PHONY: faers-counts-integration-check
+faers-counts-integration-check:
+	sh scripts/faers_counts_job.sh mechanical
+	sh scripts/faers_counts_job.sh focused
+	+$(MAKE) current-schema-check
+
 # Cargo and the test harnesses do not interpret pm's fractional core booking.
 ifneq ($(strip $(PM_JOB_CORES)),)
 PM_WORKERS := $(shell python3 -c 'import math,os; print(max(1, math.floor(float(os.environ["PM_JOB_CORES"]))))')
@@ -365,6 +428,31 @@ typed-hosted-check:
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-hosted/build.jsonl"
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/typed-hosted/catalogs" python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","mcp-parity/typed-hosted-catalog"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/typed-hosted/build.jsonl"
 
+.PHONY: hosted-surface-check
+hosted-surface-check:
+	python3 scripts/trials.py --installed mcp-hosted/served-surface-and-source-policy mcp-parity/typed-hosted-catalog
+
+.PHONY: hosted-surface-mechanical
+hosted-surface-mechanical:
+	cargo fmt --all -- --check
+	+$(MAKE) hosted-surface-lint
+	cargo test --locked -p biomcp --test ratchets -- repository_obeys_structural_contract --exact
+
+.PHONY: hosted-surface-development
+hosted-surface-development:
+	+$(MAKE) --keep-going hosted-surface-check hosted-surface-mechanical
+
+.PHONY: hosted-surface-generate
+hosted-surface-generate:
+	+$(MAKE) schema-generate docs-generate
+	tar -czf target/hosted-surface-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+.PHONY: drug-indication-focused
+drug-indication-focused:
+	+$(MAKE) schema-generate docs-generate
+	mkdir -p target/drug-indication-generated
+	tar -czf target/drug-indication-generated/source.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/drug-indication-transcripts" python3 scripts/trials.py --installed mcp-parity/typed-cli-bridge mcp-parity/compact-typed-schemas mcp-parity/typed-hosted-catalog --case-file drug/indication.yaml --case-file drug/openfda-label-page.yaml --case-file drug/label-free-text.yaml --case-file drug/retired.yaml
+
 .PHONY: source-status-check
 source-status-check:
 	cargo test --locked -p biomcp-types --test rust_api $(TEST_THREADS)
@@ -377,3 +465,151 @@ source-status-check:
 .PHONY: source-status-pre-review
 source-status-pre-review:
 	+$(MAKE) source-status-check check-cheap current-schema-check schema-release-check
+
+.PHONY: deadline-setup-focused deadline-setup-load
+deadline-setup-focused: fmt lint-tools
+	python3 scripts/deadline_setup_load.py
+
+deadline-setup-load:
+	python3 scripts/deadline_setup_load.py load
+
+.PHONY: bench-honesty-repro
+bench-honesty-repro:
+	cargo build --locked -p biomcp --bin biomcp
+	python3 scripts/bench_honesty.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+
+.PHONY: bench-honesty-focused bench-honesty-cases bench-honesty-tools bench-honesty-generate bench-honesty-mechanical bench-honesty-lint
+bench-honesty-focused:
+	+$(MAKE) --keep-going bench-honesty-cases bench-honesty-tools bench-honesty-mechanical
+bench-honesty-cases:
+	python3 scripts/trials.py --installed query-validation/argument-recovery --case-file adverse-event/drug-boolean-refusal.yaml --case-file adverse-event/faers-literals-and-cap.yaml --case-file adverse-event/faers-several-names.yaml --case-file variant/resolver-provenance.yaml --case-file variant/resolver-variantvalidator.yaml --case-file diagnostic/device-approvals.yaml --case-file gene/sections/clingen-validity.yaml
+bench-honesty-tools:
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" adverse-event-search/adverse-event/drug-boolean-refusal.yaml --exact
+bench-honesty-generate:
+	cargo fmt --all
+	$(MAKE) schema-generate docs-generate
+bench-honesty-mechanical:
+	+$(MAKE) --keep-going fmt bench-honesty-lint ratchets docs-check current-schema-check
+bench-honesty-lint:
+	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+
+.PHONY: bench-honesty-recheck bench-honesty-case-recheck
+bench-honesty-recheck:
+	+$(MAKE) --keep-going bench-honesty-case-recheck bench-honesty-tools fmt bench-honesty-lint ratchets
+bench-honesty-case-recheck:
+	cargo test --locked -p biomcp --test cases drug-boolean-refusal $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
+
+.PHONY: bench-honesty-selector-focus bench-honesty-population-cases bench-honesty-provenance-cases
+bench-honesty-selector-focus:
+	+$(MAKE) --keep-going bench-honesty-population-cases bench-honesty-provenance-cases fmt bench-honesty-lint
+bench-honesty-population-cases:
+	cargo test --locked -p biomcp --test cases variant-population/ $(TEST_THREADS)
+bench-honesty-provenance-cases:
+	cargo test --locked -p biomcp --test cases resolver-provenance $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases resolver-variantvalidator $(TEST_THREADS)
+
+.PHONY: indel-population-check
+indel-population-check:
+	+$(MAKE) check-cheap
+	python3 scripts/trials.py --case-file variant/id-forms/deletion.yaml --case-file variant/id-forms/insertion.yaml --case-file variant/id-forms/delins.yaml --case-file variant/population/indel-native.yaml --case-file variant/population/indel-typed.yaml --case-file variant/population/indel-source-error.yaml --case-file variant/population/indel-invalid-crossref.yaml --case-file variant/population/homozygotes-joint.yaml --case-file variant/population/source-counts.yaml
+
+.PHONY: hosted-surface-annotations
+hosted-surface-annotations:
+	cargo fmt --all -- --check
+	cargo test --locked -p biomcp-types --features schema --test schemas required_component_annotations_are_metadata_with_checked_sources -- --exact
+	+$(MAKE) hosted-surface-lint
+
+.PHONY: hosted-surface-lint
+hosted-surface-lint:
+	cargo clippy --keep-going --locked -p biomcp -p biomcp-types --all-targets --all-features -- -D warnings
+
+.PHONY: hosted-reply-parity hosted-reply-parity-check
+hosted-reply-parity:
+	+$(MAKE) --keep-going hosted-reply-parity-check hosted-surface-lint fmt
+
+hosted-reply-parity-check:
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/hosted-reply-parity/$(shell git rev-parse HEAD)" python3 scripts/trials.py --installed mcp-parity/reply-forms mcp-parity/typed-reply-forms-and-cap mcp-hosted/use/source-admission mcp-hosted/served-surface-and-source-policy
+
+.PHONY: supplement-indications-reproduce
+supplement-indications-reproduce:
+	python3.13 scripts/check_supplement_indications.py
+
+.PHONY: supplement-indications-focused
+supplement-indications-focused:
+	+$(MAKE) schema-generate
+	mkdir -p target/supplement-indications
+	tar -czf target/supplement-indications/schema.tar.gz crates/biomcp-types/schemas/drug-approvals.json
+	python3.13 scripts/trials.py --installed --case-file drug/supplement-purpose.yaml --case-file drug/supplement-purpose-missing.yaml --case-file drug/supplement-purpose-mismatch.yaml --case-file drug/supplement-purpose-rejected.yaml drug-approvals/newest-submission-pages drug-approvals/undated-and-numeric-ties
+
+.PHONY: supplement-letter-reproduce
+supplement-letter-reproduce:
+	python3.13 scripts/check_supplement_indications.py letter
+
+.PHONY: supplement-indications-check
+supplement-indications-check:
+	+$(MAKE) supplement-indications-focused check-cheap current-schema-check schema-release-check
+
+.PHONY: label-priority-check
+label-priority-check:
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-priority-evidence" cargo test --locked -p biomcp --test cases drug-label/indication-priority-and-native-pages $(TEST_THREADS)
+	@for selection in drug/indication.yaml drug/openfda-label-page.yaml drug/label-discovery.yaml drug/label-free-text.yaml drug/label-controls.yaml; do \
+		cargo test --locked -p biomcp --test cases "$$selection" $(TEST_THREADS) || exit $$?; \
+	done
+	cargo test --locked -p biomcp --test cases member-values/openfda-label $(TEST_THREADS)
+
+.PHONY: label-priority-integration
+label-priority-integration: fmt label-priority-check label-display-check
+	cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp --all-targets -- -D warnings
+	cargo test --locked -p biomcp --test ratchets $(TEST_THREADS)
+	python3 scripts/check_docs.py
+
+.PHONY: label-display-check
+label-display-check:
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases drug/label-display-body.yaml $(TEST_THREADS)
+
+.PHONY: label-display-baseline-check
+label-display-baseline-check:
+	cd target/label-display-baseline && shasum -a 256 -c binary.sha256
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/label-display-baseline/biomcp" BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/label-display-baseline-evidence" cargo test --locked -p biomcp --test cases drug-label/native-name-fallback $(TEST_THREADS)
+
+.PHONY: help-contract-check
+help-contract-check:
+	cargo test --locked -p biomcp --bin biomcp every_rendered_flag_retains_its_schema_or_parser_description $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases schema-discovery/help-contract $(TEST_THREADS)
+
+.PHONY: help-metadata-prepare
+help-metadata-prepare:
+	+$(MAKE) schema-generate docs-generate help-contract-check
+
+.PHONY: help-metadata-final
+help-metadata-final:
+	+$(MAKE) schema-generate docs-generate help-contract-check
+	python3 scripts/refresh_help_cases.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+	cargo test --locked -p biomcp --test cases help $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+
+.PHONY: help-pre-review
+help-pre-review:
+	+$(MAKE) help-contract-check check-cheap current-schema-check schema-release-check
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: help-alias-check
+help-alias-check:
+	cargo test --locked -p biomcp --test cases help-entity-aliases $(TEST_THREADS)
+	cargo test --locked -p biomcp --test ratchets required_surface_has_asserted_calls $(TEST_THREADS)
+
+.PHONY: help-recovery-check
+help-recovery-check:
+	+$(MAKE) help-metadata-final check-cheap
+	cargo test --locked -p biomcp --test cases description-guidance $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: population-reply-metadata-check
+population-reply-metadata-check:
+	+$(MAKE) hosted-surface-generate typed-schema-check
+	python3 scripts/trials.py mcp-parity/mcp-typed-tools --case-file variant/population/indel-invalid-crossref.yaml --case-file variant/population/indel-typed.yaml

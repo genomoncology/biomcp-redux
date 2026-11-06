@@ -84,6 +84,12 @@ singleton! {
             [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; \
             --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never \
             repaired",
+        TrialSectionPool => "nonzero --offset requires --pool from the returned continuation; run the suggested \
+            first-page command, then follow its next command",
+        TrialSearchCursor => "nonzero --offset requires --next-page from the returned continuation; run the suggested \
+            first-page command, then follow its next command",
+        FaersDrugNames => "pass --drug once per literal name to search several names with OR; OR inside one --drug value \
+            is not supported",
         FaersQueryLength => "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
@@ -190,7 +196,9 @@ singleton! {
         DiseaseName => "use: search disease <TEXT>; select an exact CURIE before get",
         DiseaseSite => "use: search disease --source seer; then get disease <SITE> survival --source seer --dataset <CODE> --interval <CODE>",
         DiseaseOpenTargets => "deferred; Open Targets disease genes have no proved current section",
+        // Retain the old error/4 wire value for legacy artifact deserialization.
         DiseaseDrugs => "use: search drug --source chembl --indication <TEXT>; no disease synonym expansion",
+        DiseaseLabelSearch => "use: search drug --source openfda-label --indication <TEXT>; no disease synonym expansion",
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
         PhenotypeHelp => "use: help phenotype",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
@@ -212,7 +220,10 @@ singleton! {
         DrugRegion => "--region is retired: select an explicit --source.",
         DrugWhoRegion => "--region who is retired: use --source who-pq.",
         DrugProductType => "--product-type is retired: WHO prequalification is outside this question bank.",
+        // Retain the old error/4 wire value for legacy artifact deserialization.
         DrugUnproved => "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; \
+            select a drug identity to read source sections.",
+        DrugUnsupportedFilters => "drug search filters --target, --type, --atc and --pharm-class are not yet supported; \
             select a drug identity to read source sections.",
         DrugName => "--name is retired: use search drug <TEXT> --source <SOURCE> and select a native identity.",
         DrugRaw => "--raw is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",

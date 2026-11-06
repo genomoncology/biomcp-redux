@@ -1,0 +1,179 @@
+[
+  {
+    "args": [
+      "get",
+      "trial",
+      "NCT07491445",
+      "summary",
+      "eligibility",
+      "--source",
+      "ctgov"
+    ],
+    "tool": "get_trial",
+    "fields": {
+      "input": [
+        "NCT07491445"
+      ],
+      "section": [
+        "summary",
+        "eligibility"
+      ],
+      "source": "ctgov"
+    },
+    "option": "section"
+  },
+  {
+    "args": [
+      "search",
+      "diagnostic",
+      "--source",
+      "fda-cdx",
+      "--gene",
+      "KRAS"
+    ],
+    "tool": "search_diagnostic",
+    "fields": {
+      "source": "fda-cdx",
+      "gene": "KRAS"
+    },
+    "option": "--gene"
+  },
+  {
+    "args": [
+      "search",
+      "pgx",
+      "--gene",
+      "CYP2D6"
+    ],
+    "tool": "search_pgx",
+    "fields": {
+      "gene": "CYP2D6"
+    },
+    "option": "--source"
+  },
+  {
+    "args": [
+      "article",
+      "text",
+      "39214094"
+    ],
+    "tool": "article_text",
+    "fields": {
+      "input": "39214094"
+    },
+    "option": "--part"
+  },
+  {
+    "args": [
+      "get",
+      "disease",
+      "MONDO:0005184",
+      "genes",
+      "survival",
+      "--source",
+      "monarch"
+    ],
+    "tool": "get_disease",
+    "fields": {
+      "id": "MONDO:0005184",
+      "section": [
+        "genes",
+        "survival"
+      ],
+      "source": "monarch"
+    },
+    "option": "section"
+  },
+  {
+    "args": [
+      "search",
+      "pgx",
+      "--gene",
+      "DPYD",
+      "--source",
+      "not-a-source"
+    ],
+    "tool": "search_pgx",
+    "fields": {
+      "gene": "DPYD",
+      "source": "not-a-source"
+    },
+    "option": "--source"
+  },
+  {
+    "args": [
+      "get",
+      "trial",
+      "NCT01844505",
+      "summary",
+      "--source",
+      "nci",
+      "--offset",
+      "15",
+      "--limit",
+      "7"
+    ],
+    "tool": "get_trial",
+    "fields": {
+      "input": [
+        "NCT01844505"
+      ],
+      "section": [
+        "summary"
+      ],
+      "offset": 15,
+      "limit": 7,
+      "source": "nci"
+    },
+    "option": "--offset",
+    "message": "nonzero --offset requires --pool from the returned continuation; run the suggested first-page command, then follow its next command",
+    "corrected_query": {
+      "input": [
+        "NCT01844505"
+      ],
+      "section": [
+        "summary"
+      ],
+      "source": "nci",
+      "limit": 7,
+      "offset": 0
+    }
+  },
+  {
+    "args": [
+      "search",
+      "trial",
+      "--condition",
+      "melanoma",
+      "--intervention",
+      "pembrolizumab",
+      "--limit",
+      "7",
+      "--offset",
+      "10"
+    ],
+    "tool": "search_trial",
+    "fields": {
+      "condition": [
+        "melanoma"
+      ],
+      "intervention": [
+        "pembrolizumab"
+      ],
+      "limit": 7,
+      "offset": 10
+    },
+    "option": "--offset",
+    "message": "nonzero --offset requires --next-page from the returned continuation; run the suggested first-page command, then follow its next command",
+    "corrected_query": {
+      "condition": [
+        "melanoma"
+      ],
+      "intervention": [
+        "pembrolizumab"
+      ],
+      "limit": 7,
+      "offset": 0
+    }
+  }
+]

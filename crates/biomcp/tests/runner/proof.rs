@@ -19,6 +19,9 @@ pub(crate) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-http/early-close-is-rejected", || {
             super::http_limits::early_close_proof().map_err(Into::into)
         }),
+        transcript_trial("mcp-http/readiness-rejects-eof-and-hung-child", || {
+            super::http::readiness_proof().map_err(Into::into)
+        }),
         transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
@@ -69,7 +72,12 @@ fn put(root: &Path, relative: &str, step: &str) -> Check {
     fs::write(
         path,
         format!(
-            "feature: schema-discovery\nstory: Runner contract probe\nsteps:\n  - run: [schema, biomcp.source/1]\n{step}\n"
+            concat!(
+                "live_check: Local runner contract proof; excluded from provider live checks.\n",
+                "feature: schema-discovery\nstory: Runner contract probe\nsteps:\n",
+                "  - run: [schema, biomcp.source/1]\n{step}\n"
+            ),
+            step = step
         ),
     )
     .map_err(|error| error.to_string())
@@ -568,7 +576,8 @@ pub(super) fn retained_both(
 tool_only! {
 fn named_mcp_case() -> Check {
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
-    fs::write(directory.path().join("named.yaml"), r#"feature: schema-discovery
+    fs::write(directory.path().join("named.yaml"), r#"live_check: Local named-tool contract proof; excluded from provider live checks.
+feature: schema-discovery
 story: Named tool checks its structured answer
 steps:
   - mcp_call:
