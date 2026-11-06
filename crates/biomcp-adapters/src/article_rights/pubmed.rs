@@ -20,6 +20,14 @@ pub(crate) fn filter(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
         })
         .collect();
     let licenses = super::licenses(leg, &ids);
+    filter_with_licenses(body, &licenses)
+}
+pub(super) fn filter_with_licenses(
+    body: &[u8],
+    licenses: &std::collections::BTreeMap<biodata::Pmid, biodata::License>,
+) -> Result<Vec<u8>, BadReply> {
+    let xml = std::str::from_utf8(body).map_err(|_| BadReply)?;
+    let articles = descendants(xml, "PubmedArticle")?;
     let mut filtered = xml.to_owned();
     for article in articles {
         let id = article
