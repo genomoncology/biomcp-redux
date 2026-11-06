@@ -29,7 +29,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         command.finish(deadline.remaining());
         return outcome;
     };
-    let expanded = drug_names::expand(cx, query, &mut outcome);
+    let expanded = drug_names::expand(cx, query, &mut outcome, &mut deadline);
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let conditions = condition

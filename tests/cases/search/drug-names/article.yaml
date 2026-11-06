@@ -7,131 +7,6 @@
     {
       "run": [
         "search",
-        "trial",
-        "Canonical therapy"
-      ],
-      "mcp": [
-        "search",
-        "trial",
-        "Canonical therapy"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/sources/0/notices/0/names": [
-          "Canonical therapy",
-          "EX-66",
-          "Example brand"
-        ],
-        "/query/query": "Canonical therapy",
-        "/page/total": 3,
-        "/result/items/*/nct_id": {
-          "equals": [
-            "NCT03000001",
-            "NCT03000002",
-            "NCT03000003"
-          ]
-        }
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "EX-66"
-      ],
-      "mcp": [
-        "search",
-        "trial",
-        "EX-66"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/sources/0/notices/0/names": [
-          "Canonical therapy",
-          "EX-66",
-          "Example brand"
-        ],
-        "/query/query": "EX-66",
-        "/page/total": 3,
-        "/result/items/*/nct_id": {
-          "equals": [
-            "NCT03000001",
-            "NCT03000002",
-            "NCT03000003"
-          ]
-        }
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "Example brand"
-      ],
-      "mcp": [
-        "search",
-        "trial",
-        "Example brand"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/sources/0/notices/0/names": [
-          "Canonical therapy",
-          "EX-66",
-          "Example brand"
-        ],
-        "/query/query": "Example brand",
-        "/page/total": 3,
-        "/result/items/*/nct_id": {
-          "equals": [
-            "NCT03000001",
-            "NCT03000002",
-            "NCT03000003"
-          ]
-        }
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "Unlisted medicine"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/query/query": "Unlisted medicine"
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "Ambiguous medicine"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/query/query": "Ambiguous medicine",
-        "/sources/0/notices/0/names": [
-          "Ambiguous medicine"
-        ]
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "Canonical therapy",
-        "--exact-term"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/query/exact_term": true,
-        "/sources/0/count": 1
-      }
-    },
-    {
-      "run": [
-        "search",
         "article",
         "Canonical therapy"
       ],
@@ -231,20 +106,6 @@
       "run": [
         "search",
         "article",
-        "Ambiguous medicine"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/query/text": "Ambiguous medicine",
-        "/sources/0/notices/0/names": [
-          "Ambiguous medicine"
-        ]
-      }
-    },
-    {
-      "run": [
-        "search",
-        "article",
         "Canonical therapy",
         "--exact-term"
       ],
@@ -273,22 +134,6 @@
         "/query/text": "EX-66",
         "/page/offset": 1,
         "/result/items/0/pmid": "99000002",
-        "/sources/0/notices/0/names": [
-          "Canonical therapy",
-          "EX-66",
-          "Example brand"
-        ]
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
-        "--intervention",
-        "Example brand"
-      ],
-      "expect": {
-        "/page/total": 3,
         "/sources/0/notices/0/names": [
           "Canonical therapy",
           "EX-66",
@@ -354,42 +199,6 @@
             "99000003"
           ]
         }
-      }
-    },
-    {
-      "run": [
-        "search",
-        "article",
-        "EX-66",
-        "--limit",
-        "1"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/page/total": 3
-      }
-    },
-    {
-      "run": [
-        "search",
-        "article",
-        "EX-66",
-        "--limit",
-        "1",
-        "--disable-sources",
-        "chembl"
-      ],
-      "exit": 4,
-      "is_error": true,
-      "expect": {
-        "/status": "failed",
-        "/sources/0": {
-          "omits": [
-            "term",
-            "notices"
-          ]
-        },
-        "/query/text": "EX-66"
       }
     }
   ]

@@ -4,8 +4,12 @@ use biodata::Text;
 use biomcp_types::{DrugGet, DrugSource, ReplyData, SourceNotice, SourceState};
 
 /// Source names in deterministic order, shared by trial and article consumers.
-pub(crate) fn resolve(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Vec<Text> {
-    let deadline = cx.fetch.deadline(cx.budget);
+pub(crate) fn resolve<'a>(
+    cx: &Ctx<'a>,
+    input: &Text,
+    out: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) -> Vec<Text> {
     for source in [
         DrugSource::Mychem,
         DrugSource::OpenfdaLabel,
@@ -21,7 +25,10 @@ pub(crate) fn resolve(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Vec<Text
         ) else {
             continue;
         };
+        let stage = cx.fetch.deadline(deadline.remaining());
+        let started = stage.remaining();
         let found = super::resolve::get(&super::resolve::within(cx, deadline.remaining()), &query);
+        *deadline = deadline.after_stage(started.saturating_sub(stage.remaining()));
         if found.local.is_some()
             || found.dropped
             || found
@@ -73,10 +80,11 @@ pub(crate) fn resolve(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Vec<Text
 }
 
 /// Keep disabled article providers and exact terms outside drug-name resolution.
-pub(crate) fn article(
-    cx: &Ctx<'_>,
+pub(crate) fn article<'a>(
+    cx: &Ctx<'a>,
     query: &biomcp_types::ArticleSearch,
     out: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
 ) -> Vec<Text> {
     if query.exact_term()
         || crate::article::next::search_sources(query)
@@ -87,7 +95,7 @@ pub(crate) fn article(
     }
     query
         .drug_name_input()
-        .map_or_else(Vec::new, |input| resolve(cx, input, out))
+        .map_or_else(Vec::new, |input| resolve(cx, input, out, deadline))
 }
 
 /// Source names are literal terms inside a native Boolean group.

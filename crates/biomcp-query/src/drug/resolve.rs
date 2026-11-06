@@ -217,10 +217,11 @@ fn native_names(
         }
     }
     out.local = error.and_then(status::local);
+    let remaining = leg.remaining();
     out.sources
         .push(status::source(query.source().source(), leg.finish(), error));
     status::search(&mut out);
-    command.finish(deadline.remaining());
+    command.finish(remaining);
     (out, candidates)
 }
 fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {

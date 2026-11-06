@@ -3,11 +3,12 @@ use crate::{Ctx, Outcome, store::Pool};
 use biodata::Text;
 use biomcp_types::{ArticleSearch, SourceNotice};
 
-pub(super) fn reuse(
-    cx: &Ctx<'_>,
+pub(super) fn reuse<'a>(
+    cx: &Ctx<'a>,
     query: &ArticleSearch,
     stored: Option<Pool>,
     out: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
 ) -> (Option<Pool>, Option<Vec<Text>>) {
     if query.pool().is_some()
         || query.exact_term()
@@ -20,7 +21,7 @@ pub(super) fn reuse(
     {
         return (stored, None);
     }
-    let names = crate::drug::search_names::article(cx, query, out);
+    let names = crate::drug::search_names::article(cx, query, out, deadline);
     let stored = if names.is_empty() { stored } else { None };
     (stored, Some(names))
 }

@@ -10,7 +10,7 @@ case "${1:-focused}" in
     git rev-parse HEAD > target/drug-search-proof/source.txt
     cargo fmt --all -- --check
     make plain-cli-build
-    python3 scripts/trials.py --installed --executable target/debug/biomcp --case-file drug-name-search.yaml drug-name-search/legacy-literal-pool
+    python3 scripts/trials.py --installed --executable target/debug/biomcp --case-file search/drug-names/trial.yaml --case-file search/drug-names/article.yaml --case-file search/drug-names/ambiguous.yaml --case-file search/drug-names/policy.yaml --case-file search/drug-names/budget.yaml drug-name-search/legacy-literal-pool
     ;;
   focused-check)
     sh "$0" focused

@@ -3,25 +3,37 @@ use crate::{Ctx, Outcome, drug::search_names};
 use biodata::Text;
 use biomcp_types::TrialSearch;
 
-pub(super) fn expand(cx: &Ctx<'_>, query: &TrialSearch, out: &mut Outcome) -> TrialSearch {
+pub(super) fn expand<'a>(
+    cx: &Ctx<'a>,
+    query: &TrialSearch,
+    out: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) -> TrialSearch {
     if query.exact_term() || cx.fetch.disabled(query.source().source()) {
         return query.clone();
     }
-    let text = query.query().map(|input| expand_term(cx, input, out));
+    let text = query
+        .query()
+        .map(|input| expand_term(cx, input, out, deadline));
     let interventions = query
         .intervention()
         .iter()
-        .map(|input| expand_term(cx, input, out))
+        .map(|input| expand_term(cx, input, out, deadline))
         .collect();
     let keywords = query
         .keyword()
         .iter()
-        .map(|input| expand_term(cx, input, out))
+        .map(|input| expand_term(cx, input, out, deadline))
         .collect();
     query.with_drug_terms(text, interventions, keywords)
 }
-fn expand_term(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Text {
-    let names = search_names::resolve(cx, input, out);
+fn expand_term<'a>(
+    cx: &Ctx<'a>,
+    input: &Text,
+    out: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) -> Text {
+    let names = search_names::resolve(cx, input, out, deadline);
     if names.len() > 1 {
         search_names::alternatives(&names).unwrap_or_else(|| input.clone())
     } else {

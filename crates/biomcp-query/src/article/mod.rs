@@ -78,7 +78,7 @@ fn execute<'a>(
     } else {
         store.find(&key, explicit)?
     };
-    let (stored, drug_names) = drug_names::reuse(cx, query, stored, out);
+    let (stored, drug_names) = drug_names::reuse(cx, query, stored, out, deadline);
     let pool = match stored {
         Some(pool) if pool.key != key.as_slice() => {
             pool_error(query, true, out);
@@ -93,8 +93,8 @@ fn execute<'a>(
             let Some(resolved) = term::search(cx, query, deadline, out)? else {
                 return Ok(());
             };
-            let drug_names =
-                drug_names.unwrap_or_else(|| crate::drug::search_names::article(cx, query, out));
+            let drug_names = drug_names
+                .unwrap_or_else(|| crate::drug::search_names::article(cx, query, out, deadline));
             let mut items = match sources::search(cx, query, &resolved, &drug_names, deadline, out)?
             {
                 sources::SearchResult::Items(items) => items,

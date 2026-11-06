@@ -1,0 +1,30 @@
+{
+  "feature": "drug-name-search",
+  "live_check": "synthetic provider-shaped identity and search replies; no clinical or live completeness claim",
+  "story": "Drug-name resolution stages consume one command budget, including replay pacing and a second selector.",
+  "replay": "search/drug-names-budget",
+  "config": {
+    "command_timeout_seconds": 2
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "Canonical therapy",
+        "--intervention",
+        "EX-66"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "mychem",
+        "/sources/0/notices": {
+          "count": 1
+        },
+        "/sources/0/notices/0/input": "Canonical therapy"
+      }
+    }
+  ]
+}
