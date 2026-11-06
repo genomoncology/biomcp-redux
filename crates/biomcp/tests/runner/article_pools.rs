@@ -5,6 +5,7 @@ use super::{
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use std::path::Path;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -62,22 +63,16 @@ pub(super) fn trials() -> Vec<Trial> {
 fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = env.root().join("replay");
-    super::response_cases::copy_capture(recording, &replay, |source, record| {
-        if !damage.is_empty()
-            && source == "pubmed"
-            && record["url"]
-                .as_str()
-                .is_some_and(|url| url.contains("%5Bdoi%5D"))
-        {
-            let mut failure = record["exchanges"][0].clone();
-            failure["status"] = json!(500);
-            record["exchanges"] = json!([failure.clone(), failure.clone(), failure]);
+    copy_capture(recording, &replay, |source, record| {
+        if damage.is_empty() {
+            Ok(())
+        } else {
+            fail_doi_lookup(source, record)
         }
-    })
-    .map_err(|e| e.to_string())?;
+    })?;
     let cache = env.root().join("article-case-cache");
     let first = invoke(&env, cached(command, &cache, Some(&replay)), 0)?;
-    if first["status"] != "partial" {
+    if first.get("status").and_then(Value::as_str) != Some("partial") {
         return Err(format!("partial fixture did not remain useful: {first}"));
     }
     let id = first
@@ -87,20 +82,21 @@ fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String
     let mut explicit = cached(command, &cache, Some(&replay));
     explicit.extend(["--pool".into(), id.into()]);
     let page = invoke(&env, explicit, 0)?;
-    if page.pointer("/page/pool/id") != Some(&json!(id)) || page["result"] != first["result"] {
+    let original = first.get("result").ok_or("initial result absent")?;
+    let retained = page.get("result").ok_or("explicit page result absent")?;
+    if page.pointer("/page/pool/id") != Some(&json!(id)) || retained != original {
         return Err("explicit partial pool lost stable rows".into());
     }
     // Recovery must be observed by a new search, while the explicit partial pool stays fixed.
-    super::response_cases::copy_capture(recording, &replay, |_, record| {
+    copy_capture(recording, &replay, |_, record| {
         if damage.is_empty() {
-            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-                exchange["status"] = json!(200);
-            }
+            accept_exchanges(record)
+        } else {
+            Ok(())
         }
-    })
-    .map_err(|e| e.to_string())?;
+    })?;
     let second = invoke(&env, cached(command, &cache, Some(&replay)), 0)?;
-    if second["status"] != "complete" {
+    if second.get("status").and_then(Value::as_str) != Some("complete") {
         return Err(format!(
             "new query did not observe source recovery: {second}"
         ));
@@ -115,12 +111,9 @@ fn disabled() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cache = env.root().join("article-case-cache");
     let replay = env.root().join("replay");
-    super::response_cases::copy_capture("article/fold/failed-pubmed", &replay, |_, record| {
-        for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-            exchange["status"] = json!(200);
-        }
-    })
-    .map_err(|e| e.to_string())?;
+    copy_capture("article/fold/failed-pubmed", &replay, |_, record| {
+        accept_exchanges(record)
+    })?;
     let command = [
         "search",
         "article",
@@ -140,9 +133,9 @@ fn disabled() -> Result<(), String> {
     let mut changed = cached(&command, &cache, Some(&replay));
     changed.extend(["--disable-sources".into(), "europepmc".into()]);
     let second = invoke(&env, changed.clone(), 0)?;
-    if second["status"] != "complete"
-        || second["sources"][0]["source"] != "pubmed"
-        || second["sources"][0]["state"] != "ok"
+    if second.get("status").and_then(Value::as_str) != Some("complete")
+        || second.pointer("/sources/0/source").and_then(Value::as_str) != Some("pubmed")
+        || second.pointer("/sources/0/state").and_then(Value::as_str) != Some("ok")
     {
         return Err(format!(
             "new source policy did not reach enabled source: {second}"
@@ -150,14 +143,77 @@ fn disabled() -> Result<(), String> {
     }
     changed.extend(["--pool".into(), id.into()]);
     let explicit = invoke(&env, changed, 4)?;
-    if explicit["status"] != "failed"
-        || !explicit["sources"].as_array().is_some_and(|sources| {
-            sources
-                .iter()
-                .any(|source| source["source"] == "europepmc" && source["reason"] == "disabled")
-        })
+    if explicit.get("status").and_then(Value::as_str) != Some("failed")
+        || !explicit
+            .get("sources")
+            .and_then(Value::as_array)
+            .is_some_and(|sources| {
+                sources.iter().any(|source| {
+                    source.get("source").and_then(Value::as_str) == Some("europepmc")
+                        && source.get("reason").and_then(Value::as_str) == Some("disabled")
+                })
+            })
     {
         return Err("explicit pool did not retain failure branch".into());
+    }
+    Ok(())
+}
+
+// Fixture mutations are fallible even though the shared copy callback returns no value.
+fn copy_capture(
+    recording: &str,
+    replay: &Path,
+    mut change: impl FnMut(&str, &mut Value) -> Result<(), String>,
+) -> Result<(), String> {
+    let mut setup = Ok(());
+    super::response_cases::copy_capture(recording, replay, |source, record| {
+        if setup.is_ok() {
+            setup = change(source, record).map_err(|error| format!("{source} fixture: {error}"));
+        }
+    })
+    .map_err(|error| error.to_string())?;
+    setup
+}
+
+fn fail_doi_lookup(source: &str, record: &mut Value) -> Result<(), String> {
+    if source != "pubmed" {
+        return Ok(());
+    }
+    let url = record
+        .get("url")
+        .and_then(Value::as_str)
+        .ok_or("missing recording URL")?;
+    if !url.contains("%5Bdoi%5D") {
+        return Ok(());
+    }
+    let mut failure = record
+        .get("exchanges")
+        .and_then(Value::as_array)
+        .and_then(|items| items.first())
+        .cloned()
+        .ok_or("missing first DOI lookup exchange")?;
+    *failure
+        .get_mut("status")
+        .ok_or("missing DOI lookup status")? = json!(500);
+    *record
+        .get_mut("exchanges")
+        .ok_or("missing DOI lookup exchanges")? =
+        json!([failure.clone(), failure.clone(), failure]);
+    Ok(())
+}
+
+fn accept_exchanges(record: &mut Value) -> Result<(), String> {
+    let exchanges = record
+        .get_mut("exchanges")
+        .and_then(Value::as_array_mut)
+        .ok_or("missing recording exchanges")?;
+    if exchanges.is_empty() {
+        return Err("recording has no exchanges".into());
+    }
+    for exchange in exchanges {
+        *exchange
+            .get_mut("status")
+            .ok_or("missing exchange status")? = json!(200);
     }
     Ok(())
 }

@@ -629,5 +629,4 @@ article-pools-check:
 article-pools-review-check: article-pools-check landing-gate
 
 .PHONY: article-pools-mechanical-check
-article-pools-mechanical-check: fmt
-	cargo clippy --locked -p biomcp-query --all-targets -- -D warnings
+article-pools-mechanical-check: fmt lint-workspace lint-tools
