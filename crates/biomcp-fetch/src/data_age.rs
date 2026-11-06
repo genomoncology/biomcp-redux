@@ -36,6 +36,9 @@ impl Leg<'_> {
 
 fn day(value: &str) -> Option<i64> {
     let date = value.get(..10)?;
+    if value.len() != 10 {
+        value.parse::<biomcp_types::SourceTimestampValue>().ok()?;
+    }
     // Reuse the public calendar validator, including leap-year checks.
     format!("{date}T00:00:00Z")
         .parse::<biomcp_types::SourceTimestampValue>()
@@ -62,14 +65,19 @@ mod tests {
     fn calendar_days_preserve_leap_years_and_reject_partial_dates() {
         assert_eq!(super::day("1970-01-01"), Some(0));
         assert_eq!(
-            super::day("2000-03-01").unwrap() - super::day("2000-02-28").unwrap(),
-            2
+            super::day("2000-03-01")
+                .zip(super::day("2000-02-28"))
+                .map(|(a, b)| a - b),
+            Some(2)
         );
         assert_eq!(
-            super::day("1900-03-01").unwrap() - super::day("1900-02-28").unwrap(),
-            1
+            super::day("1900-03-01")
+                .zip(super::day("1900-02-28"))
+                .map(|(a, b)| a - b),
+            Some(1)
         );
         assert_eq!(super::day("2026-02-29"), None);
         assert_eq!(super::day("2026-01"), None);
+        assert_eq!(super::day("2020-01-01 invalid"), None);
     }
 }
