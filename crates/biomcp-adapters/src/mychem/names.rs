@@ -85,7 +85,7 @@ pub(super) fn name_records(
                 structure: structure(&id, &rows),
                 names: names
                     .iter()
-                    .filter_map(|name| problems.text("name", Some(name)))
+                    .filter_map(|name| problems.text("name", Some(name.as_str())))
                     .collect(),
                 id,
             });
