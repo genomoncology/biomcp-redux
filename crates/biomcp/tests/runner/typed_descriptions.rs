@@ -57,6 +57,15 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         }
         let schema = cli(env, &["schema".into(), id.into()])?;
         complete_words(&schema, summary, description, &name)?;
+        for (key, property) in tool["inputSchema"]["properties"]
+            .as_object()
+            .ok_or("tool properties")?
+        {
+            let description = property["description"]
+                .as_str()
+                .ok_or("parameter description")?;
+            complete_words(&schema, summary, description, &format!("{name}.{key}"))?;
+        }
         primary(&schema, description, &name)?;
         publishers(verb, entity, &schema, description)?;
     }
