@@ -1,7 +1,7 @@
 //! Project only protocol-owned Steps; upstream text and query values remain data.
 use serde_json::Value;
 
-pub(super) fn project(root: &crate::grammar::Root, value: &mut Value) {
+pub(super) fn project(root: &crate::grammar::Root, value: &mut Value, tools: &[Value]) {
     match value {
         Value::Object(fields) => {
             if let Some(next) = fields.get_mut("next").and_then(Value::as_array_mut) {
@@ -10,7 +10,7 @@ pub(super) fn project(root: &crate::grammar::Root, value: &mut Value) {
                     .filter_map(|step| {
                         let args = step.get("args")?.as_array()?;
                         let args = without_globals(root, args)?;
-                        let mut call = super::summary::translate(root, &args)?;
+                        let mut call = super::summary::translate(root, &args, tools)?;
                         if let Some(kind) = step.get("kind") {
                             call.as_object_mut()?.insert("kind".into(), kind.clone());
                         }
@@ -20,13 +20,13 @@ pub(super) fn project(root: &crate::grammar::Root, value: &mut Value) {
             }
             for (key, node) in fields {
                 if matches!(key.as_str(), "error" | "problems") {
-                    project(root, node);
+                    project(root, node, tools);
                 }
             }
         }
         Value::Array(nodes) => {
             for node in nodes {
-                project(root, node);
+                project(root, node, tools);
             }
         }
         _ => {}
@@ -64,4 +64,48 @@ fn without_globals(root: &crate::grammar::Root, args: &[Value]) -> Option<Vec<Va
         }
     }
     Some(result)
+}
+
+pub(super) fn allowed(call: &Value, tools: &[Value]) -> bool {
+    tools
+        .iter()
+        .find(|tool| tool.get("name") == call.get("name"))
+        .is_some_and(|tool| super::validation::valid(&tool["inputSchema"], &call["arguments"]))
+}
+
+// The canonical parser already checks types, ranges and required fields. The
+// advertised schema can additionally remove fields and narrow enum choices.
+fn choices(schema: &Value, value: &Value) -> bool {
+    if schema
+        .get("enum")
+        .and_then(Value::as_array)
+        .is_some_and(|values| !values.contains(value))
+    {
+        return false;
+    }
+    if let Some(branches) = schema
+        .get("anyOf")
+        .or_else(|| schema.get("oneOf"))
+        .and_then(Value::as_array)
+    {
+        return branches.iter().any(|branch| choices(branch, value));
+    }
+    if schema.get("type") == Some(&Value::String("null".into())) {
+        return value.is_null();
+    }
+    match value {
+        Value::Object(fields) => fields.iter().all(|(key, value)| {
+            schema
+                .get("properties")
+                .and_then(|fields| fields.get(key))
+                .map_or_else(
+                    || schema.get("additionalProperties") != Some(&Value::Bool(false)),
+                    |node| choices(node, value),
+                )
+        }),
+        Value::Array(values) => schema
+            .get("items")
+            .is_none_or(|node| values.iter().all(|value| choices(node, value))),
+        _ => true,
+    }
 }

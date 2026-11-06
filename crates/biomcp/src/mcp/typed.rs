@@ -11,30 +11,25 @@ pub(super) fn tool_result(
     id: Value,
     outcome: &crate::command::Outcome,
     modern: bool,
-    globals: &crate::grammar::Globals,
-    settings: &crate::config::Settings,
-    root: &crate::grammar::Root,
+    context: crate::command::Context<'_>,
     args: &[std::ffi::OsString],
+    read_only: bool,
 ) -> Value {
-    let form = crate::config::mcp_reply_form(settings);
+    let form = crate::config::mcp_reply_form(context.settings);
     let reply = super::protocol::tool_result(id, outcome, modern, form);
-    summarize(
-        reply,
-        root,
-        crate::config::mcp_tool_mode(globals, settings),
-        args,
-        form,
-    )
+    summarize(reply, context, args, form, read_only)
 }
 
 fn summarize(
     mut reply: Value,
-    root: &crate::grammar::Root,
-    mode: crate::config::ToolMode,
+    context: crate::command::Context<'_>,
     args: &[std::ffi::OsString],
     form: crate::config::ReplyForm,
+    read_only: bool,
 ) -> Value {
-    if mode != crate::config::ToolMode::Typed {
+    if crate::config::mcp_tool_mode(context.globals, context.settings)
+        != crate::config::ToolMode::Typed
+    {
         return reply;
     }
     let value = reply
@@ -45,13 +40,14 @@ fn summarize(
             serde_json::from_str(text).ok()
         });
     if let Some(mut value) = value {
-        followups::project(root, &mut value);
+        let advertised = tools(context, read_only).unwrap_or_default();
+        followups::project(context.root, &mut value, &advertised);
         if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut)
             && result.contains_key("structuredContent")
         {
             result.insert("structuredContent".into(), value.clone());
         }
-        let summary = summary::render(root, &value, args);
+        let summary = summary::render(context.root, &value, args, &advertised);
         let text = if matches!(form, crate::config::ReplyForm::StructuredOnly) {
             summary
         } else {
@@ -186,18 +182,16 @@ pub(super) fn rejection(
     id: Value,
     rejected: Rejected,
     modern: bool,
-    globals: &crate::grammar::Globals,
-    settings: &crate::config::Settings,
-    root: &crate::grammar::Root,
+    context: crate::command::Context<'_>,
+    read_only: bool,
 ) -> io::Result<Value> {
     let outcome = crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
     Ok(tool_result(
         id,
         &outcome,
         modern,
-        globals,
-        settings,
-        root,
+        context,
         &rejected.args,
+        read_only,
     ))
 }

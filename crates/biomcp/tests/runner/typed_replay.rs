@@ -419,14 +419,25 @@ fn compare(
     let reply = exchange_with_globals(
         env,
         &[
-            request(json!(1), "tools/call", json!({"name":name,"arguments":input})),
+            request(
+                json!(1),
+                "tools/call",
+                json!({"name":name,"arguments":input}),
+            ),
             request(json!(2), "tools/list", json!({})),
         ],
         &typed_globals,
     )?;
-    let tools = reply.iter().find(|reply| reply["id"] == 2)
-        .and_then(|reply| reply.pointer("/result/tools")).and_then(Value::as_array).ok_or("typed catalog")?;
-    let reply = reply.iter().find(|reply| reply["id"] == 1).ok_or("missing typed reply")?;
+    let tools = reply
+        .iter()
+        .find(|reply| reply["id"] == 2)
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .ok_or("typed catalog")?;
+    let reply = reply
+        .iter()
+        .find(|reply| reply["id"] == 1)
+        .ok_or("missing typed reply")?;
     *calls += 1;
     let actual = reply
         .pointer("/result/structuredContent")

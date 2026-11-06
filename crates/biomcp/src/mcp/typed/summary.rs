@@ -5,6 +5,7 @@ pub(super) fn render(
     root: &crate::grammar::Root,
     value: &Value,
     args: &[std::ffi::OsString],
+    tools: &[Value],
 ) -> String {
     let status = value
         .get("status")
@@ -14,7 +15,7 @@ pub(super) fn render(
     collect(value, &mut calls);
     if calls.is_empty()
         && status == "usage"
-        && let Some(call) = correction(root, value, args)
+        && let Some(call) = correction(root, value, args, tools)
     {
         calls.push(call.to_string());
     }
@@ -28,6 +29,7 @@ fn correction(
     root: &crate::grammar::Root,
     value: &Value,
     args: &[std::ffi::OsString],
+    tools: &[Value],
 ) -> Option<Value> {
     let option = value.pointer("/error/option")?.as_str()?;
     let mut skip = false;
@@ -49,7 +51,7 @@ fn correction(
             Some(Value::from(arg))
         })
         .collect::<Vec<_>>();
-    translate(root, &values)
+    translate(root, &values, tools)
 }
 fn collect(value: &Value, calls: &mut Vec<String>) {
     if value.get("name").is_some() && value.get("arguments").is_some() {
@@ -79,10 +81,14 @@ fn collect(value: &Value, calls: &mut Vec<String>) {
         _ => {}
     }
 }
-pub(super) fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
+pub(super) fn translate(
+    root: &crate::grammar::Root,
+    args: &[Value],
+    tools: &[Value],
+) -> Option<Value> {
     let args = args.iter().map(Value::as_str).collect::<Option<Vec<_>>>()?;
     if let Some(call) = super::help::next(root, &args) {
-        return Some(call);
+        return super::followups::allowed(&call, tools).then_some(call);
     }
     let mut argv = vec!["biomcp"];
     argv.extend(args);
@@ -110,7 +116,7 @@ pub(super) fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<V
         }
     }
     let arguments = Value::Object(arguments);
-    checked_call(root, verb, entity, &schema, &arguments)
+    checked_call(root, verb, entity, &schema, &arguments, tools)
 }
 
 fn checked_call(
@@ -119,12 +125,15 @@ fn checked_call(
     entity: &str,
     schema: &Value,
     arguments: &Value,
+    tools: &[Value],
 ) -> Option<Value> {
     if !super::validation::valid(&super::arguments::input(schema), arguments) {
         return None;
     }
     let args = super::arguments::cli(root, verb, entity, schema, arguments)?;
     let parsed = crate::grammar::parse(root, &args).ok()?;
-    matches!(parsed.action, Some(biomcp_query::Action::Run { .. }))
-        .then(|| json!({"name":super::name(verb,entity),"arguments":arguments}))
+    let call = json!({"name":super::name(verb,entity),"arguments":arguments});
+    (matches!(parsed.action, Some(biomcp_query::Action::Run { .. }))
+        && super::followups::allowed(&call, tools))
+    .then_some(call)
 }
