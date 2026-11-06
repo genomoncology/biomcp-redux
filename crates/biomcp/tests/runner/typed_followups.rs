@@ -215,7 +215,11 @@ pub(in crate::runner) fn check_next(
             .validate(&call["arguments"])
             .map_err(|e| format!("{call}: {e}"))?;
         if call.get("kind") == Some(&json!("section")) {
-            if call.pointer("/arguments/section").is_none() {
+            if call
+                .pointer("/arguments/section")
+                .or_else(|| call.pointer("/arguments/arguments/section"))
+                .is_none()
+            {
                 return Err(format!("section stayed in input: {call}"));
             }
             *sections += 1;
