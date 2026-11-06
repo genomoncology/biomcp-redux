@@ -128,7 +128,7 @@
           "type": "null"
         }
       ],
-      "description": "Case-insensitive: Case-insensitive: One named section;; biomcp_help get disease",
+      "description": "Case-insensitive: One named section; absent means; biomcp_help get disease",
       "x-positional": 1,
       "x-section-rule": "One named section; absent means identity card only."
     },

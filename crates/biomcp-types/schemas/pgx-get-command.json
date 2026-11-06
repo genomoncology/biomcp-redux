@@ -125,7 +125,7 @@
           "type": "null"
         }
       ],
-      "description": "Case-insensitive: Case-insensitive: One named section;; biomcp_help get pgx",
+      "description": "Case-insensitive: One named section; omitted means the; biomcp_help get pgx",
       "x-positional": 0,
       "x-section-rule": "One named section; omitted means the CPIC gene card."
     },

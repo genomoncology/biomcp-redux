@@ -23,7 +23,9 @@ fn check() -> Result<(), String> {
     let mut count = 0;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let schema = cli(&env, &["schema".into(), id.into()])?;
-        let properties = field(&schema, "properties").as_object().ok_or("properties")?;
+        let properties = field(&schema, "properties")
+            .as_object()
+            .ok_or("properties")?;
         for (key, property) in properties {
             if property.get("x-cli-flags").is_some() {
                 continue; // These are separate boolean flags on both public adapters.
@@ -42,8 +44,12 @@ fn check() -> Result<(), String> {
             }
         }
     }
-    writeln!(std::io::stdout(), "ENUM_CASE parameters={count} failures={}", failures.len())
-        .map_err(|e| e.to_string())?;
+    writeln!(
+        std::io::stdout(),
+        "ENUM_CASE parameters={count} failures={}",
+        failures.len()
+    )
+    .map_err(|e| e.to_string())?;
     if failures.is_empty() && count > 0 {
         Ok(())
     } else {
@@ -148,11 +154,14 @@ fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Map<String, Value>, 
                     key,
                 )
             });
-        values.insert(key.into(), if node.get("type") == Some(&json!("array")) {
-            json!([text])
-        } else {
-            json!(text)
-        });
+        values.insert(
+            key.into(),
+            if node.get("type") == Some(&json!("array")) {
+                json!([text])
+            } else {
+                json!(text)
+            },
+        );
     }
     if entity == "pgx" {
         values.insert("gene".into(), json!("CYP2D6"));
@@ -273,18 +282,24 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 }
 
 // Valid source and section contexts keep semantic refusals from masking parser behavior.
-fn context(verb: &str, entity: &str, key: &str, values: &mut Map<String, Value>) -> Result<(), String> {
+fn context(
+    verb: &str,
+    entity: &str,
+    key: &str,
+    values: &mut Map<String, Value>,
+) -> Result<(), String> {
     let extra = match (verb, entity, key) {
-        ("get", "drug", "civic_kind" | "evidence_level" | "evidence_status") =>
-            json!({"source":"civic", "section":["civic"], "civic_kind":"evidence"}),
-        ("get", "variant", "civic_kind" | "evidence_level" | "evidence_status") =>
-            json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1}),
+        ("get", "drug", "civic_kind" | "evidence_level" | "evidence_status") => {
+            json!({"source":"civic", "section":["civic"], "civic_kind":"evidence"})
+        }
+        ("get", "variant", "civic_kind" | "evidence_level" | "evidence_status") => {
+            json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1})
+        }
         ("get", "pgx", "kind") => json!({"source":"clinpgx", "section":"annotations"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
         ("search", "adverse-event", "section") => json!({"source":"vaers", "text":"COVID19"}),
-        ("search", "adverse-event", "aggregate") => json!({"meddra":"headache"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
         _ => json!({}),

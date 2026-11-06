@@ -33,7 +33,7 @@
     },
     "section": {
       "$ref": "#/$defs/GwasCommandSection",
-      "description": "Case-insensitive: Case-insensitive: Association loci or; biomcp_help get gwas",
+      "description": "Case-insensitive: Association loci or study associations; biomcp_help get gwas",
       "x-positional": 1,
       "x-section-rule": "Association loci or study associations and ancestries."
     },

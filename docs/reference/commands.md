@@ -1835,7 +1835,7 @@ Case-insensitive: Funding class.
 ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--status`: Case-insensitive: Source status; biomcp_help search trial
 Case-insensitive: Source status.
-Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status recruiting. Command sources: ctgov, nci; source restrictions in the field description apply.
+Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status COMPLETED. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--study-type`: Case-insensitive: Study type; biomcp_help search trial
 Case-insensitive: Study type.
 ClinicalTrials.gov only: exact registry study type. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
@@ -2109,7 +2109,7 @@ Arguments:
           One exact primary accession or qualified source ID.
 
   [section]
-          Case-insensitive: Case-insensitive: Omit for the; biomcp_help get cell-line
+          Case-insensitive: Omit for the default card; all; biomcp_help get cell-line
 
 Options:
       --format <format>
@@ -2150,7 +2150,7 @@ Options:
 Get cell line details and cross-references. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
-- `section`: Case-insensitive: Case-insensitive: Omit for the; biomcp_help get cell-line
+- `section`: Case-insensitive: Omit for the default card; all; biomcp_help get cell-line
 - `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three. Value form: integer. Example: --section-limit 25. Command sources: cellosaurus; source restrictions in the field description apply.
 - `--section-offset`: Offset within each independently requested collection. Value form: integer. Example: --section-offset 1. Command sources: cellosaurus; source restrictions in the field description apply.
 
@@ -2175,7 +2175,7 @@ Arguments:
           Qualified association ID or exact GCST study accession.
 
   [section]
-          Case-insensitive: Case-insensitive: Association loci or; biomcp_help get gwas
+          Case-insensitive: Association loci or study associations; biomcp_help get gwas
 
 Options:
       --format <format>
@@ -2219,7 +2219,7 @@ Options:
 Get GWAS Catalog associations or studies. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
-- `section`: Case-insensitive: Case-insensitive: Association loci or; biomcp_help get gwas
+- `section`: Case-insensitive: Association loci or study associations; biomcp_help get gwas
 - `--section-limit`: Maximum source relation rows. Value form: integer. Example: --section-limit 1. Command sources: gwas; source restrictions in the field description apply.
 - `--section-offset`: Source relation row offset. Value form: integer. Example: --section-offset 0. Command sources: gwas; source restrictions in the field description apply.
 - `--snapshot`: Retained ancestry reply for a local page. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: gwas; source restrictions in the field description apply.
@@ -2251,7 +2251,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Case-insensitive: Case-insensitive: Select native; biomcp_help get protein
+          Case-insensitive: Select native sections or all; biomcp_help get protein
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -2282,7 +2282,7 @@ Options:
 Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
-- `--section`: Case-insensitive: Case-insensitive: Select source; biomcp_help get protein Value form: repeatable values (repeat the flag). Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
+- `--section`: Case-insensitive: Select source sections or all; biomcp_help get protein Value form: repeatable values (repeat the flag). Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer. Example: --section-limit 2. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 
 Select source sections or all bounded first pages; function keeps one whole text record.
@@ -2308,7 +2308,7 @@ Arguments:
           Exact HP identifier.
 
   [section]
-          Case-insensitive: Case-insensitive: Absent means the; biomcp_help get phenotype
+          Case-insensitive: Absent means the source identity; biomcp_help get phenotype
 
 Options:
       --format <format>
@@ -2356,7 +2356,7 @@ Options:
 Get human phenotype details and relationships. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
-- `section`: Case-insensitive: Case-insensitive: Absent means the; biomcp_help get phenotype
+- `section`: Case-insensitive: Absent means the source identity; biomcp_help get phenotype
 - `--section-limit`: Default five text/link rows or one complete association row. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: hpo, monarch; source restrictions in the field description apply.
@@ -2383,7 +2383,7 @@ Arguments:
           Exact human Reactome or WikiPathways identity without version suffixes.
 
   [section]
-          Case-insensitive: Case-insensitive: Omit for the card;; biomcp_help get pathway
+          Case-insensitive: Omit for the card; WikiPathways has; biomcp_help get pathway
 
 Options:
       --format <format>
@@ -2429,7 +2429,7 @@ Get human pathway details. Sources: reactome, wikipathways.
 - `--fresh`: Request a new source observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `section`: Case-insensitive: Case-insensitive: Omit for the card;; biomcp_help get pathway
+- `section`: Case-insensitive: Omit for the card; WikiPathways has; biomcp_help get pathway
 - `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer. Example: --section-limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer. Example: --section-offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
@@ -2452,7 +2452,7 @@ Arguments:
           Exact source study ID; no default or repair.
 
   [section]
-          Case-insensitive: Case-insensitive: Omit for the card;; biomcp_help get study
+          Case-insensitive: Omit for the card; all returns bounded; biomcp_help get study
 
 Options:
       --format <format>
@@ -2501,7 +2501,7 @@ Get cancer genomics study details. Sources: cbioportal.
 - `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
 - `id`: Exact source study ID; no default or repair.
 - `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string. Example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations. Command sources: cbioportal; source restrictions in the field description apply.
-- `section`: Case-insensitive: Case-insensitive: Omit for the card;; biomcp_help get study
+- `section`: Case-insensitive: Omit for the card; all returns bounded; biomcp_help get study
 - `--section-limit`: Maximum records in each selected section. Value form: integer. Example: --section-limit 1. Command sources: cbioportal; source restrictions in the field description apply.
 - `--section-offset`: Offset within one named section; all requires zero. Value form: integer. Example: --section-offset 45. Command sources: cbioportal; source restrictions in the field description apply.
 
@@ -2523,7 +2523,7 @@ Usage: biomcp get pgx [OPTIONS] --source <source> [section]
 
 Arguments:
   [section]
-          Case-insensitive: Case-insensitive: One named section;; biomcp_help get pgx
+          Case-insensitive: One named section; omitted means the; biomcp_help get pgx
 
 Options:
       --annotation-id <annotation_id>
@@ -2592,7 +2592,7 @@ Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 - `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--kind`: Case-insensitive: One ClinPGx collection; clinical is the; biomcp_help get pgx
 Case-insensitive: One ClinPGx collection; clinical is the default only on annotations. Value form: string. Example: --kind clinical. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `section`: Case-insensitive: Case-insensitive: One named section;; biomcp_help get pgx
+- `section`: Case-insensitive: One named section; omitted means the; biomcp_help get pgx
 - `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer. Example: --section-limit 1. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--section-offset`: Offset within the selected section. Value form: integer. Example: --section-offset 0. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--snapshot`: Retained collection for local continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
@@ -2618,7 +2618,7 @@ Arguments:
           Exact native identity, including version for GTR.
 
   [section]
-          Case-insensitive: Case-insensitive: GTR: genes,; biomcp_help get diagnostic
+          Case-insensitive: GTR: genes, conditions, methods; biomcp_help get diagnostic
 
 Options:
       --bundle-revision <bundle_revision>
@@ -2671,7 +2671,7 @@ Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value). Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `id`: Exact source identity, including version for GTR.
-- `section`: Case-insensitive: Case-insensitive: GTR: genes,; biomcp_help get diagnostic
+- `section`: Case-insensitive: GTR: genes, conditions, methods; biomcp_help get diagnostic
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer. Example: --section-limit 2. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--section-offset`: Zero-based source row or fragment offset. Value form: integer. Example: --section-offset 5. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--source`: Case-insensitive: Explicit source: GTR; biomcp_help get diagnostic
@@ -2701,7 +2701,7 @@ Arguments:
           Published report ID with no source prefix.
 
   [section]
-          Case-insensitive: Case-insensitive: FAERS owns; biomcp_help get adverse-event
+          Case-insensitive: FAERS owns drugs, reactions; biomcp_help get adverse-event
 
 Options:
       --drug-index <drug_index>
@@ -2753,7 +2753,7 @@ Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer. Example: --drug-index 0. Command sources: faers, maude; source restrictions in the field description apply.
 - `id`: Published report ID with no source prefix.
-- `section`: Case-insensitive: Case-insensitive: FAERS owns; biomcp_help get adverse-event
+- `section`: Case-insensitive: FAERS owns drugs, reactions; biomcp_help get adverse-event
 - `--section-limit`: Whole source rows per section page. Value form: integer. Example: --section-limit 1. Command sources: faers, maude; source restrictions in the field description apply.
 - `--section-offset`: Offset within the selected source section. Value form: integer. Example: --section-offset 0. Command sources: faers, maude; source restrictions in the field description apply.
 - `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude; source restrictions in the field description apply.
@@ -2786,7 +2786,7 @@ Arguments:
           Exact ontology CURIE or an explicit SEER catalog site ID.
 
   [section]
-          Case-insensitive: Case-insensitive: One named section;; biomcp_help get disease
+          Case-insensitive: One named section; absent means; biomcp_help get disease
 
 Options:
       --age-range <age_range>
@@ -2860,7 +2860,7 @@ Get disease details and source statistics. Sources: monarch, mydisease, ols, see
 Case-insensitive: One OLS ontology. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `section`: Case-insensitive: Case-insensitive: One named section;; biomcp_help get disease
+- `section`: Case-insensitive: One named section; absent means; biomcp_help get disease
 - `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
@@ -3026,7 +3026,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Case-insensitive: Case-insensitive: Requested section; biomcp_help get gene
+          Case-insensitive: Requested section words, preserving; biomcp_help get gene
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3054,7 +3054,7 @@ Options:
 Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
-- `--section`: Case-insensitive: Case-insensitive: Requested section; biomcp_help get gene Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
+- `--section`: Case-insensitive: Requested section words, preserving; biomcp_help get gene Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
@@ -3088,7 +3088,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Case-insensitive: Case-insensitive: Requested section; biomcp_help get article
+          Case-insensitive: Requested section words; trailing; biomcp_help get article
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3116,7 +3116,7 @@ Options:
 Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
-- `--section`: Case-insensitive: Case-insensitive: Requested section; biomcp_help get article Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--section`: Case-insensitive: Requested section words; trailing; biomcp_help get article Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 
 Requested section words; trailing words and --section share this field.
 
@@ -3166,7 +3166,7 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --section <section>
-          Case-insensitive: Case-insensitive: Optional intact; biomcp_help get trial
+          Case-insensitive: Optional intact source sections; biomcp_help get trial
 
       --source <source>
           Case-insensitive: Explicit provider; defaults to; biomcp_help get trial
@@ -3192,7 +3192,7 @@ Get clinical trial details. Sources: ctgov, nci.
 - `--limit`: Whole-record count per source collection page; text fragments follow the text budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--section`: Case-insensitive: Case-insensitive: Optional intact; biomcp_help get trial Value form: repeatable values (repeat the flag). Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--section`: Case-insensitive: Optional intact source sections; biomcp_help get trial Value form: repeatable values (repeat the flag). Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--source`: Case-insensitive: Explicit source; defaults to; biomcp_help get trial
 Case-insensitive: Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 
@@ -3403,7 +3403,7 @@ Arguments:
           Exact qualified provider record.
 
   [section]
-          Case-insensitive: Case-insensitive: Detailed; biomcp_help author papers
+          Case-insensitive: Detailed disclosure when requested; biomcp_help author papers
 
 Options:
       --format <format>
@@ -3457,7 +3457,7 @@ List an author's research papers. Sources: orcid, semantic-scholar.
 - `--limit`: Bounded row count. Value form: integer. Example: --limit 5. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Source or retained collection offset. Value form: integer. Example: --offset 0. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
-- `section`: Case-insensitive: Case-insensitive: Detailed; biomcp_help author papers
+- `section`: Case-insensitive: Detailed disclosure when requested; biomcp_help author papers
 
 Detailed disclosure when requested.
 

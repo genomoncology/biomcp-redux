@@ -2,8 +2,8 @@
 mod arguments;
 mod choices;
 mod command_words;
-pub(crate) use command_words::cli as command_arguments;
 pub(crate) use command_words::canonical as canonical_command;
+pub(crate) use command_words::cli as command_arguments;
 mod decode;
 mod entry;
 mod process_arguments;

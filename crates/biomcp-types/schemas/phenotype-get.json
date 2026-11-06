@@ -55,7 +55,7 @@
     },
     "section": {
       "$ref": "#/$defs/PhenotypeSection",
-      "description": "Case-insensitive: Case-insensitive: Absent means the; biomcp_help get phenotype",
+      "description": "Case-insensitive: Absent means the source identity; biomcp_help get phenotype",
       "x-positional": 1,
       "x-section-rule": "Absent means the source identity card."
     },

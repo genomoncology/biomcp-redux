@@ -71,7 +71,7 @@
           "type": "null"
         }
       ],
-      "description": "Case-insensitive: Case-insensitive: FAERS owns; biomcp_help get adverse-event",
+      "description": "Case-insensitive: FAERS owns drugs, reactions; biomcp_help get adverse-event",
       "x-positional": 1,
       "x-section-rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only."
     },

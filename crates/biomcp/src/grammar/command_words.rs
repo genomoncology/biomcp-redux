@@ -21,7 +21,9 @@ pub(crate) fn cli(
     // Parser indices own positional order; flags precede them to keep literal values safe.
     let mut positional = Vec::new();
     for (key, value) in values.as_object()? {
-        if let Some(flags) = schema.get("properties")?.get(key)
+        if let Some(flags) = schema
+            .get("properties")?
+            .get(key)
             .and_then(|property| property.get("x-cli-flags"))
             .and_then(Value::as_object)
         {
@@ -85,9 +87,10 @@ pub(crate) fn cli(
 pub(crate) fn canonical(root: &clap::Command, args: &[OsString]) -> Option<Vec<OsString>> {
     let args = super::entry::arguments(args, root);
     let args = super::arguments::boolean_literals(&args, root);
-    let matches = root.clone().try_get_matches_from(
-        std::iter::once(OsString::from("biomcp")).chain(args)
-    ).ok()?;
+    let matches = root
+        .clone()
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args))
+        .ok()?;
     let (verb, command) = matches.subcommand()?;
     let (entity, command) = command.subcommand()?;
     let schema = super::validation::schema(verb, entity)?;
