@@ -12,7 +12,9 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
     let Some(name) = (match &out.body {
         ReplyData::DrugIndications {
             body: Some(body), ..
-        } => body.identity.name.clone(),
+        } if matches!(&body.indications, Section::Data { data, .. } if !data.records.is_empty()) => {
+            body.identity.name.clone()
+        }
         _ => None,
     }) else {
         return;
