@@ -88,11 +88,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outco
     let error = reply.as_ref().err().copied();
     out.sources
         .push(status::source(Source::Seer, leg.finish(), error));
-    out.local = error.and_then(status::local);
     match reply {
         Ok(page) => include_statistics(&mut out, query, page),
-        // The typed source error is already retained in the source outcome above.
-        Err(_) => {}
+        Err(error) => out.local = status::local(error),
     }
     super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());
