@@ -377,7 +377,16 @@ fn query(
     words: &[&str],
     input: Value,
 ) -> Result<Value, String> {
-    call(server, params(mode, tool, words, input))
+    let params = if mode == "typed" {
+        let tools = catalog(server)?;
+        super::typed_catalog::command(&tools, tool).map_or_else(
+            || params(mode, tool, words, input.clone()),
+            |route| super::typed_catalog::call(&route, &input),
+        )
+    } else {
+        params(mode, tool, words, input)
+    };
+    call(server, params)
 }
 
 fn call(server: &Server, params: Value) -> Result<Value, String> {
