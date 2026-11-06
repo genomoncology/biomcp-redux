@@ -33,7 +33,14 @@
         ],
         "/result/literature/identity_resolution": "Unresolved: these are author names on individual papers, not verified researcher identities. Equal names may refer to different people; names are not merged. Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. PubMed matches papers, not people; only the first 9999 matching papers can be paged."
       },
-      "max_bytes": 6000
+      "max_bytes": 6000,
+      "mcp": [
+        "search",
+        "author",
+        "Morgan Lee",
+        "--disable-sources",
+        "noncommercial,orcid"
+      ]
     },
     {
       "run": [
@@ -41,7 +48,9 @@
         "author",
         "DNA repair",
         "--disable-sources",
-        "noncommercial,orcid"
+        "noncommercial,orcid",
+        "--source",
+        "pubmed"
       ],
       "expect": {
         "/status": "complete",
@@ -65,6 +74,26 @@
         "/result/literature/identity_resolution": "Unresolved: these are author names on individual papers, not verified researcher identities. Equal names may refer to different people; names are not merged. Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. PubMed matches papers, not people; only the first 9999 matching papers can be paged."
       },
       "max_bytes": 6000
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "Morgan Lee",
+        "--source",
+        "semantic-scholar",
+        "--disable-sources",
+        "noncommercial,orcid"
+      ],
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "semantic-scholar",
+        "/sources/0/state": "skipped",
+        "/sources/0/reason": "disabled"
+      },
+      "max_bytes": 1200
     }
   ]
 }

@@ -620,3 +620,17 @@ trial-provenance-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
+
+.PHONY: author-search-prepare author-search-check
+author-search-prepare:
+	cargo fmt --all
+	$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	tar -czf dist/author-search-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+	$(MAKE) author-search-check
+
+author-search-check: fmt
+	cargo clippy --locked -p biomcp-adapters -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	cargo test --locked -p biomcp --test cases author/ $(TEST_THREADS)
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/cases" author/open-literature
+	$(MAKE) current-schema-check ratchets

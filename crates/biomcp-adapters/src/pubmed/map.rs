@@ -43,6 +43,64 @@ pub(super) fn summaries(reply: Summary, ids: &[Box<str>]) -> Mapped<Vec<ArticleH
         problems,
     }
 }
+pub(super) fn author_summaries(
+    reply: Summary,
+    ids: &[Box<str>],
+) -> Mapped<Vec<biomcp_types::AuthorPublication>> {
+    let mut authors = std::collections::BTreeMap::new();
+    let mut problems = Vec::new();
+    for (key, row) in &reply.result {
+        if let SummaryValue::Row(row) = row {
+            let mut context = Problems {
+                source: Source::PubMed,
+                record: record_text(key),
+                list: Vec::new(),
+            };
+            let names: Box<[_]> = row
+                .authors
+                .as_ref()
+                .and_then(|field| field.as_ref())
+                .into_iter()
+                .flatten()
+                .filter_map(|field| field.as_ref())
+                .filter_map(|author| context.text("authors", Some(&author.name)))
+                .collect();
+            authors.insert(key.clone(), names);
+            problems.extend(context.list);
+        }
+    }
+    let mut mapped = summaries(reply, ids);
+    mapped.value.sort_by_key(|paper| {
+        paper
+            .pmid
+            .as_ref()
+            .and_then(|id| {
+                ids.iter()
+                    .position(|value| value.as_ref() == id.to_string())
+            })
+            .unwrap_or(usize::MAX)
+    });
+    problems.extend(mapped.problems);
+    Mapped {
+        value: mapped
+            .value
+            .into_iter()
+            .map(|paper| {
+                let names = paper
+                    .pmid
+                    .as_ref()
+                    .and_then(|id| authors.remove(&id.to_string()))
+                    .unwrap_or_default();
+                biomcp_types::AuthorPublication {
+                    paper,
+                    authors: names,
+                }
+            })
+            .collect(),
+        problems,
+        refusals: mapped.refusals,
+    }
+}
 fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<ArticleHeader> {
     if row.error.is_some() {
         return None;
