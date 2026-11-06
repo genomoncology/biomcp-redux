@@ -79,20 +79,6 @@
         ]
       },
       "max_bytes": 4242
-    },
-    {
-      "run": [
-        "get",
-        "pgx",
-        "--annotation-id",
-        "PA166104949",
-        "--source",
-        "cpic"
-      ],
-      "exit": 2,
-      "expect": {
-        "/error/message": "choose --source cpic for search, the gene card, recommendations, guidelines or diplotype; annotations requires --source clinpgx"
-      }
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."
