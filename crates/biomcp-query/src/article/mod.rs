@@ -107,6 +107,7 @@ fn execute<'a>(
                 retry(query, None, out);
                 return Ok(());
             }
+            filter_text(cx, deadline, &mut items, out);
             store.set_deadline(*deadline);
             match crate::publish::keep(
                 store
@@ -161,6 +162,21 @@ fn resolve_terms<'a>(
         }))
     }
 }
+/// Apply the record policy before publishing a newly fetched ranked pool.
+fn filter_text<'a>(
+    cx: &Ctx<'a>,
+    deadline: &mut Deadline<'a>,
+    items: &mut [biomcp_types::ArticleItem],
+    out: &mut Outcome,
+) {
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+        let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, *deadline);
+        let started = leg.remaining();
+        out.dropped |= biomcp_adapters::article_rights::items(&leg, items);
+        *deadline = consume(*deadline, started, leg.remaining());
+    }
+}
+
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
     out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(
