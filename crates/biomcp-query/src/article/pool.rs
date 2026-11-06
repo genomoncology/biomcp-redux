@@ -27,9 +27,14 @@ pub(super) fn read<'a>(
     out: &mut Outcome,
     publish: bool,
 ) -> Result<(), RequestError> {
-    page::read(cx, cursor, store, pool, out)?;
-    if publish && out.status() == Status::Complete {
-        crate::publish::keep(store.publish_current(pool).map_err(Into::into), out)?;
-    }
-    Ok(())
+    let result = page::read(cx, cursor, store, pool, out);
+    let update = if result.is_err() || out.status() != Status::Complete {
+        store.unpublish_current(pool)
+    } else if publish {
+        store.publish_current(pool)
+    } else {
+        return result;
+    };
+    crate::publish::keep(update.map_err(Into::into), out)?;
+    result
 }

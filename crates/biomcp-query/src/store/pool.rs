@@ -133,6 +133,17 @@ impl Store<'_> {
             Ok(())
         })
     }
+    /// Remove only this pool's reusable answer, retaining its explicit pages.
+    pub(crate) fn unpublish_current(&mut self, pool: &Pool) -> Result<(), CacheError> {
+        self.write(|tx| {
+            tx.execute(
+                "DELETE FROM pool_current WHERE request_key=?1 AND pool=?2",
+                params![pool.key, pool.info.id.as_str()],
+            )
+            .map_err(db)?;
+            Ok(())
+        })
+    }
     /// Publish arbitrary source snapshot payload and its fixed-lifetime pool metadata together.
     pub(crate) fn publish_source_pool(
         &mut self,
