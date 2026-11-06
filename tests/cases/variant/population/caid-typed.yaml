@@ -2,7 +2,7 @@
   "feature": "variant-population",
   "live_check": "synthetic response-only CAid routing using retained population source facts and a synthetic CAR 404; no live source claim",
   "story": "A CAid resolves to population counts, while an unknown canonical allele returns empty.",
-  "replay": "variant/population/caid",
+  "replay": "variant/id-forms",
   "steps": [
     {
       "mcp_call": {
