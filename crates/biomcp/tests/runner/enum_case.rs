@@ -34,6 +34,7 @@ fn check() -> Result<(), String> {
                 .get("enum")
                 .and_then(Value::as_array)
                 .and_then(|v| v.iter().filter_map(Value::as_str).find(|s| !s.is_ascii())
+                    .or_else(|| v.iter().filter_map(Value::as_str).find(|s| s.to_lowercase() != s.to_uppercase()))
                     .or_else(|| v.iter().find_map(Value::as_str)))
             else {
                 continue;
