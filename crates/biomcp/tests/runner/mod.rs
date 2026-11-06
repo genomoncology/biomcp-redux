@@ -407,6 +407,25 @@ fn run_sequence(
     })
 }
 
+fn follow_step(current: &mut Step, previous: &Value, kind: &str) -> Result<(), String> {
+    let next = continuation(previous, kind)?;
+    if let Some(name) = next.get("name").and_then(Value::as_str) {
+        current.run = None;
+        current.mcp_call = Some(case_data::McpCall {
+            name: name.to_owned(),
+            arguments: next
+                .get("arguments")
+                .ok_or("typed follow arguments")?
+                .clone(),
+        });
+    } else {
+        current.run = Some(action(previous, kind)?);
+        current.mcp_call = None;
+    }
+    current.mcp = None;
+    Ok(())
+}
+
 fn run_sequence_with(
     step: &Step,
     expectations: &assertions::Expectations<'_>,
@@ -415,22 +434,11 @@ fn run_sequence_with(
 ) -> Result<Value, String> {
     let mut current = step.clone();
     if let Some(kind) = &step.follow {
-        let previous = previous.ok_or("follow requires previous output")?;
-        let next = continuation(previous, kind)?;
-        if let Some(name) = next.get("name").and_then(Value::as_str) {
-            current.run = None;
-            current.mcp_call = Some(case_data::McpCall {
-                name: name.to_owned(),
-                arguments: next
-                    .get("arguments")
-                    .ok_or("typed follow arguments")?
-                    .clone(),
-            });
-        } else {
-            current.run = Some(action(previous, kind)?);
-            current.mcp_call = None;
-        }
-        current.mcp = None;
+        follow_step(
+            &mut current,
+            previous.ok_or("follow requires previous output")?,
+            kind,
+        )?;
     }
     let Some(walk) = &step.walk else {
         return execute(&current, expectations);

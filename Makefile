@@ -532,10 +532,12 @@ typed-followups-check:
 typed-followups-affected:
 	+$(MAKE) --keep-going check-cheap typed-followups-parity typed-followups-toolcases
 .PHONY: typed-followups-parity typed-followups-toolcases
+typed-followups-parity typed-followups-toolcases: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-affected
 typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 typed-followups-toolcases:
-	python3 scripts/trials.py --target tools --case-file drug/source-aliases.yaml --case-file drug/source-aliases-review-evidence.yaml --case-file drug/source-aliases-review-later.yaml --case-file drug/source-aliases-review-salt.yaml --case-file adverse-event/faers-reaction-counts.yaml
+	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases $(filter-out --,$(TEST_THREADS))
+	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml $(filter-out --,$(TEST_THREADS))
 .PHONY: typed-description-check typed-description-contract-check
 typed-description-check:
 	+$(MAKE) --keep-going typed-description-contract-check typed-schema-check typed-hosted-check help-contract-check
