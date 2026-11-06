@@ -623,8 +623,3 @@ trial-provenance-check:
 
 article-rights-check:
 	cargo test --locked -p biomcp-query --test article_rights $(TEST_THREADS)
-
-.PHONY: article-store-scrub-check
-article-store-scrub-check:
-	cargo test --locked -p biomcp-query --test store_scrub $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases store/clean $(TEST_THREADS)

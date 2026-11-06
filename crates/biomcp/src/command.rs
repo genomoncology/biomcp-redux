@@ -97,10 +97,7 @@ fn dispatch_using(
         Ok(action) => action,
         Err(error) => return usage_envelope(error, encoding),
     };
-    if let Action::StoreClean {
-        scrub_to_copy: Some(destination),
-    } = &action
-    {
+    if let Action::StoreClean { scrub_to_copy: Some(destination) } = &action {
         return maintenance::scrub(destination, encoding);
     }
     let transport = match transport::fetch(&parsed.globals, settings, context)? {

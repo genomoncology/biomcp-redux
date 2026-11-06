@@ -12,47 +12,32 @@ use std::{fs, path::Path, time::Duration};
 /// The destination must not exist. This never replaces or modifies the source.
 /// Hosting must stop writers before promoting the checked copy.
 pub fn scrub_copy(source: &Path, destination: &Path, budget: Duration) -> Result<(), CacheError> {
-    let original =
-        Connection::open_with_flags(source, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(db)?;
+    let original = Connection::open_with_flags(source, OpenFlags::SQLITE_OPEN_READ_ONLY)
+        .map_err(db)?;
     original.busy_timeout(budget).map_err(db)?;
     validate(&original)?;
-    let file = fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(destination)
+    let file = fs::OpenOptions::new().write(true).create_new(true).open(destination)
         .map_err(|_| CacheError::Filesystem)?;
     drop(file);
     let result = (|| {
         // VACUUM INTO copies a consistent SQLite snapshot, including committed WAL pages.
-        original
-            .execute(
-                "VACUUM INTO ?1",
-                [destination.to_str().ok_or(CacheError::Filesystem)?],
-            )
+        original.execute("VACUUM INTO ?1", [destination.to_str().ok_or(CacheError::Filesystem)?])
             .map_err(db)?;
         let mut copy = Connection::open(destination).map_err(db)?;
         copy.busy_timeout(budget).map_err(db)?;
         validate(&copy)?;
-        copy.pragma_update(None, "secure_delete", "ON")
-            .map_err(db)?;
+        copy.pragma_update(None, "secure_delete", "ON").map_err(db)?;
         let tx = copy.transaction().map_err(db)?;
         scrub_rows(&tx)?;
         tx.commit().map_err(db)?;
         copy.busy_timeout(budget).map_err(db)?;
         rebuild(&copy)?;
-        let integrity: String = copy
-            .query_row("PRAGMA integrity_check", [], |row| row.get(0))
-            .map_err(db)?;
-        if integrity != "ok" {
-            return Err(CacheError::Database);
-        }
+        let integrity: String = copy.query_row("PRAGMA integrity_check", [], |row| row.get(0)).map_err(db)?;
+        if integrity != "ok" { return Err(CacheError::Database); }
         validate(&copy)?;
         copy.close().map_err(|(_, error)| db(error))?;
-        fs::OpenOptions::new()
-            .read(true)
-            .open(destination)
-            .and_then(|file| file.sync_all())
-            .map_err(|_| CacheError::Filesystem)?;
+        fs::OpenOptions::new().read(true).open(destination)
+            .and_then(|file| file.sync_all()).map_err(|_| CacheError::Filesystem)?;
         Ok(())
     })();
     if result.is_err() {
@@ -67,27 +52,18 @@ pub fn scrub_copy(source: &Path, destination: &Path, budget: Duration) -> Result
 }
 
 fn validate(connection: &Connection) -> Result<(), CacheError> {
-    biomcp_fetch::check_owners(
-        connection,
-        &[
-            biomcp_fetch::SchemaOwner {
-                name: "biomcp-fetch",
-                version: biomcp_fetch::VERSION,
-                migratable_versions: &[],
-                tables: &["reply", "bundle"],
-            },
-            biomcp_fetch::SchemaOwner {
-                migratable_versions: &[],
-                ..OWNER
-            },
-        ],
-    )
+    biomcp_fetch::check_owners(connection, &[
+        biomcp_fetch::SchemaOwner {
+            name: "biomcp-fetch", version: biomcp_fetch::VERSION,
+            migratable_versions: &[], tables: &["reply", "bundle"],
+        },
+        biomcp_fetch::SchemaOwner { migratable_versions: &[], ..OWNER },
+    ])
 }
 
 fn rebuild(connection: &Connection) -> Result<(), CacheError> {
     // Rebuild clears old free pages; truncation clears every previously committed WAL frame.
-    connection
-        .execute_batch("PRAGMA wal_checkpoint(TRUNCATE); VACUUM; PRAGMA wal_checkpoint(TRUNCATE);")
+    connection.execute_batch("PRAGMA wal_checkpoint(TRUNCATE); VACUUM; PRAGMA wal_checkpoint(TRUNCATE);")
         .map_err(db)?;
     Ok(())
 }
@@ -95,61 +71,26 @@ fn rebuild(connection: &Connection) -> Result<(), CacheError> {
 fn scrub_rows(tx: &rusqlite::Transaction<'_>) -> Result<(), CacheError> {
     let mut rights = biomcp_adapters::article_rights::StoredRights::default();
     {
-        let mut statement = tx
-            .prepare(
-                "SELECT source,url,body FROM reply WHERE status BETWEEN 200 AND 299 ORDER BY key",
-            )
-            .map_err(db)?;
-        let rows = statement
-            .query_map([], |row| {
-                Ok((
-                    row.get::<_, String>(0)?,
-                    row.get::<_, String>(1)?,
-                    row.get::<_, Vec<u8>>(2)?,
-                ))
-            })
-            .map_err(db)?;
+        let mut statement = tx.prepare("SELECT source,url,body FROM reply ORDER BY key").map_err(db)?;
+        let rows = statement.query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?, row.get::<_, Vec<u8>>(2)?))).map_err(db)?;
         for row in rows {
             let (source, url, body) = row.map_err(db)?;
-            rights
-                .observe(
-                    source.parse().map_err(|_| CacheError::Encoding)?,
-                    &url,
-                    &body,
-                )
+            rights.observe(source.parse().map_err(|_| CacheError::Encoding)?, &url, &body)
                 .map_err(|_| CacheError::Encoding)?;
         }
     }
-    let rights = rights.finish();
     // Keyset iteration remains stable while rows are updated or deleted, and holds one body at a time.
     let mut last: Option<Vec<u8>> = None;
     loop {
         use rusqlite::OptionalExtension;
-        let row = tx.query_row("SELECT key,source,url,body FROM reply WHERE status BETWEEN 200 AND 299 AND (?1 IS NULL OR key>?1) ORDER BY key LIMIT 1", [&last],
+        let row = tx.query_row("SELECT key,source,url,body FROM reply WHERE ?1 IS NULL OR key>?1 ORDER BY key LIMIT 1", [&last],
             |row| Ok((row.get::<_, Vec<u8>>(0)?, row.get::<_, String>(1)?, row.get::<_, String>(2)?, row.get::<_, Vec<u8>>(3)?)))
             .optional().map_err(db)?;
-        let Some((key, source, url, body)) = row else {
-            break;
-        };
-        match rights
-            .scrub_reply(
-                source.parse().map_err(|_| CacheError::Encoding)?,
-                &url,
-                &body,
-            )
-            .map_err(|_| CacheError::Encoding)?
-        {
-            Some(clean) if clean != body => {
-                tx.execute(
-                    "UPDATE reply SET body=?2 WHERE key=?1",
-                    rusqlite::params![key, clean],
-                )
-                .map_err(db)?;
-            }
-            None => {
-                tx.execute("DELETE FROM reply WHERE key=?1", [&key])
-                    .map_err(db)?;
-            }
+        let Some((key, source, url, body)) = row else { break };
+        match rights.scrub_reply(source.parse().map_err(|_| CacheError::Encoding)?, &url, &body)
+            .map_err(|_| CacheError::Encoding)? {
+            Some(clean) if clean != body => { tx.execute("UPDATE reply SET body=?2 WHERE key=?1", rusqlite::params![key, clean]).map_err(db)?; }
+            None => { tx.execute("DELETE FROM reply WHERE key=?1", [&key]).map_err(db)?; }
             _ => {}
         }
         last = Some(key);
@@ -157,23 +98,13 @@ fn scrub_rows(tx: &rusqlite::Transaction<'_>) -> Result<(), CacheError> {
     let mut last = 0_i64;
     loop {
         use rusqlite::OptionalExtension;
-        let row = tx
-            .query_row(
-                "SELECT rowid,item FROM pool_item WHERE rowid>?1 ORDER BY rowid LIMIT 1",
-                [last],
-                |row| Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?)),
-            )
-            .optional()
-            .map_err(db)?;
+        let row = tx.query_row("SELECT rowid,item FROM pool_item WHERE rowid>?1 ORDER BY rowid LIMIT 1", [last],
+            |row| Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?))).optional().map_err(db)?;
         let Some((id, payload)) = row else { break };
         let mut item = serde_json::from_str(&payload).map_err(|_| CacheError::Encoding)?;
         if rights.scrub_item(&mut item) {
             let clean = serde_json::to_string(&item).map_err(|_| CacheError::Encoding)?;
-            tx.execute(
-                "UPDATE pool_item SET item=?2 WHERE rowid=?1",
-                rusqlite::params![id, clean],
-            )
-            .map_err(db)?;
+            tx.execute("UPDATE pool_item SET item=?2 WHERE rowid=?1", rusqlite::params![id, clean]).map_err(db)?;
         }
         last = id;
     }

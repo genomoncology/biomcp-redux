@@ -37,13 +37,10 @@ pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Er
         Action::StoreClean { scrub_to_copy } => {
             let mut args = vec!["store".into(), "clean".into()];
             if let Some(path) = scrub_to_copy {
-                args.extend([
-                    "--scrub-to-copy".into(),
-                    path.to_string_lossy().into_owned(),
-                ]);
+                args.extend(["--scrub-to-copy".into(), path.to_string_lossy().into_owned()]);
             }
             Ok(args)
-        }
+        },
         Action::Health => Ok(vec!["health".into()]),
         Action::KeyHelp(source) => Ok(vec![
             "help".into(),
