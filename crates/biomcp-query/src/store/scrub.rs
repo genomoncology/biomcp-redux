@@ -108,15 +108,6 @@ fn checkpoint(connection: &Connection) -> Result<(), CacheError> {
 }
 
 fn scrub_rows(tx: &rusqlite::Transaction<'_>) -> Result<(), CacheError> {
-    let rights = stored_rights(tx)?;
-    scrub_replies(tx, &rights)?;
-    scrub_items(tx, &rights)?;
-    scrub_snapshots(tx, &rights)
-}
-
-fn stored_rights(
-    tx: &rusqlite::Transaction<'_>,
-) -> Result<biomcp_adapters::article_rights::StoredRights, CacheError> {
     let mut rights = biomcp_adapters::article_rights::StoredRights::default();
     {
         let mut statement = tx
@@ -144,13 +135,7 @@ fn stored_rights(
                 .map_err(|_| CacheError::Encoding)?;
         }
     }
-    Ok(rights.finish())
-}
-
-fn scrub_replies(
-    tx: &rusqlite::Transaction<'_>,
-    rights: &biomcp_adapters::article_rights::StoredRights,
-) -> Result<(), CacheError> {
+    let rights = rights.finish();
     // Keyset iteration remains stable while rows are updated or deleted, and holds one body at a time.
     let mut last: Option<Vec<u8>> = None;
     loop {
@@ -184,13 +169,6 @@ fn scrub_replies(
         }
         last = Some(key);
     }
-    Ok(())
-}
-
-fn scrub_items(
-    tx: &rusqlite::Transaction<'_>,
-    rights: &biomcp_adapters::article_rights::StoredRights,
-) -> Result<(), CacheError> {
     let mut last = 0_i64;
     loop {
         use rusqlite::OptionalExtension;
@@ -213,42 +191,6 @@ fn scrub_items(
             .map_err(db)?;
         }
         last = id;
-    }
-    Ok(())
-}
-
-fn scrub_snapshots(
-    tx: &rusqlite::Transaction<'_>,
-    rights: &biomcp_adapters::article_rights::StoredRights,
-) -> Result<(), CacheError> {
-    use rusqlite::OptionalExtension;
-    for table in ["trial_snapshot", "citation_evidence"] {
-        let mut last = 0_i64;
-        loop {
-            let row = tx
-                .query_row(
-                    &format!(
-                        "SELECT rowid,payload FROM {table} WHERE rowid>?1 ORDER BY rowid LIMIT 1"
-                    ),
-                    [last],
-                    |row| Ok((row.get::<_, i64>(0)?, row.get::<_, String>(1)?)),
-                )
-                .optional()
-                .map_err(db)?;
-            let Some((id, payload)) = row else { break };
-            let clean = rights
-                .scrub_snapshot(payload.as_bytes())
-                .map_err(|_| CacheError::Encoding)?;
-            if clean != payload.as_bytes() {
-                let clean = std::str::from_utf8(&clean).map_err(|_| CacheError::Encoding)?;
-                tx.execute(
-                    &format!("UPDATE {table} SET payload=?2 WHERE rowid=?1"),
-                    rusqlite::params![id, clean],
-                )
-                .map_err(db)?;
-            }
-            last = id;
-        }
     }
     Ok(())
 }

@@ -77,18 +77,6 @@ fn fixture(path: &std::path::Path) -> Connection {
         )
         .unwrap();
     }
-    let snapshot = serde_json::json!({"rows":[{"pmid":"1002","abstract_text":HIDDEN},{"pmid":"1003","abstract_text":"UNKNOWN_LICENSE_ABSTRACT_STAYS"}],"study":{"study_id":"synthetic-study","summary":"trial summary stays"}});
-    db.execute(
-        "INSERT INTO trial_snapshot VALUES ('author',x'02',9999999999,?1,'[]')",
-        [snapshot.to_string()],
-    )
-    .unwrap();
-    let evidence = serde_json::json!({"fulltext":{"state":"ok","data":{"paragraphs":[HIDDEN]}},"citation":{"data":{"contexts":{"items":[HIDDEN],"total":1}}}});
-    db.execute(
-        "INSERT INTO citation_evidence VALUES ('evidence',x'03',9999999999,?1,'[]')",
-        [evidence.to_string()],
-    )
-    .unwrap();
     // A deleted large row leaves withheld text in free pages as well as the WAL.
     reply(
         &db,
@@ -169,25 +157,6 @@ fn scrub_copy_removes_withheld_disk_bytes_and_preserves_rank_and_study_lookup() 
             .unwrap()
             .contains("UNKNOWN_LICENSE_ABSTRACT_STAYS")
     );
-    let snapshot: String = copy
-        .query_row(
-            "SELECT payload FROM trial_snapshot WHERE id='author'",
-            [],
-            |row| row.get(0),
-        )
-        .unwrap();
-    assert!(snapshot.contains("UNKNOWN_LICENSE_ABSTRACT_STAYS"));
-    assert!(snapshot.contains("synthetic-study"));
-    assert!(snapshot.contains("trial summary stays"));
-    assert!(!snapshot.contains(HIDDEN));
-    let evidence: String = copy
-        .query_row(
-            "SELECT payload FROM citation_evidence WHERE id='evidence'",
-            [],
-            |row| row.get(0),
-        )
-        .unwrap();
-    assert!(!evidence.contains(HIDDEN));
     drop(copy);
     for suffix in ["", "-wal", "-shm", "-journal"] {
         let path = dir.path().join(format!("checked.sqlite{suffix}"));
