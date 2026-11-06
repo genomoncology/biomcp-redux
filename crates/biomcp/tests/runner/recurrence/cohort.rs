@@ -138,7 +138,7 @@ fn number(request: &str, name: &str) -> Result<usize, String> {
 
 /// The field set cBioPortal returns for its SUMMARY projection, with synthetic values.
 fn source_row(index: usize) -> Value {
-    let alternate = if index % 3 == 0 { "T" } else { "G" };
+    let alternate = if index.is_multiple_of(3) { "T" } else { "G" };
     let sample = format!("synthetic-sample-{index}");
     let mut row = super::row(&sample, alternate);
     let extra = json!({
