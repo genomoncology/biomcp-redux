@@ -1649,7 +1649,8 @@ Options:
           [possible values: true, false]
 
       --country <country>...
-          Country label; biomcp_help search trial.
+          Case-insensitive: Country label; biomcp_help search trial
+          Case-insensitive: Country label.
           Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
 
       --criteria <criteria>
@@ -1788,7 +1789,8 @@ Condition alternatives joined with OR; NCI requires NCIt codes. Value form: repe
 Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string. Example: --condition-id NCIT:C3224. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--count-only`: Total.
 Source total only; no returned study rows. Value form: boolean. Example: --count-only. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--country`: Country label; biomcp_help search trial.
+- `--country`: Case-insensitive: Country label; biomcp_help search trial
+Case-insensitive: Country label.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--criteria`: Criteria text.
 ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.

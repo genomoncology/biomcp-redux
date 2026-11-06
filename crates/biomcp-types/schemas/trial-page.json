@@ -1920,7 +1920,7 @@
           "type": "boolean"
         },
         "country": {
-          "description": "Country label; biomcp_help search trial.\nExact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
+          "description": "Country label.\nExact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
           "items": {
             "enum": [
               "Afghanistan",

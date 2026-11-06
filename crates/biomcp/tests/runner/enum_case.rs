@@ -33,9 +33,17 @@ fn check() -> Result<(), String> {
             let Some(choice) = choice_node(property, &schema)
                 .get("enum")
                 .and_then(Value::as_array)
-                .and_then(|v| v.iter().filter_map(Value::as_str).find(|s| !s.is_ascii())
-                    .or_else(|| v.iter().filter_map(Value::as_str).find(|s| s.to_lowercase() != s.to_uppercase()))
-                    .or_else(|| v.iter().find_map(Value::as_str)))
+                .and_then(|v| {
+                    v.iter()
+                        .filter_map(Value::as_str)
+                        .find(|s| !s.is_ascii())
+                        .or_else(|| {
+                            v.iter()
+                                .filter_map(Value::as_str)
+                                .find(|s| s.to_lowercase() != s.to_uppercase())
+                        })
+                        .or_else(|| v.iter().find_map(Value::as_str))
+                })
             else {
                 continue;
             };
@@ -76,10 +84,7 @@ fn parameter(
     if expected.pointer("/error/code") == Some(&json!("usage.arguments")) {
         return Err(format!("canonical baseline refused: {expected}"));
     }
-    for spelling in [
-        canonical.to_lowercase(),
-        canonical.to_uppercase(),
-    ] {
+    for spelling in [canonical.to_lowercase(), canonical.to_uppercase()] {
         values.insert(key.into(), value(&spelling));
         let actual = cli(env, &argv(verb, entity, schema, &values))?;
         if actual != expected {
