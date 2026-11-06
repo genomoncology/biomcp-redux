@@ -11,6 +11,8 @@ mod schemas;
 mod typed;
 #[path = "typed_bridge.rs"]
 mod typed_bridge;
+#[path = "typed_followups.rs"]
+pub(super) mod typed_followups;
 #[path = "typed_help.rs"]
 mod typed_help;
 #[path = "typed_hosted.rs"]
@@ -33,6 +35,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = hosted_surface::trials();
+    trials.extend(typed_followups::trials());
     trials.extend(typed::trials());
     trials.extend([
         transcript_trial("mcp-parity/cancellation-suppresses-later-output", || {

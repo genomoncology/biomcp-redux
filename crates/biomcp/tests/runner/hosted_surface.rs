@@ -1,4 +1,5 @@
 //! Hosted discovery and follow-ups describe this server's actual authority.
+//! live_check: local HTTP/stdio transport replay with recorded public replies; no live calls.
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
@@ -72,7 +73,7 @@ fn server(mode: &str, disabled: &[&str], replay: &str) -> Result<(Server, Enviro
     let config = Environment::new().map_err(|e| e.to_string())?;
     config
         .config(
-            &json!({"mcp_tool_mode":mode,"hosted_max_use":"restricted","disable_sources":disabled}),
+            &json!({"mcp_tool_mode":mode,"mcp_typed_output_schema":true,"hosted_max_use":"restricted","disable_sources":disabled}),
         )
         .map_err(|e| e.to_string())?;
     let server = Server::configured_globals(
@@ -244,24 +245,32 @@ fn source_notices(server: &Server, mode: &str) -> Check {
                 "{mode}: disabled source lacks {expected} explanation: {reply}"
             ));
         }
-        for step in reply
-            .get("next")
+        followups(server, mode, &reply)?;
+    }
+    Ok(())
+}
+
+fn followups(server: &Server, mode: &str, reply: &Value) -> Check {
+    if mode == "typed" {
+        return super::typed_followups::check_next(reply, &catalog(server)?, &mut 0);
+    }
+    for step in reply
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        let args = step
+            .get("args")
             .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-        {
-            let args = step
-                .get("args")
-                .and_then(Value::as_array)
-                .ok_or("next args")?;
-            if args.iter().any(|word| {
-                matches!(
-                    word.as_str(),
-                    Some("--fresh" | "--config" | "sync" | "health")
-                )
-            }) {
-                return Err(format!("{mode}: unavailable next: {step}"));
-            }
+            .ok_or("next args")?;
+        if args.iter().any(|word| {
+            matches!(
+                word.as_str(),
+                Some("--fresh" | "--config" | "sync" | "health")
+            )
+        }) {
+            return Err(format!("{mode}: unavailable next: {step}"));
         }
     }
     Ok(())

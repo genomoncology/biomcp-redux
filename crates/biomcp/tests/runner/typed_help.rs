@@ -80,7 +80,12 @@ fn discovery_contract(single: &[Value], typed: &[Value]) -> Result<(), String> {
         let expected = reply(single, id)?
             .pointer("/result/structuredContent")
             .ok_or("single result")?;
-        if reply(typed, id)?.pointer("/result/structuredContent") != Some(expected) {
+        if super::typed_followups::data(
+            reply(typed, id)?
+                .pointer("/result/structuredContent")
+                .ok_or("typed result")?,
+        ) != super::typed_followups::data(expected)
+        {
             return Err(format!("typed parity {id}"));
         }
     }
