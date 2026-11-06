@@ -2,6 +2,7 @@
 import hashlib
 import json
 import platform
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -13,7 +14,11 @@ with tempfile.TemporaryDirectory(prefix="drug-search-baseline-") as temporary:
     binary = root / "biomcp"
     member = {("Linux", "x86_64"): "biomcp-linux-x86_64",
               ("Darwin", "arm64"): "biomcp-macos-arm64"}[(platform.system(), platform.machine())]
-    subprocess.run(["scp", sys.argv[1].rstrip("/") + "/" + member, str(binary)], check=True)
+    local = Path.home() / "workspace/data/biomcp-redux/internal-build" / Path(sys.argv[1]).name / member
+    if local.is_file():
+        shutil.copyfile(local, binary)
+    else:
+        subprocess.run(["scp", sys.argv[1].rstrip("/") + "/" + member, str(binary)], check=True)
     binary.chmod(0o755)
     results = {}
     for entity in ["trial", "article"]:
