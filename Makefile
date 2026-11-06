@@ -628,3 +628,7 @@ commercial-config-check:
 .PHONY: study-flags-focused
 study-flags-focused:
 	+sh scripts/check_hosted_modes.sh focused
+
+.PHONY: study-flags-case
+study-flags-case:
+	cargo test --locked -p biomcp --test cases mcp-hosted/use/study-commercial-flags -- --exact
