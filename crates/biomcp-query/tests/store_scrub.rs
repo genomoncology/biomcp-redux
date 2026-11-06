@@ -54,6 +54,16 @@ fn fixture(path: &std::path::Path) -> Connection {
         HIDDEN.as_bytes(),
     );
     reply(&db, 5, "pubmed", "https://example/summary", br#"{"result":{"uids":["1003"],"1003":{"uid":"1003","title":"Unlicensed abstract stays"}}}"#);
+    let abstracts = format!(
+        "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>1002</PMID><Article><Abstract><AbstractText>{HIDDEN}</AbstractText></Abstract></Article></MedlineCitation></PubmedArticle><PubmedArticle><MedlineCitation><PMID>1003</PMID><Article><Abstract><AbstractText>UNKNOWN_LICENSE_ABSTRACT_STAYS</AbstractText></Abstract></Article></MedlineCitation></PubmedArticle></PubmedArticleSet>"
+    );
+    reply(
+        &db,
+        6,
+        "pubmed",
+        "https://example/efetch",
+        abstracts.as_bytes(),
+    );
     db.execute(
         "INSERT INTO pool VALUES ('p',x'01',1,9999999999,3,'[]')",
         [],
@@ -136,6 +146,16 @@ fn scrub_copy_removes_withheld_disk_bytes_and_preserves_rank_and_study_lookup() 
         String::from_utf8(abstract_metadata)
             .unwrap()
             .contains("Unlicensed abstract stays")
+    );
+    let abstracts: Vec<u8> = copy
+        .query_row("SELECT body FROM reply WHERE key=?1", [vec![6_u8]], |row| {
+            row.get(0)
+        })
+        .unwrap();
+    assert!(
+        String::from_utf8(abstracts)
+            .unwrap()
+            .contains("UNKNOWN_LICENSE_ABSTRACT_STAYS")
     );
     drop(copy);
     for suffix in ["", "-wal", "-shm", "-journal"] {
