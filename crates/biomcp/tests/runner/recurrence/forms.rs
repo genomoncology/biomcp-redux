@@ -21,6 +21,7 @@ pub(super) fn check() -> Result<(), String> {
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     super::config(&env, &stub)?;
+    shared_forms(&env)?;
     for input in [
         "rs113488022",
         "CA123643",
@@ -85,4 +86,38 @@ fn reply(request: &str) -> Result<String, String> {
         return super::car(request);
     }
     super::cbio(request)
+}
+
+fn shared_forms(env: &Environment) -> Result<(), String> {
+    let mut definitions = Vec::new();
+    for (_, _, id) in biomcp_types::command_paths()
+        .into_iter()
+        .filter(|(verb, entity, _)| {
+            matches!(
+                (*verb, *entity),
+                ("variant", "recurrence") | ("get", "variant")
+            )
+        })
+    {
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
+            .output()
+            .map_err(|e| e.to_string())?;
+        let schema: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+        if schema.pointer("/properties/input/$ref") != Some(&json!("#/$defs/VariantInput")) {
+            return Err(format!(
+                "{id} no longer uses the shared variant input contract"
+            ));
+        }
+        definitions.push(
+            schema
+                .pointer("/$defs/VariantInput")
+                .cloned()
+                .ok_or("variant input schema")?,
+        );
+    }
+    if definitions[0] != definitions[1] {
+        return Err("recurrence and identity lookup advertise different identifier forms".into());
+    }
+    Ok(())
 }
