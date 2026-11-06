@@ -125,7 +125,7 @@ pub fn catalog_named(
         )
         .map(|received| (received.value, received.meta))?;
     if let Some(text) = text {
-        let text = text.to_lowercase();
+        let text = text.trim().to_lowercase();
         raw.sites.retain(|site| {
             site.as_ref().is_some_and(|site| {
                 raw.formats

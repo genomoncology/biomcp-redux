@@ -124,9 +124,9 @@ fn named_site(
                 .rows
                 .iter()
                 .filter(|site| {
-                    site.label
-                        .as_ref()
-                        .is_some_and(|label| label.as_str().eq_ignore_ascii_case(id.as_str()))
+                    site.label.as_ref().is_some_and(|label| {
+                        label.as_str().eq_ignore_ascii_case(id.as_str().trim())
+                    })
                 })
                 .collect();
             let selected = match exact.as_slice() {
@@ -146,6 +146,16 @@ fn named_site(
                 .push(status::source(Source::Seer, leg.finish(), None));
             out.include_refusals(page.window.refusals());
             out.problems.append(&mut page.problems);
+            let total = page.window.rows.len() as u32;
+            out.page = Some(page_info(0, total.min(search.limit()), u64::from(total)));
+            if total > search.limit() {
+                out.next.push(crate::next::Step::new(
+                    StepKind::Page,
+                    &[Source::Seer],
+                    run(Request::SearchDisease(search.at_offset(search.limit()))),
+                ));
+            }
+            page.window.rows.truncate(search.limit() as usize);
             out.body = (DiseaseSites {
                 items: page.window.rows.into(),
                 components: Box::default(),
