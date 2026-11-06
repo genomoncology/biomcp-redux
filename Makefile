@@ -816,3 +816,11 @@ enum-case-metadata-check:
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases mcp-parity/typed-help-research-discovery $(TEST_THREADS)
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases schema-discovery/help-contract $(TEST_THREADS)
+
+.PHONY: gencc-publisher-check gencc-publisher-load
+gencc-publisher-check: fmt
+	cargo test --locked -p biomcp --test cases gene-sections/gencc-first-publisher $(TEST_THREADS)
+
+gencc-publisher-load: fmt
+	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json > target/gencc-load-build.jsonl
+	python3 scripts/gencc_publisher_load.py target/gencc-load-build.jsonl
