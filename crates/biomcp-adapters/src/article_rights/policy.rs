@@ -254,15 +254,9 @@ pub fn snapshot(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
 
 /// An unusable identity cannot establish rights; native mappers retain their field problem.
 pub(super) fn parse_pmid(value: &str) -> Option<Pmid> {
-    match value.parse() {
-        Ok(id) => Some(id),
-        Err(_) => None,
-    }
+    value.parse().ok()
 }
 fn read_url(value: &str) -> Option<biodata::Text> {
     // URLs are built only from checked article identities; a malformed destination cannot erase a refusal.
-    match biodata::Text::new(value) {
-        Ok(url) => Some(url),
-        Err(_) => None,
-    }
+    biodata::Text::new(value).ok()
 }
