@@ -816,6 +816,7 @@ gencc-publisher-check: fmt
 	cargo test --locked -p biomcp --test cases gene-sections/gencc-first-publisher $(TEST_THREADS)
 
 gencc-publisher-load: fmt
+	mkdir -p target
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json > target/gencc-load-build.jsonl
 	python3 scripts/gencc_publisher_load.py target/gencc-load-build.jsonl
 

@@ -2,7 +2,7 @@
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::{fs, process::Stdio, sync::mpsc, time::Duration};
+use std::{fs, io::Write, process::Stdio, sync::mpsc, time::Duration};
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
@@ -84,7 +84,12 @@ fn first_reader(expires: bool) -> Result<(), String> {
     if result.is_err() {
         let retained =
             biomcp_test_support::evidence::retain(env.root()).map_err(|e| e.to_string())?;
-        eprintln!("GenCC reader evidence: {}", retained.display());
+        writeln!(
+            std::io::stderr(),
+            "GenCC reader evidence: {}",
+            retained.display()
+        )
+        .map_err(|e| e.to_string())?;
     }
     peer.finish()?;
     result
@@ -236,7 +241,7 @@ fn read_result(
         "exit": output.status.code(), "local_error": value.get("local_error")});
     fs::write(env.root().join("reader-phase.json"), phase.to_string())
         .map_err(|e| e.to_string())?;
-    println!("GENCC_READER_PHASE {phase}");
+    writeln!(std::io::stdout(), "GENCC_READER_PHASE {phase}").map_err(|e| e.to_string())?;
     if ((!output.status.success() || value.get("local_error").is_some()) && !busy)
         || !output.stderr.is_empty()
     {
