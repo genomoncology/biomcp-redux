@@ -141,11 +141,15 @@ fn replay_partial() -> Result<(), String> {
             let entry = entry.map_err(|e| e.to_string())?;
             let bytes = std::fs::read(entry.path()).map_err(|e| e.to_string())?;
             let mut value: Value = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
-            for exchange in value["exchanges"]
-                .as_array_mut()
+            for exchange in value
+                .get_mut("exchanges")
+                .and_then(Value::as_array_mut)
                 .ok_or("missing exchanges")?
             {
-                exchange["delay_ms"] = json!(if name == "mygene" { 60_000 } else { 0 });
+                exchange.as_object_mut().ok_or("invalid exchange")?.insert(
+                    "delay_ms".into(),
+                    json!(if name == "mygene" { 60_000 } else { 0 }),
+                );
             }
             std::fs::write(destination.join(entry.file_name()), value.to_string())
                 .map_err(|e| e.to_string())?;
@@ -171,15 +175,18 @@ fn replay_partial() -> Result<(), String> {
         .or_else(|| serde_json::from_str(reply.pointer("/result/content/0/text")?.as_str()?).ok())
         .ok_or_else(|| format!("partial answer lost: {status} {reply}"))?;
     if status != 200
-        || content["status"] != "partial"
+        || content.get("status") != Some(&json!("partial"))
         || !content.to_string().contains("KRAS")
-        || !content["sources"].as_array().is_some_and(|sources| {
-            sources.iter().any(|source| {
-                source["source"] == "mygene"
-                    && source["state"] == "failed"
-                    && source["reason"] == "deadline-exceeded"
+        || !content
+            .get("sources")
+            .and_then(Value::as_array)
+            .is_some_and(|sources| {
+                sources.iter().any(|source| {
+                    source.get("source") == Some(&json!("mygene"))
+                        && source.get("state") == Some(&json!("failed"))
+                        && source.get("reason") == Some(&json!("deadline-exceeded"))
+                })
             })
-        })
     {
         return Err(format!(
             "fast replay answer lost to slow source: {status} {content}"
@@ -192,9 +199,9 @@ fn replay_partial() -> Result<(), String> {
         .recv_timeout(DEADLOCK_GUARD)
         .map_err(|e| e.to_string())?;
     let event: Value = serde_json::from_str(&event).map_err(|e| e.to_string())?;
-    if event["tool"] != "biomcp"
-        || event["status"] != "partial"
-        || event["failed_sources"] != json!(["mygene"])
+    if event.get("tool") != Some(&json!("biomcp"))
+        || event.get("status") != Some(&json!("partial"))
+        || event.get("failed_sources") != Some(&json!(["mygene"]))
         || event.to_string().contains("KRAS")
         || event.to_string().contains("diagnostic-private-key")
     {

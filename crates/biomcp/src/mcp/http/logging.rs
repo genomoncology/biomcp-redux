@@ -17,7 +17,13 @@ pub(super) fn record(
     if value.get("method").and_then(Value::as_str) != Some("tools/call") {
         return;
     }
-    let mut line = line(&value["params"], duration, http, reply).to_string();
+    let mut line = line(
+        value.get("params").unwrap_or(&Value::Null),
+        duration,
+        http,
+        reply,
+    )
+    .to_string();
     line.push('\n');
     crate::output::diagnostic(line.as_bytes());
 }

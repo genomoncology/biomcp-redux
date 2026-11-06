@@ -627,3 +627,8 @@ hosted-resilience-focused:
 	cargo test --locked -p biomcp --test cases mcp-hosted/replay-partial-at-deadline $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-hosted/pacing/whole-call-deadline $(TEST_THREADS)
+
+.PHONY: hosted-resilience-mechanical
+hosted-resilience-mechanical:
+	+$(MAKE) --no-print-directory check-cheap
+	+$(MAKE) --no-print-directory hosted-resilience-focused

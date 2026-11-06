@@ -87,7 +87,7 @@ fn load_service(
         address,
         hosts: Vec::new(),
         globals,
-        root: Arc::new(crate::grammar::root().map_err(|_| io::Error::other("grammar"))?),
+        root: super::tests::test_service().root,
         settings: Arc::new(Ok(None)),
         fetch: Ok(Arc::new(fetch)),
         recovery: None,

@@ -167,7 +167,7 @@ mod tests {
     use serde_json::json;
     use std::{sync::mpsc, time::Duration};
 
-    fn test_service() -> Service {
+    pub(super) fn test_service() -> Service {
         Service {
             hosted_max_use: Default::default(),
             root: std::sync::Arc::new(crate::grammar::root().unwrap()),
@@ -239,7 +239,12 @@ mod tests {
     fn call_diagnostic_keeps_only_safe_fields() {
         let params =
             json!({"name":"get_gene", "arguments":{"id":"private-query", "key":"private-key"}});
-        let reply = json!({"result":{"structuredContent":{"status":"partial", "query":"private-query", "sources":[{"source":"mygene", "state":"failed", "term":"private-key"}, {"source":"private-key", "state":"failed"}]}}});
+        let reply = json!({"result":{"structuredContent":{
+            "status":"partial", "query":"private-query", "sources":[
+                {"source":"mygene", "state":"failed", "term":"private-key"},
+                {"source":"private-key", "state":"failed"}
+            ]
+        }}});
         let line =
             super::super::logging::line(&params, Duration::from_millis(7), 200, Some(&reply));
         assert_eq!(
