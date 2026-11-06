@@ -3326,10 +3326,10 @@ Source CIViC evidence status; omitted preserves the source's existing default. V
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer. Example: --limit 10. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Candidate rows to skip in source order. Value form: integer. Example: --offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--resolver`: Resolver; biomcp_help get variant
-Resolver.
+- `--resolver`: Case-insensitive: Resolver; biomcp_help get variant
+Case-insensitive: Resolver.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string. Example: --resolver variantvalidator. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `section`: Sections; biomcp_help get variant
+- `section`: Case-insensitive: Sections; biomcp_help get variant
 - `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer. Example: --section-limit 2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer. Example: --section-offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--tumor-type`: Tumor
@@ -4968,14 +4968,14 @@ Options:
 
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
-- `--build`: Explicit source assembly when required by; biomcp_help variant population
-Explicit source assembly when required by identity input. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--build`: Case-insensitive: Explicit source assembly when; biomcp_help variant population
+Case-insensitive: Explicit source assembly when required by identity input. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean. Example: --detail. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
 - `--limit`: Maximum rows per page. Value form: integer. Example: --limit 3. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 10. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
-- `--resolver`: Resolver for reference-qualified input; biomcp_help variant population
-Resolver for reference-qualified input. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--resolver`: Case-insensitive: Resolver for; biomcp_help variant population
+Case-insensitive: Resolver for reference-qualified input. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 
 ## biomcp variant recurrence
 

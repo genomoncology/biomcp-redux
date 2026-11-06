@@ -87,7 +87,7 @@
           "type": "null"
         }
       ],
-      "description": "FAERS reaction counts; biomcp_help search adverse-event\nFAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.",
+      "description": "Case-insensitive: FAERS reaction counts; biomcp_help search adverse-event\nCase-insensitive: FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.",
       "x-required-component": "meddra"
     },
     "drug": {
@@ -217,7 +217,7 @@
     "source": {
       "$ref": "#/$defs/AdverseEventSource",
       "default": "faers",
-      "description": "Source; default FAERS; biomcp_help search adverse-event\nSource; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names.",
+      "description": "Case-insensitive: Source; default FAERS; biomcp_help search adverse-event\nCase-insensitive: Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names.",
       "x-required-components": {
         "maude": "gmdn"
       }
