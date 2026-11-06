@@ -83,24 +83,30 @@ pub(super) fn author_summaries(
             .unwrap_or(usize::MAX)
     });
     problems.extend(mapped.problems);
+    let mut value = Vec::new();
+    let mut refusals = mapped.refusals;
+    for paper in mapped.value {
+        let names = match paper
+            .pmid
+            .as_ref()
+            .and_then(|id| authors.remove(&id.to_string()))
+        {
+            Some(names) => names,
+            None => {
+                refusals = crate::Refusal::Refused;
+                push_problem(&mut problems, Source::PubMed, None, "authors");
+                continue;
+            }
+        };
+        value.push(biomcp_types::AuthorPublication {
+            paper,
+            authors: names,
+        });
+    }
     Mapped {
-        value: mapped
-            .value
-            .into_iter()
-            .map(|paper| {
-                let names = paper
-                    .pmid
-                    .as_ref()
-                    .and_then(|id| authors.remove(&id.to_string()))
-                    .expect("mapped PubMed summaries retain their author collection");
-                biomcp_types::AuthorPublication {
-                    paper,
-                    authors: names,
-                }
-            })
-            .collect(),
+        value,
         problems,
-        refusals: mapped.refusals,
+        refusals,
     }
 }
 fn header(row: SummaryRow, key: &str, problems: &mut Vec<Problem>) -> Option<ArticleHeader> {

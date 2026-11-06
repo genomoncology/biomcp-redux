@@ -95,7 +95,7 @@ fn execute(
                     "Equal names may refer to different people; names are not merged. ",
                     "Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. ",
                     "PubMed matches papers, not people; only the first 9999 matching papers can be paged."
-                ).parse().expect("static text"),
+                ).parse().map_err(|_| biomcp_fetch::CacheError::Encoding)?,
                 papers: papers.into(),
             }),
         }.with_query(q.clone());
