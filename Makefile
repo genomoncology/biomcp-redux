@@ -818,3 +818,10 @@ gencc-publisher-check: fmt
 gencc-publisher-load: fmt
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json > target/gencc-load-build.jsonl
 	python3 scripts/gencc_publisher_load.py target/gencc-load-build.jsonl
+
+.PHONY: accepted-batch-composition-check
+accepted-batch-composition-check:
+	+$(MAKE) hosted-surface-generate
+	+$(MAKE) --keep-going typed-catalog-followups-composition-check enum-case-check article-default-focused
+	cargo test --locked -p biomcp --test tools -- --proofs schema-discovery/rejects-bad-cases $(filter-out --,$(TEST_THREADS))
+	python3 scripts/measure_typed_catalog.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp" "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/accepted-batch-catalog"
