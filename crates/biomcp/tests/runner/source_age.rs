@@ -1,5 +1,6 @@
 //! Feature source-data-age: retained source dates survive paging and hosted restrictions.
 use super::super::{
+    http::Server,
     launch::{Environment, fixtures},
     mcp,
     trial_get::command,
@@ -75,6 +76,8 @@ fn legacy_snapshot(env: &Environment) -> Check {
         [payload.to_string()],
     )
     .map_err(|e| e.to_string())?;
+    db.execute("DELETE FROM reply", [])
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 fn hosted() -> Check {
@@ -98,10 +101,26 @@ fn hosted() -> Check {
         false,
         &globals,
     )?;
+    recovery(&reply)?;
+    globals.pop();
+    let server = Server::configured_globals("127.0.0.1:0", None, None, None, None, &globals)?;
+    let frame = mcp::request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp", "arguments":{"args":["search","drug","Glivec","--source","ema"]}}),
+    );
+    let (_, ordinary) = server.request("POST", "/mcp", &frame.to_string())?;
+    recovery(
+        ordinary
+            .pointer("/result/structuredContent")
+            .ok_or("HTTP source reply missing")?,
+    )
+}
+fn recovery(reply: &Value) -> Check {
     if reply.pointer("/sources/0/state") != Some(&json!("stale")) {
         return Err(format!("expected stale retained EMA: {reply}"));
     }
-    dated_notice(&reply)?;
+    dated_notice(reply)?;
     if reply
         .get("next")
         .and_then(Value::as_array)
