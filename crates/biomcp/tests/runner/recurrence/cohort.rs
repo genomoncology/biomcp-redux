@@ -36,7 +36,7 @@ fn common() -> Result<(), String> {
 fn large() -> Result<(), String> {
     let (env, stub) = serve(LARGE_ROWS)?;
     let mut args = default_page();
-    args.extend(["--disable-sources".into(), "cancer-hotspots".into()]);
+    args.extend(["--disable-sources".into(), "hotspots".into()]);
     let first = super::call(&env, &args, 0)?;
     if first.pointer("/result/more") != Some(&json!(true))
         || first.pointer("/result/all_pages_read") != Some(&json!(false))
@@ -50,7 +50,7 @@ fn large() -> Result<(), String> {
             .ok_or_else(|| format!("page step lost without Cancer Hotspots: {first}"))?,
     )
     .map_err(|e| e.to_string())?;
-    next.extend(["--disable-sources".into(), "cancer-hotspots".into()]);
+    next.extend(["--disable-sources".into(), "hotspots".into()]);
     let last = super::call(&env, &next, 0)?;
     if last.pointer("/result/more") != Some(&json!(false))
         || last.pointer("/result/all_pages_read") != Some(&json!(false))
@@ -142,8 +142,8 @@ fn source_row(index: usize) -> Value {
     let sample = format!("synthetic-sample-{index}");
     let mut row = super::row(&sample, alternate);
     let extra = json!({
-        "uniqueSampleKey":format!("c3ludGhldGljLXNhbXBsZS17aW5kZXh9{index}"),
-        "uniquePatientKey":format!("c3ludGhldGljLXBhdGllbnQ{index}"),
+        "uniqueSampleKey":format!("synthetic-sample-key-{index}"),
+        "uniquePatientKey":format!("synthetic-patient-key-{index}"),
         "patientId":format!("synthetic-patient-{index}"),
         "center":"NA","mutationStatus":"SOMATIC","validationStatus":"Unknown",
         "tumorAltCount":40,"tumorRefCount":160,"proteinChange":"V600E",
