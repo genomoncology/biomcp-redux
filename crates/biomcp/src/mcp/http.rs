@@ -358,37 +358,18 @@ impl Service {
                 },
             )
         } else {
-            match super::research::execute(
-                &call,
-                crate::command::Context {
-                    globals: &self.globals,
-                    root: &self.root,
-                    settings: &self.settings,
-                    fetch: &self.fetch,
-                    recovery: self.recovery.as_deref(),
-                    secrets: keys.as_ref(),
-                    declared_use,
-                    scope: None,
-                },
-                true,
-            ) {
-                Ok(outcome) => super::typed::tool_result(
-                    id,
-                    &outcome,
-                    modern,
-                    crate::command::Context {
-                        globals: &self.globals,
-                        root: &self.root,
-                        settings: &self.settings,
-                        fetch: &self.fetch,
-                        recovery: self.recovery.as_deref(),
-                        secrets: keys.as_ref(),
-                        declared_use,
-                        scope: None,
-                    },
-                    &call.args,
-                    true,
-                ),
+            let context = crate::command::Context {
+                globals: &self.globals,
+                root: &self.root,
+                settings: &self.settings,
+                fetch: &self.fetch,
+                recovery: self.recovery.as_deref(),
+                secrets: keys.as_ref(),
+                declared_use,
+                scope: None,
+            };
+            match super::research::execute(&call, context, true) {
+                Ok(outcome) => super::typed::tool_result(id, &outcome, modern, context.settings),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),
             }
         };

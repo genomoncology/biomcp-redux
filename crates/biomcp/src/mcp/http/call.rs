@@ -87,7 +87,10 @@ impl Calls {
                 let outcome = worker::execute(|| {
                     research::execute(&call, context, true).map(|outcome| {
                         super::super::typed::tool_result(
-                            worker_id, &outcome, modern, context, &call.args, true,
+                            worker_id,
+                            &outcome,
+                            modern,
+                            context.settings,
                         )
                     })
                 });
