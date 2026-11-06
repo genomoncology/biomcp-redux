@@ -13,6 +13,7 @@ use std::{
 /// At most twenty record lookups and three seconds per text-bearing response.
 const MAX_RECORDS: usize = 20;
 const LOOKUP_BUDGET: Duration = Duration::from_secs(3);
+const FINISH_BUDGET: Duration = Duration::from_millis(200);
 
 /// Resolve explicit PMC commercial licenses; unavailable metadata grants no rights.
 pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License> {
@@ -27,7 +28,10 @@ pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License>
         return BTreeMap::new();
     }
     let deadline = leg.local_deadline();
-    let mut remaining = LOOKUP_BUDGET.min(leg.remaining());
+    let mut remaining = LOOKUP_BUDGET.min(leg.remaining().saturating_sub(FINISH_BUDGET));
+    if remaining.is_zero() {
+        return BTreeMap::new();
+    }
     let before = leg.remaining();
     let headers = leg.dependency(&crate::pubmed::SPEC, remaining, |dependency| {
         crate::pubmed::summaries(dependency, &ids, None)
