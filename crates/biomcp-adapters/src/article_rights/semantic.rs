@@ -91,17 +91,9 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 object.remove("abstract");
                 object.remove("abstract_text");
             }
-            let mapped = object.get("contexts").is_some_and(Value::is_object);
-            let context_license = if mapped {
-                object
-                    .get("license")
-                    .and_then(|license| serde_json::from_value(license.clone()).ok())
-            } else {
-                citing.and_then(|id| licenses.get(&id).copied())
-            };
+            let context_license = citing.and_then(|id| licenses.get(&id).copied());
             object.remove("biomcpContextLicense");
-            if !mapped
-                && object.contains_key("contexts")
+            if object.contains_key("contexts")
                 && let Some(value) =
                     context_license.and_then(|license| serde_json::to_value(license).ok())
             {
@@ -110,29 +102,17 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
             if !permitted(context_license, false)
                 && object.get("contexts").is_some_and(has_contexts)
             {
-                if mapped {
-                    if let Some(contexts) =
-                        object.get_mut("contexts").and_then(Value::as_object_mut)
-                    {
-                        contexts.insert("items".into(), Value::Array(Vec::new()));
-                    }
-                    object.insert(
-                        "text_withheld".into(),
-                        serde_json::json!({"reason":"disabled"}),
-                    );
-                } else {
-                    let notice =
-                        citing
-                            .map(super::withheld)
-                            .unwrap_or(biomcp_types::WithheldArticleText {
-                                reason: biomcp_types::Reason::Disabled,
-                                url: None,
-                            });
-                    if let Ok(notice) = serde_json::to_value(notice) {
-                        object.insert("biomcpTextWithheld".into(), notice);
-                    }
-                    object.remove("contexts");
+                let notice =
+                    citing
+                        .map(super::withheld)
+                        .unwrap_or(biomcp_types::WithheldArticleText {
+                            reason: biomcp_types::Reason::Disabled,
+                            url: None,
+                        });
+                if let Ok(notice) = serde_json::to_value(notice) {
+                    object.insert("biomcpTextWithheld".into(), notice);
                 }
+                object.remove("contexts");
             }
             for child in object.values_mut() {
                 apply(child, own, licenses);
@@ -162,8 +142,11 @@ fn has_text(value: &Value) -> bool {
 }
 
 fn has_contexts(value: &Value) -> bool {
-    value
-        .as_array()
-        .or_else(|| value.get("items").and_then(Value::as_array))
-        .is_some_and(|items| !items.is_empty())
+    match value {
+        Value::Null => false,
+        Value::Array(items) => !items.is_empty(),
+        Value::Object(object) => !object.is_empty(),
+        Value::String(text) => !text.is_empty(),
+        _ => true,
+    }
 }
