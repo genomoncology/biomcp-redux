@@ -41,11 +41,11 @@ pub(super) fn trials() -> Vec<Trial> {
                 &[
                     "article",
                     "references",
-                    "33123537",
+                    "34096690",
                     "--source",
                     "semantic-scholar",
                     "--offset",
-                    "112",
+                    "16",
                     "--limit",
                     "1",
                 ],
