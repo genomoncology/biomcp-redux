@@ -22,6 +22,34 @@ pub(super) fn check() -> Result<(), String> {
     }
     check_form("both", false, true)?;
     check_form("both", true, true)?;
+    reference_admission()?;
+    Ok(())
+}
+
+fn reference_admission() -> Result<(), String> {
+    let config = json!({"mcp_tool_mode":"typed","mcp_typed_enum_limit":1,
+        "disable_sources":["civic","gmdn"]});
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    env.config(&config).map_err(|error| error.to_string())?;
+    let server = Server::configured_globals(
+        "127.0.0.1:0", Some(config), None, None, None, &["--offline".into()],
+    )?;
+    for (index, arguments) in [
+        json!({"command":"biomcp","arguments":{"args":["help"]}}),
+        json!({"command":"biomcp_help","arguments":{"command":"get gene"}}),
+        json!({"command":"get_gene","arguments":{"input":["BRAF"]}}),
+        json!({"command":"unknown","arguments":{}}),
+        json!({"command":"get_pathway","arguments":{"id":"hsa04151"},"extra":true}),
+    ].into_iter().enumerate() {
+        let frame = request(json!(index), "tools/call",
+            json!({"name":"biomcp_reference","arguments":arguments}));
+        let stdio = exchange_with_globals(&env, &[frame.clone()], &["--offline".into()])?;
+        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 || stdio.first().and_then(|reply| reply.pointer("/error/code"))
+            != Some(&json!(-32602)) || http.pointer("/error/code") != Some(&json!(-32602)) {
+            return Err(format!("reference accepted an unadvertised or malformed route: {stdio:?} {http}"));
+        }
+    }
     Ok(())
 }
 fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> {
