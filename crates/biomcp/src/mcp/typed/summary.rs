@@ -1,4 +1,4 @@
-//! Keep the CLI reply unchanged while spelling executable next calls in the text summary.
+//! Summarize typed replies and translate checked CLI Steps to tool calls.
 use serde_json::{Value, json};
 
 pub(super) fn render(
@@ -11,7 +11,7 @@ pub(super) fn render(
         .and_then(Value::as_str)
         .unwrap_or("complete");
     let mut calls = Vec::new();
-    collect(root, value, &mut calls);
+    collect(value, &mut calls);
     if calls.is_empty()
         && status == "usage"
         && let Some(call) = correction(root, value, args)
@@ -51,10 +51,12 @@ fn correction(
         .collect::<Vec<_>>();
     translate(root, &values)
 }
-fn collect(root: &crate::grammar::Root, value: &Value, calls: &mut Vec<String>) {
-    if let Some(args) = value.get("args").and_then(Value::as_array)
-        && let Some(call) = translate(root, args)
-    {
+fn collect(value: &Value, calls: &mut Vec<String>) {
+    if value.get("name").is_some() && value.get("arguments").is_some() {
+        let mut call = value.clone();
+        if let Some(fields) = call.as_object_mut() {
+            fields.remove("kind");
+        }
         let text = call.to_string();
         if !calls.contains(&text) && calls.len() < 3 {
             calls.push(text);
@@ -65,19 +67,19 @@ fn collect(root: &crate::grammar::Root, value: &Value, calls: &mut Vec<String>) 
             for (key, value) in fields {
                 // Only protocol-owned follow-ups are interpreted; source text remains data.
                 if matches!(key.as_str(), "next" | "error" | "problems") {
-                    collect(root, value, calls);
+                    collect(value, calls);
                 }
             }
         }
         Value::Array(values) => {
             for value in values {
-                collect(root, value, calls);
+                collect(value, calls);
             }
         }
         _ => {}
     }
 }
-fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
+pub(super) fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
     let args = args.iter().map(Value::as_str).collect::<Option<Vec<_>>>()?;
     if let Some(call) = super::help::next(root, &args) {
         return Some(call);
@@ -92,35 +94,20 @@ fn translate(root: &crate::grammar::Root, args: &[Value]) -> Option<Value> {
         .find(|(v, e, _)| *v == verb && *e == entity)?;
     let schema = super::schema(id).ok()?;
     let input = super::arguments::input(&schema);
-    let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
+    let normalized = crate::grammar::request_arguments(verb, entity, matches).ok()?;
     let mut arguments = serde_json::Map::new();
-    for (key, property) in input.get("properties")?.as_object()? {
-        if matches.value_source(key) != Some(clap::parser::ValueSource::CommandLine) {
-            continue;
+    for key in input.get("properties")?.as_object()?.keys() {
+        if let Some(value) = normalized.get(key)
+            && (matches.value_source(key) == Some(clap::parser::ValueSource::CommandLine)
+                || schema.pointer(&format!("/properties/{key}/x-trailing-section"))
+                    == Some(&json!(true)))
+        {
+            arguments.insert(key.clone(), value.clone());
+        } else if input.pointer(&format!("/properties/{key}/type")) == Some(&json!("boolean"))
+            && matches.value_source(key) == Some(clap::parser::ValueSource::CommandLine)
+        {
+            arguments.insert(key.clone(), json!(matches.get_flag(key)));
         }
-        let arg = command
-            .get_arguments()
-            .find(|arg| arg.get_id().as_str() == key)?;
-        let value = if matches!(arg.get_action(), clap::ArgAction::SetTrue) {
-            Value::Bool(matches.get_flag(key))
-        } else {
-            let values = matches
-                .get_raw(key)?
-                .map(|v| v.to_str())
-                .collect::<Option<Vec<_>>>()?;
-            let kind = non_null_type(property, &input);
-            if kind == Some("array") {
-                json!(values)
-            } else {
-                let word = values.first()?;
-                if kind == Some("integer") {
-                    json!(word.parse::<u64>().ok()?)
-                } else {
-                    json!(word)
-                }
-            }
-        };
-        arguments.insert(key.clone(), value);
     }
     let arguments = Value::Object(arguments);
     checked_call(root, verb, entity, &schema, &arguments)
@@ -140,23 +127,4 @@ fn checked_call(
     let parsed = crate::grammar::parse(root, &args).ok()?;
     matches!(parsed.action, Some(biomcp_query::Action::Run { .. }))
         .then(|| json!({"name":super::name(verb,entity),"arguments":arguments}))
-}
-fn non_null_type<'a>(node: &'a Value, root: &'a Value) -> Option<&'a str> {
-    let node = super::arguments::resolve(node, root);
-    node["type"]
-        .as_str()
-        .or_else(|| {
-            node["type"]
-                .as_array()?
-                .iter()
-                .filter_map(Value::as_str)
-                .find(|kind| *kind != "null")
-        })
-        .or_else(|| {
-            node["anyOf"]
-                .as_array()?
-                .iter()
-                .filter_map(|node| non_null_type(node, root))
-                .find(|kind| *kind != "null")
-        })
 }

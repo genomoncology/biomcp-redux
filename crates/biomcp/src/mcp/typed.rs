@@ -3,6 +3,7 @@ mod arguments;
 mod catalog;
 pub(super) use catalog::instructions;
 mod description;
+mod followups;
 mod help;
 mod summary;
 mod validation;
@@ -43,7 +44,13 @@ fn summarize(
             let text = reply.pointer("/result/content/0/text")?.as_str()?;
             serde_json::from_str(text).ok()
         });
-    if let Some(value) = value {
+    if let Some(mut value) = value {
+        followups::project(root, &mut value);
+        if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut)
+            && result.contains_key("structuredContent")
+        {
+            result.insert("structuredContent".into(), value.clone());
+        }
         let summary = summary::render(root, &value, args);
         let text = if matches!(form, crate::config::ReplyForm::StructuredOnly) {
             summary

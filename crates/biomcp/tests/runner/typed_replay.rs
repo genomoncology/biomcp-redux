@@ -430,9 +430,11 @@ fn compare(
     let actual = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("{name}: {reply}"))?;
-    let checked = volatile::expected(case.0, case.1, expected, actual)?;
-    let expected = checked.as_ref().unwrap_or(expected);
-    if serde_json::to_vec(actual).map_err(|e| e.to_string())?
+    let actual_data = super::super::typed_followups::data(actual);
+    let expected_data = super::super::typed_followups::data(expected);
+    let checked = volatile::expected(case.0, case.1, &expected_data, &actual_data)?;
+    let expected = checked.as_ref().unwrap_or(&expected_data);
+    if serde_json::to_vec(&actual_data).map_err(|e| e.to_string())?
         != serde_json::to_vec(expected).map_err(|e| e.to_string())?
     {
         return Err(format!(
@@ -440,7 +442,7 @@ fn compare(
         ));
     }
     super::super::super::schema::Registry::embedded()?.validate(
-        actual,
+        &actual_data,
         &[],
         expected.get("status") != Some(&json!("usage")),
     )?;
