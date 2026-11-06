@@ -252,9 +252,11 @@ impl DiseaseSearch {
 
     /// Select a name-filtered SEER catalog.
     pub fn seer_named(text: &str) -> Result<Self, QueryInvalid> {
-        let mut query = Self::seer()?;
-        query.0.text = Some(text.into());
-        Ok(query)
+        let query = Self::seer()?;
+        Self::try_from(SearchFields {
+            text: Some(text.into()),
+            ..query.0
+        })
     }
 
     /// Literal search text, absent for a native site catalog.
