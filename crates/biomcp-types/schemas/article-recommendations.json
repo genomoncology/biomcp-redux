@@ -1276,7 +1276,7 @@
       "properties": {
         "reason": {
           "$ref": "#/$defs/Reply_Reason",
-          "description": "The current use policy does not admit the record's text."
+          "description": "`disabled` when the use policy refuses the record's text; `unavailable`\nwhen its license could not be checked, so body text was left out."
         },
         "url": {
           "anyOf": [
