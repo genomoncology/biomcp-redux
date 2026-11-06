@@ -46,11 +46,8 @@ pub(super) fn check() -> Result<(), String> {
                 "sample_set":"msk_impact_2017_all","limit":3
             }}),
         );
-        let replies = mcp::exchange_with_globals(
-            &env,
-            &[frame],
-            &["--tool-mode".into(), "typed".into()],
-        )?;
+        let replies =
+            mcp::exchange_with_globals(&env, &[frame], &["--tool-mode".into(), "typed".into()])?;
         let typed = replies
             .first()
             .and_then(|r| r.pointer("/result/structuredContent"))
@@ -64,7 +61,9 @@ fn observed(value: &Value, input: &str) -> Result<(), String> {
     if value.pointer("/result/observed_sample_count") != Some(&json!(1))
         || value.pointer("/result/matching_granularity") != Some(&json!("exact-genomic-allele"))
     {
-        return Err(format!("{input} did not reach the exact cohort observation: {value}"));
+        return Err(format!(
+            "{input} did not reach the exact cohort observation: {value}"
+        ));
     }
     Ok(())
 }
@@ -80,7 +79,8 @@ fn reply(request: &str) -> Result<String, String> {
             json!({"total":1,"hits":[hit]})
         } else {
             hit
-        }.to_string());
+        }
+        .to_string());
     }
     if request.starts_with("GET /allele?") {
         return super::car(request);
