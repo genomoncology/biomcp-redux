@@ -536,5 +536,5 @@ typed-followups-parity typed-followups-toolcases: export BIOMCP_TRANSCRIPT_DIR :
 typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 typed-followups-toolcases:
-	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases --test-threads 2
-	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml --test-threads 2
+	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases $(filter-out --,$(TEST_THREADS))
+	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml $(filter-out --,$(TEST_THREADS))
