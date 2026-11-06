@@ -133,8 +133,7 @@ fn replay_partial() -> Result<(), String> {
     use serde_json::{Value, json};
     let environment = super::launch::Environment::new().map_err(|e| e.to_string())?;
     let replay = environment.root().join("replay");
-    let source =
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main");
+    let source = super::launch::fixtures().join("replies/gene/main");
     for name in ["hgnc", "mygene"] {
         let destination = replay.join(name);
         std::fs::create_dir_all(&destination).map_err(|e| e.to_string())?;
