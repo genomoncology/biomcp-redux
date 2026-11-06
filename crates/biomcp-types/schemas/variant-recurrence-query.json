@@ -63,10 +63,10 @@
       "x-positional": 0
     },
     "limit": {
-      "default": 10,
+      "default": 5000,
       "description": "Source mutation rows per page, including excluded alleles.",
       "format": "uint32",
-      "maximum": 100,
+      "maximum": 5000,
       "minimum": 1,
       "type": "integer"
     },
