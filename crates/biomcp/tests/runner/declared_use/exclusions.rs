@@ -245,8 +245,9 @@ fn discovery() -> Check {
     if !offers_reactions(&whole) || offers_reactions(&card) {
         return Err(format!("next disagrees with the list: {whole} then {card}"));
     }
-    let help = call(&server, &["help", "sources"], &narrowed, false)?.to_string();
-    if !help.contains("meddra: This request's source list leaves out") {
+    let header = format!("{ACADEMIC}{}", list("civic"));
+    let help = call(&server, &["help", "sources"], &header, false)?.to_string();
+    if !help.contains("civic: This request's source list leaves out") {
         return Err(format!("help disagrees with the list: {help}"));
     }
     if card.to_string().contains("--disable-sources") {
@@ -271,8 +272,12 @@ fn article_pools() -> Check {
         "article/fold/failed-pubmed",
         &replay,
         |_, record| {
-            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-                exchange["status"] = json!(200);
+            if let Some(exchanges) = record["exchanges"].as_array_mut() {
+                for exchange in exchanges.iter_mut() {
+                    exchange["status"] = json!(200);
+                }
+                // Every list runs its own search, so each caller needs its own replies.
+                *exchanges = exchanges.repeat(3);
             }
         },
     )
