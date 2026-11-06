@@ -82,7 +82,8 @@ fn first_reader(expires: bool) -> Result<(), String> {
         ));
     }
     if result.is_err() {
-        let retained = biomcp_test_support::evidence::retain(env.root()).map_err(|e| e.to_string())?;
+        let retained =
+            biomcp_test_support::evidence::retain(env.root()).map_err(|e| e.to_string())?;
         eprintln!("GenCC reader evidence: {}", retained.display());
     }
     peer.finish()?;
@@ -158,14 +159,14 @@ fn reader(env: &Environment, publish: mpsc::Sender<()>, expires: bool) -> Result
         let valid = if expires {
             value.get("local_error") == Some(&json!("busy"))
                 || value
-                .get("sources")
-                .and_then(Value::as_array)
-                .is_some_and(|sources| {
-                    sources.iter().any(|source| {
-                        source.get("source") == Some(&json!("gencc"))
-                            && source.get("reason") == Some(&json!("syncing"))
+                    .get("sources")
+                    .and_then(Value::as_array)
+                    .is_some_and(|sources| {
+                        sources.iter().any(|source| {
+                            source.get("source") == Some(&json!("gencc"))
+                                && source.get("reason") == Some(&json!("syncing"))
+                        })
                     })
-                })
         } else {
             value.pointer("/result/items/0/sections/gencc/state") == Some(&json!("data"))
         };
@@ -208,21 +209,39 @@ fn reader_waiting(path: &std::path::Path) -> bool {
         .any(|event| event.get("role") == Some(&json!("bundle-wait")))
 }
 
-fn read_result(env: &Environment, observations: &std::path::Path, expires: bool) -> Result<Value, String> {
-    let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &[
-        "get".into(), "gene".into(), "ODC1".into(), "gencc".into(),
-        "--observe".into(), observations.to_string_lossy().into(),
-    ]).output().map_err(|e| e.to_string())?;
+fn read_result(
+    env: &Environment,
+    observations: &std::path::Path,
+    expires: bool,
+) -> Result<Value, String> {
+    let output = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &[
+                "get".into(),
+                "gene".into(),
+                "ODC1".into(),
+                "gencc".into(),
+                "--observe".into(),
+                observations.to_string_lossy().into(),
+            ],
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
     let value: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let busy = expires && output.status.code() == Some(5)
+    let busy = expires
+        && output.status.code() == Some(5)
         && value.get("local_error") == Some(&json!("busy"));
     let phase = json!({"bundle_wait": reader_waiting(observations),
         "exit": output.status.code(), "local_error": value.get("local_error")});
-    fs::write(env.root().join("reader-phase.json"), phase.to_string()).map_err(|e| e.to_string())?;
+    fs::write(env.root().join("reader-phase.json"), phase.to_string())
+        .map_err(|e| e.to_string())?;
     println!("GENCC_READER_PHASE {phase}");
     if (!output.status.success() && !busy) || !output.stderr.is_empty() {
-        return Err(format!("reader failed: {phase}; stderr: {}; stdout: {value}",
-            String::from_utf8_lossy(&output.stderr)));
+        return Err(format!(
+            "reader failed: {phase}; stderr: {}; stdout: {value}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
     Ok(value)
 }
