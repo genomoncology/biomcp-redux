@@ -1,7 +1,7 @@
 {
   "feature": "article-fulltext",
   "live_check": "local-only argument validation with offline mode; no source requests",
-  "story": "Conflicting body selectors give the same CLI and typed guidance with help instead of an invented executable correction.",
+  "story": "Conflicting selectors preserve CLI help and expose an exact executable typed help call.",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -60,8 +60,23 @@
         "/next": {
           "count": 1
         },
-        "/next/0/args": [
-          "help",
+        "/next/0": {
+          "equals": {
+            "kind": "configure",
+            "name": "biomcp_help",
+            "arguments": {
+              "command": "article text"
+            }
+          }
+        }
+      }
+    },
+    {
+      "follow": "configure",
+      "offline": true,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/result/commands/0/command": [
           "article",
           "text"
         ]
