@@ -54,11 +54,13 @@ pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License>
             crate::pmc_oa::record_license(dependency, pmcid, Some(id))
         });
         remaining = remaining.saturating_sub(before.saturating_sub(leg.remaining()));
-        match license {
-            Ok(Some(license)) => {
-                allowed.insert(id, license);
-            }
-            Ok(None) | Err(_) => {} // Missing or unreadable terms grant no body-text rights.
+        // Failed metadata cannot supply a license; the paper still reaches the caller.
+        let license = match license {
+            Ok(license) => license,
+            Err(_) => continue,
+        };
+        if let Some(license) = license {
+            allowed.insert(id, license);
         }
     }
     allowed
