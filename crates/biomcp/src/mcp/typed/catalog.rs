@@ -59,18 +59,18 @@ pub(super) fn schema(mut schema: Value, excluded: &BTreeSet<Source>) -> Value {
 fn filter(node: &mut Value, excluded: &BTreeSet<Source>) {
     match node {
         Value::Object(fields) => {
-            if let Some(text) = fields.get("description").and_then(Value::as_str)
-                && mentions_excluded(text, excluded)
-            {
-                fields.insert(
-                    "description".into(),
-                    json!(
-                        text.lines()
-                            .map(|line| summary(line, excluded))
-                            .collect::<Vec<_>>()
-                            .join("\n")
-                    ),
-                );
+            for key in ["description", "x-section-rule"] {
+                if let Some(text) = fields.get(key).and_then(Value::as_str)
+                    && mentions_excluded(text, excluded)
+                {
+                    let mut text = text.to_owned();
+                    for name in names(excluded) {
+                        for index in matches(&text.to_lowercase(), &name).into_iter().rev() {
+                            text.replace_range(index..index + name.len(), "disabled source");
+                        }
+                    }
+                    fields.insert(key.into(), json!(text));
+                }
             }
             for key in ["enum", "x-extensible-enum"] {
                 if let Some(values) = fields.get_mut(key).and_then(Value::as_array_mut) {
