@@ -532,6 +532,7 @@ typed-followups-check:
 typed-followups-affected:
 	+$(MAKE) --keep-going check-cheap typed-followups-parity typed-followups-toolcases
 .PHONY: typed-followups-parity typed-followups-toolcases
+typed-followups-parity typed-followups-toolcases: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-affected
 typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 typed-followups-toolcases:
