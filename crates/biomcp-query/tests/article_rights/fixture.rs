@@ -188,5 +188,7 @@ fn contexts() -> String {
         "citingPaper": {"paperId":key.repeat(40),"externalIds":{"PubMed":id},"title":format!("Paper {id}")},
         "contexts":[text],"intents":["background"],"isInfluential":false
     })).collect();
+    let mut data = data;
+    data[2]["citingPaper"]["externalIds"] = serde_json::json!({"DOI":"10.1234/unknown"});
     serde_json::json!({"data":data}).to_string()
 }
