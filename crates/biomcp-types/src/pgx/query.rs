@@ -288,7 +288,7 @@ impl TryFrom<AnnotationFields> for PgxAnnotationGet {
     type Error = QueryInvalid;
     fn try_from(v: AnnotationFields) -> Result<Self, Self::Error> {
         if v.source != PgxSource::Clinpgx {
-            return Err(QueryInvalid::new(&["source"]));
+            return Err(QueryInvalid::new(&["source"]).with_message(crate::ErrorMessage::PgxSource));
         }
         Ok(Self(v))
     }

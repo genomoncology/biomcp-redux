@@ -12,6 +12,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let (section, sources, problems, local, dropped) = resolved(cx, query, deadline);
+    let conversion = matches!(
+        section,
+        Section::Unavailable {
+            reason: Reason::NoJoinId,
+            ..
+        }
+    )
+    .then(|| conversion(query))
+    .flatten();
     let (status, body) = match section {
         Section::Data { data, .. } => (crate::status::item_status(true, false, dropped), data),
         Section::Empty { .. } => (
@@ -32,6 +41,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
             )
         })
         .into_iter()
+        .chain(conversion)
         .collect();
     command.finish(deadline.remaining());
     crate::status::finish(
@@ -46,6 +56,22 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
             local,
         },
     )
+}
+/// The caller's unchanged input is the one a variant lookup can turn into a source key.
+fn conversion(query: &VariantAssertionsGet) -> Option<crate::next::Step> {
+    let lookup = VariantGet::new(
+        query.input().clone(),
+        biomcp_types::VariantResolver::Car,
+        query.build(),
+    )
+    .ok()?;
+    let source = super::source(&lookup).source;
+    Some(crate::next::Step::run(
+        StepKind::Configure,
+        &[source],
+        Request::GetVariant(lookup),
+        false,
+    ))
 }
 /// Section hooks receive one candidate; source input IDs can be checked caller selectors.
 pub(super) fn section(

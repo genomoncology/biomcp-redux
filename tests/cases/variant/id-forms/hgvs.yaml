@@ -120,6 +120,20 @@
         "/result/candidates/0/sections/conservation/state": "empty",
         "/result/candidates/0/sections/cosmic/state": "empty"
       }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "c.1799T>A"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/message": "normalization needs reference-qualified HGVS; find it with search variant --gene <SYMBOL> --coding <CHANGE>, then get variant <ID>"
+      }
     }
   ]
 }

@@ -38,8 +38,10 @@ impl TryFrom<Fields> for VariantNormalize {
         if !(1..=50).contains(&f.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
-        let hgvs =
-            VariantInput::new(&f.hgvs).map_err(|_| super::gene::QueryInvalid::new(&["hgvs"]))?;
+        let hgvs = VariantInput::new(&f.hgvs).map_err(|_| {
+            super::gene::QueryInvalid::new(&["hgvs"])
+                .with_message(crate::ErrorMessage::VariantNormalizeRoute)
+        })?;
         if f.hgvs.len() > 2048
             || !(hgvs.hgvs().is_some()
                 || f.source == NormalizationSource::Car
