@@ -62,21 +62,21 @@ impl StoredRights {
         }
         Ok(())
     }
-    fn licenses(&self) -> BTreeMap<Pmid, License> {
-        let mut licenses = self.licenses.clone();
+    /// Join metadata identities once after collection, before filtering rows.
+    pub fn finish(mut self) -> Self {
         for (id, pmc) in &self.identities {
             if let Some(license) = self.pmc.get(pmc) {
-                licenses.entry(*id).or_insert(*license);
+                self.licenses.entry(*id).or_insert(*license);
             }
         }
-        licenses
+        self
     }
     /// Preserve every paper and its rank while dropping text without sufficient rights.
     pub fn scrub_item(&self, item: &mut ArticleItem) -> bool {
         if let Some(sentence) = &mut item.sentence {
             sentence.license = sentence
                 .license
-                .or_else(|| item.pmid.and_then(|id| self.licenses().get(&id).copied()));
+                .or_else(|| item.pmid.and_then(|id| self.licenses.get(&id).copied()));
         }
         super::scrub_item(item)
     }
@@ -87,7 +87,7 @@ impl StoredRights {
         url: &str,
         body: &[u8],
     ) -> Result<Option<Vec<u8>>, BadReply> {
-        let licenses = self.licenses();
+        let licenses = &self.licenses;
         let result = match source {
             Source::LitSense => super::litsense_body(
                 serde_json::from_slice(body).map_err(|_| BadReply)?,
@@ -96,13 +96,13 @@ impl StoredRights {
             Source::PubTator => {
                 let value: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
                 if value.get("PubTator3").is_some() {
-                    super::pubtator_body(value, &licenses)?
+                    super::pubtator_body(value, licenses)?
                 } else {
                     super::pubtator_search_body(body)?
                 }
             }
             Source::PubMed if body.starts_with(b"<") => {
-                super::pubmed::filter_with_licenses(body, &licenses)?
+                super::pubmed::filter_with_licenses(body, licenses)?
             }
             Source::SemanticScholar => {
                 let parent = url
@@ -113,7 +113,7 @@ impl StoredRights {
                 super::semantic::filter_with_licenses(
                     serde_json::from_slice(body).map_err(|_| BadReply)?,
                     parent,
-                    &licenses,
+                    licenses,
                 )?
             }
             Source::EuropePmc
