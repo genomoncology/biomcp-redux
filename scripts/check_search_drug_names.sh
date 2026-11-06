@@ -4,9 +4,17 @@ set -eu
 export RUSTUP_TOOLCHAIN=1.95.0
 case "${1:-focused}" in
   focused)
+    export BIOMCP_TRANSCRIPT_DIR="$PWD/target/drug-search-proof/transcripts"
+    export BIOMCP_EVIDENCE_DIR="$PWD/target/drug-search-proof/evidence"
+    mkdir -p target/drug-search-proof
+    git rev-parse HEAD > target/drug-search-proof/source.txt
     cargo fmt --all -- --check
     make plain-cli-build
     python3 scripts/trials.py --installed --executable target/debug/biomcp --case-file drug-name-search.yaml
+    ;;
+  prepare-focused)
+    sh "$0" prepare
+    sh "$0" focused
     ;;
   prepare)
     make schema-generate docs-generate
