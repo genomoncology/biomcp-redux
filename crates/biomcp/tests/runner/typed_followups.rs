@@ -6,12 +6,16 @@ use super::super::{
     mcp::{exchange_with_globals, request},
 };
 use serde_json::{Value, json};
+#[path = "typed_owned_followups.rs"]
+mod owned;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
-    vec![crate::runner::transcript::trial(
+    let mut trials = vec![crate::runner::transcript::trial(
         "mcp-parity/typed-followups",
         || check().map_err(Into::into),
-    )]
+    )];
+    trials.extend(owned::trials());
+    trials
 }
 
 pub(super) fn check() -> Result<(), String> {
