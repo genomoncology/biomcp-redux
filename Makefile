@@ -525,3 +525,7 @@ help-recovery-check:
 	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: typed-description-check
+typed-description-check:
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)

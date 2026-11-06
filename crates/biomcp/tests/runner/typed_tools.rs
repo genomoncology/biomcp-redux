@@ -24,7 +24,7 @@ pub(super) fn getter_help() -> Result<(), String> {
 
 pub(super) fn description_contract() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    env.config(&json!({"mcp_tool_mode":"typed"}))
+    env.config(&json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":true}))
         .map_err(|e| e.to_string())?;
     policy::check_descriptions(&env)
 }

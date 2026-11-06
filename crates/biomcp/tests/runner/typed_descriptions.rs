@@ -17,6 +17,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         .and_then(|r| r.pointer("/result/tools"))
         .and_then(Value::as_array)
         .ok_or("tools")?;
+    standalone(tools)?;
     faers_drug(tools)?;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
@@ -173,4 +174,21 @@ fn words(node: &Value, root: &Value, out: &mut BTreeSet<String>) {
             words(node, root, out);
         }
     }
+}
+
+fn standalone(tools: &[Value]) -> Result<(), String> {
+    let mut failures = Vec::new();
+    for tool in tools {
+        let name = tool["name"].as_str().ok_or("tool name")?;
+        let descriptions = std::iter::once((name.to_owned(), &tool["description"]))
+            .chain(tool["inputSchema"]["properties"].as_object().into_iter().flatten()
+                .map(|(key, property)| (format!("{name}.{key}"), &property["description"])));
+        for (path, value) in descriptions {
+            let text = value.as_str().unwrap_or_default();
+            if text.is_empty() || text.contains("biomcp_help") {
+                failures.push(format!("{path}: incomplete description: {text}"));
+            }
+        }
+    }
+    if failures.is_empty() { Ok(()) } else { Err(failures.join("\n")) }
 }
