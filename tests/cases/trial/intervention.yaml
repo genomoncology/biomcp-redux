@@ -59,9 +59,9 @@
       "expect": {
         "": {
           "includes_all_of": [
-            "interventions omitted: 9",
+            "interventions omitted&#58; 9",
             "biomcp get trial NCT03228667 arms",
-            "interventions omitted: 1",
+            "interventions omitted&#58; 1",
             "biomcp get trial NCT05180799 arms"
           ]
         }
