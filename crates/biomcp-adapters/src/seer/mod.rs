@@ -13,6 +13,24 @@ use biomcp_types::DiseaseSite;
 pub use selectors::{Selector, SelectorError};
 /// Resolve source selectors once before any network access.
 pub fn selection(query: &biomcp_types::DiseaseGet, id: &Text) -> Result<Selection, SelectorError> {
+    let period = if query.section() == Some(biomcp_types::DiseaseSection::Survival) {
+        (Selector::Interval, query.interval())
+    } else {
+        (Selector::Period, query.period())
+    };
+    let selectors = [
+        (Selector::Dataset, query.dataset()),
+        period,
+        (Selector::Sex, query.sex()),
+        (Selector::Race, query.race()),
+        (Selector::AgeRange, query.age_range()),
+    ]
+    .into_iter()
+    .filter_map(|(selector, value)| selector.resolve(value).err().map(|_| selector))
+    .collect::<Vec<_>>();
+    if !selectors.is_empty() {
+        return Err(SelectorError { selectors });
+    }
     let statistic = if query.section() == Some(biomcp_types::DiseaseSection::Survival) {
         Statistic::Survival {
             interval: Selector::Interval.resolve(query.interval())?,
@@ -90,13 +108,36 @@ const CATALOG: Endpoint = SPEC.get("/get_var_formats.php").fresh(Freshness::Days
 const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(1));
 /// Read the native catalog without selecting an ontology mapping.
 pub fn catalog(leg: &Leg<'_>, limit: u32, offset: u32) -> Result<Page<DiseaseSite>, RequestError> {
-    let (raw, metadata) = leg
+    catalog_named(leg, None, limit, offset)
+}
+/// Filter the full publisher catalog before local paging; no guessed identities.
+pub fn catalog_named(
+    leg: &Leg<'_>,
+    text: Option<&str>,
+    limit: u32,
+    offset: u32,
+) -> Result<Page<DiseaseSite>, RequestError> {
+    let (mut raw, metadata) = leg
         .call(
             &CATALOG,
             Input::Params(&[]),
             biomcp_fetch::Read::<raw::Catalog>::json(),
         )
         .map(|received| (received.value, received.meta))?;
+    if let Some(text) = text {
+        let text = text.to_lowercase();
+        raw.sites.retain(|site| {
+            site.as_ref().is_some_and(|site| {
+                raw.formats
+                    .site
+                    .as_ref()
+                    .and_then(crate::raw::Field::as_ref)
+                    .and_then(|labels| labels.get(&site.value.to_string()))
+                    .and_then(crate::raw::Field::as_ref)
+                    .is_some_and(|label| label.as_str().to_lowercase().contains(&text))
+            })
+        });
+    }
     let total = raw.sites.len() as u64;
     let mut problems = crate::mapped::Problems {
         source: Source::Seer,
@@ -206,7 +247,15 @@ pub fn statistics(
                 .cache_if(&map::identities_admitted),
         )
         .map(|received| (received.value, received.meta))?;
-    let (rows, problems) = map::rows(raw, query).map_err(|_| {
+    let labels = leg
+        .call(
+            &CATALOG,
+            Input::Params(&[]),
+            biomcp_fetch::Read::<raw::Catalog>::json(),
+        )?
+        .value
+        .formats;
+    let (rows, problems) = map::rows(raw, query, &labels).map_err(|_| {
         RequestError::Source(biomcp_fetch::SourceError {
             source: Source::Seer,
             reason: biomcp_types::Reason::BadReply,

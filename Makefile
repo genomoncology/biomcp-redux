@@ -624,3 +624,18 @@ trial-provenance-check:
 .PHONY: seer-main-reproduce
 seer-main-reproduce:
 	cargo test --locked -p biomcp --test cases disease/seer-names
+
+.PHONY: seer-live-probe seer-focused seer-prepare
+seer-live-probe:
+	python3 scripts/seer_live_probe.py
+seer-prepare:
+	cargo fmt --all
+	$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	tar -czf dist/seer-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+seer-focused:
+	cargo test --locked -p biomcp --test cases disease/
+	cargo test --locked -p biomcp --test cases cache-admission/seer-statistics
+	cargo test --locked -p biomcp-types --test disease_contracts
+	cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
+	$(MAKE) fmt

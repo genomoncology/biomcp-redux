@@ -33,6 +33,86 @@
         "/error/option": "--dataset, --period"
       },
       "max_bytes": 2000
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "other example",
+        "incidence",
+        "--source",
+        "seer",
+        "--dataset",
+        "4",
+        "--period",
+        "5",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/data/items/0/requested_site": "47",
+        "/data/items/0/requested_selectors/4/label": "2010-2014",
+        "/data/items/0/returned_selectors/3/label": "Distant"
+      },
+      "max_bytes": 3500
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "example",
+        "survival",
+        "--source",
+        "seer",
+        "--dataset",
+        "4",
+        "--interval",
+        "5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/data/items/0/code": "55",
+        "/data/items/1/code": "47"
+      },
+      "max_bytes": 2200
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "Example site",
+        "survival",
+        "--source",
+        "seer",
+        "--sex",
+        "3",
+        "--dataset",
+        "4",
+        "--interval",
+        "5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/data/items/0/requested_site": "55"
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "47",
+        "survival",
+        "--source",
+        "seer"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--dataset, --interval"
+      },
+      "max_bytes": 2200
     }
   ]
 }

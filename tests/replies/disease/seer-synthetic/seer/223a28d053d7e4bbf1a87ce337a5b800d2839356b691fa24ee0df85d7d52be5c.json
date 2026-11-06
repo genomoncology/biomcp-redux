@@ -19,7 +19,15 @@
             "survival_interval": [
               "Diagnosis",
               "1 year"
-            ]
+            ],
+            "year_range": {
+              "5": "2010-2014",
+              "31": "2000-2020"
+            },
+            "stage": {
+              "104": "Distant",
+              "101": "Localized"
+            }
           },
           "CancerSites": [
             {
