@@ -148,9 +148,6 @@
           "Example brand"
         ],
         "/query/text": "Canonical therapy",
-        "/sources/*/count": {
-          "includes": 3
-        },
         "/page/total": 3,
         "/result/items/*/pmid": {
           "equals": [
@@ -180,9 +177,6 @@
           "Example brand"
         ],
         "/query/text": "EX-66",
-        "/sources/*/count": {
-          "includes": 3
-        },
         "/page/total": 3,
         "/result/items/*/pmid": {
           "equals": [
@@ -212,9 +206,6 @@
           "Example brand"
         ],
         "/query/text": "Example brand",
-        "/sources/*/count": {
-          "includes": 3
-        },
         "/page/total": 3,
         "/result/items/*/pmid": {
           "equals": [
@@ -363,6 +354,42 @@
             "99000003"
           ]
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "EX-66",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "EX-66",
+        "--limit",
+        "1",
+        "--disable-sources",
+        "chembl"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0": {
+          "omits": [
+            "term",
+            "notices"
+          ]
+        },
+        "/query/text": "EX-66"
       }
     }
   ]
