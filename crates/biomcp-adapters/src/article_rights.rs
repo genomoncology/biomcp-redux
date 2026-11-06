@@ -126,11 +126,11 @@ pub fn items(leg: &Leg<'_>, rows: &mut [ArticleItem]) {
                 .license
                 .or_else(|| row.pmid.and_then(|id| allowed.get(&id).copied()));
         }
-        scrub_item(row);
+        filter_item(row);
     }
 }
 /// Apply the same per-record rule to a checked stored item without provider access.
-pub fn scrub_item(row: &mut ArticleItem) -> bool {
+fn filter_item(row: &mut ArticleItem) -> bool {
     let license = row.sentence.as_ref().and_then(|sentence| sentence.license);
     let abstract_text = row
         .sentence
@@ -146,11 +146,28 @@ pub fn scrub_item(row: &mut ArticleItem) -> bool {
         row.contexts = None;
     }
     if sentence || contexts {
-        row.text_withheld = row.pmid.map(withheld);
+        row.text_withheld = Some(withheld_item(row));
     }
     sentence || contexts
 }
 
+fn withheld_item(row: &ArticleItem) -> biomcp_types::WithheldArticleText {
+    use biomcp_types::ArticleKey;
+    if let Some(id) = row.pmid {
+        return withheld(id);
+    }
+    let url = row.key.as_ref().map(|key| match key {
+        ArticleKey::Pubmed(id) => format!("https://pubmed.ncbi.nlm.nih.gov/{id}/"),
+        ArticleKey::Pmc(id) => format!("https://pmc.ncbi.nlm.nih.gov/articles/{id}/"),
+        ArticleKey::Doi(id) => format!("https://doi.org/{id}"),
+        ArticleKey::Europepmc(id) => format!("https://europepmc.org/article/PPR/{id}"),
+        ArticleKey::SemanticScholar(id) => format!("https://www.semanticscholar.org/paper/{id}"),
+    });
+    biomcp_types::WithheldArticleText {
+        reason: biomcp_types::Reason::Disabled,
+        url: url.and_then(|url| biodata::Text::new(&url).ok()),
+    }
+}
 pub(crate) fn withheld(id: Pmid) -> biomcp_types::WithheldArticleText {
     biomcp_types::WithheldArticleText {
         reason: biomcp_types::Reason::Disabled,
@@ -183,7 +200,10 @@ pub(crate) fn permitted(license: Option<biodata::License>, abstract_text: bool) 
     }
 }
 fn is_abstract(section: &str) -> bool {
-    matches!(section.to_ascii_lowercase().as_str(), "title" | "abstract")
+    matches!(
+        section.trim().to_ascii_lowercase().as_str(),
+        "title" | "abstract"
+    )
 }
 
 /// Strip publisher passages, including fields ignored by the annotation mapper.
