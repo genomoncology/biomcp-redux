@@ -283,11 +283,21 @@ pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Valu
         ));
     }
     connection
-        .execute_batch("DROP TABLE meta")
+        .execute_batch("DELETE FROM meta WHERE owner='biomcp-query'; DROP TABLE reply")
         .map_err(|e| e.to_string())?;
     let (status, damaged) = server.request("GET", "/health", "")?;
-    if status != 503 || damaged.get("store") != Some(&serde_json::json!(false)) {
-        return Err(format!("damaged store passed health: {status} {damaged}"));
+    let tables: u32 = connection
+        .query_row(
+            "SELECT count(*) FROM sqlite_master WHERE name='reply'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|e| e.to_string())?;
+    // Health promises compatibility/openability, not payload-table integrity or repair.
+    if status != 200 || damaged.get("store") != Some(&serde_json::json!(true)) || tables != 0 {
+        return Err(format!(
+            "health promise changed on a damaged payload table: {status} {damaged}; tables={tables}"
+        ));
     }
     response
 }

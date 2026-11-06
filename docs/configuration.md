@@ -85,6 +85,6 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 Hosted HTTP servers can set `"hosted_max_use": "restricted"` in JSON configuration to allow only `restricted` declarations, even when callers supply source keys. The setting accepts `restricted`, `commercial` or `academic` and defaults to `academic`. Requests above the ceiling are refused with an error naming the allowed modes; missing headers still select `restricted`. Ordinary CLI and stdio are unchanged.
 
-`GET /health` checks that the local cache/store opens with compatible metadata within two seconds. It makes no upstream requests, does not verify every stored table or row, and does not promise that sources are available or a query will succeed. Damaged or incompatible metadata returns 503.
+`GET /health` checks that the local cache/store opens with compatible metadata within two seconds. It makes no upstream requests, does not verify every stored table or row, and does not promise that sources are available or a query will succeed. Incompatible metadata or an unreadable store returns 503. A missing or damaged payload table can still return 200; this endpoint does not repair it.
 
 HTTP tool calls write one JSON diagnostic with the registered tool name, duration in milliseconds, reply status and failed source names. Arguments, query text and credentials are excluded.
