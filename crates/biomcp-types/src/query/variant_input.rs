@@ -39,9 +39,21 @@ impl VariantInput {
 
     /// Maximum bytes in one published identifier.
     pub const MAX_BYTES: usize = 2048;
-    #[cfg(feature = "schema")]
+    #[cfg_attr(
+        not(feature = "schema"),
+        allow(
+            dead_code,
+            reason = "BioData can emit schema implementations when only its dependency feature is enabled"
+        )
+    )]
     const FORMS: &str = "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, chromosome genomic HGVS, or VCF-style chromosome-position-reference-alternate coordinates";
-    #[cfg(feature = "schema")]
+    #[cfg_attr(
+        not(feature = "schema"),
+        allow(
+            dead_code,
+            reason = "BioData can emit schema implementations when only its dependency feature is enabled"
+        )
+    )]
     const ASSEMBLY: &str = "defaulting to GRCh38. Reference bases are validated by the source.";
     /// Check the identifier spelling and canonicalize the ClinVar namespace prefix.
     pub fn new(value: &str) -> Result<Self, Error> {
@@ -305,7 +317,11 @@ impl fmt::Display for VariantInput {
 text_value!(
     VariantInput,
     "VariantInput",
-    Self::input_pattern(crate::VariantId::pattern()),
+    Self::input_pattern(
+        crate::VariantId::pattern(),
+        crate::HgvsText::pattern(),
+        biodata::ClinVarVariationId::pattern()
+    ),
     format!(
         "{} (SNVs, deletions, insertions and delins), {}",
         Self::FORMS,
@@ -313,15 +329,21 @@ text_value!(
     )
 );
 
-#[cfg(feature = "schema")]
 impl VariantInput {
-    fn input_pattern(identifiers: String) -> String {
+    #[cfg_attr(
+        not(feature = "schema"),
+        allow(
+            dead_code,
+            reason = "BioData can emit schema implementations when only its dependency feature is enabled"
+        )
+    )]
+    fn input_pattern(identifiers: String, hgvs: String, variation: String) -> String {
         format!(
             "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|{}|{}|{})",
             Self::MAX_BYTES,
             identifiers.replace("clinvar:", "[cC][lL][iI][nN][vV][aA][rR]:"),
-            crate::HgvsText::pattern(),
-            biodata::ClinVarVariationId::pattern().replace("clinvar:", ""),
+            hgvs,
+            variation.replace("clinvar:", ""),
             Self::CHROMOSOME_PATTERN,
             Self::COORDINATE_PATTERN
         )
@@ -339,13 +361,17 @@ impl schemars::JsonSchema for LookupInput {
         let mut schema = VariantInput::json_schema(generator);
         schema.insert(
             "pattern".into(),
-            VariantInput::input_pattern(format!(
-                "({}|{}|{}|{})",
-                biodata::RsId::pattern(),
-                biodata::CaId::pattern(),
+            VariantInput::input_pattern(
+                format!(
+                    "({}|{}|{}|{})",
+                    biodata::RsId::pattern(),
+                    biodata::CaId::pattern(),
+                    biodata::ClinVarVariationId::pattern(),
+                    biodata::VcvId::pattern()
+                ),
+                crate::HgvsText::pattern(),
                 biodata::ClinVarVariationId::pattern(),
-                biodata::VcvId::pattern()
-            ))
+            )
             .into(),
         );
         schema
