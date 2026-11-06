@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 use biomcp_types::ReplyBody;
+mod drug_names;
 mod edges;
 mod empty_litvar;
 pub(crate) mod evidence;
@@ -78,6 +79,7 @@ fn execute<'a>(
     } else {
         store.find(&keys.current, explicit)?
     };
+    let (stored, looked_up) = drug_names::reuse(cx, query, stored, out, deadline);
     let publish = stored.is_none() && explicit.is_none();
     let pool = match stored {
         Some(pool) if pool.key != key.as_slice() => {
@@ -90,17 +92,20 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let Some(resolved) = resolve_terms(cx, query, deadline, out)? else {
+            let Some(resolved) = term::search(cx, query, deadline, out)? else {
                 return Ok(());
             };
-            let mut items = match sources::search(cx, query, &resolved, deadline, out)? {
-                sources::SearchResult::Items(items) => items,
-                sources::SearchResult::Answer => return Ok(()),
-                sources::SearchResult::Unavailable => {
-                    retry(query, None, out);
-                    return Ok(());
-                }
-            };
+            let drug_names = looked_up
+                .unwrap_or_else(|| crate::drug::search_names::article(cx, query, out, deadline));
+            let mut items =
+                match sources::search(cx, query, &resolved, &drug_names.names, deadline, out)? {
+                    sources::SearchResult::Items(items) => items,
+                    sources::SearchResult::Answer => return Ok(()),
+                    sources::SearchResult::Unavailable => {
+                        retry(query, None, out);
+                        return Ok(());
+                    }
+                };
             if query.sort() == biomcp_types::ArticleSort::Citations
                 && !order::apply(cx, deadline, &mut items, out)?
             {
@@ -108,6 +113,11 @@ fn execute<'a>(
                 return Ok(());
             }
             filter_text(cx, deadline, &mut items, out);
+            // Names may be missing, so these rows are this reply's, not the whole pool's.
+            if drug_names.failed {
+                page::fetched(page::Cursor::Search(query), items, out);
+                return Ok(());
+            }
             store.set_deadline(*deadline);
             match crate::publish::keep(
                 store
@@ -134,33 +144,6 @@ fn execute<'a>(
     );
     *deadline = store.deadline();
     result
-}
-/// Resolve terms only for sources that consume checked gene names.
-fn resolve_terms<'a>(
-    cx: &Ctx<'a>,
-    query: &ArticleSearch,
-    deadline: &mut Deadline<'a>,
-    out: &mut Outcome,
-) -> Result<Option<term::Resolved>, RequestError> {
-    if query
-        .sources()
-        .contains(&biomcp_types::ArticleSource::Pubmed)
-        || query
-            .sources()
-            .contains(&biomcp_types::ArticleSource::Litvar)
-        || query
-            .sources()
-            .contains(&biomcp_types::ArticleSource::Pubtator)
-            && !cx.fetch.disabled(biomcp_types::Source::PubTator)
-    {
-        term::resolve(cx, query, deadline, out)
-    } else {
-        Ok(Some(term::Resolved {
-            names: Vec::new(),
-            symbol: None,
-            entrez: None,
-        }))
-    }
 }
 /// Apply the record policy before publishing a newly fetched ranked pool.
 fn filter_text<'a>(

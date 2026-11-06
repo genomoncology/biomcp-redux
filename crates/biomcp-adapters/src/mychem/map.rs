@@ -100,6 +100,50 @@ pub(super) fn page(
         problems: problems.list,
     })
 }
+/// Keep rows stating the name; the page alone never decides that they describe one drug.
+pub(super) fn name_records(
+    page: Page,
+    leg: &Leg<'_>,
+    query: &str,
+) -> Result<crate::Mapped<Vec<super::NameRecord>>, BadReply> {
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Mychem,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut records = Vec::new();
+    let mut refusals = crate::Refusal::None;
+    for hit in page.hits {
+        problems.record = None;
+        let Some(hit) = problems.field("_id", Some(hit)) else {
+            refusals = crate::Refusal::Refused;
+            continue;
+        };
+        problems.record = crate::mapped::record(&hit.id);
+        if problems.optional("_id", Some(hit.identity())).is_none() {
+            refusals = crate::Refusal::Refused;
+            continue;
+        }
+        let (id, _, rows) = components(hit, leg, &mut problems);
+        let names = super::names::stated(&rows);
+        if super::names::matching(&rows, query).is_some()
+            || names
+                .iter()
+                .any(|name| biomcp_types::DrugNameMatch::same_identity(name, query))
+        {
+            records.push(super::NameRecord {
+                structure: super::names::structure(&id, &rows),
+                id,
+                names,
+            });
+        }
+    }
+    Ok(crate::Mapped {
+        refusals,
+        value: records,
+        problems: problems.list,
+    })
+}
 pub(super) fn card(
     hit: Hit,
     leg: &Leg<'_>,
@@ -160,7 +204,7 @@ pub(super) fn card(
     })
 }
 
-fn aliases_for(c: &Component) -> Vec<String> {
+pub(super) fn aliases_for(c: &Component) -> Vec<String> {
     let mut aliases = Vec::new();
     aliases.extend(
         c.synonyms
@@ -168,6 +212,7 @@ fn aliases_for(c: &Component) -> Vec<String> {
             .map(strings)
             .unwrap_or_default()
             .into_iter()
+            .flat_map(super::names::split)
             .map(str::to_owned),
     );
     aliases.extend(
@@ -175,7 +220,9 @@ fn aliases_for(c: &Component) -> Vec<String> {
             .as_ref()
             .into_iter()
             .flatten()
-            .filter_map(|s| s.molecule_synonym.clone()),
+            .filter_map(|s| s.molecule_synonym.as_deref())
+            .flat_map(super::names::split)
+            .map(str::to_owned),
     );
     for values in [&c.generic_name, &c.brand_name] {
         aliases.extend(
@@ -184,6 +231,7 @@ fn aliases_for(c: &Component) -> Vec<String> {
                 .map(strings)
                 .unwrap_or_default()
                 .into_iter()
+                .flat_map(super::names::split)
                 .map(str::to_owned),
         );
     }

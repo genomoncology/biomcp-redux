@@ -50,6 +50,44 @@ pub(super) fn matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNa
     DrugNameMatch::from_fields(brand, generic)
 }
 
+/// Every name the rows state, with source values that join several names split apart.
+pub(super) fn stated(rows: &[(&str, Component)]) -> Vec<String> {
+    rows.iter()
+        .flat_map(|(_, c)| {
+            generic_names(c)
+                .into_iter()
+                .chain([c.proprietaryname.as_deref()])
+                .flatten()
+                .flat_map(split)
+                .map(str::to_owned)
+                .chain(super::map::aliases_for(c))
+        })
+        .collect()
+}
+
+/// One source value may hold several names joined by a pipe.
+pub(super) fn split(value: &str) -> impl Iterator<Item = &str> {
+    value
+        .split('|')
+        .map(str::trim)
+        .filter(|name| !name.is_empty())
+}
+
+/// The structure a row describes: an InChIKey's skeleton, so stereo forms of one molecule agree.
+/// A row with no chemical identity of its own, such as an NDC product row, has none.
+pub(super) fn structure(id: &str, rows: &[(&str, Component)]) -> Option<String> {
+    let blocks: Vec<_> = id.split('-').collect();
+    if let [skeleton, stereo, charge] = blocks[..]
+        && (skeleton.len(), stereo.len(), charge.len()) == (14, 10, 1)
+        && id.chars().all(|c| c == '-' || c.is_ascii_uppercase())
+    {
+        return Some(skeleton.to_owned());
+    }
+    rows.iter()
+        .any(|(component, _)| !matches!(*component, "ndc" | "openfda"))
+        .then(|| id.to_owned())
+}
+
 fn generic_names(c: &Component) -> [Option<&str>; 4] {
     [
         c.name.as_deref(),

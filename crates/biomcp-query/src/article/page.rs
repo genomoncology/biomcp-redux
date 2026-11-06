@@ -70,21 +70,7 @@ pub(super) fn read<'a>(
         .iter()
         .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biomcp_types::Reason::Disabled))
     {
-        out.sources = pool
-            .sources
-            .iter()
-            .cloned()
-            .map(|mut s| {
-                if cx.fetch.disabled(s.source) {
-                    s.set_status(biomcp_types::SourceStatus::Skipped(Some(
-                        biomcp_types::Reason::Disabled,
-                    )));
-                    s.count = None;
-                    s.retrieved_count = None;
-                }
-                s
-            })
-            .collect();
+        out.sources = withheld_sources(cx, pool);
         crate::status::item(out, false, true, false);
         return Ok(());
     }
@@ -174,6 +160,32 @@ fn filter_stored_text<'a>(
     Ok(())
 }
 
+fn withheld_sources(cx: &Ctx<'_>, pool: &Pool) -> Vec<biomcp_types::SourceOutcome> {
+    // Expansion terms and provider warnings can repeat names from a disabled component.
+    let expanded = pool
+        .sources
+        .iter()
+        .flat_map(|source| &source.notices)
+        .any(|notice| matches!(notice, biomcp_types::SourceNotice::DrugNameSearch { .. }));
+    pool.sources
+        .iter()
+        .cloned()
+        .map(|mut s| {
+            if expanded {
+                s.term = None;
+                s.notices.clear();
+            }
+            if cx.fetch.disabled(s.source) {
+                s.set_status(biomcp_types::SourceStatus::Skipped(Some(
+                    biomcp_types::Reason::Disabled,
+                )));
+                s.count = None;
+                s.retrieved_count = None;
+            }
+            s
+        })
+        .collect()
+}
 fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outcome) {
     for source in rows.iter().filter_map(|r| r.outcome.as_ref()) {
         if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
