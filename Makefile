@@ -529,3 +529,4 @@ help-recovery-check:
 .PHONY: typed-description-check
 typed-description-check:
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+	+$(MAKE) typed-schema-check typed-hosted-check help-contract-check

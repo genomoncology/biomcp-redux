@@ -46,15 +46,10 @@ pub(super) fn schema(mut schema: Value, excluded: &BTreeSet<Source>) -> Value {
         {
             fields.insert(
                 "description".into(),
-                json!(
-                    format!(
-                        "Source: {}",
-                        allowed.into_iter().collect::<Vec<_>>().join(",")
-                    )
-                    .chars()
-                    .take(80)
-                    .collect::<String>()
-                ),
+                json!(format!(
+                    "Source: {}",
+                    allowed.into_iter().collect::<Vec<_>>().join(",")
+                )),
             );
         }
     }
@@ -69,7 +64,12 @@ fn filter(node: &mut Value, excluded: &BTreeSet<Source>) {
             {
                 fields.insert(
                     "description".into(),
-                    json!("See biomcp_help for this option."),
+                    json!(
+                        text.lines()
+                            .map(|line| summary(line, excluded))
+                            .collect::<Vec<_>>()
+                            .join("\n")
+                    ),
                 );
             }
             for key in ["enum", "x-extensible-enum"] {
