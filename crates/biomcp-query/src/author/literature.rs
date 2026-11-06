@@ -90,7 +90,12 @@ fn execute(
             items: Box::default(),
             matching_records: None,
             literature: Some(AuthorLiterature {
-                identity_resolution: "Unresolved: these are author names on individual papers, not verified researcher identities. Equal names may refer to different people; names are not merged. Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. PubMed matches papers, not people; only the first 9999 matching papers can be paged.".parse().expect("static text"),
+                identity_resolution: concat!(
+                    "Unresolved: these are author names on individual papers, not verified researcher identities. ",
+                    "Equal names may refer to different people; names are not merged. ",
+                    "Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. ",
+                    "PubMed matches papers, not people; only the first 9999 matching papers can be paged."
+                ).parse().expect("static text"),
                 papers: papers.into(),
             }),
         }.with_query(q.clone());

@@ -8,7 +8,10 @@ fn default_limit() -> u32 {
 /// Author identity search or open citation-author discovery.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["semantic-scholar", "semanticscholar", "pubmed", "auto"])))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(with = "str", extend("enum" = ["semantic-scholar", "semanticscholar", "pubmed", "auto"]))
+)]
 pub enum AuthorSearchSource {
     /// Prefer native Semantic Scholar identities; use PubMed citation names when it is disabled.
     #[default]
