@@ -41,6 +41,7 @@ BUILD = ('cargo', 'build', '--locked', '-p', 'biomcp', '--message-format=json')
 PASSED_ENVIRONMENT = ('PATH', 'LANG', 'http_proxy', 'HTTP_PROXY', 'https_proxy', 'HTTPS_PROXY',
                       'no_proxy', 'NO_PROXY')
 REASON_LIMIT = 200
+RETRY_WAIT = 30  # Pauses to wait before the second try.
 
 
 def one_line(text):
@@ -113,17 +114,26 @@ def main():
         print('FAIL {}: {}'.format(shlex.join(BUILD), one_line(error)))
         print('live check: not run, the build failed')
         return 1
-    failures, started = [], time.monotonic()
+    failures, retries, started = [], [], time.monotonic()
     with tempfile.TemporaryDirectory(prefix='biomcp-live-check-') as home:
         environment = {name: os.environ[name] for name in PASSED_ENVIRONMENT if name in os.environ}
         environment.update(HOME=home, XDG_CACHE_HOME=home + '/cache', XDG_CONFIG_HOME=home + '/config')
         for index, row in enumerate(CHECKS):
             if index:
                 time.sleep(args.pause)
+            problem = check(executable, row, environment, args.timeout)
+            if problem is None:
+                print('ok ' + shlex.join(('biomcp', *row)), flush=True)
+            else:
+                retries.append((row, problem))
+        # One slow reply is not an outage: only a command that fails twice is reported.
+        if retries:
+            time.sleep(args.pause * RETRY_WAIT)
+        for row, first in retries:
             command = shlex.join(('biomcp', *row))
             problem = check(executable, row, environment, args.timeout)
             if problem is None:
-                print('ok ' + command, flush=True)
+                print('ok {} on its second try, first: {}'.format(command, one_line(first)), flush=True)
             else:
                 failures.append('FAIL {}: {}'.format(command, one_line(problem)))
     # Failures come last because the failure mail carries only the end of the log.

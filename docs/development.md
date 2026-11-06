@@ -32,7 +32,7 @@ The separate `tools` target contains opt-in schema and assertion boundary proofs
 
 `make nightly-live-check` builds the command and runs a short fixed list of real commands against live sources, one or two per source family. It takes a few minutes. It is a scheduled check and never joins a landing.
 
-Each command runs without credentials, in a throwaway home and cache, with a pause between commands so public source limits hold. A failure prints one line with the command and the reason, and the last line counts the failures. The script exits 1 on any failure. The scheduler mails that output to the PM, who opens a ticket.
+Each command runs without credentials, in a throwaway home and cache, with a pause between commands so public source limits hold. A failed command gets one second try after a wait, so one slow reply does not raise an alarm. A command that fails twice prints one line with the command and the reason, and the last line counts the failures. The script exits 1 on any failure. The scheduler mails that output to the PM, who opens a ticket.
 
 To add a command, add a row to `CHECKS` in `scripts/nightly_live_check.py`. Keep to public sources that need no key. KEGG and the LitSense licensed subset stay out; a test refuses them. Recorded cases remain the check of exact reply content.
 

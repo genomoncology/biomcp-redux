@@ -28,8 +28,9 @@ with open(SEEN, 'a') as seen:
     seen.write(json.dumps({'args': sys.argv[1:], 'env': sorted(os.environ)}) + '\\n')
 words = ' '.join(sys.argv[1:])
 replies = json.loads(REPLIES)
-for key, (code, body) in replies.items():
-    if key in words:
+for key, (code, body, *once) in replies.items():
+    tries = sum(json.loads(line)['args'] == sys.argv[1:] for line in open(SEEN))
+    if key in words and not (once and tries > 1):
         if body == 'hang':
             time.sleep(30)
         print(body if isinstance(body, str) else json.dumps(body))
@@ -106,7 +107,17 @@ class LiveCheck(unittest.TestCase):
         result, rows = self.run_check({'MOLM13': [0, 'hang']}, extra=('--timeout', '1'))
         self.assertEqual(result.returncode, 1)
         self.assertIn('FAIL biomcp search cell-line MOLM13: no reply in 1.0 seconds', result.stdout)
-        self.assertEqual(len(rows), len(CHECKS))
+        self.assertEqual(len(rows), len(CHECKS) + 1)
+
+    def test_a_command_that_recovers_on_its_second_try_does_not_fail_the_run(self):
+        slow = {'schema': 'biomcp.protein-page/1', 'status': 'failed',
+                'sources': [{'source': 'uniprot', 'state': 'failed', 'reason': 'deadline-exceeded'}]}
+        result, rows = self.run_check({'--reviewed': [4, slow, 'once']})
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('ok biomcp search protein --gene EGFR --reviewed on its second try, '
+                      'first: uniprot: deadline-exceeded', result.stdout)
+        self.assertNotIn('FAIL', result.stdout)
+        self.assertEqual(len(rows), len(CHECKS) + 1)
 
     def test_a_build_failure_is_one_line_and_runs_nothing(self):
         result, rows = self.run_check(build='fail')
