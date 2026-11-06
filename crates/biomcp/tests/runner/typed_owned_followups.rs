@@ -163,26 +163,19 @@ fn response(
     Ok((value, tools))
 }
 fn research_text() -> Result<(), String> {
-    for (value, _) in responses(
-        "drug/name-get",
-        json!({}),
-        "fetch",
-        json!({"id":"drug 'Example ingredient' approvals"}),
-    )? {
+    for (value, _) in responses("gene/main", json!({}), "fetch", json!({"id":"gene BRAF"}))? {
         let text = value
             .get("text")
             .and_then(Value::as_str)
             .ok_or_else(|| format!("missing research text: {value}"))?;
-        let alternative =
-            json!({"name":"get_drug","arguments":{"input":"NDA021588","source":"drugsfda"}})
-                .to_string();
-        if !text.contains("Example ingredient")
-            || !text.contains("NDA021335")
-            || !text.contains(&alternative)
-            || text.contains("biomcp get drug")
+        if !text.contains("BRAF")
+            || !text.contains("HGNC:1097")
+            || !text.contains("\"name\":\"get_gene\"")
+            || text.contains("biomcp get gene")
+            || text.contains("biomcp help")
         {
             return Err(format!(
-                "research text lost native data or typed alternatives: {text}"
+                "research text lost native data or retained CLI follow-ups: {text}"
             ));
         }
     }
