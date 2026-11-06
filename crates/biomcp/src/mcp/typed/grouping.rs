@@ -8,12 +8,20 @@ pub(in crate::mcp) struct Catalog {
     commands: Vec<Value>,
     globals: crate::grammar::Globals,
     read_only: bool,
+    excluded: std::collections::BTreeSet<biomcp_types::Source>,
 }
 
 impl Catalog {
     pub(super) fn permits(&self, parsed: &mut crate::grammar::Parsed) -> bool {
         parsed.globals.inherit(&self.globals).is_ok()
             && crate::command::mcp_policy::refusal(parsed, self.read_only).is_none()
+            && parsed.action.as_ref().is_none_or(|action| match action {
+                biomcp_query::Action::Run { request, .. } => matches!(
+                    super::catalog::request_allowed(request, &self.excluded),
+                    Ok(true)
+                ),
+                _ => true,
+            })
     }
 }
 
@@ -33,6 +41,7 @@ pub(super) fn catalog(
     context: crate::command::Context<'_>,
     read_only: bool,
     definitions: Vec<(Value, Value)>,
+    excluded: std::collections::BTreeSet<biomcp_types::Source>,
 ) -> io::Result<Catalog> {
     let (commands, canonical): (Vec<_>, Vec<_>) = definitions.into_iter().unzip();
     let (mut tools, grouped): (Vec<_>, Vec<_>) = commands
@@ -77,6 +86,7 @@ pub(super) fn catalog(
         commands: canonical,
         globals: context.globals.clone(),
         read_only,
+        excluded,
     })
 }
 

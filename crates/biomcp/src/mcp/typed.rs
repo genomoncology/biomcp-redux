@@ -137,7 +137,7 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();
-    grouping::catalog(context, read_only, tools)
+    grouping::catalog(context, read_only, tools, excluded)
 }
 pub(super) fn parse(
     context: crate::command::Context<'_>,
