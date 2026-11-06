@@ -96,7 +96,10 @@ fn responses(
         .into_iter()
         .map(|form| {
             let mut config = config.clone();
-            config["mcp_reply_form"] = json!(form);
+            config
+                .as_object_mut()
+                .ok_or("configuration object")?
+                .insert("mcp_reply_form".into(), json!(form));
             response(replay, config, name, arguments.clone())
         })
         .collect()
@@ -109,8 +112,9 @@ fn response(
     arguments: Value,
 ) -> Result<(Value, Vec<Value>), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    config["mcp_tool_mode"] = json!("typed");
-    config["mcp_typed_output_schema"] = json!(true);
+    let fields = config.as_object_mut().ok_or("configuration object")?;
+    fields.insert("mcp_tool_mode".into(), json!("typed"));
+    fields.insert("mcp_typed_output_schema".into(), json!(true));
     env.config(&config).map_err(|e| e.to_string())?;
     let globals = env.globals(Some(&fixtures().join("replies").join(replay)), false);
     let replies = exchange_with_globals(

@@ -1,5 +1,7 @@
 //! Schema discovery generated from checked-in artifact identities.
 pub(crate) mod steps;
+#[cfg(test)]
+mod steps_tests;
 
 const SCHEMAS: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/schemas.rs"));
 

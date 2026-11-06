@@ -4,19 +4,13 @@ use std::collections::BTreeSet;
 
 const STEP: &str = "#/$defs/Reply_Step";
 
-pub(crate) fn paths(schema: &Value, value: &Value) -> Vec<String> {
+pub(crate) fn paths(schema: &Value, node: &Value, value: &Value) -> Vec<String> {
     let mut paths = Vec::new();
-    visit(schema, schema, value, "", &mut Vec::new(), &mut paths);
+    visit(schema, node, value, "", &mut Vec::new(), &mut paths);
     let mut seen = BTreeSet::new();
     paths.retain(|path| seen.insert(path.clone()));
     paths
 }
-pub(crate) fn owns(root: &Value, node: &Value, value: &Value) -> bool {
-    let mut paths = Vec::new();
-    visit(root, node, value, "", &mut Vec::new(), &mut paths);
-    paths.iter().any(String::is_empty)
-}
-
 fn visit<'a>(
     root: &'a Value,
     node: &'a Value,
@@ -167,45 +161,5 @@ pub(crate) fn remove(value: &mut Value, path: &str) {
             }
         }
         _ => {}
-    }
-}
-
-// This directly tests the trust boundary: opaque source data must never supply control.
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-    #[test]
-    fn opaque_source_json_and_nonproductive_cycles_stay_untouched() {
-        let schema = json!({"$defs":{"Reply_Step":{"type":"object"},
-            "Cycle":{"$ref":"#/$defs/Cycle"}},"type":"object","properties":{
-            "owned":{"type":"object","properties":{"next":{"$ref":"#/$defs/Reply_Step"}}},
-            "native":{"type":"object","additionalProperties":true},
-            "cycle":{"$ref":"#/$defs/Cycle"}}});
-        let native = json!({"next":{"kind":"pivot","args":["KEEP LITERAL"]},
-            "alternatives":[{"kind":"pivot","args":["KEEP TOO"]}]});
-        let mut value = json!({"owned":{"next":{"kind":"pivot","args":["get","gene","BRAF"]}},
-            "native":native,"cycle":{"next":{"args":["KEEP CYCLE"]}}});
-        assert_eq!(paths(&schema, &value), ["/owned/next"]);
-        assert!(owns(
-            &schema,
-            &schema["properties"]["owned"]["properties"]["next"],
-            &value["owned"]["next"]
-        ));
-        assert!(!owns(
-            &schema,
-            &schema["properties"]["native"],
-            &value["native"]
-        ));
-        remove(&mut value, "/owned/next");
-        assert_eq!(value["native"], native);
-        assert_eq!(value["cycle"]["next"]["args"], json!(["KEEP CYCLE"]));
-    }
-    #[test]
-    fn overlapping_branches_visit_each_array_step_once() {
-        let schema = json!({"$defs":{"Reply_Step":{"type":"object"}},"properties":{
-            "next":{"items":{"anyOf":[{"$ref":"#/$defs/Reply_Step"},{"$ref":"#/$defs/Reply_Step"}]}}}});
-        let value = json!({"next":[{"kind":"pivot","args":["a"]},{"kind":"pivot","args":["b"]}]});
-        assert_eq!(paths(&schema, &value), ["/next/0", "/next/1"]);
     }
 }

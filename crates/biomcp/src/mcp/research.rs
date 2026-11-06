@@ -155,7 +155,11 @@ fn prepare_view(
 fn render_view(view: View, original: Value) -> io::Result<Value> {
     match view {
         View::Search(mut value) => {
-            value["metadata"]["envelope"] = original;
+            let metadata = value
+                .get_mut("metadata")
+                .and_then(Value::as_object_mut)
+                .ok_or_else(|| io::Error::other("research search metadata"))?;
+            metadata.insert("envelope".into(), original);
             Ok(value)
         }
         View::Fetch(id, hit) => {
