@@ -1,6 +1,9 @@
 //! Match schema-owned choices once before checked query decoding.
 use serde_json::{Map, Value};
 
+pub(crate) const ENUM_CASE_GUIDANCE: &str =
+    "Listed choices accept any letter case; replies use their listed spelling.";
+
 pub(super) fn matching<'a>(value: &Value, choices: &'a [Value]) -> Option<&'a Value> {
     let text = value.as_str()?;
     choices.iter().find(|choice| *choice == value).or_else(|| {

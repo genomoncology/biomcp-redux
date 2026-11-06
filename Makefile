@@ -657,3 +657,17 @@ enum-case-review-fix:
 population-reply-metadata-check:
 	+$(MAKE) hosted-surface-generate typed-schema-check
 	python3 scripts/trials.py mcp-parity/mcp-typed-tools --case-file variant/population/indel-invalid-crossref.yaml --case-file variant/population/indel-typed.yaml
+
+.PHONY: enum-case-metadata-prepare enum-case-metadata-check
+enum-case-metadata-prepare:
+	cargo fmt --all
+	+$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	git diff --binary > dist/enum-case-generated.patch
+	+$(MAKE) --keep-going enum-case-metadata-check enum-case-lint enum-case-schema-check
+
+enum-case-metadata-check:
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases mcp-parity/compact-typed-schemas $(TEST_THREADS)
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases mcp-parity/typed-help-research-discovery $(TEST_THREADS)
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-metadata-transcripts" cargo test --locked -p biomcp --test cases schema-discovery/help-contract $(TEST_THREADS)

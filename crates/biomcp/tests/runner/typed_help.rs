@@ -28,6 +28,7 @@ pub(super) fn discovery() -> Result<(), String> {
                 "tools/call",
                 json!({"name":"biomcp","arguments":{"args":["help","search","trial"]}}),
             ),
+            request(json!(5), "server/discover", json!({})),
         ],
     )?;
     let typed = frames(
@@ -86,6 +87,17 @@ fn discovery_contract(single: &[Value], typed: &[Value]) -> Result<(), String> {
     }
     if reply(typed, 4)?.pointer("/result/isError") != Some(&json!(false)) {
         return Err("help call refused".into());
+    }
+    for replies in [single, typed] {
+        let guidance = reply(replies, 5)?
+            .pointer("/result/instructions")
+            .and_then(Value::as_str)
+            .ok_or("instructions")?;
+        if guidance.matches("Listed choices accept any letter case").count() != 1
+            || !guidance.contains("replies use their listed spelling")
+        {
+            return Err("case guidance must appear once in discovery instructions".into());
+        }
     }
     let instructions = reply(typed, 5)?
         .pointer("/result/instructions")
