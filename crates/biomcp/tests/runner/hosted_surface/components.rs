@@ -31,7 +31,8 @@ fn component_catalog(server: &Server) -> Check {
         json!({"id":"100","source":"faers","section":"drugs"}),
         json!({"id":"123","source":"maude","section":"narrative"}),
     ] {
-        if !validator.is_valid(&super::super::typed_catalog::call(&route, &input)["arguments"]) {
+        let call = super::super::typed_catalog::call(&route, &input);
+        if !validator.is_valid(call.get("arguments").ok_or("reference arguments")?) {
             return Err("component-free report reference call disappeared".into());
         }
     }
