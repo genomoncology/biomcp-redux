@@ -62,8 +62,10 @@ pub(super) fn author_summaries(
                 .and_then(|field| context.required("authors", field.as_ref()))
                 .into_iter()
                 .flatten()
-                .filter_map(|field| context.required("authors", field.as_ref()))
-                .filter_map(|author| context.text("authors", Some(&author.name)))
+                .filter_map(|field| {
+                    let author = context.required("authors", field.as_ref())?;
+                    context.text("authors", Some(&author.name))
+                })
                 .collect();
             authors.insert(key.clone(), names);
             problems.extend(context.list);
