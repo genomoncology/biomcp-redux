@@ -826,3 +826,20 @@ accepted-batch-composition-check:
 	+$(MAKE) --keep-going typed-catalog-followups-composition-check enum-case-check article-default-focused
 	cargo test --locked -p biomcp --test tools -- --proofs schema-discovery/rejects-bad-cases $(filter-out --,$(TEST_THREADS))
 	python3 scripts/measure_typed_catalog.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp" "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/accepted-batch-catalog"
+
+.PHONY: accepted-batch-composition-finish accepted-batch-unrun-boundaries accepted-batch-unrun-negative accepted-batch-unrun-profiles
+accepted-batch-composition-finish:
+	mkdir -p target/accepted-batch-finish
+	cargo build --locked -p biomcp --bin biomcp --test cases --test tools --message-format=json-render-diagnostics > target/accepted-batch-finish/build.jsonl
+	python3 -c 'import hashlib,json,subprocess; from pathlib import Path; rows=[json.loads(x) for x in Path("target/accepted-batch-finish/build.jsonl").read_text().splitlines() if x.startswith("{")]; artifacts={r["target"]["name"]:{"path":r["executable"],"sha256":hashlib.sha256(Path(r["executable"]).read_bytes()).hexdigest(),"profile":r["profile"]} for r in rows if r.get("reason")=="compiler-artifact" and r.get("executable")}; assert all(x in artifacts for x in ("biomcp","cases","tools")); Path("target/accepted-batch-finish/source-bindings.json").write_text(json.dumps({"revision":subprocess.check_output(["git","rev-parse","HEAD"],text=True).strip(),"artifacts":artifacts},indent=2)+"\n")'
+	+$(MAKE) --keep-going lint-workspace lint-tools enum-case-check article-default-focused accepted-batch-unrun-boundaries accepted-batch-unrun-negative accepted-batch-unrun-profiles
+
+accepted-batch-unrun-boundaries:
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
+
+accepted-batch-unrun-negative:
+	cargo test --locked -p biomcp --test tools -- --proofs schema-discovery/rejects-bad-cases $(filter-out --,$(TEST_THREADS))
+
+accepted-batch-unrun-profiles:
+	python3 scripts/measure_typed_catalog.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp" "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/accepted-batch-catalog"
