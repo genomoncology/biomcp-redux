@@ -57,13 +57,9 @@ fn synthetic_body(refused: bool) -> String {
     .to_string()
 }
 
-fn query_page(
-    section: &str,
-    offset: u32,
-    refused: bool,
-) -> Result<Value, Box<dyn std::error::Error>> {
+fn publisher(refused: bool) -> Result<Stub, String> {
     let body = synthetic_body(refused);
-    let stub = Stub::for_sources(
+    Stub::for_sources(
         &["api.platform.opentargets.org", "api.fda.gov"],
         |_| "application/json",
         move |request: &str| {
@@ -75,7 +71,15 @@ fn query_page(
                 body.clone()
             })
         },
-    )?;
+    )
+}
+
+fn query_page(
+    section: &str,
+    offset: u32,
+    refused: bool,
+) -> Result<Value, Box<dyn std::error::Error>> {
+    let stub = publisher(refused)?;
     let fetch = Fetch::open(FetchConfig {
         network: Network::new(
             None,
@@ -147,11 +151,8 @@ fn query_page(
         "query continuation changed"
     );
     let requests = stub.finish()?;
-    let publisher = requests
-        .iter()
-        .filter(|(_, request)| request.contains("/graphql"))
-        .count();
-    assert_eq!(publisher, 2, "query did not reach synthetic publisher");
+    let reads = requests.iter().filter(|(_, r)| r.contains("/graphql"));
+    assert_eq!(reads.count(), 2, "query did not reach synthetic publisher");
     Ok(data.clone())
 }
 
