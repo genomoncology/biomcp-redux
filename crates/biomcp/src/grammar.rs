@@ -191,7 +191,7 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
     );
     let help = local::help_command(&root);
     root = root.subcommand(help);
-    Ok(Root::new(metadata::describe(root)))
+    Ok(Root::new(metadata::describe(process_arguments::case_choices(root))))
 }
 
 #[derive(Debug, Default)]

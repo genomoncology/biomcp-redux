@@ -17,6 +17,7 @@ fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true}))
         .map_err(|e| e.to_string())?;
+    local_choices(&env)?;
     let mut failures = Vec::new();
     let mut count = 0;
     for &(verb, entity, id) in biomcp_types::command_paths() {
@@ -110,6 +111,9 @@ fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Value, String> {
             json!([text])
         } else { json!(text) };
     }
+    if entity == "pgx" {
+        values["gene"] = json!("CYP2D6");
+    }
     if verb == "search" && schema["properties"].get("query").is_some() {
         values["query"] = json!("KRAS");
     }
@@ -133,7 +137,10 @@ fn operand<'a>(entity: &str, key: &'a str) -> &'a str {
             "phenotype" => "HP:0001250",
             "pathway" => "R-HSA-109581",
             "drug" => "CHEMBL941",
-            "author" => "0000-0002-1825-0097",
+            "author" => "orcid:0000-0002-1825-0097",
+            "adverse-event" => "10000001",
+            "diagnostic" => "GTR000000001.1",
+            "biomarker" => "C96022",
             "cell-line" => "CVCL_0030",
             "gwas" => "GCST000001",
             _ => "KRAS",
@@ -164,4 +171,32 @@ fn cli(env: &Environment, args: &[String]) -> Result<Value, String> {
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), args)
         .output().map_err(|e| e.to_string())?;
     serde_json::from_slice(&output.stdout).map_err(|e| format!("CLI envelope: {e}"))
+}
+
+fn local_choices(env: &Environment) -> Result<(), String> {
+    for (before, choice, after) in [
+        (vec!["--format"], "json", vec!["version"]),
+        (vec!["--offline", "sync"], "hgnc", vec![]),
+        (vec!["key", "set"], "oncokb", vec![]),
+        (vec!["key", "remove"], "oncokb", vec![]),
+        (vec!["help", "key"], "oncokb", vec![]),
+        (vec!["help", "network"], "proxy", vec![]),
+        (vec!["serve", "--tool-mode"], "typed", vec![]),
+        (vec!["mcp-config", "--client"], "mcp-servers", vec![]),
+    ] {
+        let run = |spelling: &str| {
+            let args = before.iter().map(|v| (*v).to_owned()).chain([spelling.into()])
+                .chain(after.iter().map(|v| (*v).to_owned())).collect::<Vec<_>>();
+            env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output().map_err(|e| e.to_string())
+        };
+        let expected = run(choice)?;
+        for spelling in [choice.to_ascii_lowercase(), choice.to_ascii_uppercase()] {
+            let actual = run(&spelling)?;
+            if actual.status != expected.status || actual.stdout != expected.stdout {
+                return Err(format!("local enum {before:?} {spelling}: {} / {}",
+                    String::from_utf8_lossy(&expected.stdout), String::from_utf8_lossy(&actual.stdout)));
+            }
+        }
+    }
+    Ok(())
 }
