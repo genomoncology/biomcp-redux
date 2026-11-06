@@ -254,3 +254,55 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
     assert!(stored.contains("unknown abstract passage retained"));
     assert!(stored.contains("PPR1003 abstract witness"));
 }
+
+#[test]
+fn exhausted_license_budget_returns_papers_without_text_or_license_requests() {
+    let original = tempfile::tempdir().unwrap();
+    record(original.path());
+    let delayed = tempfile::tempdir().unwrap();
+    biomcp_test_support::recordings::copy_capture(
+        original.path(),
+        delayed.path(),
+        |source, capture| {
+            if source == "litsense" {
+                for exchange in capture["exchanges"].as_array_mut().unwrap() {
+                    exchange["delay_ms"] = 14_950.into();
+                }
+            }
+        },
+    )
+    .unwrap();
+    let fetch = Fetch::open(FetchConfig {
+        mode: Mode::Replay {
+            dir: delayed.path().into(),
+        },
+        disabled_uses: [Use::PerRecord].into(),
+        replay_cache: Some(
+            ReplayCache::temporary_with_owners(&[biomcp_query::store::OWNER]).unwrap(),
+        ),
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    let out = run(&fetch);
+    let ReplyData::ArticlePage {
+        body: Some(page), ..
+    } = out.body
+    else {
+        panic!("delayed article page: {out:?}")
+    };
+    assert_eq!(page.items.len(), 3);
+    assert!(page.items.iter().all(|row| row.sentence.is_none()));
+    let connection = fetch.cache_access().unwrap().connect().unwrap();
+    let lookups: u64 = connection
+        .query_row(
+            "SELECT count(*) FROM reply WHERE source='pmc-oa'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    assert_eq!(
+        lookups, 0,
+        "the remaining source budget must reserve time for paper identities"
+    );
+}
