@@ -166,12 +166,7 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         refusals,
         indexing,
         article: Article {
-            text_withheld: match root.child("BioMcpTextWithheld")? {
-                Some(_) => Some(crate::article_rights::withheld(pmid)),
-                None => root
-                    .child("BioMcpTextUnchecked")?
-                    .map(|_| crate::article_rights::unchecked(pmid)),
-            },
+            text_withheld: crate::article_rights::pubmed::notice(&root, pmid)?,
             europepmc_id: None,
             pmid: Some(pmid),
             doi,

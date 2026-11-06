@@ -14,6 +14,18 @@ pub(crate) fn lookup(leg: &Leg<'_>, ids: &[Pmid]) -> Licenses {
         Licenses::default()
     }
 }
+/// Read back the marker the filter left on this record.
+pub(crate) fn notice(
+    root: &Element<'_>,
+    id: Pmid,
+) -> Result<Option<biomcp_types::WithheldArticleText>, BadReply> {
+    Ok(match root.child("BioMcpTextWithheld")? {
+        Some(_) => Some(super::withheld(id)),
+        None => root
+            .child("BioMcpTextUnchecked")?
+            .map(|_| super::unchecked(id)),
+    })
+}
 pub(crate) fn filter(leg: &Leg<'_>, body: &[u8], licenses: &Licenses) -> Result<Vec<u8>, BadReply> {
     if !leg.disabled_use(Use::PerRecord) {
         return Ok(body.to_vec());

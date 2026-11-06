@@ -2,6 +2,10 @@
 #![expect(
     clippy::unwrap_used,
     clippy::panic,
+    clippy::disallowed_macros,
+    clippy::disallowed_types,
+    clippy::indexing_slicing,
+    clippy::too_many_lines,
     reason = "Isolated synthetic transport and SQLite witness"
 )]
 use biomcp_fetch::{Fetch, FetchConfig, Mode};

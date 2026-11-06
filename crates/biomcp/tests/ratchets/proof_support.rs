@@ -114,6 +114,10 @@ pub(super) fn check_inventory_mutations() -> Check {
     Ok(())
 }
 
+#[expect(
+    clippy::indexing_slicing,
+    reason = "A missing field in the checked-in audit fails this proof"
+)]
 fn check_policy_absence_mutations(original: &str) -> Check {
     use super::source::adapter_values::validate;
     let audit: serde_json::Value = serde_json::from_str(original)?;
