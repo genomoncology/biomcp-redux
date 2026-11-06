@@ -44,7 +44,7 @@ pub(super) fn check() -> Result<(), String> {
         "7-140753336-A-T",
     ] {
         let mut args = super::args();
-        args[2] = input.into();
+        *args.get_mut(2).ok_or("recurrence input")? = input.into();
         *args.last_mut().ok_or("recurrence limit")? = "100".into();
         let cli = super::call(&env, &args, 0)?;
         observed(&cli, input)?;
@@ -141,13 +141,11 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
                 .ok_or("variant input schema")?,
         );
     }
-    if definitions
-        .iter()
-        .any(|definition| definition != &definitions[0])
-    {
+    let first = definitions.first().ok_or("variant lookup schemas missing")?;
+    if definitions.iter().any(|definition| definition != first) {
         return Err("variant lookup commands advertise different identifier forms".into());
     }
-    let validator = jsonschema::validator_for(&json!({"type":"string","pattern":definitions[0]}))
+    let validator = jsonschema::validator_for(&json!({"type":"string","pattern":first}))
         .map_err(|e| e.to_string())?;
     for input in UNSUPPORTED {
         if validator.is_valid(&json!(input)) {
@@ -167,7 +165,7 @@ const UNSUPPORTED: [&str; 3] = [
 fn rejections(env: &Environment) -> Result<(), String> {
     for input in UNSUPPORTED {
         let mut recurrence = super::args();
-        recurrence[2] = input.into();
+        *recurrence.get_mut(2).ok_or("recurrence input")? = input.into();
         for (args, tool, arguments) in [
             (
                 vec!["get".into(), "variant".into(), input.into()],
