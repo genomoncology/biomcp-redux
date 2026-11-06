@@ -114,13 +114,20 @@ fn catalog(server: &Server) -> Result<(), String> {
 }
 /// Hosting's startup lookup must keep an answer while a flagged study matches the same text.
 fn tcga(server: &Server) -> Result<(), String> {
-    let reply = data(call(server, &["search", "study", "TCGA"], RESTRICTED, false)?)?;
+    let reply = data(call(
+        server,
+        &["search", "study", "TCGA"],
+        RESTRICTED,
+        false,
+    )?)?;
     notice(&reply, FLAG, "noncommercial")?;
     let items = reply.pointer("/result/items").and_then(Value::as_array);
     if !items.is_some_and(|rows| {
         rows.iter()
             .any(|row| row.get("studyId") == Some(&json!("brca_tcga")))
-    }) || reply.to_string().contains(&format!("\"studyId\":\"{FLAG}\""))
+    }) || reply
+        .to_string()
+        .contains(&format!("\"studyId\":\"{FLAG}\""))
     {
         return Err(format!("restricted TCGA lookup changed: {reply}"));
     }
