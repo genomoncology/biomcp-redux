@@ -110,7 +110,12 @@ fn exact(leg: &Leg<'_>, id: &DrugId) -> Result<Option<raw::Medicine>, RequestErr
 }
 fn dates(leg: &Leg<'_>, rows: &[raw::Medicine]) {
     for row in rows {
-        if let Some(date) = row.meta.timestamp.as_ref().and_then(crate::raw::Field::as_ref) {
+        if let Some(date) = row
+            .meta
+            .timestamp
+            .as_ref()
+            .and_then(crate::raw::Field::as_ref)
+        {
             leg.data_date(date.as_str());
         }
     }

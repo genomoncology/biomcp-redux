@@ -12,9 +12,13 @@ impl Leg<'_> {
             today.saturating_sub(date) > i64::from(max_days)
         });
         let message = if old {
-            format!("Publisher dataset date: {date}. Old data: exceeds the configured {max_days}-day age limit. Retrieval does not establish a newer data date.")
+            format!(
+                "Publisher dataset date: {date}. Old data: exceeds the configured {max_days}-day age limit. Retrieval does not establish a newer data date."
+            )
         } else {
-            format!("Publisher dataset date: {date}. This is distinct from retrieval and record event dates.")
+            format!(
+                "Publisher dataset date: {date}. This is distinct from retrieval and record event dates."
+            )
         };
         let notice = SourceNotice::RequestGuidance {
             message: message.into(),
@@ -46,8 +50,10 @@ fn day(value: &str) -> Option<i64> {
     let year_of_era = year - era * 400;
     let month = month + if month > 2 { -3 } else { 9 };
     let day_of_year = (153 * month + 2) / 5 + day - 1;
-    Some(era * 146_097 + year_of_era * 365 + year_of_era / 4 - year_of_era / 100
-        + day_of_year - 719_468)
+    Some(
+        era * 146_097 + year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year
+            - 719_468,
+    )
 }
 
 #[cfg(test)]
@@ -55,8 +61,14 @@ mod tests {
     #[test]
     fn calendar_days_preserve_leap_years_and_reject_partial_dates() {
         assert_eq!(super::day("1970-01-01"), Some(0));
-        assert_eq!(super::day("2000-03-01").unwrap() - super::day("2000-02-28").unwrap(), 2);
-        assert_eq!(super::day("1900-03-01").unwrap() - super::day("1900-02-28").unwrap(), 1);
+        assert_eq!(
+            super::day("2000-03-01").unwrap() - super::day("2000-02-28").unwrap(),
+            2
+        );
+        assert_eq!(
+            super::day("1900-03-01").unwrap() - super::day("1900-02-28").unwrap(),
+            1
+        );
         assert_eq!(super::day("2026-02-29"), None);
         assert_eq!(super::day("2026-01"), None);
     }
