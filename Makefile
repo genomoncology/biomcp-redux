@@ -528,8 +528,8 @@ help-recovery-check:
 
 .PHONY: enum-case-check
 enum-case-check:
-	cargo test --locked -p biomcp --test cases enumerated-letter-case $(TEST_THREADS)
-	cargo test --locked -p biomcp --test cases grammar/enum-case.yaml $(TEST_THREADS)
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-transcripts" cargo test --locked -p biomcp --test cases enumerated-letter-case $(TEST_THREADS)
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-transcripts" cargo test --locked -p biomcp --test cases grammar/enum-case.yaml $(TEST_THREADS)
 
 .PHONY: enum-case-prepare enum-case-lint enum-case-schema-check
 enum-case-prepare:
