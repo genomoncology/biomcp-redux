@@ -1,4 +1,5 @@
 //! The fixed schema usage response, including its checked wire literals.
+use crate::UsageError;
 use serde::{Deserialize, Serialize};
 
 // One literal defines both serde and schema, including the fixed message.
@@ -311,7 +312,6 @@ pub struct ErrorEnvelope {
 
 impl From<crate::UsageError> for ErrorEnvelope {
     fn from(usage: crate::UsageError) -> Self {
-        use crate::UsageError;
         let mut out = Self::empty(
             ErrorStatus::Usage,
             ErrorCode::Arguments,
@@ -358,29 +358,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.source = Some(crate::Source::Nci);
             }
             UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
-            UsageError::ArticlePartRange { input, last } => {
-                out.error.option = Some("--part".into());
-                out.error.message = ErrorMessage::ArgumentGuidance;
-                out.error.count = Some(u64::from(last));
-                out.error.valid_values = Some(if last == 0 {
-                    Box::default()
-                } else {
-                    crate::Text::new(&format!("1..{last}"))
-                        .ok()
-                        .into_iter()
-                        .collect()
-                });
-                out.next.push(super::Step {
-                    kind: super::StepKind::Section,
-                    args: vec![
-                        "get".into(),
-                        "article".into(),
-                        input.to_string().into(),
-                        "fulltext".into(),
-                    ]
-                    .into(),
-                });
-            }
+            UsageError::ArticlePartRange { input, last } => out.article_part_range(input, last),
             UsageError::UnsupportedTrialFilter { source, option } => {
                 out.error.filter(source, option.as_str())
             }
@@ -418,6 +396,30 @@ impl From<crate::UsageError> for ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    fn article_part_range(&mut self, input: crate::ArticleInput, last: u32) {
+        self.error.option = Some("--part".into());
+        self.error.message = ErrorMessage::ArgumentGuidance;
+        self.error.count = Some(u64::from(last));
+        self.error.valid_values = Some(if last == 0 {
+            Box::default()
+        } else {
+            crate::Text::new(&format!("1..{last}"))
+                .ok()
+                .into_iter()
+                .collect()
+        });
+        self.next.push(super::Step {
+            kind: super::StepKind::Section,
+            args: vec![
+                "get".into(),
+                "article".into(),
+                input.to_string().into(),
+                "fulltext".into(),
+            ]
+            .into(),
+        });
+    }
+
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self::empty(ErrorStatus::Local, ErrorCode::Local, ErrorMessage::Local)
