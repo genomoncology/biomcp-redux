@@ -190,5 +190,8 @@ fn contexts() -> String {
     })).collect();
     let mut data = data;
     data[2]["citingPaper"]["externalIds"] = serde_json::json!({"DOI":"10.1234/unknown"});
+    data[2]["citingPaper"]["ignored"] = serde_json::json!({
+        "contexts":{"items":["unknown malformed citation context"]}, "license":"cc_by"
+    });
     serde_json::json!({"data":data}).to_string()
 }

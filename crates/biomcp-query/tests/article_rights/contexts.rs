@@ -109,6 +109,10 @@ fn citation_context_rights_preserve_papers_and_explain_withheld_text() {
         "noncommercial contexts must never reach disk"
     );
     assert!(
+        !body.contains("unknown malformed citation context"),
+        "unused native fields must not grant their own citation-text license"
+    );
+    assert!(
         !body.contains("unknown citation context"),
         "unknown-license contexts must never reach disk"
     );
