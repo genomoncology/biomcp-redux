@@ -72,7 +72,10 @@ impl TryFrom<Fields> for VariantRecurrenceQuery {
 }
 impl VariantRecurrenceQuery {
     /// Source evidence required for exact recurrence matching and its public guidance.
-    pub const INPUT_REQUIREMENT: &str = "one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable)";
+    pub const INPUT_REQUIREMENT: &str = concat!(
+        "one unique source-qualified genomic replacement with nonempty reference and alternate alleles ",
+        "(pure insertions and deletions are unavailable)"
+    );
     /// Unchanged variant identifier.
     pub fn input(&self) -> &VariantInput {
         &self.0.input

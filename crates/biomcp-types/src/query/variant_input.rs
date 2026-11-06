@@ -39,22 +39,13 @@ impl VariantInput {
 
     /// Maximum bytes in one published identifier.
     pub const MAX_BYTES: usize = 2048;
-    #[cfg_attr(
-        not(feature = "schema"),
-        allow(
-            dead_code,
-            reason = "BioData can emit schema implementations when only its dependency feature is enabled"
-        )
-    )]
-    const FORMS: &str = "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, chromosome genomic HGVS, or VCF-style chromosome-position-reference-alternate coordinates";
-    #[cfg_attr(
-        not(feature = "schema"),
-        allow(
-            dead_code,
-            reason = "BioData can emit schema implementations when only its dependency feature is enabled"
-        )
-    )]
-    const ASSEMBLY: &str = "defaulting to GRCh38. Reference bases are validated by the source.";
+    /// Resolver forms shared by schema descriptions and recurrence guidance.
+    pub const FORMS: &str = concat!(
+        "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, ",
+        "chromosome genomic HGVS, or VCF-style chromosome-position-reference-alternate coordinates"
+    );
+    /// Shared assembly and reference-validation guidance for variant input schemas.
+    pub const ASSEMBLY: &str = "defaulting to GRCh38. Reference bases are validated by the source.";
     /// Check the identifier spelling and canonicalize the ClinVar namespace prefix.
     pub fn new(value: &str) -> Result<Self, Error> {
         let value = if value
@@ -317,7 +308,7 @@ impl fmt::Display for VariantInput {
 text_value!(
     VariantInput,
     "VariantInput",
-    Self::input_pattern(
+    Self::schema_pattern(
         crate::VariantId::pattern(),
         crate::HgvsText::pattern(),
         biodata::ClinVarVariationId::pattern()
@@ -330,14 +321,8 @@ text_value!(
 );
 
 impl VariantInput {
-    #[cfg_attr(
-        not(feature = "schema"),
-        allow(
-            dead_code,
-            reason = "BioData can emit schema implementations when only its dependency feature is enabled"
-        )
-    )]
-    fn input_pattern(identifiers: String, hgvs: String, variation: String) -> String {
+    /// Combine source-owned schema domains with the shared spelling and length bounds.
+    pub fn schema_pattern(identifiers: String, hgvs: String, variation: String) -> String {
         format!(
             "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|{}|{}|{})",
             Self::MAX_BYTES,
@@ -361,7 +346,7 @@ impl schemars::JsonSchema for LookupInput {
         let mut schema = VariantInput::json_schema(generator);
         schema.insert(
             "pattern".into(),
-            VariantInput::input_pattern(
+            VariantInput::schema_pattern(
                 format!(
                     "({}|{}|{}|{})",
                     biodata::RsId::pattern(),
