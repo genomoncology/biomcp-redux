@@ -16,16 +16,18 @@
       ],
       "offline": true,
       "expect": {
-        "/query/status": [
-          "RECRUITING"
-        ]
+        "/query/status": "RECRUITING"
+      }
+    },
+    {
+      "offline": true,
+      "expect": {
+        "/query/status": "RECRUITING"
       },
       "mcp_call": {
         "name": "search_trial",
         "arguments": {
-          "status": [
-            "recruiting"
-          ]
+          "status": "recruiting"
         }
       }
     }
