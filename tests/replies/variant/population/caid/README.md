@@ -1,1 +1,2 @@
 Synthetic CAid routing and absence fixtures. SNV replies reuse variant-population/main unchanged. The unknown CAid request returns a synthetic HTTP 404, which tests absence handling without asserting that a specific public allele does not exist. No live calls were made.
+The indel identity body reuses the recorded public CA118639 response in variant/id-forms, changing only its request wrapper to allele-by-ID. Its CAR gnomAD_4 cross-reference and native gnomAD reply are unchanged retained responses from the same fixture set, captured on 2026-11-05.

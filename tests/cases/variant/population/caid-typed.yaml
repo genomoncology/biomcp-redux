@@ -9,7 +9,7 @@
         "name": "get_variant",
         "arguments": {
           "input": "CA123643",
-          "sections": [
+          "section": [
             "population"
           ]
         }
@@ -36,7 +36,7 @@
         "name": "get_variant",
         "arguments": {
           "input": "CA118639",
-          "sections": [
+          "section": [
             "population"
           ]
         }
