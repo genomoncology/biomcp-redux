@@ -57,35 +57,25 @@ fn check_mode(
     let typed = mode == "typed";
     env.config(&json!({"mcp_tool_mode":mode,"mcp_typed_output_schema":true}))
         .map_err(|e| e.to_string())?;
-    let mut frames: Vec<_> = cases
+    let tools = if typed { catalog(env)? } else { Vec::new() };
+    let frames = cases
         .iter()
         .enumerate()
         .map(|(index, case)| {
             let params = if typed {
-                json!({"name":case.tool,"arguments":case.fields})
+                let tool = super::protocol::typed_catalog::command(&tools, &case.tool)
+                    .ok_or_else(|| format!("missing registered recovery route {}", case.tool))?;
+                super::protocol::typed_catalog::call(&tool, &case.fields)
             } else {
                 json!({"name":"biomcp","arguments":{"args":case.args}})
             };
-            request(json!(index), "tools/call", params)
+            Ok(request(json!(index), "tools/call", params))
         })
-        .collect();
-    if typed {
-        frames.push(request(json!("catalog"), "tools/list", json!({})));
-    }
+        .collect::<Result<Vec<_>, String>>()?;
     let replies = exchange_with_globals(env, &frames, &["--offline".into()])?;
     if replies.len() != frames.len() {
         return Err("missing usage replies".into());
     }
-    let tools: &[Value] = if typed {
-        replies
-            .iter()
-            .find(|reply| reply["id"] == "catalog")
-            .and_then(|reply| reply.pointer("/result/tools"))
-            .and_then(Value::as_array)
-            .ok_or("missing typed catalog")?
-    } else {
-        &[]
-    };
     for (index, (case, expected)) in cases.iter().zip(expected).enumerate() {
         let reply = replies
             .iter()
@@ -104,13 +94,27 @@ fn check_mode(
             return Err(format!("{mode} usage differs from CLI: {reply}"));
         }
         if typed {
-            typed_correction(env, value, tools)?;
+            typed_correction(env, value, &tools)?;
         } else {
             validate(env, case, value)?;
         }
     }
     Ok(())
 }
+fn catalog(env: &Environment) -> Result<Vec<Value>, String> {
+    let replies = exchange_with_globals(
+        env,
+        &[request(json!("catalog"), "tools/list", json!({}))],
+        &["--offline".into()],
+    )?;
+    replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .cloned()
+        .ok_or("missing typed catalog".into())
+}
+
 fn typed_correction(env: &Environment, value: &Value, tools: &[Value]) -> Result<(), String> {
     super::protocol::typed_followups::check_next(value, tools, &mut 0)?;
     let next = value

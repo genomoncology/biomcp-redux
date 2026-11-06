@@ -2,7 +2,7 @@
 use serde_json::{Value, json};
 use std::io::Write;
 
-pub(super) fn command(tools: &[Value], name: &str) -> Option<Value> {
+pub(in crate::runner) fn command(tools: &[Value], name: &str) -> Option<Value> {
     if let Some(tool) = tools.iter().find(|tool| tool["name"] == name) {
         return Some(tool.clone());
     }
@@ -21,14 +21,12 @@ pub(super) fn command(tools: &[Value], name: &str) -> Option<Value> {
     )
 }
 
-tool_only! {
-pub(super) fn call(tool: &Value, arguments: &Value) -> Value {
+pub(in crate::runner) fn call(tool: &Value, arguments: &Value) -> Value {
     if tool["x-reference"] == true {
         json!({"name":"biomcp_reference","arguments":{"command":tool["name"],"arguments":arguments}})
     } else {
         json!({"name":tool["name"],"arguments":arguments})
     }
-}
 }
 
 pub(super) fn check(tools: &[Value]) -> Result<(), String> {
