@@ -20,12 +20,14 @@ pub(super) fn command(tools: &[Value], name: &str) -> Option<Value> {
     )
 }
 
+tool_only! {
 pub(super) fn call(tool: &Value, arguments: &Value) -> Value {
     if tool["x-reference"] == true {
         json!({"name":"biomcp_reference","arguments":{"command":tool["name"],"arguments":arguments}})
     } else {
         json!({"name":tool["name"],"arguments":arguments})
     }
+}
 }
 
 pub(super) fn check(tools: &[Value]) -> Result<(), String> {
