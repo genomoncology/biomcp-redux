@@ -66,7 +66,13 @@ fn query_page(
     let stub = Stub::for_source(
         "api.platform.opentargets.org",
         "application/json",
-        move |_| Ok(body.clone()),
+        move |request: &str| {
+            Ok(if request.contains("dataVersion") {
+                r#"{"data":{"meta":{"dataVersion":{"year":"26","month":"09"}}}}"#.into()
+            } else {
+                body.clone()
+            })
+        },
     )?;
     let fetch = Fetch::open(FetchConfig {
         network: Network::new(
@@ -139,7 +145,7 @@ fn query_page(
         "query continuation changed"
     );
     let requests = stub.finish()?;
-    assert_eq!(requests.len(), 1, "query did not reach synthetic publisher");
+    assert_eq!(requests.len(), 2, "query did not reach synthetic publisher");
     Ok(data.clone())
 }
 
