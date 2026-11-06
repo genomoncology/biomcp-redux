@@ -210,8 +210,8 @@ fn chunked() -> Check {
 fn overload() -> Check {
     let server = Server::start()?;
     let mut held = Vec::new();
-    // Framing reserves one reader beyond the eight active call slots for health.
-    for _ in 0..9 {
+    // Framing can use the full existing worker bound (twice the connection cap plus one).
+    for _ in 0..17 {
         let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
         socket
             .write_all(b"GET /health HTTP/1.1\r\n")
@@ -281,6 +281,11 @@ pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Valu
         return Err(format!(
             "health admitted or migrated an old query schema: {status} {old} version={version}"
         ));
+    }
+    connection.execute_batch("DROP TABLE meta").map_err(|e| e.to_string())?;
+    let (status, damaged) = server.request("GET", "/health", "")?;
+    if status != 503 || damaged.get("store") != Some(&serde_json::json!(false)) {
+        return Err(format!("damaged store passed health: {status} {damaged}"));
     }
     response
 }

@@ -163,15 +163,8 @@ mod tests {
     use serde_json::json;
     use std::{sync::mpsc, time::Duration};
 
-    const DEADLOCK_GUARD: Duration = Duration::from_secs(60);
-
-    #[test]
-    #[expect(
-        clippy::disallowed_methods,
-        reason = "Held worker exit events prove private HTTP capacity and cleanup ownership"
-    )]
-    fn expired_calls_keep_capacity_and_shutdown_waits_for_actual_worker_exit() {
-        let service = Service {
+    fn test_service() -> Service {
+        Service {
             hosted_max_use: Default::default(),
             root: std::sync::Arc::new(crate::grammar::root().unwrap()),
             settings: std::sync::Arc::new(Ok(None)),
@@ -184,7 +177,68 @@ mod tests {
             globals: Globals::default(),
             fetch: Err(StartupError::Local),
             recovery: None,
-        };
+        }
+    }
+    #[test]
+    #[expect(clippy::disallowed_methods, reason = "Inject OS failures and observe recovery over a real local socket")]
+    fn accept_and_spawn_failures_leave_server_running() {
+        use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, sync::Arc};
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let mut service = test_service();
+        service.address = address;
+        let (stop, stopped) = mpsc::sync_channel(1);
+        let (failed, observed) = mpsc::channel();
+        let server = std::thread::spawn(move || {
+            let mut first_accept = true;
+            let mut first_spawn = true;
+            super::super::connections::run_with(listener, Arc::new(service), stopped, |listener| {
+                if std::mem::take(&mut first_accept) {
+                    return Err(std::io::Error::other("forced accept failure"));
+                }
+                listener.accept().map(|(stream, _)| stream)
+            }, |work| {
+                if std::mem::take(&mut first_spawn) {
+                    failed.send(()).unwrap();
+                    return Err(std::io::Error::other("forced thread failure"));
+                }
+                std::thread::Builder::new().spawn(work)
+            })
+        });
+        let rejected = TcpStream::connect(address).unwrap();
+        observed.recv_timeout(DEADLOCK_GUARD).unwrap();
+        drop(rejected);
+        let mut client = TcpStream::connect(address).unwrap();
+        client.set_read_timeout(Some(DEADLOCK_GUARD)).unwrap();
+        write!(client, "GET /health HTTP/1.1\r\nHost: {address}\r\n\r\n").unwrap();
+        let mut reply = String::new();
+        client.read_to_string(&mut reply).unwrap();
+        assert!(reply.starts_with("HTTP/1.1 503 "), "{reply}");
+        assert!(reply.contains("store"));
+        stop.send(()).unwrap();
+        server.join().unwrap().unwrap();
+    }
+    #[test]
+    fn call_diagnostic_keeps_only_safe_fields() {
+        let params = json!({"name":"get_gene", "arguments":{"id":"private-query", "key":"private-key"}});
+        let reply = json!({"result":{"structuredContent":{"status":"partial", "query":"private-query", "sources":[{"source":"mygene", "state":"failed", "term":"private-key"}, {"source":"private-key", "state":"failed"}]}}});
+        let line = super::super::logging::line(&params, Duration::from_millis(7), 200, Some(&reply));
+        assert_eq!(line, json!({"event":"mcp_call", "tool":"get_gene", "duration_ms":7, "status":"partial", "failed_sources":["mygene"]}));
+        let unsafe_params = json!({"name":"private-query"});
+        let line = super::super::logging::line(&unsafe_params, Duration::ZERO, 200, None);
+        assert_eq!(line["tool"], "unknown");
+        assert!(!line.to_string().contains("private"));
+    }
+
+    const DEADLOCK_GUARD: Duration = Duration::from_secs(60);
+
+    #[test]
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Held worker exit events prove private HTTP capacity and cleanup ownership"
+    )]
+    fn expired_calls_keep_capacity_and_shutdown_waits_for_actual_worker_exit() {
+        let service = test_service();
         let mut releases = Vec::new();
         let mut exits = Vec::new();
         let (leaving, observed) = mpsc::channel();
@@ -286,7 +340,7 @@ mod tests {
             let (stop, stopped) = mpsc::sync_channel(1);
             let server_service = service.clone();
             let server = std::thread::spawn(move || {
-                super::super::super::connections(listener, server_service, stopped)
+                super::super::super::connections::run(listener, server_service, stopped)
             });
             let control = Control {
                 running: AtomicBool::new(true),
