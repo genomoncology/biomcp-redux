@@ -69,8 +69,10 @@
         "/sources/1/source": "mychem",
         "/next/0/name": "get_drug",
         "/next/0/arguments": {
-          "input": "KTUFNOKKBVMGRW-UHFFFAOYSA-M",
-          "source": "mychem"
+          "equals": {
+            "input": "KTUFNOKKBVMGRW-UHFFFAOYSA-M",
+            "source": "mychem"
+          }
         }
       },
       "mcp_call": {
