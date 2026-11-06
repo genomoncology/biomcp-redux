@@ -246,3 +246,26 @@ fn label_selectors(selectors: &mut [StatisticSelector], formats: &raw::Formats) 
             .map(Into::into);
     }
 }
+
+pub(super) fn choices(formats: &raw::Formats) -> Box<[StatisticSelector]> {
+    [
+        super::Selector::Dataset,
+        super::Selector::Period,
+        super::Selector::Interval,
+    ]
+    .into_iter()
+    .flat_map(|selector| {
+        let name = match selector {
+            super::Selector::Dataset => "data_model",
+            super::Selector::Period => "year_range",
+            _ => "relative_survival_interval",
+        };
+        selector.valid_codes().iter().filter_map(move |code| {
+            let mut row = self::selector(name, code).ok()?;
+            label_selectors(std::slice::from_mut(&mut row), formats);
+            row.label.as_ref()?;
+            Some(row)
+        })
+    })
+    .collect()
+}

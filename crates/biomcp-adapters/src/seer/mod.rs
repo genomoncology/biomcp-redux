@@ -88,6 +88,8 @@ pub struct Page<T> {
     pub metadata: ReplyMetadata,
     /// Source fields that remain unverified or contradict a request.
     pub problems: Vec<biomcp_types::Problem>,
+    /// Publisher code labels for required statistic selectors; empty for statistic pages.
+    pub selectors: Box<[biodata::StatisticSelector]>,
 }
 /// Publisher policy shared by health, admission and response outcomes.
 pub static SPEC: SourceSpec = SourceSpec {
@@ -147,6 +149,7 @@ pub fn catalog_named(
             problem(Source::Seer, None, "catalog.publisher_version"),
         ],
     };
+    let selectors = map::choices(&raw.formats);
     let labels = problems.field("VariableFormats.site", raw.formats.site);
     let mut rows = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -187,6 +190,7 @@ pub fn catalog_named(
         window: crate::NativeWindow::new(rows, offset, limit, Some(total), received, refusals),
         metadata,
         problems: problems.list,
+        selectors,
     })
 }
 impl Selection {
@@ -268,6 +272,7 @@ pub fn statistics(
         window: crate::NativeWindow::local(rows, offset, limit),
         metadata,
         problems,
+        selectors: Box::default(),
     })
 }
 

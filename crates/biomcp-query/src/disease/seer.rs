@@ -19,6 +19,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             items: Box::default(),
             components: Box::default(),
             fetched: None,
+            selectors: Box::default(),
         })
         .with_query(query.clone()),
     );
@@ -42,6 +43,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
             items: page.window.rows.into(),
             components: Box::default(),
             fetched: fetched(page.metadata.fetched),
+            selectors: page.selectors,
         })
         .with_query(query.clone());
         crate::status::search(&mut out);
@@ -163,6 +165,7 @@ fn named_site(
                 items: page.window.rows.into(),
                 components: Box::default(),
                 fetched: fetched(page.metadata.fetched),
+                selectors: page.selectors,
             })
             .with_query(search);
             crate::status::search(&mut out);
