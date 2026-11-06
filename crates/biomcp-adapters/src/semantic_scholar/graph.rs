@@ -87,6 +87,8 @@ pub struct Edge {
     pub is_influential: Option<bool>,
     /// Missing is distinct from a reported empty list.
     pub contexts: Option<Vec<String>>,
+    /// Independently resolved license of the citing paper.
+    pub context_license: Option<biodata::License>,
     /// Rejected edge metadata retained with its paper.
     pub problems: Vec<biomcp_types::Problem>,
 }
@@ -98,6 +100,7 @@ struct RawEdge {
     intents: Option<Field<Vec<Field<biomcp_types::CitationIntent>>>>,
     is_influential: Option<Field<bool>>,
     contexts: Option<Field<Vec<Field<String>>>>,
+    context_license: Option<biodata::License>,
 }
 impl From<RawEdge> for Edge {
     fn from(raw: RawEdge) -> Self {
@@ -131,6 +134,7 @@ impl From<RawEdge> for Edge {
             intents,
             is_influential,
             contexts,
+            context_license: raw.context_license,
             problems: p.list,
         }
     }
@@ -194,6 +198,7 @@ impl Edge {
         .item(problems);
         item.intents = self.intents;
         item.influential = self.is_influential;
+        item.context_license = self.context_license;
         item.contexts = self
             .contexts
             .map(|contexts| {
@@ -247,7 +252,13 @@ pub fn edges(
         .call(
             &endpoint,
             biomcp_fetch::Input::Params(&args),
-            biomcp_fetch::Read::<RawEdges>::json(),
+            biomcp_fetch::Read::<RawEdges>::json().filter_body(&|body| {
+                let parent = match input {
+                    ArticleInput::Pmid(id) => Some(*id),
+                    _ => None,
+                };
+                crate::article_rights::semantic::filter(leg, body, parent)
+            }),
         )?
         .value;
     let data = raw.data.ok_or(biomcp_fetch::SourceError {

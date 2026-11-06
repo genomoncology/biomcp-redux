@@ -22,6 +22,7 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
     let mut deadline = command.deadline();
     let mut out = crate::status::ready(
         (ArticleTextResult {
+            text_withheld: None,
             pmcid: None,
             content: Section::NotApplicable,
         })
@@ -139,6 +140,10 @@ fn execute<'a>(
     out.sources.push(source);
     if matches!(result, Err(RequestError::Source(error)) if error.reason == Reason::Disabled) {
         out.body = (ArticleTextResult {
+            text_withheld: Some(biomcp_types::WithheldArticleText {
+                reason: Reason::Disabled,
+                url: Text::new(&format!("https://pmc.ncbi.nlm.nih.gov/articles/{id}/")).ok(),
+            }),
             pmcid: Some(id),
             content: Section::unavailable(Source::PmcOa, Reason::Disabled),
         })
@@ -169,6 +174,7 @@ fn execute<'a>(
         }
     };
     out.body = (ArticleTextResult {
+        text_withheld: None,
         pmcid: Some(id),
         content,
     })
@@ -355,11 +361,25 @@ fn preprint<'a>(
         crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
+    if matches!(result, Err(RequestError::Source(error)) if error.reason == Reason::Disabled) {
+        out.body = (ArticleTextResult {
+            text_withheld: Some(biomcp_types::WithheldArticleText {
+                reason: Reason::Disabled,
+                url: Text::new(&format!("https://europepmc.org/article/PPR/{id}")).ok(),
+            }),
+            pmcid: None,
+            content: Section::unavailable(Source::EuropePmc, Reason::Disabled),
+        })
+        .with_query(query.clone());
+        crate::status::item(out, true, false, false);
+        return Ok(());
+    }
     let mapped = result?;
     out.include_refusals(mapped.refusals);
     out.problems.extend(mapped.problems);
     let Some(document) = mapped.value else {
         out.body = (ArticleTextResult {
+            text_withheld: None,
             pmcid: None,
             content: Section::unavailable(Source::EuropePmc, Reason::NotOpen),
         })
@@ -378,6 +398,7 @@ fn preprint<'a>(
         return Ok(());
     };
     out.body = (ArticleTextResult {
+        text_withheld: None,
         pmcid: None,
         content: Section::Data {
             source: Source::EuropePmc,

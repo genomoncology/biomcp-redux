@@ -59,6 +59,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         let section = problems.field("section", sentence.section);
         let text = problems.source_field("text", sentence.text);
         items.push(ArticleItem {
+            context_license: None,
             text_withheld: sentence
                 .text_withheld
                 .then(|| crate::article_rights::withheld(sentence.pmid.0)),
@@ -70,7 +71,11 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
             influential: None,
             contexts: None,
             header: None,
-            sentence: (!sentence.text_withheld).then_some(ArticleSentence { section, text }),
+            sentence: (!sentence.text_withheld).then_some(ArticleSentence {
+                license: sentence.license,
+                section,
+                text,
+            }),
         });
     }
     Ok(Mapped {
@@ -85,6 +90,7 @@ struct Sentences(Vec<Field<Sentence>>);
 struct Sentence {
     #[serde(default)]
     text_withheld: bool,
+    license: Option<biodata::License>,
     pmid: crate::raw::NumericPmid,
     section: Option<Field<Text>>,
     text: Option<Field<crate::native_text::NativeText>>,

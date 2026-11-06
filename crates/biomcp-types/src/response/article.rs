@@ -65,6 +65,9 @@ pub struct ArticleItem {
     /// Provider's influential flag; absent is distinct from false.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub influential: Option<bool>,
+    /// Record-owned license of the citing paper that supplied context text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_license: Option<biodata::License>,
     /// First citation context and the source's complete context count.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub contexts: Option<crate::Capped<crate::Text>>,
@@ -144,6 +147,9 @@ pub use evidence::{
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleSentence {
+    /// Explicit record-owned license, when independently resolved.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub license: Option<biodata::License>,
     /// Source section, when present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub section: Option<crate::Text>,

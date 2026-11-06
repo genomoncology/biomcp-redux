@@ -1,5 +1,6 @@
 //! One record-owned license decision for article snippets and retained pools.
 pub(crate) mod pubmed;
+pub(crate) mod semantic;
 use biodata::Pmid;
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{ArticleItem, Use};
@@ -65,6 +66,15 @@ pub(crate) fn litsense(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> 
     let allowed = licenses(leg, &ids);
     for row in rows_array {
         let license = pmid(&row["pmid"]).and_then(|id| allowed.get(&id).copied());
+        if let Some(row) = row.as_object_mut() {
+            row.remove("license");
+            if let Some(license) = license {
+                row.insert(
+                    "license".into(),
+                    serde_json::to_value(license).map_err(|_| BadReply)?,
+                );
+            }
+        }
         let abstract_text = row["section"].as_str().is_some_and(is_abstract);
         if !permitted(license, abstract_text) {
             if let Some(row) = row.as_object_mut() {
@@ -84,23 +94,37 @@ pub fn items(leg: &Leg<'_>, rows: &mut [ArticleItem]) {
     }
     let ids: Vec<_> = rows
         .iter()
-        .filter(|row| row.sentence.is_some() || row.contexts.is_some())
+        .filter(|row| {
+            row.sentence
+                .as_ref()
+                .is_some_and(|sentence| sentence.license.is_none())
+        })
         .filter_map(|row| row.pmid)
         .collect();
-    if ids.is_empty() {
-        return;
-    }
-    let allowed = licenses(leg, &ids);
+    let allowed = if ids.is_empty() {
+        BTreeMap::new()
+    } else {
+        licenses(leg, &ids)
+    };
     for row in rows {
-        let license = row.pmid.and_then(|id| allowed.get(&id).copied());
+        let license = row
+            .sentence
+            .as_ref()
+            .and_then(|sentence| sentence.license)
+            .or_else(|| row.pmid.and_then(|id| allowed.get(&id).copied()));
+        if let Some(sentence) = &mut row.sentence {
+            sentence.license = license;
+        }
         let abstract_text = row
             .sentence
             .as_ref()
             .and_then(|sentence| sentence.section.as_ref())
             .is_some_and(|section| is_abstract(section.as_str()));
-        if !permitted(license, abstract_text) && (row.sentence.is_some() || row.contexts.is_some())
-        {
+        if !permitted(license, abstract_text) && (row.sentence.is_some()) {
             row.sentence = None;
+            row.text_withheld = row.pmid.map(withheld);
+        }
+        if row.contexts.is_some() && !permitted(row.context_license, false) {
             row.contexts = None;
             row.text_withheld = row.pmid.map(withheld);
         }
