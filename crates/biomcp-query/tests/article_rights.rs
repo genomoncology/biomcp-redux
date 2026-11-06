@@ -2,8 +2,6 @@
 #![expect(
     clippy::unwrap_used,
     clippy::panic,
-    clippy::disallowed_methods,
-    clippy::disallowed_types,
     reason = "Isolated synthetic transport and SQLite witness"
 )]
 use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache};
@@ -58,7 +56,8 @@ fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
             .filter_map(|row| row.pmid)
             .map(|id| id.to_string())
             .collect::<Vec<_>>(),
-        ["1001", "1002", "1003"]
+        ["1001", "1002", "1003"],
+        "text admission must preserve every paper in provider order"
     );
     assert_eq!(
         page.items
@@ -74,8 +73,14 @@ fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
             row.get(0)
         })
         .unwrap();
-    assert!(!disk.contains("noncommercial body witness"));
-    assert!(!disk.contains("unknown body witness"));
+    assert!(
+        !disk.contains("noncommercial body witness"),
+        "pools must never persist noncommercial body text"
+    );
+    assert!(
+        !disk.contains("unknown body witness"),
+        "pools must never persist unknown-license body text"
+    );
     let raw: Vec<u8> = connection
         .query_row(
             "SELECT body FROM reply WHERE source='litsense'",
@@ -84,10 +89,25 @@ fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
         )
         .unwrap();
     let raw = String::from_utf8(raw).unwrap();
-    assert!(raw.contains("permitted body witness"));
-    assert!(!raw.contains("noncommercial body witness"));
-    assert!(!raw.contains("unknown body witness"));
-    assert!(!raw.contains("unlicensed ignored source field"));
+    assert!(
+        raw.contains("permitted body witness"),
+        "the source cache may retain permitted text"
+    );
+    assert!(
+        !raw.contains("noncommercial body witness"),
+        "raw cache admission must filter noncommercial text"
+    );
+    assert!(
+        !raw.contains("unknown body witness"),
+        "raw cache admission must filter unknown-license body text"
+    );
+    assert!(
+        !raw.contains("unlicensed ignored source field"),
+        "unused source fields must not bypass text admission"
+    );
+    assert_withheld_fulltext(&fetch);
+}
+fn assert_withheld_fulltext(fetch: &Fetch) {
     let query = biomcp_types::ArticleText::part(
         biomcp_types::ArticleInput::Pmcid("PMC1002".parse().unwrap()),
         1,
@@ -95,7 +115,7 @@ fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
     .unwrap();
     let fulltext = biomcp_query::run(
         &biomcp_query::Ctx {
-            fetch: &fetch,
+            fetch,
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
@@ -113,10 +133,15 @@ fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
     else {
         panic!("fulltext identity response")
     };
-    assert_eq!(body.pmcid.unwrap().to_string(), "PMC1002");
+    assert_eq!(
+        body.pmcid.unwrap().to_string(),
+        "PMC1002",
+        "a withheld body retains its paper identity"
+    );
     assert_eq!(
         body.text_withheld.unwrap().reason,
-        biomcp_types::Reason::Disabled
+        biomcp_types::Reason::Disabled,
+        "the reader must explain why text was withheld"
     );
 }
 #[test]
@@ -151,20 +176,29 @@ fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() 
         },
         &Request::SearchArticle(query),
     );
-    assert_eq!(restricted.page.unwrap().pool.unwrap(), pool);
+    assert_eq!(
+        restricted.page.unwrap().pool.unwrap(),
+        pool,
+        "rights checks must retain the original pool identity"
+    );
     let ReplyData::ArticlePage {
         body: Some(page), ..
     } = restricted.body
     else {
         panic!("legacy article page")
     };
-    assert_eq!(page.items.len(), 3);
+    assert_eq!(
+        page.items.len(),
+        3,
+        "a restricted continuation must retain all original papers"
+    );
     assert_eq!(
         page.items
             .iter()
             .filter(|row| row.sentence.is_some())
             .count(),
-        1
+        1,
+        "a retained pool must repeat the current per-record rule"
     );
     let connection = fetch.cache_access().unwrap().connect().unwrap();
     let rows: String = connection
@@ -172,8 +206,14 @@ fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() 
             row.get(0)
         })
         .unwrap();
-    assert!(!rows.contains("noncommercial body witness"));
-    assert!(!rows.contains("unknown body witness"));
+    assert!(
+        !rows.contains("noncommercial body witness"),
+        "rewritten pool rows must withhold noncommercial text"
+    );
+    assert!(
+        !rows.contains("unknown body witness"),
+        "rewritten pool rows must withhold unknown-license body text"
+    );
 }
 
 #[path = "article_rights/routes.rs"]

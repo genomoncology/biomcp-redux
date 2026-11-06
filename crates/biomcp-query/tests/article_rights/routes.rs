@@ -22,9 +22,19 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
     );
     let (articles, _) =
         biomcp_adapters::pubmed::fetch_articles(&leg, &["1002".parse().unwrap()], None).unwrap();
-    assert_eq!(articles.len(), 1);
-    assert!(articles[0].article.abstract_parts.is_empty());
-    assert!(articles[0].article.text_withheld.is_some());
+    assert_eq!(
+        articles.len(),
+        1,
+        "withholding an abstract must preserve the paper"
+    );
+    assert!(
+        articles.first().unwrap().article.abstract_parts.is_empty(),
+        "an explicit noncommercial abstract must be withheld"
+    );
+    assert!(
+        articles.first().unwrap().article.text_withheld.is_some(),
+        "the paper must explain its missing abstract"
+    );
     let leg = fetch.leg(
         &biomcp_adapters::pubtator::SPEC,
         fetch.deadline(Duration::from_secs(20)),
@@ -43,7 +53,8 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
             .iter()
             .map(|row| row.id.to_string())
             .collect::<Vec<_>>(),
-        ["1001", "1002", "1003"]
+        ["1001", "1002", "1003"],
+        "annotations must preserve every requested paper"
     );
     let leg = fetch.leg(
         &biomcp_adapters::europepmc::SPEC,
@@ -52,8 +63,14 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
     let (noncommercial, _) =
         biomcp_adapters::europepmc::core(&leg, &"PPR1002".parse().unwrap()).unwrap();
     let (unknown, _) = biomcp_adapters::europepmc::core(&leg, &"PPR1003".parse().unwrap()).unwrap();
-    assert!(noncommercial.value.abstract_parts.is_empty());
-    assert!(noncommercial.value.text_withheld.is_some());
+    assert!(
+        noncommercial.value.abstract_parts.is_empty(),
+        "Europe PMC's explicit noncommercial license must withhold its abstract"
+    );
+    assert!(
+        noncommercial.value.text_withheld.is_some(),
+        "Europe PMC must explain the withheld abstract"
+    );
     assert_eq!(
         unknown.value.abstract_parts.len(),
         1,
@@ -78,9 +95,18 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
             "restricted cache retained {forbidden}"
         );
     }
-    assert!(stored.contains("permitted passage witness"));
-    assert!(stored.contains("unknown abstract passage retained"));
-    assert!(stored.contains("PPR1003 abstract witness"));
+    assert!(
+        stored.contains("permitted passage witness"),
+        "permitted body text may remain cached"
+    );
+    assert!(
+        stored.contains("unknown abstract passage retained"),
+        "unknown abstract licenses follow source terms"
+    );
+    assert!(
+        stored.contains("PPR1003 abstract witness"),
+        "unknown Europe PMC abstract licenses follow source terms"
+    );
 }
 
 #[test]
@@ -119,10 +145,17 @@ fn exhausted_license_budget_returns_papers_without_text_or_license_requests() {
     else {
         panic!("delayed article page: {out:?}")
     };
-    assert_eq!(page.items.len(), 3);
-    assert!(page.items.iter().all(|row| row.sentence.is_none()));
+    assert_eq!(
+        page.items.len(),
+        3,
+        "license timeout must preserve every paper"
+    );
+    assert!(
+        page.items.iter().all(|row| row.sentence.is_none()),
+        "insufficient license budget must withhold body sentences"
+    );
     let connection = fetch.cache_access().unwrap().connect().unwrap();
-    let lookups: u64 = connection
+    let lookups: i64 = connection
         .query_row(
             "SELECT count(*) FROM reply WHERE source='pmc-oa'",
             [],

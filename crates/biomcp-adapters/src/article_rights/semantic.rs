@@ -95,6 +95,7 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 citing.and_then(|id| licenses.get(&id).copied())
             };
             object.remove("biomcpContextLicense");
+            object.remove("biomcpTextWithheld");
             if !mapped
                 && object.contains_key("contexts")
                 && let Some(value) =
@@ -114,6 +115,17 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                         serde_json::json!({"reason":"disabled"}),
                     );
                 } else {
+                    if object.get("contexts").is_some_and(|value| !value.is_null()) {
+                        let notice = citing.map(super::withheld).unwrap_or(
+                            biomcp_types::WithheldArticleText {
+                                reason: biomcp_types::Reason::Disabled,
+                                url: None,
+                            },
+                        );
+                        if let Ok(notice) = serde_json::to_value(notice) {
+                            object.insert("biomcpTextWithheld".into(), notice);
+                        }
+                    }
                     object.remove("contexts");
                 }
             }

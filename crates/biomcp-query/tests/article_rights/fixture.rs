@@ -61,13 +61,22 @@ pub(super) fn record(dir: &Path) {
     for id in [1001, 1002, 1003] {
         let _ = biomcp_adapters::pmc_oa::read(&leg, format!("PMC{id}").parse().unwrap(), None);
     }
+    record_other_routes(&fetch);
+    let _ = biomcp_test_support::evidence::retain(dir).unwrap();
+    stub.finish().unwrap();
+}
+fn record_other_routes(fetch: &Fetch) {
     let leg = fetch.leg(
         &biomcp_adapters::pubmed::SPEC,
         fetch.deadline(Duration::from_secs(20)),
     );
     let ids = ["1002".parse().unwrap()];
     let (articles, _) = biomcp_adapters::pubmed::fetch_articles(&leg, &ids, None).unwrap();
-    assert_eq!(articles[0].article.abstract_parts.len(), 1);
+    assert_eq!(
+        articles.first().unwrap().article.abstract_parts.len(),
+        1,
+        "the unrestricted fixture must retain its original abstract"
+    );
     biomcp_adapters::pubmed::summaries(&leg, &ids, None).unwrap();
     let leg = fetch.leg(
         &biomcp_adapters::pubtator::SPEC,
@@ -88,10 +97,12 @@ pub(super) fn record(dir: &Path) {
     );
     for id in ["PPR1002", "PPR1003"] {
         let (article, _) = biomcp_adapters::europepmc::core(&leg, &id.parse().unwrap()).unwrap();
-        assert_eq!(article.value.abstract_parts.len(), 1);
+        assert_eq!(
+            article.value.abstract_parts.len(),
+            1,
+            "unrestricted Europe PMC fixtures retain their abstracts"
+        );
     }
-    let _ = biomcp_test_support::evidence::retain(dir).unwrap();
-    stub.finish().unwrap();
 }
 
 fn response(request: &str) -> Result<String, String> {
