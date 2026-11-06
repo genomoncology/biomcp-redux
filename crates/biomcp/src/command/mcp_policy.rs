@@ -14,14 +14,6 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
         return Some(UsageError::McpUnavailable(ErrorMessage::McpKey));
     }
     let action = action?;
-    if matches!(
-        action,
-        Action::StoreClean {
-            scrub_to_copy: Some(_)
-        }
-    ) {
-        return Some(UsageError::McpUnavailable(ErrorMessage::McpStoreClean));
-    }
     if http {
         let command = match action {
             Action::Sync { .. } => Some(ErrorMessage::McpSync),

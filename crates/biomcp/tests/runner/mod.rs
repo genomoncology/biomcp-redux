@@ -116,7 +116,6 @@ mod snapshot_errors;
 mod source_queries;
 mod source_terms;
 mod store_clean;
-mod store_scrub;
 mod store_coexistence;
 mod study_catalog;
 mod transcript;
