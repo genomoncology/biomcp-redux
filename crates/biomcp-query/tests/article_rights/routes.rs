@@ -1,21 +1,20 @@
-use super::{record, run};
-use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache};
-use biomcp_types::{ReplyData, Use};
+use super::{hosted, record, run};
+use biomcp_fetch::Fetch;
+use biomcp_types::ReplyData;
 use std::time::Duration;
 
 #[test]
 fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_writes() {
     let input = tempfile::tempdir().unwrap();
     record(input.path());
-    let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay {
-            dir: input.path().into(),
-        },
-        disabled_uses: [Use::PerRecord].into(),
-        replay_cache: Some(ReplayCache::temporary().unwrap()),
-        ..FetchConfig::default()
-    })
-    .unwrap();
+    let fetch = hosted(input.path());
+    check_pubmed(&fetch);
+    check_pubtator(&fetch);
+    check_europepmc(&fetch);
+    check_abstract_sentences(&fetch);
+    check_cache(&fetch);
+}
+fn check_pubmed(fetch: &Fetch) {
     let leg = fetch.leg(
         &biomcp_adapters::pubmed::SPEC,
         fetch.deadline(Duration::from_secs(20)),
@@ -35,6 +34,8 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
         articles.first().unwrap().article.text_withheld.is_some(),
         "the paper must explain its missing abstract"
     );
+}
+fn check_pubtator(fetch: &Fetch) {
     let leg = fetch.leg(
         &biomcp_adapters::pubtator::SPEC,
         fetch.deadline(Duration::from_secs(20)),
@@ -56,6 +57,8 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
         ["1001", "1002", "1003"],
         "annotations must preserve every requested paper"
     );
+}
+fn check_europepmc(fetch: &Fetch) {
     let leg = fetch.leg(
         &biomcp_adapters::europepmc::SPEC,
         fetch.deadline(Duration::from_secs(20)),
@@ -63,6 +66,11 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
     let (noncommercial, _) =
         biomcp_adapters::europepmc::core(&leg, &"PPR1002".parse().unwrap()).unwrap();
     let (unknown, _) = biomcp_adapters::europepmc::core(&leg, &"PPR1003".parse().unwrap()).unwrap();
+    let (tdm, _) = biomcp_adapters::europepmc::core(&leg, &"PPR1004".parse().unwrap()).unwrap();
+    assert!(
+        tdm.value.abstract_parts.is_empty(),
+        "a text-mining license withholds the abstract"
+    );
     assert!(
         noncommercial.value.abstract_parts.is_empty(),
         "Europe PMC's explicit noncommercial license must withhold its abstract"
@@ -76,6 +84,8 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
         1,
         "unknown abstract licenses retain the source's terms"
     );
+}
+fn check_cache(fetch: &Fetch) {
     let connection = fetch.cache_access().unwrap().connect().unwrap();
     let stored: String = connection
         .query_row(
@@ -89,6 +99,8 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
         "noncommercial passage witness",
         "unknown passage witness",
         "PPR1002 abstract witness",
+        "PPR1004 abstract witness",
+        "noncommercial title sentence",
     ] {
         assert!(
             !stored.contains(forbidden),
@@ -109,6 +121,28 @@ fn restricted_abstracts_and_passages_follow_the_same_record_policy_before_cache_
     );
 }
 
+fn check_abstract_sentences(fetch: &Fetch) {
+    let leg = fetch.leg(
+        &biomcp_adapters::litsense::SPEC,
+        fetch.deadline(Duration::from_secs(20)),
+    );
+    let result = biomcp_adapters::litsense::search(&leg, "abstract rights witness").unwrap();
+    assert_eq!(
+        result.value.len(),
+        3,
+        "abstract sentence filtering must preserve every paper"
+    );
+    assert_eq!(
+        result
+            .value
+            .iter()
+            .filter(|row| row.sentence.is_some())
+            .count(),
+        2,
+        "unknown abstract licenses follow source terms, while explicit NC title text is withheld"
+    );
+}
+
 #[test]
 fn exhausted_license_budget_returns_papers_without_text_or_license_requests() {
     let original = tempfile::tempdir().unwrap();
@@ -126,18 +160,7 @@ fn exhausted_license_budget_returns_papers_without_text_or_license_requests() {
         },
     )
     .unwrap();
-    let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay {
-            dir: delayed.path().into(),
-        },
-        disabled_uses: [Use::PerRecord].into(),
-        replay_cache: Some(
-            ReplayCache::temporary_with_owners(&[biomcp_query::store::OWNER]).unwrap(),
-        ),
-        cache_owners: vec![biomcp_query::store::OWNER],
-        ..FetchConfig::default()
-    })
-    .unwrap();
+    let fetch = hosted(delayed.path());
     let out = run(&fetch);
     let ReplyData::ArticlePage {
         body: Some(page), ..

@@ -164,7 +164,7 @@ fn pubmed_search<'a>(
                 .into_iter()
                 .map(|id| ArticleItem {
                     text_withheld: None,
-            context_license: None,
+                    context_license: None,
                     key: Some(ArticleKey::Pubmed(id)),
                     pmid: Some(id),
                     header: None,
@@ -306,7 +306,7 @@ fn litvar_search((leg, selected): PreparedLitvar<'_>) -> ResultLeg {
             ids.into_iter()
                 .map(|id| ArticleItem {
                     text_withheld: None,
-            context_license: None,
+                    context_license: None,
                     key: Some(ArticleKey::Pubmed(id)),
                     pmid: Some(id),
                     header: None,

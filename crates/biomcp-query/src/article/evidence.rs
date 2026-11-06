@@ -252,9 +252,13 @@ fn context_rights<'a>(
     deadline: &mut Deadline<'a>,
     snapshot: &mut Snapshot,
 ) {
-    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord)
-        && let Section::Data { data, .. } = &mut snapshot.graph
-        && data.license.is_none()
+    if !cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+        return;
+    }
+    let Section::Data { data, .. } = &mut snapshot.graph else {
+        return;
+    };
+    if data.license.is_none()
         && !data.contexts.items.is_empty()
         && let biomcp_types::ArticleInput::Pmid(id) = query.citing()
     {
@@ -264,6 +268,15 @@ fn context_rights<'a>(
             .get(id)
             .copied();
         *deadline = super::consume(*deadline, started, leg.remaining());
+    }
+    if !data
+        .license
+        .is_some_and(biomcp_adapters::pmc_oa::commercial)
+        && !data.contexts.items.is_empty()
+    {
+        data.text_withheld = Some(biomcp_adapters::article_rights::text_withheld(
+            query.citing(),
+        ));
     }
 }
 fn restrict_text(snapshot: &mut Snapshot, restricted: bool) -> bool {
@@ -276,10 +289,11 @@ fn restrict_text(snapshot: &mut Snapshot, restricted: bool) -> bool {
         && !data.contexts.items.is_empty()
     {
         data.contexts.items = Box::default();
-        data.text_withheld = Some(biomcp_types::WithheldArticleText {
-            reason: biomcp_types::Reason::Disabled,
-            url: None,
-        });
+        data.text_withheld
+            .get_or_insert(biomcp_types::WithheldArticleText {
+                reason: biomcp_types::Reason::Disabled,
+                url: None,
+            });
         changed = true;
     }
     if restricted

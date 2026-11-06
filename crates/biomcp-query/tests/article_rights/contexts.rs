@@ -1,0 +1,68 @@
+use super::{hosted, record};
+use std::time::Duration;
+
+#[test]
+fn citation_context_rights_preserve_papers_and_explain_withheld_text() {
+    let input = tempfile::tempdir().unwrap();
+    record(input.path());
+    let fetch = hosted(input.path());
+    let leg = fetch.leg(
+        &biomcp_adapters::semantic_scholar::SPEC,
+        fetch.deadline(Duration::from_secs(20)),
+    );
+    let result = biomcp_adapters::semantic_scholar::edges(
+        &leg,
+        &biomcp_types::ArticleInput::Pmid("1001".parse().unwrap()),
+        false,
+        None,
+    )
+    .unwrap();
+    let mut problems = Vec::new();
+    let items: Vec<_> = result
+        .data
+        .into_iter()
+        .map(|edge| edge.item(false, &mut problems).unwrap())
+        .collect();
+    assert_eq!(
+        items.len(),
+        3,
+        "context admission must preserve every citing paper"
+    );
+    assert_eq!(
+        items.iter().filter(|item| item.contexts.is_some()).count(),
+        1,
+        "only commercially permitted citation text may return"
+    );
+    assert_eq!(
+        items
+            .iter()
+            .filter(|item| item
+                .text_withheld
+                .as_ref()
+                .is_some_and(|notice| notice.url.is_some()))
+            .count(),
+        2,
+        "withheld contexts must explain the refusal and give a reading destination"
+    );
+    let connection = fetch.cache_access().unwrap().connect().unwrap();
+    let body: Vec<u8> = connection
+        .query_row(
+            "SELECT body FROM reply WHERE source='semantic-scholar'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let body = String::from_utf8(body).unwrap();
+    assert!(
+        body.contains("permitted citation context"),
+        "permitted citation text remains reusable"
+    );
+    assert!(
+        !body.contains("noncommercial citation context"),
+        "noncommercial contexts must never reach disk"
+    );
+    assert!(
+        !body.contains("unknown citation context"),
+        "unknown-license contexts must never reach disk"
+    );
+}

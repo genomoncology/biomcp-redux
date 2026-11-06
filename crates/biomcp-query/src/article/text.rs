@@ -140,10 +140,9 @@ fn execute<'a>(
     out.sources.push(source);
     if matches!(result, Err(RequestError::Source(error)) if error.reason == Reason::Disabled) {
         out.body = (ArticleTextResult {
-            text_withheld: Some(biomcp_types::WithheldArticleText {
-                reason: Reason::Disabled,
-                url: Text::new(&format!("https://pmc.ncbi.nlm.nih.gov/articles/{id}/")).ok(),
-            }),
+            text_withheld: Some(biomcp_adapters::article_rights::text_withheld(
+                &ArticleInput::Pmcid(id),
+            )),
             pmcid: Some(id),
             content: Section::unavailable(Source::PmcOa, Reason::Disabled),
         })
@@ -375,10 +374,9 @@ fn preprint<'a>(
     out.sources.push(source);
     if matches!(result, Err(RequestError::Source(error)) if error.reason == Reason::Disabled) {
         out.body = (ArticleTextResult {
-            text_withheld: Some(biomcp_types::WithheldArticleText {
-                reason: Reason::Disabled,
-                url: Text::new(&format!("https://europepmc.org/article/PPR/{id}")).ok(),
-            }),
+            text_withheld: Some(biomcp_adapters::article_rights::text_withheld(
+                query.input(),
+            )),
             pmcid: None,
             content: Section::unavailable(Source::EuropePmc, Reason::Disabled),
         })

@@ -4,7 +4,7 @@
     clippy::panic,
     reason = "Isolated synthetic transport and SQLite witness"
 )]
-use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache};
+use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use biomcp_types::{ArticleSearch, ReplyData, Request, Use};
 use std::time::Duration;
 
@@ -24,6 +24,19 @@ fn run(fetch: &Fetch) -> biomcp_query::Outcome {
         ),
     )
 }
+fn replay(path: &std::path::Path) -> Fetch {
+    Fetch::open(FetchConfig {
+        mode: Mode::Replay { dir: path.into() },
+        cache_owners: vec![biomcp_query::store::OWNER],
+        ..FetchConfig::default()
+    })
+    .unwrap()
+}
+fn hosted(path: &std::path::Path) -> Fetch {
+    replay(path)
+        .restrict_uses([Use::PerRecord].into())
+        .with_hosted_secrets(biomcp_fetch::Secrets::default())
+}
 #[path = "article_rights/fixture.rs"]
 mod fixture;
 use fixture::record;
@@ -32,17 +45,7 @@ use fixture::record;
 fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
     let input = tempfile::tempdir().unwrap();
     record(input.path());
-    let cache = ReplayCache::temporary_with_owners(&[biomcp_query::store::OWNER]).unwrap();
-    let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay {
-            dir: input.path().into(),
-        },
-        disabled_uses: [Use::PerRecord].into(),
-        replay_cache: Some(cache),
-        cache_owners: vec![biomcp_query::store::OWNER],
-        ..FetchConfig::default()
-    })
-    .unwrap();
+    let fetch = hosted(input.path());
     let out = run(&fetch);
     let ReplyData::ArticlePage {
         body: Some(page), ..
@@ -148,20 +151,12 @@ fn assert_withheld_fulltext(fetch: &Fetch) {
 fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() {
     let input = tempfile::tempdir().unwrap();
     record(input.path());
-    let fetch = Fetch::open(FetchConfig {
-        mode: Mode::Replay {
-            dir: input.path().into(),
-        },
-        replay_cache: Some(
-            ReplayCache::temporary_with_owners(&[biomcp_query::store::OWNER]).unwrap(),
-        ),
-        cache_owners: vec![biomcp_query::store::OWNER],
-        ..FetchConfig::default()
-    })
-    .unwrap();
+    let fetch = replay(input.path());
     let unrestricted = run(&fetch);
     let pool = unrestricted.page.unwrap().pool.unwrap();
-    let fetch = fetch.restrict_uses([Use::PerRecord].into());
+    let fetch = fetch
+        .restrict_uses([Use::PerRecord].into())
+        .with_hosted_secrets(biomcp_fetch::Secrets::default());
     let query = serde_json::from_str::<ArticleSearch>(
         r#"{"text":"rights witness","source":["litsense"],"limit":3}"#,
     )
@@ -216,5 +211,7 @@ fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() 
     );
 }
 
+#[path = "article_rights/contexts.rs"]
+mod contexts;
 #[path = "article_rights/routes.rs"]
 mod routes;

@@ -10,6 +10,7 @@ pub(super) fn record(dir: &Path) {
             "eutils.ncbi.nlm.nih.gov",
             "pmc-oa-opendata.s3.amazonaws.com",
             "www.ebi.ac.uk",
+            "api.semanticscholar.org",
         ],
         |request| {
             if request.contains("list-type") || request.contains("efetch") {
@@ -95,7 +96,7 @@ fn record_other_routes(fetch: &Fetch) {
         &biomcp_adapters::europepmc::SPEC,
         fetch.deadline(Duration::from_secs(20)),
     );
-    for id in ["PPR1002", "PPR1003"] {
+    for id in ["PPR1002", "PPR1003", "PPR1004"] {
         let (article, _) = biomcp_adapters::europepmc::core(&leg, &id.parse().unwrap()).unwrap();
         assert_eq!(
             article.value.abstract_parts.len(),
@@ -103,32 +104,56 @@ fn record_other_routes(fetch: &Fetch) {
             "unrestricted Europe PMC fixtures retain their abstracts"
         );
     }
+    let leg = fetch.leg(
+        &biomcp_adapters::litsense::SPEC,
+        fetch.deadline(Duration::from_secs(20)),
+    );
+    biomcp_adapters::litsense::search(&leg, "abstract rights witness").unwrap();
+    let leg = fetch.leg(
+        &biomcp_adapters::semantic_scholar::SPEC,
+        fetch.deadline(Duration::from_secs(20)),
+    );
+    biomcp_adapters::semantic_scholar::edges(
+        &leg,
+        &biomcp_types::ArticleInput::Pmid("1001".parse().unwrap()),
+        false,
+        None,
+    )
+    .unwrap();
 }
 
 fn response(request: &str) -> Result<String, String> {
     if request.contains("sentences") {
-        return Ok(r#"[{"pmid":1001,"section":"RESULTS","text":"permitted body witness"},{"pmid":1002,"section":"RESULTS","text":"noncommercial body witness"},{"pmid":1003,"section":"RESULTS","text":"unknown body witness","body_copy":"unlicensed ignored source field"}]"#.into());
+        if request.contains("abstract") {
+            return Ok(include_str!("abstract-sentences.json").into());
+        }
+        return Ok(include_str!("sentences.json").into());
     }
     if request.contains("esummary") {
-        return Ok(r#"{"result":{"uids":["1001","1002","1003"],"1001":{"uid":"1001","title":"First paper","articleids":[{"idtype":"pmc","value":"PMC1001"}]},"1002":{"uid":"1002","title":"Second paper","articleids":[{"idtype":"pmc","value":"PMC1002"}]},"1003":{"uid":"1003","title":"Third paper","articleids":[{"idtype":"pmc","value":"PMC1003"}]}}}"#.into());
+        return Ok(include_str!("summaries.json").into());
     }
     if request.contains("efetch") {
-        return Ok("<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>1002</PMID><Article><ArticleTitle>Second paper</ArticleTitle><Abstract><AbstractText>noncommercial abstract witness</AbstractText></Abstract></Article></MedlineCitation><PubmedData><ArticleIdList><ArticleId IdType=\"pmc\">PMC1002</ArticleId></ArticleIdList></PubmedData></PubmedArticle></PubmedArticleSet>".into());
+        return Ok(include_str!("abstract.xml").into());
     }
     if request.contains("biocjson") {
-        return Ok(serde_json::json!({"PubTator3":[
-        {"id":"1001","passages":[{"infons":{"type":"body"},"text":"permitted passage witness","annotations":[]}]},
-        {"id":"1002","passages":[{"infons":{"type":"abstract"},"text":"noncommercial passage witness","annotations":[]}]},
-        {"id":"1003","passages":[{"infons":{"type":"body"},"text":"unknown passage witness","annotations":[]},{"infons":{"type":"abstract"},"text":"unknown abstract passage retained","annotations":[]}]}
-    ]}).to_string());
+        return Ok(include_str!("pubtator.json").into());
     }
     if request.contains("PPR") {
         let (id, license) = if request.contains("PPR1002") {
             ("PPR1002", "CC BY NC")
+        } else if request.contains("PPR1004") {
+            ("PPR1004", "TDM")
         } else {
             ("PPR1003", "unrecognized")
         };
-        return Ok(serde_json::json!({"result":{"id":id,"source":"PPR","title":"Preprint identity","license":license,"abstractText":format!("{id} abstract witness")}}).to_string());
+        return Ok(serde_json::json!({"result": {
+            "id": id, "source": "PPR", "title": "Preprint identity",
+            "license": license, "abstractText": format!("{id} abstract witness")
+        }})
+        .to_string());
+    }
+    if request.contains("/citations") {
+        return Ok(contexts());
     }
     let id = if request.contains("PMC1001") {
         1001
@@ -147,7 +172,21 @@ fn response(request: &str) -> Result<String, String> {
         1002 => "CC BY NC",
         _ => "unrecognized",
     };
-    Ok(format!(
-        r#"{{"pmcid":"PMC{id}","pmid":{id},"license_code":"{license}","xml_url":"https://pmc-oa-opendata.s3.amazonaws.com/PMC{id}.1/PMC{id}.1.xml"}}"#
-    ))
+    Ok(serde_json::json!({
+        "pmcid":format!("PMC{id}"), "pmid":id, "license_code":license,
+        "xml_url":format!("https://pmc-oa-opendata.s3.amazonaws.com/PMC{id}.1/PMC{id}.1.xml")
+    })
+    .to_string())
+}
+
+fn contexts() -> String {
+    let data: Vec<_> = [
+        ("1001", "a", "permitted citation context"),
+        ("1002", "b", "noncommercial citation context"),
+        ("1003", "c", "unknown citation context"),
+    ].into_iter().map(|(id, key, text)| serde_json::json!({
+        "citingPaper": {"paperId":key.repeat(40),"externalIds":{"PubMed":id},"title":format!("Paper {id}")},
+        "contexts":[text],"intents":["background"],"isInfluential":false
+    })).collect();
+    serde_json::json!({"data":data}).to_string()
 }
