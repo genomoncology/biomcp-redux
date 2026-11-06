@@ -563,3 +563,10 @@ enum-case-retired-check:
 
 enum-case-bridge-check:
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-cli-bridge $(TEST_THREADS)
+
+.PHONY: enum-case-review-fix
+enum-case-review-fix:
+	cargo fmt --all
+	mkdir -p dist
+	git diff --binary > dist/enum-case-generated.patch
+	+$(MAKE) --keep-going enum-case-check enum-case-lint

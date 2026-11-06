@@ -34,9 +34,10 @@ fn check() -> Result<(), String> {
                 .get("enum")
                 .and_then(Value::as_array)
                 .and_then(|v| {
-                    v.iter()
-                        .filter_map(Value::as_str)
-                        .find(|s| !s.is_ascii())
+                    property.get("default")
+                        .filter(|value| v.contains(value))
+                        .and_then(Value::as_str)
+                        .or_else(|| v.iter().filter_map(Value::as_str).find(|s| !s.is_ascii()))
                         .or_else(|| {
                             v.iter()
                                 .filter_map(Value::as_str)
@@ -81,8 +82,8 @@ fn parameter(
     context(verb, entity, key, &mut values)?;
     values.insert(key.into(), value(canonical));
     let expected = cli(env, &argv(verb, entity, schema, &values))?;
-    if expected.pointer("/error/code") == Some(&json!("usage.arguments")) {
-        return Err(format!("canonical baseline refused: {expected}"));
+    if expected.get("query").is_none() {
+        return Err(format!("canonical baseline did not reach an accepted query: {expected}"));
     }
     for spelling in [canonical.to_lowercase(), canonical.to_uppercase()] {
         values.insert(key.into(), value(&spelling));
@@ -311,7 +312,9 @@ fn context(
         _ => json!({}),
     };
     values.extend(extra.as_object().ok_or("context")?.clone());
-    if (verb, entity) == ("search", "variant") {
+    if (verb, entity) == ("search", "variant")
+        || (verb, entity, key) == ("search", "trial", "biomarker_use")
+    {
         values.remove("query");
     }
     Ok(())

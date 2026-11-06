@@ -289,6 +289,48 @@
           "source": "HPO"
         }
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "NCI",
+        "--status",
+        "recruiting"
+      ],
+      "offline": true,
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--status",
+        "/error/valid_values": {
+          "includes": [
+            "RECRUITING"
+          ]
+        }
+      }
+    },
+    {
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--status",
+        "/error/valid_values": {
+          "includes": [
+            "RECRUITING"
+          ]
+        }
+      },
+      "mcp_call": {
+        "name": "search_trial",
+        "arguments": {
+          "source": "NCI",
+          "status": "recruiting"
+        }
+      }
     }
   ],
   "replay": "trial/condition"
