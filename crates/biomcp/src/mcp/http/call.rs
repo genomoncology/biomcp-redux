@@ -30,6 +30,7 @@ pub(super) struct HostedCall {
     pub(super) modern: bool,
     pub(super) call: research::Call,
     pub(super) secrets: Option<Secrets>,
+    pub(super) excluded: std::collections::BTreeSet<biomcp_types::Source>,
     pub(super) declared_use: crate::command::DeclaredUse,
     pub(super) scope: Cancellation,
 }
@@ -45,6 +46,7 @@ impl Calls {
             modern,
             call,
             secrets,
+            excluded,
             declared_use,
             scope,
         } = work;
@@ -81,6 +83,7 @@ impl Calls {
                     fetch: &fetch,
                     recovery: recovery.as_deref(),
                     secrets: secrets.as_ref(),
+                    excluded: Some(&excluded),
                     declared_use: Some(declared_use),
                     scope: Some(&worker_scope),
                 };
@@ -311,6 +314,7 @@ mod tests {
                     catalog: None,
                 },
                 secrets: None,
+                excluded: Default::default(),
                 declared_use: crate::command::DeclaredUse::Academic,
                 scope: Cancellation::with_budget(DEADLOCK_GUARD),
             },

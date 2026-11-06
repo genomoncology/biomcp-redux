@@ -353,6 +353,23 @@ fn reason(
 ) -> io::Result<String> {
     let operator = crate::config::excluded_sources(cx.globals, cx.settings)
         .map_err(|e| io::Error::other(e.0))?;
+    if !operator.contains(&source)
+        && cx.excluded.is_some_and(|excluded| {
+            excluded.contains(&source)
+                || biomcp_query::sources::components().any(|component| {
+                    component.source == source
+                        && component.native_source.is_some_and(|native| {
+                            required.contains(&native) && excluded.contains(&native)
+                        })
+                })
+        })
+    {
+        return Ok(
+            "This request's source list leaves out this source or a required component. \
+                   Change the source list in your account settings to include it."
+                .to_owned(),
+        );
+    }
     let component_disabled = |hosted| {
         cx.fetch.as_ref().is_ok_and(|fetch| {
             let effective = if hosted {
