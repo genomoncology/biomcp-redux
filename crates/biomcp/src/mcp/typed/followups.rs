@@ -5,37 +5,36 @@ pub(super) fn project(
     root: &crate::grammar::Root,
     value: &mut Value,
     tools: &super::grouping::Catalog,
-) {
-    match value {
-        Value::Object(fields) => {
-            if let Some(next) = fields.get_mut("next").and_then(Value::as_array_mut) {
-                *next = next
-                    .iter()
-                    .filter_map(|step| {
-                        let args = step.get("args")?.as_array()?;
-                        let args = without_globals(root, args)?;
-                        let mut call = super::summary::translate(root, &args, tools)?;
-                        if let Some(kind) = step.get("kind") {
-                            call.as_object_mut()?.insert("kind".into(), kind.clone());
-                        }
-                        Some(call)
-                    })
-                    .collect();
+) -> std::io::Result<Vec<Value>> {
+    let Some(id) = value.get("schema").and_then(Value::as_str) else {
+        return Ok(Vec::new());
+    };
+    let text =
+        crate::schema::find(id).ok_or_else(|| std::io::Error::other("missing reply schema"))?;
+    let schema: Value = serde_json::from_str(text).map_err(std::io::Error::other)?;
+    let mut calls = Vec::new();
+    for path in super::step_paths::paths(&schema, value).into_iter().rev() {
+        let call = value.pointer(&path).and_then(|step| {
+            let args = without_globals(root, step.get("args")?.as_array()?)?;
+            let mut call = super::summary::translate(root, &args, tools)?;
+            if let Some(kind) = step.get("kind") {
+                call.as_object_mut()?.insert("kind".into(), kind.clone());
             }
-            for (key, node) in fields {
-                if matches!(key.as_str(), "error" | "problems") {
-                    project(root, node, tools);
-                }
+            Some(call)
+        });
+        if let Some(call) = call {
+            if let Some(step) = value.pointer_mut(&path) {
+                *step = call.clone();
             }
+            calls.push(call);
+        } else {
+            super::step_paths::remove(value, &path);
         }
-        Value::Array(nodes) => {
-            for node in nodes {
-                project(root, node, tools);
-            }
-        }
-        _ => {}
     }
+    calls.reverse();
+    Ok(calls)
 }
+
 fn without_globals(root: &crate::grammar::Root, args: &[Value]) -> Option<Vec<Value>> {
     let mut result = Vec::new();
     let mut words = args.iter();

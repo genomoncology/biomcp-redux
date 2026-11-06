@@ -7,6 +7,7 @@ mod followups;
 mod grouping;
 pub(super) use grouping::Catalog;
 mod help;
+mod step_paths;
 mod summary;
 mod validation;
 
@@ -32,8 +33,14 @@ pub(super) fn prepare_with_catalog(
     advertised: &Catalog,
 ) -> io::Result<Option<String>> {
     let value = outcome.value_mut()?;
-    followups::project(context.root, value, advertised);
-    Ok(Some(summary::render(context.root, value, args, advertised)))
+    let calls = followups::project(context.root, value, advertised)?;
+    Ok(Some(summary::render(
+        context.root,
+        value,
+        args,
+        advertised,
+        &calls,
+    )))
 }
 
 pub(super) fn tool_result(
