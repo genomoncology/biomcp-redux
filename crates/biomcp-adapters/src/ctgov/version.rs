@@ -27,6 +27,9 @@ pub fn version(
             };
             problems.optional("dataTimestamp", Some(checked))
         });
+    if let Some(date) = &value {
+        leg.data_date(date.value.as_str());
+    }
     Ok(crate::Mapped {
         refusals: crate::Refusal::None,
         value,

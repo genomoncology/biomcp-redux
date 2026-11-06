@@ -79,6 +79,10 @@ use std::{collections::BTreeMap, fmt, time::Duration};
 pub trait Reply: serde::de::DeserializeOwned {
     /// Refuse provider error envelopes and incomplete answers.
     fn check(&self) -> Result<(), BadReply>;
+    /// Publisher dataset date, distinct from record events and local retrieval.
+    fn data_date(&self) -> Option<String> {
+        None
+    }
     /// Source-given identities used to discover dependent requests, only for explicit reply types.
     fn discovery(&self) -> Option<Identities> {
         None
@@ -140,6 +144,8 @@ pub struct FetchConfig {
     pub sync_budget: Duration,
     /// Maximum automatically downloaded bundle bytes.
     pub auto_sync_max_bytes: u64,
+    /// Days after a publisher dataset date before replies flag old data.
+    pub source_data_max_age_days: u32,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
 }
@@ -166,6 +172,7 @@ impl Default for FetchConfig {
             source_deadlines: BTreeMap::new(),
             sync_budget: Duration::from_secs(120),
             auto_sync_max_bytes: 32 * 1024 * 1024,
+            source_data_max_age_days: 365,
         }
     }
 }
@@ -451,6 +458,8 @@ impl Default for Mode {
 /// The retained stale state of a completed source leg.
 #[derive(Debug, Default)]
 pub struct LegReport {
+    /// Publisher dataset dates and their age assessments, never acquisition times.
+    pub data_notices: Vec<biomcp_types::SourceNotice>,
     /// Body bytes read from HTTP in this leg, excluding cache and replay.
     pub(crate) downloaded_bytes: u64,
     /// Successful replies with their canonical identity and original fetch time.
@@ -462,6 +471,7 @@ pub struct LegReport {
     /// Cache failures that did not invalidate the checked provider answer.
     pub cache_problems: Vec<CacheError>,
 }
+mod data_age;
 impl Leg<'_> {
     /// Inspect the same source policy without opening another transport leg.
     pub fn disabled_source(&self, source: biomcp_types::Source) -> bool {

@@ -276,6 +276,7 @@ pub(crate) fn source(
                 reason: error.into(),
             }
         }));
+    outcome.notices.extend(report.data_notices);
     outcome
 }
 pub(crate) fn local(error: RequestError) -> Option<RequestError> {
