@@ -1,3 +1,6 @@
+#[path = "hosted_surface.rs"]
+mod hosted_surface;
+
 #[path = "label_priority.rs"]
 mod label_priority;
 #[path = "mcp_reply_form.rs"]
@@ -34,7 +37,8 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = typed_followups::trials();
-    trials.extend(vec![
+    trials.extend(hosted_surface::trials());
+    trials.extend([
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)
         }),
