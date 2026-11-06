@@ -8,18 +8,6 @@
   },
   "steps": [
     {
-      "run": [
-        "search",
-        "trial",
-        "--status",
-        "recruiting"
-      ],
-      "offline": true,
-      "expect": {
-        "/query/status": "RECRUITING"
-      }
-    },
-    {
       "offline": true,
       "expect": {
         "/query/status": "RECRUITING"
@@ -29,6 +17,18 @@
         "arguments": {
           "status": "recruiting"
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--status",
+        "recruiting"
+      ],
+      "offline": true,
+      "expect": {
+        "/query/status": "RECRUITING"
       }
     }
   ]
