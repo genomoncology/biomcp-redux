@@ -9,7 +9,7 @@ mod typed;
 #[path = "typed_bridge.rs"]
 mod typed_bridge;
 #[path = "typed_followups.rs"]
-mod typed_followups;
+pub(super) mod typed_followups;
 #[path = "typed_help.rs"]
 mod typed_help;
 #[path = "typed_hosted.rs"]

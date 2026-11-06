@@ -541,3 +541,10 @@ typed-followups-aliases:
 	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases $(filter-out --,$(TEST_THREADS))
 typed-followups-faers:
 	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml $(filter-out --,$(TEST_THREADS))
+
+.PHONY: typed-followups-recovery typed-followups-recovery-check
+typed-followups-recovery: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-recovery
+typed-followups-recovery:
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
+typed-followups-recovery-check:
+	+$(MAKE) --keep-going typed-followups-recovery typed-followups-parity check-cheap

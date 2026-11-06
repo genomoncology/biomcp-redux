@@ -122,7 +122,7 @@ fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result
     Ok(())
 }
 
-pub(super) fn check_next(
+pub(in crate::runner) fn check_next(
     value: &Value,
     tools: &[Value],
     sections: &mut usize,
@@ -167,7 +167,7 @@ pub(super) fn check_next(
 }
 
 // Other typed parity tests compare shared data while this test owns the next-call contract.
-pub(super) fn data(value: &Value) -> Value {
+pub(in crate::runner) fn data(value: &Value) -> Value {
     let mut value = value.clone();
     strip_next(&mut value);
     value
