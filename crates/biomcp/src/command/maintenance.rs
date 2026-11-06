@@ -25,11 +25,17 @@ pub(super) fn health(fetch: &biomcp_fetch::Fetch, encoding: Encoding) -> io::Res
 /// Resolve the source without opening the ordinary writable transport cache.
 pub(super) fn scrub(destination: &std::path::Path, encoding: Encoding) -> io::Result<Outcome> {
     let source = crate::config::cache_path().ok().flatten();
-    match source.ok_or(biomcp_fetch::CacheError::Filesystem).and_then(|source| {
-        biomcp_query::store::scrub_copy(&source, destination, crate::config::BUDGET)
-    }) {
+    match source
+        .ok_or(biomcp_fetch::CacheError::Filesystem)
+        .and_then(|source| {
+            biomcp_query::store::scrub_copy(&source, destination, crate::config::BUDGET)
+        }) {
         Ok(()) => encoding.encode(
-            Envelope::new(Status::Complete, biomcp_types::EmptyQuery {}, Some(biomcp_types::StoreClean::default())),
+            Envelope::new(
+                Status::Complete,
+                biomcp_types::EmptyQuery {},
+                Some(biomcp_types::StoreClean::default()),
+            ),
             crate::exit::Status::Success,
         ),
         Err(_) => encoding.encode(ErrorEnvelope::local(), crate::exit::Status::Local),

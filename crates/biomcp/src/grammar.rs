@@ -235,7 +235,12 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
     }
     let help = entry::help_path(verb, matches)?;
     let action = if verb == "store" {
-        Action::StoreClean { scrub_to_copy: matches.subcommand_matches("clean").and_then(|clean| clean.get_one::<PathBuf>("scrub-to-copy")).cloned() }
+        Action::StoreClean {
+            scrub_to_copy: matches
+                .subcommand_matches("clean")
+                .and_then(|clean| clean.get_one::<PathBuf>("scrub-to-copy"))
+                .cloned(),
+        }
     } else if verb == "health" {
         Action::Health
     } else if verb == "help" {
