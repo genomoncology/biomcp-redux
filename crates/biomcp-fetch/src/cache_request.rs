@@ -234,8 +234,8 @@ impl Leg<'_> {
                     .failure(codec.overflow_reason, Some(entry.status))
                     .into());
             }
-            if filtered != entry.body {
-                entry.body = filtered;
+            if filtered.as_ref() != entry.body.as_slice() {
+                entry.body = filtered.into_owned();
                 cache.write(key, self.spec.source, &prepared.url, &entry, self.budget())?;
             }
         }

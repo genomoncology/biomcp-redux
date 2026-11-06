@@ -95,12 +95,12 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 citing.and_then(|id| licenses.get(&id).copied())
             };
             object.remove("contextLicense");
-            if object.contains_key("contexts") {
-                if let Some(license) = context_license {
-                    if let Ok(value) = serde_json::to_value(license) {
-                        object.insert("contextLicense".into(), value);
-                    }
-                }
+            if !mapped
+                && object.contains_key("contexts")
+                && let Some(value) =
+                    context_license.and_then(|license| serde_json::to_value(license).ok())
+            {
+                object.insert("contextLicense".into(), value);
             }
             if !permitted(context_license, false) {
                 if mapped {

@@ -43,9 +43,14 @@ impl<'a, T: Reply> Read<'a, T> {
         self.filter_body = Some(filter);
         self
     }
-    pub(crate) fn filtered_body(&self, body: &[u8]) -> Result<Vec<u8>, crate::BadReply> {
-        self.filter_body
-            .map_or_else(|| Ok(body.to_vec()), |filter| filter(body))
+    pub(crate) fn filtered_body<'b>(
+        &self,
+        body: &'b [u8],
+    ) -> Result<Cow<'b, [u8]>, crate::BadReply> {
+        self.filter_body.map_or_else(
+            || Ok(Cow::Borrowed(body)),
+            |filter| filter(body).map(Cow::Owned),
+        )
     }
     /// Check request-bound identity before cache admission and every reuse.
     pub fn check(mut self, check: &'a ReplyCheck<'a, T>) -> Self {

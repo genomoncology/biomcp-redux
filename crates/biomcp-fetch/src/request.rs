@@ -301,10 +301,13 @@ impl Leg<'_> {
             })?
         {
             let mut wire = self.replayed_wire(prepared, exchange)?;
-            if (200..300).contains(&wire.status) {
-                wire.body = codec.filtered_body(&wire.body).map_err(|_| {
-                    Failure::Local(self.failure(Reason::BadReply, Some(wire.status)).into())
-                })?;
+            if (200..300).contains(&wire.status)
+                && let std::borrow::Cow::Owned(body) =
+                    codec.filtered_body(&wire.body).map_err(|_| {
+                        Failure::Local(self.failure(Reason::BadReply, Some(wire.status)).into())
+                    })?
+            {
+                wire.body = body;
             }
             return Ok(wire);
         }

@@ -17,11 +17,11 @@ const FINISH_BUDGET: Duration = Duration::from_millis(200);
 
 /// Resolve explicit PMC commercial licenses; unavailable metadata grants no rights.
 pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License> {
+    let mut seen = BTreeSet::new();
     let ids: Vec<_> = ids
         .iter()
         .copied()
-        .collect::<BTreeSet<_>>()
-        .into_iter()
+        .filter(|id| seen.insert(*id))
         .take(MAX_RECORDS)
         .collect();
     if ids.is_empty() {
@@ -89,12 +89,12 @@ fn litsense_body(
             }
         }
         let abstract_text = row["section"].as_str().is_some_and(is_abstract);
-        if !permitted(license, abstract_text) {
-            if let Some(row) = row.as_object_mut() {
-                row.remove("text");
-                row.remove("section");
-                row.insert("text_withheld".into(), Value::Bool(true));
-            }
+        if !permitted(license, abstract_text)
+            && let Some(row) = row.as_object_mut()
+        {
+            row.remove("text");
+            row.remove("section");
+            row.insert("text_withheld".into(), Value::Bool(true));
         }
     }
     serde_json::to_vec(&rows).map_err(|_| BadReply)
@@ -211,18 +211,18 @@ fn pubtator_body(
                     .pointer("/infons/type")
                     .and_then(Value::as_str)
                     .is_some_and(is_abstract);
-                if !permitted(license, abstract_text) {
-                    if let Some(passage) = passage.as_object_mut() {
-                        passage.remove("text");
-                        passage.remove("sentences");
-                        // Annotation mentions are copied fragments of the same passage.
-                        if let Some(annotations) =
-                            passage.get_mut("annotations").and_then(Value::as_array_mut)
-                        {
-                            for annotation in annotations {
-                                if let Some(annotation) = annotation.as_object_mut() {
-                                    annotation.remove("text");
-                                }
+                if !permitted(license, abstract_text)
+                    && let Some(passage) = passage.as_object_mut()
+                {
+                    passage.remove("text");
+                    passage.remove("sentences");
+                    // Annotation mentions are copied fragments of the same passage.
+                    if let Some(annotations) =
+                        passage.get_mut("annotations").and_then(Value::as_array_mut)
+                    {
+                        for annotation in annotations {
+                            if let Some(annotation) = annotation.as_object_mut() {
+                                annotation.remove("text");
                             }
                         }
                     }
@@ -243,10 +243,10 @@ fn europepmc_body(body: &[u8]) -> Result<Vec<u8>, BadReply> {
     let mut root: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
     let record = &mut root["result"];
     let license = record["license"].as_str().map(crate::pmc_oa::license);
-    if !permitted(license, true) {
-        if let Some(record) = record.as_object_mut() {
-            record.remove("abstractText");
-        }
+    if !permitted(license, true)
+        && let Some(record) = record.as_object_mut()
+    {
+        record.remove("abstractText");
     }
     serde_json::to_vec(&root).map_err(|_| BadReply)
 }
