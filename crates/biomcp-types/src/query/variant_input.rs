@@ -301,16 +301,47 @@ impl fmt::Display for VariantInput {
 text_value!(
     VariantInput,
     "VariantInput",
-    format!(
-        "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|{}|{}|{})",
-        Self::MAX_BYTES,
-        crate::VariantId::pattern().replace("clinvar:", "[cC][lL][iI][nN][vV][aA][rR]:"),
-        crate::HgvsText::pattern(),
-        biodata::ClinVarVariationId::pattern().replace("clinvar:", ""),
-        Self::CHROMOSOME_PATTERN,
-        Self::COORDINATE_PATTERN
-    ),
+    Self::input_pattern(crate::VariantId::pattern()),
     "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, chromosome genomic HGVS, \
     or VCF-style chromosome-position-reference-alternate coordinates (SNVs, deletions, insertions and delins), \
     defaulting to GRCh38. Reference bases are validated by the source."
 );
+
+#[cfg(feature = "schema")]
+impl VariantInput {
+    fn input_pattern(identifiers: String) -> String {
+        format!(
+            "^(?=[\\x21-\\x7e]{{1,{}}}$)({}|{}|{}|{}|{})",
+            Self::MAX_BYTES,
+            identifiers.replace("clinvar:", "[cC][lL][iI][nN][vV][aA][rR]:"),
+            crate::HgvsText::pattern(),
+            biodata::ClinVarVariationId::pattern().replace("clinvar:", ""),
+            Self::CHROMOSOME_PATTERN,
+            Self::COORDINATE_PATTERN
+        )
+    }
+}
+/// Command input domains routed by the shared variant resolver. Source identities retain their full vocabulary.
+#[cfg(feature = "schema")]
+pub(super) struct LookupInput;
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for LookupInput {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "VariantLookupInput".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        let mut schema = VariantInput::json_schema(generator);
+        schema.insert(
+            "pattern".into(),
+            VariantInput::input_pattern(format!(
+                "({}|{}|{}|{})",
+                biodata::RsId::pattern(),
+                biodata::CaId::pattern(),
+                biodata::ClinVarVariationId::pattern(),
+                biodata::VcvId::pattern()
+            ))
+            .into(),
+        );
+        schema
+    }
+}

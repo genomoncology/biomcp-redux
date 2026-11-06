@@ -625,3 +625,9 @@ trial-provenance-check:
 recurrence-forms-focused: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/recurrence-forms-proofs
 recurrence-forms-focused:
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/cases" variant-recurrence/accepted-forms-across-surfaces --exact
+
+.PHONY: recurrence-forms-prepare
+recurrence-forms-prepare:
+	+$(MAKE) schema-generate
+	git diff --binary -- crates/biomcp-types/schemas > target/recurrence-forms-generated.patch
+	+$(MAKE) recurrence-forms-focused

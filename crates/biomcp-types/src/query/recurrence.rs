@@ -12,6 +12,10 @@ pub struct VariantRecurrenceQuery(Fields);
 struct Fields {
     /// Published variant identity; ambiguous identities are never selected silently.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "super::variant_input::LookupInput")
+    )]
     input: VariantInput,
     /// Explicit cohort source.
     source: RecurrenceSource,

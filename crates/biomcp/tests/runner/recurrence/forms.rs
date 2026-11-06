@@ -22,6 +22,7 @@ pub(super) fn check() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     super::config(&env, &stub)?;
     shared_forms(&env)?;
+    rejections(&env)?;
     for input in [
         "rs113488022",
         "CA123643",
@@ -95,7 +96,7 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
         .filter(|(verb, entity, _)| {
             matches!(
                 (*verb, *entity),
-                ("variant", "recurrence") | ("get", "variant")
+                ("variant", "recurrence" | "population" | "assertions") | ("get", "variant")
             )
         })
     {
@@ -104,20 +105,63 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
             .output()
             .map_err(|e| e.to_string())?;
         let schema: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if schema.pointer("/properties/input/$ref") != Some(&json!("#/$defs/VariantInput")) {
+        if schema.pointer("/properties/input/$ref") != Some(&json!("#/$defs/VariantLookupInput")) {
             return Err(format!(
                 "{id} no longer uses the shared variant input contract"
             ));
         }
         definitions.push(
             schema
-                .pointer("/$defs/VariantInput")
+                .pointer("/$defs/VariantLookupInput")
                 .cloned()
                 .ok_or("variant input schema")?,
         );
     }
-    if definitions[0] != definitions[1] {
-        return Err("recurrence and identity lookup advertise different identifier forms".into());
+    if definitions
+        .iter()
+        .any(|definition| definition != &definitions[0])
+    {
+        return Err("variant lookup commands advertise different identifier forms".into());
+    }
+    let validator = jsonschema::validator_for(&definitions[0]).map_err(|e| e.to_string())?;
+    for input in UNSUPPORTED {
+        if validator.is_valid(&json!(input)) {
+            return Err(format!(
+                "lookup schema advertises unrouted identifier {input}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+const UNSUPPORTED: [&str; 3] = [
+    "PA123",
+    "COSV60000001",
+    "ga4gh:VA.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+];
+fn rejections(env: &Environment) -> Result<(), String> {
+    for input in UNSUPPORTED {
+        let mut recurrence = super::args();
+        recurrence[2] = input.into();
+        for args in [
+            vec!["get".into(), "variant".into(), input.into()],
+            vec!["variant".into(), "population".into(), input.into()],
+            vec![
+                "variant".into(),
+                "assertions".into(),
+                input.into(),
+                "--source".into(),
+                "clinvar".into(),
+            ],
+            recurrence,
+        ] {
+            let value = super::call(env, &args, 2)?;
+            if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
+                return Err(format!(
+                    "unrouted identifier did not fail command admission: {value}"
+                ));
+            }
+        }
     }
     Ok(())
 }
