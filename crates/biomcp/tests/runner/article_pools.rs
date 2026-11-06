@@ -30,7 +30,7 @@ pub(super) fn trials() -> Vec<Trial> {
                 partial(
                     "article/recommendations/single",
                     &["article", "recommendations", "34096690", "--limit", "5"],
-                    "/recommendedPapers/4/paperId",
+                    "doi",
                 )
                 .map_err(Into::into)
             },
@@ -49,7 +49,7 @@ pub(super) fn trials() -> Vec<Trial> {
                     "--limit",
                     "1",
                 ],
-                "/data/115/citedPaper/paperId",
+                "doi",
             )
             .map_err(Into::into)
         }),
@@ -62,13 +62,16 @@ pub(super) fn trials() -> Vec<Trial> {
 fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = env.root().join("replay");
-    super::response_cases::copy_capture(recording, &replay, |_, record| {
-        if !damage.is_empty() {
-            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
-                if let Some(id) = exchange["body"]["value"].pointer_mut(damage) {
-                    *id = json!("invalid-paper-id");
-                }
-            }
+    super::response_cases::copy_capture(recording, &replay, |source, record| {
+        if !damage.is_empty()
+            && source == "pubmed"
+            && record["url"]
+                .as_str()
+                .is_some_and(|url| url.contains("%5Bdoi%5D"))
+        {
+            let mut failure = record["exchanges"][0].clone();
+            failure["status"] = json!(500);
+            record["exchanges"] = json!([failure.clone(), failure.clone(), failure]);
         }
     })
     .map_err(|e| e.to_string())?;
@@ -146,8 +149,14 @@ fn disabled() -> Result<(), String> {
         ));
     }
     changed.extend(["--pool".into(), id.into()]);
-    let explicit = invoke(&env, changed, 3)?;
-    if explicit["status"] != "failed" {
+    let explicit = invoke(&env, changed, 4)?;
+    if explicit["status"] != "failed"
+        || !explicit["sources"].as_array().is_some_and(|sources| {
+            sources
+                .iter()
+                .any(|source| source["source"] == "europepmc" && source["reason"] == "disabled")
+        })
+    {
         return Err("explicit pool did not retain failure branch".into());
     }
     Ok(())

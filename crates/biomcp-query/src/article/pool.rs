@@ -8,15 +8,24 @@ use biomcp_fetch::{CacheError, RequestError};
 use biomcp_types::Status;
 use sha2::{Digest, Sha256};
 
-pub(super) fn key(cx: &Ctx<'_>, namespace: &[u8], identity: &[u8]) -> Result<[u8; 32], CacheError> {
+pub(super) struct Keys {
+    pub identity: [u8; 32],
+    pub current: [u8; 32],
+}
+
+pub(super) fn key(cx: &Ctx<'_>, namespace: &[u8], identity: &[u8]) -> Result<Keys, CacheError> {
     let disabled: Vec<_> = cx.fetch.disabled_sources().collect();
     let policy = serde_json::to_vec(&disabled).map_err(|_| CacheError::Encoding)?;
     let mut hash = Sha256::new();
     hash.update(namespace);
     hash.update(identity);
+    let identity = hash.clone().finalize().into();
     hash.update([0]);
     hash.update(policy);
-    Ok(hash.finalize().into())
+    Ok(Keys {
+        identity,
+        current: hash.finalize().into(),
+    })
 }
 
 pub(super) fn read<'a>(
@@ -25,13 +34,13 @@ pub(super) fn read<'a>(
     store: &mut Store<'a>,
     pool: &Pool,
     out: &mut Outcome,
-    publish: bool,
+    current: Option<&[u8]>,
 ) -> Result<(), RequestError> {
     let result = page::read(cx, cursor, store, pool, out);
     let update = if result.is_err() || out.status() != Status::Complete {
         store.unpublish_current(pool)
-    } else if publish {
-        store.publish_current(pool)
+    } else if let Some(key) = current {
+        store.publish_current(pool, key)
     } else {
         return result;
     };

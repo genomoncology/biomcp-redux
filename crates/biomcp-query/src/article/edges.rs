@@ -49,13 +49,15 @@ fn execute<'a>(
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&request(query.identity(), references))
         .map_err(|_| CacheError::Encoding)?;
-    let key = super::pool::key(cx, b"biomcp.article_edges/2\0", &identity)?;
+    let keys = super::pool::key(cx, b"biomcp.article_edges/2\0", &identity)?;
+    let key = keys.identity;
     let explicit = query.pool().map(Text::as_str);
     let pool = if cx.fresh && explicit.is_none() {
         None
     } else {
-        store.find(&key, explicit)?
+        store.find(&keys.current, explicit)?
     };
+    let publish = pool.is_none() && explicit.is_none();
     let pool = match pool {
         Some(pool) if pool.key != key.as_slice() => {
             out.body = ReplyData::PoolError { mismatch: true };
@@ -94,7 +96,7 @@ fn execute<'a>(
         &mut store,
         &pool,
         out,
-        explicit.is_none(),
+        publish.then_some(keys.current.as_slice()),
     );
     *deadline = store.deadline();
     result

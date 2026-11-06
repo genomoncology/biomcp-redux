@@ -122,13 +122,13 @@ impl Store<'_> {
         })
     }
     /// Make a checked whole article answer available to new searches.
-    pub(crate) fn publish_current(&mut self, pool: &Pool) -> Result<(), CacheError> {
+    pub(crate) fn publish_current(&mut self, pool: &Pool, key: &[u8]) -> Result<(), CacheError> {
         let policy = self.policy();
         self.write(|tx| {
             policy.authorize(tx, super::ownership::Table::Pool, pool.info.id.as_str())?;
             tx.execute(
                 "INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",
-                params![pool.key, pool.info.id.as_str()],
+                params![key, pool.info.id.as_str()],
             ).map_err(db)?;
             Ok(())
         })
@@ -137,8 +137,8 @@ impl Store<'_> {
     pub(crate) fn unpublish_current(&mut self, pool: &Pool) -> Result<(), CacheError> {
         self.write(|tx| {
             tx.execute(
-                "DELETE FROM pool_current WHERE request_key=?1 AND pool=?2",
-                params![pool.key, pool.info.id.as_str()],
+                "DELETE FROM pool_current WHERE pool=?1",
+                params![pool.info.id.as_str()],
             )
             .map_err(db)?;
             Ok(())
