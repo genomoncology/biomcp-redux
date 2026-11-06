@@ -2,6 +2,12 @@
 use serde_json::{Value, json};
 use std::io;
 
+#[derive(Default)]
+pub(super) struct Catalog {
+    pub(super) tools: Vec<Value>,
+    commands: Vec<Value>,
+}
+
 fn direct(name: &str) -> bool {
     name.split_once('_').is_some_and(|(verb, entity)| {
         matches!(verb, "search" | "get")
@@ -15,9 +21,9 @@ pub(super) fn catalog(
     context: crate::command::Context<'_>,
     read_only: bool,
     commands: Vec<Value>,
-) -> io::Result<Vec<Value>> {
+) -> io::Result<Catalog> {
     let (mut tools, grouped): (Vec<_>, Vec<_>) = commands
-        .into_iter()
+        .iter().cloned()
         .partition(|tool| tool["name"].as_str().is_some_and(direct));
     tools.push(reference(&grouped));
     tools.push(super::help::tool());
@@ -30,7 +36,7 @@ pub(super) fn catalog(
             tools.len(),
         )));
     }
-    Ok(tools)
+    Ok(Catalog { tools, commands })
 }
 
 fn reference(commands: &[Value]) -> Value {
@@ -55,14 +61,19 @@ pub(super) fn unwrap(params: &Value) -> Option<Value> {
     Some(json!({"name":fields.get("command")?.as_str()?,"arguments":fields.get("arguments")?}))
 }
 
-pub(super) fn call(canonical: Value, tools: &[Value]) -> Option<Value> {
+pub(super) fn call(canonical: Value, catalog: &Catalog) -> Option<Value> {
+    let tools = &catalog.tools;
     let name = canonical.get("name")?.as_str()?;
     if tools.iter().any(|tool| tool["name"] == name) {
-        return Some(canonical);
+        return super::followups::allowed(&canonical, tools).then_some(canonical);
+    }
+    if !super::followups::allowed(&canonical, &catalog.commands) {
+        return None;
     }
     let reference = tools.iter().find(|tool| tool["name"] == "biomcp_reference")?;
     if !reference.pointer("/inputSchema/properties/command/enum")?.as_array()?.contains(&json!(name)) {
         return None;
     }
-    Some(json!({"name":"biomcp_reference","arguments":{"command":name,"arguments":canonical.get("arguments")?}}))
+    let call = json!({"name":"biomcp_reference","arguments":{"command":name,"arguments":canonical.get("arguments")?}});
+    super::followups::allowed(&call, tools).then_some(call)
 }

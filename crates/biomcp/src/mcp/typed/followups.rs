@@ -1,7 +1,7 @@
 //! Project only protocol-owned Steps; upstream text and query values remain data.
 use serde_json::Value;
 
-pub(super) fn project(root: &crate::grammar::Root, value: &mut Value, tools: &[Value]) {
+pub(super) fn project(root: &crate::grammar::Root, value: &mut Value, tools: &super::grouping::Catalog) {
     match value {
         Value::Object(fields) => {
             if let Some(next) = fields.get_mut("next").and_then(Value::as_array_mut) {

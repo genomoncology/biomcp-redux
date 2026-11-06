@@ -5,6 +5,7 @@ pub(super) use catalog::instructions;
 mod description;
 mod followups;
 mod help;
+mod grouping;
 mod summary;
 mod validation;
 pub(super) fn tool_result(
@@ -40,7 +41,7 @@ fn summarize(
             serde_json::from_str(text).ok()
         });
     if let Some(mut value) = value {
-        let advertised = tools(context, read_only).unwrap_or_default();
+        let advertised = catalog(context, read_only).unwrap_or_default();
         followups::project(context.root, &mut value, &advertised);
         if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut)
             && result.contains_key("structuredContent")
@@ -76,9 +77,15 @@ pub(super) fn tools(
     context: crate::command::Context<'_>,
     read_only: bool,
 ) -> io::Result<Vec<Value>> {
+    Ok(catalog(context, read_only)?.tools)
+}
+fn catalog(
+    context: crate::command::Context<'_>,
+    read_only: bool,
+) -> io::Result<grouping::Catalog> {
     let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(context.settings);
     let excluded = catalog::excluded(context)?;
-    let mut tools = crate::grammar::command_paths()
+    let tools = crate::grammar::command_paths()
         .iter()
         .map(|&(verb, entity, id)| {
             let schema = schema(id)?;
@@ -104,9 +111,7 @@ pub(super) fn tools(
         .into_iter()
         .flatten()
         .collect::<Vec<_>>();
-    tools.push(help::tool());
-    tools.extend(super::research::tools(context.root)?);
-    Ok(tools)
+    grouping::catalog(context, read_only, tools)
 }
 pub(super) fn parse(
     root: &crate::grammar::Root,
@@ -117,11 +122,14 @@ pub(super) fn parse(
     if mode == crate::config::ToolMode::Single {
         return super::research::parse(params).map(Ok);
     }
+    let reference = (params.get("name")?.as_str()? == "biomcp_reference")
+        .then(|| grouping::unwrap(params)).flatten();
+    let params = reference.as_ref().unwrap_or(params);
     let called = params.get("name")?.as_str()?;
     if called == "biomcp_help" {
         return help::parse(params).map(Ok);
     }
-    if matches!(called, "search" | "fetch") {
+    if matches!(called, "biomcp" | "search" | "fetch") {
         return super::research::parse(params).map(Ok);
     }
     let &(verb, entity, id) = crate::grammar::command_paths()
