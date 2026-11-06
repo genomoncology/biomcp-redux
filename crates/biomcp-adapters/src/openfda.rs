@@ -68,7 +68,8 @@ impl<T: Item> Reply for Envelope<T> {
 }
 
 /// Recover the native total only when a nonzero page is reported absent.
-/// The probe preserves every selector and sort parameter of the requested page.
+/// The probe keeps the selector and sort of the requested page and omits `skip`,
+/// as every adapter's first page may.
 pub(crate) fn page<T: Item>(
     source: biomcp_types::Source,
     leg: &biomcp_fetch::Leg<'_>,
@@ -85,8 +86,10 @@ pub(crate) fn page<T: Item>(
     }
     let mut probe = Vec::new();
     for (name, value) in args {
+        if *name == "skip" {
+            continue;
+        }
         let value = match (*name, value) {
-            ("skip", _) => Arg::Num(0),
             ("limit", _) => Arg::Num(1),
             (_, Arg::Text(value)) => Arg::Text(value),
             (_, Arg::Num(value)) => Arg::Num(*value),
