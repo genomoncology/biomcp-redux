@@ -57,6 +57,7 @@ fn record(dir: &Path) {
     })
     .unwrap();
     let out = run(&fetch);
+    let _ = biomcp_test_support::evidence::retain(dir).unwrap();
     let ReplyData::ArticlePage {
         body: Some(page), ..
     } = out.body
@@ -76,6 +77,7 @@ fn record(dir: &Path) {
     for id in [1001, 1002, 1003] {
         let _ = biomcp_adapters::pmc_oa::read(&leg, format!("PMC{id}").parse().unwrap(), None);
     }
+    let _ = biomcp_test_support::evidence::retain(dir).unwrap();
 }
 #[test]
 fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
