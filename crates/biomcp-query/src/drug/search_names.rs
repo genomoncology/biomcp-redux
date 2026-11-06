@@ -14,7 +14,13 @@ pub(crate) fn resolve(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Vec<Text
         if cx.fetch.disabled(source.source()) || deadline.remaining().is_zero() {
             continue;
         }
-        let query = DrugGet::named(input.clone(), source);
+        let Some(query) = crate::next::checked(
+            DrugGet::named(input.clone(), source),
+            source.source(),
+            &mut out.problems,
+        ) else {
+            continue;
+        };
         let found = super::resolve::get(&super::resolve::within(cx, deadline.remaining()), &query);
         if found.local.is_some()
             || found.dropped
