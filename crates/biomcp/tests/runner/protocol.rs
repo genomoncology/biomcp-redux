@@ -64,9 +64,7 @@ pub(super) fn trials() -> Vec<Trial> {
     tool_only! {
         trials.extend(typed::proof_trials());
     }
-    trials.push(transcript_trial("mcp-parity/reply-forms", || {
-        reply_form::check().map_err(Into::into)
-    }));
+    trials.extend(reply_form::trials());
     trials.extend(super::store_clean::trials());
     trials.extend(super::store_coexistence::trials());
     trials
