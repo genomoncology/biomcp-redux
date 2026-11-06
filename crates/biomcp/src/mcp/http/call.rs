@@ -215,6 +215,7 @@ mod tests {
                 call: Call {
                     args: Vec::new(),
                     projection: Projection::Cli,
+                    catalog: None,
                 },
                 secrets: None,
                 declared_use: crate::command::DeclaredUse::Academic,
