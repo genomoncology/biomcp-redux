@@ -131,7 +131,7 @@ macro_rules! boundary {
         }
     };
     (@decode Direct, ArticleText, $value:expr) => {
-        decode_query::<biomcp_types::ArticleText>($value).and_then(biomcp_types::ArticleText::into_request)
+        decode_query::<biomcp_types::ArticleText>($value).map(biomcp_types::ArticleText::into_request)
     };
     (@decode Direct, $variant:ident, $value:expr) => { decode_query($value).map(Request::$variant) };
     (@decode GetPhenotype, $variant:ident, $value:expr) => { decode_query($value).map(Request::$variant) };

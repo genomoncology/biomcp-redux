@@ -22,6 +22,11 @@ article-default-lint: fmt
 	cargo test --locked -p biomcp --test cases article/help
 	cargo test --locked -p biomcp --test cases article/get/
 
+.PHONY: article-default-corrected-check
+article-default-corrected-check: article-default-lint
+	cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+	+$(MAKE) article-default-focused
+
 .PHONY: drug-alias-review-regressions drug-alias-review-tools
 drug-alias-review-regressions:
 	cargo test --locked -p biomcp --test cases drug/source-aliases-review

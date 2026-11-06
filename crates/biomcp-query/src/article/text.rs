@@ -13,10 +13,11 @@ use biomcp_types::{
 };
 /// Read a bounded part or find page through the same transport and command budget.
 pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
-    if let Ok(Request::GetArticle(card)) = query.clone().into_request() {
-        return super::get::get(cx, &card);
+    match query.clone().into_request() {
+        Request::GetArticle(card) => super::get::get(cx, &card),
+        Request::ArticleText(reader) => download(cx, &reader, false).out,
+        _ => crate::status::ready(ReplyData::Usage(biomcp_types::UsageError::arguments())),
     }
-    download(cx, query, false).out
 }
 /// Obtain the whole document for an explicit binary-owned save.
 pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::Download {

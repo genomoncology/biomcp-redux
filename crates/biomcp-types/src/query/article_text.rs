@@ -88,15 +88,15 @@ impl TryFrom<Fields> for ArticleText {
 }
 impl ArticleText {
     /// Normalize the default reader view to the existing abstract-bearing article card.
-    pub fn into_request(self) -> Result<crate::Request, QueryInvalid> {
+    pub fn into_request(self) -> crate::Request {
         if self.0.part.is_none()
             && self.0.find.is_none()
             && self.0.variant.is_none()
             && self.0.save.is_none()
         {
-            crate::ArticleGet::new(vec![self.0.input].into()).map(crate::Request::GetArticle)
+            crate::Request::GetArticle(crate::ArticleGet::single(self.0.input))
         } else {
-            Ok(crate::Request::ArticleText(self))
+            crate::Request::ArticleText(self)
         }
     }
     /// Build a part selector used in source continuation actions.
