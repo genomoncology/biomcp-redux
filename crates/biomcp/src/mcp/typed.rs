@@ -106,8 +106,9 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
                     super::output_schema::for_command(verb, entity, id)?,
                 );
             }
+            let caller_schema = catalog::caller_schema(schema, verb, entity, &excluded);
             let canonical = json!({"name":name(verb, entity),
-                "inputSchema":arguments::input_with_limit(&schema, usize::MAX)});
+                "inputSchema":arguments::input_with_limit(&caller_schema, usize::MAX)});
             Ok(Some((tool, canonical)))
         })
         .collect::<io::Result<Vec<_>>>()?
