@@ -130,12 +130,14 @@ impl Service {
     ) -> io::Result<()> {
         // A malformed or oversized framing closes without reflecting untrusted headers.
         let request = wire::read(&mut stream)?;
+        let started = std::time::Instant::now();
         // A reserved reader classifies health even when ordinary connections are full.
         let _connection = if request.path == "/health" {
             drop(connection);
             None
         } else {
             let Some(permit) = connection else {
+                logging::record(&request, started.elapsed(), 503, None);
                 return wire::unavailable(&mut stream);
             };
             drop(reader);
@@ -156,17 +158,7 @@ impl Service {
     fn route(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
         let started = std::time::Instant::now();
         let result = self.route_inner(request);
-        if request.path == "/mcp"
-            && let Ok(value) = serde_json::from_slice::<Value>(&request.body)
-            && value.get("method").and_then(Value::as_str) == Some("tools/call")
-        {
-            logging::record(
-                &value["params"],
-                started.elapsed(),
-                result.0,
-                result.1.as_ref(),
-            );
-        }
+        logging::record(request, started.elapsed(), result.0, result.1.as_ref());
         result
     }
     fn route_inner(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {

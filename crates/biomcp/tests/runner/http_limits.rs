@@ -399,8 +399,13 @@ fn busy_capacity(configured: bool, flags: bool) -> Check {
         if status != 503 {
             return Err(format!("tool call escaped connection cap: {status}"));
         }
-        let diagnostics = server.diagnostics.lock().map_err(|_| "diagnostic receiver poisoned")?;
-        let event = diagnostics.recv_timeout(Duration::from_secs(60)).map_err(|e| e.to_string())?;
+        let diagnostics = server
+            .diagnostics
+            .lock()
+            .map_err(|_| "diagnostic receiver poisoned")?;
+        let event = diagnostics
+            .recv_timeout(Duration::from_secs(60))
+            .map_err(|e| e.to_string())?;
         let event: serde_json::Value = serde_json::from_str(&event).map_err(|e| e.to_string())?;
         if event["event"] != "mcp_call"
             || event["tool"] != "biomcp"

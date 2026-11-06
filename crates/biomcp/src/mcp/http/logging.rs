@@ -2,8 +2,22 @@
 use serde_json::{Value, json};
 use std::time::Duration;
 
-pub(super) fn record(params: &Value, duration: Duration, http: u16, reply: Option<&Value>) {
-    let mut line = line(params, duration, http, reply).to_string();
+pub(super) fn record(
+    request: &super::wire::Request,
+    duration: Duration,
+    http: u16,
+    reply: Option<&Value>,
+) {
+    if request.path != "/mcp" {
+        return;
+    }
+    let Ok(value) = serde_json::from_slice::<Value>(&request.body) else {
+        return;
+    };
+    if value.get("method").and_then(Value::as_str) != Some("tools/call") {
+        return;
+    }
+    let mut line = line(&value["params"], duration, http, reply).to_string();
     line.push('\n');
     crate::output::diagnostic(line.as_bytes());
 }
