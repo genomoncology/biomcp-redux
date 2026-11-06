@@ -247,25 +247,25 @@ fn label_selectors(selectors: &mut [StatisticSelector], formats: &raw::Formats) 
     }
 }
 
-pub(super) fn choices(formats: &raw::Formats) -> Box<[StatisticSelector]> {
-    [
+pub(super) fn choices(formats: &raw::Formats) -> Result<Box<[StatisticSelector]>, BadReply> {
+    let mut rows = Vec::new();
+    for selector in [
         super::Selector::Dataset,
         super::Selector::Period,
         super::Selector::Interval,
-    ]
-    .into_iter()
-    .flat_map(|selector| {
+    ] {
         let name = match selector {
             super::Selector::Dataset => "data_model",
             super::Selector::Period => "year_range",
             _ => "relative_survival_interval",
         };
-        selector.valid_codes().iter().filter_map(move |code| {
-            let mut row = self::selector(name, code).ok()?;
+        for code in selector.valid_codes() {
+            let mut row = self::selector(name, code)?;
             label_selectors(std::slice::from_mut(&mut row), formats);
-            row.label.as_ref()?;
-            Some(row)
-        })
-    })
-    .collect()
+            if row.label.is_some() {
+                rows.push(row);
+            }
+        }
+    }
+    Ok(rows.into())
 }

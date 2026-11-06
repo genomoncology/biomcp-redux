@@ -149,7 +149,8 @@ pub fn catalog_named(
             problem(Source::Seer, None, "catalog.publisher_version"),
         ],
     };
-    let selectors = map::choices(&raw.formats);
+    let selectors =
+        map::choices(&raw.formats).map_err(|_| biomcp_fetch::InputError::Serialization)?;
     let labels = problems.field("VariableFormats.site", raw.formats.site);
     let mut rows = Vec::new();
     let mut refusals = crate::Refusal::None;

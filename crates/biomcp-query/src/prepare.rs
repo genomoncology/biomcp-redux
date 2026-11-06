@@ -75,7 +75,7 @@ fn prepare_disease(action: Action) -> Result<Action, biomcp_adapters::seer::Sele
     }
     Ok(action)
 }
-fn selector_error(error: biomcp_adapters::seer::SelectorError) -> UsageError {
+pub(crate) fn selector_error(error: biomcp_adapters::seer::SelectorError) -> UsageError {
     let values = error
         .selectors
         .iter()

@@ -54,8 +54,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
 /// Preserve source stage or annual rows behind an explicit native site selection.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outcome {
     let mut out = empty_get(query);
-    let Ok(mut selection) = seer::selection(query, id) else {
-        return out;
+    let mut selection = match seer::selection(query, id) {
+        Ok(selection) => selection,
+        Err(error) => {
+            return empty(biomcp_types::ReplyData::Usage(
+                crate::prepare::selector_error(error),
+            ));
+        }
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -84,8 +89,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outco
     out.sources
         .push(status::source(Source::Seer, leg.finish(), error));
     out.local = error.and_then(status::local);
-    if let Ok(page) = reply {
-        include_statistics(&mut out, query, page);
+    match reply {
+        Ok(page) => include_statistics(&mut out, query, page),
+        // The typed source error is already retained in the source outcome above.
+        Err(_) => {}
     }
     super::page::record_problem(&mut out, query, Source::Seer);
     command.finish(deadline.remaining());
@@ -129,7 +136,7 @@ fn named_site(
     Option<biomcp_fetch::RequestError>,
 ) {
     match seer::catalog_named(leg, Some(id.as_str()), u32::MAX, 0) {
-        Ok(mut page) => {
+        Ok(page) => {
             let exact: Vec<_> = page
                 .window
                 .rows
@@ -153,42 +160,15 @@ fn named_site(
             {
                 return (Some(site), out, None);
             }
-            let Ok(search) = DiseaseSearch::seer_named(id.as_str()) else {
-                return (None, out, None);
-            };
-            out.include_refusals(page.window.refusals());
-            out.problems.append(&mut page.problems);
-            let total = page.window.rows.len() as u32;
-            out.page = Some(page_info(0, total.min(search.limit()), u64::from(total)));
-            if total > search.limit() {
-                out.next.push(crate::next::Step::new(
-                    StepKind::Page,
-                    &[Source::Seer],
-                    run(Request::SearchDisease(search.at_offset(search.limit()))),
-                ));
-            }
-            page.window.rows.truncate(search.limit() as usize);
-            for site in &page.window.rows {
-                if let Some(selected) = crate::next::checked(
-                    query.with_seer_site(site.code.clone()),
-                    Source::Seer,
-                    &mut out.problems,
-                ) {
-                    out.next.push(crate::next::Step::new(
-                        StepKind::Disambiguate,
-                        &[Source::Seer],
-                        run(Request::GetDisease(selected)),
-                    ));
+            let search = match DiseaseSearch::seer_named(id.as_str()) {
+                Ok(search) => search,
+                Err(_) => {
+                    out.body =
+                        biomcp_types::ReplyData::Usage(biomcp_types::UsageError::arguments());
+                    return (None, out, None);
                 }
-            }
-            out.body = (DiseaseSites {
-                items: page.window.rows.into(),
-                components: Box::default(),
-                fetched: fetched(page.metadata.fetched),
-                selectors: page.selectors,
-            })
-            .with_query(search);
-            (None, out, None)
+            };
+            (None, candidates(query, search, page, out), None)
         }
         Err(error) => (None, out, Some(error)),
     }
@@ -238,4 +218,45 @@ fn include_statistics(
         .with_query(query.clone())
     };
     crate::status::item(out, total != 0, false, false);
+}
+
+fn candidates(
+    query: &DiseaseGet,
+    search: DiseaseSearch,
+    mut page: seer::Page<biomcp_types::DiseaseSite>,
+    mut out: Outcome,
+) -> Outcome {
+    out.include_refusals(page.window.refusals());
+    out.problems.append(&mut page.problems);
+    let total = page.window.rows.len() as u32;
+    out.page = Some(page_info(0, total.min(search.limit()), u64::from(total)));
+    if total > search.limit() {
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[Source::Seer],
+            run(Request::SearchDisease(search.at_offset(search.limit()))),
+        ));
+    }
+    page.window.rows.truncate(search.limit() as usize);
+    for site in &page.window.rows {
+        if let Some(selected) = crate::next::checked(
+            query.with_seer_site(site.code.clone()),
+            Source::Seer,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::new(
+                StepKind::Disambiguate,
+                &[Source::Seer],
+                run(Request::GetDisease(selected)),
+            ));
+        }
+    }
+    out.body = (DiseaseSites {
+        items: page.window.rows.into(),
+        components: Box::default(),
+        fetched: fetched(page.metadata.fetched),
+        selectors: page.selectors,
+    })
+    .with_query(search);
+    out
 }
