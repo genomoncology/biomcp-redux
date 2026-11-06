@@ -432,6 +432,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Inspect retained citation reply bytes and distinguish absent contexts from rights refusals through public adapters.",
     ),
     (
+        "crates/biomcp-query/tests/article_rights/lookups.rs",
+        "Inspect stored replies and pools after failed or capped license lookups, and repeat reads, through public queries.",
+    ),
+    (
         "crates/biomcp-query/tests/article_rights/routes.rs",
         "Inspect synthetic transport replies for source-owned abstract and passage rights and bounded dependency admission.",
     ),
