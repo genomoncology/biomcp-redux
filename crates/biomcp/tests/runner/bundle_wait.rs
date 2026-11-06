@@ -48,13 +48,6 @@ fn first_reader(expires: bool) -> Result<(), String> {
         "disable_sources":["oncokb"]});
     env.config(&config).map_err(|e| e.to_string())?;
     invoke(&env, vec!["get".into(), "gene".into(), "ODC1".into()], 0)?;
-    if expires {
-        config
-            .as_object_mut()
-            .ok_or("config map")?
-            .insert("command_timeout_seconds".into(), json!(1));
-        env.config(&config).map_err(|e| e.to_string())?;
-    }
     let mut command = env.command(
         env!("CARGO_BIN_EXE_biomcp"),
         &["sync".into(), "gencc".into()],
@@ -72,6 +65,13 @@ fn first_reader(expires: bool) -> Result<(), String> {
             String::from_utf8_lossy(&output.stdout),
             String::from_utf8_lossy(&output.stderr)
         ));
+    }
+    if expires {
+        config
+            .as_object_mut()
+            .ok_or("config map")?
+            .insert("command_timeout_seconds".into(), json!(1));
+        env.config(&config).map_err(|e| e.to_string())?;
     }
     let result = reader(&env, publish, expires);
     let output = command.wait_with_output(child).map_err(|e| e.to_string())?;
