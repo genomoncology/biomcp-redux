@@ -91,7 +91,10 @@ impl TryFrom<SearchFields> for DiseaseSearch {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "GetFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "GetFields"))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(with = "GetFields", extend("x-reply-query-titles" = ["DiseaseSearch"]))
+)]
 pub struct DiseaseGet {
     #[serde(flatten)]
     fields: GetFields<DiseaseId>,
