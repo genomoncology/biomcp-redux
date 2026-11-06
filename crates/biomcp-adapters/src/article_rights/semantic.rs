@@ -40,6 +40,20 @@ fn id(value: &Value) -> Option<Pmid> {
         .pointer("/externalIds/PubMed")
         .and_then(pmid)
         .or_else(|| value.get("pmid").and_then(pmid))
+        .or_else(|| {
+            value
+                .pointer("/header/external_ids")
+                .and_then(Value::as_array)
+                .and_then(|ids| {
+                    ids.iter().find_map(|id| {
+                        let namespace = id["namespace"].as_str()?;
+                        if !namespace.eq_ignore_ascii_case("pubmed") {
+                            return None;
+                        }
+                        id["id"].as_str()?.rsplit(':').next()?.parse().ok()
+                    })
+                })
+        })
 }
 fn collect(value: &Value, ids: &mut Vec<Pmid>) {
     if let Some(id) = id(value) {
@@ -69,7 +83,14 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 object.remove("abstract");
                 object.remove("abstract_text");
             }
-            let context_license = citing.and_then(|id| licenses.get(&id).copied());
+            let mapped = object.get("contexts").is_some_and(Value::is_object);
+            let context_license = if mapped {
+                object
+                    .get("license")
+                    .and_then(|license| serde_json::from_value(license.clone()).ok())
+            } else {
+                citing.and_then(|id| licenses.get(&id).copied())
+            };
             object.remove("contextLicense");
             if object.contains_key("contexts") {
                 if let Some(license) = context_license {
@@ -79,7 +100,19 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 }
             }
             if !permitted(context_license, false) {
-                object.remove("contexts");
+                if mapped {
+                    if let Some(contexts) =
+                        object.get_mut("contexts").and_then(Value::as_object_mut)
+                    {
+                        contexts.insert("items".into(), Value::Array(Vec::new()));
+                    }
+                    object.insert(
+                        "text_withheld".into(),
+                        serde_json::json!({"reason":"disabled"}),
+                    );
+                } else {
+                    object.remove("contexts");
+                }
             }
             for child in object.values_mut() {
                 apply(child, own, licenses);
