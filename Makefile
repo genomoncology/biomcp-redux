@@ -525,3 +525,7 @@ help-recovery-check:
 	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: caid-population-check
+caid-population-check:
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/caid-population-evidence" cargo test --locked -p biomcp --test cases variant/population/caid-typed.yaml $(TEST_THREADS)

@@ -1,0 +1,65 @@
+{
+  "feature": "variant-population",
+  "live_check": "synthetic response-only CAid routing using retained population source facts and a synthetic CAR 404; no live source claim",
+  "story": "A CAid resolves to population counts, while an unknown canonical allele returns empty.",
+  "replay": "variant/population/caid",
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "get_variant",
+        "arguments": {
+          "input": "CA123643",
+          "sections": [
+            "population"
+          ]
+        }
+      },
+      "expect": {
+        "/result/candidates/0/sections/population/state": "data",
+        "/result/candidates/0/sections/population/data/build": "GRCh38"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant_population",
+        "arguments": {
+          "input": "CA123643"
+        }
+      },
+      "expect": {
+        "/result/population/state": "data",
+        "/result/population/data/build": "GRCh38"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "get_variant",
+        "arguments": {
+          "input": "CA999999999999"
+        }
+      },
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result/resolution": "absent"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant_population",
+        "arguments": {
+          "input": "CA999999999999"
+        }
+      },
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/result/population/state": "empty"
+      }
+    }
+  ],
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  }
+}

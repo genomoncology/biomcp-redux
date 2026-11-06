@@ -1,0 +1,1 @@
+Synthetic CAid routing and absence fixtures. SNV replies reuse variant-population/main unchanged. The unknown CAid request returns a synthetic HTTP 404, which tests absence handling without asserting that a specific public allele does not exist. No live calls were made.
