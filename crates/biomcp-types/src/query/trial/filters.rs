@@ -71,7 +71,7 @@ impl TrialPhaseFilter {
 #[cfg(feature = "schema")]
 fn filter_schema<A: schemars::JsonSchema, B: schemars::JsonSchema>() -> schemars::Schema {
     let mut values = Vec::new();
-    let mut by_source = serde_json::Map::new();
+    let mut by_source = schemars::json_schema!({});
     for (source, schema) in [
         (TrialSource::Ctgov, schemars::schema_for!(A)),
         (TrialSource::Nci, schemars::schema_for!(B)),

@@ -142,6 +142,70 @@
           "status": "not-a-choice"
         }
       }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "CTGOV",
+        "--status",
+        "Withdrawn"
+      ],
+      "offline": true,
+      "expect": {
+        "/query/status": "WITHDRAWN"
+      }
+    },
+    {
+      "offline": true,
+      "expect": {
+        "/query/status": "WITHDRAWN"
+      },
+      "mcp_call": {
+        "name": "search_trial",
+        "arguments": {
+          "source": "CTGOV",
+          "status": "Withdrawn"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "unknown-provider"
+      ],
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/error/valid_values": [
+          "ctgov",
+          "nci"
+        ]
+      },
+      "exit": 2,
+      "is_error": true
+    },
+    {
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/error/valid_values": [
+          "ctgov",
+          "nci"
+        ]
+      },
+      "is_error": true,
+      "mcp_call": {
+        "name": "search_trial",
+        "arguments": {
+          "source": "unknown-provider"
+        }
+      }
     }
   ]
 }
