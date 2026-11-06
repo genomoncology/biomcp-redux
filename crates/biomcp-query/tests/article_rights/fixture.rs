@@ -1,5 +1,5 @@
 use super::run;
-use biomcp_fetch::{Fetch, FetchConfig, Mode, ReplayCache};
+use biomcp_fetch::{Fetch, FetchConfig, Mode};
 use biomcp_test_support::network_stub::Stub;
 use biomcp_types::ReplyData;
 use std::{path::Path, time::Duration};
@@ -21,6 +21,7 @@ pub(super) fn record(dir: &Path) {
         response,
     )
     .unwrap();
+    let store = tempfile::tempdir().unwrap();
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Record { dir: dir.into() },
         proxy: Some(biomcp_fetch::Secret::new(format!(
@@ -34,7 +35,7 @@ pub(super) fn record(dir: &Path) {
             biomcp_fetch::Certificates::from_pem(stub.certificate.as_bytes()).unwrap(),
         )
         .unwrap(),
-        replay_cache: Some(ReplayCache::temporary().unwrap()),
+        cache: Some(store.path().join("record.sqlite")),
         cache_owners: vec![biomcp_query::store::OWNER],
         ..FetchConfig::default()
     })

@@ -84,7 +84,7 @@ fn litsense_body(
             row.remove("biomcp_text_withheld");
             if let Some(license) = license {
                 row.insert(
-                    "license".into(),
+                    "biomcp_license".into(),
                     serde_json::to_value(license).map_err(|_| BadReply)?,
                 );
             }
