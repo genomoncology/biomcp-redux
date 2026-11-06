@@ -661,3 +661,11 @@ trial-provenance-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
+
+.PHONY: typed-grouped-integration-check
+typed-grouped-integration-check: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-grouped-integration
+typed-grouped-integration-check:
+	+$(MAKE) --keep-going fmt lint-workspace lint-tools
+	cargo test --locked -p biomcp --test cases mcp-research/ $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases variant-population/variant/population/indel- $(TEST_THREADS)

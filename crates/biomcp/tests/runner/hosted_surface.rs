@@ -244,12 +244,34 @@ fn source_notices(server: &Server, mode: &str) -> Check {
                 "{mode}: disabled source lacks {expected} explanation: {reply}"
             ));
         }
-        for step in reply
-            .get("next")
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-        {
+        offered_next(server, mode, &reply)?;
+    }
+    Ok(())
+}
+
+fn offered_next(server: &Server, mode: &str, reply: &Value) -> Check {
+    if mode == "typed" {
+        super::typed_followups::check_next(reply, &catalog(server)?, &mut 0)?;
+    }
+    for step in reply
+        .get("next")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+    {
+        if mode == "typed" {
+            let fields = step
+                .pointer("/arguments/arguments")
+                .or_else(|| step.get("arguments"))
+                .and_then(Value::as_object)
+                .ok_or("typed next arguments")?;
+            if ["fresh", "config", "source_pacing"]
+                .iter()
+                .any(|key| fields.contains_key(*key))
+            {
+                return Err(format!("{mode}: unavailable next option: {step}"));
+            }
+        } else {
             let args = step
                 .get("args")
                 .and_then(Value::as_array)
