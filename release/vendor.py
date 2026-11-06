@@ -11,23 +11,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @lru_cache(maxsize=1)
-def environment():
+def stage():
     """Reuse one isolated source set for this release command and its children."""
     temporary = tempfile.TemporaryDirectory(
         prefix="biomcp-release-vendor-", dir=Path(tempfile.gettempdir()).resolve())
     atexit.register(temporary.cleanup)
-    stage = Path(temporary.name)
+    folder = Path(temporary.name)
     try:
         result = subprocess.run(
-            ["cargo", "vendor", "--locked", str(stage / "sources")],
+            ["cargo", "vendor", "--locked", str(folder / "sources")],
             cwd=ROOT, check=True, stdout=subprocess.PIPE, text=True)
-        home = stage / "cargo-home"
+        home = folder / "cargo-home"
         home.mkdir()
         (home / "config.toml").write_text(result.stdout + "\n[net]\noffline = true\n")
     except BaseException:
         temporary.cleanup()
         raise
-    return dict(os.environ, CARGO_HOME=str(home), CARGO_NET_OFFLINE="true")
+    return folder
+
+
+def environment():
+    return dict(os.environ, CARGO_HOME=str(stage() / "cargo-home"), CARGO_NET_OFFLINE="true")
 
 
 def main():

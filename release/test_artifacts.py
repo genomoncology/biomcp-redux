@@ -21,6 +21,13 @@ with (root / 'cargo.jsonl').open('a') as stream:
 if args[0] in ('build', 'test'):
     assert '--locked' in args and args[args.index('--profile') + 1] == 'release', args
     name = args[args.index('--test') + 1] if args[0] == 'test' else 'biomcp'
+    home = pathlib.Path(os.environ['CARGO_HOME'])
+    with (root / 'configs.jsonl').open('a') as stream:
+        stream.write(json.dumps([name, (home / 'config.toml').read_text()]) + '\n')
+    embed = (root / 'embed').read_text().replace('{stage}', str(home.parent)) if (root / 'embed').exists() else ''
+    if embed:
+        with (root / name).open('a') as stream:
+            stream.write('# ' + embed + '\n')
     assert ('--no-run' in args) == (args[0] == 'test'), args
     assert name in ('biomcp', 'cases', 'tools'), args
     print(json.dumps({'reason': 'compiler-artifact', 'target': {'name': name},
@@ -95,6 +102,23 @@ class ReleaseCommands(unittest.TestCase):
                 self.assertEqual(manifest['tools'], json.loads((ROOT / 'manifest.json').read_text())['tools'])
             self.assertIn(archive.as_uri(), (output / 'biomcp.rb').read_text())
             self.assertEqual(json.loads((output / 'server.json').read_text())['version'], '1.0.0')
+
+    def test_build_refuses_a_binary_that_names_a_build_folder(self):
+        for embed in ('{root}/crates/biomcp/src/main.rs', '{root_windows}\\crates\\biomcp\\src\\main.rs',
+                      '{{stage}}/sources/ring-0.17/src/lib.rs', '{tools}/deps/biomcp',
+                      '{home}/registry/src/index/ring-0.17/src/lib.rs'):
+            with self.subTest(embed=embed), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve()
+                tools, env = self.fixtures(root)
+                env['CARGO_HOME'] = str(root / 'cargo')
+                (tools / 'embed').write_text(embed.format(
+                    root=ROOT, root_windows=str(ROOT).replace('/', '\\'), tools=tools, home=root / 'cargo'))
+                output = root / 'dist'
+                result = subprocess.run([sys.executable, 'release/artifacts.py', 'build', '--output', str(output)],
+                                        cwd=ROOT, env=env, capture_output=True, text=True)
+                self.assertNotEqual(result.returncode, 0, result.stdout)
+                self.assertIn('Release binary holds build paths', result.stderr)
+                self.assertFalse((output / 'release.json').exists())
 
     def test_unprepared_gate_copies_public_fixtures_and_both_runners(self):
         with tempfile.TemporaryDirectory() as temporary:
