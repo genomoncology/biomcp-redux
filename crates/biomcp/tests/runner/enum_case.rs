@@ -106,7 +106,7 @@ fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Value, String> {
         let node = resolved(&schema["properties"][key], schema);
         let text = node.get("enum").and_then(Value::as_array)
             .and_then(|v| v.first()).and_then(Value::as_str)
-            .unwrap_or_else(|| operand(entity, key));
+            .unwrap_or_else(|| operand(if matches!(verb, "get" | "search") { entity } else { verb }, key));
         values[key] = if node.get("type") == Some(&json!("array")) {
             json!([text])
         } else { json!(text) };

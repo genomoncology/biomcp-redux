@@ -71,7 +71,7 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
             }
             let form = choice_form(property, &root);
             if form == Some("text") {
-                original = format!("Case-insensitive. {original}");
+                original = format!("Case-insensitive: {original}");
             }
             if form.is_none() && name != "section" {
                 continue;
@@ -89,7 +89,7 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
                 String::new()
             };
             let wording = if name == "section" && form == Some("text") {
-                format!("Case-insensitive. {first}")
+                format!("Case-insensitive: {first}")
             } else if first.is_empty() {
                 format!("{} {}", name.replace('_', " "), form.unwrap_or("text"))
             } else {
