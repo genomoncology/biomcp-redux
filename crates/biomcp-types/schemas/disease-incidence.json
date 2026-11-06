@@ -272,7 +272,10 @@
       "required": [
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "DiseaseSearch"
+      ]
     },
     "Reply_DiseaseIncidence": {
       "description": "Native incidence rows preserving requested and returned dimensions.",

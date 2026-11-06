@@ -277,7 +277,10 @@
       "required": [
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "DiseaseSearch"
+      ]
     },
     "Reply_DiseaseOntology": {
       "description": "One explicit OLS ontology.",

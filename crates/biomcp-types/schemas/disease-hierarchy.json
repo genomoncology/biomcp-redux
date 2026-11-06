@@ -301,7 +301,10 @@
       "required": [
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "DiseaseSearch"
+      ]
     },
     "Reply_DiseaseHierarchy": {
       "description": "Native parent relations with both endpoints.",
