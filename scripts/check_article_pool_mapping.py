@@ -16,15 +16,17 @@ def main():
     binary = os.environ["ARTICLE_POOL_BINARY"] if len(sys.argv) == 1 else sys.argv[1]
     source = os.environ["ARTICLE_POOL_SOURCE"] if len(sys.argv) == 1 else sys.argv[2]
     checkout = os.environ["ARTICLE_POOL_CHECKOUT"] if len(sys.argv) == 1 else sys.argv[3]
+    expected_hash = os.environ["ARTICLE_POOL_BINARY_SHA256"] if len(sys.argv) == 1 else sys.argv[4]
     if host:
-        command = shlex.join(["python3", "-", binary, source, checkout])
+        command = shlex.join(["python3", "-", binary, source, checkout, expected_hash])
         subprocess.run(["ssh", host, command], input=Path(__file__).read_bytes(), check=True)
         return
     checkout = Path(checkout)
-    actual = subprocess.check_output(["git", "-C", str(checkout), "rev-parse", "HEAD"], text=True).strip()
-    if actual != source:
-        raise ValueError(f"artifact checkout is {actual}, expected {source}")
+    subprocess.run(["git", "-C", str(checkout), "diff", "--exit-code", source,
+                    "--", "crates", "tests/replies"], check=True)
     digest = hashlib.sha256(Path(binary).read_bytes()).hexdigest()
+    if digest != expected_hash:
+        raise ValueError(f"artifact hash is {digest}, expected {expected_hash}")
     with tempfile.TemporaryDirectory(prefix="article-pool-mapping-") as temporary:
         root = Path(temporary)
         executable = root / "biomcp"
