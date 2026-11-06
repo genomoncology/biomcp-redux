@@ -41,6 +41,15 @@ pub(super) fn check(tools: &[Value]) -> Result<(), String> {
         command(tools, &name).ok_or_else(|| format!("unreachable registry command {name}"))?;
     }
     for name in [
+        "get_drug",
+        "search_drug",
+        "get_trial",
+        "search_trial",
+        "get_article",
+        "search_article",
+        "get_variant",
+        "search_variant",
+        "biomcp_reference",
         "get_disease",
         "search_disease",
         "get_diagnostic",
@@ -53,7 +62,7 @@ pub(super) fn check(tools: &[Value]) -> Result<(), String> {
         "fetch",
     ] {
         if !tools.iter().any(|tool| tool["name"] == name) {
-            return Err(format!("clinical/research tool must remain direct: {name}"));
+            return Err(format!("approved advertised tool is missing: {name}"));
         }
     }
     writeln!(
