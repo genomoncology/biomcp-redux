@@ -7719,7 +7719,10 @@
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantPopulationQueryEcho"
+      ]
     },
     "Reply_VariantPopulationResult": {
       "description": "Population summary and one explicitly requested ancestry-detail page.",
