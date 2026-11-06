@@ -87,6 +87,10 @@ pub(super) fn budgets(
             json!({"mcp_tool_mode":"typed","mcp_typed_definition_bytes":bytes-1}),
             Some("mcp_typed_definition_bytes"),
         ),
+        (
+            json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":true,"mcp_typed_definition_bytes":bytes}),
+            Some("mcp_typed_definition_bytes"),
+        ),
     ] {
         env.config(&config).map_err(|error| error.to_string())?;
         let replies = crate::runner::mcp::exchange_with_globals(

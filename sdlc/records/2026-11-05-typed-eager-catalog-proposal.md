@@ -18,7 +18,7 @@ This bounded measurement took about 249 seconds including queue/setup; Cargo rep
 
 ## Approved defaults and reachability
 
-The named configurable defaults are `DEFAULT_TYPED_TOOL_LIMIT = 20` and `DEFAULT_TYPED_DEFINITION_BYTES = 48 * 1024`, exposed as `mcp_typed_tool_limit` and `mcp_typed_definition_bytes`. Their single owner is `crates/biomcp/src/config/mcp.rs`.
+The named configurable defaults are `DEFAULT_TYPED_TOOL_LIMIT = 20`, `DEFAULT_TYPED_DEFINITION_BYTES = 48 * 1024`, and `DEFAULT_TYPED_OUTPUT_DEFINITION_BYTES = 64 * 1024` when output schemas are explicitly enabled. The configuration keys are `mcp_typed_tool_limit` and `mcp_typed_definition_bytes`. One explicit byte override wins over either default, including an intentionally low override. Their single owner is `crates/biomcp/src/config/mcp.rs`. The separate 64 KiB opt-in default follows PM ruling m27869 after the measured expansions below; it does not change ordinary typed mode's 48 KiB default.
 
 Keep direct search/get for drug, trial, article, variant, disease and diagnostic; `get_gene`; `search_adverse_event`; `biomcp_help`; research `search` and `fetch`; and `biomcp`. One `biomcp_reference` wrapper serves every other eligible registered command, including the specialist examples in the ruling, author, organization, biomarker, phenotype, specialized verbs and adverse-event lookup. This yields nineteen advertised tools. Execution policy still omits commands always refused by the effective server mode.
 
@@ -54,3 +54,6 @@ The ordinary default profiles succeeded with the actual default 49,152-byte ceil
 All measured output-schema expansion profiles exceed 49,152 bytes. This was reported for a PM ruling without changing the production default, grouping a clinical tool or truncating descriptions. The measurement preceded the focused cases: 24 passed, while the description-contract case explicitly enabled output schemas without a larger budget and therefore received the expected catalog-budget error. Its generic “tools” failure obscured that configuration cause.
 
 Raw profile configurations, compact definitions, RPC replies, binary binding, the full job log and transcripts were copied to the separate ticket evidence store on Yellow under this exact revision / `j31622-red`. The receiver verified every file against the sender's SHA-256 manifest. The original baseline and the earlier obsolete-80-character-assertion failure are stored separately. No baseline was remeasured.
+
+
+PM ruling m27869 approved the measured distinction: ordinary typed discovery keeps the 48 KiB default; explicitly enabling output schemas selects a named 64 KiB default. The single explicit byte override takes precedence in both modes. The measured roughly 55–61 KB expansions fit that opt-in default; they are not ordinary-profile cap breaches. The final profile matrix uses these production defaults without the diagnostic 200000-byte override. No clinical tool or description changes to achieve either cap.

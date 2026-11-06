@@ -35,8 +35,7 @@ def main():
         profiles.append((base, flags, {}))
         for schema in (False, True):
             for limit in (1, 30, 1000):
-                config = {"mcp_typed_output_schema": schema, "mcp_typed_enum_limit": limit,
-                          "mcp_typed_definition_bytes": 200000}
+                config = {"mcp_typed_output_schema": schema, "mcp_typed_enum_limit": limit}
                 profiles.append((f"{base}-output-{schema}-enum-{limit}", flags, config))
     profiles.append(("typed-excluded", ["--tool-mode", "typed"],
                      {"disable_sources": ["ctgov", "who-pq", "gwas"]}))
