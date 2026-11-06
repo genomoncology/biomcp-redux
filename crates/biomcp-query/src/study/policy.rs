@@ -1,0 +1,41 @@
+//! One read-time study policy for catalog cards, saved pages and cohort observations.
+use crate::{Ctx, Outcome};
+use biomcp_types::{Reason, Source, SourceNotice, SourceStatus};
+
+pub(super) fn excluded(cx: &Ctx<'_>, id: &biodata::StudyId) -> bool {
+    cx.fetch.commercial_studies_only()
+        && biomcp_adapters::cbioportal::commercial_restriction(id).is_some()
+}
+
+pub(super) fn notice(out: &mut Outcome, ids: &[biodata::StudyId], skipped: bool) {
+    if ids.is_empty() {
+        return;
+    }
+    let status = if skipped {
+        SourceStatus::Skipped(Some(Reason::Disabled))
+    } else {
+        SourceStatus::Ok
+    };
+    let mut source = biomcp_adapters::registry::outcome(Source::Cbioportal, status);
+    for id in ids {
+        source.notices.push(SourceNotice::RequestGuidance {
+            message: format!(
+                "Study {id} was left out in restricted mode: its study information explicitly specifies a noncommercial license (CC BY-NC-ND 4.0)."
+            ).into(),
+            retry_after_seconds: None,
+        });
+    }
+    out.sources.push(source);
+    if !skipped {
+        out.dropped = true;
+    }
+}
+
+/// Refuse every section and recurrence page of a flagged study before source access.
+pub(crate) fn blocked(cx: &Ctx<'_>, id: &biodata::StudyId, out: &mut Outcome) -> bool {
+    if !excluded(cx, id) {
+        return false;
+    }
+    notice(out, std::slice::from_ref(id), true);
+    true
+}
