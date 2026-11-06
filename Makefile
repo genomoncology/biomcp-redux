@@ -632,7 +632,7 @@ seer-prepare:
 	cargo fmt --all
 	$(MAKE) schema-generate docs-generate
 	mkdir -p dist
-	tar -czf dist/seer-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+	COPYFILE_DISABLE=1 tar -czf dist/seer-generated.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
 	$(MAKE) seer-focused
 seer-focused:
 	cargo test --locked -p biomcp --test cases disease/
