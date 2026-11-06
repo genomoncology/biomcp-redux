@@ -21,12 +21,12 @@
               "1 year"
             ],
             "year_range": {
-              "5": "2010-2014",
-              "31": "2000-2020"
+              "5": "2019–2023",
+              "31": "1975–2022"
             },
             "stage": {
-              "104": "Distant",
-              "101": "Localized"
+              "101": "All Stages",
+              "104": "Localized"
             }
           },
           "CancerSites": [

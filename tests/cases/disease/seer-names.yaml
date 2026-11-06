@@ -52,8 +52,8 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/requested_site": "47",
-        "/result/items/0/requested_selectors/4/label": "2010-2014",
-        "/result/items/0/returned_selectors/3/label": "Distant"
+        "/result/items/0/requested_selectors/4/label": "2019–2023",
+        "/result/items/0/returned_selectors/3/label": "Localized"
       },
       "max_bytes": 3500
     },

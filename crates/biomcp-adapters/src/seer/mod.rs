@@ -127,14 +127,14 @@ pub fn catalog_named(
     if let Some(text) = text {
         let text = text.trim().to_lowercase();
         raw.sites.retain(|site| {
-            site.as_ref().is_some_and(|site| {
+            site.as_ref().is_none_or(|site| {
                 raw.formats
                     .site
                     .as_ref()
                     .and_then(crate::raw::Field::as_ref)
                     .and_then(|labels| labels.get(&site.value.to_string()))
                     .and_then(crate::raw::Field::as_ref)
-                    .is_some_and(|label| label.as_str().to_lowercase().contains(&text))
+                    .is_none_or(|label| label.as_str().to_lowercase().contains(&text))
             })
         });
     }

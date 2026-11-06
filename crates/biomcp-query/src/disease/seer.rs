@@ -136,7 +136,10 @@ fn named_site(
                     _ => None,
                 },
             };
-            if let Some(site) = selected {
+            if page.window.refusals() == biomcp_adapters::Refusal::None
+                && page.window.rows.iter().all(|site| site.label.is_some())
+                && let Some(site) = selected
+            {
                 return (Some(site), out);
             }
             let Ok(search) = DiseaseSearch::seer_named(id.as_str()) else {
