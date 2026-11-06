@@ -80,6 +80,12 @@ impl StoredRights {
         }
         super::scrub_item(item)
     }
+    /// Filter retained native article and citation payloads, leaving trial shapes intact.
+    pub fn scrub_snapshot(&self, body: &[u8]) -> Result<Vec<u8>, BadReply> {
+        let mut value: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
+        strip_fulltext(&mut value);
+        super::semantic::filter_with_licenses(value, None, &self.licenses)
+    }
     /// Retain raw reply identity and permitted fields; `None` removes a wholly withheld body.
     pub fn scrub_reply(
         &self,
@@ -155,4 +161,32 @@ fn is_document(source: Source, url: &str, body: &[u8]) -> bool {
         && !body
             .windows(17)
             .any(|window| window == b"<ListBucketResult")
+}
+
+fn strip_fulltext(value: &mut Value) {
+    match value {
+        Value::Object(object) => {
+            let body = object
+                .get("data")
+                .and_then(Value::as_object)
+                .filter(|data| data.contains_key("paragraphs"));
+            let license = body
+                .and_then(|data| data.get("license"))
+                .and_then(|license| serde_json::from_value(license.clone()).ok());
+            if body.is_some() && !permitted(license, false) {
+                object.remove("data");
+                object.insert("state".into(), Value::String("skipped".into()));
+                object.insert("reason".into(), Value::String("disabled".into()));
+            }
+            for child in object.values_mut() {
+                strip_fulltext(child);
+            }
+        }
+        Value::Array(rows) => {
+            for child in rows {
+                strip_fulltext(child);
+            }
+        }
+        _ => {}
+    }
 }

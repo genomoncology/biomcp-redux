@@ -264,3 +264,8 @@ fn pubtator_search_body(body: &[u8]) -> Result<Vec<u8>, BadReply> {
     }
     serde_json::to_vec(&root).map_err(|_| BadReply)
 }
+
+/// Repeat abstract rights when reading a source-native author continuation.
+pub fn snapshot(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
+    semantic::filter(leg, body, None)
+}
