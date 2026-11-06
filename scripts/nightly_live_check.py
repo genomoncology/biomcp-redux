@@ -32,7 +32,7 @@ CHECKS = (
      '--initiated-to', '2024-12-31', '--limit', '1'),
     ('search', 'cell-line', 'MOLM13'),
     ('get', 'cell-line', 'CVCL_0004', 'identity', '--section-limit', '2'),
-    ('search', 'phenotype', 'headache', '--source', 'HPO'),
+    ('search', 'phenotype', 'headache', '--source', 'monarch'),
     ('search', 'gwas', '--variant', 'rs2981582'),
     ('search', 'pgx', '--gene', 'DPYD', '--source', 'cpic'),
 )
@@ -113,7 +113,7 @@ def main():
         print('FAIL {}: {}'.format(shlex.join(BUILD), one_line(error)))
         print('live check: not run, the build failed')
         return 1
-    failures = []
+    failures, started = [], time.monotonic()
     with tempfile.TemporaryDirectory(prefix='biomcp-live-check-') as home:
         environment = {name: os.environ[name] for name in PASSED_ENVIRONMENT if name in os.environ}
         environment.update(HOME=home, XDG_CACHE_HOME=home + '/cache', XDG_CONFIG_HOME=home + '/config')
@@ -129,7 +129,8 @@ def main():
     # Failures come last because the failure mail carries only the end of the log.
     for line in failures:
         print(line)
-    print('live check: {} of {} commands failed'.format(len(failures), len(CHECKS)))
+    print('live check: {} of {} commands failed in {:.0f} seconds'.format(
+        len(failures), len(CHECKS), time.monotonic() - started))
     return int(bool(failures))
 
 

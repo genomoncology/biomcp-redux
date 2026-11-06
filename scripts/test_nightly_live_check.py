@@ -80,8 +80,8 @@ class LiveCheck(unittest.TestCase):
         result, rows = self.run_check()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(len(rows), len(CHECKS))
-        self.assertEqual(result.stdout.splitlines()[-1],
-                         'live check: 0 of {} commands failed'.format(len(CHECKS)))
+        self.assertIn('live check: 0 of {} commands failed in '.format(len(CHECKS)),
+                      result.stdout.splitlines()[-1])
 
     def test_each_failure_is_one_line_with_command_and_reason_at_the_end(self):
         result, _ = self.run_check({
@@ -93,13 +93,13 @@ class LiveCheck(unittest.TestCase):
         })
         self.assertEqual(result.returncode, 1)
         lines = result.stdout.splitlines()
-        self.assertEqual(lines[-6:], [
+        self.assertIn('live check: 5 of {} commands failed in '.format(len(CHECKS)), lines[-1])
+        self.assertEqual(lines[-6:-1], [
             'FAIL biomcp get gene BRAF: gnomad: timeout',
             "FAIL biomcp search article 'AKT1 E17K': pubmed: proxy",
             'FAIL biomcp search trial --condition melanoma --limit 1: no results',
             'FAIL biomcp get trial NCT04303780: expected a supported command',
             'FAIL biomcp search cell-line MOLM13: exit 101: crash detail',
-            'live check: 5 of {} commands failed'.format(len(CHECKS)),
         ])
 
     def test_a_hung_command_fails_alone_and_the_run_continues(self):
