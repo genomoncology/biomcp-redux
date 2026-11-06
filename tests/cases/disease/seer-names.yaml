@@ -1,0 +1,38 @@
+{
+  "feature": "disease-seer",
+  "live_check": "Synthetic publisher catalog replay; no provider requests.",
+  "story": "Find sites by words and report every missing required selector together.",
+  "replay": "disease/seer-synthetic",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "disease",
+        "example",
+        "--source",
+        "seer"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/data/items/0/code": "55"
+      },
+      "max_bytes": 2000
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "47",
+        "incidence",
+        "--source",
+        "seer"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--dataset, --period"
+      },
+      "max_bytes": 2000
+    }
+  ]
+}
