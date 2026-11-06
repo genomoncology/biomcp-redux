@@ -1,5 +1,6 @@
 {
   "feature": "trial-search",
+  "live_check": "synthetic protocol rows, provider cursor/count and HGNC resolver subset",
   "story": "Literal gene context keeps exclusion, inclusion and mixed trials in source order across native pages; substring genes do not match and count-only requests stay small.",
   "verified": "All seven protocol rows and the provider cursor/count are explicitly synthetic. Existing gene resolver subset and version capture are reused; no actual eligibility claim.",
   "replay": "trial/gene-notices",

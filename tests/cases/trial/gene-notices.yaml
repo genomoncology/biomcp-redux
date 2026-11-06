@@ -1,5 +1,6 @@
 {
   "feature": "trial-search",
+  "live_check": "configured replay: retained public ClinicalTrials.gov bodies with a synthetic HGNC resolver subset",
   "story": "A registry gene word match retains off-target and wild-type studies while stating the actual protocol text without assessing eligibility.",
   "verified": "ClinicalTrials.gov public registry search bodies captured2026-11-05 for the evaluation command, old header projection SHA2569e112923a35b97f31953f05a0ae476d06ef6033678e092c22656089d03b83f08 and gene-context projection81f264cbdaec1333fbcdc0548c3df86f23a41b7940d51b50a4aa0612810dcf71. Native order/counts/text unchanged; version reply reuses existing capture and establishes no new processing date. HGNC uses an explicitly synthetic KRAS/BRAF row subset from the existing gene/main capture, not a whole registry download.",
   "replay": "trial/gene-notices",
