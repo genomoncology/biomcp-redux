@@ -148,17 +148,13 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     let result = biomcp_adapters::mychem::name_records(&leg, input.as_str(), NAME_ROWS);
     let error = result.as_ref().err().copied();
     let remaining = leg.remaining();
-    let mut evidence = vec![status::source(
-        DrugSource::Mychem.source(),
-        leg.finish(),
-        error,
-    )];
+    let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
     let Ok(mapped) = result else {
-        return failure(error, evidence);
+        return failure(error, vec![parent]);
     };
-    let carried = super::components(cx, &evidence[0], false);
-    evidence.extend(carried);
+    let carried = super::components(cx, &parent, false);
+    let evidence: Vec<_> = std::iter::once(parent).chain(carried).collect();
     let structures: std::collections::BTreeSet<_> = mapped
         .value
         .iter()
