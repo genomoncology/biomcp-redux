@@ -778,7 +778,8 @@ recurrence-forms-review:
 .PHONY: recurrence-indel-check
 recurrence-indel-check: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/recurrence-indel-proofs
 recurrence-indel-check:
-	python3 scripts/trials.py --target tools --case-file variant/id-forms/deletion.yaml --case-file variant/id-forms/insertion.yaml
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/cases" variant-identity/variant/id-forms/deletion.yaml --exact
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/cases" variant-identity/variant/id-forms/insertion.yaml --exact
 	+$(MAKE) fmt current-schema-check
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
 	python3 scripts/check_docs.py
