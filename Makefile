@@ -623,5 +623,7 @@ trial-provenance-check:
 
 .PHONY: article-pools-check
 article-pools-check:
-	cargo fmt --all
 	cargo test --locked -p biomcp --test cases article-search/whole-pool-publication
+
+.PHONY: article-pools-review-check
+article-pools-review-check: article-pools-check landing-gate

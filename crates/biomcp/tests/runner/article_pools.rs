@@ -59,7 +59,8 @@ fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String
                 }
             }
         }
-    })?;
+    })
+    .map_err(|e| e.to_string())?;
     let cache = env.root().join("cache");
     let first = invoke(&env, cached(command, &cache, Some(&replay)), 0)?;
     if first["status"] != "partial" {

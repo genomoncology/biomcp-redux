@@ -123,8 +123,9 @@ impl Store<'_> {
     }
     /// Make a checked whole article answer available to new searches.
     pub(crate) fn publish_current(&mut self, pool: &Pool) -> Result<(), CacheError> {
+        let policy = self.policy();
         self.write(|tx| {
-            self.policy().authorize(tx, super::ownership::Table::Pool, pool.info.id.as_str())?;
+            policy.authorize(tx, super::ownership::Table::Pool, pool.info.id.as_str())?;
             tx.execute(
                 "INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",
                 params![pool.key, pool.info.id.as_str()],
