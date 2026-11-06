@@ -41,7 +41,7 @@ fn execute(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    if crate::study::blocked(cx, query.study(), out) {
+    if crate::study::blocked(cx, query.study().as_str(), out) {
         return Ok(());
     }
     if cx.fetch.disabled(Source::Cbioportal) {

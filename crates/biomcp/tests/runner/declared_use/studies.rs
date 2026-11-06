@@ -174,7 +174,9 @@ fn catalog_key() -> String {
     )
 }
 fn key(method: &str, url: &str) -> String {
-    format!("{:x}.json", Sha256::digest(format!("{method}\0{url}")))
+    let digest = Sha256::digest(format!("{method}\0{url}"));
+    let hex: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
+    format!("{hex}.json")
 }
 fn recurrence_recordings(target: &Path) -> Result<(), String> {
     let original = crate::runner::launch::fixtures().join("replies/variant/recurrence");

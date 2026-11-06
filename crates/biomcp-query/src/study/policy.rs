@@ -2,12 +2,12 @@
 use crate::{Ctx, Outcome};
 use biomcp_types::{Reason, Source, SourceNotice, SourceStatus};
 
-pub(super) fn excluded(cx: &Ctx<'_>, id: &biodata::StudyId) -> bool {
+pub(super) fn excluded(cx: &Ctx<'_>, id: &str) -> bool {
     cx.fetch.commercial_studies_only()
         && biomcp_adapters::cbioportal::commercial_restriction(id).is_some()
 }
 
-pub(super) fn notice(out: &mut Outcome, ids: &[biodata::StudyId], skipped: bool) {
+pub(super) fn notice(out: &mut Outcome, ids: &[&str], skipped: bool) {
     if ids.is_empty() {
         return;
     }
@@ -33,10 +33,10 @@ pub(super) fn notice(out: &mut Outcome, ids: &[biodata::StudyId], skipped: bool)
 }
 
 /// Refuse every section and recurrence page of a flagged study before source access.
-pub(crate) fn blocked(cx: &Ctx<'_>, id: &biodata::StudyId, out: &mut Outcome) -> bool {
+pub(crate) fn blocked(cx: &Ctx<'_>, id: &str, out: &mut Outcome) -> bool {
     if !excluded(cx, id) {
         return false;
     }
-    notice(out, std::slice::from_ref(id), true);
+    notice(out, &[id], true);
     true
 }

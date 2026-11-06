@@ -64,14 +64,15 @@ fn render(
     out.problems = problems;
     let mut excluded = Vec::new();
     rows.retain(|row| {
-        if super::policy::excluded(cx, &row.study_id) {
+        if super::policy::excluded(cx, row.study_id.as_str()) {
             excluded.push(row.study_id.clone());
             false
         } else {
             true
         }
     });
-    super::policy::notice(out, &excluded, false);
+    let ids: Vec<_> = excluded.iter().map(|id| id.as_str()).collect();
+    super::policy::notice(out, &ids, false);
     if let Some(pool) = &mut pool {
         pool.size = rows.len() as u32;
     }
