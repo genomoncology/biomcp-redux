@@ -12,7 +12,7 @@ Run commands from a clean checkout of selected main using its `release/toolchain
 
 The installed runner expects its own compiled commit in the product's verbose version (`crates/biomcp/tests/runner/housekeeping.rs`) and uses its linked schema types. The standalone installed-smoke command also requires product and runner source to equal the selected candidate. Therefore use product, runners and fixtures from the same `MAIN_REVISION`. A newer runner checking an older executable is not proof of new main. Do not spoof stamps, skip housekeeping or weaken schema checks to make that pairing pass.
 
-At preparation time, the newest retained ordinary hosted artifacts came from superseded commit `c9bd901d50a506e53d168b189315d34a2c940cef`: product and runners both name that commit. Earlier `1bb97e64f41634b19efc42b937b195e55a20ece4` product evidence and its separate recovery tooling remain historical. Neither set qualifies main after new product changes. Keep their failures and successful sections under their original identities.
+Artifacts from an earlier main commit do not qualify new main. A section that needs hosted artifacts takes the newest retained ones and names their product commit. Keep earlier failures and passes under their original identities.
 
 | Input | Contents |
 | --- | --- |
@@ -30,10 +30,10 @@ Copy outputs needed by another job into the owning team's retained evidence stor
 
 ## Order and commands
 
-Independent rows in one phase may run in parallel when outputs do not collide. Run them through tracked pm jobs on the named host, for example:
+Independent rows in one phase may run in parallel when outputs do not collide. Run them through tracked pm jobs. Name a machine with `--machine` only when the section needs its operating system or data held on that host. For example:
 
 ```sh
-TMUX_PANE=%247 pm job run --machine yellow 0640 "$MAIN_REVISION" -- make secrets-full
+pm job run 0640 "$MAIN_REVISION" -- make full-suite
 ```
 
 Paths and environment inputs must exist on that job's host. A missing artifact, executable, host or tool is a not-run or failed section, never a pass. These are existing commands; the local sections require no new launcher or framework.
@@ -42,24 +42,24 @@ Paths and environment inputs must exist on that job's host. A missing artifact, 
 
 | Section | Command | Host and inputs |
 | --- | --- | --- |
-| Dependency policy | `make audit` | M5 or Yellow; selected main and manifest-pinned `cargo-deny` installed first |
-| Complete history secret scan | `make secrets-full` | M5 or Yellow; complete selected-main history, not a shallow archive or incremental scan |
-| Release schema comparison | `make schema-release-check` | M5 or Yellow; selected main and its committed schema baseline/reviews; does not update the baseline |
-| Documentation and metadata | `make docs-check` | M5 or Yellow; selected main and its normal build inputs |
-| Mutation tool, if the pin is absent | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-install.json" MUTATION_ARGS="install --started $STARTED --output $MUTATION_TOOL"` | M5 or Yellow; a new owned tool directory and the existing shared 90-minute budget |
-| Mutation plan | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-plan.json" MUTATION_ARGS="plan --previous $PREVIOUS --started $STARTED --output $MUTATIONS --measure --shards 1"` | Clean selected main and previous compared commit; initial calibration selects the existing 20-mutant sample |
+| Full suite | `make full-suite` | Any Linux or macOS host; complete selected-main history, not a shallow archive; manifest-pinned `cargo-deny` and `actionlint` installed first |
+| Release schema comparison | `make schema-release-check` | Any Linux or macOS host; selected main and its committed schema baseline/reviews; does not update the baseline |
+| Mutation tool, if the pin is absent | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-install.json" MUTATION_ARGS="install --started $STARTED --output $MUTATION_TOOL"` | Any Linux or macOS host; a new owned tool directory and the existing shared 90-minute budget |
+| Mutation plan | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-plan.json" MUTATION_ARGS="plan --previous $PREVIOUS --started $STARTED --output $MUTATIONS --cost-seconds $COST --baseline-seconds $BASELINE --shards 1"` | Clean selected main and previous compared commit; measured cost from retained native calibration |
 | Mutation shard | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-shard.json" MUTATION_ARGS="shard --plan $MUTATIONS/plan.json --index 0"` | The plan's native host, selected main and retained plan/inventory |
 | Mutation collection | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-collect.json" MUTATION_ARGS="collect --plan $MUTATIONS/plan.json"` | The same plan and actual shard outputs; retain survivors, timeouts and unrun work alongside the exit |
 
-`STARTED` is one Unix start time shared by the mutation actions, not reset for a shard retry. Where retained native calibration supplies measured cost and baseline overhead, use the existing plan's `--cost-seconds` and `--baseline-seconds` options instead of repeating calibration. Collection success does not mean every possible mutant was caught; review its actual scope and outcomes.
+`make full-suite` stops at its first failed stage. Its stages are `audit`, `secrets-full`, `pre-job`, `workflow-lint`, `docs-check`, `tensor-proto-check`, `library-tests` and `coverage`, in that order. Each is a Make goal, so after a fix rerun only the failed stage with `make STAGE`. The coverage stage reports coverage; no floor gates it.
+
+`STARTED` is one Unix start time shared by the mutation actions, not reset for a shard retry. With no retained measurement, first run the plan, shard and collection actions with `--measure` in place of `--cost-seconds` and `--baseline-seconds`, into their own output directory. That selects the existing 20-mutant sample and only measures cost, so its survivors do not fail it and it does not pass this section. A planned run fails collection on any survivor, timeout or selected mutant left unrun. Retain survivors, timeouts and unrun work alongside the exit.
 
 ### 2. Native production, installed gates and cold Linux
 
 | Platform | Real host | Existing production command |
 | --- | --- | --- |
-| Linux x86_64 | Native Linux x86_64, including `ubuntu-24.04`; Yellow locally | `make release-linux`, with `BUILD_IMAGE` from manifest key `manylinux-x86_64` |
-| Linux arm64 | Native Linux arm64, including `ubuntu-24.04-arm`; M5 runs its Linux arm64 containers | `make release-linux`, with `BUILD_IMAGE` from manifest key `manylinux-aarch64` |
-| macOS arm64 | M5 or `macos-15` | `python3 release/artifacts.py build --revision "$MAIN_REVISION" --output "$NATIVE"` |
+| Linux x86_64 | Native Linux x86_64, including `ubuntu-24.04` | `make release-linux`, with `BUILD_IMAGE` from manifest key `manylinux-x86_64` |
+| Linux arm64 | Native Linux arm64, including `ubuntu-24.04-arm` and Linux arm64 containers on an arm64 host | `make release-linux`, with `BUILD_IMAGE` from manifest key `manylinux-aarch64` |
+| macOS arm64 | Apple Silicon macOS, including `macos-15` | `python3 release/artifacts.py build --revision "$MAIN_REVISION" --output "$NATIVE"` |
 | Intel macOS | `macos-15-intel` | The same native production command, executed on Intel macOS |
 | Windows x86_64 | `windows-2022` | `python release/artifacts.py build --revision "$MAIN_REVISION" --output "$NATIVE"` |
 
@@ -71,12 +71,18 @@ Paths and environment inputs must exist on that job's host. A missing artifact, 
 | Prepare retained runners without rebuilding product | `python3 release/gate.py --prepare-only --artifacts "$NATIVE" --scratch "$PROOF"` | Matching source/platform; reuse an existing prepared proof when available |
 | Prepared installed gate | `python3 release/gate.py --prepared --artifacts "$NATIVE" --scratch "$SCRATCH" --report "$EVIDENCE/install-report.json" --python python3` | Matching platform; first copy only the prepared proof into fresh `SCRATCH`; use Windows Python there |
 | Linux runtime container alone | `python3 release/container_check.py "$IMAGE" "$ARCH" "$CONTAINER_PROOF" "$VERSION"` | Matching Linux architecture and retained same-main image; proof directory contains binary, licenses, runners and fixtures; `ARCH` is `amd64` or `arm64` |
-| Cold Linux matrix | `make release-cold COLD_REPORT="$EVIDENCE/cold-report.json"` | M5, Docker and both pinned images; empty container homes; existing command collects every failed stage across both architectures |
+| Cold Linux matrix | `make release-cold COLD_REPORT="$EVIDENCE/cold-report.json"` | A host with Docker and both pinned images; empty container homes; existing command collects every failed stage across both architectures |
 | Cold Linux architecture retry | `make release-linux CONTAINER_ARGS="--platform linux/$ARCH"` | Selected main with `BIOMCP_RELEASE_COLD=1`, `BIOMCP_BUILD_REVISION="$MAIN_REVISION"`, corresponding pinned `BUILD_IMAGE` and owned `BIOMCP_RELEASE_REPORT`; only that architecture's existing cold recipe |
 
-Label M5 x86_64 container runs as emulated. They do not replace the native Linux x86_64 result. The cold matrix retains product outputs in `cold-artifacts-amd64` and `cold-artifacts-arm64`, then removes its temporary prepared proofs. Final hosted native ZIPs also do not currently retain runner executables. If a later consumer needs `PROOF`, prepare it once from the same main source with the existing command above, then retain and reuse it.
+Label x86_64 container runs on an arm64 host as emulated. They do not replace the native Linux x86_64 result. The cold matrix retains product outputs in `cold-artifacts-amd64` and `cold-artifacts-arm64`, then removes its temporary prepared proofs. Final hosted native ZIPs also do not currently retain runner executables. If a later consumer needs `PROOF`, prepare it once from the same main source with the existing command above, then retain and reuse it.
 
-The current dedicated recovery action is fixed to an older product commit. A prerequisite must parameterize the existing `recover-section.yml` and `release/section.py` at an explicit immutable main revision before it can supply these platforms independently for new main. Product, runners and fixtures must come from that checkout; record the actual outer driver revision separately. Keep the rehearsal-only repository/ref guard, pinned tools, narrow owned uploads and publishing disabled. Until that lands, the fixed-product action cannot serve as a main preflight. This recipe has no substitute local Intel Mac host.
+The recovery action builds and qualifies one platform alone at a main revision. It is the route to Intel macOS and Windows, which have no local release host. Each dispatch is manual, like the rehearsal in section 5, and selected main must already be in the rehearsal repository:
+
+```sh
+gh workflow run recover-section.yml --repo genomoncology/biomcp-release-rehearsal --ref "$RECOVERY_REF" -f section="$SECTION" -f main_revision="$MAIN_REVISION" -f main_tree="$(git rev-parse "$MAIN_REVISION^{tree}")" -f rehearsal=true
+```
+
+`SECTION` is `manylinux_2_28_x86_64`, `manylinux_2_28_aarch64`, `macosx_11_0_arm64`, `macosx_11_0_x86_64` or `win_amd64`. `RECOVERY_REF` is a `rehearsal-0642-*` branch of the rehearsal repository, and its commit is the driver revision. Product, runners and fixtures come from the selected main checkout. `release/section.py` refuses a commit or tree that differs from the request, and a driver whose `Cargo.lock`, `rust-toolchain.toml` or `release/toolchain.json` differs from main's. The action publishes nothing. Its `recovered-$SECTION` artifact holds the producer output, install report and source record; retain it and use its `dist` as that platform's `NATIVE`.
 
 ### 3. Installed smoke and local channels
 
@@ -87,15 +93,15 @@ The current dedicated recovery action is fixed to an older product commit. A pre
 
 The legacy helper verifies the pinned 0.9.3 installer bytes and redirects only its exact archive and checksum requests to the existing loopback server. It publishes nothing and uses no source API.
 
-Windows release proof is the hosted native `release/gate.py` result, as [the release decision](../sdlc/decisions/2026-11-05-release-finds-no-bugs.md) records. The VM wrapper remains outside the release path after its missing-file fault. After machine diagnosis, its existing command is `sh scripts/check_windows_release.sh 0640 "$ARTIFACT_REVISION" "$NATIVE"` on Gator, under an owning pm job with the same ticket label. It must report actual artifact and tooling revisions. An old artifact can exercise that wrapper but cannot qualify new main.
+Windows release proof is the hosted native `release/gate.py` result from the recovery action or the rehearsal, as [the release decision](../sdlc/decisions/2026-11-05-release-finds-no-bugs.md) records. The VM wrapper remains outside the release path after its missing-file fault. After machine diagnosis, its existing command is `sh scripts/check_windows_release.sh 0640 "$ARTIFACT_REVISION" "$NATIVE"` on the Windows VM host, under an owning pm job with the same ticket label. It must report actual artifact and tooling revisions. An old artifact can exercise that wrapper but cannot qualify new main.
 
 ### 4. Complete payload preparation and screening
 
 | Section | Command | Host and inputs |
 | --- | --- | --- |
-| Publication payload | `python3 release/workflow.py stage --artifacts "$ALL_NATIVE" --plugin . --version "$VERSION" --revision "$MAIN_REVISION" --output "$STAGED"` | M5 or Yellow; all five same-main native outputs, both Linux container archives and selected-main plugin source |
+| Publication payload | `python3 release/workflow.py stage --artifacts "$ALL_NATIVE" --plugin . --version "$VERSION" --revision "$MAIN_REVISION" --output "$STAGED"` | Any Linux or macOS host; all five same-main native outputs, both Linux container archives and selected-main plugin source |
 | Staged artifact secret scan | `python3 release/secrets.py artifacts "$STAGED"` | Actual complete staged bytes and pinned scanner; includes archive members and compiled binaries |
-| Staged Homebrew formula | `python3 release/gate.py --artifacts "$NATIVE" --scratch "$SCRATCH" --staged-formula "$STAGED/biomcp.rb"` | Run separately on both macOS architectures with their matching native output and the same universal staged formula |
+| Staged Homebrew formula | `python3 release/gate.py --artifacts "$NATIVE" --scratch "$SCRATCH" --staged-formula "$STAGED/biomcp.rb"` | Run separately on Apple Silicon macOS and on `macos-15-intel`, each with their matching native output and the same universal staged formula |
 | Claude plugin | `python3 release/published.py plugin --version "$VERSION" --revision "$MAIN_REVISION" --artifacts "$NATIVE" --plugin-source "$PLUGIN_SOURCE" --binary "$BINARY" --claude "$CLAUDE"` | Native Unix host with real Claude CLI; same-main staged plugin and executable; no model invocation |
 | Attestation subject inventory | `python3 release/workflow.py subjects --artifacts "$STAGED" --output "$EVIDENCE/subjects.sha256"` | Complete staged tree; new output outside that tree |
 
@@ -104,6 +110,15 @@ Staging does not scan the payload by itself. Screen those bytes before treating 
 ### 5. Ordinary hosted rehearsal and signed artifacts
 
 After the independent sections pass, run the existing normal release workflow once from selected main in the approved public rehearsal repository, with `rehearsal=true` under an approved non-release ref, as [the public rehearsal decision](../sdlc/decisions/2026-11-02-public-rehearsals.md) describes. Do not replace the normal workflow with a recovery workflow for this check. This document does not dispatch it or approve a release tag.
+
+The rehearsal runs the staged sections again in `release.yml`, on the bytes the workflow built:
+
+| Section | Job and host | Alone |
+| --- | --- | --- |
+| Stage | `stage`, `ubuntu-24.04` | The publication payload command in section 4 |
+| Staged artifact scan | `stage`, `ubuntu-24.04` | The staged artifact secret scan command in section 4 |
+| Attestation | `stage`, `ubuntu-24.04`, from the subject inventory | Signing needs the workflow's identity, so it has no local command and reruns with this rehearsal. The inventory runs alone in section 4 and `gh attestation verify` below checks each file |
+| Staged Homebrew | `staged-homebrew`, `macos-15` and `macos-15-intel` | The staged Homebrew formula command in section 4 |
 
 ```sh
 gh workflow run release.yml --repo genomoncology/biomcp-release-rehearsal --ref "$REHEARSAL_REF" -f rehearsal=true
@@ -123,4 +138,4 @@ The six downstream channel jobs cover GitHub assets, GHCR, PyPI, Homebrew, the i
 
 ## Tooling checks do not qualify product
 
-`sh scripts/check_release_channels.sh` checks channel helpers with small test candidates. `sh scripts/check_hosted_section.sh` checks recovery tooling. `python3 scripts/installed_smoke_section.py check` checks the standalone smoke helper. Run those existing focused checks when their tooling changes; they do not replace the real-host sections above.
+`sh scripts/check_release_channels.sh` checks channel helpers with small test candidates. `sh scripts/check_hosted_section.sh` checks recovery tooling. `python3 scripts/installed_smoke_section.py check` checks the standalone smoke helper. Run those existing focused checks when their tooling changes; they do not replace the real-host sections above. `make landing-gate` is the short check every landing runs; it qualifies no section.
