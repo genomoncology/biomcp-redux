@@ -2,11 +2,11 @@
 use super::{Card, raw};
 use biodata::{
     CellLineGene, CellLineName, CellLineProvenance, CellLineReference, CellLineSourceId,
-    CellLineVariation, CellLineXref, CellosaurusAccession,
+    CellLineVariation, CellLineXref, CellosaurusAccession, Text,
 };
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    CellLineCard, CellLineIdentityPage, CellLineNames, CellLineVariants, CellLineXrefs, Section,
+    Capped, CellLineCard, CellLineIdentityPage, CellLineNames, CellLineVariants, CellLineXrefs, Section,
     Source,
 };
 /// Read the retained complete projection with primary and qualified identity checks.
@@ -100,6 +100,61 @@ fn variation(
             })
             .collect(),
     }
+}
+/// Caller terms a search row's variations are shown against.
+pub(super) struct Terms<'a> {
+    pub gene: Option<&'a Text>,
+    pub mutations: &'a [Text],
+}
+impl Terms<'_> {
+    /// Case follows the source's own case-insensitive var search.
+    fn shown_by(&self, row: &CellLineVariation) -> bool {
+        let same = |value: &Text, term: &Text| value.as_str().eq_ignore_ascii_case(term.as_str());
+        let gene = self.gene.is_none_or(|term| {
+            row.genes.iter().any(|gene| {
+                same(&gene.reference.id, term)
+                    || gene.reference.label.as_ref().is_some_and(|v| same(v, term))
+            })
+        });
+        gene && self.mutations.iter().all(|term| {
+            let term = term.as_str().to_ascii_lowercase();
+            [
+                &row.description,
+                &row.mutation_type,
+                &row.variation_type,
+                &row.note,
+            ]
+            .into_iter()
+            .flatten()
+            .any(|value| value.as_str().to_ascii_lowercase().contains(&term))
+        })
+    }
+}
+/// Show which of a row's variations hold the terms; the row itself stays, as the source chose it.
+pub(super) fn matching(
+    row: &mut raw::Record,
+    terms: &Terms<'_>,
+) -> Result<crate::Mapped<Capped<CellLineVariation>>, RequestError> {
+    let mut problems = crate::mapped::Problems {
+        source: Source::Cellosaurus,
+        record: row.accession().ok().and_then(crate::mapped::record),
+        list: Vec::new(),
+    };
+    let mut refusals = crate::Refusal::None;
+    let shown = row
+        .sequence_variation_list
+        .take()
+        .unwrap_or_default()
+        .into_vec()
+        .into_iter()
+        .map(|r| variation(r, &mut problems, &mut refusals))
+        .filter(|r| terms.shown_by(r))
+        .collect();
+    Ok(crate::Mapped {
+        refusals,
+        value: super::map::capped(shown, 3),
+        problems: problems.list,
+    })
 }
 pub(super) fn card(mut row: raw::Record) -> Result<crate::Mapped<CellLineCard>, RequestError> {
     let accession = row

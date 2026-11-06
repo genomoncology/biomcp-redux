@@ -30,6 +30,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(25),
 };
 const SEARCH_FIELDS: &str = "ac,id,sy,ox,di,ca";
+const VARIATION_SEARCH_FIELDS: &str = "ac,id,sy,ox,di,ca,var";
 const CARD_FIELDS: &str = "ac,id,ox,di,ca,sx,ag,problematic,caution,dt";
 const VERIFY_FIELDS: &str = "ac,id,sy,ox,di,ca,sx,ag,dr,var,prob,caution,dt";
 /// Source-ordered checked candidate page and original retrieval metadata.
@@ -65,7 +66,7 @@ pub fn literal(field: &str, value: &str) -> String {
         value.replace('\\', "\\\\").replace('"', "\\\"")
     )
 }
-/// Search literal text and native taxonomy/disease fields within one checked window.
+/// Search literal text and native taxonomy, disease, variation and hierarchy fields within one checked window.
 pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestError> {
     let accession = q
         .query()
@@ -84,12 +85,26 @@ pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestE
             terms.push(literal(field, value.as_str()));
         }
     }
+    // The var field holds a line's whole variation text; each term matches it independently.
+    let mutations = q.mutation_terms();
+    for value in q.gene().into_iter().chain(&mutations) {
+        terms.push(literal("var", value.as_str()));
+    }
+    // The hi field names a line's parent, so filtering here keeps source paging correct.
+    if q.exclude_derived() {
+        terms.push("NOT hi:*".to_owned());
+    }
     let query = terms.join(" AND ");
+    let shown = (q.gene().is_some() || !mutations.is_empty()).then_some(sections::Terms {
+        gene: q.gene(),
+        mutations: &mutations,
+    });
     candidates(
         leg,
         &query,
         q.limit(),
         (accession.is_some() || q.offset() > 0).then_some(q.offset()),
+        shown,
     )
 }
 /// One exact cross-reference query; its result never verifies identity.
@@ -99,6 +114,7 @@ pub fn reverse(leg: &Leg<'_>, id: &CellLineSourceId) -> Result<Page, RequestErro
         &literal("dr", id.accession()),
         5,
         (native_database(id) == Some("ChEMBL-Cells")).then_some(0),
+        None,
     )
 }
 fn candidates(
@@ -106,12 +122,18 @@ fn candidates(
     query: &str,
     limit: u32,
     offset: Option<u32>,
+    shown: Option<sections::Terms<'_>>,
 ) -> Result<Page, RequestError> {
     let endpoint = SPEC.get("/search/cell-line").fresh(Freshness::Days(1));
+    let fields = if shown.is_some() {
+        VARIATION_SEARCH_FIELDS
+    } else {
+        SEARCH_FIELDS
+    };
     let mut args = vec![
         ("q", Arg::Text(query)),
         ("format", Arg::Text("json")),
-        ("fields", Arg::Text(SEARCH_FIELDS)),
+        ("fields", Arg::Text(fields)),
         ("rows", Arg::Num(limit.into())),
     ];
     if let Some(offset) = offset {
@@ -170,7 +192,17 @@ fn candidates(
                 "name-list",
             );
         }
-        items.push(map::header(row)?);
+        let variations = shown
+            .as_ref()
+            .map(|terms| sections::matching(&mut row, terms))
+            .transpose()?;
+        let mut header = map::header(row)?;
+        if let Some(mapped) = variations {
+            refusals.include(mapped.refusals);
+            problems.extend(mapped.problems);
+            header.variations = Some(mapped.value);
+        }
+        items.push(header);
     }
     Ok(Page {
         refusals,
