@@ -61,7 +61,7 @@ fn failed_lookup_is_not_a_refusal_and_is_not_stored_as_whole() {
         "a reply filtered on a failed lookup must not reach the source cache"
     );
     let query = serde_json::from_str::<ArticleSearch>(
-        r#"{"text":"rights witness","source":["litsense"],"limit":3}"#,
+        r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
     )
     .unwrap()
     .page(0, Some(pool.id));
@@ -124,7 +124,7 @@ fn papers_past_the_lookup_cap_say_they_went_unchecked() {
         "checked papers keep permitted text"
     );
     let query = serde_json::from_str::<ArticleSearch>(
-        r#"{"text":"rights witness","source":["litsense"],"limit":3}"#,
+        r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
     )
     .unwrap()
     .page(22, Some(pool.id));
@@ -246,7 +246,7 @@ fn repeat_reads_keep_refusal_markers_and_write_nothing_new() {
         )
         .unwrap();
     let query = serde_json::from_str::<ArticleSearch>(
-        r#"{"text":"rights witness","source":["litsense"],"limit":3}"#,
+        r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
     )
     .unwrap()
     .page(0, Some(pool.id));

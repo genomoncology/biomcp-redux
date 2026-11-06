@@ -19,7 +19,7 @@ fn run(fetch: &Fetch) -> biomcp_query::Outcome {
         },
         &Request::SearchArticle(
             serde_json::from_str::<ArticleSearch>(
-                r#"{"text":"rights witness","source":["litsense"],"limit":3}"#,
+                r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
             )
             .unwrap(),
         ),
@@ -160,7 +160,7 @@ fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() 
         .restrict_uses([Use::PerRecord].into())
         .with_hosted_secrets(biomcp_fetch::Secrets::default());
     let query = serde_json::from_str::<ArticleSearch>(
-        r#"{"text":"rights witness","source":["litsense"],"limit":3}"#,
+        r#"{"text":"rights witness","exact_term":true,"source":["litsense"],"limit":3}"#,
     )
     .unwrap()
     .page(0, Some(pool.id.clone()));
