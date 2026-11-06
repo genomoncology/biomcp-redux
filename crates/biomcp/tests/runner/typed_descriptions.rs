@@ -221,7 +221,12 @@ fn complete_words(
     description: &str,
     name: &str,
 ) -> Result<(), String> {
-    let declared = format!("{schema} {summary} IDs Sections");
+    let sources = biomcp_types::Source::ALL
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(" ");
+    let declared = format!("{schema} {summary} {sources} IDs Sections");
     let vocabulary = declared
         .split(|c: char| !c.is_alphanumeric())
         .map(str::to_lowercase)
