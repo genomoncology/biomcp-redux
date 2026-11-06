@@ -393,7 +393,7 @@ fn busy_capacity(configured: bool, flags: bool) -> Check {
         let call = super::mcp::request(
             serde_json::json!(10),
             "tools/call",
-            serde_json::json!({"name":"biomcp", "arguments":{"args":["get","protein","private-query"]}}),
+            serde_json::json!({"name":"fetch", "arguments":{"id":"protein private-query"}}),
         );
         let (status, _) = server.request("POST", "/mcp", &call.to_string())?;
         if status != 503 {
@@ -408,13 +408,15 @@ fn busy_capacity(configured: bool, flags: bool) -> Check {
             .map_err(|e| e.to_string())?;
         let event: serde_json::Value = serde_json::from_str(&event).map_err(|e| e.to_string())?;
         if event["event"] != "mcp_call"
-            || event["tool"] != "biomcp"
+            || event["tool"] != "fetch"
             || event["status"] != "error"
             || event["failed_sources"] != serde_json::json!([])
             || event.to_string().contains("private-query")
             || diagnostics.try_recv().is_ok()
         {
-            return Err(format!("unsafe, missing or repeated capacity diagnostic: {event}"));
+            return Err(format!(
+                "unsafe, missing or repeated capacity diagnostic: {event}"
+            ));
         }
     }
     let (status, body) = server.request("GET", "/health", "")?;
