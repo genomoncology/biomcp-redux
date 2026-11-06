@@ -618,3 +618,10 @@ caid-population-check:
 population-reply-metadata-check:
 	+$(MAKE) hosted-surface-generate typed-schema-check
 	python3 scripts/trials.py mcp-parity/mcp-typed-tools --case-file variant/population/indel-invalid-crossref.yaml --case-file variant/population/indel-typed.yaml
+
+.PHONY: caid-population-affected caid-population-pre-review
+caid-population-affected: caid-population-check
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/debug/biomcp" cargo test --locked -p biomcp --test cases variant/ $(TEST_THREADS)
+	BIOMCP_TEST_EXECUTABLE="$(CURDIR)/target/debug/biomcp" cargo test --locked -p biomcp --test cases variant-population/ $(TEST_THREADS)
+caid-population-pre-review:
+	+$(MAKE) --keep-going caid-population-affected fmt lint-workspace ratchets
