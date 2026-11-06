@@ -32,7 +32,9 @@
         "/query/source": "opentargets",
         "/next/0/name": "search_drug",
         "/next/0/arguments": {
-          "query": "EX-66"
+          "equals": {
+            "query": "EX-66"
+          }
         }
       },
       "exit": 1,

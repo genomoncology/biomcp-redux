@@ -531,12 +531,15 @@ typed-followups-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-followups $(TEST_THREADS)
 typed-followups-affected:
 	+$(MAKE) --keep-going check-cheap typed-followups-parity typed-followups-toolcases
-.PHONY: typed-followups-parity typed-followups-toolcases
+.PHONY: typed-followups-parity typed-followups-toolcases typed-followups-aliases typed-followups-faers
 typed-followups-parity typed-followups-toolcases: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-affected
 typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 typed-followups-toolcases:
+	+$(MAKE) --keep-going typed-followups-aliases typed-followups-faers
+typed-followups-aliases:
 	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases $(filter-out --,$(TEST_THREADS))
+typed-followups-faers:
 	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml $(filter-out --,$(TEST_THREADS))
 .PHONY: typed-description-check typed-description-contract-check
 typed-description-check:
@@ -548,3 +551,10 @@ typed-description-contract-check:
 .PHONY: typed-description-lint-check
 typed-description-lint-check:
 	+$(MAKE) --keep-going fmt lint-workspace lint-tools typed-description-contract-check
+
+.PHONY: typed-followups-recovery typed-followups-recovery-check
+typed-followups-recovery: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-recovery
+typed-followups-recovery:
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
+typed-followups-recovery-check:
+	+$(MAKE) --keep-going typed-followups-recovery typed-followups-parity check-cheap
