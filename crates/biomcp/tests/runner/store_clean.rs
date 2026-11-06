@@ -9,6 +9,9 @@ type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![
+        transcript_trial("store-clean/scrub-copy-cli-only", || {
+            super::store_scrub::run().map_err(|e| e.to_string().into())
+        }),
         transcript_trial("store-clean/expired-owned-state", || {
             clean().map_err(|e| e.to_string().into())
         }),

@@ -16,9 +16,14 @@ pub fn scrub_copy(source: &Path, destination: &Path, budget: Duration) -> Result
         Connection::open_with_flags(source, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(db)?;
     original.busy_timeout(budget).map_err(db)?;
     validate(&original)?;
-    let file = fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
+    let mut options = fs::OpenOptions::new();
+    options.write(true).create_new(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    let file = options
         .open(destination)
         .map_err(|_| CacheError::Filesystem)?;
     drop(file);
