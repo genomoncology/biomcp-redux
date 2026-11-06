@@ -7,7 +7,7 @@ pub(super) fn matching<'a>(value: &Value, choices: &'a [Value]) -> Option<&'a Va
         choices.iter().find(|choice| {
             choice
                 .as_str()
-                .is_some_and(|canonical| canonical.eq_ignore_ascii_case(text))
+                .is_some_and(|canonical| same_letters(canonical, text))
         })
     })
 }
@@ -51,7 +51,11 @@ fn scoped<'a>(node: &'a Value, fields: &Map<String, Value>) -> Option<&'a Vec<Va
         .get("choices")?
         .as_object()?
         .iter()
-        .find(|(key, _)| key.eq_ignore_ascii_case(selected))?
+        .find(|(key, _)| same_letters(key, selected))?
         .1
         .as_array()
+}
+
+fn same_letters(left: &str, right: &str) -> bool {
+    left.eq_ignore_ascii_case(right) || left.to_lowercase() == right.to_lowercase()
 }
