@@ -70,7 +70,7 @@ pub(super) fn allowed(call: &Value, tools: &[Value]) -> bool {
     tools
         .iter()
         .find(|tool| tool.get("name") == call.get("name"))
-        .is_some_and(|tool| super::validation::valid(&tool["inputSchema"], &call["arguments"]))
+        .is_some_and(|tool| choices(&tool["inputSchema"], &call["arguments"]))
 }
 
 // The canonical parser already checks types, ranges and required fields. The
