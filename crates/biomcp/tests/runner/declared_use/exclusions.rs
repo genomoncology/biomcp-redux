@@ -3,10 +3,6 @@ use super::{ACADEMIC, CLINPGX, Environment, Server, Stub, call, disabled, source
 use crate::runner::{key_registration::invoke, launch::fixtures, transcript::trial};
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::sync::{
-    Arc,
-    atomic::{AtomicUsize, Ordering},
-};
 
 type Check<T = ()> = Result<T, String>;
 const HEADER: &str = "x-biomcp-exclude-sources";
@@ -37,18 +33,14 @@ fn list(names: &str) -> String {
     format!("{HEADER}: {names}\r\n")
 }
 
-fn left_out() -> Check {
-    let assets = Environment::new().map_err(|e| e.to_string())?;
-    let calls = Arc::new(AtomicUsize::new(0));
-    let counter = calls.clone();
-    let stub = Stub::for_source("api.clinpgx.org", "application/json", move |_| {
-        counter.fetch_add(1, Ordering::SeqCst);
+fn clinpgx_server(assets: &Environment) -> Check<(Stub, Server)> {
+    let stub = Stub::for_source("api.clinpgx.org", "application/json", |_| {
         Ok(r#"{"status":"success","data":[]}"#.into())
     })?;
     stub.retain(assets.shared_root());
     let ca = assets.root().join("ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    let mut server = Server::configured_globals(
+    let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca})),
         None,
@@ -56,11 +48,20 @@ fn left_out() -> Check {
         None,
         &["--hosted".into()],
     )?;
+    Ok((stub, server))
+}
+
+fn left_out() -> Check {
+    let assets = Environment::new().map_err(|e| e.to_string())?;
     let narrowed = format!("{ACADEMIC}{}", list("clinpgx"));
+    let (stub, mut server) = clinpgx_server(&assets)?;
     let first = call(&server, CLINPGX, &narrowed, false)?;
-    if !disabled(&first, "clinpgx") || calls.load(Ordering::SeqCst) != 0 {
-        return Err(format!("left-out source was called: {first}"));
+    server.stop()?;
+    let requests = stub.finish()?;
+    if !disabled(&first, "clinpgx") || !requests.is_empty() {
+        return Err(format!("left-out source was called: {first} {requests:?}"));
     }
+    let (stub, mut server) = clinpgx_server(&assets)?;
     let served = call(&server, CLINPGX, ACADEMIC, false)?;
     if !source_ok(&served, "clinpgx") {
         return Err(format!("another caller lost the source: {served}"));
@@ -293,33 +294,28 @@ fn article_pools() -> Check {
         "--source",
         "pubmed,europepmc",
     ];
-    let mut pools = Vec::new();
-    for (left_out, kept) in [("pubmed", "europepmc"), ("europepmc", "pubmed")] {
+    let narrowed = |left_out: &str, kept: &str| -> Check<String> {
         let header = format!("{ACADEMIC}{}", list(left_out));
         let reply = call(&server, &search, &header, false)?;
         if !disabled(&reply, left_out) || !source_ok(&reply, kept) {
             return Err(format!("caller leaving out {left_out} got: {reply}"));
         }
-        pools.push(pool_id(&reply)?);
-    }
+        pool_id(&reply)
+    };
+    let first = narrowed("pubmed", "europepmc")?;
+    let second = narrowed("europepmc", "pubmed")?;
     let whole = call(&server, &search, ACADEMIC, false)?;
     if !source_ok(&whole, "pubmed") || !source_ok(&whole, "europepmc") {
         return Err(format!(
             "a caller with no list got a narrowed pool: {whole}"
         ));
     }
-    pools.push(pool_id(&whole)?);
-    if pools[0] == pools[1] || pools[0] == pools[2] || pools[1] == pools[2] {
-        return Err(format!("different lists shared a pool: {pools:?}"));
+    let third = pool_id(&whole)?;
+    if first == second || first == third || second == third {
+        return Err(format!("lists shared a pool: {first} {second} {third}"));
     }
-    let again = call(
-        &server,
-        &search,
-        &format!("{ACADEMIC}{}", list("pubmed")),
-        false,
-    )?;
-    if pool_id(&again)? != pools[0] {
-        return Err(format!("a list lost its own pool: {again}"));
+    if narrowed("pubmed", "europepmc")? != first {
+        return Err("a list lost its own pool".into());
     }
     server.stop()
 }
