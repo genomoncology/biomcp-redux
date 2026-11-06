@@ -60,7 +60,8 @@ fn reference_admission() -> Result<(), String> {
             "tools/call",
             json!({"name":"biomcp_reference","arguments":arguments}),
         );
-        let stdio = exchange_with_globals(&env, &[frame.clone()], &["--offline".into()])?;
+        let stdio =
+            exchange_with_globals(&env, std::slice::from_ref(&frame), &["--offline".into()])?;
         let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
         if status != 200
             || stdio.first().and_then(|reply| reply.pointer("/error/code")) != Some(&json!(-32602))
