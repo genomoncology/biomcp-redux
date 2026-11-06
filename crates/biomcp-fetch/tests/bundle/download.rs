@@ -124,7 +124,10 @@ fn answer_resume(
         "412" => {
             request.respond(412, "", "");
             let next = server.next();
-            assert!(!next.text.to_ascii_lowercase().contains("range:"));
+            assert!(
+                !next.text.to_ascii_lowercase().contains("range:"),
+                "a refused resume must restart without a range"
+            );
             next.respond(200, "ETag: \"two\"\r\n", TSV);
         }
         _ => {
