@@ -88,12 +88,7 @@ fn parameter(
             "canonical baseline did not reach an accepted query: {expected}"
         ));
     }
-    for spelling in [canonical.to_lowercase(), canonical.to_uppercase()] {
-        values.insert(key.into(), value(&spelling));
-        let actual = cli(env, &argv(verb, entity, schema, &values))?;
-        if actual != expected {
-            return Err(format!("CLI {spelling}: expected {expected}; got {actual}"));
-        }
+    let typed = |values: &Map<String, Value>| {
         let frame = request(
             json!(1),
             "tools/call",
@@ -101,14 +96,28 @@ fn parameter(
                 "name":format!("{verb}_{entity}").replace('-', "_"), "arguments":values
             }),
         );
-        let replies = exchange_with_globals(env, &[frame], &["--offline".into()])?;
-        if replies
-            .first()
-            .and_then(|r| r.pointer("/result/structuredContent"))
-            != Some(&expected)
-        {
+        exchange_with_globals(env, &[frame], &["--offline".into()])
+    };
+    let typed_expected = typed(&values)?;
+    if typed_expected
+        .first()
+        .and_then(|reply| reply.pointer("/result/structuredContent/query"))
+        != expected.get("query")
+    {
+        return Err(format!(
+            "canonical typed query differs from CLI query: CLI {expected}; typed {typed_expected:?}"
+        ));
+    }
+    for spelling in [canonical.to_lowercase(), canonical.to_uppercase()] {
+        values.insert(key.into(), value(&spelling));
+        let actual = cli(env, &argv(verb, entity, schema, &values))?;
+        if actual != expected {
+            return Err(format!("CLI {spelling}: expected {expected}; got {actual}"));
+        }
+        let replies = typed(&values)?;
+        if replies != typed_expected {
             return Err(format!(
-                "typed {spelling}: expected {expected}; got {replies:?}"
+                "typed {spelling}: expected {typed_expected:?}; got {replies:?}"
             ));
         }
     }
