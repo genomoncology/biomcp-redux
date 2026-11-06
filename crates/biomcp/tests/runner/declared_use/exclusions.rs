@@ -277,7 +277,10 @@ fn article_pools() -> Check {
                     exchange["status"] = json!(200);
                 }
                 // Every list runs its own search, so each caller needs its own replies.
-                *exchanges = exchanges.repeat(3);
+                let original = exchanges.clone();
+                for _ in 0..2 {
+                    exchanges.extend(original.iter().cloned());
+                }
             }
         },
     )
