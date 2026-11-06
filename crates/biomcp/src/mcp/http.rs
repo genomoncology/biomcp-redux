@@ -154,6 +154,22 @@ impl Service {
         wire::write(&mut stream, status, &body, revision, allow)
     }
     fn route(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
+        let started = std::time::Instant::now();
+        let result = self.route_inner(request);
+        if request.path == "/mcp"
+            && let Ok(value) = serde_json::from_slice::<Value>(&request.body)
+            && value.get("method").and_then(Value::as_str) == Some("tools/call")
+        {
+            logging::record(
+                &value["params"],
+                started.elapsed(),
+                result.0,
+                result.1.as_ref(),
+            );
+        }
+        result
+    }
+    fn route_inner(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
         if !self.allowed(request) {
             return (403, Some(json!({"error":"Forbidden"})), None);
         }
@@ -223,10 +239,7 @@ impl Service {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
-                let started = std::time::Instant::now();
-                let result = self.tool(request, id, &params, modern, revision, declared_use);
-                logging::record(&params, started.elapsed(), result.0, result.1.as_ref());
-                return result;
+                return self.tool(request, id, &params, modern, revision, declared_use);
             }
         };
         let status = if result.pointer("/error/code") == Some(&json!(-32601)) {
