@@ -8,6 +8,7 @@ article-default-prepare:
 	tar -czf target/article-default-generated/source.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
 
 article-default-focused:
+	rm -rf target/article-default-proof
 	mkdir -p target/article-default-proof
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/article-default-proof" cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" article/
 	cargo test --locked -p biomcp --test cases grammar/argument-description-guidance
