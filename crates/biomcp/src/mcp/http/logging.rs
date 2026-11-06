@@ -23,11 +23,19 @@ pub(super) fn line(params: &Value, duration: Duration, http: u16, reply: Option<
             .pointer("/result/structuredContent")
             .cloned()
             .or_else(|| {
-                serde_json::from_str(reply.pointer("/result/content/0/text")?.as_str()?).ok()
+                let text = reply.pointer("/result/content/0/text")?.as_str()?;
+                serde_json::from_str(text)
+                    .ok()
+                    .or_else(|| serde_json::from_str(text.rsplit_once('\n')?.1).ok())
             })
     });
-    let status = content
-        .as_ref()
+    let evidence = content.as_ref().map(|value| {
+        value
+            .pointer("/metadata/envelope")
+            .or_else(|| value.get("metadata"))
+            .unwrap_or(value)
+    });
+    let status = evidence
         .and_then(|value| value.get("status"))
         .and_then(Value::as_str)
         .filter(|status| {
@@ -48,8 +56,7 @@ pub(super) fn line(params: &Value, duration: Duration, http: u16, reply: Option<
                 "complete"
             }
         });
-    let mut failed = content
-        .as_ref()
+    let mut failed = evidence
         .and_then(|value| value.get("sources"))
         .and_then(Value::as_array)
         .into_iter()

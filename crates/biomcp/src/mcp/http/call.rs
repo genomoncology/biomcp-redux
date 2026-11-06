@@ -246,6 +246,18 @@ mod tests {
             line,
             json!({"event":"mcp_call", "tool":"get_gene", "duration_ms":7, "status":"partial", "failed_sources":["mygene"]})
         );
+        let envelope = &reply["result"]["structuredContent"];
+        for content in [
+            json!({"content":[{"text":format!("private-query\n{envelope}")}]}),
+            json!({"structuredContent":{"metadata":{"envelope":envelope}}}),
+            json!({"structuredContent":{"metadata":envelope}}),
+        ] {
+            let reply = json!({"result":content});
+            assert_eq!(
+                super::super::logging::line(&params, Duration::from_millis(7), 200, Some(&reply)),
+                line
+            );
+        }
         let unsafe_params = json!({"name":"private-query"});
         let line = super::super::logging::line(&unsafe_params, Duration::ZERO, 200, None);
         assert_eq!(line["tool"], "unknown");
