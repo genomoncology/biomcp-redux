@@ -40,7 +40,9 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
     unknown = [name for name in selected if name not in available]
     if not selected or unknown:
         raise ValueError("trial selection requires exact names from this target's --list: "
-                         + ", ".join(unknown))
+                         + ", ".join(unknown)
+                         + "; use --cases DIRECTORY for YAML cases or --target tools --proofs "
+                         "for custom trials, then --list to find exact names")
     prepare()
     status = 0
     for name in selected:
@@ -53,11 +55,11 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", choices=["cases", "tools", "ratchets"], default="cases")
-    parser.add_argument("--runner", type=Path, help="Reuse a previously built runner")
+    parser.add_argument("--runner", type=Path, help="Reuse this runner; omitting it builds the --target runner using Cargo JSON artifact identity")
     parser.add_argument("--installed", action="store_true", help="Copy product, runner and public fixtures into an isolated install")
-    parser.add_argument("--executable", type=Path, help="Exercise this installed product without building another CLI")
+    parser.add_argument("--executable", type=Path, help="Reuse this product; omitting it builds the CLI after selection (except --list)")
     parser.add_argument("--profile", choices=["dev", "release"], default="dev")
-    parser.add_argument("--cases", type=Path, help="case directory interpreted by the Rust runner")
+    parser.add_argument("--cases", type=Path, help="Explicit case root interpreted by the Rust runner; not a proof selector")
     parser.add_argument("--case-file", action="append", default=[], metavar="RELATIVE/PATH.yaml",
                         help="select one exact case-relative path from the runner catalog; repeatable")
     parser.add_argument("--proofs", action="store_true", help="select custom trials in tools")

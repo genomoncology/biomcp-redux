@@ -13,7 +13,7 @@ pub(crate) fn main(args: Vec<String>) -> ExitCode {
                 use std::io::Write;
                 let _ = writeln!(
                     std::io::stderr(),
-                    "cases: filter {filter:?} selected no tests"
+                    "cases: filter {filter:?} selected no tests; use --cases DIRECTORY --list for case names or tools --proofs --list for custom trials"
                 );
                 return ExitCode::FAILURE;
             }
