@@ -163,7 +163,6 @@ fn legacy_drug_pool() -> Check {
 fn pool_id(reply: &serde_json::Value) -> Result<String, Box<dyn std::error::Error>> {
     reply
         .pointer("/page/pool/id")
-        .or_else(|| reply.pointer("/page/pool"))
         .and_then(serde_json::Value::as_str)
         .map(str::to_owned)
         .ok_or_else(|| format!("no stored pool: {reply}").into())

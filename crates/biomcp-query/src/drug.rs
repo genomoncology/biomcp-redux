@@ -248,20 +248,29 @@ fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
     let Some(parent) = out.sources.first().cloned() else {
         return;
     };
-    for component in mychem::requested_components(search) {
-        let Some(source) = component.native_source else {
-            continue;
-        };
-        let disabled = component.disabled(cx.fetch);
-        out.sources.push(biomcp_adapters::registry::outcome(
-            source,
-            if disabled {
-                biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Disabled))
-            } else {
-                parent.status()
-            },
-        ));
-    }
+    out.sources.extend(components(cx, &parent, search));
+}
+
+/// The sources a MyChem reply carries, so a later disabled source can withhold stored names.
+fn components(
+    cx: &Ctx<'_>,
+    parent: &biomcp_types::SourceOutcome,
+    search: bool,
+) -> Vec<biomcp_types::SourceOutcome> {
+    mychem::requested_components(search)
+        .into_iter()
+        .filter_map(|component| {
+            let source = component.native_source?;
+            Some(biomcp_adapters::registry::outcome(
+                source,
+                if component.disabled(cx.fetch) {
+                    biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Disabled))
+                } else {
+                    parent.status()
+                },
+            ))
+        })
+        .collect()
 }
 
 mod native;

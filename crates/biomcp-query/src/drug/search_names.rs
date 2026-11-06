@@ -148,15 +148,13 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     let result = biomcp_adapters::mychem::name_records(&leg, input.as_str(), NAME_ROWS);
     let error = result.as_ref().err().copied();
     let remaining = leg.remaining();
-    let evidence = vec![status::source(
-        DrugSource::Mychem.source(),
-        leg.finish(),
-        error,
-    )];
+    let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
     let Ok(mapped) = result else {
-        return failure(error, evidence);
+        return failure(error, vec![parent]);
     };
+    let carried = super::components(cx, &parent, false);
+    let evidence: Vec<_> = std::iter::once(parent).chain(carried).collect();
     let structures: std::collections::BTreeSet<_> = mapped
         .value
         .iter()
@@ -361,6 +359,8 @@ pub(crate) fn one_request_each(input: Option<&Text>, names: &[Text]) -> Vec<Text
     let mut picked: Vec<_> = names.iter().collect();
     picked.sort_by_key(|name| (Some(*name) != input, name.as_str().chars().count()));
     picked.truncate(NAME_REQUESTS);
+    // Request order sets result order, so it must not depend on which name was typed.
+    picked.sort_by_key(|name| name.as_str().to_lowercase());
     picked.into_iter().cloned().collect()
 }
 
