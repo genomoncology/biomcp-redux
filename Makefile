@@ -626,3 +626,8 @@ trial-interventions-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-interventions"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-interventions/build.jsonl"
 	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/trial-interventions/transcripts" python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","--case-file","trial/intervention.yaml"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-interventions/build.jsonl"
+
+.PHONY: trial-interventions-review
+trial-interventions-review:
+	+$(MAKE) trial-interventions-check
+	+$(MAKE) landing-gate
