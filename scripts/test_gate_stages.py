@@ -54,7 +54,7 @@ class GateStages(unittest.TestCase):
         self.assertEqual(result.returncode, 7)
         self.assertRegex(result.stdout, r'gate stage=fixture elapsed_seconds=\d+\.\d+ exit=7')
 
-    def test_pre_job_reports_all_cheap_failures_and_stops_gate(self):
+    def test_pre_job_reports_all_cheap_failures(self):
         with tempfile.TemporaryDirectory() as temporary:
             tools = Path(temporary)
             cargo = tools / 'cargo'
@@ -63,7 +63,8 @@ class GateStages(unittest.TestCase):
             env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']}
             for key in ('MAKEFLAGS', 'MFLAGS', 'MAKELEVEL', 'MAKEOVERRIDES'):
                 env.pop(key, None)
-            result = subprocess.run([sys.executable, str(ROOT / 'scripts/landing_gate.py')],
+            result = subprocess.run([sys.executable, str(ROOT / 'scripts/timed_stage.py'), 'pre-job',
+                                     'make', '--no-print-directory', 'pre-job'],
                                     cwd=ROOT, env=env, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('cargo fmt --all -- --check', result.stdout)
@@ -71,12 +72,11 @@ class GateStages(unittest.TestCase):
             self.assertIn('cargo clippy --keep-going --locked -p biomcp --test tools', result.stdout)
             self.assertIn('plain-cli-build', result.stderr)
             self.assertIn('gate stage=pre-job', result.stdout)
-            self.assertNotIn('gate stage=workflow-lint', result.stdout)
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
-        landing = ['pre-job', 'workflow-lint', 'rights', 'audit', 'secrets', 'cases']
-        full = ['pre-job', 'workflow-lint', 'docs-check', 'tensor-proto-check',
-                'audit', 'secrets-full', 'library-tests', 'coverage']
+        landing = ['rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases']
+        full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
+                'tensor-proto-check', 'library-tests', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
             tools = Path(temporary)
             make = tools / 'make'
@@ -85,7 +85,8 @@ class GateStages(unittest.TestCase):
             make.chmod(0o755)
             env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']}
             for arguments, stages, failing in (([], landing, 'none'), ([], landing, 'cases'),
-                                               ([], landing, 'secrets'), (['--full'], full, 'none')):
+                                               ([], landing, 'secrets'), ([], landing, 'pre-job'),
+                                               (['--full'], full, 'none')):
                 with self.subTest(arguments=arguments, failing=failing):
                     result = subprocess.run([sys.executable, 'scripts/landing_gate.py', *arguments],
                                             cwd=ROOT, env={**env, 'FAIL_GOAL': failing},

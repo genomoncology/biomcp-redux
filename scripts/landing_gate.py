@@ -3,9 +3,11 @@ import subprocess
 import sys
 import time
 
-LANDING = ('pre-job', 'workflow-lint', 'rights', 'audit', 'secrets', 'cases')
-FULL = ('pre-job', 'workflow-lint', 'docs-check', 'tensor-proto-check',
-        'audit', 'secrets-full', 'library-tests', 'coverage')
+# Rights, audit and secrets take seconds and need no build, so they stop a bad
+# change before the compile in pre-job.
+LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases')
+FULL = ('audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
+        'tensor-proto-check', 'library-tests', 'coverage')
 
 
 def main():

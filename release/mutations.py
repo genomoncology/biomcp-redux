@@ -256,7 +256,8 @@ def collect(args):
     print(json.dumps({key: len(report[key]) for key in
                       ('caught', 'survivors', 'unviable', 'timeouts', 'unrun', 'errors')}))
     # A candidate fails on what it missed; a calibration only measures cost.
-    missed = not value['calibration'] and (report['survivors'] or report['timeouts'])
+    missed = not value['calibration'] and (report['survivors'] or report['timeouts']
+                                           or set(value['selected']) - seen)
     return int(bool(report['errors'] or missed))
 
 

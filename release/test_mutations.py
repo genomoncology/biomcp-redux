@@ -271,6 +271,20 @@ class MutationCommands(unittest.TestCase):
         self.assertTrue(self.report()['survivors'])
         self.assertFalse(self.report()['errors'])
 
+    def test_candidate_cut_off_by_the_deadline_fails_collection(self):
+        value = self.prepare('--measure')
+        self.plan.write_text(json.dumps(dict(value, calibration=False)))
+        self.env['FAKE_MODE'] = 'interrupted'
+        command = self.deadline_runner(self.output / 'shard-0/mutants.out/outcomes.json')
+        subprocess.run([*command, 'shard', '--plan', str(self.plan), '--index', '0'],
+                       cwd=self.root, env=self.env, capture_output=True, text=True, timeout=15)
+        outcomes = self.output / 'shard-0/mutants.out/outcomes.json'
+        rows = json.loads(outcomes.read_text())['outcomes']
+        outcomes.write_text(json.dumps(dict(outcomes=[
+            row for row in rows if row['summary'] in ('Success', 'CaughtMutant')])))
+        self.call('collect', '--plan', self.plan, ok=False)
+        self.assertFalse(self.report()['errors'] or self.report()['survivors'])
+
     def test_native_exit_cannot_hide_missing_selected_outcomes(self):
         self.prepare('--measure')
         self.env['FAKE_MODE'] = 'omitted'
