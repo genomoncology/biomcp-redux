@@ -54,6 +54,9 @@ struct Fields {
     #[doc = "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_condition: bool,
+    /// Search typed treatment terms without resolving their other names.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    exact_term: bool,
     #[doc = "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."]
     #[serde(
         default,
@@ -290,6 +293,17 @@ impl TrialSearch {
         &self.0.keyword
     }
 
+    /// Whether drug-name expansion is disabled.
+    pub fn exact_term(&self) -> bool {
+        self.0.exact_term
+    }
+    /// Substitute only registry discovery text and intervention alternatives.
+    pub fn with_drug_terms(&self, text: Option<Text>, interventions: Box<[Text]>) -> Self {
+        let mut next = self.clone();
+        next.0.query = text;
+        next.0.intervention = interventions;
+        next
+    }
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()

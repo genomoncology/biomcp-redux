@@ -13,19 +13,10 @@
         "kind": "json",
         "value": {
           "_id": "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
-          "_version": 1,
           "chembl": {
             "molecule_chembl_id": "CHEMBL941",
-            "pref_name": "Canonical therapy",
-            "molecule_type": "Small molecule",
-            "molecule_synonyms": [
-              {
-                "molecule_synonym": "EX-66"
-              },
-              {
-                "molecule_synonym": "Example brand"
-              }
-            ]
+            "pref_name": "Ambiguous medicine",
+            "molecule_type": "Small molecule"
           }
         }
       }

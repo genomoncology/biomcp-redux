@@ -30,6 +30,7 @@ pub(super) fn search<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
     resolved: &super::term::Resolved,
+    drug_names: &[Text],
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
 ) -> Result<SearchResult, RequestError> {
@@ -37,11 +38,11 @@ pub(super) fn search<'a>(
         Preparation::Ready(prepared) => prepared,
         Preparation::Answer => return Ok(SearchResult::Answer),
     };
+    let queries = drug_queries(query, drug_names);
     let start = *deadline;
-    let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = query
-        .sources()
+    let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = queries
         .iter()
-        .filter_map(|selector| {
+        .filter_map(|(selector, query)| {
             let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
                 ArticleSource::Pubmed => {
                     Box::new(move || pubmed_search(cx, query, &resolved.names, start))
@@ -77,7 +78,19 @@ pub(super) fn search<'a>(
         .find(|e| status::local(*e).is_some());
     for result in &results {
         out.dropped |= result.dropped;
-        out.sources.push(result.outcome.clone());
+        if let Some(existing) = out
+            .sources
+            .iter_mut()
+            .find(|s| s.source == result.outcome.source)
+        {
+            status::retain_source_state(existing, &result.outcome);
+            existing.count = None;
+            existing.retrieved_count = None;
+            existing.term = None;
+            existing.notices.extend(result.outcome.notices.clone());
+        } else {
+            out.sources.push(result.outcome.clone());
+        }
         status::append(&mut out.problems, result.problems.clone());
     }
     if let Some(error) = error {
@@ -91,6 +104,31 @@ pub(super) fn search<'a>(
         results.into_iter().map(|r| (r.source, r.items)).collect(),
         query.sources().len() > 1,
     )))
+}
+// Boolean providers receive one literal OR group. Sentence/ranked providers run each
+// source-stated name separately, then the existing pool fold removes duplicate identities.
+fn drug_queries(query: &ArticleSearch, names: &[Text]) -> Vec<(ArticleSource, ArticleSearch)> {
+    query
+        .sources()
+        .iter()
+        .flat_map(|source| {
+            if names.len() < 2 {
+                return vec![(*source, query.clone())];
+            }
+            match source {
+                ArticleSource::Pubmed | ArticleSource::Europepmc | ArticleSource::Pubtator => {
+                    let expanded = crate::drug::search_names::alternatives(names)
+                        .map_or_else(|| query.clone(), |term| query.with_drug_term(term));
+                    vec![(*source, expanded)]
+                }
+                ArticleSource::Litvar => vec![(*source, query.clone())],
+                ArticleSource::SemanticScholar | ArticleSource::Litsense => names
+                    .iter()
+                    .map(|name| (*source, query.with_drug_term(name.clone())))
+                    .collect(),
+            }
+        })
+        .collect()
 }
 fn resolve_rows<'a>(
     cx: &Ctx<'a>,

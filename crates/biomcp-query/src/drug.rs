@@ -10,6 +10,7 @@ mod next;
 mod openfda_label;
 mod recall;
 mod resolve;
+pub(crate) mod search_names;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
 /// Search selected-source records, consulting source-stated names only after an empty lookup.

@@ -2,6 +2,7 @@
 use biomcp_types::ReplyBody;
 mod condition;
 pub mod document;
+mod drug_names;
 mod gene_notice;
 pub(crate) mod get;
 mod nci;
@@ -28,12 +29,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         command.finish(deadline.remaining());
         return outcome;
     };
+    let expanded = drug_names::expand(cx, query, &mut outcome);
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
-    let (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
+    let (result, name_notice) = ctgov::search_query(&leg, &expanded, gene.as_deref(), conditions);
     let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
