@@ -13,6 +13,8 @@ article-default-focused:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/article-default-proof" cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" article/
 	cargo test --locked -p biomcp --test cases grammar/argument-description-guidance
 	cargo test --locked -p biomcp --test cases grammar/numeric-description-guidance
+	cargo test --locked -p biomcp --test cases trial/input-boundaries
+	cargo test --locked -p biomcp --test cases variant/identity
 	cargo test --locked -p biomcp --test cases article/fulltext/
 	cargo test --locked -p biomcp --test cases article/preprint/
 
