@@ -17,7 +17,9 @@
       "offline": true,
       "expect": {
         "/query/status": "RECRUITING"
-      }
+      },
+      "is_error": true,
+      "exit": 4
     },
     {
       "offline": true,
@@ -29,7 +31,8 @@
         "arguments": {
           "status": "recruiting"
         }
-      }
+      },
+      "is_error": true
     },
     {
       "run": [
@@ -44,7 +47,9 @@
       "expect": {
         "/query/status": "Withdrawn",
         "/query/source": "nci"
-      }
+      },
+      "is_error": true,
+      "exit": 4
     },
     {
       "offline": true,
@@ -58,7 +63,8 @@
           "source": "NCI",
           "status": "WITHDRAWN"
         }
-      }
+      },
+      "is_error": true
     },
     {
       "run": [
@@ -155,7 +161,9 @@
       "offline": true,
       "expect": {
         "/query/status": "WITHDRAWN"
-      }
+      },
+      "is_error": true,
+      "exit": 4
     },
     {
       "offline": true,
@@ -168,7 +176,8 @@
           "source": "CTGOV",
           "status": "Withdrawn"
         }
-      }
+      },
+      "is_error": true
     },
     {
       "run": [
