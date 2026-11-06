@@ -112,7 +112,14 @@ fn validate_reply_schema(tools: &[Value], name: &str, value: &Value) -> Result<(
         .iter()
         .find(|v| v.get("name") == Some(&json!(name)))
         .ok_or("tool definition missing")?;
-    let schema = tool.get("outputSchema").ok_or("output schema missing")?;
+    let Some(schema) = tool.get("outputSchema") else {
+        // Shared help intentionally omits an advertised output schema; its reply
+        // must still satisfy its complete canonical artifact schema.
+        if name == "biomcp_help" {
+            return super::schema::Registry::embedded()?.validate(value, &[], false);
+        }
+        return Err("output schema missing".into());
+    };
     jsonschema::validator_for(schema)
         .map_err(|e| e.to_string())?
         .validate(value)
