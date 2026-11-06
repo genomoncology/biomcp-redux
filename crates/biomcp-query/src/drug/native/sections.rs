@@ -96,6 +96,7 @@ pub(super) fn opentargets(
             .native_input()
             .map_err(|_| biomcp_fetch::InputError::Serialization)?,
     )?;
+    out.problems.extend(opentargets::version(leg));
     let Some(row) = row else {
         crate::status::item(out, false, false, false);
         return Ok(());

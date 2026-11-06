@@ -26,6 +26,7 @@ const GRAPHQL: biomcp_fetch::Endpoint = SPEC.post_json("/graphql").fresh(Freshne
 const DETAIL: &str = "query Drug($id:String!){drug(chemblId:$id){id name indications{rows{maxClinicalStage disease{id \
     name}}} mechanismsOfAction{rows{mechanismOfAction actionType targets{id approvedSymbol \
     approvedName}}}}}";
+const VERSION: &str = "query DataVersion{meta{dataVersion{year month}}}";
 #[derive(Serialize)]
 struct Query<'a, T> {
     query: &'a str,
@@ -101,6 +102,46 @@ pub fn drug(
     )
     .map(|received| (received.value, received.meta))
     .map(|(r, meta)| (r.data.drug.map(map::Drug), meta))
+}
+/// Retain the platform's published data release on this leg.
+/// An unavailable or unreadable release is disclosed and leaves the source's facts readable.
+pub fn version(leg: &Leg<'_>) -> Vec<biomcp_types::Problem> {
+    let body = Query {
+        query: VERSION,
+        variables: (),
+    };
+    let reply = leg.call(
+        &GRAPHQL,
+        Input::json(&[], &body),
+        biomcp_fetch::Read::<raw::Response<raw::VersionData>>::json(),
+    );
+    let date = reply
+        .ok()
+        .and_then(|received| received.value.data.meta.data_version)
+        .and_then(crate::raw::Field::value)
+        .and_then(release_month);
+    let mut problems = crate::mapped::Problems {
+        source: Source::Opentargets,
+        record: None,
+        list: Vec::new(),
+    };
+    if let Some(date) = problems.required("meta.dataVersion", date) {
+        leg.data_date(&date);
+    }
+    problems.list
+}
+/// Spell a release as a year and month; it has no day, so it carries no age claim.
+fn release_month(version: raw::DataVersion) -> Option<String> {
+    let year: u16 = version.year.parse().ok()?;
+    let year = match version.year.len() {
+        2 => 2000 + year,
+        4 => year,
+        _ => return None,
+    };
+    let month: u8 = version.month.parse().ok()?;
+    (1..=12)
+        .contains(&month)
+        .then(|| format!("{year}-{month:02}"))
 }
 mod map;
 pub use map::{

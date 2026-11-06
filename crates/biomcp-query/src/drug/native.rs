@@ -122,6 +122,7 @@ fn search_page(
             query.offset() / query.limit(),
             query.limit(),
         )?;
+        problems.extend(opentargets::version(leg));
         let mapped = opentargets::search_headers(page, (query.offset() % query.limit()) as usize);
         problems.extend(mapped.problems);
         let received = mapped.value.items.len() as u32;

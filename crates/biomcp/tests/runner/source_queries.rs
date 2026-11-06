@@ -140,6 +140,9 @@ fn opentargets() -> Result<(), String> {
             let body: Value =
                 serde_json::from_str(request.split_once("\r\n\r\n").ok_or("missing body")?.1)
                     .map_err(|e| e.to_string())?;
+            if body.get("query") == Some(&json!("query DataVersion{meta{dataVersion{year month}}}")) {
+                return Ok(json!({"data":{"meta":{"dataVersion":{"year":"26","month":"09"}}}}).to_string());
+            }
             if body.get("variables") == Some(&json!({"q":"synthetic words"})) {
                 if body.get("query")
                     != Some(&json!(
@@ -186,6 +189,9 @@ fn opentargets() -> Result<(), String> {
             "Open Targets search lost native identity: {search}"
         ));
     }
+    if search.pointer("/sources/0/notices/0/data_date") != Some(&json!("2026-09")) {
+        return Err(format!("Open Targets search lost its data date: {search}"));
+    }
     for section in [None, Some("targets"), Some("indications")] {
         let mut args = vec!["get", "drug", "CHEMBL1", "--source", "opentargets"];
         if let Some(section) = section {
@@ -193,6 +199,7 @@ fn opentargets() -> Result<(), String> {
         }
         let value = invoke(&env, args.into_iter().map(str::to_owned).collect(), 0)?;
         if value.get("status") != Some(&json!("complete"))
+            || value.pointer("/sources/0/notices/0/data_date") != Some(&json!("2026-09"))
             || value
                 .get("problems")
                 .and_then(Value::as_array)
@@ -203,8 +210,8 @@ fn opentargets() -> Result<(), String> {
     }
     let requests = stub.finish()?;
     record_requests(&requests)?;
-    if requests.len() != 2 {
-        return Err("Open Targets search/detail cache reads changed".into());
+    if requests.len() != 3 {
+        return Err("Open Targets search/detail/version cache reads changed".into());
     }
     Ok(())
 }
