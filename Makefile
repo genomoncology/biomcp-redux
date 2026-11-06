@@ -623,3 +623,6 @@ trial-provenance-check:
 
 article-rights-check:
 	sh scripts/check_article_rights.sh
+
+article-rights-prepare:
+	sh scripts/check_article_rights.sh prepare
