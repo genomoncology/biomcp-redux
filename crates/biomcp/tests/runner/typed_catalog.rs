@@ -1,5 +1,6 @@
 //! Outside-in helpers use the advertised reference route, never a second entity policy.
 use serde_json::{Value, json};
+use std::io::Write;
 
 pub(super) fn command(tools: &[Value], name: &str) -> Option<Value> {
     if let Some(tool) = tools.iter().find(|tool| tool["name"] == name) {
@@ -57,13 +58,15 @@ pub(super) fn check(tools: &[Value]) -> Result<(), String> {
             return Err(format!("clinical/research tool must remain direct: {name}"));
         }
     }
-    println!(
+    writeln!(
+        std::io::stdout(),
         "TYPED_EAGER_CATALOG tools={} definition_bytes={}",
         tools.len(),
         serde_json::to_vec(tools)
             .map_err(|error| error.to_string())?
             .len()
-    );
+    )
+    .map_err(|error| error.to_string())?;
     Ok(())
 }
 
