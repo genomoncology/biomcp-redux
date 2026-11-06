@@ -63,12 +63,14 @@ fn query_page(
     refused: bool,
 ) -> Result<Value, Box<dyn std::error::Error>> {
     let body = synthetic_body(refused);
-    let stub = Stub::for_source(
-        "api.platform.opentargets.org",
-        "application/json",
+    let stub = Stub::for_sources(
+        &["api.platform.opentargets.org", "api.fda.gov"],
+        |_| "application/json",
         move |request: &str| {
             Ok(if request.contains("dataVersion") {
                 r#"{"data":{"meta":{"dataVersion":{"year":"26","month":"09"}}}}"#.into()
+            } else if request.contains("drugsfda") {
+                r#"{"meta":{"results":{"skip":0,"limit":1,"total":0}},"results":[]}"#.into()
             } else {
                 body.clone()
             })
@@ -145,7 +147,11 @@ fn query_page(
         "query continuation changed"
     );
     let requests = stub.finish()?;
-    assert_eq!(requests.len(), 2, "query did not reach synthetic publisher");
+    let publisher = requests
+        .iter()
+        .filter(|(_, request)| request.contains("/graphql"))
+        .count();
+    assert_eq!(publisher, 2, "query did not reach synthetic publisher");
     Ok(data.clone())
 }
 
