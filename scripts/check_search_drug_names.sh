@@ -12,6 +12,10 @@ case "${1:-focused}" in
     make plain-cli-build
     python3 scripts/trials.py --installed --executable target/debug/biomcp --case-file drug-name-search.yaml
     ;;
+  focused-check)
+    sh "$0" focused
+    make check-cheap
+    ;;
   prepare-focused)
     sh "$0" prepare
     sh "$0" focused
