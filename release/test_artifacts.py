@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import tomllib
 import unittest
 import zipfile
 
@@ -84,6 +85,11 @@ class ReleaseCommands(unittest.TestCase):
             record = json.loads((output / 'release.json').read_text())
             calls = [json.loads(line) for line in (tools / 'cargo.jsonl').read_text().splitlines()]
             self.assertEqual(len([call for call in calls if call[:2] == ['vendor', '--locked']]), 1)
+            (name, config), = [json.loads(line) for line in (tools / 'configs.jsonl').read_text().splitlines()]
+            self.assertEqual(name, 'biomcp')
+            flags = tomllib.loads(config)['target']['cfg(all())']['rustflags']
+            self.assertEqual([flag.rsplit('=', 1)[1] for flag in flags], ['cargo', 'biomcp', 'vendor'])
+            self.assertTrue(all(flag.startswith('--remap-path-prefix=') for flag in flags))
             self.assertEqual(record['revision'], 'a' * 40)
             self.assertEqual(record['version'], '1.0.0')
             self.assertEqual(record['binary_sha256'], hashlib.sha256((tools / 'biomcp').read_bytes()).hexdigest())
@@ -148,6 +154,9 @@ class ReleaseCommands(unittest.TestCase):
             self.assertEqual([call[call.index('--test') + 1] for call in calls if call not in vendors],
                              ['cases', 'tools'])
             self.assertFalse((scratch / 'venv').exists())
+            configs = [json.loads(line) for line in (tools / 'configs.jsonl').read_text().splitlines()]
+            self.assertEqual([name for name, _ in configs], ['cases', 'tools'])
+            self.assertFalse(any('remap-path-prefix' in config for _, config in configs))
 
     def test_build_keeps_notice_bytes_with_windows_text_newlines(self):
         with tempfile.TemporaryDirectory() as temporary:
