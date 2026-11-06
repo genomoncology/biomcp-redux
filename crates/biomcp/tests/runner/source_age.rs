@@ -44,6 +44,37 @@ fn restored() -> Check {
             "stored date was lost or its age was not reassessed: {restored}"
         ));
     }
+    legacy_snapshot(&env)?;
+    let legacy = command(&env, &next, &env.globals(None, true), 0)?;
+    let recovered = dated_notice(&legacy)?;
+    if original.get("data_date") != recovered.get("data_date")
+        || !recovered.to_string().contains("Old data")
+    {
+        return Err(format!(
+            "older snapshot lost its retained publisher date: {legacy}"
+        ));
+    }
+    Ok(())
+}
+fn legacy_snapshot(env: &Environment) -> Check {
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))
+        .map_err(|e| e.to_string())?;
+    let payload: String = db
+        .query_row("SELECT payload FROM trial_snapshot", [], |r| r.get(0))
+        .map_err(|e| e.to_string())?;
+    let mut payload: Value = serde_json::from_str(&payload).map_err(|e| e.to_string())?;
+    if let Some(sources) = payload.get_mut("sources").and_then(Value::as_array_mut) {
+        for source in sources {
+            if let Some(notices) = source.get_mut("notices").and_then(Value::as_array_mut) {
+                notices.retain(|notice| notice.get("data_date").is_none());
+            }
+        }
+    }
+    db.execute(
+        "UPDATE trial_snapshot SET payload=?1",
+        [payload.to_string()],
+    )
+    .map_err(|e| e.to_string())?;
     Ok(())
 }
 fn hosted() -> Check {

@@ -12,7 +12,7 @@ case "${1:-focused}" in
     cat "$source_age_proof/run.log"
     source_age_revision=$(git rev-parse HEAD)
     git rev-parse HEAD > "$source_age_proof/source.txt"
-    tar -C "$source_age_proof" -czf "$source_age_proof.tar.gz" .
+    COPYFILE_DISABLE=1 tar -C "$source_age_proof" -czf "$source_age_proof.tar.gz" .
     ssh -o BatchMode=yes -o ConnectTimeout=15 yellow 'mkdir -p /home/ian/workspace/data/biomcp-redux-evidence/0718'
     scp -o BatchMode=yes -o ConnectTimeout=15 "$source_age_proof.tar.gz" "yellow:/home/ian/workspace/data/biomcp-redux-evidence/0718/source-age-$source_age_revision.tar.gz"
     rm -rf "$source_age_proof" "$source_age_proof.tar.gz"
