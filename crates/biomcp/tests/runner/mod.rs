@@ -1,3 +1,4 @@
+mod argument_recovery;
 mod corporate;
 mod credential_containment;
 mod drug_identity;
@@ -50,7 +51,9 @@ mod drug_label;
 mod drug_next;
 mod evidence;
 mod faers_get;
+mod gene_names;
 mod held_proxy;
+mod help_contract;
 mod hgnc_sync;
 mod hosted_deadline;
 mod hosted_pacing;
@@ -67,6 +70,7 @@ mod remote_tools;
 mod replay;
 mod socket_read;
 mod source_pacing;
+mod source_status;
 tool_only! { pub(crate) mod live; }
 tool_only! { mod live_follow_proof; }
 tool_only! { mod live_proof; }
@@ -252,6 +256,7 @@ fn run_case_owned(
 
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
+    trials.extend(argument_recovery::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
     trials.extend(configuration::trials());
@@ -286,6 +291,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(housekeeping::trials());
     trials.extend(clinpgx::trials());
     trials.extend(variant_hotspots::trials());
+    trials.extend(source_status::trials());
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
     trials.extend(trial_results::trials());
@@ -301,11 +307,13 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pathway_sections::trials());
     trials.extend(oncokb::trials());
     trials.extend(protein_sections::trials());
+    trials.extend(gene_names::trials());
     trials.extend(drug_label::trials());
     trials.extend(study_catalog::trials());
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
+    trials.push(help_contract::trial());
     trials.push(wikipathways::trial());
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());
@@ -322,14 +330,19 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(nci::trials());
     trials.extend(drug_civic::trials());
     trials.push(citation_values::trial());
-    trials.push(transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
-        article_save::check().map_err(Into::into)
-    }));
-    trials.push(transcript_trial(
-        "mcp-parity/ping-passes-held-provider-call",
-        || held_proxy::check().map_err(Into::into),
-    ));
+    trials.extend(transcript_trials());
     trials
+}
+
+fn transcript_trials() -> [Trial; 2] {
+    [
+        transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
+            article_save::check().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/ping-passes-held-provider-call", || {
+            held_proxy::check().map_err(Into::into)
+        }),
+    ]
 }
 
 fn load_floors(case: &mut Case, path: &Path) -> Result<(), String> {

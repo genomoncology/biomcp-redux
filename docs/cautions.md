@@ -55,6 +55,10 @@ CVX vaccine identity lookup and sync are unavailable because no mapping to WONDE
 
 ## FAERS report sections
 
+FAERS `search adverse-event --aggregate reactions` requests openFDA's exact reaction-term counts across matching reports. The reply separates these buckets from report headers and retains native terms, counts and order. A report may list several drugs and several reactions: buckets can overlap and do not identify a causal drug–reaction pair. BioMCP never sums them into a report total or derives rates, incidence, risk or comparative safety. The source provides no exposure denominator.
+
+`--limit` bounds the returned reaction terms. `reaction_counts.limit_reached` means that the source filled that limit; it does not establish a total or prove that more terms exist. Count mode has no report offset or report total. Reaction terms require the MedDRA component and retain its terms of use. See [openFDA's count response](https://open.fda.gov/apis/drug/event/understanding-the-api-results/).
+
 The drug index is its absolute position in the report. Missing retained reports offer an explicit restart. Drug roles belong to each original drug row, and reaction labels carry separate MedDRA terms. Report counts and identifiers do not establish causation or a marketed-product identity.
 
 ## Local bundles
@@ -162,6 +166,10 @@ NCI trial facility searches use `sites.org_name` for an exact case-insensitive o
 
 These commands return terminology. `search diagnostic --biomarker` filters diagnostic tests, and `search trial --variant` searches literal variant text. Native inclusion and exclusion values remain source assertions and do not establish patient eligibility. Search pages retain one bounded observation. A broad request can return narrowing guidance; a source failure never establishes zero concepts.
 
+## Drug names across sources
+
+After an empty name lookup, BioMCP may consult existing MyChem, openFDA label or ChEMBL records for source-stated names. ChEMBL first tries its native exact synonym filter when no selector was supplied. Cross-source retries require one exact name-resolution candidate and preserve the selected source's filters, IDs and native counts. Ambiguous names offer a source search instead of selecting an alias. The reply identifies any source supplying names, shows the actual successful search spelling and preserves it in continuation commands. A matching record in another source does not establish presence in the selected source. Source exclusions and the command budget also govern alias lookups; failed or disabled reads remain visible.
+
 ## Medical device recalls
 
 `search diagnostic --source fda-device-recall` covers every medical device. It searches the native recalling firm phrase, exact product code and inclusive initiation dates. The [FDA field mapping](https://github.com/FDA/openfda/blob/master/schemas/device_recall_mapping.json) defines `product_code` as a keyword field and `product_res_number.exact` as the exact recall identity. Totals count product recall records, including separate records under one event number. A count makes no claim about harm.
@@ -170,4 +178,6 @@ The card preserves the recall's reason, root cause, product description and dist
 
 The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.
 
-openFDA label search first tries exact brand and generic fields, then word matches, then label text (including indications) when the name fields have no results. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand, generic, or `spl_product_data_elements` value, in that order, falling back to the source SPL set ID when all are absent. Product data is original source text, not an inferred name. Paging preserves the selected source query and its native total.
+openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value, falling back to the native SPL set ID when neither is available. Product-data paragraphs remain in the original label sections.
+
+`search drug --indication "pancreatic cancer" --source openfda-label` searches only the label's native `indications_and_usage` field. It preserves the phrase without disease synonym expansion or clinical inference. An optional name query further narrows that same search. Results remain SPL label identities in source order, with the source total; follow `get drug` and the label section to read the original wording. Drugs@FDA does not support this filter.

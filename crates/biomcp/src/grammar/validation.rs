@@ -42,7 +42,7 @@ pub(super) fn help<'a>(path: impl IntoIterator<Item = &'a str>) -> biomcp_types:
     }
 }
 
-fn resolve<'a>(schema: &'a Value, property: &'a Value) -> &'a Value {
+pub(super) fn resolve<'a>(schema: &'a Value, property: &'a Value) -> &'a Value {
     if let Some(reference) = property.get("$ref").and_then(Value::as_str) {
         return schema
             .pointer(reference.trim_start_matches('#'))
@@ -75,7 +75,7 @@ pub(super) fn accepted(schema: &Value, property: &Value) -> Option<Box<[biodata:
             .or_else(|| property.get("description"))
             .and_then(Value::as_str)
             .or_else(|| super::property_type(value))?;
-        let mut form = description.to_owned();
+        let mut form = description.split_whitespace().collect::<Vec<_>>().join(" ");
         for (key, label) in [
             ("minimum", "Minimum"),
             ("maximum", "Maximum"),

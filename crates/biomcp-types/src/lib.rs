@@ -103,7 +103,8 @@ pub use response::{
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
     EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
+    Section, SourceOutcome, SourceRecord, SourceState, SourceStatus, SourceStatusView, Status,
+    Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
@@ -175,26 +176,27 @@ pub use drug::{
     DEFAULT_DRUG_APPROVALS_LIMIT, DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim,
     DrugCivicMember, DrugCivicPage, DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate,
     DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
-    DrugFdaSubmission, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
-    DrugLabelFragment, DrugLabelText, DrugNameMatch, DrugNameResolution, DrugNameSelector,
-    DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification,
-    DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory, DrugSearch,
-    DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
-    DrugXrefs, OPENFDA_LABEL_HEADINGS,
+    DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
+    DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
+    DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage,
+    DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
+    DrugRecallPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets,
+    DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, OPENFDA_LABEL_HEADINGS,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
 
 mod adverse_event;
 pub use adverse_event::{
-    AdverseEventDevice, AdverseEventDevices, AdverseEventDrug, AdverseEventDrugs,
-    AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
-    AdverseEventIdentifierSection, AdverseEventIdentifiers, AdverseEventIdentityCounts,
-    AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage,
-    AdverseEventReaction, AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
-    AdverseEventSearch, AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
-    VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,
-    vaers_vaccine_code,
+    AdverseEventAggregate, AdverseEventDevice, AdverseEventDevices, AdverseEventDrug,
+    AdverseEventDrugs, AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader,
+    AdverseEventIdentifierRecords, AdverseEventIdentifierSection, AdverseEventIdentifiers,
+    AdverseEventIdentityCounts, AdverseEventMaudeCard, AdverseEventNarrative,
+    AdverseEventNarrativeItem, AdverseEventPage, AdverseEventReaction, AdverseEventReactionCount,
+    AdverseEventReactionCounts, AdverseEventReactionMatch, AdverseEventReactions,
+    AdverseEventRecords, AdverseEventSearch, AdverseEventSection, AdverseEventSerious,
+    AdverseEventSource, ReportUnit, VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope,
+    VaersSection, VaersSummary, vaers_vaccine_code,
 };
 
 mod pgx;

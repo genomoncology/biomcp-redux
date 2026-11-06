@@ -1,6 +1,7 @@
 //! Literal native drug discovery and exact selected source identities.
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
+mod aliases;
 mod civic;
 mod ddinter;
 mod drugsfda;
@@ -11,12 +12,14 @@ mod recall;
 mod resolve;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
+/// Search selected-source records, consulting source-stated names only after an empty lookup.
+pub(crate) use aliases::search as search_with_aliases;
 use biomcp_adapters::mychem;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, Request, Source, StepKind,
 };
-/// Search the one selected source, without fan-out or selecting an identity.
-pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
+/// Search the selected source directly without consulting another source.
+fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::FdaDrugRecall {
         return recall::search(cx, query);
     }
@@ -71,7 +74,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 /// Get one exact native document, without fallback or automatic section expansion.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let mut out = if query.is_name() {
-        resolve::get(cx, query)
+        aliases::get(cx, query)
     } else {
         selected_get(cx, query)
     };
@@ -233,8 +236,7 @@ pub(super) use crate::status::empty;
 fn unsupported(source: DrugSource, mut out: Outcome) -> Outcome {
     out.sources.push(biomcp_adapters::registry::outcome(
         source.source(),
-        biomcp_types::SourceState::Skipped,
-        Some(biomcp_types::Reason::Unsupported),
+        biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Unsupported)),
     ));
     out
 }
@@ -251,14 +253,9 @@ fn component_outcomes(cx: &Ctx<'_>, out: &mut Outcome, search: bool) {
         out.sources.push(biomcp_adapters::registry::outcome(
             source,
             if disabled {
-                biomcp_types::SourceState::Skipped
+                biomcp_types::SourceStatus::Skipped(Some(biomcp_types::Reason::Disabled))
             } else {
-                parent.state
-            },
-            if disabled {
-                Some(biomcp_types::Reason::Disabled)
-            } else {
-                parent.reason
+                parent.status()
             },
         ));
     }
@@ -329,13 +326,13 @@ pub(super) fn rejected_input(source: DrugSource, field: &str, mut out: Outcome) 
         code: biomcp_types::ProblemCode::ValueUnknown,
     });
     if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source.source()) {
-        existing.state = biomcp_types::SourceState::Failed;
-        existing.reason = Some(biomcp_types::Reason::BadReply);
+        existing.set_status(biomcp_types::SourceStatus::Failed(Some(
+            biomcp_types::Reason::BadReply,
+        )));
     } else {
         out.sources.push(biomcp_adapters::registry::outcome(
             source.source(),
-            biomcp_types::SourceState::Failed,
-            Some(biomcp_types::Reason::BadReply),
+            biomcp_types::SourceStatus::Failed(Some(biomcp_types::Reason::BadReply)),
         ));
     }
     status::item(&mut out, false, true, false);

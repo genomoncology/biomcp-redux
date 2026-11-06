@@ -52,12 +52,12 @@ variant-civic: Preserve CIViC exact profile membership and separate native claim
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join.
 variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups.
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation.
-drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization.
+drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications, retry empty name lookups using uniquely source-stated aliases and disclose other sources with matches, without inferring authorization.
 drug-ema: Explicitly synchronize EMA medicines and read separate native candidates, exact identity cards and source-scoped regulatory dates without implicit synchronization.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context and shared native evidence level and status selectors.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.
-drug-label: Search source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
-drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection and configurable submission pages.
+drug-label: Search literal label indication phrases or source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
+drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts.
@@ -69,7 +69,7 @@ drug-failures: Every kept drug source reports synthetic transport and broken-bod
 drug-identity: Drug sources reject mismatched, conflicting and absent identity joins before cache admission or product selection.
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples.
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference.
-adverse-event-search: Search literal FAERS drug names joined with OR and other filters joined with AND, with typed phrase, seriousness and receipt selectors, native report pages and exact next requests.
+adverse-event-search: Search literal FAERS names and filters for native report pages with exact next requests, or return openFDA reaction count buckets without derived rates or causal interpretation.
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes and product problem phrases and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
