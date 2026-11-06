@@ -632,3 +632,6 @@ article-rights-authors:
 
 article-rights-mechanical:
 	sh scripts/check_article_rights.sh mechanical
+
+article-rights-routine:
+	sh scripts/check_article_rights.sh routine

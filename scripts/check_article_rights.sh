@@ -27,6 +27,9 @@ case "${1:-focused}" in
     authors)
         cargo test --locked -p biomcp-query --test article_rights authors:: -- --nocapture > "$proof/run.log" 2>&1
         ;;
+    routine)
+        make landing-gate > "$proof/run.log" 2>&1
+        ;;
     mechanical)
         make check-cheap > "$proof/run.log" 2>&1
         ;;
