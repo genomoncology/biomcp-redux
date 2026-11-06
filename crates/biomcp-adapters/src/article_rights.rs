@@ -1,4 +1,5 @@
 //! Record-owned permissions shared by article adapters and retained replies.
+mod abstracts;
 mod policy;
 pub(crate) mod pubmed;
 pub(crate) mod pubtator;

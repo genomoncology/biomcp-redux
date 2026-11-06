@@ -43,6 +43,7 @@ fn id(value: &Value) -> Option<Pmid> {
         .pointer("/externalIds/PubMed")
         .and_then(pmid)
         .or_else(|| value.get("pmid").and_then(pmid))
+        .or_else(|| value.pointer("/header/pmid").and_then(pmid))
         .or_else(|| {
             value
                 .pointer("/header/external_ids")
@@ -87,10 +88,7 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
     let license = own.and_then(|id| licenses.get(&id).copied());
     match value {
         Value::Object(object) => {
-            if !permitted(license, true) {
-                object.remove("abstract");
-                object.remove("abstract_text");
-            }
+            super::abstracts::filter(object, own, license);
             let context_license = citing.and_then(|id| licenses.get(&id).copied());
             object.remove("biomcpContextLicense");
             if object.contains_key("contexts")
@@ -117,6 +115,7 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
             for child in object.values_mut() {
                 apply(child, own, licenses);
             }
+            super::abstracts::lift(object);
         }
         Value::Array(rows) => {
             for child in rows {

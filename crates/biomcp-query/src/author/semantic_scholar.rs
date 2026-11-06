@@ -116,7 +116,7 @@ fn execute(
 fn present(
     q: &AuthorPapersQuery,
     out: &mut Outcome,
-    saved: super::NativePages<author::PapersPage>,
+    mut saved: super::NativePages<author::PapersPage>,
     pool: Option<crate::store::Pool>,
 ) -> Result<(), RequestError> {
     let page = saved
@@ -129,7 +129,14 @@ fn present(
     let items: Box<[_]> = page
         .data
         .into_iter()
-        .map(|r| r.detail(&mut out.problems))
+        .map(|r| {
+            if let Some(notice) = r.withholding_notice()
+                && !saved.source.notices.contains(&notice)
+            {
+                saved.source.notices.push(notice);
+            }
+            r.detail(&mut out.problems)
+        })
         .collect::<Result<_, _>>()
         .map_err(|_| SourceError {
             source: Source::SemanticScholar,
