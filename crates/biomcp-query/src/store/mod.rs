@@ -5,6 +5,8 @@
 )]
 mod cleanup;
 pub use cleanup::clean;
+mod scrub;
+pub use scrub::scrub_copy;
 mod evidence;
 mod trial;
 pub(crate) use evidence::EvidenceState;
