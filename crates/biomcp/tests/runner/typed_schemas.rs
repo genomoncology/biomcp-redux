@@ -48,21 +48,25 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .and_then(|s| s.get("properties"))
                 .and_then(|p| p.get(key))
                 .ok_or("property")?;
-            let expected = node.get("description").and_then(Value::as_str).map(|s| {
-                let mut lines = s.lines();
-                let first = lines.next().unwrap_or_default();
-                if first.contains("biomcp_help") {
-                    lines
-                        .next()
-                        .unwrap_or(first)
-                        .split("; biomcp_help")
-                        .next()
-                        .unwrap_or(first)
-                        .to_owned()
-                } else {
-                    first.to_owned()
-                }
-            });
+            let expected = node
+                .get("x-section-rule")
+                .or_else(|| node.get("description"))
+                .and_then(Value::as_str)
+                .map(|s| {
+                    let mut lines = s.lines();
+                    let first = lines.next().unwrap_or_default();
+                    if first.contains("biomcp_help") {
+                        lines
+                            .next()
+                            .unwrap_or(first)
+                            .split("; biomcp_help")
+                            .next()
+                            .unwrap_or(first)
+                            .to_owned()
+                    } else {
+                        first.to_owned()
+                    }
+                });
             if property.get("description").and_then(Value::as_str) != expected.as_deref() {
                 failures.push(format!("{name}.{key}: lost own description"));
             }
