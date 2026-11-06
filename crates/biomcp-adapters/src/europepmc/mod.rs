@@ -186,6 +186,7 @@ impl Row {
         };
         problems.extend(p.list);
         Some(ArticleItem {
+            text_withheld: None,
             key: Some(key),
             pmid,
             header,

@@ -155,6 +155,7 @@ fn create<'a>(
     let mut items: Vec<_> = ids
         .into_iter()
         .map(|id| ArticleItem {
+            text_withheld: None,
             key: Some(ArticleKey::Pubmed(id)),
             pmid: Some(id),
             header: None,

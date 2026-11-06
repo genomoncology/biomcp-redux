@@ -221,10 +221,19 @@ impl Leg<'_> {
             }
             Err(error) => return Err(error.into()),
         };
-        let Some(entry) = entry else {
+        let Some(mut entry) = entry else {
             return Ok(None);
         };
         self.contain_response(prepared, &entry, &entry.body, entry.status)?;
+        if (200..300).contains(&entry.status) {
+            let filtered = codec
+                .filtered_body(&entry.body)
+                .map_err(|_| self.failure(Reason::BadReply, Some(entry.status)))?;
+            if filtered != entry.body {
+                entry.body = filtered;
+                cache.write(key, self.spec.source, &prepared.url, &entry, self.budget())?;
+            }
+        }
         let fresh = entry.fresh_until > now();
         if entry.status == 404 {
             if fresh {

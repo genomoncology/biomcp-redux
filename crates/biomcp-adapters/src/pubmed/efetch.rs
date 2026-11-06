@@ -86,7 +86,12 @@ pub fn fetch_articles(
         params.push(("email", Arg::Contact(email)));
     }
     let (reply, metadata) = leg
-        .call(&FETCH, Input::Params(&params), Read::<Records>::xml())
+        .call(
+            &FETCH,
+            Input::Params(&params),
+            Read::<Records>::xml()
+                .filter_body(&|body| crate::article_rights::pubmed::filter(leg, body)),
+        )
         .map(|received| (received.value, received.meta))?;
     Ok((reply.articles, metadata))
 }
@@ -160,6 +165,9 @@ fn article(root: Element<'_>) -> Result<FetchedArticle, BadReply> {
         refusals,
         indexing,
         article: Article {
+            text_withheld: root
+                .child("BioMcpTextWithheld")?
+                .map(|_| crate::article_rights::withheld(pmid)),
             europepmc_id: None,
             pmid: Some(pmid),
             doi,

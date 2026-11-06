@@ -241,6 +241,7 @@ impl Paper {
             author_count: self.authors.as_ref().map_or(0, |a| a.len() as u32),
         });
         ArticleItem {
+            text_withheld: None,
             key,
             pmid,
             header,

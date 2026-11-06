@@ -20,7 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     terms: biomcp_fetch::Terms {
         name: "NCBI policies; publisher rights in input text",
         url: "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        usage: biomcp_types::Use::Open,
+        usage: biomcp_types::Use::PerRecord,
     },
     source: Source::LitSense,
     base: "https://www.ncbi.nlm.nih.gov/research/litsense2-api",
@@ -35,7 +35,8 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         .call(
             &SENTENCES,
             Input::Params(&[("query", Arg::Text(term)), ("rerank", Arg::Text("true"))]),
-            biomcp_fetch::Read::<Sentences>::json(),
+            biomcp_fetch::Read::<Sentences>::json()
+                .filter_body(&|body| crate::article_rights::litsense(leg, body)),
         )?
         .value;
     let mut items: Vec<ArticleItem> = Vec::new();
@@ -58,6 +59,9 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         let section = problems.field("section", sentence.section);
         let text = problems.source_field("text", sentence.text);
         items.push(ArticleItem {
+            text_withheld: sentence
+                .text_withheld
+                .then(|| crate::article_rights::withheld(sentence.pmid.0)),
             key: Some(ArticleKey::Pubmed(sentence.pmid.0)),
             pmid: Some(sentence.pmid.0),
             found_by: [(ArticleSource::Litsense, (index + 1) as u32)].into(),
@@ -66,7 +70,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
             influential: None,
             contexts: None,
             header: None,
-            sentence: Some(ArticleSentence { section, text }),
+            sentence: (!sentence.text_withheld).then_some(ArticleSentence { section, text }),
         });
     }
     Ok(Mapped {
@@ -79,6 +83,8 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
 struct Sentences(Vec<Field<Sentence>>);
 #[derive(Deserialize)]
 struct Sentence {
+    #[serde(default)]
+    text_withheld: bool,
     pmid: crate::raw::NumericPmid,
     section: Option<Field<Text>>,
     text: Option<Field<crate::native_text::NativeText>>,

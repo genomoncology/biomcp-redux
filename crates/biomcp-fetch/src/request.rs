@@ -300,7 +300,13 @@ impl Leg<'_> {
                 }
             })?
         {
-            return self.replayed_wire(prepared, exchange);
+            let mut wire = self.replayed_wire(prepared, exchange)?;
+            if (200..300).contains(&wire.status) {
+                wire.body = codec.filtered_body(&wire.body).map_err(|_| {
+                    Failure::Local(self.failure(Reason::BadReply, Some(wire.status)).into())
+                })?;
+            }
+            return Ok(wire);
         }
         let started = Instant::now();
         let mut response = if prepared.publisher {
@@ -344,7 +350,7 @@ impl Leg<'_> {
                 codec.overflow_reason,
             )?
         };
-        let wire = Wire {
+        let mut wire = Wire {
             fetched,
             status,
             content_type,
@@ -355,6 +361,11 @@ impl Leg<'_> {
         };
         self.contain_response(prepared, &wire, &wire.body, status)
             .map_err(Failure::Local)?;
+        if (200..300).contains(&wire.status) {
+            wire.body = codec
+                .filtered_body(&wire.body)
+                .map_err(|_| Failure::Local(self.failure(Reason::BadReply, Some(status)).into()))?;
+        }
         if recording {
             self.record_wire(prepared, codec, &wire, started)
                 .map_err(local)?;

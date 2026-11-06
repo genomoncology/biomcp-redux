@@ -40,6 +40,7 @@ fn source(private: bool) -> SourceOutcome {
 }
 fn item() -> ArticleItem {
     ArticleItem {
+            text_withheld: None,
         key: None,
         pmid: None,
         found_by: Default::default(),

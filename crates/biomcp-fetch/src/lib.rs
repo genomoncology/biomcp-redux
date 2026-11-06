@@ -463,6 +463,22 @@ pub struct LegReport {
     pub cache_problems: Vec<CacheError>,
 }
 impl Leg<'_> {
+    /// Run a metadata dependency within the remaining request budget.
+    /// Charge its independent replay clock back to the calling source leg.
+    pub fn dependency<T>(
+        &self,
+        spec: &'static SourceSpec,
+        cap: Duration,
+        operation: impl FnOnce(&Leg<'_>) -> T,
+    ) -> T {
+        let mut leg = self.fetch.leg(spec, self.deadline);
+        leg.deadline = leg.deadline.child(self.remaining().min(cap));
+        let started = leg.remaining();
+        let result = operation(&leg);
+        self.budget()
+            .advance(started.saturating_sub(leg.remaining()));
+        result
+    }
     /// Inspect the same source policy without opening another transport leg.
     pub fn disabled_source(&self, source: biomcp_types::Source) -> bool {
         self.fetch.disabled(source)

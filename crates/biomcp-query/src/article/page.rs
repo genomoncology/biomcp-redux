@@ -141,6 +141,17 @@ pub(super) fn read<'a>(
             }
         }
     }
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+        let leg = cx.fetch.leg(&pubmed::SPEC, store.deadline());
+        let started = leg.remaining();
+        let mut items: Vec<_> = rows.iter().map(|row| row.item.clone()).collect();
+        biomcp_adapters::article_rights::items(&leg, &mut items);
+        for (row, item) in rows.iter_mut().zip(items) {
+            row.item = item;
+        }
+        store.set_deadline(consume(store.deadline(), started, leg.remaining()));
+        store.rewrite_article_text(id, &rows)?;
+    }
     finish(query, pool, rows, out);
     Ok(())
 }

@@ -25,6 +25,16 @@ pub enum ArticleKey {
     /// Semantic Scholar local identity when no indexed identifier exists.
     SemanticScholar(crate::SemanticScholarId),
 }
+/// Why article text was withheld, with a public reading destination.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct WithheldArticleText {
+    /// The current use policy does not admit the record's text.
+    pub reason: crate::Reason,
+    /// Public record where the caller can read the paper.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub url: Option<crate::Text>,
+}
 /// One original pool position, including a summary hole.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -43,6 +53,9 @@ pub struct ArticleItem {
     /// iCite citing-paper count, only under citation ordering.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cited_by: Option<u64>,
+    /// Record-owned text was not admitted under the current use policy.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub text_withheld: Option<WithheldArticleText>,
     /// First matching sentence in LitSense2 provider order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sentence: Option<ArticleSentence>,

@@ -124,6 +124,12 @@ fn execute<'a>(
                 retry(query, None, out);
                 return Ok(());
             }
+            if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+                let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, *deadline);
+                let started = leg.remaining();
+                biomcp_adapters::article_rights::items(&leg, &mut items);
+                *deadline = consume(*deadline, started, leg.remaining());
+            }
             store.set_deadline(*deadline);
             match crate::publish::keep(
                 store

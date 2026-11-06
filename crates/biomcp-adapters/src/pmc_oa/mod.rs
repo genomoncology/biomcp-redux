@@ -53,42 +53,16 @@ pub fn read(
     id: Pmcid,
     pmid: Option<Pmid>,
 ) -> Result<crate::Mapped<Option<Document>>, RequestError> {
-    let invalid_reply = biomcp_fetch::bad_reply(Source::PmcOa, None);
-    let prefix = format!("{id}.");
-    let listing = leg
-        .call(
-            &LIST,
-            Input::Params(&[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))]),
-            Read::<raw::Listing>::xml(),
-        )?
-        .value;
-    let contents = listing.contents.as_deref().unwrap_or(&[]);
-    if contents.iter().any(|e| !e.key.starts_with(&prefix)) {
-        return Err(invalid_reply);
-    }
-    let Some(version) = contents
-        .iter()
-        .filter_map(|e| location::version(&e.key, id))
-        .max()
-    else {
+    let Some(record) = metadata(leg, id, pmid)? else {
         return Ok(crate::Mapped {
             refusals: crate::Refusal::None,
             value: None,
             problems: Vec::new(),
         });
     };
-    let directory = format!("{id}.{version}/");
-    let path = format!("/{directory}{id}.{version}.json");
-    let record = leg
-        .call(
-            &FILE.clone().with_path(path).map_err(|_| invalid_reply)?,
-            Input::Params(&[]),
-            Read::<raw::Record>::json(),
-        )?
-        .value;
-    if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
-        return Err(invalid_reply);
-    }
+    let invalid_reply = biomcp_fetch::bad_reply(Source::PmcOa, None);
+    let directory = format!("{id}.{}/", record.0);
+    let (version, record) = record;
     let mut problems = crate::mapped::Problems {
         source: Source::PmcOa,
         record: crate::mapped::record(id),
@@ -129,6 +103,51 @@ pub fn read(
         }),
         problems: Vec::new(),
     })
+}
+/// Read only the record-owned license; never fetch the article body.
+pub fn record_license(leg: &Leg<'_>, id: Pmcid, pmid: Option<Pmid>) -> Option<License> {
+    let (_, record) = metadata(leg, id, pmid).ok()??;
+    let code = record.license_code?.value()?;
+    Some(license(&code))
+}
+fn metadata(
+    leg: &Leg<'_>,
+    id: Pmcid,
+    pmid: Option<Pmid>,
+) -> Result<Option<(u32, raw::Record)>, RequestError> {
+    let invalid_reply = biomcp_fetch::bad_reply(Source::PmcOa, None);
+    let prefix = format!("{id}.");
+    let listing = leg
+        .call(
+            &LIST,
+            Input::Params(&[("list-type", Arg::Num(2)), ("prefix", Arg::Text(&prefix))]),
+            Read::<raw::Listing>::xml(),
+        )?
+        .value;
+    let contents = listing.contents.as_deref().unwrap_or(&[]);
+    if contents.iter().any(|e| !e.key.starts_with(&prefix)) {
+        return Err(invalid_reply);
+    }
+    let Some(version) = contents
+        .iter()
+        .filter_map(|e| location::version(&e.key, id))
+        .max()
+    else {
+        return Ok(None);
+    };
+    let directory = format!("{id}.{version}/");
+    let path = format!("/{directory}{id}.{version}.json");
+    let record = leg
+        .call(
+            &FILE.clone().with_path(path).map_err(|_| invalid_reply)?,
+            Input::Params(&[]),
+            Read::<raw::Record>::json(),
+        )?
+        .value;
+    if record.pmcid != id || pmid.is_some_and(|expected| record.pmid != Some(expected.get())) {
+        return Err(invalid_reply);
+    }
+    Ok(Some((version, record)))
 }
 pub(crate) fn license(value: &str) -> License {
     match value.to_ascii_uppercase().replace('-', " ").as_str() {

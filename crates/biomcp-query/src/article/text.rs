@@ -137,6 +137,15 @@ fn execute<'a>(
         crate::status::item(out, true, false, true);
     }
     out.sources.push(source);
+    if matches!(result, Err(RequestError::Source(error)) if error.reason == Reason::Disabled) {
+        out.body = (ArticleTextResult {
+            pmcid: Some(id),
+            content: Section::unavailable(Source::PmcOa, Reason::Disabled),
+        })
+        .with_query(query.clone());
+        crate::status::item(out, true, false, false);
+        return Ok(());
+    }
     let content = match result? {
         None => Section::unavailable(Source::PmcOa, Reason::NotOpen),
         Some(document) => {
