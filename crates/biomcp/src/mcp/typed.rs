@@ -7,7 +7,6 @@ mod followups;
 mod grouping;
 pub(super) use grouping::Catalog;
 mod help;
-mod step_paths;
 mod summary;
 mod validation;
 
