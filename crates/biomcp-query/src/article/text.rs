@@ -13,6 +13,9 @@ use biomcp_types::{
 };
 /// Read a bounded part or find page through the same transport and command budget.
 pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
+    if let Ok(Request::GetArticle(card)) = query.clone().into_request() {
+        return super::get::get(cx, &card);
+    }
     download(cx, query, false).out
 }
 /// Obtain the whole document for an explicit binary-owned save.
@@ -150,7 +153,7 @@ fn execute<'a>(
                 out,
                 save,
             ) else {
-                out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+                out.body = ReplyData::Usage(position_error(query, &document));
                 return Ok(());
             };
             Section::Data {
@@ -224,6 +227,19 @@ fn select(
         content.hits = Some(find(query, selection, document, out)?);
     }
     Some(content)
+}
+
+fn position_error(query: &ArticleText, document: &pmc_oa::Document) -> biomcp_types::UsageError {
+    if query.selected_part().is_some_and(|number| {
+        !document.body.parts.iter().any(|part| part.meta.number == number)
+    }) {
+        biomcp_types::UsageError::ArticlePartRange {
+            input: query.input().clone(),
+            last: document.body.parts.iter().map(|part| part.meta.number).max().unwrap_or(0),
+        }
+    } else {
+        biomcp_types::UsageError::TextPositionError
+    }
 }
 
 fn find(
@@ -365,7 +381,7 @@ fn preprint<'a>(
         out,
         save,
     ) else {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(position_error(query, &document));
         return Ok(());
     };
     out.body = (ArticleTextResult {

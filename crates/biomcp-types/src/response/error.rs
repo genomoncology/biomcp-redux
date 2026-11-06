@@ -358,6 +358,23 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.source = Some(crate::Source::Nci);
             }
             UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
+            UsageError::ArticlePartRange { input, last } => {
+                out.error.option = Some("--part".into());
+                out.error.message = ErrorMessage::ArgumentGuidance;
+                out.error.count = Some(u64::from(last));
+                out.error.valid_values = Some(if last == 0 {
+                    Box::default()
+                } else {
+                    crate::Text::new(&format!("1..{last}"))
+                        .ok()
+                        .into_iter()
+                        .collect()
+                });
+                out.next.push(super::Step {
+                    kind: super::StepKind::Section,
+                    args: vec!["get".into(), "article".into(), input.to_string().into(), "fulltext".into()].into(),
+                });
+            }
             UsageError::UnsupportedTrialFilter { source, option } => {
                 out.error.filter(source, option.as_str())
             }
