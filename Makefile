@@ -626,3 +626,6 @@ article-rights-check:
 
 article-rights-prepare:
 	sh scripts/check_article_rights.sh prepare
+
+article-rights-authors:
+	sh scripts/check_article_rights.sh authors

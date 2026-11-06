@@ -63,6 +63,13 @@ pub(super) fn record(dir: &Path) {
         let _ = biomcp_adapters::pmc_oa::read(&leg, format!("PMC{id}").parse().unwrap(), None);
     }
     record_other_routes(&fetch);
+    let author_query = super::authors::query();
+    let id = "123".parse().unwrap();
+    let leg = fetch.leg(
+        &biomcp_adapters::semantic_scholar::SPEC,
+        fetch.deadline(Duration::from_secs(20)),
+    );
+    biomcp_adapters::semantic_scholar::author::papers(&leg, &id, &author_query).unwrap();
     let _ = biomcp_test_support::evidence::retain(dir).unwrap();
     stub.finish().unwrap();
 }
@@ -152,6 +159,9 @@ fn response(request: &str) -> Result<String, String> {
         }})
         .to_string());
     }
+    if request.contains("/author/123/papers") {
+        return Ok(author_papers());
+    }
     if request.contains("/citations") {
         return Ok(contexts());
     }
@@ -194,4 +204,12 @@ fn contexts() -> String {
         "contexts":{"items":["unknown malformed citation context"]}, "license":"cc_by"
     });
     serde_json::json!({"data":data}).to_string()
+}
+
+fn author_papers() -> String {
+    let data: Vec<_> = [("1001","a"),("1002","b"),("1003","c")].into_iter().map(|(id,key)| serde_json::json!({
+        "paperId":key.repeat(40),"externalIds":{"PubMed":id},"title":format!("Author paper {id}"),
+        "abstract":format!("author abstract {id}")
+    })).collect();
+    serde_json::json!({"offset":0,"total":3,"data":data}).to_string()
 }

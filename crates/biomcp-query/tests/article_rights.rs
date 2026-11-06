@@ -215,3 +215,6 @@ fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() 
 mod contexts;
 #[path = "article_rights/routes.rs"]
 mod routes;
+
+#[path = "article_rights/authors.rs"]
+mod authors;
