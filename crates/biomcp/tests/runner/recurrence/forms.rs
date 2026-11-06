@@ -32,7 +32,6 @@ pub(super) fn check() -> Result<(), String> {
     ] {
         let mut args = super::args();
         args[2] = input.into();
-        args.extend(["--build".into(), "GRCh38".into()]);
         let cli = super::call(&env, &args, 0)?;
         observed(&cli, input)?;
         let single = mcp::call_with_globals(&env, &args, false, &[])?;
@@ -41,7 +40,7 @@ pub(super) fn check() -> Result<(), String> {
             json!(1),
             "tools/call",
             json!({"name":"variant_recurrence","arguments":{
-                "input":input,"build":"GRCh38","source":"cbioportal","gene":"BRAF",
+                "input":input,"source":"cbioportal","gene":"BRAF",
                 "study":"msk_impact_2017","profile":"msk_impact_2017_mutations",
                 "sample_set":"msk_impact_2017_all","limit":3
             }}),
