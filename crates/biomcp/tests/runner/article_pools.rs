@@ -7,9 +7,8 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![super::transcript::trial(
-        "article-search/whole-pool-publication",
-        || {
+    vec![
+        super::transcript::trial("article-search/whole-pool-publication/search", || {
             partial(
                 "article/fold/failed-pubmed",
                 &[
@@ -22,12 +21,21 @@ pub(super) fn trials() -> Vec<Trial> {
                     "pubmed,europepmc",
                 ],
                 "",
-            )?;
-            partial(
-                "article/recommendations/single",
-                &["article", "recommendations", "34096690", "--limit", "5"],
-                "/recommendedPapers/4/paperId",
-            )?;
+            )
+            .map_err(Into::into)
+        }),
+        super::transcript::trial(
+            "article-search/whole-pool-publication/recommendations",
+            || {
+                partial(
+                    "article/recommendations/single",
+                    &["article", "recommendations", "34096690", "--limit", "5"],
+                    "/recommendedPapers/4/paperId",
+                )
+                .map_err(Into::into)
+            },
+        ),
+        super::transcript::trial("article-search/whole-pool-publication/edges", || {
             partial(
                 "article/edges/live",
                 &[
@@ -42,10 +50,13 @@ pub(super) fn trials() -> Vec<Trial> {
                     "1",
                 ],
                 "/data/115/citedPaper/paperId",
-            )?;
+            )
+            .map_err(Into::into)
+        }),
+        super::transcript::trial("article-search/whole-pool-publication/disabled", || {
             disabled().map_err(Into::into)
-        },
-    )]
+        }),
+    ]
 }
 
 fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String> {
