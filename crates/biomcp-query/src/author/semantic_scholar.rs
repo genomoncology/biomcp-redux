@@ -64,8 +64,19 @@ fn execute(
             None,
         )
     };
-    let cached = saved.pages.iter().any(|p| p.offset == q.offset());
-    if !cached {
+    let has_page = saved.pages.iter().any(|p| p.offset == q.offset());
+    let mut filtered = false;
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) && has_page {
+        let body = serde_json::to_vec(&saved).map_err(|_| biomcp_fetch::CacheError::Encoding)?;
+        let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, deadline);
+        let body_filtered = biomcp_adapters::article_rights::snapshot(&leg, &body)
+            .map_err(|_| biomcp_fetch::CacheError::Encoding)?;
+        filtered = body != body_filtered;
+        saved = serde_json::from_slice(&body_filtered)
+            .map_err(|_| biomcp_fetch::CacheError::Encoding)?;
+    }
+    let cached = has_page && !filtered;
+    if !has_page {
         let leg = cx
             .fetch
             .leg(&semantic_scholar::SPEC, deadline)
