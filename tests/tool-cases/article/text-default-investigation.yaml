@@ -1,0 +1,37 @@
+{
+  "feature": "article-get",
+  "live_check": "synthetic recorded article card and local argument validation; no live source calls",
+  "story": "Current typed article reader requires a numeric selector while the default article getter returns the abstract.",
+  "replay": "article/get/synthetic-derived",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {"name": "article_text", "arguments": {"input": "33123537"}},
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--part",
+        "/error/valid_values": ["One-based outline part number. Minimum: 1."]
+      }
+    },
+    {
+      "mcp_call": {"name": "article_text", "arguments": {"input": "33123537", "part": "abstract"}},
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--part",
+        "/error/valid_values": ["One-based outline part number. Minimum: 1."]
+      }
+    },
+    {
+      "mcp_call": {"name": "get_article", "arguments": {"input": ["33123537"]}},
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/answer/card/abstract_parts": {"count": 1}
+      }
+    }
+  ]
+}
