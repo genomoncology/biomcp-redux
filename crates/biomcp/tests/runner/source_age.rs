@@ -1,4 +1,6 @@
 //! Feature source-data-age: retained source dates survive paging and hosted restrictions.
+#[path = "source_age/oncokb.rs"]
+mod oncokb;
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
@@ -10,6 +12,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     vec![
+        crate::runner::transcript::trial("source-data-age/oncokb-release-date", || {
+            oncokb::check().map_err(Into::into)
+        }),
         crate::runner::transcript::trial("source-data-age/restored-age", || {
             restored().map_err(Into::into)
         }),

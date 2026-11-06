@@ -21,7 +21,14 @@ case "${1:-focused}" in
   cases)
     cargo test --locked -p biomcp-fetch calendar_days_preserve_leap_years_and_reject_partial_dates
     cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact
-    sh scripts/check_study_rows.sh focused --case-file source-age/comparison.yaml --case-file source-age/fda-unavailable.yaml --case-file drug/ema.yaml --case-file drug/ema-sync.yaml --case-file source-age/openfda.yaml --case-file source-age/configured.yaml --case-file source-age/ema.yaml --case-file source-age/cellosaurus.yaml --case-file source-age/chembl.yaml --case-file source-age/ctgov.yaml source-data-age/restored-age source-data-age/hosted-stale-ema
+    sh scripts/check_study_rows.sh focused --case-file source-age/comparison.yaml --case-file source-age/fda-unavailable.yaml --case-file drug/ema.yaml --case-file drug/ema-sync.yaml --case-file source-age/openfda.yaml --case-file source-age/configured.yaml --case-file source-age/ema.yaml --case-file source-age/cellosaurus.yaml --case-file source-age/chembl.yaml --case-file source-age/ctgov.yaml source-data-age/restored-age source-data-age/hosted-stale-ema source-data-age/oncokb-release-date
+    ;;
+  review)
+    cargo test --locked -p biomcp-fetch calendar_days_preserve_leap_years_and_reject_partial_dates
+    sh scripts/check_study_rows.sh focused source-data-age/oncokb-release-date variant-oncokb/oncokb-key-policy-wire --case-file source-age/comparison.yaml --case-file source-age/fda-unavailable.yaml --case-file source-age/ema.yaml
+    ;;
+  oncokb)
+    sh scripts/check_study_rows.sh focused source-data-age/oncokb-release-date variant-oncokb/oncokb-key-policy-wire
     ;;
   corrections)
     sh scripts/check_study_rows.sh focused --case-file source-age/fda-unavailable.yaml --case-file source-age/ema.yaml

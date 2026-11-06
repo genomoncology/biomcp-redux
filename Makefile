@@ -630,3 +630,7 @@ source-age-focused:
 .PHONY: source-age-corrections
 source-age-corrections:
 	sh scripts/check_source_age.sh focused corrections
+
+.PHONY: source-age-recheck
+source-age-recheck: check-cheap
+	sh scripts/check_source_age.sh focused review

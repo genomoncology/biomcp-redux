@@ -4,7 +4,7 @@ BioMCP reads the configuration file described in the README. Unknown keys cause 
 
 ## Cache and store folders
 
-Publisher dataset dates are disclosed separately from retrieval and record event dates. `source_data_max_age_days` sets the age after which a supplied dataset date is flagged as old (default 365 days). A missing publisher date stays unknown; a recent retrieval never establishes a recent dataset release. The flag describes age and does not change the publisher's values or imply that a historical event is wrong. Stored continuations retain the publisher date and reassess its age using the current setting.
+Publisher dataset dates are disclosed separately from retrieval and record event dates. `source_data_max_age_days` sets the age after which a supplied dataset date is flagged as old (default 365 days). A missing publisher date stays unknown; a recent retrieval never establishes a recent dataset release. The flag describes age and does not change the publisher's values or imply that a historical event is wrong. Stored continuations retain the publisher date and reassess its age using the current setting. OncoKB's release date is assessed as `YYYY-MM-DD`; its annotation keeps the original `MM/DD/YYYY` text.
 
 Open Targets indication replies also show bounded FDA application events found by the source's drug-name lookup. Their indications are not linked. Native dates and identifiers stay with each fact, missing dates remain unknown, and neither source is labeled as superseding the other. FDA unavailability leaves the phase facts readable and discloses the additional source outcome.
 
