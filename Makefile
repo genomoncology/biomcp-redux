@@ -15,6 +15,36 @@ markdown-help-check: markdown-help-installed-check
 markdown-help-gate: markdown-help-installed-check
 	+$(MAKE) landing-gate
 
+.PHONY: article-default-prepare article-default-focused article-default-lint
+article-default-prepare:
+	cargo fmt --all
+	+$(MAKE) schema-generate docs-generate
+	mkdir -p target/article-default-generated
+	tar -czf target/article-default-generated/source.tar.gz crates/biomcp-types/schemas docs/reference/commands.md
+
+article-default-focused:
+	rm -rf target/article-default-proof
+	mkdir -p target/article-default-proof
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/article-default-proof" cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" article/
+	cargo test --locked -p biomcp --test cases grammar/argument-description-guidance
+	cargo test --locked -p biomcp --test cases grammar/numeric-description-guidance
+	cargo test --locked -p biomcp --test cases trial/input-boundaries
+	cargo test --locked -p biomcp --test cases variant/identity
+	cargo test --locked -p biomcp --test cases article/fulltext/
+	cargo test --locked -p biomcp --test cases article/preprint/
+
+article-default-lint: fmt
+	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	+$(MAKE) current-schema-check
+	cargo test --locked -p biomcp --test cases article/help
+	cargo test --locked -p biomcp --test cases article/get/
+
+.PHONY: article-default-corrected-check
+article-default-corrected-check: article-default-lint
+	cargo test --locked -p biomcp --test ratchets repository_obeys_structural_contract -- --exact
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery -- --exact
+	+$(MAKE) article-default-focused
+
 .PHONY: drug-alias-review-regressions drug-alias-review-tools
 drug-alias-review-regressions:
 	cargo test --locked -p biomcp --test cases drug/source-aliases-review
