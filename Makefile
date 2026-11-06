@@ -634,3 +634,11 @@ article-pools-mechanical-check: fmt lint-workspace lint-tools
 .PHONY: article-pools-mapping-check
 article-pools-mapping-check:
 	python3 scripts/check_article_pool_mapping.py
+
+.PHONY: article-pools-library-check article-pools-repair-check
+article-pools-library-check:
+	cargo test --locked -p biomcp-query --test article_search
+
+ARTICLE_POOL_DEBUG_BINARY = $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp
+article-pools-repair-check: article-pools-library-check article-pools-mechanical-check plain-cli-build
+	ARTICLE_POOL_REVIEW_HOST= python3 scripts/check_article_pool_mapping.py "$(ARTICLE_POOL_DEBUG_BINARY)" "$$(git rev-parse HEAD)" "$(CURDIR)" "$$(python3 -c 'import hashlib,pathlib,sys; print(hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest())' "$(ARTICLE_POOL_DEBUG_BINARY)")"

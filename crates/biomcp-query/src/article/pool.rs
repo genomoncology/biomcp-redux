@@ -37,12 +37,13 @@ pub(super) fn read<'a>(
     current: Option<&[u8]>,
 ) -> Result<(), RequestError> {
     let result = page::read(cx, cursor, store, pool, out);
-    let update = if result.is_err() || out.status() != Status::Complete {
-        store.unpublish_current(pool)
-    } else if let Some(key) = current {
-        store.publish_current(pool, key)
-    } else {
-        return result;
+    let complete = result.is_ok() && out.status() == Status::Complete;
+    let update = match (complete, current) {
+        // A new pool is unpublished, so a partial page has no mapping to remove.
+        (false, Some(_)) => return result,
+        (false, None) => store.unpublish_current(pool),
+        (true, Some(key)) => store.publish_current(pool, key),
+        (true, None) => return result,
     };
     crate::publish::keep(update.map_err(Into::into), out)?;
     result
