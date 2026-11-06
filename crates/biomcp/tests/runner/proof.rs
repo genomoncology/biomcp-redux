@@ -252,6 +252,30 @@ fn selection() -> Check {
 
 tool_only! {
 fn empty_selection() -> Check {
+    let executable = env::current_exe().map_err(|error| error.to_string())?;
+    for options in [
+        vec!["--proofs", "no-such-runner-selection-7e41", "--exact"],
+        vec!["--proofs", "schema-discovery/selected.yaml", "--exact"],
+    ] {
+        let output = Environment::new()
+            .map_err(|error| error.to_string())?
+            .command(&executable, &options.iter().map(|value| (*value).to_owned()).collect::<Vec<_>>())
+            .output()
+            .map_err(|error| error.to_string())?;
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        if output.status.success() || !stderr.contains("--cases") {
+            return Err(format!("empty proof selection must fail and suggest --cases: {stderr}; {}",
+                String::from_utf8_lossy(&output.stdout)));
+        }
+    }
+    let output = Environment::new()
+        .map_err(|error| error.to_string())?
+        .command(&executable, &["--proofs".into(), "no-such-runner-selection-7e41".into(), "--list".into()])
+        .output()
+        .map_err(|error| error.to_string())?;
+    if !output.status.success() {
+        return Err("empty filtered proof listing must remain successful".into());
+    }
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     // Discovery rejects empty directories before applying any name filter.
     if invoke(directory.path(), &[])?.status.success() {
