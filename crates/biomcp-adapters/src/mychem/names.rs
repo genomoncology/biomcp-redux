@@ -81,7 +81,7 @@ pub(super) fn structure(id: &str, rows: &[(&str, Component)]) -> Option<String> 
         && (skeleton.len(), stereo.len(), charge.len()) == (14, 10, 1)
         && id.chars().all(|c| c == '-' || c.is_ascii_uppercase())
     {
-        return Some(skeleton.to_owned());
+        return Some((*skeleton).to_owned());
     }
     rows.iter()
         .any(|(component, _)| !matches!(*component, "ndc" | "openfda"))
