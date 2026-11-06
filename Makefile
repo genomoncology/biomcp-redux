@@ -1,10 +1,5 @@
 .DEFAULT_GOAL := landing-gate
 
-.PHONY: article-default-investigation
-article-default-investigation:
-	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/article-default-investigation"
-	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/article-default-investigation" cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/tool-cases" article/text-default-investigation
-
 .PHONY: article-default-prepare article-default-focused article-default-lint
 article-default-prepare:
 	cargo fmt --all
