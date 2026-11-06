@@ -76,7 +76,10 @@ fn notes() -> Result<(), String> {
         (None, "JSON reply follows."),
         (Some("both"), "JSON reply follows."),
         (Some("text-only"), "JSON reply follows."),
-        (Some("structured-only"), "JSON reply is in structuredContent."),
+        (
+            Some("structured-only"),
+            "JSON reply is in structuredContent.",
+        ),
     ] {
         let env = Environment::new().map_err(|e| e.to_string())?;
         let mut config = json!({"mcp_tool_mode":"typed"});
