@@ -4,7 +4,6 @@ use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{ArticleEdges, ArticleItem, ArticleKey, ReplyData, Request, StepKind};
-use sha2::{Digest, Sha256};
 pub(super) fn run(cx: &Ctx<'_>, query: &ArticleEdges, references: bool) -> Outcome {
     let mut out = empty(
         (biomcp_types::ArticleEdgePage {
@@ -50,7 +49,7 @@ fn execute<'a>(
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let identity = serde_json::to_vec(&request(query.identity(), references))
         .map_err(|_| CacheError::Encoding)?;
-    let key = Sha256::digest([b"biomcp.article_edges/2\0".as_slice(), &identity].concat());
+    let key = super::pool::key(cx, b"biomcp.article_edges/2\0", &identity)?;
     let explicit = query.pool().map(Text::as_str);
     let pool = if cx.fresh && explicit.is_none() {
         None
@@ -89,12 +88,13 @@ fn execute<'a>(
         }
     };
     out.sources = pool.sources.clone();
-    let result = page::read(
+    let result = super::pool::read(
         cx,
         page::Cursor::Edges(query, references),
         &mut store,
         &pool,
         out,
+        explicit.is_none(),
     );
     *deadline = store.deadline();
     result

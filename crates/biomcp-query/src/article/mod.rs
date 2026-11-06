@@ -10,6 +10,7 @@ pub(crate) mod next;
 mod order;
 mod page;
 pub mod pdf;
+mod pool;
 mod preprint;
 mod protein_change;
 pub(crate) mod recommend;
@@ -25,7 +26,6 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, StepKind};
-use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty(
@@ -70,7 +70,7 @@ fn execute<'a>(
 ) -> Result<(), RequestError> {
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let bytes = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Encoding)?;
-    let key = Sha256::digest([b"biomcp.article_page/1\0".as_slice(), &bytes].concat());
+    let key = pool::key(cx, b"biomcp.article_page/1\0", &bytes)?;
     let explicit = query.pool().map(Text::as_str);
     let stored = if cx.fresh && explicit.is_none() {
         None
@@ -140,7 +140,14 @@ fn execute<'a>(
         }
     };
     out.sources = pool.sources.clone();
-    let result = page::read(cx, page::Cursor::Search(query), &mut store, &pool, out);
+    let result = self::pool::read(
+        cx,
+        page::Cursor::Search(query),
+        &mut store,
+        &pool,
+        out,
+        explicit.is_none(),
+    );
     *deadline = store.deadline();
     result
 }
