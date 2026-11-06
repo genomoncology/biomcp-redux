@@ -59,7 +59,7 @@ pub(super) fn check() -> Result<(), String> {
     fs::remove_file(replay.join("cbioportal").join(catalog_key())).map_err(|e| e.to_string())?;
     let first = data(call(
         &server,
-        &["search", "study", "--limit", "1"],
+        &["search", "study", "atlas", "--limit", "1"],
         ACADEMIC,
         false,
     )?)?;
@@ -72,7 +72,7 @@ pub(super) fn check() -> Result<(), String> {
         .pointer("/page/pool/id")
         .and_then(Value::as_str)
         .ok_or("pool")?;
-    let args = ["search", "study", "--limit", "1", "--pool", pool];
+    let args = ["search", "study", "atlas", "--limit", "1", "--pool", pool];
     let restricted = data(call(&server, &args, RESTRICTED, false)?)?;
     if restricted.pointer("/page/total") != Some(&json!(2))
         || restricted.pointer("/page/pool/size") != Some(&json!(2))
