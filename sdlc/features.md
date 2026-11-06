@@ -52,12 +52,12 @@ variant-civic: Preserve CIViC exact profile membership and separate native claim
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join.
 variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups.
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation.
-drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization.
+drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications, retry empty name lookups using uniquely source-stated aliases and disclose other sources with matches, without inferring authorization.
 drug-ema: Explicitly synchronize EMA medicines and read separate native candidates, exact identity cards and source-scoped regulatory dates without implicit synchronization.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context and shared native evidence level and status selectors.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.
 drug-label: Search literal label indication phrases or source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
-drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection and configurable submission pages.
+drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts.
