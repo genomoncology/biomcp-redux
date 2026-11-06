@@ -638,5 +638,5 @@ seer-focused:
 	cargo test --locked -p biomcp --test cases disease/
 	cargo test --locked -p biomcp --test cases cache-admission/seer-statistics
 	cargo test --locked -p biomcp-types --test disease_contracts
-	cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets -- -D warnings
+	cargo clippy --locked -p biomcp-adapters -p biomcp-query -p biomcp-types --all-targets --features biomcp-types/schema -- -D warnings
 	$(MAKE) fmt
