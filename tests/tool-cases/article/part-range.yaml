@@ -1,7 +1,7 @@
 {
   "feature": "article-fulltext",
   "live_check": "synthetic three-part PMC outline; no live source requests or clinical-positive claim",
-  "story": "Explicit body parts retain one-based selection and a bad part names the actual outline range.",
+  "story": "Explicit body parts retain one-based selection; range errors offer an exact typed call that retrieves the outline.",
   "replay": "article/fulltext/part-range",
   "config": {
     "mcp_tool_mode": "typed",
@@ -66,12 +66,41 @@
         "/error/valid_values": [
           "1..3"
         ],
-        "/next/0/args": [
-          "get",
-          "article",
-          "PMC5606870",
+        "/next": {
+          "count": 1
+        },
+        "/next/0": {
+          "equals": {
+            "kind": "section",
+            "name": "get_article",
+            "arguments": {
+              "input": [
+                "PMC5606870"
+              ],
+              "section": [
+                "fulltext"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "follow": "section",
+      "expect": {
+        "/status": "complete",
+        "/query/input": [
+          "PMC5606870"
+        ],
+        "/query/section": [
           "fulltext"
-        ]
+        ],
+        "/result/items/0/sections/fulltext/state": "data",
+        "/result/items/0/sections/fulltext/data/parts": {
+          "count": 3
+        },
+        "/result/items/0/sections/fulltext/data/parts/0/number": 1,
+        "/result/items/0/sections/fulltext/data/parts/2/number": 3
       }
     }
   ]
