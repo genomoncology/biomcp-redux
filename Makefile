@@ -525,3 +525,10 @@ help-recovery-check:
 	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: typed-followups-check typed-followups-affected
+typed-followups-check:
+	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-followups $(TEST_THREADS)
+typed-followups-affected:
+	+$(MAKE) --keep-going check-cheap
+	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
