@@ -26,7 +26,7 @@ pub(super) fn trials() -> Vec<Trial> {
             partial(
                 "article/recommendations/single",
                 &["article", "recommendations", "34096690", "--limit", "5"],
-                "/recommendedPapers/0/paperId",
+                "/recommendedPapers/4/paperId",
             )?;
             partial(
                 "article/edges/live",
@@ -41,7 +41,7 @@ pub(super) fn trials() -> Vec<Trial> {
                     "--limit",
                     "1",
                 ],
-                "/data/0/citedPaper/paperId",
+                "/data/115/citedPaper/paperId",
             )?;
             disabled().map_err(Into::into)
         },
@@ -76,7 +76,21 @@ fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String
     if page.pointer("/page/pool/id") != Some(&json!(id)) || page["result"] != first["result"] {
         return Err("explicit partial pool lost stable rows".into());
     }
+    // Recovery must be observed by a new search, while the explicit partial pool stays fixed.
+    super::response_cases::copy_capture(recording, &replay, |_, record| {
+        if damage.is_empty() {
+            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
+                exchange["status"] = json!(200);
+            }
+        }
+    })
+    .map_err(|e| e.to_string())?;
     let second = invoke(&env, cached(command, &cache, Some(&replay)), 0)?;
+    if second["status"] != "complete" {
+        return Err(format!(
+            "new query did not observe source recovery: {second}"
+        ));
+    }
     if second.pointer("/page/pool/id") == Some(&json!(id)) {
         return Err(format!("new query reused partial pool for {recording}"));
     }
@@ -86,7 +100,13 @@ fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String
 fn disabled() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cache = env.root().join("cache");
-    let replay = super::launch::fixtures().join("replies/article/fold/failed-pubmed");
+    let replay = env.root().join("replay");
+    super::response_cases::copy_capture("article/fold/failed-pubmed", &replay, |_, record| {
+        for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
+            exchange["status"] = json!(200);
+        }
+    })
+    .map_err(|e| e.to_string())?;
     let command = [
         "search",
         "article",
@@ -105,9 +125,11 @@ fn disabled() -> Result<(), String> {
         .ok_or("complete pool absent")?;
     let mut changed = cached(&command, &cache, Some(&replay));
     changed.extend(["--disable-sources".into(), "europepmc".into()]);
-    // The newly enabled PubMed leg fails, but must be reached instead of rejecting an old pool.
-    let second = invoke(&env, changed.clone(), 2)?;
-    if second["sources"][0]["source"] != "pubmed" || second["sources"][0]["state"] != "failed" {
+    let second = invoke(&env, changed.clone(), 0)?;
+    if second["status"] != "complete"
+        || second["sources"][0]["source"] != "pubmed"
+        || second["sources"][0]["state"] != "ok"
+    {
         return Err(format!(
             "new source policy did not reach enabled source: {second}"
         ));
