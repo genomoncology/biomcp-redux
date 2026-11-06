@@ -110,7 +110,9 @@ fn intervention_notices(
     for row in rows {
         let omitted = row.interventions.total - row.interventions.items.len() as u64;
         if omitted > 0 {
-            source.notices.push(biomcp_types::SourceNotice::RequestGuidance {
+            source
+                .notices
+                .push(biomcp_types::SourceNotice::RequestGuidance {
                 message: format!(
                     "Trial {}: interventions omitted: {omitted}; read all registered interventions \
                      with biomcp get trial {} arms.",
