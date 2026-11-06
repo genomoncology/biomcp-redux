@@ -525,3 +525,7 @@ help-recovery-check:
 	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: enum-case-check
+enum-case-check:
+	cargo test --locked -p biomcp --test cases grammar/enum-case.yaml $(TEST_THREADS)

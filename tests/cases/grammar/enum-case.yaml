@@ -1,0 +1,33 @@
+{
+  "feature": "query-validation",
+  "live_check": "offline parser-only; no source requests",
+  "story": "Enumerated values accept any letter case and echo canonical values while unknown choices keep the valid list.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--status",
+        "recruiting"
+      ],
+      "offline": true,
+      "expect": {
+        "/query/status": [
+          "RECRUITING"
+        ]
+      },
+      "mcp_call": {
+        "name": "search_trial",
+        "arguments": {
+          "status": [
+            "recruiting"
+          ]
+        }
+      }
+    }
+  ]
+}
