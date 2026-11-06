@@ -2,6 +2,7 @@ mod argument_recovery;
 mod corporate;
 mod credential_containment;
 mod drug_identity;
+mod enum_case;
 mod key_reload;
 mod local_files;
 tool_only! { mod protein_commands; }
@@ -258,6 +259,7 @@ fn run_case_owned(
 pub(super) fn protocol_trials() -> Vec<Trial> {
     let mut trials = Vec::new();
     trials.extend(argument_recovery::trials());
+    trials.extend(enum_case::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
     trials.extend(configuration::trials());
