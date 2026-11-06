@@ -15,7 +15,7 @@
           "total": 2,
           "hits": [
             {
-              "_id": "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+              "_id": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
               "chembl": {
                 "molecule_chembl_id": "CHEMBL941",
                 "pref_name": "Ambiguous medicine",
@@ -23,7 +23,7 @@
               }
             },
             {
-              "_id": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
+              "_id": "RZVAJINKPMORJF-UHFFFAOYSA-N",
               "chembl": {
                 "molecule_chembl_id": "CHEMBL25",
                 "pref_name": "Ambiguous medicine",

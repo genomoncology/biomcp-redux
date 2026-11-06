@@ -16,7 +16,9 @@
             "count": "1",
             "retmax": "9999",
             "retstart": "0",
-            "idlist": []
+            "idlist": [
+              "99000001"
+            ]
           }
         }
       }

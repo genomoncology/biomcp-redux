@@ -13,7 +13,12 @@ pub(super) fn expand(cx: &Ctx<'_>, query: &TrialSearch, out: &mut Outcome) -> Tr
         .iter()
         .map(|input| expand_term(cx, input, out))
         .collect();
-    query.with_drug_terms(text, interventions)
+    let keywords = query
+        .keyword()
+        .iter()
+        .map(|input| expand_term(cx, input, out))
+        .collect();
+    query.with_drug_terms(text, interventions, keywords)
 }
 fn expand_term(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Text {
     let names = search_names::resolve(cx, input, out);

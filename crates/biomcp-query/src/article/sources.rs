@@ -77,11 +77,17 @@ pub(super) fn search<'a>(
         .filter_map(|r| r.error)
         .find(|e| status::local(*e).is_some());
     for result in &results {
+        let repeated = results
+            .iter()
+            .filter(|other| other.source == result.source)
+            .count()
+            > 1;
         out.dropped |= result.dropped;
-        if let Some(existing) = out
-            .sources
-            .iter_mut()
-            .find(|s| s.source == result.outcome.source)
+        if repeated
+            && let Some(existing) = out
+                .sources
+                .iter_mut()
+                .find(|s| s.source == result.outcome.source)
         {
             status::retain_source_state(existing, &result.outcome);
             existing.count = None;

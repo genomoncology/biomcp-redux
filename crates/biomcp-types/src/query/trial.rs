@@ -298,10 +298,16 @@ impl TrialSearch {
         self.0.exact_term
     }
     /// Substitute only registry discovery text and intervention alternatives.
-    pub fn with_drug_terms(&self, text: Option<Text>, interventions: Box<[Text]>) -> Self {
+    pub fn with_drug_terms(
+        &self,
+        text: Option<Text>,
+        interventions: Box<[Text]>,
+        keywords: Box<[Text]>,
+    ) -> Self {
         let mut next = self.clone();
         next.0.query = text;
         next.0.intervention = interventions;
+        next.0.keyword = keywords;
         next
     }
     /// General registry discovery text.
