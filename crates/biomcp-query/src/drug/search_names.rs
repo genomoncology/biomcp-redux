@@ -72,6 +72,24 @@ pub(crate) fn resolve(cx: &Ctx<'_>, input: &Text, out: &mut Outcome) -> Vec<Text
     Vec::new()
 }
 
+/// Keep disabled article providers and exact terms outside drug-name resolution.
+pub(crate) fn article(
+    cx: &Ctx<'_>,
+    query: &biomcp_types::ArticleSearch,
+    out: &mut Outcome,
+) -> Vec<Text> {
+    if query.exact_term()
+        || crate::article::next::search_sources(query)
+            .iter()
+            .all(|source| cx.fetch.disabled(*source))
+    {
+        return Vec::new();
+    }
+    query
+        .drug_name_input()
+        .map_or_else(Vec::new, |input| resolve(cx, input, out))
+}
+
 /// Source names are literal terms inside a native Boolean group.
 pub(crate) fn alternatives(names: &[Text]) -> Option<Text> {
     Text::new(&format!(

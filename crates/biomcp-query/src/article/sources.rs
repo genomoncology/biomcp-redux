@@ -39,35 +39,44 @@ pub(super) fn search<'a>(
         Preparation::Answer => return Ok(SearchResult::Answer),
     };
     let queries = drug_queries(query, drug_names);
-    let start = *deadline;
-    let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = queries
-        .iter()
-        .filter_map(|(selector, query)| {
-            let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
-                ArticleSource::Pubmed => {
-                    Box::new(move || pubmed_search(cx, query, &resolved.names, start))
-                }
-                ArticleSource::Europepmc => Box::new(move || europe_search(cx, query, start)),
-                ArticleSource::Litsense => {
-                    Box::new(move || super::named::litsense(cx, query, start))
-                }
-                ArticleSource::Pubtator => {
-                    Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start))
-                }
-                ArticleSource::SemanticScholar => {
-                    Box::new(move || super::semantic_scholar::search(cx, query, start))
-                }
-                ArticleSource::Litvar => {
-                    let prepared = prepared.take()?;
-                    Box::new(move || litvar_search(prepared))
-                }
-            };
-            Some(job)
-        })
-        .collect();
-    let mut results = fan_out::run(jobs);
-    let elapsed = results.iter().map(|r| r.elapsed).max().unwrap_or_default();
-    *deadline = deadline.after_stage(elapsed);
+    let mut results = Vec::new();
+    // Keep the worker count bounded by the existing source list, even for many aliases.
+    for batch in queries.chunks(query.sources().len()) {
+        let start = *deadline;
+        let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = batch
+            .iter()
+            .filter_map(|(selector, query)| {
+                let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
+                    ArticleSource::Pubmed => {
+                        Box::new(move || pubmed_search(cx, query, &resolved.names, start))
+                    }
+                    ArticleSource::Europepmc => Box::new(move || europe_search(cx, query, start)),
+                    ArticleSource::Litsense => {
+                        Box::new(move || super::named::litsense(cx, query, start))
+                    }
+                    ArticleSource::Pubtator => {
+                        Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start))
+                    }
+                    ArticleSource::SemanticScholar => {
+                        Box::new(move || super::semantic_scholar::search(cx, query, start))
+                    }
+                    ArticleSource::Litvar => {
+                        let prepared = prepared.take()?;
+                        Box::new(move || litvar_search(prepared))
+                    }
+                };
+                Some(job)
+            })
+            .collect();
+        let mut batch_results = fan_out::run(jobs);
+        let elapsed = batch_results
+            .iter()
+            .map(|r| r.elapsed)
+            .max()
+            .unwrap_or_default();
+        *deadline = deadline.after_stage(elapsed);
+        results.append(&mut batch_results);
+    }
     resolve_rows(cx, query, &mut results, deadline, out)?;
     let answered = results
         .iter()
@@ -76,7 +85,21 @@ pub(super) fn search<'a>(
         .iter()
         .filter_map(|r| r.error)
         .find(|e| status::local(*e).is_some());
-    for result in &results {
+    append_results(out, &results);
+    if let Some(error) = error {
+        return Err(error);
+    }
+    if !answered {
+        crate::status::item(out, false, true, false);
+        return Ok(SearchResult::Unavailable);
+    }
+    Ok(SearchResult::Items(super::fold::fold(
+        results.into_iter().map(|r| (r.source, r.items)).collect(),
+        query.sources().len() > 1,
+    )))
+}
+fn append_results(out: &mut Outcome, results: &[ResultLeg]) {
+    for result in results {
         let repeated = results
             .iter()
             .filter(|other| other.source == result.source)
@@ -99,17 +122,6 @@ pub(super) fn search<'a>(
         }
         status::append(&mut out.problems, result.problems.clone());
     }
-    if let Some(error) = error {
-        return Err(error);
-    }
-    if !answered {
-        crate::status::item(out, false, true, false);
-        return Ok(SearchResult::Unavailable);
-    }
-    Ok(SearchResult::Items(super::fold::fold(
-        results.into_iter().map(|r| (r.source, r.items)).collect(),
-        query.sources().len() > 1,
-    )))
 }
 // Boolean providers receive one literal OR group. Sentence/ranked providers run each
 // source-stated name separately, then the existing pool fold removes duplicate identities.

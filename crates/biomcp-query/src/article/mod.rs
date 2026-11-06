@@ -110,17 +110,7 @@ fn execute<'a>(
                     entrez: None,
                 }
             };
-            let drug_names = if query.exact_term()
-                || next::search_sources(query)
-                    .iter()
-                    .all(|source| cx.fetch.disabled(*source))
-            {
-                Vec::new()
-            } else if let Some(input) = query.drug_name_input() {
-                crate::drug::search_names::resolve(cx, input, out)
-            } else {
-                Vec::new()
-            };
+            let drug_names = crate::drug::search_names::article(cx, query, out);
             let mut items = match sources::search(cx, query, &resolved, &drug_names, deadline, out)?
             {
                 sources::SearchResult::Items(items) => items,
