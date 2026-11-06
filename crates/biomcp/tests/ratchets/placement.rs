@@ -4,6 +4,10 @@ use std::{fs, path::Path};
 // One authoritative list; architecture 10.4 must reproduce each path and reason.
 const ALLOWED: &[(&str, &str)] = &[
     (
+        "crates/biomcp-fetch/tests/record/data_age.rs",
+        "Check Gregorian calendar arithmetic, including leap years and invalid dates, without adding a public clock control.",
+    ),
+    (
         "crates/biomcp/tests/ratchets/source_declaration_proof.rs",
         "Plant source declaration omissions, identity mismatches, unnamed provider facts and transport source literals at the structural boundary.",
     ),

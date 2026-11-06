@@ -201,7 +201,7 @@ impl Leg<'_> {
             waiting = true;
             snapshot = cache.stored_bundle(bundle.name, find, self.budget())?;
         }
-        let (meta, rows, sample) =
+        let store::StoredBundle { meta, rows, sample } =
             snapshot.ok_or_else(|| self.failure(biomcp_types::Reason::Syncing, None))?;
         let rows = decode(rows)?;
         if meta.fresh_until <= crate::cache::now() {

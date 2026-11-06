@@ -6,7 +6,11 @@ use biomcp_types::{
     DrugApprovals, DrugGet, DrugRecords, DrugRegulatoryContext, ReplyData, Section, Source,
     SourceNotice,
 };
-const NOTICE: &str = "FDA application events are matched by drug name only. Indications are not linked to the Open Targets phase facts. Neither source is labeled as superseding the other; unknown source dates remain unknown.";
+const NOTICE: &str = concat!(
+    "FDA application events are matched by drug name only. ",
+    "Indications are not linked to the Open Targets phase facts. ",
+    "Neither source is labeled as superseding the other; unknown source dates remain unknown."
+);
 
 pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out: &mut Outcome) {
     let Some(name) = (match &out.body {
@@ -29,24 +33,27 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
         message: NOTICE.into(),
         retry_after_seconds: None,
     });
-    if let Ok(page) = reply {
-        source.count = Some(page.total);
-        source.retrieved_count = Some(page.records.len() as u32);
-        out.problems.extend(page.problems.iter().cloned());
-        out.include_refusals(page.refusals);
-        match context(page, &name, limit) {
-            Ok(context) => {
-                if let ReplyData::DrugIndications {
-                    body: Some(body), ..
-                } = &mut out.body
-                {
-                    body.regulatory_context = Some(context);
+    match reply {
+        Ok(page) => {
+            source.count = Some(page.total);
+            source.retrieved_count = Some(page.records.len() as u32);
+            out.problems.extend(page.problems.iter().cloned());
+            out.include_refusals(page.refusals);
+            match context(page, &name, limit) {
+                Ok(context) => {
+                    if let ReplyData::DrugIndications {
+                        body: Some(body), ..
+                    } = &mut out.body
+                    {
+                        body.regulatory_context = Some(context);
+                    }
+                }
+                Err(error) => {
+                    out.local = status::local(error);
                 }
             }
-            Err(error) => {
-                out.local = status::local(error);
-            }
         }
+        Err(error) => out.local = out.local.or_else(|| status::local(error)),
     }
     out.sources.push(source);
     status::item(out, true, false, false);

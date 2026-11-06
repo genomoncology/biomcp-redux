@@ -20,6 +20,12 @@ pub(super) struct Meta {
     pub content_revision: Option<String>,
     pub retrieved_at: Option<i64>,
 }
+/// One atomic bundle read, including metadata for an empty selection.
+pub(super) struct StoredBundle {
+    pub meta: Meta,
+    pub rows: Vec<String>,
+    pub sample: Option<String>,
+}
 #[derive(Debug)]
 pub(super) struct Part {
     pub path: String,
@@ -155,7 +161,7 @@ impl Cache {
         name: &str,
         find: Find<'_>,
         d: Deadline<'_>,
-    ) -> Result<Option<(Meta, Vec<String>, Option<String>)>, CacheError> {
+    ) -> Result<Option<StoredBundle>, CacheError> {
         self.sql(d, |c| {
             let tx = c.unchecked_transaction().map_err(|error| db_error(error))?;
             let meta = tx
@@ -169,7 +175,7 @@ impl Cache {
                         Some(row) => Some(row.clone()),
                         None => first_row(&tx, name)?,
                     };
-                    Ok::<_, CacheError>((meta, rows, sample))
+                    Ok::<_, CacheError>(StoredBundle { meta, rows, sample })
                 })
                 .transpose()?;
             tx.commit().map_err(|error| db_error(error))?;
