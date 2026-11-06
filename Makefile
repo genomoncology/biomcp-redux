@@ -544,3 +544,7 @@ typed-description-check:
 
 typed-description-contract-check:
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+
+.PHONY: typed-description-lint-check
+typed-description-lint-check:
+	+$(MAKE) --keep-going fmt lint-workspace lint-tools typed-description-contract-check

@@ -238,8 +238,15 @@ fn catalog(env: &Environment, hosted: bool) -> Result<Vec<Value>, String> {
     if hosted {
         globals.push("--hosted".into());
     }
-    let replies =
-        exchange_with_globals(env, &[request(json!(1), "tools/list", json!({}))], &globals)?;
+    let replies = exchange_with_globals(
+        env,
+        &[request(
+            json!(if hosted { 2 } else { 1 }),
+            "tools/list",
+            json!({}),
+        )],
+        &globals,
+    )?;
     replies
         .first()
         .and_then(|reply| reply.pointer("/result/tools"))
