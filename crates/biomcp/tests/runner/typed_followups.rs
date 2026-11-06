@@ -8,6 +8,8 @@ use super::super::{
 use serde_json::{Value, json};
 #[path = "typed_owned_followups.rs"]
 mod owned;
+#[path = "../../src/mcp/typed/step_paths.rs"]
+mod step_paths;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     let mut trials = vec![crate::runner::transcript::trial(
@@ -131,66 +133,46 @@ pub(in crate::runner) fn check_next(
     tools: &[Value],
     sections: &mut usize,
 ) -> Result<(), String> {
-    match value {
-        Value::Object(fields) => {
-            if let Some(next) = fields.get("next").and_then(Value::as_array) {
-                for call in next {
-                    if call.get("args").is_some() {
-                        return Err(format!("CLI follow-up survived: {call}"));
-                    }
-                    let tool = tools
-                        .iter()
-                        .find(|tool| tool.get("name") == call.get("name"))
-                        .ok_or_else(|| format!("unadvertised follow-up: {call}"))?;
-                    jsonschema::validator_for(&tool["inputSchema"])
-                        .map_err(|e| e.to_string())?
-                        .validate(&call["arguments"])
-                        .map_err(|e| format!("{call}: {e}"))?;
-                    if call.get("kind") == Some(&json!("section")) {
-                        if call.pointer("/arguments/section").is_none() {
-                            return Err(format!("section stayed in input: {call}"));
-                        }
-                        *sections += 1;
-                    }
-                }
-            }
-            for (key, node) in fields {
-                if matches!(key.as_str(), "error" | "problems") {
-                    check_next(node, tools, sections)?;
-                }
-            }
+    let Some(schema) = response_schema(value) else {
+        return Ok(());
+    };
+    for path in step_paths::paths(&schema, value) {
+        let call = value.pointer(&path).ok_or("owned follow-up")?;
+        if call.get("args").is_some() {
+            return Err(format!("CLI follow-up survived at {path}: {call}"));
         }
-        Value::Array(nodes) => {
-            for node in nodes {
-                check_next(node, tools, sections)?;
+        let tool = tools
+            .iter()
+            .find(|tool| tool.get("name") == call.get("name"))
+            .ok_or_else(|| format!("unadvertised follow-up: {call}"))?;
+        jsonschema::validator_for(&tool["inputSchema"])
+            .map_err(|e| e.to_string())?
+            .validate(&call["arguments"])
+            .map_err(|e| format!("{call}: {e}"))?;
+        if call.get("kind") == Some(&json!("section")) {
+            if call.pointer("/arguments/section").is_none() {
+                return Err(format!("section stayed in input: {call}"));
             }
+            *sections += 1;
         }
-        _ => {}
     }
     Ok(())
+}
+fn response_schema(value: &Value) -> Option<Value> {
+    let id = value.get("schema")?.as_str()?;
+    let (_, text) = crate::runner::schema::ARTIFACTS
+        .iter()
+        .find(|(name, _)| *name == id)?;
+    serde_json::from_str(text).ok()
 }
 
 // Other typed parity tests compare shared data while this test owns the next-call contract.
 pub(in crate::runner) fn data(value: &Value) -> Value {
     let mut value = value.clone();
-    strip_next(&mut value);
-    value
-}
-fn strip_next(value: &mut Value) {
-    match value {
-        Value::Object(fields) => {
-            fields.remove("next");
-            for (key, node) in fields {
-                if matches!(key.as_str(), "error" | "problems") {
-                    strip_next(node);
-                }
-            }
+    if let Some(schema) = response_schema(&value) {
+        for path in step_paths::paths(&schema, &value).into_iter().rev() {
+            step_paths::remove(&mut value, &path);
         }
-        Value::Array(nodes) => {
-            for node in nodes {
-                strip_next(node);
-            }
-        }
-        _ => {}
     }
+    value
 }

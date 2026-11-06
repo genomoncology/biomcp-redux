@@ -6,13 +6,23 @@ pub(super) fn render(
     value: &Value,
     args: &[std::ffi::OsString],
     tools: &[Value],
+    projected: &[Value],
 ) -> String {
     let status = value
         .get("status")
         .and_then(Value::as_str)
         .unwrap_or("complete");
     let mut calls = Vec::new();
-    collect(value, &mut calls);
+    for call in projected {
+        let mut call = call.clone();
+        if let Some(fields) = call.as_object_mut() {
+            fields.remove("kind");
+        }
+        let text = call.to_string();
+        if !calls.contains(&text) {
+            calls.push(text);
+        }
+    }
     if calls.is_empty()
         && status == "usage"
         && let Some(call) = correction(root, value, args, tools)
@@ -52,34 +62,6 @@ fn correction(
         })
         .collect::<Vec<_>>();
     translate(root, &values, tools)
-}
-fn collect(value: &Value, calls: &mut Vec<String>) {
-    if value.get("name").is_some() && value.get("arguments").is_some() {
-        let mut call = value.clone();
-        if let Some(fields) = call.as_object_mut() {
-            fields.remove("kind");
-        }
-        let text = call.to_string();
-        if !calls.contains(&text) && calls.len() < 3 {
-            calls.push(text);
-        }
-    }
-    match value {
-        Value::Object(fields) => {
-            for (key, value) in fields {
-                // Only protocol-owned follow-ups are interpreted; source text remains data.
-                if matches!(key.as_str(), "next" | "error" | "problems") {
-                    collect(value, calls);
-                }
-            }
-        }
-        Value::Array(values) => {
-            for value in values {
-                collect(value, calls);
-            }
-        }
-        _ => {}
-    }
 }
 pub(super) fn translate(
     root: &crate::grammar::Root,

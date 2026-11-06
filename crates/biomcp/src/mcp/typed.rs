@@ -5,6 +5,7 @@ pub(super) use catalog::instructions;
 mod description;
 mod followups;
 mod help;
+mod step_paths;
 mod summary;
 mod validation;
 pub(super) type Catalog = Vec<Value>;
@@ -36,8 +37,14 @@ pub(super) fn prepare_with_catalog(
         return Ok(None);
     }
     let value = outcome.value_mut()?;
-    followups::project(context.root, value, advertised);
-    Ok(Some(summary::render(context.root, value, args, advertised)))
+    let calls = followups::project(context.root, value, advertised)?;
+    Ok(Some(summary::render(
+        context.root,
+        value,
+        args,
+        advertised,
+        &calls,
+    )))
 }
 
 pub(super) fn tool_result(
