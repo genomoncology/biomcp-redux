@@ -237,7 +237,9 @@ fn read_result(
     fs::write(env.root().join("reader-phase.json"), phase.to_string())
         .map_err(|e| e.to_string())?;
     println!("GENCC_READER_PHASE {phase}");
-    if (!output.status.success() && !busy) || !output.stderr.is_empty() {
+    if ((!output.status.success() || value.get("local_error").is_some()) && !busy)
+        || !output.stderr.is_empty()
+    {
         return Err(format!(
             "reader failed: {phase}; stderr: {}; stdout: {value}",
             String::from_utf8_lossy(&output.stderr)
