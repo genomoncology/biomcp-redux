@@ -6,7 +6,7 @@ use biodata::{DrugIdentityLevel, DrugIdentityRelation};
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{DrugCard, DrugHeader, DrugPage, DrugSource};
 
-fn components(
+pub(super) fn components(
     hit: Hit,
     leg: &Leg<'_>,
     problems: &mut crate::mapped::Problems,
@@ -97,50 +97,6 @@ pub(super) fn page(
             items: items.into(),
             total: Some(page.total),
         },
-        problems: problems.list,
-    })
-}
-/// Keep rows stating the name; the page alone never decides that they describe one drug.
-pub(super) fn name_records(
-    page: Page,
-    leg: &Leg<'_>,
-    query: &str,
-) -> Result<crate::Mapped<Vec<super::NameRecord>>, BadReply> {
-    let mut problems = crate::mapped::Problems {
-        source: biomcp_types::Source::Mychem,
-        record: None,
-        list: Vec::new(),
-    };
-    let mut records = Vec::new();
-    let mut refusals = crate::Refusal::None;
-    for hit in page.hits {
-        problems.record = None;
-        let Some(hit) = problems.field("_id", Some(hit)) else {
-            refusals = crate::Refusal::Refused;
-            continue;
-        };
-        problems.record = crate::mapped::record(&hit.id);
-        if problems.optional("_id", Some(hit.identity())).is_none() {
-            refusals = crate::Refusal::Refused;
-            continue;
-        }
-        let (id, _, rows) = components(hit, leg, &mut problems);
-        let names = super::names::stated(&rows);
-        if super::names::matching(&rows, query).is_some()
-            || names
-                .iter()
-                .any(|name| biomcp_types::DrugNameMatch::same_identity(name, query))
-        {
-            records.push(super::NameRecord {
-                structure: super::names::structure(&id, &rows),
-                id,
-                names,
-            });
-        }
-    }
-    Ok(crate::Mapped {
-        refusals,
-        value: records,
         problems: problems.list,
     })
 }

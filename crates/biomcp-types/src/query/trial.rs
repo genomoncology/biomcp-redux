@@ -2,6 +2,7 @@ mod biomarker;
 mod condition;
 mod continuation;
 mod country;
+mod drug_terms;
 mod filters;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
@@ -292,30 +293,6 @@ impl TrialSearch {
     pub fn keyword(&self) -> &[Text] {
         &self.0.keyword
     }
-
-    /// Whether drug-name expansion is disabled.
-    pub fn exact_term(&self) -> bool {
-        self.0.exact_term
-    }
-    /// Substitute only registry discovery text and intervention alternatives.
-    pub fn with_drug_terms(
-        &self,
-        text: Option<Text>,
-        interventions: Box<[Text]>,
-        keywords: Box<[Text]>,
-    ) -> Self {
-        let mut next = self.clone();
-        next.0.query = text;
-        next.0.intervention = interventions;
-        next.0.keyword = keywords;
-        next
-    }
-    /// The same request, with its terms searched as written.
-    pub fn exact(&self) -> Self {
-        let mut next = self.clone();
-        next.0.exact_term = true;
-        next
-    }
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
@@ -475,7 +452,6 @@ impl TrialSearch {
         next
     }
 }
-
 biodata::wire_enum! {
     /// Explicit source phase selection, including the registry's combined phases.
     PhaseFilter {
@@ -513,7 +489,6 @@ impl PhaseFilter {
         }
     }
 }
-
 biodata::wire_enum! {
     /// Independent trial providers; results are never folded or used as fallbacks.
     #[derive(Default)]

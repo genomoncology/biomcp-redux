@@ -50,8 +50,55 @@ pub(super) fn matching(rows: &[(&str, Component)], query: &str) -> Option<DrugNa
     DrugNameMatch::from_fields(brand, generic)
 }
 
+/// Keep rows stating the name; the page alone never decides that they describe one drug.
+pub(super) fn name_records(
+    page: super::raw::Page,
+    leg: &biomcp_fetch::Leg<'_>,
+    query: &str,
+) -> Result<crate::Mapped<Vec<super::NameRecord>>, biomcp_fetch::BadReply> {
+    let mut problems = crate::mapped::Problems {
+        source: biomcp_types::Source::Mychem,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut records = Vec::new();
+    let mut refusals = crate::Refusal::None;
+    for hit in page.hits {
+        problems.record = None;
+        let Some(hit) = problems.field("_id", Some(hit)) else {
+            refusals = crate::Refusal::Refused;
+            continue;
+        };
+        problems.record = crate::mapped::record(&hit.id);
+        if problems.optional("_id", Some(hit.identity())).is_none() {
+            refusals = crate::Refusal::Refused;
+            continue;
+        }
+        let (id, _, rows) = super::map::components(hit, leg, &mut problems);
+        let names = stated(&rows);
+        if matching(&rows, query).is_some()
+            || names
+                .iter()
+                .any(|name| DrugNameMatch::same_identity(name, query))
+        {
+            records.push(super::NameRecord {
+                structure: structure(&id, &rows),
+                names: names
+                    .iter()
+                    .filter_map(|name| problems.text("name", Some(name)))
+                    .collect(),
+                id,
+            });
+        }
+    }
+    Ok(crate::Mapped {
+        refusals,
+        value: records,
+        problems: problems.list,
+    })
+}
 /// Every name the rows state, with source values that join several names split apart.
-pub(super) fn stated(rows: &[(&str, Component)]) -> Vec<String> {
+fn stated(rows: &[(&str, Component)]) -> Vec<String> {
     rows.iter()
         .flat_map(|(_, c)| {
             generic_names(c)
@@ -75,7 +122,7 @@ pub(super) fn split(value: &str) -> impl Iterator<Item = &str> {
 
 /// The structure a row describes: an InChIKey's skeleton, so stereo forms of one molecule agree.
 /// A row with no chemical identity of its own, such as an NDC product row, has none.
-pub(super) fn structure(id: &str, rows: &[(&str, Component)]) -> Option<String> {
+fn structure(id: &str, rows: &[(&str, Component)]) -> Option<String> {
     let blocks: Vec<_> = id.split('-').collect();
     if let [skeleton, stereo, charge] = blocks.as_slice()
         && (skeleton.len(), stereo.len(), charge.len()) == (14, 10, 1)

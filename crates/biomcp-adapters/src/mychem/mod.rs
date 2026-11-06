@@ -68,7 +68,7 @@ pub struct NameRecord {
     /// Structure identity; product rows have none and never count as another drug.
     pub structure: Option<String>,
     /// Every name the row states, one name per value.
-    pub names: Vec<String>,
+    pub names: Vec<biodata::Text>,
 }
 /// Read the first rows stating one name, across free text and the synonym fields.
 /// Exact names rank first, so further pages only add product rows and looser matches.
@@ -102,7 +102,8 @@ pub fn name_records(
                 .cache_if(&raw::Page::identities_admitted),
         )?
         .value;
-    map::name_records(reply, leg, query).map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
+    names::name_records(reply, leg, query)
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }
 fn search_fields(
     leg: &Leg<'_>,
