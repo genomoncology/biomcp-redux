@@ -20,7 +20,7 @@ fn record(dir: &Path) {
             let license = match id {1001=>"CC BY",1002=>"CC BY NC",_=>"unrecognized"};
             Ok(format!(r#"{{"pmcid":"PMC{id}","pmid":{id},"license_code":"{license}","xml_url":"https://pmc-oa-opendata.s3.amazonaws.com/PMC{id}.1/PMC{id}.1.xml"}}"#))
         }).unwrap();
-    let fetch = Fetch::open(FetchConfig { mode: Mode::Record { dir: dir.into() }, proxy: Some(format!("http://{}",stub.address)), ca_bundle: Some(stub.certificate.clone().into()), replay_cache: Some(ReplayCache::temporary().unwrap()), cache_owners: vec![biomcp_query::store::OWNER], ..FetchConfig::default() }).unwrap();
+    let fetch = Fetch::open(FetchConfig { mode: Mode::Record { dir: dir.into() }, proxy: Some(biomcp_fetch::Secret::new(format!("http://{}",stub.address))), network: biomcp_fetch::Network::new(None, None, "", biomcp_fetch::Certificates::from_pem(stub.certificate.as_bytes()).unwrap()).unwrap(), replay_cache: Some(ReplayCache::temporary().unwrap()), cache_owners: vec![biomcp_query::store::OWNER], ..FetchConfig::default() }).unwrap();
     let out = run(&fetch);
     let ReplyData::ArticlePage {body:Some(page),..} = out.body else {panic!("{out:?}")};
     assert_eq!(page.items.len(), 3);
