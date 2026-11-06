@@ -55,11 +55,17 @@
     "args": [
       "article",
       "text",
-      "39214094"
+      "39214094",
+      "--part",
+      "1",
+      "--find",
+      "needle"
     ],
     "tool": "article_text",
     "fields": {
-      "input": "39214094"
+      "input": "39214094",
+      "part": 1,
+      "find": "needle"
     },
     "option": "--part"
   },
