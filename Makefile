@@ -18,6 +18,9 @@ article-default-focused:
 
 article-default-lint: fmt
 	cargo clippy --keep-going --locked -p biomcp-types -p biomcp-query -p biomcp --all-targets --features biomcp-types/schema -- -D warnings
+	+$(MAKE) current-schema-check
+	cargo test --locked -p biomcp --test cases article/help
+	cargo test --locked -p biomcp --test cases article/get/
 
 .PHONY: drug-alias-review-regressions drug-alias-review-tools
 drug-alias-review-regressions:
