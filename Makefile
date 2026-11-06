@@ -631,3 +631,8 @@ recurrence-forms-prepare:
 	+$(MAKE) schema-generate docs-generate
 	git diff --binary -- crates/biomcp-types/schemas docs/reference/commands.md > target/recurrence-forms-generated.patch
 	+$(MAKE) recurrence-forms-focused
+
+.PHONY: recurrence-forms-review
+recurrence-forms-review:
+	+$(MAKE) landing-gate
+	+$(MAKE) schema-release-check
