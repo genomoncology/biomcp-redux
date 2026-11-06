@@ -241,5 +241,5 @@ fn europepmc_body(body: &[u8]) -> Result<Vec<u8>, BadReply> {
 
 /// Repeat abstract rights when reading a source-native author continuation.
 pub fn snapshot(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
-    semantic::filter(leg, body, None)
+    semantic::snapshot(leg, body)
 }

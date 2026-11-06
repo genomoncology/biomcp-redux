@@ -62,6 +62,16 @@ pub(super) fn record(dir: &Path) {
     for id in [1001, 1002, 1003] {
         let _ = biomcp_adapters::pmc_oa::read(&leg, format!("PMC{id}").parse().unwrap(), None);
     }
+    let leg = fetch.leg(
+        &biomcp_adapters::pubmed::SPEC,
+        fetch.deadline(Duration::from_secs(20)),
+    );
+    biomcp_adapters::pubmed::summaries(
+        &leg,
+        &["1001".parse().unwrap(), "1002".parse().unwrap()],
+        None,
+    )
+    .unwrap();
     record_other_routes(&fetch);
     let author_query = super::authors::query();
     let id = "123".parse().unwrap();
@@ -200,6 +210,8 @@ fn contexts() -> String {
     })).collect();
     let mut data = data;
     data[2]["citingPaper"]["externalIds"] = serde_json::json!({"DOI":"10.1234/unknown"});
+    // Native replies cannot borrow an identity from a cached author-detail shape.
+    data[2]["citingPaper"]["header"] = serde_json::json!({"pmid":1001});
     data[2]["citingPaper"]["ignored"] = serde_json::json!({
         "contexts":{"items":["unknown malformed citation context"]}, "license":"cc_by"
     });

@@ -27,6 +27,9 @@ case "${1:-focused}" in
     authors)
         cargo test --locked -p biomcp-query --test article_rights authors:: -- --nocapture > "$proof/run.log" 2>&1
         ;;
+    mechanical)
+        make check-cheap > "$proof/run.log" 2>&1
+        ;;
     prepare)
         cargo fmt --all > "$proof/run.log" 2>&1
         UPDATE_SCHEMAS=1 cargo test --locked -p biomcp-types --features schema --test schemas checked_in_schemas_match_types -- --exact >> "$proof/run.log" 2>&1

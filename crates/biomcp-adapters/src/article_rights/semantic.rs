@@ -11,6 +11,17 @@ pub(crate) fn filter(
     body: &[u8],
     parent: Option<Pmid>,
 ) -> Result<Vec<u8>, BadReply> {
+    filter_input(leg, body, parent, false)
+}
+pub(crate) fn snapshot(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
+    filter_input(leg, body, None, true)
+}
+fn filter_input(
+    leg: &Leg<'_>,
+    body: &[u8],
+    parent: Option<Pmid>,
+    saved: bool,
+) -> Result<Vec<u8>, BadReply> {
     if !leg.disabled_use(Use::PerRecord) {
         return Ok(body.to_vec());
     }
@@ -22,23 +33,27 @@ pub(crate) fn filter(
     if let Some(parent) = parent {
         ids.push(parent);
     }
-    collect(&root, &mut ids);
+    collect(&root, &mut ids, saved);
     let licenses = if ids.is_empty() {
         BTreeMap::new()
     } else {
         licenses(leg, &ids)
     };
-    filter_with_licenses(root, parent, &licenses)
+    filter_with_licenses(root, parent, &licenses, saved)
 }
 pub(super) fn filter_with_licenses(
     mut root: Value,
     parent: Option<Pmid>,
     licenses: &BTreeMap<Pmid, License>,
+    saved: bool,
 ) -> Result<Vec<u8>, BadReply> {
-    apply(&mut root, parent, licenses);
+    apply(&mut root, parent, licenses, saved);
     serde_json::to_vec(&root).map_err(|_| BadReply)
 }
-fn id(value: &Value) -> Option<Pmid> {
+fn id(value: &Value, saved: bool) -> Option<Pmid> {
+    if !saved {
+        return value.pointer("/externalIds/PubMed").and_then(pmid);
+    }
     value
         .pointer("/externalIds/PubMed")
         .and_then(pmid)
@@ -59,32 +74,39 @@ fn id(value: &Value) -> Option<Pmid> {
                 })
         })
 }
-fn collect(value: &Value, ids: &mut Vec<Pmid>) {
-    if let Some(id) = id(value) {
+fn collect(value: &Value, ids: &mut Vec<Pmid>, saved: bool) {
+    if let Some(id) = id(value, saved) {
         ids.push(id);
     }
     match value {
         Value::Object(object) => {
             for child in object.values() {
-                collect(child, ids);
+                collect(child, ids, saved);
             }
         }
         Value::Array(rows) => {
             for child in rows {
-                collect(child, ids);
+                collect(child, ids, saved);
             }
         }
         _ => {}
     }
 }
-fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, License>) {
+fn apply(
+    value: &mut Value,
+    inherited: Option<Pmid>,
+    licenses: &BTreeMap<Pmid, License>,
+    saved: bool,
+) {
     // A nested paper owns its text even when it has no resolvable PMID.
     let own = if value.get("paperId").is_some() || value.get("externalIds").is_some() {
-        id(value)
+        id(value, saved)
     } else {
-        id(value).or(inherited)
+        id(value, saved).or(inherited)
     };
-    let citing = value.get("citingPaper").map_or(own, id);
+    let citing = value
+        .get("citingPaper")
+        .map_or(own, |paper| id(paper, saved));
     let license = own.and_then(|id| licenses.get(&id).copied());
     match value {
         Value::Object(object) => {
@@ -113,13 +135,13 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 object.remove("contexts");
             }
             for child in object.values_mut() {
-                apply(child, own, licenses);
+                apply(child, own, licenses, saved);
             }
             super::abstracts::lift(object);
         }
         Value::Array(rows) => {
             for child in rows {
-                apply(child, own, licenses);
+                apply(child, own, licenses, saved);
             }
         }
         _ => {}
