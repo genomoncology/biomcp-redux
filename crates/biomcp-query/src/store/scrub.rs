@@ -2,7 +2,7 @@
 #![expect(
     clippy::disallowed_methods,
     clippy::disallowed_types,
-    reason = "Keep filesystem access and SQLite lock waits inside the offline store repair boundary"
+    reason = "Bound a one-time offline SQLite copy and rebuild by a caller deadline"
 )]
 use super::{CacheError, OWNER, db};
 use rusqlite::{Connection, OpenFlags};
@@ -11,7 +11,6 @@ use std::{fs, path::Path, time::Duration};
 /// Prepare a scrubbed copy for deployment's file checks and study lookup.
 /// The destination must not exist. This never replaces or modifies the source.
 /// Hosting must stop writers before promoting the checked copy.
-/// The budget bounds SQLite lock waits; copying and rebuilding may take longer.
 pub fn scrub_copy(source: &Path, destination: &Path, budget: Duration) -> Result<(), CacheError> {
     let original =
         Connection::open_with_flags(source, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(db)?;
@@ -92,18 +91,9 @@ fn validate(connection: &Connection) -> Result<(), CacheError> {
 
 fn rebuild(connection: &Connection) -> Result<(), CacheError> {
     // Rebuild clears old free pages; truncation clears every previously committed WAL frame.
-    checkpoint(connection)?;
-    connection.execute_batch("VACUUM").map_err(db)?;
-    checkpoint(connection)
-}
-
-fn checkpoint(connection: &Connection) -> Result<(), CacheError> {
-    let busy: i64 = connection
-        .query_row("PRAGMA wal_checkpoint(TRUNCATE)", [], |row| row.get(0))
+    connection
+        .execute_batch("PRAGMA wal_checkpoint(TRUNCATE); VACUUM; PRAGMA wal_checkpoint(TRUNCATE);")
         .map_err(db)?;
-    if busy != 0 {
-        return Err(CacheError::Busy);
-    }
     Ok(())
 }
 
