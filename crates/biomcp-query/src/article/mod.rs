@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 use biomcp_types::ReplyBody;
+mod drug_names;
 mod edges;
 mod empty_litvar;
 pub(crate) mod evidence;
@@ -77,6 +78,7 @@ fn execute<'a>(
     } else {
         store.find(&key, explicit)?
     };
+    let (stored, drug_names) = drug_names::reuse(cx, query, stored, out);
     let pool = match stored {
         Some(pool) if pool.key != key.as_slice() => {
             pool_error(query, true, out);
@@ -88,29 +90,11 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let resolved = if query
-                .sources()
-                .contains(&biomcp_types::ArticleSource::Pubmed)
-                || query
-                    .sources()
-                    .contains(&biomcp_types::ArticleSource::Litvar)
-                || query
-                    .sources()
-                    .contains(&biomcp_types::ArticleSource::Pubtator)
-                    && !cx.fetch.disabled(biomcp_types::Source::PubTator)
-            {
-                let Some(term) = term::resolve(cx, query, deadline, out)? else {
-                    return Ok(());
-                };
-                term
-            } else {
-                term::Resolved {
-                    names: Vec::new(),
-                    symbol: None,
-                    entrez: None,
-                }
+            let Some(resolved) = term::search(cx, query, deadline, out)? else {
+                return Ok(());
             };
-            let drug_names = crate::drug::search_names::article(cx, query, out);
+            let drug_names =
+                drug_names.unwrap_or_else(|| crate::drug::search_names::article(cx, query, out));
             let mut items = match sources::search(cx, query, &resolved, &drug_names, deadline, out)?
             {
                 sources::SearchResult::Items(items) => items,
