@@ -28,6 +28,13 @@ fn check_form(form: &str, hosted: bool) -> Result<(), String> {
         vec![]
     };
     globals.extend(hosted_globals.clone());
+    globals.extend([
+        "--config".into(),
+        env.root()
+            .join("config/biomcp/config.json")
+            .to_string_lossy()
+            .into_owned(),
+    ]);
     let frames = [
         request(json!(1), "tools/list", json!({})),
         request(
