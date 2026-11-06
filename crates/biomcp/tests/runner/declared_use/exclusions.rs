@@ -27,6 +27,9 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("mcp-hosted/exclude/discovery-agrees", || {
             discovery().map_err(Into::into)
         }),
+        trial("mcp-hosted/exclude/stored-article-pools", || {
+            article_pools().map_err(Into::into)
+        }),
     ]
 }
 
@@ -247,6 +250,76 @@ fn discovery() -> Check {
     }
     if card.to_string().contains("--disable-sources") {
         return Err(format!("the header became a flag: {card}"));
+    }
+    server.stop()
+}
+
+fn pool_id(reply: &Value) -> Check<String> {
+    reply
+        .pointer("/result/structuredContent/page/pool/id")
+        .and_then(Value::as_str)
+        .map(str::to_owned)
+        .ok_or_else(|| format!("no stored pool: {reply}"))
+}
+
+/// Each list keeps its own pool, whichever caller searched first.
+fn article_pools() -> Check {
+    let assets = Environment::new().map_err(|e| e.to_string())?;
+    let replay = assets.root().join("replay");
+    biomcp_test_support::capture::copy_capture(
+        "article/fold/failed-pubmed",
+        &replay,
+        |_, record| {
+            for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
+                exchange["status"] = json!(200);
+            }
+        },
+    )
+    .map_err(|e| e.to_string())?;
+    let mut server = Server::configured_globals(
+        "127.0.0.1:0",
+        None,
+        Some(replay),
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    let search = [
+        "search",
+        "article",
+        "AKT1",
+        "--author",
+        "Carpten",
+        "--source",
+        "pubmed,europepmc",
+    ];
+    let mut pools = Vec::new();
+    for (left_out, kept) in [("pubmed", "europepmc"), ("europepmc", "pubmed")] {
+        let header = format!("{ACADEMIC}{}", list(left_out));
+        let reply = call(&server, &search, &header, false)?;
+        if !disabled(&reply, left_out) || !source_ok(&reply, kept) {
+            return Err(format!("caller leaving out {left_out} got: {reply}"));
+        }
+        pools.push(pool_id(&reply)?);
+    }
+    let whole = call(&server, &search, ACADEMIC, false)?;
+    if !source_ok(&whole, "pubmed") || !source_ok(&whole, "europepmc") {
+        return Err(format!(
+            "a caller with no list got a narrowed pool: {whole}"
+        ));
+    }
+    pools.push(pool_id(&whole)?);
+    if pools[0] == pools[1] || pools[0] == pools[2] || pools[1] == pools[2] {
+        return Err(format!("different lists shared a pool: {pools:?}"));
+    }
+    let again = call(
+        &server,
+        &search,
+        &format!("{ACADEMIC}{}", list("pubmed")),
+        false,
+    )?;
+    if pool_id(&again)? != pools[0] {
+        return Err(format!("a list lost its own pool: {again}"));
     }
     server.stop()
 }
