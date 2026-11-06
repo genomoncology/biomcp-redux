@@ -177,7 +177,9 @@ fn failed_names() -> Result<(), String> {
     let command = ["search", "article", "Canonical therapy"];
     let first = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
     if first.get("status").and_then(Value::as_str) != Some("partial")
-        || first.pointer("/page/pool").is_some_and(|pool| !pool.is_null())
+        || first
+            .pointer("/page/pool")
+            .is_some_and(|pool| !pool.is_null())
     {
         return Err(format!("failed lookup stored a pool: {first}"));
     }
@@ -186,7 +188,9 @@ fn failed_names() -> Result<(), String> {
     if second.get("status").and_then(Value::as_str) != Some("complete")
         || second.pointer("/page/total") != Some(&json!(3))
     {
-        return Err(format!("new search did not reach recovered lookup: {second}"));
+        return Err(format!(
+            "new search did not reach recovered lookup: {second}"
+        ));
     }
     let third = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
     if third.pointer("/page/pool/id") != second.pointer("/page/pool/id") {
@@ -243,7 +247,10 @@ fn fail_exchanges(record: &mut Value) -> Result<(), String> {
         .get_mut("exchanges")
         .and_then(Value::as_array_mut)
         .ok_or("missing recording exchanges")?;
-    let mut failure = exchanges.first().cloned().ok_or("recording has no exchanges")?;
+    let mut failure = exchanges
+        .first()
+        .cloned()
+        .ok_or("recording has no exchanges")?;
     *failure.get_mut("status").ok_or("missing exchange status")? = json!(500);
     *exchanges = vec![failure.clone(), failure.clone(), failure];
     Ok(())
