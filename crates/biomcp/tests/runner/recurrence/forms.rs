@@ -38,22 +38,16 @@ pub(super) fn check() -> Result<(), String> {
         observed(&cli, input)?;
         let single = mcp::call_with_globals(&env, &args, false, &[])?;
         observed(&single, input)?;
-        let frame = mcp::request(
-            json!(1),
-            "tools/call",
-            json!({"name":"variant_recurrence","arguments":{
+        let typed = typed(
+            &env,
+            "variant_recurrence",
+            json!({
                 "input":input,"source":"cbioportal","gene":"BRAF",
                 "study":"msk_impact_2017","profile":"msk_impact_2017_mutations",
                 "sample_set":"msk_impact_2017_all","limit":3
-            }}),
-        );
-        let replies =
-            mcp::exchange_with_globals(&env, &[frame], &["--tool-mode".into(), "typed".into()])?;
-        let typed = replies
-            .first()
-            .and_then(|r| r.pointer("/result/structuredContent"))
-            .ok_or_else(|| format!("missing typed recurrence reply: {replies:?}"))?;
-        observed(typed, input)?;
+            }),
+        )?;
+        observed(&typed, input)?;
     }
     stub.finish()?;
     Ok(())
@@ -143,25 +137,57 @@ fn rejections(env: &Environment) -> Result<(), String> {
     for input in UNSUPPORTED {
         let mut recurrence = super::args();
         recurrence[2] = input.into();
-        for args in [
-            vec!["get".into(), "variant".into(), input.into()],
-            vec!["variant".into(), "population".into(), input.into()],
-            vec![
-                "variant".into(),
-                "assertions".into(),
-                input.into(),
-                "--source".into(),
-                "clinvar".into(),
-            ],
-            recurrence,
+        for (args, tool, arguments) in [
+            (
+                vec!["get".into(), "variant".into(), input.into()],
+                "get_variant",
+                json!({"input":input}),
+            ),
+            (
+                vec!["variant".into(), "population".into(), input.into()],
+                "variant_population",
+                json!({"input":input}),
+            ),
+            (
+                vec![
+                    "variant".into(),
+                    "assertions".into(),
+                    input.into(),
+                    "--source".into(),
+                    "clinvar".into(),
+                ],
+                "variant_assertions",
+                json!({"input":input,"source":"clinvar"}),
+            ),
+            (
+                recurrence,
+                "variant_recurrence",
+                json!({"input":input,"source":"cbioportal","gene":"BRAF",
+                "study":"msk_impact_2017","profile":"msk_impact_2017_mutations","sample_set":"msk_impact_2017_all","limit":3}),
+            ),
         ] {
-            let value = super::call(env, &args, 2)?;
-            if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
-                return Err(format!(
-                    "unrouted identifier did not fail command admission: {value}"
-                ));
+            for value in [super::call(env, &args, 2)?, typed(env, tool, arguments)?] {
+                if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
+                    return Err(format!(
+                        "unrouted identifier did not fail command admission: {value}"
+                    ));
+                }
             }
         }
     }
     Ok(())
+}
+fn typed(env: &Environment, tool: &str, arguments: Value) -> Result<Value, String> {
+    let frame = mcp::request(
+        json!(1),
+        "tools/call",
+        json!({"name":tool,"arguments":arguments}),
+    );
+    let replies =
+        mcp::exchange_with_globals(env, &[frame], &["--tool-mode".into(), "typed".into()])?;
+    replies
+        .first()
+        .and_then(|r| r.pointer("/result/structuredContent"))
+        .cloned()
+        .ok_or_else(|| format!("missing typed {tool} reply: {replies:?}"))
 }
