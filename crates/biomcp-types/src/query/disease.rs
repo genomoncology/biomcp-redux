@@ -386,6 +386,18 @@ impl DiseaseGet {
             record: self.record.clone(),
         })
     }
+    /// Continue SEER discovery using a publisher-issued native site code.
+    pub fn with_seer_site(&self, site: Text) -> Result<Self, QueryInvalid> {
+        if self.source() != DiseaseSource::Seer
+            || !site.as_str().bytes().all(|b| b.is_ascii_digit())
+        {
+            return Err(QueryInvalid::new(&["source", "id"]));
+        }
+        let mut query = self.clone();
+        query.record = site.clone();
+        query.fields.id = DiseaseId::SeerSite(site);
+        Ok(query)
+    }
     /// Native sex selector.
     pub fn sex(&self) -> Option<&Text> {
         self.fields.sex.as_ref()

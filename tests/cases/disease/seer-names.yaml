@@ -17,7 +17,9 @@
         "/result/items/0/code": "55",
         "/result/selectors/*/label": {
           "includes": "2019–2023"
-        }
+        },
+        "/result/selectors/0/name": "data_model",
+        "/result/selectors/0/label": "Example publisher dataset"
       },
       "max_bytes": 2000
     },
@@ -76,9 +78,11 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/code": "55",
-        "/result/items/1/code": "47"
+        "/result/items/1/code": "47",
+        "/next/0/args/2": "55",
+        "/next/1/args/2": "47"
       },
-      "max_bytes": 2200
+      "max_bytes": 3500
     },
     {
       "run": [
@@ -97,7 +101,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/items/0/requested_site": "55"
+        "/result/items/0/requested_site": "55",
+        "/result/items/0/requested_selectors/4/label": "5-year Relative Survival"
       },
       "max_bytes": 4200
     },

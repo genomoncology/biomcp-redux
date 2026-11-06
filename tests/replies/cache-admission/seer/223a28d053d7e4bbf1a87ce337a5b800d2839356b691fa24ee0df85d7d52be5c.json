@@ -27,6 +27,12 @@
             "stage": {
               "101": "All Stages",
               "104": "Localized"
+            },
+            "data_model": {
+              "4": "Example publisher dataset"
+            },
+            "relative_survival_interval": {
+              "5": "5-year Relative Survival"
             }
           },
           "CancerSites": [

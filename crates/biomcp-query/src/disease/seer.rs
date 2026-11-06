@@ -61,11 +61,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outco
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&seer::SPEC, deadline).fresh(cx.fresh);
     if !id.as_str().bytes().all(|b| b.is_ascii_digit()) {
-        let (site, discovered) = named_site(&leg, id, out);
+        let (site, discovered, error) = named_site(&leg, id, query, out);
         out = discovered;
         if let Some(site) = site {
             selection.site = site;
         } else {
+            out.sources
+                .push(status::source(Source::Seer, leg.finish(), error));
+            out.local = error.and_then(status::local);
+            crate::status::search(&mut out);
             command.finish(deadline.remaining());
             return out;
         }
@@ -117,9 +121,14 @@ fn empty_get(query: &DiseaseGet) -> Outcome {
 fn named_site(
     leg: &biomcp_fetch::Leg<'_>,
     id: &biodata::Text,
+    query: &DiseaseGet,
     mut out: Outcome,
-) -> (Option<biodata::Text>, Outcome) {
-    match seer::catalog_named(&leg, Some(id.as_str()), u32::MAX, 0) {
+) -> (
+    Option<biodata::Text>,
+    Outcome,
+    Option<biomcp_fetch::RequestError>,
+) {
+    match seer::catalog_named(leg, Some(id.as_str()), u32::MAX, 0) {
         Ok(mut page) => {
             let exact: Vec<_> = page
                 .window
@@ -142,13 +151,11 @@ fn named_site(
                 && page.window.rows.iter().all(|site| site.label.is_some())
                 && let Some(site) = selected
             {
-                return (Some(site), out);
+                return (Some(site), out, None);
             }
             let Ok(search) = DiseaseSearch::seer_named(id.as_str()) else {
-                return (None, out);
+                return (None, out, None);
             };
-            out.sources
-                .push(status::source(Source::Seer, leg.finish(), None));
             out.include_refusals(page.window.refusals());
             out.problems.append(&mut page.problems);
             let total = page.window.rows.len() as u32;
@@ -161,6 +168,19 @@ fn named_site(
                 ));
             }
             page.window.rows.truncate(search.limit() as usize);
+            for site in &page.window.rows {
+                if let Some(selected) = crate::next::checked(
+                    query.with_seer_site(site.code.clone()),
+                    Source::Seer,
+                    &mut out.problems,
+                ) {
+                    out.next.push(crate::next::Step::new(
+                        StepKind::Disambiguate,
+                        &[Source::Seer],
+                        run(Request::GetDisease(selected)),
+                    ));
+                }
+            }
             out.body = (DiseaseSites {
                 items: page.window.rows.into(),
                 components: Box::default(),
@@ -168,15 +188,9 @@ fn named_site(
                 selectors: page.selectors,
             })
             .with_query(search);
-            crate::status::search(&mut out);
-            (None, out)
+            (None, out, None)
         }
-        Err(error) => {
-            out.sources
-                .push(status::source(Source::Seer, leg.finish(), Some(error)));
-            out.local = status::local(error);
-            (None, out)
-        }
+        Err(error) => (None, out, Some(error)),
     }
 }
 
