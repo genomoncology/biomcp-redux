@@ -48,6 +48,7 @@ pub(super) fn check() -> Result<(), String> {
     invoke(env, sync, 0)?;
     fs::remove_file(replay.join("cbioportal").join(catalog_key())).map_err(|e| e.to_string())?;
     catalog(&server)?;
+    tcga(&server)?;
     sections(&server)?;
     recurrence(&server)?;
     server.stop()
@@ -63,6 +64,12 @@ fn catalog_recording(assets: &Environment) -> Result<std::path::PathBuf, String>
         .get_mut(2)
         .and_then(|row| row.get_mut("studyId"))
         .ok_or("TCGA study")? = json!("brca_tcga");
+    for index in [0, 2] {
+        *rows
+            .get_mut(index)
+            .and_then(|row| row.get_mut("description"))
+            .ok_or("study description")? = json!("TCGA Pan-Cancer Atlas cohort");
+    }
     let template = rows.get(0).ok_or("first study")?.clone();
     for (id, _) in FLAGS.iter().skip(1) {
         let mut row = template.clone();
@@ -105,6 +112,20 @@ fn catalog(server: &Server) -> Result<(), String> {
     continuation(server, &restricted)?;
     restored(server, &args)
 }
+/// Hosting's startup lookup must keep an answer while a flagged study matches the same text.
+fn tcga(server: &Server) -> Result<(), String> {
+    let reply = data(call(server, &["search", "study", "TCGA"], RESTRICTED, false)?)?;
+    notice(&reply, FLAG, "noncommercial")?;
+    let items = reply.pointer("/result/items").and_then(Value::as_array);
+    if !items.is_some_and(|rows| {
+        rows.iter()
+            .any(|row| row.get("studyId") == Some(&json!("brca_tcga")))
+    }) || reply.to_string().contains(&format!("\"studyId\":\"{FLAG}\""))
+    {
+        return Err(format!("restricted TCGA lookup changed: {reply}"));
+    }
+    Ok(())
+}
 fn continuation(server: &Server, restricted: &Value) -> Result<(), String> {
     let next = restricted
         .get("next")
@@ -119,6 +140,7 @@ fn continuation(server: &Server, restricted: &Value) -> Result<(), String> {
     let second = data(call(server, &next, RESTRICTED, false)?)?;
     if second.pointer("/result/items/0/studyId") != Some(&json!("brca_tcga"))
         || second.pointer("/page/total") != Some(&json!(2))
+        || second.get("status") != Some(&json!("complete"))
     {
         return Err(format!(
             "filtered continuation changed order or total: {second}"
@@ -201,9 +223,8 @@ fn recurrence(server: &Server) -> Result<(), String> {
             *args.get_mut(8).ok_or("study argument")? = id;
             let reply = data(call(server, &args, RESTRICTED, false)?)?;
             blocked(&reply, id, reason)?;
-            if reply.pointer("/result/observed_sample_count").is_some()
-                || reply.pointer("/result/selected_sample_count").is_some()
-            {
+            let count = |field| reply.pointer(field).is_some_and(|v| !v.is_null());
+            if count("/result/observed_sample_count") || count("/result/selected_sample_count") {
                 return Err(format!("restricted recurrence leaked counts: {reply}"));
             }
         }
@@ -221,6 +242,9 @@ fn notice(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
     if !text.contains(id) || !text.contains("left out") || !text.contains(reason) {
         return Err(format!("study exclusion has no reason: {reply}"));
     }
+    if reply.get("status") != Some(&json!("complete")) {
+        return Err(format!("policy omission changed the status: {reply}"));
+    }
     if reply.pointer("/sources/0/use") != Some(&json!("attribution")) {
         return Err(format!("cBioPortal lost attribution: {reply}"));
     }
@@ -228,7 +252,8 @@ fn notice(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
 }
 fn blocked(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
     notice(reply, id, reason)?;
-    if reply.get("result").is_some()
+    if reply.pointer("/result/study").is_some_and(|v| !v.is_null())
+        || reply.pointer("/result/items").is_some()
         || reply.pointer("/sources/0/reason") != Some(&json!("disabled"))
         || reply
             .get("next")

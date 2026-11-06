@@ -27,16 +27,15 @@ pub(super) fn notice(out: &mut Outcome, ids: &[&str], skipped: bool) {
         });
     }
     out.sources.push(source);
-    if !skipped {
-        out.dropped = true;
-    }
 }
 
-/// Refuse every section and recurrence page of a flagged study before source access.
+/// Withhold every section and recurrence page of a flagged study before source access.
+/// Policy omission is the whole answer, so the reply is complete and carries the notice.
 pub(crate) fn blocked(cx: &Ctx<'_>, id: &str, out: &mut Outcome) -> bool {
     if !excluded(cx, id) {
         return false;
     }
     notice(out, &[id], true);
+    crate::status::item(out, true, false, false);
     true
 }

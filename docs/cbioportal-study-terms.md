@@ -1,6 +1,6 @@
 # cBioPortal study terms
 
-cBioPortal remains available in all hosted modes with its `attribution` source label. In `restricted`, BioMCP leaves out studies whose reviewed study information specifies noncommercial terms or an excluded purpose limit. This applies to study search, saved search continuations, every study section, and variant recurrence pages. Replies name the omitted studies and the reason. `commercial`, `academic`, local CLI and stdio retain their existing study access. A caller key does not override a study flag in `restricted`.
+cBioPortal remains available in all hosted modes with its `attribution` source label. In `restricted`, BioMCP leaves out studies whose reviewed study information specifies noncommercial terms or an excluded purpose limit. This applies to study search, saved search continuations, every study section, and variant recurrence pages. Replies name the omitted studies and the reason. A left-out study does not make a reply partial: the status stays complete and the notice says what was left out. `commercial`, `academic`, local CLI and stdio retain their existing study access. A caller key does not override a study flag in `restricted`.
 
 The flags apply when reading results. Existing catalogs, cached source replies and stored search pools remain readable without synchronizing, changing the store format or changing cache identities. Filtering precedes paging, so study totals and continuation offsets describe the permitted rows. Recurrence for a flagged study returns no observations or counts.
 
