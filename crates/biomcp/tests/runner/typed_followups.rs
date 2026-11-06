@@ -66,36 +66,38 @@ fn check_form(form: &str, hosted: bool) -> Result<(), String> {
             .find(|v| v["id"] == frame["id"])
             .ok_or("stdio reply")?;
         for reply in [stdio, &http] {
-            let text = reply
-                .pointer("/result/content/0/text")
-                .and_then(Value::as_str)
-                .ok_or("text")?;
-            let value = reply
-                .pointer("/result/structuredContent")
-                .cloned()
-                .or_else(|| serde_json::from_str(text.split_once('\n')?.1).ok())
-                .ok_or("typed body")?;
-            let mut sections = 0;
-            check_next(&value, tools, &mut sections)?;
-            if index == 1 && sections == 0 {
-                return Err("gene replay supplied no typed section follow-up".into());
-            }
-            if text.contains("--config")
-                || text.contains("--replay")
-                || text.contains("--case-cache")
-            {
-                return Err(format!("server arguments leaked: {text}"));
-            }
-            let owner = tools
-                .iter()
-                .find(|tool| tool["name"] == "get_gene")
-                .ok_or("get_gene")?;
-            jsonschema::validator_for(&owner["outputSchema"])
-                .map_err(|e| e.to_string())?
-                .validate(&value)
-                .map_err(|e| e.to_string())?;
+            check_reply(reply, tools, index == 1)?;
         }
     }
+    Ok(())
+}
+
+fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result<(), String> {
+    let text = reply
+        .pointer("/result/content/0/text")
+        .and_then(Value::as_str)
+        .ok_or("text")?;
+    let value = reply
+        .pointer("/result/structuredContent")
+        .cloned()
+        .or_else(|| serde_json::from_str(text.split_once('\n')?.1).ok())
+        .ok_or("typed body")?;
+    let mut sections = 0;
+    check_next(&value, tools, &mut sections)?;
+    if section_expected && sections == 0 {
+        return Err("gene replay supplied no typed section follow-up".into());
+    }
+    if text.contains("--config") || text.contains("--replay") || text.contains("--case-cache") {
+        return Err(format!("server arguments leaked: {text}"));
+    }
+    let owner = tools
+        .iter()
+        .find(|tool| tool["name"] == "get_gene")
+        .ok_or("get_gene")?;
+    jsonschema::validator_for(&owner["outputSchema"])
+        .map_err(|e| e.to_string())?
+        .validate(&value)
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 

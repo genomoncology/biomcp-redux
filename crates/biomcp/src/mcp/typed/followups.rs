@@ -47,6 +47,11 @@ fn without_globals(root: &crate::grammar::Root, args: &[Value]) -> Option<Vec<Va
             .unwrap_or_default()
             .split('=')
             .next()?;
+        // Typed tools do not advertise the force-refresh global. Omitting it would
+        // change a refresh into an ordinary cached call, so omit that suggestion.
+        if flag == "fresh" {
+            return None;
+        }
         if let Some(global) = root
             .get_arguments()
             .find(|arg| arg.get_long() == Some(flag))
