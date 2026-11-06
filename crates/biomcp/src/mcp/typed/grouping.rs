@@ -55,7 +55,9 @@ pub(super) fn catalog(
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
             format!(
-                "Typed catalog requires {} tools and {bytes} definition bytes; mcp_typed_tool_limit={tool_limit}, mcp_typed_definition_bytes={byte_limit}. Clinical tools and complete descriptions are retained; configure sufficient budgets.",
+                "Typed catalog requires {} tools and {bytes} definition bytes; \
+                mcp_typed_tool_limit={tool_limit}, mcp_typed_definition_bytes={byte_limit}. \
+                Clinical tools and complete descriptions are retained; configure sufficient budgets.",
                 tools.len(),
             ),
         ));
@@ -72,11 +74,14 @@ fn reference(commands: &[Value]) -> Value {
         .iter()
         .all(|tool| tool.pointer("/annotations/readOnlyHint") == Some(&json!(true)));
     json!({"name":"biomcp_reference",
-        "description":"Run specialist reference commands and additional entity operations with their typed arguments. IDs and options follow the selected command's schema. Example: {\"command\":\"get_protein\",\"arguments\":{\"id\":\"P04637\"}}.",
+        "description":"Run specialist reference commands and additional entity operations with their typed arguments. \
+        IDs and options follow the selected command's schema. \
+        Example: {\"command\":\"get_protein\",\"arguments\":{\"id\":\"P04637\"}}.",
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
             "properties":{
                 "command":{"type":"string","enum":names,"description":"Registered typed command name, such as get_protein."},
-                "arguments":{"type":"object","additionalProperties":true,"description":"The selected command's typed arguments; example for get_protein: {\"id\":\"P04637\"}."}},
+                "arguments":{"type":"object","additionalProperties":true,
+                    "description":"The selected command's typed arguments; example for get_protein: {\"id\":\"P04637\"}."}},
             "required":["command","arguments"],"additionalProperties":false},
         "annotations":{"readOnlyHint":read_only,"destructiveHint":false,"openWorldHint":true}})
 }
