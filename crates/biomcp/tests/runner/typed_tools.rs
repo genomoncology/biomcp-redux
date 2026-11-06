@@ -270,11 +270,9 @@ pub(super) fn guards() -> Result<(), String> {
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
     let tools = discovery(&env, &["--offline".into()])?;
-    let tool = tools
-        .iter()
-        .find(|tool| tool.get("name") == Some(&json!("search_drug")))
-        .ok_or("missing search_drug registry tool")?;
-    replay::rejects_overstrict_schema(tool)?;
+    let tool = super::typed_catalog::command(&tools, "search_biomarker")
+        .ok_or("missing search_biomarker registry route")?;
+    replay::rejects_overstrict_schema(&tool)?;
     let mut failures = Vec::new();
     if let Err(error) = baseline::invalid_id_witness() {
         failures.push(error);
