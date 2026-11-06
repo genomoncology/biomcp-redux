@@ -22,7 +22,7 @@ def main():
         "revision": manifest["revision"], "binary_sha256": digest,
     }, indent=2) + "\n")
     with tempfile.TemporaryDirectory(prefix="markdown-help-probe-") as scratch:
-        for path in (["author"], ["author", "papers"]):
+        for path in (["author"], ["author", "papers"], ["help"]):
             for form in ("json", "md"):
                 result = subprocess.run(
                     [str(binary), "--offline", "help", *path, "--format", form],
