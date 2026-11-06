@@ -22,47 +22,51 @@ pub(super) fn trials() -> Vec<Trial> {
     ]
 }
 fn drug() -> Result<(), String> {
-    let (value, tools) = response(
+    for (value, tools) in responses(
         "drug/name-get",
         json!({}),
         "get_drug",
         json!({"input":"Example ingredient","section":["approvals"]}),
-    )?;
-    if value.pointer("/result/identity/id") != Some(&json!("NDA021335"))
-        || value.pointer("/result/identity/name_resolution/input")
-            != Some(&json!("Example ingredient"))
-    {
-        return Err(format!("drug source data changed: {value}"));
+    )? {
+        if value.pointer("/result/identity/id") != Some(&json!("NDA021335"))
+            || value.pointer("/result/identity/name_resolution/input")
+                != Some(&json!("Example ingredient"))
+        {
+            return Err(format!("drug source data changed: {value}"));
+        }
+        call(
+            value
+                .pointer("/result/identity/name_resolution/alternatives/0")
+                .ok_or("drug alternatives")?,
+            "get_drug",
+            json!({"input":"NDA021588","source":"drugsfda"}),
+            &tools,
+        )?;
     }
-    call(
-        value
-            .pointer("/result/identity/name_resolution/alternatives/0")
-            .ok_or("drug alternatives")?,
-        "get_drug",
-        json!({"input":"NDA021588","source":"drugsfda"}),
-        &tools,
-    )
+    Ok(())
 }
 fn organization() -> Result<(), String> {
-    let (value, tools) = response(
+    for (value, tools) in responses(
         "organization/native",
         json!({"keys":{"nci_api_key":"synthetic-nci-replay"}}),
         "search_organization",
         json!({"source":"nci","name":"Dana-Farber","limit":5}),
-    )?;
-    if value.pointer("/result/items/3/name") != Some(&json!("Dana-Farber Cancer Institute"))
-        || value.pointer("/result/items/3/count") != Some(&json!(3376))
-    {
-        return Err(format!("organization source data changed: {value}"));
+    )? {
+        if value.pointer("/result/items/3/name") != Some(&json!("Dana-Farber Cancer Institute"))
+            || value.pointer("/result/items/3/count") != Some(&json!(3376))
+        {
+            return Err(format!("organization source data changed: {value}"));
+        }
+        call(
+            value
+                .pointer("/result/items/3/next")
+                .ok_or("organization pivot")?,
+            "search_trial",
+            json!({"facility":"Dana-Farber Cancer Institute","source":"nci"}),
+            &tools,
+        )?;
     }
-    call(
-        value
-            .pointer("/result/items/3/next")
-            .ok_or("organization pivot")?,
-        "search_trial",
-        json!({"facility":"Dana-Farber Cancer Institute","source":"nci"}),
-        &tools,
-    )
+    Ok(())
 }
 fn call(step: &Value, name: &str, arguments: Value, tools: &[Value]) -> Result<(), String> {
     if step.get("args").is_some()
@@ -82,6 +86,22 @@ fn call(step: &Value, name: &str, arguments: Value, tools: &[Value]) -> Result<(
         .validate(&arguments)
         .map_err(|e| e.to_string())
 }
+fn responses(
+    replay: &str,
+    config: Value,
+    name: &str,
+    arguments: Value,
+) -> Result<Vec<(Value, Vec<Value>)>, String> {
+    ["both", "structured-only", "text-only"]
+        .into_iter()
+        .map(|form| {
+            let mut config = config.clone();
+            config["mcp_reply_form"] = json!(form);
+            response(replay, config, name, arguments.clone())
+        })
+        .collect()
+}
+
 fn response(
     replay: &str,
     mut config: Value,
@@ -112,12 +132,18 @@ fn response(
         .and_then(Value::as_array)
         .ok_or("catalog")?
         .clone();
-    let value = replies
+    let reply = replies
         .iter()
         .find(|v| v["id"] == 2)
-        .and_then(|v| v.pointer("/result/structuredContent"))
-        .ok_or("nested reply")?
-        .clone();
+        .ok_or("nested reply")?;
+    let value = reply
+        .pointer("/result/structuredContent")
+        .cloned()
+        .or_else(|| {
+            let text = reply.pointer("/result/content/0/text")?.as_str()?;
+            serde_json::from_str(text.split_once('\n')?.1).ok()
+        })
+        .ok_or("nested body")?;
     Ok((value, tools))
 }
 fn fresh() -> Result<(), String> {
