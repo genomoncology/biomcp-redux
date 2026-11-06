@@ -88,8 +88,8 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
                 .map(|text| {
                     let mut lines = text.lines();
                     let first = lines.next().unwrap_or_default();
-                    // Older generated schemas prepend a compact help pointer to the original prose.
-                    if first.contains("biomcp_help") {
+                    // Generated schemas prepend a compact help pointer to the original prose.
+                    let text = if first.contains("biomcp_help") {
                         lines
                             .next()
                             .unwrap_or(first)
@@ -99,7 +99,13 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
                             .to_owned()
                     } else {
                         first.to_owned()
-                    }
+                    };
+                    text.split(". ")
+                        .next()
+                        .unwrap_or_default()
+                        .trim_end_matches('.')
+                        .to_owned()
+                        + "."
                 });
             if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
                 flags

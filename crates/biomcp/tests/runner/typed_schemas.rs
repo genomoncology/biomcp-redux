@@ -55,7 +55,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .map(|s| {
                     let mut lines = s.lines();
                     let first = lines.next().unwrap_or_default();
-                    if first.contains("biomcp_help") {
+                    let text = if first.contains("biomcp_help") {
                         lines
                             .next()
                             .unwrap_or(first)
@@ -65,7 +65,13 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                             .to_owned()
                     } else {
                         first.to_owned()
-                    }
+                    };
+                    text.split(". ")
+                        .next()
+                        .unwrap_or_default()
+                        .trim_end_matches('.')
+                        .to_owned()
+                        + "."
                 });
             if property.get("description").and_then(Value::as_str) != expected.as_deref() {
                 failures.push(format!("{name}.{key}: lost own description"));

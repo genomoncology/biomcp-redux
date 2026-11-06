@@ -33,26 +33,7 @@ pub(super) fn relevant(
 
 pub(super) fn schema(mut schema: Value, excluded: &BTreeSet<Source>) -> Value {
     filter(&mut schema, excluded);
-    if excluded.is_empty() {
-        return schema;
-    }
-    for key in ["source", "sources", "resolver"] {
-        let mut allowed = BTreeSet::new();
-        if let Some(node) = schema.pointer(&format!("/properties/{key}")) {
-            crate::help::coverage::source_words(node, &schema, &mut allowed);
-        }
-        if let Some(node) = schema.pointer_mut(&format!("/properties/{key}"))
-            && let Some(fields) = node.as_object_mut()
-        {
-            fields.insert(
-                "description".into(),
-                json!(format!(
-                    "Source: {}",
-                    allowed.into_iter().collect::<Vec<_>>().join(",")
-                )),
-            );
-        }
-    }
+
     schema
 }
 
