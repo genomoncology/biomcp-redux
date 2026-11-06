@@ -376,10 +376,18 @@ impl Service {
                     id,
                     &outcome,
                     modern,
-                    &self.globals,
-                    &self.settings,
-                    &self.root,
+                    crate::command::Context {
+                        globals: &self.globals,
+                        root: &self.root,
+                        settings: &self.settings,
+                        fetch: &self.fetch,
+                        recovery: self.recovery.as_deref(),
+                        secrets: keys.as_ref(),
+                        declared_use,
+                        scope: None,
+                    },
                     &call.args,
+                    true,
                 ),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),
             }
@@ -404,9 +412,13 @@ impl Service {
                 id.clone(),
                 rejected,
                 modern,
-                &self.globals,
-                &self.settings,
-                &self.root,
+                crate::command::Context::new(
+                    &self.globals,
+                    &self.fetch,
+                    &self.root,
+                    &self.settings,
+                ),
+                true,
             )
             .unwrap_or_else(|_| super::protocol::error(id.clone(), -32603, "Internal error"))
         })

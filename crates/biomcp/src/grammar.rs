@@ -463,7 +463,7 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
     })
 }
 
-fn request_arguments(
+pub(crate) fn request_arguments(
     verb: &str,
     entity: &str,
     matches: &clap::ArgMatches,

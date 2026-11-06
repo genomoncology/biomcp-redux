@@ -161,9 +161,13 @@ impl Server {
                     id,
                     rejected,
                     modern,
-                    &self.globals,
-                    &self.settings,
-                    &self.root,
+                    crate::command::Context::new(
+                        &self.globals,
+                        &self.fetch,
+                        &self.root,
+                        &self.settings,
+                    ),
+                    false,
                 )
                 .map(Some);
             }
@@ -260,10 +264,14 @@ impl Server {
                 call.id,
                 &outcome,
                 call.modern,
-                &self.globals,
-                &self.settings,
-                &self.root,
+                crate::command::Context::new(
+                    &self.globals,
+                    &self.fetch,
+                    &self.root,
+                    &self.settings,
+                ),
                 &call.args,
+                false,
             ),
             Err(_) => protocol::error(call.id, -32603, "Internal error"),
         }))

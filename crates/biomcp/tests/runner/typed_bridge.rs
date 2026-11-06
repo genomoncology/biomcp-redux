@@ -102,9 +102,9 @@ fn parity(env: &Environment, globals: &[String], call: Value, expected: &Value) 
         globals,
     )?;
     let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-    if &actual != expected
+    if super::typed_followups::data(&actual) != super::typed_followups::data(expected)
         || status != 200
-        || http.pointer("/result/structuredContent") != Some(expected)
+        || http.pointer("/result/structuredContent") != Some(&actual)
     {
         return Err(format!(
             "typed bridge differs: CLI {expected}, stdio {actual}, HTTP {http}"
@@ -166,7 +166,7 @@ fn fresh(source: &str, argv: &[&str], call: Value) -> Check {
     }
     let frame = request(json!(1), "tools/call", call);
     let actual = typed(&env, &globals, &frame)?;
-    if actual != expected {
+    if super::typed_followups::data(&actual) != super::typed_followups::data(&expected) {
         return Err(format!(
             "server freshness lost: CLI {expected}, typed {actual}"
         ));
