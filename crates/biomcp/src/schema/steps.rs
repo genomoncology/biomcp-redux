@@ -187,6 +187,16 @@ mod tests {
         let mut value = json!({"owned":{"next":{"kind":"pivot","args":["get","gene","BRAF"]}},
             "native":native,"cycle":{"next":{"args":["KEEP CYCLE"]}}});
         assert_eq!(paths(&schema, &value), ["/owned/next"]);
+        assert!(owns(
+            &schema,
+            &schema["properties"]["owned"]["properties"]["next"],
+            &value["owned"]["next"]
+        ));
+        assert!(!owns(
+            &schema,
+            &schema["properties"]["native"],
+            &value["native"]
+        ));
         remove(&mut value, "/owned/next");
         assert_eq!(value["native"], native);
         assert_eq!(value["cycle"]["next"]["args"], json!(["KEEP CYCLE"]));
