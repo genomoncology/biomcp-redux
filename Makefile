@@ -530,5 +530,9 @@ help-recovery-check:
 typed-followups-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-followups $(TEST_THREADS)
 typed-followups-affected:
-	+$(MAKE) --keep-going check-cheap
+	+$(MAKE) --keep-going check-cheap typed-followups-parity typed-followups-toolcases
+.PHONY: typed-followups-parity typed-followups-toolcases
+typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
+typed-followups-toolcases:
+	python3 scripts/trials.py --target tools --case-file drug/source-aliases.yaml --case-file drug/source-aliases-review-evidence.yaml --case-file drug/source-aliases-review-later.yaml --case-file drug/source-aliases-review-salt.yaml --case-file adverse-event/faers-reaction-counts.yaml
