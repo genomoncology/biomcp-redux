@@ -70,11 +70,21 @@ pub(super) fn read<'a>(
         .iter()
         .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biomcp_types::Reason::Disabled))
     {
+        // Expansion terms and provider warnings can repeat names from a disabled component.
+        let expanded = pool
+            .sources
+            .iter()
+            .flat_map(|source| &source.notices)
+            .any(|notice| matches!(notice, biomcp_types::SourceNotice::DrugNameSearch { .. }));
         out.sources = pool
             .sources
             .iter()
             .cloned()
             .map(|mut s| {
+                if expanded {
+                    s.term = None;
+                    s.notices.clear();
+                }
                 if cx.fetch.disabled(s.source) {
                     s.set_status(biomcp_types::SourceStatus::Skipped(Some(
                         biomcp_types::Reason::Disabled,
