@@ -141,6 +141,17 @@ pub(super) fn read<'a>(
             }
         }
     }
+    filter_stored_text(cx, store, id, &mut rows)?;
+    finish(query, pool, rows, out);
+    Ok(())
+}
+/// Recheck and rewrite retained article text before returning a stored page.
+fn filter_stored_text<'a>(
+    cx: &Ctx<'a>,
+    store: &mut Store<'a>,
+    id: &str,
+    rows: &mut [StoredItem],
+) -> Result<(), RequestError> {
     if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
         let leg = cx.fetch.leg(&pubmed::SPEC, store.deadline());
         let started = leg.remaining();
@@ -150,11 +161,11 @@ pub(super) fn read<'a>(
             row.item = item;
         }
         store.set_deadline(consume(store.deadline(), started, leg.remaining()));
-        store.rewrite_article_text(id, &rows)?;
+        store.rewrite_article_text(id, rows)?;
     }
-    finish(query, pool, rows, out);
     Ok(())
 }
+
 fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outcome) {
     for source in rows.iter().filter_map(|r| r.outcome.as_ref()) {
         if let Some(original) = out.sources.iter_mut().find(|s| s.source == source.source) {
