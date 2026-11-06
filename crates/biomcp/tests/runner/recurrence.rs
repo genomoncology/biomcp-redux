@@ -1,5 +1,6 @@
 //! Explicit cohort bounds cross the executable and TLS; no clinical interpretation.
 mod admission;
+mod forms;
 use super::{launch::Environment, network_stub::Stub};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -13,6 +14,10 @@ pub(super) fn trials() -> Vec<Trial> {
     trials.push(transcript_trial(
         "variant-recurrence/mutations-cache-admission",
         || admission::check().map_err(Into::into),
+    ));
+    trials.push(transcript_trial(
+        "variant-recurrence/accepted-forms-across-surfaces",
+        || forms::check().map_err(Into::into),
     ));
     trials
 }
