@@ -240,14 +240,19 @@ fn native_boundary() -> Result<(), String> {
         "alternatives":[{"kind":"pivot","args":["KEEP TOO"]}]});
     let mut value = json!({"owned":{"next":{"kind":"pivot","args":["get","gene","BRAF"]}},
         "native":native,"cycle":{"next":{"args":["KEEP CYCLE"]}}});
+    let native_schema = schema
+        .pointer("/properties/native")
+        .ok_or("native schema")?;
+    let native_value = value.get("native").ok_or("native JSON")?;
     if super::step_paths::paths(&schema, &schema, &value) != ["/owned/next"]
-        || !super::step_paths::paths(&schema, &schema["properties"]["native"], &value["native"])
-            .is_empty()
+        || !super::step_paths::paths(&schema, native_schema, native_value).is_empty()
     {
         return Err("native JSON or nonproductive reference became executable control".into());
     }
     super::step_paths::remove(&mut value, "/owned/next");
-    if value["native"] != native || value["cycle"]["next"]["args"] != json!(["KEEP CYCLE"]) {
+    if value.get("native") != Some(&native)
+        || value.pointer("/cycle/next/args") != Some(&json!(["KEEP CYCLE"]))
+    {
         return Err("native JSON changed while removing an owned Step".into());
     }
     Ok(())
