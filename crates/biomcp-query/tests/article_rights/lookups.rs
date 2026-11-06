@@ -14,7 +14,7 @@ fn items(out: biomcp_query::Outcome) -> Vec<ArticleItem> {
     else {
         panic!("article page: {out:?}")
     };
-    page.items
+    page.items.into_vec()
 }
 fn stored(fetch: &Fetch, sql: &str) -> i64 {
     let connection = fetch.cache_access().unwrap().connect().unwrap();
