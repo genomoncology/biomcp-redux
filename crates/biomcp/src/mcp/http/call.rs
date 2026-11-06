@@ -180,9 +180,16 @@ mod tests {
         }
     }
     #[test]
-    #[expect(clippy::disallowed_methods, reason = "Inject OS failures and observe recovery over a real local socket")]
+    #[expect(
+        clippy::disallowed_methods,
+        reason = "Inject OS failures and observe recovery over a real local socket"
+    )]
     fn accept_and_spawn_failures_leave_server_running() {
-        use std::{io::{Read, Write}, net::{TcpListener, TcpStream}, sync::Arc};
+        use std::{
+            io::{Read, Write},
+            net::{TcpListener, TcpStream},
+            sync::Arc,
+        };
         let listener = TcpListener::bind("127.0.0.1:0").unwrap();
         let address = listener.local_addr().unwrap();
         let mut service = test_service();
@@ -192,18 +199,24 @@ mod tests {
         let server = std::thread::spawn(move || {
             let mut first_accept = true;
             let mut first_spawn = true;
-            super::super::connections::run_with(listener, Arc::new(service), stopped, |listener| {
-                if std::mem::take(&mut first_accept) {
-                    return Err(std::io::Error::other("forced accept failure"));
-                }
-                listener.accept().map(|(stream, _)| stream)
-            }, |work| {
-                if std::mem::take(&mut first_spawn) {
-                    failed.send(()).unwrap();
-                    return Err(std::io::Error::other("forced thread failure"));
-                }
-                std::thread::Builder::new().spawn(work)
-            })
+            super::super::connections::run_with(
+                listener,
+                Arc::new(service),
+                stopped,
+                |listener| {
+                    if std::mem::take(&mut first_accept) {
+                        return Err(std::io::Error::other("forced accept failure"));
+                    }
+                    listener.accept().map(|(stream, _)| stream)
+                },
+                |work| {
+                    if std::mem::take(&mut first_spawn) {
+                        failed.send(()).unwrap();
+                        return Err(std::io::Error::other("forced thread failure"));
+                    }
+                    std::thread::Builder::new().spawn(work)
+                },
+            )
         });
         let rejected = TcpStream::connect(address).unwrap();
         observed.recv_timeout(DEADLOCK_GUARD).unwrap();
@@ -220,10 +233,15 @@ mod tests {
     }
     #[test]
     fn call_diagnostic_keeps_only_safe_fields() {
-        let params = json!({"name":"get_gene", "arguments":{"id":"private-query", "key":"private-key"}});
+        let params =
+            json!({"name":"get_gene", "arguments":{"id":"private-query", "key":"private-key"}});
         let reply = json!({"result":{"structuredContent":{"status":"partial", "query":"private-query", "sources":[{"source":"mygene", "state":"failed", "term":"private-key"}, {"source":"private-key", "state":"failed"}]}}});
-        let line = super::super::logging::line(&params, Duration::from_millis(7), 200, Some(&reply));
-        assert_eq!(line, json!({"event":"mcp_call", "tool":"get_gene", "duration_ms":7, "status":"partial", "failed_sources":["mygene"]}));
+        let line =
+            super::super::logging::line(&params, Duration::from_millis(7), 200, Some(&reply));
+        assert_eq!(
+            line,
+            json!({"event":"mcp_call", "tool":"get_gene", "duration_ms":7, "status":"partial", "failed_sources":["mygene"]})
+        );
         let unsafe_params = json!({"name":"private-query"});
         let line = super::super::logging::line(&unsafe_params, Duration::ZERO, 200, None);
         assert_eq!(line["tool"], "unknown");

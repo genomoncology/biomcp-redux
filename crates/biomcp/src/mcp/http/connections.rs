@@ -1,6 +1,11 @@
 //! Recover individual socket and worker failures while retaining admission bounds.
-use super::{Service, ACCEPT_POLL, admission, record, wire};
-use std::{io, net::{TcpListener, TcpStream}, sync::Arc, thread};
+use super::{ACCEPT_POLL, Service, admission, record, wire};
+use std::{
+    io,
+    net::{TcpListener, TcpStream},
+    sync::Arc,
+    thread,
+};
 #[expect(
     clippy::disallowed_methods,
     reason = "Own bounded framing and active request workers through completion"
@@ -10,11 +15,18 @@ pub(super) fn run(
     service: Arc<Service>,
     stopped: std::sync::mpsc::Receiver<()>,
 ) -> io::Result<()> {
-    run_with(listener, service, stopped, |listener| listener.accept().map(|(stream, _)| stream), |work| {
-        thread::Builder::new().name("mcp-http".into()).spawn(work)
-    })
+    run_with(
+        listener,
+        service,
+        stopped,
+        |listener| listener.accept().map(|(stream, _)| stream),
+        |work| thread::Builder::new().name("mcp-http".into()).spawn(work),
+    )
 }
-#[expect(clippy::disallowed_methods, reason = "Own bounded HTTP worker handles until shutdown")]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "Own bounded HTTP worker handles until shutdown"
+)]
 pub(super) fn run_with(
     listener: TcpListener,
     service: Arc<Service>,
@@ -51,7 +63,7 @@ pub(super) fn run_with(
                     Ok(()) | Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
                     Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
                 }
-            },
+            }
         };
         let mut retained = Vec::with_capacity(workers.len());
         for worker in workers {
@@ -80,7 +92,6 @@ pub(super) fn run_with(
             Ok(worker) => workers.push(worker),
             Err(error) => record(Err(error)),
         }
-
     }
     drop(listener);
     service.calls.cancel();

@@ -282,7 +282,9 @@ pub(super) fn read_only_health(server: &Server) -> Result<(u16, serde_json::Valu
             "health admitted or migrated an old query schema: {status} {old} version={version}"
         ));
     }
-    connection.execute_batch("DROP TABLE meta").map_err(|e| e.to_string())?;
+    connection
+        .execute_batch("DROP TABLE meta")
+        .map_err(|e| e.to_string())?;
     let (status, damaged) = server.request("GET", "/health", "")?;
     if status != 503 || damaged.get("store") != Some(&serde_json::json!(false)) {
         return Err(format!("damaged store passed health: {status} {damaged}"));
