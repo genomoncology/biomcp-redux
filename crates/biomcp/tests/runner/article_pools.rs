@@ -72,7 +72,7 @@ fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String
         }
     })
     .map_err(|e| e.to_string())?;
-    let cache = env.root().join("cache");
+    let cache = env.root().join("article-case-cache");
     let first = invoke(&env, cached(command, &cache, Some(&replay)), 0)?;
     if first["status"] != "partial" {
         return Err(format!("partial fixture did not remain useful: {first}"));
@@ -110,7 +110,7 @@ fn partial(recording: &str, command: &[&str], damage: &str) -> Result<(), String
 
 fn disabled() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let cache = env.root().join("cache");
+    let cache = env.root().join("article-case-cache");
     let replay = env.root().join("replay");
     super::response_cases::copy_capture("article/fold/failed-pubmed", &replay, |_, record| {
         for exchange in record["exchanges"].as_array_mut().into_iter().flatten() {
