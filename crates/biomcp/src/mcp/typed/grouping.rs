@@ -2,7 +2,6 @@
 use serde_json::{Value, json};
 use std::io;
 
-#[derive(Default)]
 pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
     commands: Vec<Value>,
