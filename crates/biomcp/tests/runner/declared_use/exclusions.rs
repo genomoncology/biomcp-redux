@@ -192,7 +192,11 @@ fn offers_reactions(reply: &Value) -> bool {
         .and_then(Value::as_array)
         .into_iter()
         .flatten()
-        .any(|step| step["args"].as_array().is_some_and(|args| args.contains(&json!("reactions"))))
+        .any(|step| {
+            step["args"]
+                .as_array()
+                .is_some_and(|args| args.contains(&json!("reactions")))
+        })
 }
 
 fn reaction_filter(server: &Server, extra: &str) -> Check<bool> {
