@@ -173,8 +173,20 @@ fn execute<'a>(
             }
         }
     };
+    let text_withheld = (cx.fetch.disabled_use(biomcp_types::Use::PerRecord)
+        && matches!(
+            content,
+            Section::Unavailable {
+                reason: Reason::NotOpen,
+                ..
+            }
+        ))
+    .then(|| biomcp_types::WithheldArticleText {
+        reason: Reason::NotOpen,
+        url: Text::new(&format!("https://pmc.ncbi.nlm.nih.gov/articles/{id}/")).ok(),
+    });
     out.body = (ArticleTextResult {
-        text_withheld: None,
+        text_withheld,
         pmcid: Some(id),
         content,
     })

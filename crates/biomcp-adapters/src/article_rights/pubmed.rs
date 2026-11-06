@@ -43,8 +43,8 @@ pub(super) fn filter_with_licenses(
                 replacement = replacement.replace(text.0, "");
             }
         }
-        replacement =
-            replacement.replace("</PubmedArticle>", "<BioMcpTextWithheld/></PubmedArticle>");
+        let closing = replacement.rfind("</PubmedArticle").ok_or(BadReply)?;
+        replacement.insert_str(closing, "<BioMcpTextWithheld/>");
         filtered = filtered.replacen(article.0, &replacement, 1);
     }
     // Keep all citation records, including those with no readable abstract.
