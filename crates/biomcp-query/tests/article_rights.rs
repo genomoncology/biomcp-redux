@@ -7,7 +7,7 @@ use std::{path::Path, time::Duration};
 
 fn run(fetch: &Fetch) -> biomcp_query::Outcome {
     biomcp_query::run(&biomcp_query::Ctx { fetch, budget: Duration::from_secs(20), fresh: false, ncbi_email: None },
-        &Request::SearchArticle(serde_json::from_str::<ArticleSearch>(r#"{"text":"rights witness","sources":["litsense"],"limit":3}"#).unwrap()))
+        &Request::SearchArticle(serde_json::from_str::<ArticleSearch>(r#"{"text":"rights witness","source":["litsense"],"limit":3}"#).unwrap()))
 }
 fn record(dir: &Path) {
     let stub = Stub::for_sources(&["www.ncbi.nlm.nih.gov", "eutils.ncbi.nlm.nih.gov", "pmc-oa-opendata.s3.amazonaws.com"],
