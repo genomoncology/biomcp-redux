@@ -48,7 +48,7 @@
       "x-positional": 0
     },
     "section": {
-      "description": "Case-insensitive: Select native sections or all; biomcp_help get protein",
+      "description": "Select native sections or all bounded first pages;; biomcp_help get protein",
       "items": {
         "$ref": "#/$defs/ProteinSection"
       },

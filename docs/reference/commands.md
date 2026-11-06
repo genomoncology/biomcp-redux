@@ -4,6 +4,8 @@ Generated from the command grammar and schema help. Run `make docs-generate` to 
 
 Options shown on the root command apply to its subcommands. Query sections and source rules follow each command.
 
+Listed choices accept any letter case; replies use their listed spelling.
+
 ## biomcp
 
 ```text
@@ -85,7 +87,8 @@ serve: Serve MCP over standard input or HTTP.
 schema: List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
 help: Describe commands and their arguments.
 
-- `--format`: Choose JSON or Markdown output; configuration can change the default. Value form: string. Example: --format json. Local command option; independent of source selection.
+- `--format`: Choose JSON or Markdown output; configuration can change the default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --format json. Local command option; independent of source selection.
 - `--disable-sources`: Exclude source names or source terms groups. Example: --disable-sources civic. Value form: string. Local command option; independent of source selection.
 - `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'. Value form: string. Local command option; independent of source selection.
 - `--config`: Read configuration from this file. Example: --config config.json. Value form: string. Local command option; independent of source selection.
@@ -191,8 +194,8 @@ Options:
           Snapshot identity retained by continuation commands.
 
       --source <source>
-          Case-insensitive: Explicit keyed NCI source; biomcp_help search biomarker
-          Case-insensitive: Explicit keyed NCI source.
+          Explicit keyed NCI source; biomcp_help search biomarker
+          Explicit keyed NCI source.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -214,8 +217,9 @@ Search NCI biomarker concepts by name or synonym. Sources: nci.
 - `--name`: Source partial name or synonym search. Value form: string. Example: --name PD-L1. Command sources: nci; source restrictions in the field description apply.
 - `--offset`: Offset within the complete retained observation. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
 - `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: nci; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit keyed NCI source; biomcp_help search biomarker
-Case-insensitive: Explicit keyed NCI source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
+- `--source`: Explicit keyed NCI source; biomcp_help search biomarker
+Explicit keyed NCI source.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
 
 ## biomcp search author
 
@@ -254,8 +258,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Case-insensitive: Native author source; biomcp_help search author
-          Case-insensitive: Native author source.
+          Native author source; biomcp_help search author
+          Native author source.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -277,8 +281,9 @@ Search research paper authors. Sources: semantic-scholar.
 - `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Retained page identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: semantic-scholar; source restrictions in the field description apply.
 - `query`: Exact query from the positional argument.
-- `--source`: Case-insensitive: Source author source; biomcp_help search author
-Case-insensitive: Source author source. Value form: string. Example: --source semanticscholar. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--source`: Source author source; biomcp_help search author
+Source author source.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semanticscholar. Command sources: semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp search organization
 
@@ -349,8 +354,8 @@ Options:
           Native postal code.
 
       --source <source>
-          Case-insensitive: Explicit keyed NCI source; biomcp_help search organization
-          Case-insensitive: Explicit keyed NCI source.
+          Explicit keyed NCI source; biomcp_help search organization
+          Explicit keyed NCI source.
 
       --state <state>
           Native state or province.
@@ -370,8 +375,9 @@ Search clinical research organizations. Sources: nci.
 - `--offset`: Offset within the complete retained organization snapshot. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
 - `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: nci; source restrictions in the field description apply.
 - `--postal-code`: Source postal code. Value form: string. Example: --postal-code 02215. Command sources: nci; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit keyed NCI source; biomcp_help search organization
-Case-insensitive: Explicit keyed NCI source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
+- `--source`: Explicit keyed NCI source; biomcp_help search organization
+Explicit keyed NCI source.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
 - `--state`: Source state or province. Value form: string. Example: --state MA. Command sources: nci; source restrictions in the field description apply.
 
 ## biomcp search cell-line
@@ -638,8 +644,8 @@ Options:
           Native source row offset.
 
       --source <source>
-          Case-insensitive: Monarch only; HPO search is; biomcp_help search phenotype
-          Case-insensitive: Monarch only; HPO search is unsupported.
+          Monarch only; HPO search is unsupported; biomcp_help search phenotype
+          Monarch only; HPO search is unsupported.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -665,8 +671,9 @@ Search human phenotypes in HPO. Sources: hpo, monarch.
 
 - `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--offset`: Source source row offset. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Monarch only; HPO search is; biomcp_help search phenotype
-Case-insensitive: Monarch only; HPO search is unsupported. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--source`: Monarch only; HPO search is unsupported; biomcp_help search phenotype
+Monarch only; HPO search is unsupported.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `text`: Unchanged exact term search text.
 
 ## biomcp search pathway
@@ -715,8 +722,8 @@ Options:
           Retained snapshot identity for deterministic continuation.
 
       --source <source>
-          Case-insensitive: Sources in caller order; repeated; biomcp_help search pathway
-          Case-insensitive: Sources in caller order; repeated sources take turns without title joins.
+          Sources in caller order; repeated sources take; biomcp_help search pathway
+          Sources in caller order; repeated sources take turns without title joins.
 
       --top-level[=<top_level>]
           Native human Reactome top-level discovery, exclusive with text and gene.
@@ -740,8 +747,9 @@ Search human biological pathways. Sources: reactome, wikipathways.
 - `--offset`: Source Reactome Start row or retained WikiPathways catalog offset. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--pool`: Retained snapshot identity for deterministic continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `query`: Exact source query; exclusive with gene and top-level discovery.
-- `--source`: Case-insensitive: Sources in caller order; repeated; biomcp_help search pathway
-Case-insensitive: Sources in caller order; repeated sources take turns without title joins. Value form: repeatable values (repeat the flag). Example: --source reactome. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--source`: Sources in caller order; repeated sources take; biomcp_help search pathway
+Sources in caller order; repeated sources take turns without title joins.
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --source reactome. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene. Value form: boolean. Example: --top-level. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
 ## biomcp search study
@@ -841,8 +849,8 @@ Options:
           Native source offset.
 
       --source <source>
-          Case-insensitive: Required CPIC source; ClinPGx is not; biomcp_help search pgx
-          Case-insensitive: Required CPIC source; ClinPGx is not supported for search.
+          Required CPIC source; ClinPGx is not supported for; biomcp_help search pgx
+          Required CPIC source; ClinPGx is not supported for search.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -864,8 +872,9 @@ Search pharmacogenomic gene and drug pairs. Sources: cpic.
 - `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: cpic; source restrictions in the field description apply.
 - `--limit`: Rows per source page. Value form: integer. Example: --limit 1. Command sources: cpic; source restrictions in the field description apply.
 - `--offset`: Source source offset. Value form: integer. Example: --offset 0. Command sources: cpic; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Required CPIC source; ClinPGx is not; biomcp_help search pgx
-Case-insensitive: Required CPIC source; ClinPGx is not supported for search. Value form: string. Example: --source cpic. Command sources: cpic; source restrictions in the field description apply.
+- `--source`: Required CPIC source; ClinPGx is not supported for; biomcp_help search pgx
+Required CPIC source; ClinPGx is not supported for search.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cpic. Command sources: cpic; source restrictions in the field description apply.
 
 ## biomcp search diagnostic
 
@@ -969,13 +978,13 @@ Options:
           Exact native FDA device recall product code.
 
       --source <source>
-          Case-insensitive: Native diagnostic source; biomcp_help search diagnostic
-          Case-insensitive: Native diagnostic source.
+          Native diagnostic source; biomcp_help search diagnostic
+          Native diagnostic source.
           Explicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
 
       --type <type>
-          Case-insensitive: Native test_type; biomcp_help search diagnostic
-          Case-insensitive: Native test_type.
+          Native test_type; biomcp_help search diagnostic
+          Native test_type.
           Exact native test_type value.
 
 ```
@@ -1014,12 +1023,14 @@ Source trade_name (PMA) or device_name (510(k)) phrase. Value form: string. Exam
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--product-code`: FDA product code.
 Exact source FDA device recall product code. Value form: string. Example: --product-code ABC. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Source diagnostic source; biomcp_help search diagnostic
-Case-insensitive: Source diagnostic source.
-Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--type`: Case-insensitive: Source test_type; biomcp_help search diagnostic
-Case-insensitive: Source test_type.
-Exact source test_type value. Value form: string. Example: --type Research. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--source`: Source diagnostic source; biomcp_help search diagnostic
+Source diagnostic source.
+Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--type`: Source test_type; biomcp_help search diagnostic
+Source test_type.
+Exact source test_type value.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --type Research. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 
 ## biomcp search adverse-event
 
@@ -1034,12 +1045,12 @@ Arguments:
           Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
   [section]
-          Case-insensitive: VAERS table; biomcp_help search adverse-event
+          VAERS table; biomcp_help search adverse-event
 
 Options:
       --aggregate <aggregate>
-          Case-insensitive: FAERS reaction counts; biomcp_help search adverse-event
-          Case-insensitive: FAERS reaction counts.
+          FAERS reaction counts; biomcp_help search adverse-event
+          FAERS reaction counts.
           Use reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
 
       --format <format>
@@ -1104,8 +1115,8 @@ Options:
           Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
 
       --serious <serious>
-          Case-insensitive: FAERS seriousness flag; biomcp_help search adverse-event
-          Case-insensitive: FAERS seriousness flag.
+          FAERS seriousness flag; biomcp_help search adverse-event
+          FAERS seriousness flag.
           FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
 
       --snapshot <snapshot>
@@ -1113,17 +1124,18 @@ Options:
           Retained VAERS table for provider-free continuation.
 
       --source <source>
-          Case-insensitive: Source; default FAERS; biomcp_help search adverse-event
-          Case-insensitive: Source; default FAERS.
+          Source; default FAERS; biomcp_help search adverse-event
+          Source; default FAERS.
           FAERS by default; VAERS accepts only exact supported vaccine names.
 
 ```
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
-- `--aggregate`: Case-insensitive: FAERS reaction counts; biomcp_help search adverse-event
-Case-insensitive: FAERS reaction counts.
-Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--aggregate`: FAERS reaction counts; biomcp_help search adverse-event
+FAERS reaction counts.
+Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
 FAERS exact drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1140,15 +1152,18 @@ FAERS MedDRA term phrase match, not exact equality. Value form: string. Example:
 Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-to`: Last date, YYYY-MM[-DD].
 Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `section`: Case-insensitive: VAERS table; biomcp_help search adverse-event
-- `--serious`: Case-insensitive: FAERS seriousness flag; biomcp_help search adverse-event
-Case-insensitive: FAERS seriousness flag.
-FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `section`: VAERS table; biomcp_help search adverse-event
+Listed choices accept any letter case; replies use their listed spelling.
+- `--serious`: FAERS seriousness flag; biomcp_help search adverse-event
+FAERS seriousness flag.
+FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--snapshot`: VAERS snapshot.
 Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Source; default FAERS; biomcp_help search adverse-event
-Case-insensitive: Source; default FAERS.
-FAERS by default; VAERS accepts only exact supported vaccine names. Value form: string. Example: --source maude. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--source`: Source; default FAERS; biomcp_help search adverse-event
+Source; default FAERS.
+FAERS by default; VAERS accepts only exact supported vaccine names.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source maude. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `text`: Drug, device or vaccine.
 Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
 
@@ -1186,8 +1201,8 @@ Options:
           Native row offset.
 
       --ontology <ontology>
-          Case-insensitive: Exactly one ontology, default; biomcp_help search disease
-          Case-insensitive: Exactly one ontology, default MONDO.
+          Exactly one ontology, default MONDO; biomcp_help search disease
+          Exactly one ontology, default MONDO.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -1196,8 +1211,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Case-insensitive: One explicit source, default OLS; biomcp_help search disease
-          Case-insensitive: One explicit source, default OLS.
+          One explicit source, default OLS; biomcp_help search disease
+          One explicit source, default OLS.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1217,10 +1232,12 @@ Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
 
 - `--limit`: Maximum source rows on one page. Value form: integer. Example: --limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--offset`: Source row offset. Value form: integer. Example: --offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--ontology`: Case-insensitive: Exactly one ontology, default; biomcp_help search disease
-Case-insensitive: Exactly one ontology, default MONDO. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--source`: Case-insensitive: One explicit source, default OLS; biomcp_help search disease
-Case-insensitive: One explicit source, default OLS. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--ontology`: Exactly one ontology, default MONDO; biomcp_help search disease
+Exactly one ontology, default MONDO.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--source`: One explicit source, default OLS; biomcp_help search disease
+One explicit source, default OLS.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `text`: Exact source search text; absent for the SEER site catalog.
 
 ## biomcp search drug
@@ -1241,8 +1258,8 @@ Arguments:
 
 Options:
       --classification <classification>
-          Case-insensitive: Native FDA classification; drug; biomcp_help search drug
-          Case-insensitive: Native FDA classification; drug recalls only.
+          Native FDA classification; drug recalls only; biomcp_help search drug
+          Native FDA classification; drug recalls only.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1277,8 +1294,8 @@ Options:
           Native candidate rows per page.
 
       --name-selector <name_selector>
-          Case-insensitive: Explicit ChEMBL native name; biomcp_help search drug
-          Case-insensitive: Explicit ChEMBL native name selector; omitted means preferred name.
+          Explicit ChEMBL native name selector; omitted means; biomcp_help search drug
+          Explicit ChEMBL native name selector; omitted means preferred name.
 
       --offset <offset>
           Native rows to skip.
@@ -1305,8 +1322,8 @@ Options:
           Phrase in the published recall reason; drug recalls only.
 
       --source <source>
-          Case-insensitive: Selected source; biomcp_help search drug
-          Case-insensitive: Selected source.
+          Selected source; biomcp_help search drug
+          Selected source.
 
           After an empty name lookup, existing sources may supply aliases.
 
@@ -1317,8 +1334,9 @@ Options:
 
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
-- `--classification`: Case-insensitive: Source FDA classification; drug; biomcp_help search drug
-Case-insensitive: Source FDA classification; drug recalls only. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--classification`: Source FDA classification; drug recalls only; biomcp_help search drug
+Source FDA classification; drug recalls only.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--firm`: Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--indication`: Exact label indication; openFDA labels only.
 Search the source Indications and Usage field without disease synonym expansion.
@@ -1326,8 +1344,9 @@ An optional name query further narrows the same source search. Value form: strin
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--limit`: Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--name-selector`: Case-insensitive: Explicit ChEMBL source name; biomcp_help search drug
-Case-insensitive: Explicit ChEMBL source name selector; omitted means preferred name. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--name-selector`: Explicit ChEMBL source name selector; omitted means; biomcp_help search drug
+Explicit ChEMBL source name selector; omitted means preferred name.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
@@ -1338,10 +1357,11 @@ exact names before word matches. openFDA labels search exact then word brand/gen
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
 - `--reason`: Phrase in the published recall reason; drug recalls only. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Selected source; biomcp_help search drug
-Case-insensitive: Selected source.
+- `--source`: Selected source; biomcp_help search drug
+Selected source.
 
-After an empty name lookup, existing sources may supply aliases. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+After an empty name lookup, existing sources may supply aliases.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--status`: Exact source recall status; drug recalls only. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 
 ## biomcp search gene
@@ -1372,8 +1392,8 @@ Options:
           Number of results per page.
 
       --locus-group <locus_group>
-          Case-insensitive: Optional HGNC locus group; biomcp_help search gene
-          Case-insensitive: Optional HGNC locus group intersected with the selector.
+          Optional HGNC locus group intersected with the; biomcp_help search gene
+          Optional HGNC locus group intersected with the selector.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -1402,8 +1422,9 @@ Search human genes by name or identifier. Sources: hgnc.
 
 - `--band`: A cytoband prefix. Value form: string. Example: --band 9p21.3. Command sources: hgnc; source restrictions in the field description apply.
 - `--limit`: Number of results per page. Value form: integer. Example: --limit 50. Command sources: hgnc; source restrictions in the field description apply.
-- `--locus-group`: Case-insensitive: Optional HGNC locus group; biomcp_help search gene
-Case-insensitive: Optional HGNC locus group intersected with the selector. Value form: string. Example: --locus-group pseudogene. Command sources: hgnc; source restrictions in the field description apply.
+- `--locus-group`: Optional HGNC locus group intersected with the; biomcp_help search gene
+Optional HGNC locus group intersected with the selector.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --locus-group pseudogene. Command sources: hgnc; source restrictions in the field description apply.
 - `--offset`: Number of results to skip. Value form: integer. Example: --offset 24. Command sources: hgnc; source restrictions in the field description apply.
 - `query`: Words matched against symbols, previous symbols, aliases and names.
 
@@ -1502,16 +1523,16 @@ Options:
           PubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date.
 
       --sort <sort>
-          Case-insensitive: rank, date or citations; biomcp_help search article
-          Case-insensitive: rank, date or citations.
+          rank, date or citations; biomcp_help search article
+          rank, date or citations.
           rank (default): native provider order; several sources take turns; native search cost.
           date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
           citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
           All sources support citations.
 
       --source <source>
-          Case-insensitive: Sources; default pubmed; biomcp_help search article
-          Case-insensitive: Sources; default pubmed.
+          Sources; default pubmed; biomcp_help search article
+          Sources; default pubmed.
           Sources to search in caller order, comma separated. Default: pubmed.
           Several sources take turns, remove duplicates and show every native rank.
           pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
@@ -1522,8 +1543,8 @@ Options:
           pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
 
       --type <type>
-          Case-insensitive: Publication type; biomcp_help search article
-          Case-insensitive: Publication type.
+          Publication type; biomcp_help search article
+          Publication type.
           PubMed and Europe PMC only: native publication-type filter.
 
       --until <until>
@@ -1558,22 +1579,23 @@ PubMed and Europe PMC only: exclude preprints using the source's source filter. 
 PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF. Value form: boolean. Example: --open-access. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Stable result snapshot.
 Stable snapshot from an earlier response. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--exclude-retracted`: Case-insensitive: Retraction filter; biomcp_help search article
-Case-insensitive: Retraction filter.
+- `--exclude-retracted`: Retraction filter; biomcp_help search article
+Retraction filter.
 Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean. Example: --exclude-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--include-retracted`: Case-insensitive: Retraction filter; biomcp_help search article
-Case-insensitive: Retraction filter.
+- `--include-retracted`: Retraction filter; biomcp_help search article
+Retraction filter.
 Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean. Example: --include-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--since`: First publication date.
 PubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date. Value form: string. Example: --since 2024. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--sort`: Case-insensitive: rank, date or citations; biomcp_help search article
-Case-insensitive: rank, date or citations.
+- `--sort`: rank, date or citations; biomcp_help search article
+rank, date or citations.
 rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
 citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
-All sources support citations. Value form: string. Example: --sort date. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Sources; default pubmed; biomcp_help search article
-Case-insensitive: Sources; default pubmed.
+All sources support citations.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort date. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--source`: Sources; default pubmed; biomcp_help search article
+Sources; default pubmed.
 Sources to search in caller order, comma separated. Default: pubmed.
 Several sources take turns, remove duplicates and show every source rank.
 pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
@@ -1581,12 +1603,14 @@ europepmc: words in open full text and preprints; incidental mentions are possib
 litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
 semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
 litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
-pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. Value form: repeatable values (repeat the flag). Example: --source europepmc. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --source europepmc. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `text`: Source search words.
 Words sent to each named source in its default fields; unsupported by LitVar, which requires a variant selector.
-- `--type`: Case-insensitive: Publication type; biomcp_help search article
-Case-insensitive: Publication type.
-PubMed and Europe PMC only: source publication-type filter. Value form: string. Example: --type review. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--type`: Publication type; biomcp_help search article
+Publication type.
+PubMed and Europe PMC only: source publication-type filter.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --type review. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--until`: Last publication date.
 PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string. Example: --until 2020. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--variant`: Variant words. Value form: string. Example: --variant rs121434592. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
@@ -1623,8 +1647,8 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --biomarker-use <biomarker_use>
-          Case-insensitive: NCI criterion; biomcp_help search trial
-          Case-insensitive: NCI criterion.
+          NCI criterion; biomcp_help search trial
+          NCI criterion.
           Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
       --source_pacing <source_pacing>
@@ -1649,8 +1673,8 @@ Options:
           [possible values: true, false]
 
       --country <country>...
-          Case-insensitive: Country label; biomcp_help search trial
-          Case-insensitive: Country label.
+          Country label; biomcp_help search trial
+          Country label.
           Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.
 
       --criteria <criteria>
@@ -1728,17 +1752,17 @@ Options:
           Zero-based offset of the first row in this continuation page.
 
       --phase <phase>
-          Case-insensitive: Native phase; biomcp_help search trial
-          Case-insensitive: Native phase.
+          Native phase; biomcp_help search trial
+          Native phase.
           Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
 
       --sex <sex>
-          Case-insensitive: ClinicalTrials.gov only: registry; biomcp_help search trial
-          Case-insensitive: ClinicalTrials.gov only: registry sex facet.
+          ClinicalTrials.gov only: registry sex facet; biomcp_help search trial
+          ClinicalTrials.gov only: registry sex facet.
 
       --source <source>
-          Case-insensitive: clinicaltrials/nci; biomcp_help search trial
-          Case-insensitive: clinicaltrials/nci.
+          clinicaltrials/nci; biomcp_help search trial
+          clinicaltrials/nci.
           Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --sponsor <sponsor>
@@ -1746,18 +1770,18 @@ Options:
           ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category.
 
       --sponsor-type <sponsor_type>
-          Case-insensitive: Funding class; biomcp_help search trial
-          Case-insensitive: Funding class.
+          Funding class; biomcp_help search trial
+          Funding class.
           ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name.
 
       --status <status>
-          Case-insensitive: Native status; biomcp_help search trial
-          Case-insensitive: Native status.
+          Native status; biomcp_help search trial
+          Native status.
           Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
 
       --study-type <study_type>
-          Case-insensitive: Study type; biomcp_help search trial
-          Case-insensitive: Study type.
+          Study type; biomcp_help search trial
+          Study type.
           ClinicalTrials.gov only: exact registry study type.
 
       --updated-since <updated_since>
@@ -1780,18 +1804,20 @@ Search clinical trials. Sources: ctgov, nci.
 ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer. Example: --age 18. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--biomarker-code`: NCI NCIt code.
 Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string. Example: --biomarker-code C96022. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--biomarker-use`: Case-insensitive: NCI criterion; biomcp_help search trial
-Case-insensitive: NCI criterion.
-Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string. Example: --biomarker-use inclusion. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--biomarker-use`: NCI criterion; biomcp_help search trial
+NCI criterion.
+Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --biomarker-use inclusion. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--condition`: Disease or NCIt.
 Condition alternatives joined with OR; NCI requires NCIt codes. Value form: repeatable values (repeat the flag). Example: --condition melanoma. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--condition-id`: MONDO/DOID/NCIT:C.
 Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string. Example: --condition-id NCIT:C3224. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--count-only`: Total.
 Source total only; no returned study rows. Value form: boolean. Example: --count-only. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--country`: Case-insensitive: Country label; biomcp_help search trial
-Case-insensitive: Country label.
-Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--country`: Country label; biomcp_help search trial
+Country label.
+Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--criteria`: Criteria text.
 ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--distance`: Radius, mi or km.
@@ -1820,27 +1846,33 @@ ClinicalTrials.gov only: radius center longitude in degrees. Value form: string.
 Opaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page <next-page> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--offset`: Page offset.
 Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--phase`: Case-insensitive: Source phase; biomcp_help search trial
-Case-insensitive: Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string. Example: --phase 1. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--phase`: Source phase; biomcp_help search trial
+Source phase.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --phase 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `query`: Trial text.
 General registry discovery text.
-- `--sex`: Case-insensitive: ClinicalTrials.gov only: registry; biomcp_help search trial
-Case-insensitive: ClinicalTrials.gov only: registry sex facet. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--source`: Case-insensitive: clinicaltrials/nci; biomcp_help search trial
-Case-insensitive: clinicaltrials/nci.
-Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--sex`: ClinicalTrials.gov only: registry sex facet; biomcp_help search trial
+ClinicalTrials.gov only: registry sex facet.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--source`: clinicaltrials/nci; biomcp_help search trial
+clinicaltrials/nci.
+Explicit source; defaults to ClinicalTrials.gov and never falls back.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--sponsor`: Sponsor.
 ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string. Example: --sponsor 'MD Anderson'. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--sponsor-type`: Case-insensitive: Funding class; biomcp_help search trial
-Case-insensitive: Funding class.
-ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--status`: Case-insensitive: Source status; biomcp_help search trial
-Case-insensitive: Source status.
-Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status COMPLETED. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--study-type`: Case-insensitive: Study type; biomcp_help search trial
-Case-insensitive: Study type.
-ClinicalTrials.gov only: exact registry study type. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--sponsor-type`: Funding class; biomcp_help search trial
+Funding class.
+ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--status`: Source status; biomcp_help search trial
+Source status.
+Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --status COMPLETED. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--study-type`: Study type; biomcp_help search trial
+Study type.
+ClinicalTrials.gov only: exact registry study type.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--updated-since`: First date.
 ClinicalTrials.gov only: first included registry update date. Value form: string. Example: --updated-since <updated-since> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--updated-until`: Last date.
@@ -1857,8 +1889,8 @@ Usage: biomcp search variant [OPTIONS]
 
 Options:
       --build <build>
-          Case-insensitive: Optional caller assembly sent to; biomcp_help search variant
-          Case-insensitive: Optional caller assembly sent to MyVariant; regions require it explicitly.
+          Optional caller assembly sent to MyVariant; regions; biomcp_help search variant
+          Optional caller assembly sent to MyVariant; regions require it explicitly.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1885,8 +1917,8 @@ Options:
           Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 
       --has <has>
-          Case-insensitive: Require the selected component's; biomcp_help search variant
-          Case-insensitive: Require the selected component's identifier field. Only source-proven mappings are offered.
+          Require the selected component's identifier field; biomcp_help search variant
+          Require the selected component's identifier field. Only source-proven mappings are offered.
 
       --limit <limit>
           Native candidates per page, default 10, maximum 50; all candidates remain candidates.
@@ -1919,28 +1951,31 @@ Options:
           Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
 
       --source <source>
-          Case-insensitive: Explicit source language;; biomcp_help search variant
-          Case-insensitive: Explicit source language; required for a raw query.
+          Explicit source language; required for a raw query; biomcp_help search variant
+          Explicit source language; required for a raw query.
 
 ```
 
 Search genetic variants by gene, change or region. Sources: myvariant.
 
-- `--build`: Case-insensitive: Optional caller assembly sent to; biomcp_help search variant
-Case-insensitive: Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string. Example: --build GRCh37. Command sources: myvariant; source restrictions in the field description apply.
+- `--build`: Optional caller assembly sent to MyVariant; regions; biomcp_help search variant
+Optional caller assembly sent to MyVariant; regions require it explicitly.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: myvariant; source restrictions in the field description apply.
 - `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string. Example: --coding 'c.333G>T'. Command sources: myvariant; source restrictions in the field description apply.
 - `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string. Example: --condition 'Carcinoma of colon (CRC)'. Command sources: myvariant; source restrictions in the field description apply.
 - `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Value form: string. Example: --gene EGFR. Command sources: myvariant; source restrictions in the field description apply.
-- `--has`: Case-insensitive: Require the selected component's; biomcp_help search variant
-Case-insensitive: Require the selected component's identifier field. Only source-proven mappings are offered. Value form: string. Example: --has clinvar. Command sources: myvariant; source restrictions in the field description apply.
+- `--has`: Require the selected component's identifier field; biomcp_help search variant
+Require the selected component's identifier field. Only source-proven mappings are offered.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --has clinvar. Command sources: myvariant; source restrictions in the field description apply.
 - `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates. Value form: integer. Example: --limit 50. Command sources: myvariant; source restrictions in the field description apply.
 - `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer. Example: --offset 0. Command sources: myvariant; source restrictions in the field description apply.
 - `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string. Example: --protein L858R. Command sources: myvariant; source restrictions in the field description apply.
 - `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Value form: string. Example: --query CA123643. Command sources: myvariant; source restrictions in the field description apply.
 - `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string. Example: --region chr7:140453136-140453136. Command sources: myvariant; source restrictions in the field description apply.
 - `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string. Example: --review-status 'no assertion criteria provided'. Command sources: myvariant; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit source language;; biomcp_help search variant
-Case-insensitive: Explicit source language; required for a raw query. Value form: string. Example: --source myvariant. Command sources: myvariant; source restrictions in the field description apply.
+- `--source`: Explicit source language; required for a raw query; biomcp_help search variant
+Explicit source language; required for a raw query.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source myvariant. Command sources: myvariant; source restrictions in the field description apply.
 
 ## biomcp get
 
@@ -2022,8 +2057,8 @@ Options:
           [possible values: json, md]
 
       --source <source>
-          Case-insensitive: NCI is the biomarker concept; biomcp_help get biomarker
-          Case-insensitive: NCI is the biomarker concept source.
+          NCI is the biomarker concept source; biomcp_help get biomarker
+          NCI is the biomarker concept source.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -2051,8 +2086,9 @@ Options:
 Get NCI biomarker concepts by code. Sources: nci.
 
 - `id`: Exact NCIt code, such as C96022.
-- `--source`: Case-insensitive: NCI is the biomarker concept; biomcp_help get biomarker
-Case-insensitive: NCI is the biomarker concept source. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
+- `--source`: NCI is the biomarker concept source; biomcp_help get biomarker
+NCI is the biomarker concept source.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
 
 ## biomcp get author
 
@@ -2111,7 +2147,7 @@ Arguments:
           One exact primary accession or qualified source ID.
 
   [section]
-          Case-insensitive: Omit for the default card; all; biomcp_help get cell-line
+          Omit for the default card; all returns bounded first; biomcp_help get cell-line
 
 Options:
       --format <format>
@@ -2152,7 +2188,8 @@ Options:
 Get cell line details and cross-references. Sources: cellosaurus.
 
 - `id`: One exact primary accession or qualified source ID.
-- `section`: Case-insensitive: Omit for the default card; all; biomcp_help get cell-line
+- `section`: Omit for the default card; all returns bounded first; biomcp_help get cell-line
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three. Value form: integer. Example: --section-limit 25. Command sources: cellosaurus; source restrictions in the field description apply.
 - `--section-offset`: Offset within each independently requested collection. Value form: integer. Example: --section-offset 1. Command sources: cellosaurus; source restrictions in the field description apply.
 
@@ -2177,7 +2214,7 @@ Arguments:
           Qualified association ID or exact GCST study accession.
 
   [section]
-          Case-insensitive: Association loci or study associations; biomcp_help get gwas
+          Association loci or study associations and ancestries; biomcp_help get gwas
 
 Options:
       --format <format>
@@ -2221,7 +2258,8 @@ Options:
 Get GWAS Catalog associations or studies. Sources: gwas.
 
 - `id`: Qualified association ID or exact GCST study accession.
-- `section`: Case-insensitive: Association loci or study associations; biomcp_help get gwas
+- `section`: Association loci or study associations and ancestries; biomcp_help get gwas
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Maximum source relation rows. Value form: integer. Example: --section-limit 1. Command sources: gwas; source restrictions in the field description apply.
 - `--section-offset`: Source relation row offset. Value form: integer. Example: --section-offset 0. Command sources: gwas; source restrictions in the field description apply.
 - `--snapshot`: Retained ancestry reply for a local page. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: gwas; source restrictions in the field description apply.
@@ -2253,7 +2291,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Case-insensitive: Select native sections or all; biomcp_help get protein
+          Select native sections or all bounded first pages;; biomcp_help get protein
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -2284,7 +2322,8 @@ Options:
 Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
-- `--section`: Case-insensitive: Select source sections or all; biomcp_help get protein Value form: repeatable values (repeat the flag). Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
+- `--section`: Select source sections or all bounded first pages;; biomcp_help get protein
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer. Example: --section-limit 2. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
 
 Select source sections or all bounded first pages; function keeps one whole text record.
@@ -2310,7 +2349,7 @@ Arguments:
           Exact HP identifier.
 
   [section]
-          Case-insensitive: Absent means the source identity; biomcp_help get phenotype
+          Absent means the source identity card; biomcp_help get phenotype
 
 Options:
       --format <format>
@@ -2338,8 +2377,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Case-insensitive: HPO or Monarch for cards, synonyms; biomcp_help get phenotype
-          Case-insensitive: HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
+          HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
+          HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2358,12 +2397,14 @@ Options:
 Get human phenotype details and relationships. Sources: hpo, monarch.
 
 - `id`: Exact HP identifier.
-- `section`: Case-insensitive: Absent means the source identity; biomcp_help get phenotype
+- `section`: Absent means the source identity card; biomcp_help get phenotype
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Default five text/link rows or one complete association row. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--source`: Case-insensitive: HPO or Monarch for cards, synonyms; biomcp_help get phenotype
-Case-insensitive: HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--source`: HPO or Monarch for cards, synonyms and xrefs;; biomcp_help get phenotype
+HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
 
 Absent means the source identity card.
 
@@ -2385,7 +2426,7 @@ Arguments:
           Exact human Reactome or WikiPathways identity without version suffixes.
 
   [section]
-          Case-insensitive: Omit for the card; WikiPathways has; biomcp_help get pathway
+          Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
 
 Options:
       --format <format>
@@ -2431,7 +2472,8 @@ Get human pathway details. Sources: reactome, wikipathways.
 - `--fresh`: Request a new source observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `section`: Case-insensitive: Omit for the card; WikiPathways has; biomcp_help get pathway
+- `section`: Omit for the card; WikiPathways has summary and genes; biomcp_help get pathway
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer. Example: --section-limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer. Example: --section-offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 
@@ -2454,7 +2496,7 @@ Arguments:
           Exact source study ID; no default or repair.
 
   [section]
-          Case-insensitive: Omit for the card; all returns bounded; biomcp_help get study
+          Omit for the card; all returns bounded first pages only; biomcp_help get study
 
 Options:
       --format <format>
@@ -2503,7 +2545,8 @@ Get cancer genomics study details. Sources: cbioportal.
 - `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
 - `id`: Exact source study ID; no default or repair.
 - `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string. Example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations. Command sources: cbioportal; source restrictions in the field description apply.
-- `section`: Case-insensitive: Omit for the card; all returns bounded; biomcp_help get study
+- `section`: Omit for the card; all returns bounded first pages only; biomcp_help get study
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Maximum records in each selected section. Value form: integer. Example: --section-limit 1. Command sources: cbioportal; source restrictions in the field description apply.
 - `--section-offset`: Offset within one named section; all requires zero. Value form: integer. Example: --section-offset 45. Command sources: cbioportal; source restrictions in the field description apply.
 
@@ -2525,7 +2568,7 @@ Usage: biomcp get pgx [OPTIONS] --source <source> [section]
 
 Arguments:
   [section]
-          Case-insensitive: One named section; omitted means the; biomcp_help get pgx
+          One named section; omitted means the CPIC gene card; biomcp_help get pgx
 
 Options:
       --annotation-id <annotation_id>
@@ -2556,8 +2599,8 @@ Options:
           Explicit source gene symbol.
 
       --kind <kind>
-          Case-insensitive: One ClinPGx collection; clinical is the; biomcp_help get pgx
-          Case-insensitive: One ClinPGx collection; clinical is the default only on annotations.
+          One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
+          One ClinPGx collection; clinical is the default only on annotations.
 
       --section-limit <section_limit>
           Rows per page: three clinical, five elsewhere.
@@ -2575,8 +2618,8 @@ Options:
           [possible values: true, false]
 
       --source <source>
-          Case-insensitive: Required source, checked against the; biomcp_help get pgx
-          Case-insensitive: Required source, checked against the section.
+          Required source, checked against the section; biomcp_help get pgx
+          Required source, checked against the section.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -2592,14 +2635,17 @@ Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string. Example: --diplotype '*1/*2A'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id <drug-id> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--kind`: Case-insensitive: One ClinPGx collection; clinical is the; biomcp_help get pgx
-Case-insensitive: One ClinPGx collection; clinical is the default only on annotations. Value form: string. Example: --kind clinical. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `section`: Case-insensitive: One named section; omitted means the; biomcp_help get pgx
+- `--kind`: One ClinPGx collection; clinical is the default only on; biomcp_help get pgx
+One ClinPGx collection; clinical is the default only on annotations.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --kind clinical. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `section`: One named section; omitted means the CPIC gene card; biomcp_help get pgx
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer. Example: --section-limit 1. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--section-offset`: Offset within the selected section. Value form: integer. Example: --section-offset 0. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--snapshot`: Retained collection for local continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Required source, checked against the; biomcp_help get pgx
-Case-insensitive: Required source, checked against the section. Value form: string. Example: --source cpic. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--source`: Required source, checked against the section; biomcp_help get pgx
+Required source, checked against the section.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cpic. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 
 One named section; omitted means the CPIC gene card.
 
@@ -2620,7 +2666,7 @@ Arguments:
           Exact native identity, including version for GTR.
 
   [section]
-          Case-insensitive: GTR: genes, conditions, methods; biomcp_help get diagnostic
+          GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
 
 Options:
       --bundle-revision <bundle_revision>
@@ -2648,8 +2694,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Case-insensitive: Explicit source: GTR; biomcp_help get diagnostic
-          Case-insensitive: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+          Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
+          Explicit source: GTR accession/version, WHO Product ID, PMA P number,
           510(k) K number or device recall Z-NNNN-YYYY.
 
       --supplement <supplement>
@@ -2673,12 +2719,14 @@ Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value). Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `id`: Exact source identity, including version for GTR.
-- `section`: Case-insensitive: GTR: genes, conditions, methods; biomcp_help get diagnostic
+- `section`: GTR: genes, conditions, methods. PMA: regulatory,; biomcp_help get diagnostic
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer. Example: --section-limit 2. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--section-offset`: Zero-based source row or fragment offset. Value form: integer. Example: --section-offset 5. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit source: GTR; biomcp_help get diagnostic
-Case-insensitive: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-510(k) K number or device recall Z-NNNN-YYYY. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--source`: Explicit source: GTR accession/version, WHO Product; biomcp_help get diagnostic
+Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+510(k) K number or device recall Z-NNNN-YYYY.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string. Example: --supplement S020. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
@@ -2703,7 +2751,7 @@ Arguments:
           Published report ID with no source prefix.
 
   [section]
-          Case-insensitive: FAERS owns drugs, reactions; biomcp_help get adverse-event
+          FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
 
 Options:
       --drug-index <drug_index>
@@ -2734,8 +2782,8 @@ Options:
           Checked retained report snapshot for provider-free continuation.
 
       --source <source>
-          Case-insensitive: FAERS by default; MAUDE is; biomcp_help get adverse-event
-          Case-insensitive: FAERS by default; MAUDE is explicit.
+          FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
+          FAERS by default; MAUDE is explicit.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2755,12 +2803,14 @@ Get a drug, device or vaccine adverse event report. Sources: faers, maude.
 
 - `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer. Example: --drug-index 0. Command sources: faers, maude; source restrictions in the field description apply.
 - `id`: Published report ID with no source prefix.
-- `section`: Case-insensitive: FAERS owns drugs, reactions; biomcp_help get adverse-event
+- `section`: FAERS owns drugs, reactions and identifiers;; biomcp_help get adverse-event
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Whole source rows per section page. Value form: integer. Example: --section-limit 1. Command sources: faers, maude; source restrictions in the field description apply.
 - `--section-offset`: Offset within the selected source section. Value form: integer. Example: --section-offset 0. Command sources: faers, maude; source restrictions in the field description apply.
 - `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude; source restrictions in the field description apply.
-- `--source`: Case-insensitive: FAERS by default; MAUDE is; biomcp_help get adverse-event
-Case-insensitive: FAERS by default; MAUDE is explicit. Value form: string. Example: --source maude. Command sources: faers, maude; source restrictions in the field description apply.
+- `--source`: FAERS by default; MAUDE is explicit; biomcp_help get adverse-event
+FAERS by default; MAUDE is explicit.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source maude. Command sources: faers, maude; source restrictions in the field description apply.
 
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
 
@@ -2788,7 +2838,7 @@ Arguments:
           Exact ontology CURIE or an explicit SEER catalog site ID.
 
   [section]
-          Case-insensitive: One named section; absent means; biomcp_help get disease
+          One named section; absent means identity card only; biomcp_help get disease
 
 Options:
       --age-range <age_range>
@@ -2816,8 +2866,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --ontology <ontology>
-          Case-insensitive: One OLS ontology; biomcp_help get disease
-          Case-insensitive: One OLS ontology.
+          One OLS ontology; biomcp_help get disease
+          One OLS ontology.
 
       --period <period>
           Incidence-only native period code.
@@ -2847,8 +2897,8 @@ Options:
           [possible values: true, false]
 
       --source <source>
-          Case-insensitive: Default MyDisease; no automatic; biomcp_help get disease
-          Case-insensitive: Default MyDisease; no automatic fallback.
+          Default MyDisease; no automatic fallback; biomcp_help get disease
+          Default MyDisease; no automatic fallback.
 
 ```
 
@@ -2858,16 +2908,19 @@ Get disease details and source statistics. Sources: monarch, mydisease, ols, see
 - `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `id`: Exact ontology CURIE or an explicit SEER catalog site ID.
 - `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--ontology`: Case-insensitive: One OLS ontology; biomcp_help get disease
-Case-insensitive: One OLS ontology. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--ontology`: One OLS ontology; biomcp_help get disease
+One OLS ontology.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `section`: Case-insensitive: One named section; absent means; biomcp_help get disease
+- `section`: One named section; absent means identity card only; biomcp_help get disease
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Default MyDisease; no automatic; biomcp_help get disease
-Case-insensitive: Default MyDisease; no automatic fallback. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--source`: Default MyDisease; no automatic fallback; biomcp_help get disease
+Default MyDisease; no automatic fallback.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 
 One named section; absent means identity card only.
 
@@ -2892,7 +2945,7 @@ Arguments:
           Source-native ID or complete brand or generic name; WHO references retain native spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 
   [section]...
-          Case-insensitive: Source sections; biomcp_help get drug
+          Source sections; biomcp_help get drug
 
 Options:
       --civic-cursor <civic_cursor>
@@ -2906,8 +2959,8 @@ Options:
           [possible values: json, md]
 
       --civic-kind <civic_kind>
-          Case-insensitive: CIViC collection; biomcp_help get drug
-          Case-insensitive: CIViC collection.
+          CIViC collection; biomcp_help get drug
+          CIViC collection.
           Independent native evidence or assertion collection within the selected profile.
 
       --disable-sources <disable-sources>
@@ -2928,13 +2981,13 @@ Options:
           and 6144 escaped bytes per fragment. No-text scans are explicit.
 
       --evidence-level <evidence_level>...
-          Case-insensitive: A–E; biomcp_help get drug
-          Case-insensitive: A–E
+          A–E; biomcp_help get drug
+          A–E
           Native CIViC evidence levels; repeat to include several levels.
 
       --evidence-status <evidence_status>
-          Case-insensitive: Status; biomcp_help get drug
-          Case-insensitive: Status
+          Status; biomcp_help get drug
+          Status
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --label-section <label_section>
@@ -2964,8 +3017,8 @@ Options:
           Named section continuation, refused on an identity-only card.
 
       --source <source>
-          Case-insensitive: Omit to infer the source of an; biomcp_help get drug
-          Case-insensitive: Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
+          Omit to infer the source of an unambiguous section;; biomcp_help get drug
+          Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 
 ```
 
@@ -2973,30 +3026,35 @@ Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, f
 
 - `--civic-cursor`: CIViC continuation.
 Source continuation cursor for that exact drug, profile and claim collection. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--civic-kind`: Case-insensitive: CIViC collection; biomcp_help get drug
-Case-insensitive: CIViC collection.
-Independent source evidence or assertion collection within the selected profile. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--civic-kind`: CIViC collection; biomcp_help get drug
+CIViC collection.
+Independent source evidence or assertion collection within the selected profile.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--evidence-level`: Case-insensitive: A–E; biomcp_help get drug
-Case-insensitive: A–E
-Source CIViC evidence levels; repeat to include several levels. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--evidence-status`: Case-insensitive: Status; biomcp_help get drug
-Case-insensitive: Status
-Source CIViC evidence status; omitted preserves the source's existing default. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--evidence-level`: A–E; biomcp_help get drug
+A–E
+Source CIViC evidence levels; repeat to include several levels.
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--evidence-status`: Status; biomcp_help get drug
+Status
+Source CIViC evidence status; omitted preserves the source's existing default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `input`: Source ID, brand or generic name.
 Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 - `--label-section`: Exact openFDA SPL field.
 Exact published openFDA SPL section field, including table fields; required for the label section. Value form: string. Example: --label-section warnings_and_cautions. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `section`: Case-insensitive: Source sections; biomcp_help get drug
+- `section`: Source sections; biomcp_help get drug
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Named section page size, refused on an identity-only card. Value form: integer. Example: --section-limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Omit to infer the source of an; biomcp_help get drug
-Case-insensitive: Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--source`: Omit to infer the source of an unambiguous section;; biomcp_help get drug
+Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 
 Explicit named disclosures; empty means identity only.
 
@@ -3028,7 +3086,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Case-insensitive: Requested section words, preserving; biomcp_help get gene
+          Requested section words, preserving caller order and; biomcp_help get gene
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3056,7 +3114,8 @@ Options:
 Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 - `input`: Gene symbols or checked identifiers, in input order.
-- `--section`: Case-insensitive: Requested section words, preserving; biomcp_help get gene Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
+- `--section`: Requested section words, preserving caller order and; biomcp_help get gene
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
@@ -3090,7 +3149,7 @@ Options:
           [possible values: json, md]
 
       --section <section>
-          Case-insensitive: Requested section words; trailing; biomcp_help get article
+          Requested section words; trailing words and --section; biomcp_help get article
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3118,7 +3177,8 @@ Options:
 Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
-- `--section`: Case-insensitive: Requested section words; trailing; biomcp_help get article Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--section`: Requested section words; trailing words and --section; biomcp_help get article
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 
 Requested section words; trailing words and --section share this field.
 
@@ -3168,11 +3228,11 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --section <section>
-          Case-insensitive: Optional intact source sections; biomcp_help get trial
+          Optional intact source sections. Default cards only;; biomcp_help get trial
 
       --source <source>
-          Case-insensitive: Explicit provider; defaults to; biomcp_help get trial
-          Case-insensitive: Explicit provider; defaults to ClinicalTrials.gov and never falls back.
+          Explicit provider; defaults to ClinicalTrials.gov and; biomcp_help get trial
+          Explicit provider; defaults to ClinicalTrials.gov and never falls back.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3194,9 +3254,11 @@ Get clinical trial details. Sources: ctgov, nci.
 - `--limit`: Whole-record count per source collection page; text fragments follow the text budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--section`: Case-insensitive: Optional intact source sections; biomcp_help get trial Value form: repeatable values (repeat the flag). Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit source; defaults to; biomcp_help get trial
-Case-insensitive: Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--section`: Optional intact source sections. Default cards only;; biomcp_help get trial
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--source`: Explicit source; defaults to ClinicalTrials.gov and; biomcp_help get trial
+Explicit source; defaults to ClinicalTrials.gov and never falls back.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
@@ -3225,12 +3287,12 @@ Arguments:
           rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 
   [section]...
-          Case-insensitive: Sections; biomcp_help get variant
+          Sections; biomcp_help get variant
 
 Options:
       --build <build>
-          Case-insensitive: Assembly; biomcp_help get variant
-          Case-insensitive: Assembly
+          Assembly; biomcp_help get variant
+          Assembly
           MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
 
       --format <format>
@@ -3247,8 +3309,8 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-kind <civic_kind>
-          Case-insensitive: Claims; biomcp_help get variant
-          Case-insensitive: Claims
+          Claims; biomcp_help get variant
+          Claims
           Native CIViC claim collection within the selected profile.
 
       --source_pacing <source_pacing>
@@ -3261,13 +3323,13 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --evidence-level <evidence_level>...
-          Case-insensitive: A–E; biomcp_help get variant
-          Case-insensitive: A–E
+          A–E; biomcp_help get variant
+          A–E
           Native CIViC evidence levels; repeat to include several levels.
 
       --evidence-status <evidence_status>
-          Case-insensitive: Status; biomcp_help get variant
-          Case-insensitive: Status
+          Status; biomcp_help get variant
+          Status
           Native CIViC evidence status; omitted preserves the source's existing default.
 
       --limit <limit>
@@ -3283,8 +3345,8 @@ Options:
           [possible values: true, false]
 
       --resolver <resolver>
-          Case-insensitive: Resolver; biomcp_help get variant
-          Case-insensitive: Resolver.
+          Resolver; biomcp_help get variant
+          Resolver.
           Resolver for reference-qualified notation; never repairs the input locally.
 
       --fresh[=<fresh>]
@@ -3307,29 +3369,35 @@ Options:
 
 Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
 
-- `--build`: Case-insensitive: Assembly; biomcp_help get variant
-Case-insensitive: Assembly
-MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string. Example: --build GRCh37. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--build`: Assembly; biomcp_help get variant
+Assembly
+MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--civic-cursor`: Cursor
 Source CIViC cursor, retained unchanged. Value form: string. Example: --civic-cursor 0:E2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--civic-kind`: Case-insensitive: Claims; biomcp_help get variant
-Case-insensitive: Claims
-Source CIViC claim collection within the selected profile. Value form: string. Example: --civic-kind evidence. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--civic-kind`: Claims; biomcp_help get variant
+Claims
+Source CIViC claim collection within the selected profile.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer. Example: --civic-profile 12. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--evidence-level`: Case-insensitive: A–E; biomcp_help get variant
-Case-insensitive: A–E
-Source CIViC evidence levels; repeat to include several levels. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--evidence-status`: Case-insensitive: Status; biomcp_help get variant
-Case-insensitive: Status
-Source CIViC evidence status; omitted preserves the source's existing default. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--evidence-level`: A–E; biomcp_help get variant
+A–E
+Source CIViC evidence levels; repeat to include several levels.
+Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--evidence-status`: Status; biomcp_help get variant
+Status
+Source CIViC evidence status; omitted preserves the source's existing default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 - `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer. Example: --limit 10. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Candidate rows to skip in source order. Value form: integer. Example: --offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--resolver`: Case-insensitive: Resolver; biomcp_help get variant
-Case-insensitive: Resolver.
-Resolver for reference-qualified notation; never repairs the input locally. Value form: string. Example: --resolver variantvalidator. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `section`: Case-insensitive: Sections; biomcp_help get variant
+- `--resolver`: Resolver; biomcp_help get variant
+Resolver.
+Resolver for reference-qualified notation; never repairs the input locally.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --resolver variantvalidator. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `section`: Sections; biomcp_help get variant
+Listed choices accept any letter case; replies use their listed spelling.
 - `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer. Example: --section-limit 2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer. Example: --section-offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--tumor-type`: Tumor
@@ -3405,7 +3473,7 @@ Arguments:
           Exact qualified provider record.
 
   [section]
-          Case-insensitive: Detailed disclosure when requested; biomcp_help author papers
+          Detailed disclosure when requested; biomcp_help author papers
 
 Options:
       --format <format>
@@ -3459,7 +3527,8 @@ List an author's research papers. Sources: orcid, semantic-scholar.
 - `--limit`: Bounded row count. Value form: integer. Example: --limit 5. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `--offset`: Source or retained collection offset. Value form: integer. Example: --offset 0. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
-- `section`: Case-insensitive: Detailed disclosure when requested; biomcp_help author papers
+- `section`: Detailed disclosure when requested; biomcp_help author papers
+Listed choices accept any letter case; replies use their listed spelling.
 
 Detailed disclosure when requested.
 
@@ -4063,8 +4132,8 @@ Arguments:
           Checked source-owned human pathway identity.
 
   [details]
-          Case-insensitive: Include every physical entity; biomcp_help pathway genes
-          Case-insensitive: Include every physical entity context for these references; never clips source text.
+          Include every physical entity context for these; biomcp_help pathway genes
+          Include every physical entity context for these references; never clips source text.
 
 Options:
       --format <format>
@@ -4107,8 +4176,9 @@ Options:
 
 List genes in a biological pathway. Sources: reactome, wikipathways.
 
-- `details`: Case-insensitive: Include every physical entity; biomcp_help pathway genes
-Case-insensitive: Include every physical entity context for these references; never clips source text.
+- `details`: Include every physical entity context for these; biomcp_help pathway genes
+Include every physical entity context for these references; never clips source text.
+Listed choices accept any letter case; replies use their listed spelling.
 - `id`: Checked source-owned human pathway identity.
 - `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
 - `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
@@ -4465,8 +4535,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Case-insensitive: Graph provider; iCite remains; biomcp_help article citations
-          Case-insensitive: Graph provider; iCite remains the default.
+          Graph provider; iCite remains the default; biomcp_help article citations
+          Graph provider; iCite remains the default.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4488,8 +4558,9 @@ List research papers citing an article. Sources: icite, pubmed, semantic-scholar
 - `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 0. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Graph source; iCite remains; biomcp_help article citations
-Case-insensitive: Graph source; iCite remains the default. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--source`: Graph source; iCite remains the default; biomcp_help article citations
+Graph source; iCite remains the default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article references
 
@@ -4528,8 +4599,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Case-insensitive: Graph provider; iCite remains; biomcp_help article citations
-          Case-insensitive: Graph provider; iCite remains the default.
+          Graph provider; iCite remains the default; biomcp_help article citations
+          Graph provider; iCite remains the default.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4551,8 +4622,9 @@ List research papers referenced by an article. Sources: icite, pubmed, semantic-
 - `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 112. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Graph source; iCite remains; biomcp_help article citations
-Case-insensitive: Graph source; iCite remains the default. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--source`: Graph source; iCite remains the default; biomcp_help article citations
+Graph source; iCite remains the default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp article citation-evidence
 
@@ -4854,8 +4926,8 @@ Options:
           [possible values: json, md]
 
       --build <build>
-          Case-insensitive: Identity lookup assembly;; biomcp_help variant assertions
-          Case-insensitive: Identity lookup assembly; omitted uses the shared GRCh38 default.
+          Identity lookup assembly; omitted uses the; biomcp_help variant assertions
+          Identity lookup assembly; omitted uses the shared GRCh38 default.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -4873,8 +4945,8 @@ Options:
           Assertions to skip in source order.
 
       --source <source>
-          Case-insensitive: One native assertion source;; biomcp_help variant assertions
-          Case-insensitive: One native assertion source; shared identity conversion precedes source access when needed.
+          One native assertion source; shared identity; biomcp_help variant assertions
+          One native assertion source; shared identity conversion precedes source access when needed.
 
       --version <version>
           VCV archive or ERepo document version; RCV/SCV selectors match a returned native version.
@@ -4896,13 +4968,15 @@ Options:
 Get genetic variant assertions from ClinVar or ClinGen. Sources: clinvar, erepo.
 
 - `--assertion`: Source assertion accession or document ID. Value form: string. Example: --assertion PCER000001171. Command sources: clinvar, erepo; source restrictions in the field description apply.
-- `--build`: Case-insensitive: Identity lookup assembly;; biomcp_help variant assertions
-Case-insensitive: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string. Example: --build GRCh37. Command sources: clinvar, erepo; source restrictions in the field description apply.
+- `--build`: Identity lookup assembly; omitted uses the; biomcp_help variant assertions
+Identity lookup assembly; omitted uses the shared GRCh38 default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: clinvar, erepo; source restrictions in the field description apply.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 - `--limit`: Assertions per page; omitted uses the source default. Value form: integer. Example: --limit 1. Command sources: clinvar, erepo; source restrictions in the field description apply.
 - `--offset`: Assertions to skip in source order. Value form: integer. Example: --offset 0. Command sources: clinvar, erepo; source restrictions in the field description apply.
-- `--source`: Case-insensitive: One source assertion source;; biomcp_help variant assertions
-Case-insensitive: One source assertion source; shared identity conversion precedes source access when needed. Value form: string. Example: --source clinvar. Command sources: clinvar, erepo; source restrictions in the field description apply.
+- `--source`: One source assertion source; shared identity; biomcp_help variant assertions
+One source assertion source; shared identity conversion precedes source access when needed.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source clinvar. Command sources: clinvar, erepo; source restrictions in the field description apply.
 - `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string. Example: --version 1.0.0. Command sources: clinvar, erepo; source restrictions in the field description apply.
 
 ## biomcp variant population
@@ -4918,8 +4992,8 @@ Arguments:
 
 Options:
       --build <build>
-          Case-insensitive: Explicit source assembly when; biomcp_help variant population
-          Case-insensitive: Explicit source assembly when required by identity input.
+          Explicit source assembly when required by; biomcp_help variant population
+          Explicit source assembly when required by identity input.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -4949,8 +5023,8 @@ Options:
           Native rows to skip.
 
       --resolver <resolver>
-          Case-insensitive: Resolver for; biomcp_help variant population
-          Case-insensitive: Resolver for reference-qualified input.
+          Resolver for reference-qualified input; biomcp_help variant population
+          Resolver for reference-qualified input.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4968,14 +5042,16 @@ Options:
 
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
-- `--build`: Case-insensitive: Explicit source assembly when; biomcp_help variant population
-Case-insensitive: Explicit source assembly when required by identity input. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--build`: Explicit source assembly when required by; biomcp_help variant population
+Explicit source assembly when required by identity input.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean. Example: --detail. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
 - `--limit`: Maximum rows per page. Value form: integer. Example: --limit 3. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 10. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
-- `--resolver`: Case-insensitive: Resolver for; biomcp_help variant population
-Case-insensitive: Resolver for reference-qualified input. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--resolver`: Resolver for reference-qualified input; biomcp_help variant population
+Resolver for reference-qualified input.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 
 ## biomcp variant recurrence
 
@@ -4990,8 +5066,8 @@ Arguments:
 
 Options:
       --build <build>
-          Case-insensitive: Identity lookup assembly;; biomcp_help variant recurrence
-          Case-insensitive: Identity lookup assembly; omitted uses the shared GRCh38 default.
+          Identity lookup assembly; omitted uses the; biomcp_help variant recurrence
+          Identity lookup assembly; omitted uses the shared GRCh38 default.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -5024,8 +5100,8 @@ Options:
           Explicit sample list; selected size is never an allele denominator.
 
       --source <source>
-          Case-insensitive: Explicit cohort source; biomcp_help variant recurrence
-          Case-insensitive: Explicit cohort source.
+          Explicit cohort source; biomcp_help variant recurrence
+          Explicit cohort source.
 
       --study <study>
           Explicit study; there is no default cohort.
@@ -5046,16 +5122,18 @@ Options:
 
 Get genetic variant observations in a cohort. Sources: cbioportal.
 
-- `--build`: Case-insensitive: Identity lookup assembly;; biomcp_help variant recurrence
-Case-insensitive: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string. Example: --build GRCh37. Command sources: cbioportal; source restrictions in the field description apply.
+- `--build`: Identity lookup assembly; omitted uses the; biomcp_help variant recurrence
+Identity lookup assembly; omitted uses the shared GRCh38 default.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: cbioportal; source restrictions in the field description apply.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
 - `input`: Published variant identity; ambiguous identities are never selected silently.
 - `--limit`: Source mutation rows per page, including excluded alleles. Value form: integer. Example: --limit 3. Command sources: cbioportal; source restrictions in the field description apply.
 - `--page`: Zero-based source page. Value form: integer. Example: --page 0. Command sources: cbioportal; source restrictions in the field description apply.
 - `--profile`: Explicit mutation molecular profile. Value form: string. Example: --profile msk_impact_2017_mutations. Command sources: cbioportal; source restrictions in the field description apply.
 - `--sample-set`: Explicit sample list; selected size is never an allele denominator. Value form: string. Example: --sample-set msk_impact_2017_all. Command sources: cbioportal; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit cohort source; biomcp_help variant recurrence
-Case-insensitive: Explicit cohort source. Value form: string. Example: --source cbioportal. Command sources: cbioportal; source restrictions in the field description apply.
+- `--source`: Explicit cohort source; biomcp_help variant recurrence
+Explicit cohort source.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cbioportal. Command sources: cbioportal; source restrictions in the field description apply.
 - `--study`: Explicit study; there is no default cohort. Value form: string. Example: --study msk_impact_2017. Command sources: cbioportal; source restrictions in the field description apply.
 
 ## biomcp variant normalize
@@ -5067,8 +5145,8 @@ Usage: biomcp variant normalize [OPTIONS] --hgvs <hgvs> --source <source>
 
 Options:
       --build <build>
-          Case-insensitive: Caller assembly; required when; biomcp_help variant normalize
-          Case-insensitive: Caller assembly; required when VariantValidator is selected.
+          Caller assembly; required when VariantValidator; biomcp_help variant normalize
+          Caller assembly; required when VariantValidator is selected.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -5096,8 +5174,8 @@ Options:
           Source mapping rows to skip per service.
 
       --source <source>
-          Case-insensitive: Explicit service; all; biomcp_help variant normalize
-          Case-insensitive: Explicit service; all preserves independent results without consensus.
+          Explicit service; all preserves independent; biomcp_help variant normalize
+          Explicit service; all preserves independent results without consensus.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5115,14 +5193,16 @@ Options:
 
 Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
 
-- `--build`: Case-insensitive: Caller assembly; required when; biomcp_help variant normalize
-Case-insensitive: Caller assembly; required when VariantValidator is selected. Value form: string. Example: --build GRCh38. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+- `--build`: Caller assembly; required when VariantValidator; biomcp_help variant normalize
+Caller assembly; required when VariantValidator is selected.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
 Checked for reference and syntax only; no full HGVS parser. Value form: string. Example: --hgvs 'NM_004333.4:c.1799T>A'. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--limit`: Source mapping rows per service, with typed continuation for remaining rows. Value form: integer. Example: --limit 10. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Source mapping rows to skip per service. Value form: integer. Example: --offset 0. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
-- `--source`: Case-insensitive: Explicit service; all; biomcp_help variant normalize
-Case-insensitive: Explicit service; all preserves independent results without consensus. Value form: string. Example: --source mutalyzer. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+- `--source`: Explicit service; all preserves independent; biomcp_help variant normalize
+Explicit service; all preserves independent results without consensus.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source mutalyzer. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 
 ## biomcp sync
 
@@ -5171,6 +5251,7 @@ Options:
 Synchronize a local source bundle.
 
 - `bundle`: Local source bundle to synchronize.
+Listed choices accept any letter case; replies use their listed spelling.
 
 ## biomcp skill
 
@@ -5501,7 +5582,8 @@ Example: biomcp mcp-config
 
 Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
 
-- `--client`: Choose a JSON client or the codex shell registration command; default mcp-servers. Value form: string. Example: --client mcp-servers. Local command option; independent of source selection.
+- `--client`: Choose a JSON client or the codex shell registration command; default mcp-servers.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --client mcp-servers. Local command option; independent of source selection.
 
 ## biomcp health
 
@@ -5769,6 +5851,7 @@ Example: biomcp key set oncokb
 Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.
 
 - `source`: Source credential name to register or remove.
+Listed choices accept any letter case; replies use their listed spelling.
 - `--replace`: Replace an existing stored credential. Value form: boolean. Example: --replace. Local command option; independent of source selection.
 
 ## biomcp key remove
@@ -5817,6 +5900,7 @@ Example: biomcp key remove oncokb
 Remove a stored credential while preserving other settings.
 
 - `source`: Source credential name to register or remove.
+Listed choices accept any letter case; replies use their listed spelling.
 
 ## biomcp serve
 
@@ -5888,7 +5972,8 @@ Example: biomcp help serve
 
 Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. --rate-share scales only keyed hosted source rates. Hosted HTTP calls have bounded work and one whole-call deadline. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
 
-- `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string. Example: --tool-mode single. Local command option; independent of source selection.
+- `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --tool-mode single. Local command option; independent of source selection.
 - `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean. Example: --hosted. Local command option; independent of source selection.
 - `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string. Example: --rate-share 1. Local command option; independent of source selection.
 - `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string. Example: --http 127.0.0.1:8080. Local command option; independent of source selection.
@@ -9671,6 +9756,7 @@ Options:
 Register and manage source credentials without showing values.
 
 - `source`: Credential source to describe.
+Listed choices accept any letter case; replies use their listed spelling.
 
 ## biomcp help key list
 
@@ -11247,6 +11333,7 @@ Options:
 Describe help network.
 
 - `setting`: Network setting to describe.
+Listed choices accept any letter case; replies use their listed spelling.
 
 ## biomcp help sources
 

@@ -91,8 +91,10 @@ fn descriptions(commands: &[Value]) -> bool {
                     .and_then(Value::as_str)
                     .is_some_and(|s| {
                         !s.is_empty()
-                            && (!arg.get("choices").and_then(Value::as_array)
-                                .is_some_and(|choices| !choices.is_empty())
+                            && (arg
+                                .get("choices")
+                                .and_then(Value::as_array)
+                                .is_none_or(|choices| choices.is_empty())
                                 || arg.get("value_type") == Some(&json!("boolean"))
                                 || s.contains("Listed choices accept any letter case"))
                             && (arg.get("name") != Some(&json!("--drug"))

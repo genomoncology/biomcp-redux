@@ -22,7 +22,7 @@
   "properties": {
     "details": {
       "$ref": "#/$defs/Details",
-      "description": "Case-insensitive: Include every physical entity; biomcp_help pathway genes\nCase-insensitive: Include every physical entity context for these references; never clips source text.",
+      "description": "Include every physical entity context for these; biomcp_help pathway genes\nInclude every physical entity context for these references; never clips source text.",
       "x-positional": 1
     },
     "id": {

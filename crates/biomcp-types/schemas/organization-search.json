@@ -80,7 +80,7 @@
     },
     "source": {
       "$ref": "#/$defs/OrganizationSource",
-      "description": "Case-insensitive: Explicit keyed NCI source; biomcp_help search organization\nCase-insensitive: Explicit keyed NCI source."
+      "description": "Explicit keyed NCI source; biomcp_help search organization\nExplicit keyed NCI source."
     },
     "state": {
       "$ref": "#/$defs/Text",

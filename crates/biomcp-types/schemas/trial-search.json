@@ -206,7 +206,7 @@
     },
     "biomarker_use": {
       "$ref": "#/$defs/NciBiomarkerUse",
-      "description": "Case-insensitive: NCI criterion; biomcp_help search trial\nCase-insensitive: NCI criterion.\nFilter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems."
+      "description": "NCI criterion; biomcp_help search trial\nNCI criterion.\nFilter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems."
     },
     "condition": {
       "description": "Disease or NCIt.\nCondition alternatives joined with OR; NCI requires NCIt codes.",
@@ -225,7 +225,7 @@
       "type": "boolean"
     },
     "country": {
-      "description": "Case-insensitive: Country label; biomcp_help search trial\nCase-insensitive: Country label.\nExact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
+      "description": "Country label; biomcp_help search trial\nCountry label.\nExact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
       "items": {
         "enum": [
           "Afghanistan",
@@ -533,7 +533,7 @@
     },
     "phase": {
       "$ref": "#/$defs/TrialPhaseFilter",
-      "description": "Case-insensitive: Native phase; biomcp_help search trial\nCase-insensitive: Native phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
+      "description": "Native phase; biomcp_help search trial\nNative phase.\nExact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV."
     },
     "query": {
       "$ref": "#/$defs/Text",
@@ -542,11 +542,11 @@
     },
     "sex": {
       "$ref": "#/$defs/TrialSex",
-      "description": "Case-insensitive: ClinicalTrials.gov only: registry; biomcp_help search trial\nCase-insensitive: ClinicalTrials.gov only: registry sex facet."
+      "description": "ClinicalTrials.gov only: registry sex facet; biomcp_help search trial\nClinicalTrials.gov only: registry sex facet."
     },
     "source": {
       "$ref": "#/$defs/TrialSource",
-      "description": "Case-insensitive: clinicaltrials/nci; biomcp_help search trial\nCase-insensitive: clinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
+      "description": "clinicaltrials/nci; biomcp_help search trial\nclinicaltrials/nci.\nExplicit provider; defaults to ClinicalTrials.gov and never falls back."
     },
     "sponsor": {
       "$ref": "#/$defs/Text",
@@ -554,15 +554,15 @@
     },
     "sponsor_type": {
       "$ref": "#/$defs/SponsorType",
-      "description": "Case-insensitive: Funding class; biomcp_help search trial\nCase-insensitive: Funding class.\nClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name."
+      "description": "Funding class; biomcp_help search trial\nFunding class.\nClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name."
     },
     "status": {
       "$ref": "#/$defs/TrialStatusFilter",
-      "description": "Case-insensitive: Native status; biomcp_help search trial\nCase-insensitive: Native status.\nExact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels."
+      "description": "Native status; biomcp_help search trial\nNative status.\nExact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels."
     },
     "study_type": {
       "$ref": "#/$defs/StudyType",
-      "description": "Case-insensitive: Study type; biomcp_help search trial\nCase-insensitive: Study type.\nClinicalTrials.gov only: exact registry study type."
+      "description": "Study type; biomcp_help search trial\nStudy type.\nClinicalTrials.gov only: exact registry study type."
     },
     "updated_since": {
       "$ref": "#/$defs/PartialDate",

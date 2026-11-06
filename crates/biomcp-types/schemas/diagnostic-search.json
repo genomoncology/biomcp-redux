@@ -241,7 +241,7 @@
     },
     "source": {
       "$ref": "#/$defs/DiagnosticSearchSource",
-      "description": "Case-insensitive: Native diagnostic source; biomcp_help search diagnostic\nCase-insensitive: Native diagnostic source.\nExplicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery."
+      "description": "Native diagnostic source; biomcp_help search diagnostic\nNative diagnostic source.\nExplicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery."
     },
     "type": {
       "anyOf": [
@@ -252,7 +252,7 @@
           "type": "null"
         }
       ],
-      "description": "Case-insensitive: Native test_type; biomcp_help search diagnostic\nCase-insensitive: Native test_type.\nExact native test_type value."
+      "description": "Native test_type; biomcp_help search diagnostic\nNative test_type.\nExact native test_type value."
     }
   },
   "required": [

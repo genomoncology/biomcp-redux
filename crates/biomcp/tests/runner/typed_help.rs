@@ -93,7 +93,10 @@ fn discovery_contract(single: &[Value], typed: &[Value]) -> Result<(), String> {
             .pointer("/result/instructions")
             .and_then(Value::as_str)
             .ok_or("instructions")?;
-        if guidance.matches("Listed choices accept any letter case").count() != 1
+        if guidance
+            .matches("Listed choices accept any letter case")
+            .count()
+            != 1
             || !guidance.contains("replies use their listed spelling")
         {
             return Err("case guidance must appear once in discovery instructions".into());
