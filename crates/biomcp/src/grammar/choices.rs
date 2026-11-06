@@ -3,9 +3,13 @@ use serde_json::{Map, Value};
 
 pub(super) fn matching<'a>(value: &Value, choices: &'a [Value]) -> Option<&'a Value> {
     let text = value.as_str()?;
-    choices.iter().find(|choice| *choice == value).or_else(|| choices.iter().find(|choice| {
-        choice.as_str().is_some_and(|canonical| canonical.eq_ignore_ascii_case(text))
-    }))
+    choices.iter().find(|choice| *choice == value).or_else(|| {
+        choices.iter().find(|choice| {
+            choice
+                .as_str()
+                .is_some_and(|canonical| canonical.eq_ignore_ascii_case(text))
+        })
+    })
 }
 
 pub(super) fn canonicalize(fields: &mut Map<String, Value>, schema: &Value) {
@@ -18,7 +22,8 @@ pub(super) fn canonicalize(fields: &mut Map<String, Value>, schema: &Value) {
             continue;
         };
         let node = super::validation::resolve(schema, property);
-        let Some(choices) = scoped(node, &context).or_else(|| node.get("enum").and_then(Value::as_array))
+        let Some(choices) =
+            scoped(node, &context).or_else(|| node.get("enum").and_then(Value::as_array))
         else {
             continue;
         };
@@ -38,8 +43,15 @@ pub(super) fn canonicalize(fields: &mut Map<String, Value>, schema: &Value) {
 fn scoped<'a>(node: &'a Value, fields: &Map<String, Value>) -> Option<&'a Vec<Value>> {
     let scope = node.get("x-enum-by-field")?;
     let field = scope.get("field")?.as_str()?;
-    let selected = fields.get(field).or_else(|| scope.get("default"))?.as_str()?;
-    scope.get("choices")?.as_object()?.iter()
+    let selected = fields
+        .get(field)
+        .or_else(|| scope.get("default"))?
+        .as_str()?;
+    scope
+        .get("choices")?
+        .as_object()?
+        .iter()
         .find(|(key, _)| key.eq_ignore_ascii_case(selected))?
-        .1.as_array()
+        .1
+        .as_array()
 }

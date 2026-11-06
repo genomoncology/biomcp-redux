@@ -92,7 +92,7 @@
   "properties": {
     "build": {
       "$ref": "#/$defs/Build",
-      "description": "Optional caller assembly sent to MyVariant; regions; biomcp_help search variant\nOptional caller assembly sent to MyVariant; regions require it explicitly."
+      "description": "Case-insensitive: Optional caller assembly sent to; biomcp_help search variant\nCase-insensitive: Optional caller assembly sent to MyVariant; regions require it explicitly."
     },
     "coding": {
       "$ref": "#/$defs/CodingChange",
@@ -108,7 +108,7 @@
     },
     "has": {
       "$ref": "#/$defs/VariantSearchField",
-      "description": "Require the selected component's identifier field; biomcp_help search variant\nRequire the selected component's identifier field. Only source-proven mappings are offered."
+      "description": "Case-insensitive: Require the selected component's; biomcp_help search variant\nCase-insensitive: Require the selected component's identifier field. Only source-proven mappings are offered."
     },
     "limit": {
       "default": 10,
@@ -144,7 +144,7 @@
     },
     "source": {
       "$ref": "#/$defs/VariantSearchSource",
-      "description": "Explicit source language; required for a raw query; biomcp_help search variant\nExplicit source language; required for a raw query."
+      "description": "Case-insensitive: Explicit source language;; biomcp_help search variant\nCase-insensitive: Explicit source language; required for a raw query."
     }
   },
   "title": "VariantSearch",

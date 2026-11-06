@@ -38,7 +38,7 @@
     },
     "section": {
       "$ref": "#/$defs/CellLineSection",
-      "description": "Omit for the default card; all returns bounded first; biomcp_help get cell-line",
+      "description": "Case-insensitive: Case-insensitive: Omit for the; biomcp_help get cell-line",
       "x-positional": 1,
       "x-section-rule": "Omit for the default card; all returns bounded first pages without an assay count."
     },

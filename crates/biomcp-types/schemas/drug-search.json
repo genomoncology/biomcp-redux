@@ -69,7 +69,7 @@
           "type": "null"
         }
       ],
-      "description": "Native FDA classification; drug recalls only; biomcp_help search drug\nNative FDA classification; drug recalls only."
+      "description": "Case-insensitive: Native FDA classification; drug; biomcp_help search drug\nCase-insensitive: Native FDA classification; drug recalls only."
     },
     "firm": {
       "anyOf": [
@@ -118,7 +118,7 @@
     },
     "name_selector": {
       "$ref": "#/$defs/DrugNameSelector",
-      "description": "Explicit ChEMBL native name selector; omitted means; biomcp_help search drug\nExplicit ChEMBL native name selector; omitted means preferred name."
+      "description": "Case-insensitive: Explicit ChEMBL native name; biomcp_help search drug\nCase-insensitive: Explicit ChEMBL native name selector; omitted means preferred name."
     },
     "offset": {
       "default": 0,
@@ -168,7 +168,7 @@
     "source": {
       "$ref": "#/$defs/DrugSource",
       "default": "mychem",
-      "description": "Selected source; biomcp_help search drug\nSelected source.\n\nAfter an empty name lookup, existing sources may supply aliases."
+      "description": "Case-insensitive: Selected source; biomcp_help search drug\nCase-insensitive: Selected source.\n\nAfter an empty name lookup, existing sources may supply aliases."
     },
     "status": {
       "anyOf": [

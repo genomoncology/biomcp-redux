@@ -191,7 +191,9 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
     );
     let help = local::help_command(&root);
     root = root.subcommand(help);
-    Ok(Root::new(metadata::describe(process_arguments::case_choices(root))))
+    Ok(Root::new(metadata::describe(
+        process_arguments::case_choices(root),
+    )))
 }
 
 #[derive(Debug, Default)]
@@ -443,10 +445,10 @@ fn split_sections(result: &mut Map<String, Value>, schema: &Value) -> Result<(),
         };
         let mut split = input.len();
         while split > 1
-        && input.get(split - 1).is_some_and(|value| {
-            choices::matching(value, words).is_some()
-        })
-    {
+            && input
+                .get(split - 1)
+                .is_some_and(|value| choices::matching(value, words).is_some())
+        {
             split -= 1;
         }
         let section = input.split_off(split);
