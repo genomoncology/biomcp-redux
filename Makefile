@@ -638,3 +638,9 @@ author-search-check: fmt
 .PHONY: author-search-review
 author-search-review: author-search-check
 	$(MAKE) landing-gate
+
+.PHONY: author-credential-review
+author-credential-review:
+	cargo test --locked -p biomcp --bin biomcp config::credential_reads_tests:: $(TEST_THREADS)
+	$(MAKE) author-search-check
+	$(MAKE) landing-gate
