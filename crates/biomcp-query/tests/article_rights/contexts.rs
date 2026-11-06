@@ -5,6 +5,30 @@ use std::time::Duration;
 fn citation_context_rights_preserve_papers_and_explain_withheld_text() {
     let input = tempfile::tempdir().unwrap();
     record(input.path());
+    let empty = tempfile::tempdir().unwrap();
+    biomcp_test_support::recordings::copy_capture(input.path(), empty.path(), |source, capture| {
+        if source == "semantic-scholar" {
+            for exchange in capture["exchanges"].as_array_mut().unwrap() {
+                for row in exchange["body"]["value"]["data"].as_array_mut().unwrap() {
+                    row["contexts"] = serde_json::json!([]);
+                }
+            }
+        }
+    }).unwrap();
+    let empty_fetch = hosted(empty.path());
+    let empty_leg = empty_fetch.leg(
+        &biomcp_adapters::semantic_scholar::SPEC,
+        empty_fetch.deadline(Duration::from_secs(20)),
+    );
+    let empty_result = biomcp_adapters::semantic_scholar::edges(
+        &empty_leg,
+        &biomcp_types::ArticleInput::Pmid("1001".parse().unwrap()),
+        false,
+        None,
+    ).unwrap();
+    assert_eq!(empty_result.data.len(), 3);
+    assert!(empty_result.data.iter().all(|edge| edge.text_withheld.is_none()),
+        "no source context text must remain distinct from a policy refusal");
     let fetch = hosted(input.path());
     let leg = fetch.leg(
         &biomcp_adapters::semantic_scholar::SPEC,
