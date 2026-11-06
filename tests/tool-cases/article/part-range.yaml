@@ -18,7 +18,8 @@
       },
       "expect": {
         "/status": "complete",
-        "/result/content/data/part": 1
+        "/result/content/data/part": 1,
+        "/result/content/data/markdown": "## First section\n\nFirst body paragraph."
       }
     },
     {
@@ -31,7 +32,8 @@
       },
       "expect": {
         "/status": "complete",
-        "/result/content/data/part": 2
+        "/result/content/data/part": 2,
+        "/result/content/data/markdown": "## Second section\n\nSecond body paragraph."
       }
     },
     {
@@ -44,7 +46,8 @@
       },
       "expect": {
         "/status": "complete",
-        "/result/content/data/part": 3
+        "/result/content/data/part": 3,
+        "/result/content/data/markdown": "## Third section\n\nThird body paragraph."
       }
     },
     {
