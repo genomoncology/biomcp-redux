@@ -31,17 +31,7 @@ const COMMERCIAL: &str = "x-biomcp-use: commercial\r\n";
 
 pub(super) fn check() -> Result<(), String> {
     let assets = Environment::new().map_err(|e| e.to_string())?;
-    let mut rows = study_catalog::rows();
-    rows.as_array_mut().ok_or("catalog")?.truncate(3);
-    rows[0]["studyId"] = json!(FLAG);
-    rows[2]["studyId"] = json!("brca_tcga");
-    let template = rows[0].clone();
-    for (id, _) in &FLAGS[1..] {
-        let mut row = template.clone();
-        row["studyId"] = json!(id);
-        rows.as_array_mut().ok_or("catalog")?.push(row);
-    }
-    let replay = study_catalog::seed(&assets, rows, 200)?;
+    let replay = catalog_recording(&assets)?;
     recurrence_recordings(&replay)?;
     let mut server = Server::configured_globals(
         "127.0.0.1:0",
@@ -57,8 +47,33 @@ pub(super) fn check() -> Result<(), String> {
     sync.extend(["sync".into(), "cbioportal-studies".into()]);
     invoke(env, sync, 0)?;
     fs::remove_file(replay.join("cbioportal").join(catalog_key())).map_err(|e| e.to_string())?;
+    catalog(&server)?;
+    sections(&server)?;
+    recurrence(&server)?;
+    server.stop()
+}
+fn catalog_recording(assets: &Environment) -> Result<std::path::PathBuf, String> {
+    let mut rows = study_catalog::rows();
+    rows.as_array_mut().ok_or("catalog")?.truncate(3);
+    *rows
+        .get_mut(0)
+        .and_then(|row| row.get_mut("studyId"))
+        .ok_or("first study")? = json!(FLAG);
+    *rows
+        .get_mut(2)
+        .and_then(|row| row.get_mut("studyId"))
+        .ok_or("TCGA study")? = json!("brca_tcga");
+    let template = rows.get(0).ok_or("first study")?.clone();
+    for (id, _) in FLAGS.iter().skip(1) {
+        let mut row = template.clone();
+        *row.get_mut("studyId").ok_or("template study")? = json!(id);
+        rows.as_array_mut().ok_or("catalog")?.push(row);
+    }
+    study_catalog::seed(assets, rows, 200)
+}
+fn catalog(server: &Server) -> Result<(), String> {
     let first = data(call(
-        &server,
+        server,
         &["search", "study", "atlas", "--limit", "1"],
         ACADEMIC,
         false,
@@ -73,7 +88,7 @@ pub(super) fn check() -> Result<(), String> {
         .and_then(Value::as_str)
         .ok_or("pool")?;
     let args = ["search", "study", "atlas", "--limit", "1", "--pool", pool];
-    let restricted = data(call(&server, &args, RESTRICTED, false)?)?;
+    let restricted = data(call(server, &args, RESTRICTED, false)?)?;
     if restricted.pointer("/page/total") != Some(&json!(2))
         || restricted.pointer("/page/pool/size") != Some(&json!(2))
         || restricted.pointer("/result/items/0/studyId") != Some(&json!("synthetic_1"))
@@ -84,19 +99,24 @@ pub(super) fn check() -> Result<(), String> {
     }
     for (id, reason) in FLAGS {
         notice(&restricted, id, reason)?;
-        let direct = data(call(&server, &["get", "study", id], RESTRICTED, false)?)?;
+        let direct = data(call(server, &["get", "study", id], RESTRICTED, false)?)?;
         blocked(&direct, id, reason)?;
     }
-    let next = restricted["next"]
-        .as_array()
-        .and_then(|rows| rows.iter().find(|v| v["kind"] == "page"))
-        .and_then(|v| v["args"].as_array())
+    continuation(server, &restricted)?;
+    restored(server, &args)
+}
+fn continuation(server: &Server, restricted: &Value) -> Result<(), String> {
+    let next = restricted
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|rows| rows.iter().find(|v| v.get("kind") == Some(&json!("page"))))
+        .and_then(|v| v.get("args").and_then(Value::as_array))
         .ok_or("filtered continuation")?;
     let next = next
         .iter()
         .map(|v| v.as_str().ok_or("next arg"))
         .collect::<Result<Vec<_>, _>>()?;
-    let second = data(call(&server, &next, RESTRICTED, false)?)?;
+    let second = data(call(server, &next, RESTRICTED, false)?)?;
     if second.pointer("/result/items/0/studyId") != Some(&json!("brca_tcga"))
         || second.pointer("/page/total") != Some(&json!(2))
     {
@@ -104,8 +124,11 @@ pub(super) fn check() -> Result<(), String> {
             "filtered continuation changed order or total: {second}"
         ));
     }
+    Ok(())
+}
+fn restored(server: &Server, args: &[&str]) -> Result<(), String> {
     for header in [ACADEMIC, COMMERCIAL] {
-        let restored = data(call(&server, &args, header, false)?)?;
+        let restored = data(call(server, args, header, false)?)?;
         if restored.pointer("/page/total") != Some(&json!(21))
             || restored.pointer("/page/pool/size") != Some(&json!(21))
             || restored.pointer("/result/items/0/studyId") != Some(&json!(FLAG))
@@ -115,12 +138,15 @@ pub(super) fn check() -> Result<(), String> {
             ));
         }
         for id in [FLAG, "all_phase2_target_2018_pub", "angs_painter_2020"] {
-            let card = data(call(&server, &["get", "study", id], header, false)?)?;
+            let card = data(call(server, &["get", "study", id], header, false)?)?;
             if !card.to_string().contains("Synthetic Atlas 0") {
                 return Err(format!("permitted study missing: {card}"));
             }
         }
     }
+    Ok(())
+}
+fn sections(server: &Server) -> Result<(), String> {
     for section in [
         None,
         Some("profiles"),
@@ -135,9 +161,12 @@ pub(super) fn check() -> Result<(), String> {
         if section == Some("mutations") {
             args.extend(["--gene", "BRAF"]);
         }
-        let reply = data(call(&server, &args, RESTRICTED, false)?)?;
+        let reply = data(call(server, &args, RESTRICTED, false)?)?;
         blocked(&reply, FLAG, "noncommercial")?;
     }
+    Ok(())
+}
+fn recurrence(server: &Server) -> Result<(), String> {
     let words = [
         "variant",
         "recurrence",
@@ -156,7 +185,7 @@ pub(super) fn check() -> Result<(), String> {
         "3",
     ];
     for header in [ACADEMIC, COMMERCIAL] {
-        let reply = data(call(&server, &words, header, false)?)?;
+        let reply = data(call(server, &words, header, false)?)?;
         if reply.pointer("/result/observed_sample_count") != Some(&json!(1)) {
             return Err(format!("permitted recurrence missing: {reply}"));
         }
@@ -169,8 +198,8 @@ pub(super) fn check() -> Result<(), String> {
             ("all_phase2_target_2018_pub", "pediatric"),
             ("angs_painter_2020", "clinical decision-making"),
         ] {
-            args[8] = id;
-            let reply = data(call(&server, &args, RESTRICTED, false)?)?;
+            *args.get_mut(8).ok_or("study argument")? = id;
+            let reply = data(call(server, &args, RESTRICTED, false)?)?;
             blocked(&reply, id, reason)?;
             if reply.pointer("/result/observed_sample_count").is_some()
                 || reply.pointer("/result/selected_sample_count").is_some()
@@ -179,7 +208,7 @@ pub(super) fn check() -> Result<(), String> {
             }
         }
     }
-    server.stop()
+    Ok(())
 }
 fn data(reply: Value) -> Result<Value, String> {
     reply
@@ -188,7 +217,7 @@ fn data(reply: Value) -> Result<Value, String> {
         .ok_or_else(|| format!("missing tool reply: {reply}"))
 }
 fn notice(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
-    let text = reply["sources"].to_string();
+    let text = reply.get("sources").ok_or("sources")?.to_string();
     if !text.contains(id) || !text.contains("left out") || !text.contains(reason) {
         return Err(format!("study exclusion has no reason: {reply}"));
     }
@@ -201,8 +230,9 @@ fn blocked(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
     notice(reply, id, reason)?;
     if reply.get("result").is_some()
         || reply.pointer("/sources/0/reason") != Some(&json!("disabled"))
-        || reply["next"]
-            .as_array()
+        || reply
+            .get("next")
+            .and_then(Value::as_array)
             .is_some_and(|rows| !rows.is_empty())
     {
         return Err(format!("flagged study was not withheld: {reply}"));
@@ -235,8 +265,11 @@ fn recurrence_recordings(target: &Path) -> Result<(), String> {
             let text = text.replace("msk_impact_2017", FLAG);
             let record: Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
             let filename = key(
-                record["method"].as_str().ok_or("method")?,
-                record["url"].as_str().ok_or("url")?,
+                record
+                    .get("method")
+                    .and_then(Value::as_str)
+                    .ok_or("method")?,
+                record.get("url").and_then(Value::as_str).ok_or("url")?,
             );
             fs::write(destination.join(filename), text).map_err(|e| e.to_string())?;
         }
