@@ -29,8 +29,8 @@ fn empty() -> VariantRecurrence {
         all_pages_read: false,
         more: false,
         terms: biomcp_types::RecurrenceTerms {
-            unverified: true,
-            notice: "Individual studies may impose commercial restrictions; public access does not verify study-specific reuse rights".into(),
+            unverified: false,
+            notice: "ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use".into(),
             url: "https://docs.cbioportal.org/user-guide/faq/".into(),
         },
     }

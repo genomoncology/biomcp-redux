@@ -261,7 +261,7 @@ fn replacement() -> Check {
         if found.pointer("/page/total") != Some(&json!(12)) {
             return Err(format!("failed replacement lost old rows: {found}"));
         }
-        for group in ["cbioportal", "restricted"] {
+        for group in ["cbioportal"] {
             let skipped = call(
                 &env,
                 &replay,

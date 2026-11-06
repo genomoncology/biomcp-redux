@@ -13,7 +13,7 @@
         "conservation",
         "cosmic",
         "--disable-sources",
-        "restricted",
+        "licensed",
         "--build",
         "GRCh37"
       ],
