@@ -7,6 +7,13 @@ use super::super::{
 };
 use serde_json::{Value, json};
 
+pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
+    vec![crate::runner::transcript::trial(
+        "mcp-parity/typed-followups",
+        || check().map_err(Into::into),
+    )]
+}
+
 pub(super) fn check() -> Result<(), String> {
     for form in ["structured-only", "text-only", "both"] {
         for hosted in [false, true] {
