@@ -215,6 +215,69 @@
           "source": "unknown-provider"
         }
       }
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "RECOMMENDATIONS",
+        "--gene",
+        "CYP2D6",
+        "--source",
+        "CPIC"
+      ],
+      "offline": true,
+      "is_error": true,
+      "exit": 4,
+      "expect": {
+        "/query/section": "recommendations",
+        "/query/source": "cpic"
+      }
+    },
+    {
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/query/section": "recommendations",
+        "/query/source": "cpic"
+      },
+      "mcp_call": {
+        "name": "get_pgx",
+        "arguments": {
+          "section": "RECOMMENDATIONS",
+          "gene": "CYP2D6",
+          "source": "CPIC"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "headache",
+        "--source",
+        "HPO"
+      ],
+      "offline": true,
+      "is_error": true,
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired"
+      }
+    },
+    {
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.retired"
+      },
+      "mcp_call": {
+        "name": "search_phenotype",
+        "arguments": {
+          "text": "headache",
+          "source": "HPO"
+        }
+      }
     }
   ]
 }

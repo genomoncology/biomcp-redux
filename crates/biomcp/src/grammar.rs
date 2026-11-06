@@ -1,6 +1,9 @@
 //! Schema-fed command parsing shared by CLI and MCP.
 mod arguments;
 mod choices;
+mod command_words;
+pub(crate) use command_words::cli as command_arguments;
+pub(crate) use command_words::canonical as canonical_command;
 mod decode;
 mod entry;
 mod process_arguments;

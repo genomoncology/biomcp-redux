@@ -4,7 +4,8 @@ use crate::runner::{
     mcp::{exchange_with_globals, request},
 };
 use libtest_mimic::Trial;
-use serde_json::{Value, json};
+use serde_json::{Map, Value, json};
+use std::io::Write;
 
 pub(super) fn trials() -> Vec<Trial> {
     vec![crate::runner::transcript::trial(
@@ -22,7 +23,7 @@ fn check() -> Result<(), String> {
     let mut count = 0;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let schema = cli(&env, &["schema".into(), id.into()])?;
-        let properties = schema["properties"].as_object().ok_or("properties")?;
+        let properties = field(&schema, "properties").as_object().ok_or("properties")?;
         for (key, property) in properties {
             if property.get("x-cli-flags").is_some() {
                 continue; // These are separate boolean flags on both public adapters.
@@ -40,7 +41,8 @@ fn check() -> Result<(), String> {
             }
         }
     }
-    println!("ENUM_CASE parameters={count} failures={}", failures.len());
+    writeln!(std::io::stdout(), "ENUM_CASE parameters={count} failures={}", failures.len())
+        .map_err(|e| e.to_string())?;
     if failures.is_empty() && count > 0 {
         Ok(())
     } else {
@@ -57,11 +59,12 @@ fn parameter(
     canonical: &str,
 ) -> Result<(), String> {
     let mut values = seed(verb, entity, schema)?;
-    let property = &schema["properties"][key];
+    let property = field(field(schema, "properties"), key);
     let array = resolved(property, schema).get("type") == Some(&json!("array"));
     let value = |text: &str| if array { json!([text]) } else { json!(text) };
-    values[key] = value(canonical);
-    let expected = cli(env, &argv(verb, entity, schema, &values)?)?;
+    context(verb, entity, key, &mut values)?;
+    values.insert(key.into(), value(canonical));
+    let expected = cli(env, &argv(verb, entity, schema, &values))?;
     if expected.pointer("/error/code") == Some(&json!("usage.arguments")) {
         return Err(format!("canonical baseline refused: {expected}"));
     }
@@ -69,8 +72,8 @@ fn parameter(
         canonical.to_ascii_lowercase(),
         canonical.to_ascii_uppercase(),
     ] {
-        values[key] = value(&spelling);
-        let actual = cli(env, &argv(verb, entity, schema, &values)?)?;
+        values.insert(key.into(), value(&spelling));
+        let actual = cli(env, &argv(verb, entity, schema, &values))?;
         if actual != expected {
             return Err(format!("CLI {spelling}: expected {expected}; got {actual}"));
         }
@@ -119,8 +122,8 @@ fn resolved<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
     node
 }
 
-fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Value, String> {
-    let mut values = json!({});
+fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Map<String, Value>, String> {
+    let mut values = Map::new();
     for key in schema
         .get("required")
         .and_then(Value::as_array)
@@ -128,7 +131,7 @@ fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Value, String> {
         .flatten()
     {
         let key = key.as_str().ok_or("required name")?;
-        let node = resolved(&schema["properties"][key], schema);
+        let node = resolved(field(field(schema, "properties"), key), schema);
         let text = node
             .get("enum")
             .and_then(Value::as_array)
@@ -144,17 +147,21 @@ fn seed(verb: &str, entity: &str, schema: &Value) -> Result<Value, String> {
                     key,
                 )
             });
-        values[key] = if node.get("type") == Some(&json!("array")) {
+        values.insert(key.into(), if node.get("type") == Some(&json!("array")) {
             json!([text])
         } else {
             json!(text)
-        };
+        });
     }
     if entity == "pgx" {
-        values["gene"] = json!("CYP2D6");
+        values.insert("gene".into(), json!("CYP2D6"));
     }
-    if verb == "search" && schema["properties"].get("query").is_some() {
-        values["query"] = json!("KRAS");
+    if verb == "search" {
+        for key in ["query", "text"] {
+            if field(schema, "properties").get(key).is_some() {
+                values.insert(key.into(), json!("melanoma"));
+            }
+        }
     }
     Ok(values)
 }
@@ -167,6 +174,7 @@ fn operand<'a>(entity: &str, key: &'a str) -> &'a str {
         "sample_set" => "all",
         "text" | "query" => "melanoma",
         "pmid" => "12345678",
+        "hgvs" => "NM_000059.4:c.68_69del",
         _ => match entity {
             "variant" => "rs7412",
             "trial" => "NCT00000001",
@@ -181,17 +189,17 @@ fn operand<'a>(entity: &str, key: &'a str) -> &'a str {
             "diagnostic" => "GTR000000001.1",
             "biomarker" => "C96022",
             "cell-line" => "CVCL_0030",
-            "gwas" => "GCST000001",
+            "gwas" => "association:6114",
             _ => "KRAS",
         },
     }
 }
 
-fn argv(verb: &str, entity: &str, schema: &Value, values: &Value) -> Result<Vec<String>, String> {
+fn argv(verb: &str, entity: &str, schema: &Value, values: &Map<String, Value>) -> Vec<String> {
     let mut args = vec!["--offline".into(), verb.into(), entity.into()];
     let mut positional = Vec::new();
-    for (key, value) in values.as_object().ok_or("values")? {
-        let property = &schema["properties"][key];
+    for (key, value) in values {
+        let property = field(field(schema, "properties"), key);
         let words = if let Some(values) = value.as_array() {
             values.clone()
         } else {
@@ -199,8 +207,8 @@ fn argv(verb: &str, entity: &str, schema: &Value, values: &Value) -> Result<Vec<
         };
         let words = words
             .iter()
-            .map(|v| v.as_str().ok_or("string operand").map(str::to_owned))
-            .collect::<Result<Vec<_>, _>>()?;
+            .map(|v| v.as_str().map_or_else(|| v.to_string(), str::to_owned))
+            .collect::<Vec<_>>();
         if let Some(index) = property.get("x-positional").and_then(Value::as_u64) {
             positional.push((index, words));
         } else {
@@ -211,7 +219,7 @@ fn argv(verb: &str, entity: &str, schema: &Value, values: &Value) -> Result<Vec<
     }
     positional.sort_by_key(|(index, _)| *index);
     args.extend(positional.into_iter().flat_map(|(_, words)| words));
-    Ok(args)
+    args
 }
 
 fn cli(env: &Environment, args: &[String]) -> Result<Value, String> {
@@ -255,6 +263,34 @@ fn local_choices(env: &Environment) -> Result<(), String> {
                 ));
             }
         }
+    }
+    Ok(())
+}
+
+fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
+    node.get(key).unwrap_or(&Value::Null)
+}
+
+// Valid source and section contexts keep semantic refusals from masking parser behavior.
+fn context(verb: &str, entity: &str, key: &str, values: &mut Map<String, Value>) -> Result<(), String> {
+    let extra = match (verb, entity, key) {
+        ("get", "drug", "civic_kind" | "evidence_level" | "evidence_status") =>
+            json!({"source":"civic", "section":["civic"], "civic_kind":"evidence"}),
+        ("get", "variant", "civic_kind" | "evidence_level" | "evidence_status") =>
+            json!({"section":["civic"], "civic_kind":"evidence", "civic_profile":1}),
+        ("get", "pgx", "kind") => json!({"source":"clinpgx", "section":"annotations"}),
+        ("get", "disease", "ontology") => json!({"source":"ols"}),
+        ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
+        ("search", "drug", "name_selector") => json!({"source":"chembl"}),
+        ("search", "adverse-event", "section") => json!({"source":"vaers", "text":"COVID19"}),
+        ("search", "adverse-event", "aggregate") => json!({"meddra":"headache"}),
+        ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
+        ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
+        _ => json!({}),
+    };
+    values.extend(extra.as_object().ok_or("context")?.clone());
+    if (verb, entity) == ("search", "variant") {
+        values.remove("query");
     }
     Ok(())
 }

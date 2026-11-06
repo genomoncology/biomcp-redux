@@ -88,7 +88,7 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
             } else {
                 String::new()
             };
-            let wording = if name == "section" && form == Some("text") {
+            let wording = if name == "section" && form == Some("text") && !first.starts_with("Case-insensitive:") {
                 format!("Case-insensitive: {first}")
             } else if first.is_empty() {
                 format!("{} {}", name.replace('_', " "), form.unwrap_or("text"))
