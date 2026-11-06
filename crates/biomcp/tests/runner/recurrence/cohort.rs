@@ -78,9 +78,13 @@ fn uncounted() -> Result<(), String> {
     let reply = super::call(&env, &default_page(), 0)?;
     stub.finish()?;
     if reply.pointer("/result/selected_sample_count").is_some()
-        || !reply.to_string().contains("sample_set.selected_sample_count")
+        || !reply
+            .to_string()
+            .contains("sample_set.selected_sample_count")
     {
-        return Err(format!("a missing list size was not shown missing: {reply}"));
+        return Err(format!(
+            "a missing list size was not shown missing: {reply}"
+        ));
     }
     Ok(())
 }
