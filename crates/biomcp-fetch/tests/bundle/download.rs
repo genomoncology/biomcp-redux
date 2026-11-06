@@ -108,7 +108,7 @@ fn interrupted_download_resumes_only_the_same_representation() {
                 }
             }
             let result = call.join().unwrap();
-            if ["safe", "ignored", "412"].contains(&scenario) {
+            if ["safe", "ignored", "412", "moved"].contains(&scenario) {
                 assert_download(result.unwrap(), scenario, cut);
             } else {
                 assert!(result.is_err());
@@ -127,9 +127,13 @@ fn interrupted_download_resumes_only_the_same_representation() {
             });
         }
         assert_eq!(
-            std::fs::read_dir(path.with_extension("parts"))
-                .unwrap()
-                .count(),
+            std::fs::read_dir(if scenario == "moved" {
+                moved_path.with_extension("parts")
+            } else {
+                path.with_extension("parts")
+            })
+            .unwrap()
+            .count(),
             0
         );
     }
@@ -145,7 +149,7 @@ fn assert_download(info: biomcp_fetch::BundleInfo, scenario: &str, cut: usize) {
         TSV.len() as u64,
         "Bundle downloads must publish only the complete checked file"
     );
-    let received = if scenario == "safe" {
+    let received = if ["safe", "moved"].contains(&scenario) {
         TSV.len() - cut
     } else {
         TSV.len()

@@ -93,7 +93,11 @@ fn restart(q: &Selection<'_>, out: &mut Outcome) {
     if let Ok(request) = request {
         out.next.push(crate::next::Step::new(
             StepKind::Restart,
-            &[Source::Reactome],
+            &[if matches!(q.id, PathwayId::Wikipathways(_)) {
+                Source::WikiPathways
+            } else {
+                Source::Reactome
+            }],
             super::run(request),
         ));
     }

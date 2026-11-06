@@ -150,6 +150,7 @@ fn hydrate(
                             .collect();
                         if !q.sections().is_empty() {
                             let mut sections = super::sections::first(q, &entry);
+                            super::sections::continuations(q, &entry, out);
                             if let Some(e) = super::sections::alternative_sequence(
                                 q,
                                 &entry,
