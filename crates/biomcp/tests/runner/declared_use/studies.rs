@@ -224,6 +224,9 @@ fn recurrence_recordings(target: &Path) -> Result<(), String> {
     let original = crate::runner::launch::fixtures().join("replies/variant/recurrence");
     for source in fs::read_dir(original).map_err(|e| e.to_string())? {
         let source = source.map_err(|e| e.to_string())?;
+        if !source.file_type().map_err(|e| e.to_string())?.is_dir() {
+            continue;
+        }
         let destination = target.join(source.file_name());
         fs::create_dir_all(&destination).map_err(|e| e.to_string())?;
         for file in fs::read_dir(source.path()).map_err(|e| e.to_string())? {
