@@ -1,42 +1,67 @@
 //! Substitute source-stated drug names without changing the caller's other filters.
 use crate::{Ctx, Outcome, drug::search_names};
 use biodata::Text;
-use biomcp_types::TrialSearch;
+use biomcp_types::{SourceNotice, TrialSearch};
 
+/// The registry request, and which typed terms it replaced.
+pub(super) struct Expanded {
+    pub query: TrialSearch,
+    pub inputs: Vec<Text>,
+    pub failed: bool,
+}
+
+/// A page token already belongs to one registry query, so continuing never looks names up.
 pub(super) fn expand<'a>(
     cx: &Ctx<'a>,
     query: &TrialSearch,
     out: &mut Outcome,
     deadline: &mut biomcp_fetch::Deadline<'a>,
-) -> TrialSearch {
-    if query.exact_term() || cx.fetch.disabled(query.source().source()) {
-        return query.clone();
+) -> Expanded {
+    let mut expanded = Expanded {
+        query: query.clone(),
+        inputs: Vec::new(),
+        failed: false,
+    };
+    if query.exact_term()
+        || query.next_page().is_some()
+        || cx.fetch.disabled(query.source().source())
+    {
+        return expanded;
     }
-    let text = query
-        .query()
-        .map(|input| expand_term(cx, input, out, deadline));
-    let interventions = query
-        .intervention()
-        .iter()
-        .map(|input| expand_term(cx, input, out, deadline))
-        .collect();
-    let keywords = query
-        .keyword()
-        .iter()
-        .map(|input| expand_term(cx, input, out, deadline))
-        .collect();
-    query.with_drug_terms(text, interventions, keywords)
+    search_names::bounded(deadline, |lookup| {
+        let mut term = |input: &Text| {
+            let resolved = search_names::resolve(cx, input, out, lookup);
+            expanded.failed |= resolved.failed;
+            match search_names::alternatives(&resolved.names) {
+                Some(group) if resolved.names.len() > 1 => {
+                    expanded.inputs.push(input.clone());
+                    group
+                }
+                _ => input.clone(),
+            }
+        };
+        let text = query.query().map(&mut term);
+        let interventions = query.intervention().iter().map(&mut term).collect();
+        let keywords = query.keyword().iter().map(&mut term).collect();
+        expanded.query = query.with_drug_terms(text, interventions, keywords);
+    });
+    expanded
 }
-fn expand_term<'a>(
-    cx: &Ctx<'a>,
-    input: &Text,
-    out: &mut Outcome,
-    deadline: &mut biomcp_fetch::Deadline<'a>,
-) -> Text {
-    let names = search_names::resolve(cx, input, out, deadline);
-    if names.len() > 1 {
-        search_names::alternatives(&names).unwrap_or_else(|| input.clone())
-    } else {
-        input.clone()
+
+/// NCI search takes no name group, so its reply says the terms stayed as typed.
+pub(super) fn literal_notices(query: &TrialSearch) -> Vec<SourceNotice> {
+    if query.exact_term() {
+        return Vec::new();
     }
+    query
+        .query()
+        .into_iter()
+        .chain(query.intervention())
+        .chain(query.keyword())
+        .map(|input| SourceNotice::DrugNameSearch {
+            input: input.clone(),
+            names: vec![input.clone()].into(),
+            message: "NCI search does not expand drug names; searched the typed term.".into(),
+        })
+        .collect()
 }

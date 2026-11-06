@@ -1,4 +1,4 @@
-use crate::{Ctx, Outcome, fan_out, status};
+use crate::{Ctx, Outcome, drug::search_names, fan_out, status};
 use biodata::Text;
 use biomcp_adapters::{europepmc, litvar, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
@@ -52,6 +52,16 @@ pub(super) fn search<'a>(
         *deadline = deadline.after_stage(elapsed);
         results.append(&mut batch_results);
     }
+    retry_typed(
+        cx,
+        query,
+        resolved,
+        drug_names,
+        &mut results,
+        deadline,
+        &mut prepared,
+        out,
+    );
     resolve_rows(cx, query, &mut results, deadline, out)?;
     let answered = results
         .iter()
@@ -61,6 +71,7 @@ pub(super) fn search<'a>(
         .filter_map(|r| r.error)
         .find(|e| status::local(*e).is_some());
     append_results(out, &results);
+    note_request_limit(query, drug_names, out);
     if let Some(error) = error {
         return Err(error);
     }
@@ -72,6 +83,79 @@ pub(super) fn search<'a>(
         results.into_iter().map(|r| (r.source, r.items)).collect(),
         query.sources().len() > 1,
     )))
+}
+/// Search the typed term where a provider refused the name group, and say so on that provider.
+#[expect(
+    clippy::too_many_arguments,
+    reason = "One search's borrowed stages, kept apart from its source fan-out"
+)]
+fn retry_typed<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    resolved: &super::term::Resolved,
+    names: &[Text],
+    results: &mut [ResultLeg],
+    deadline: &mut Deadline<'a>,
+    prepared: &mut Option<PreparedLitvar<'a>>,
+    out: &mut Outcome,
+) {
+    let Some(input) = query.drug_name_input().filter(|_| names.len() > 1) else {
+        return;
+    };
+    let mut retried = false;
+    for result in results
+        .iter_mut()
+        .filter(|r| grouped(r.source) && search_names::rejected(r.error.as_ref()))
+    {
+        let batch = [(result.source, query.clone())];
+        if let Some(mut typed) = fetch_batch(cx, &batch, resolved, *deadline, prepared).pop() {
+            *deadline = deadline.after_stage(typed.elapsed);
+            typed
+                .outcome
+                .notices
+                .push(search_names::typed_only(input, typed.outcome.source));
+            *result = typed;
+            retried = true;
+        }
+    }
+    if retried && query.sources().iter().all(|source| grouped(*source)) {
+        search_names::retract(out);
+    }
+}
+/// A provider taking one request per name reports which names it had time for.
+fn note_request_limit(query: &ArticleSearch, names: &[Text], out: &mut Outcome) {
+    let Some(input) = query.drug_name_input() else {
+        return;
+    };
+    let picked = search_names::one_request_each(Some(input), names);
+    if picked.len() == names.len() {
+        return;
+    }
+    for source in out
+        .sources
+        .iter_mut()
+        .filter(|s| matches!(s.source, Source::SemanticScholar | Source::LitSense))
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::DrugNameSearch {
+                input: input.clone(),
+                names: picked.clone().into(),
+                message: format!(
+                    "{} takes one request per name, so it searched {} of {} names.",
+                    source.source,
+                    picked.len(),
+                    names.len()
+                )
+                .into(),
+            });
+    }
+}
+fn grouped(source: ArticleSource) -> bool {
+    matches!(
+        source,
+        ArticleSource::Pubmed | ArticleSource::Europepmc | ArticleSource::Pubtator
+    )
 }
 fn fetch_batch<'a>(
     cx: &Ctx<'a>,
@@ -144,15 +228,17 @@ fn drug_queries(query: &ArticleSearch, names: &[Text]) -> Vec<(ArticleSource, Ar
             }
             match source {
                 ArticleSource::Pubmed | ArticleSource::Europepmc | ArticleSource::Pubtator => {
-                    let expanded = crate::drug::search_names::alternatives(names)
+                    let expanded = search_names::alternatives(names)
                         .map_or_else(|| query.clone(), |term| query.with_drug_term(term));
                     vec![(*source, expanded)]
                 }
                 ArticleSource::Litvar => vec![(*source, query.clone())],
-                ArticleSource::SemanticScholar | ArticleSource::Litsense => names
-                    .iter()
-                    .map(|name| (*source, query.with_drug_term(name.clone())))
-                    .collect(),
+                ArticleSource::SemanticScholar | ArticleSource::Litsense => {
+                    search_names::one_request_each(query.drug_name_input(), names)
+                        .into_iter()
+                        .map(|name| (*source, query.with_drug_term(name)))
+                        .collect()
+                }
             }
         })
         .collect()

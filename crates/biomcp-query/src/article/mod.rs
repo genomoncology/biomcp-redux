@@ -78,7 +78,7 @@ fn execute<'a>(
     } else {
         store.find(&key, explicit)?
     };
-    let (stored, drug_names) = drug_names::reuse(cx, query, stored, out, deadline);
+    let (stored, looked_up) = drug_names::reuse(cx, query, stored, out, deadline);
     let pool = match stored {
         Some(pool) if pool.key != key.as_slice() => {
             pool_error(query, true, out);
@@ -93,21 +93,26 @@ fn execute<'a>(
             let Some(resolved) = term::search(cx, query, deadline, out)? else {
                 return Ok(());
             };
-            let drug_names = drug_names
+            let drug_names = looked_up
                 .unwrap_or_else(|| crate::drug::search_names::article(cx, query, out, deadline));
-            let mut items = match sources::search(cx, query, &resolved, &drug_names, deadline, out)?
-            {
-                sources::SearchResult::Items(items) => items,
-                sources::SearchResult::Answer => return Ok(()),
-                sources::SearchResult::Unavailable => {
-                    retry(query, None, out);
-                    return Ok(());
-                }
-            };
+            let mut items =
+                match sources::search(cx, query, &resolved, &drug_names.names, deadline, out)? {
+                    sources::SearchResult::Items(items) => items,
+                    sources::SearchResult::Answer => return Ok(()),
+                    sources::SearchResult::Unavailable => {
+                        retry(query, None, out);
+                        return Ok(());
+                    }
+                };
             if query.sort() == biomcp_types::ArticleSort::Citations
                 && !order::apply(cx, deadline, &mut items, out)?
             {
                 retry(query, None, out);
+                return Ok(());
+            }
+            // Names may be missing, so these rows are this reply's, not the whole pool's.
+            if drug_names.failed {
+                page::fetched(page::Cursor::Search(query), items, out);
                 return Ok(());
             }
             store.set_deadline(*deadline);

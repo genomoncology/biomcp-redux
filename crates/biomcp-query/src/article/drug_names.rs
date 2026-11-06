@@ -1,6 +1,5 @@
 //! Keep explicit snapshots stable while replacing legacy implicit literal-name pools.
-use crate::{Ctx, Outcome, store::Pool};
-use biodata::Text;
+use crate::{Ctx, Outcome, drug::search_names::Resolved, store::Pool};
 use biomcp_types::{ArticleSearch, SourceNotice};
 
 pub(super) fn reuse<'a>(
@@ -9,7 +8,7 @@ pub(super) fn reuse<'a>(
     stored: Option<Pool>,
     out: &mut Outcome,
     deadline: &mut biomcp_fetch::Deadline<'a>,
-) -> (Option<Pool>, Option<Vec<Text>>) {
+) -> (Option<Pool>, Option<Resolved>) {
     if query.pool().is_some()
         || query.exact_term()
         || stored.as_ref().is_none_or(|pool| {
@@ -21,7 +20,7 @@ pub(super) fn reuse<'a>(
     {
         return (stored, None);
     }
-    let names = crate::drug::search_names::article(cx, query, out, deadline);
-    let stored = if names.is_empty() { stored } else { None };
-    (stored, Some(names))
+    let resolved = crate::drug::search_names::article(cx, query, out, deadline);
+    let stored = stored.filter(|_| resolved.names.is_empty() && !resolved.failed);
+    (stored, Some(resolved))
 }

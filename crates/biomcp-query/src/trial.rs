@@ -35,7 +35,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
-    let (result, name_notice) = ctgov::search_query(&leg, &expanded, gene.as_deref(), conditions);
+    let (mut result, mut name_notice) =
+        ctgov::search_query(&leg, &expanded.query, gene.as_deref(), conditions);
+    let typed_only =
+        !expanded.inputs.is_empty() && crate::drug::search_names::rejected(result.as_ref().err());
+    if typed_only {
+        (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
+    }
     let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
@@ -50,6 +56,14 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
+    if typed_only {
+        crate::drug::search_names::retract(&mut outcome);
+        source.notices.extend(
+            expanded.inputs.iter().map(|input| {
+                crate::drug::search_names::typed_only(input, Source::ClinicalTrialsGov)
+            }),
+        );
+    }
     {
         let (found, identity_failed, unavailable) = if result.is_err() {
             (false, true, false)
@@ -76,7 +90,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         }
         source.count = page.total;
         source.retrieved_count = Some(page.items.len() as u32);
-        apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
+        // The registry's token belongs to the request that was sent, so the next page repeats it.
+        let sent = if expanded.inputs.is_empty() || typed_only {
+            query.clone()
+        } else {
+            expanded.query.exact()
+        };
+        apply_page(query, &sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let Ok(version) = version {
         outcome.problems.extend(version.problems);
@@ -92,7 +112,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
-    status::search_for(&mut outcome, &[Source::ClinicalTrialsGov]);
+    // A failed name lookup leaves the search incomplete even when the registry answered.
+    let mut asked = vec![Source::ClinicalTrialsGov];
+    if expanded.failed {
+        asked.extend([Source::Mychem, Source::Chembl, Source::OpenfdaLabel]);
+    }
+    status::search_for(&mut outcome, &asked);
     command.finish(deadline.remaining());
     outcome
 }
@@ -102,6 +127,7 @@ fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
 
 fn apply_page(
     query: &TrialSearch,
+    sent: &TrialSearch,
     fresh: bool,
     symbol: Option<&str>,
     outcome: &mut Outcome,
@@ -145,7 +171,7 @@ fn apply_page(
         outcome.next.push(crate::next::Step::run(
             StepKind::Page,
             &[query.source().source()],
-            Request::SearchTrial(query.at_page(
+            Request::SearchTrial(sent.at_page(
                 token,
                 query.offset().saturating_add(page.items.len() as u32),
             )),

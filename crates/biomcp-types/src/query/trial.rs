@@ -310,6 +310,12 @@ impl TrialSearch {
         next.0.keyword = keywords;
         next
     }
+    /// The same request, with its terms searched as written.
+    pub fn exact(&self) -> Self {
+        let mut next = self.clone();
+        next.0.exact_term = true;
+        next
+    }
     /// General registry discovery text.
     pub fn query(&self) -> Option<&Text> {
         self.0.query.as_ref()
