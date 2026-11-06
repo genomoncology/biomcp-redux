@@ -74,11 +74,7 @@ pub(super) fn message(
                 } else {
                     "Output schema unavailable".into()
                 };
-                return Message::Reply(protocol::error(
-                    id.clone(),
-                    -32603,
-                    &message,
-                ));
+                return Message::Reply(protocol::error(id.clone(), -32603, &message));
             }
         },
         "tools/call" => {

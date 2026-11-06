@@ -4,8 +4,8 @@ mod catalog;
 pub(super) use catalog::instructions;
 mod description;
 mod followups;
-mod help;
 mod grouping;
+mod help;
 mod summary;
 mod validation;
 pub(super) fn tool_result(
@@ -79,10 +79,7 @@ pub(super) fn tools(
 ) -> io::Result<Vec<Value>> {
     Ok(catalog(context, read_only)?.tools)
 }
-fn catalog(
-    context: crate::command::Context<'_>,
-    read_only: bool,
-) -> io::Result<grouping::Catalog> {
+fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<grouping::Catalog> {
     let (output_schema, enum_limit) = crate::config::mcp_typed_schema_options(context.settings);
     let excluded = catalog::excluded(context)?;
     let tools = crate::grammar::command_paths()
@@ -123,7 +120,8 @@ pub(super) fn parse(
         return super::research::parse(params).map(Ok);
     }
     let reference = (params.get("name")?.as_str()? == "biomcp_reference")
-        .then(|| grouping::unwrap(params)).flatten();
+        .then(|| grouping::unwrap(params))
+        .flatten();
     let params = reference.as_ref().unwrap_or(params);
     let called = params.get("name")?.as_str()?;
     if called == "biomcp_help" {

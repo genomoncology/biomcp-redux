@@ -17,7 +17,7 @@ pub(super) fn check() -> Result<(), String> {
 }
 fn check_form(form: &str, hosted: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,
+    let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,"mcp_typed_definition_bytes":200000,
         "mcp_reply_form":form,"disable_sources":["oncokb"]});
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = fixtures().join("replies/gene/main");

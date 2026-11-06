@@ -60,9 +60,7 @@ fn discovery_contract(single: &[Value], typed: &[Value]) -> Result<(), String> {
         .pointer("/result/tools")
         .and_then(Value::as_array)
         .ok_or("typed catalog")?;
-    if tools.len() != biomcp_types::command_paths().len() + 3 {
-        return Err("typed catalog count".into());
-    }
+    super::typed_catalog::check(tools)?;
     let original = reply(single, 1)?
         .pointer("/result/tools")
         .and_then(Value::as_array)

@@ -12,11 +12,11 @@ pub(super) fn check() -> Check {
     for (argv, call) in [
         (
             vec!["get", "pathway", "hsa04151"],
-            json!({"name":"get_pathway","arguments":{"id":"hsa04151"}}),
+            json!({"name":"biomcp_reference","arguments":{"command":"get_pathway","arguments":{"id":"hsa04151"}}}),
         ),
         (
             vec!["get", "pathway", "R-HSA-109581", "enrichment"],
-            json!({"name":"get_pathway","arguments":{"id":"R-HSA-109581","section":"enrichment"}}),
+            json!({"name":"biomcp_reference","arguments":{"command":"get_pathway","arguments":{"id":"R-HSA-109581","section":"enrichment"}}}),
         ),
         (
             vec![

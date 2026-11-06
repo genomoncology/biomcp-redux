@@ -54,11 +54,9 @@ pub(super) fn historical() -> Result<(), String> {
     let mut case_index = 0;
     for (verb, entity, _) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
-        let tool = tools
-            .iter()
-            .find(|tool| tool.get("name") == Some(&json!(name)))
-            .ok_or_else(|| format!("missing registry tool {name}"))?;
-        if let Err(error) = replay::check(tool, &mut case_index) {
+        let tool = super::typed_catalog::command(&tools, &name)
+            .ok_or_else(|| format!("missing registry route {name}"))?;
+        if let Err(error) = replay::check(&tool, &mut case_index) {
             failures.push(error);
         }
     }
@@ -89,9 +87,7 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
         .and_then(Value::as_array)
         .ok_or("missing tools")?;
     let paths = biomcp_types::command_paths();
-    if tools.len() != paths.len() + 3 {
-        return Err("missing registry tools".into());
-    }
+    super::typed_catalog::check(tools)?;
     let instructions = replies
         .iter()
         .find(|r| r["id"] == 2)
@@ -103,10 +99,9 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
     }
     for (verb, entity, _) in paths {
         let name = format!("{verb}_{entity}").replace('-', "_");
-        let tool = tools
-            .iter()
-            .find(|tool| tool["name"] == name)
-            .ok_or_else(|| format!("missing {name}"))?;
+        let Some(tool) = tools.iter().find(|tool| tool["name"] == name) else {
+            continue;
+        };
         let description = tool["description"].as_str().ok_or("description")?;
         if description.chars().count() > 300 {
             return Err(format!(
@@ -277,8 +272,8 @@ pub(super) fn guards() -> Result<(), String> {
     let tools = discovery(&env, &["--offline".into()])?;
     let tool = tools
         .iter()
-        .find(|tool| tool.get("name") == Some(&json!("search_biomarker")))
-        .ok_or("missing search_biomarker registry tool")?;
+        .find(|tool| tool.get("name") == Some(&json!("search_drug")))
+        .ok_or("missing search_drug registry tool")?;
     replay::rejects_overstrict_schema(tool)?;
     let mut failures = Vec::new();
     if let Err(error) = baseline::invalid_id_witness() {
