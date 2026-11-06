@@ -763,13 +763,6 @@ trial-provenance-check:
 commercial-config-check:
 	python3 scripts/trials.py --case-file readme/gene.yaml --case-file readme/article.yaml --case-file readme/trial.yaml mcp-hosted/use/commercial-config
 
-.PHONY: study-flags-focused
-study-flags-focused:
-	+sh scripts/check_hosted_modes.sh focused
-
-.PHONY: study-flags-case
-study-flags-case:
-	cargo test --locked -p biomcp --test cases mcp-hosted/use/study-commercial-flags -- --exact
 
 .PHONY: typed-owned-followups-check
 typed-owned-followups-check:
@@ -866,3 +859,19 @@ accepted-batch-article-finish:
 	cargo test --locked -p biomcp --test cases variant/identity $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article/fulltext/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases article/preprint/ $(TEST_THREADS)
+
+.PHONY: hosted-resilience-focused
+hosted-resilience-focused:
+	cargo test --locked -p biomcp --bin biomcp mcp::http::call::tests $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-hosted/replay-partial-at-deadline $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-http/ $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-hosted/pacing/whole-call-deadline $(TEST_THREADS)
+
+.PHONY: hosted-resilience-mechanical
+hosted-resilience-mechanical:
+	+$(MAKE) --no-print-directory check-cheap
+	+$(MAKE) --no-print-directory hosted-resilience-focused
+
+.PHONY: commercial-config-check
+commercial-config-check:
+	python3 scripts/trials.py --case-file readme/gene.yaml --case-file readme/article.yaml --case-file readme/trial.yaml mcp-hosted/use/commercial-config
