@@ -1,6 +1,5 @@
 //! Compact public schemas and checked argument-to-CLI spelling.
 use serde_json::{Value, json};
-use std::ffi::OsString;
 
 pub(super) fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
     node.get("$ref")
@@ -81,14 +80,32 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
         .into_iter()
         .flatten()
         .flat_map(|(key, node)| {
-            let description = node.get("description").and_then(Value::as_str).map(|text| {
-                text.lines()
-                    .next()
-                    .unwrap_or_default()
-                    .chars()
-                    .take(80)
-                    .collect::<String>()
-            });
+            let description = node
+                .get("x-section-rule")
+                .or_else(|| node.get("description"))
+                .and_then(Value::as_str)
+                .map(|text| {
+                    let mut lines = text.lines();
+                    let first = lines.next().unwrap_or_default();
+                    // Generated schemas prepend a compact help pointer to the original prose.
+                    let text = if first.contains("biomcp_help") {
+                        lines
+                            .next()
+                            .unwrap_or(first)
+                            .split("; biomcp_help")
+                            .next()
+                            .unwrap_or(first)
+                            .to_owned()
+                    } else {
+                        first.to_owned()
+                    };
+                    text.split(". ")
+                        .next()
+                        .unwrap_or_default()
+                        .trim_end_matches('.')
+                        .to_owned()
+                        + "."
+                });
             if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
                 flags
                     .keys()
@@ -126,73 +143,4 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
     }
     result
 }
-fn words(value: &Value) -> Vec<String> {
-    match value {
-        Value::String(value) => vec![value.clone()],
-        Value::Array(values) => values.iter().flat_map(words).collect(),
-        _ => vec![value.to_string()],
-    }
-}
-pub(super) fn cli(
-    root: &crate::grammar::Root,
-    verb: &str,
-    entity: &str,
-    schema: &Value,
-    values: &Value,
-) -> Option<Vec<OsString>> {
-    let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
-    let mut args = vec![verb.into(), entity.into()];
-    // Parser indices own positional order; flags precede them to keep literal values safe.
-    let mut positional = Vec::new();
-    for (key, value) in values.as_object()? {
-        let argument = command
-            .get_arguments()
-            .find(|arg| arg.get_id().as_str() == key)?;
-        if let Some(index) = argument.get_index() {
-            positional.push((index, words(value)));
-            continue;
-        }
-        let flag = argument.get_long()?;
-        if let Some(boolean) = value.as_bool()
-            && matches!(
-                argument.get_action(),
-                clap::ArgAction::SetTrue | clap::ArgAction::SetFalse
-            )
-        {
-            if argument.is_require_equals_set() {
-                args.push(format!("--{flag}={boolean}").into());
-            } else if boolean {
-                args.push(format!("--{flag}").into());
-            }
-            continue;
-        }
-        let values = words(value);
-        if schema
-            .get("properties")
-            .and_then(|fields| fields.get(key))
-            .and_then(|field| field.get("x-comma-separated"))
-            == Some(&Value::Bool(true))
-        {
-            args.push(format!("--{flag}={}", values.join(",")).into());
-        } else {
-            for value in values {
-                args.push(format!("--{flag}={value}").into());
-            }
-        }
-    }
-    positional.sort_by_key(|(index, _)| *index);
-    if positional
-        .iter()
-        .flat_map(|(_, words)| words)
-        .any(|word| word.starts_with('-'))
-    {
-        args.push("--".into());
-    }
-    args.extend(
-        positional
-            .into_iter()
-            .flat_map(|(_, values)| values)
-            .map(OsString::from),
-    );
-    Some(args)
-}
+pub(super) use crate::grammar::command_arguments as cli;
