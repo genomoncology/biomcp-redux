@@ -1,6 +1,7 @@
 # 0671 — Gene name replay declares its live-check eligibility
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 88af1cb16c3552a627a15dfe79b5e96c73e52a9f
 
 Milestone: 5
 

@@ -1,3 +1,8 @@
+#[path = "hosted_surface.rs"]
+mod hosted_surface;
+
+#[path = "label_priority.rs"]
+mod label_priority;
 #[path = "mcp_reply_form.rs"]
 mod reply_form;
 #[path = "protocol_schemas.rs"]
@@ -28,6 +33,9 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = vec![
+        transcript_trial("mcp-hosted/served-surface-and-source-policy", || {
+            hosted_surface::check().map_err(Into::into)
+        }),
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)
         }),
@@ -87,6 +95,7 @@ pub(super) fn trials() -> Vec<Trial> {
             discovery().map_err(Into::into)
         }),
     ];
+    trials.extend(label_priority::trials());
     tool_only! {
         trials.push(transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
             typed::guards().map_err(Into::into)
