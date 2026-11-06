@@ -24,7 +24,7 @@
         ],
         "/query/query": "Canonical therapy",
         "/page/total": 3,
-        "/result/items/*/id": {
+        "/result/items/*/nct_id": {
           "equals": [
             "NCT03000001",
             "NCT03000002",
@@ -53,7 +53,7 @@
         ],
         "/query/query": "EX-66",
         "/page/total": 3,
-        "/result/items/*/id": {
+        "/result/items/*/nct_id": {
           "equals": [
             "NCT03000001",
             "NCT03000002",
@@ -82,7 +82,7 @@
         ],
         "/query/query": "Example brand",
         "/page/total": 3,
-        "/result/items/*/id": {
+        "/result/items/*/nct_id": {
           "equals": [
             "NCT03000001",
             "NCT03000002",
