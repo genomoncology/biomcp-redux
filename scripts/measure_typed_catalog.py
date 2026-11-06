@@ -1,4 +1,4 @@
-"""Measure compact UTF-8 tools/list definitions from an isolated installed server."""
+"""Measure compact UTF-8 tools/list definitions from isolated installed servers."""
 import hashlib
 import json
 import os
@@ -28,24 +28,44 @@ def main():
     frame = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {"_meta": {
         "io.modelcontextprotocol/protocolVersion": "2026-07-28",
         "io.modelcontextprotocol/clientCapabilities": {}}}}
+    profiles = [("single", [], {})]
+    for hosted in (False, True):
+        base = "hosted-typed" if hosted else "typed"
+        flags = ["--tool-mode", "typed"] + (["--hosted"] if hosted else [])
+        profiles.append((base, flags, {}))
+        for schema in (False, True):
+            for limit in (1, 30, 1000):
+                config = {"mcp_typed_output_schema": schema, "mcp_typed_enum_limit": limit,
+                          "mcp_typed_definition_bytes": 200000}
+                profiles.append((f"{base}-output-{schema}-enum-{limit}", flags, config))
+    profiles.append(("typed-excluded", ["--tool-mode", "typed"],
+                     {"disable_sources": ["ctgov", "who-pq", "gwas"]}))
+    measurements = []
     with tempfile.TemporaryDirectory() as scratch:
         env = {key: value for key, value in os.environ.items()
                if key in {"PATH", "SystemRoot", "WINDIR", "TMPDIR", "TEMP", "TMP"}}
         env.update(HOME=scratch, XDG_CONFIG_HOME=scratch, XDG_CACHE_HOME=scratch, APPDATA=scratch)
-        for label, flags in (("single", []), ("typed", ["--tool-mode", "typed"]),
-                             ("hosted-typed", ["--tool-mode", "typed", "--hosted"])):
-            result = subprocess.run([str(binary), "serve", "--offline", *flags],
+        config_path = Path(scratch) / "profile.json"
+        for label, flags, config in profiles:
+            config_path.write_bytes(encoded(config))
+            result = subprocess.run([str(binary), "serve", "--offline", "--config", str(config_path), *flags],
                                     input=json.dumps(frame) + "\n", env=env,
                                     capture_output=True, text=True, timeout=30, check=True)
+            (output / (label + ".reply.json")).write_text(result.stdout)
+            (output / (label + ".config.json")).write_bytes(encoded(config))
             reply = json.loads(result.stdout)
+            if "error" in reply:
+                raise RuntimeError(f"{label}: {reply['error']}")
             tools = reply["result"]["tools"]
             (output / (label + ".tools.json")).write_bytes(encoded(tools))
-            (output / (label + ".reply.json")).write_text(result.stdout)
-            print(json.dumps({"mode": label, "revision": revision, "tool_count": len(tools),
-                              "definition_bytes": len(encoded(tools)),
-                              "tools": [{"name": tool["name"], "bytes": len(encoded(tool)),
-                                         "description_bytes": len(tool.get("description", "").encode())}
-                                        for tool in tools]}, separators=(",", ":")))
+            row = {"mode": label, "revision": revision, "config": config,
+                   "tool_count": len(tools), "definition_bytes": len(encoded(tools)),
+                   "tools": [{"name": tool["name"], "bytes": len(encoded(tool)),
+                              "description_bytes": len(tool.get("description", "").encode())}
+                             for tool in tools]}
+            measurements.append(row)
+            print(json.dumps(row, separators=(",", ":")))
+    (output / "measurements.json").write_bytes(encoded(measurements))
 
 
 if __name__ == "__main__":
