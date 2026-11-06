@@ -245,6 +245,7 @@ fn indications(
 ) {
     let indications = page(out, query, window, fetched, fresh);
     out.body = (DrugIndications {
+        regulatory_context: None,
         identity,
         indications,
     })

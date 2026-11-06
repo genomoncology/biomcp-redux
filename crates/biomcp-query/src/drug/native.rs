@@ -2,6 +2,7 @@
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod identity;
+mod regulatory_context;
 mod sections;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
@@ -160,6 +161,12 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         crate::status::item(&mut out, false, true, false);
     }
     finish(&mut out, leg, query.source().source(), error);
+    if error.is_none()
+        && query.source() == DrugSource::Opentargets
+        && query.sections() == [DrugSection::Indications]
+    {
+        regulatory_context::attach(cx, query, deadline, &mut out);
+    }
     command.finish(deadline.remaining());
     out
 }

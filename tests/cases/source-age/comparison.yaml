@@ -1,0 +1,37 @@
+{
+  "feature": "source-data-age",
+  "live_check": "Entirely synthetic native-shaped source facts; no live provider observation",
+  "replay": "source-age/comparison",
+  "story": "A native phase and a dated FDA application event appear side by side without matching their indications or inventing an Open Targets date",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "CHEMBL941",
+        "indications",
+        "--source",
+        "opentargets",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/result/indications/data/records/0/stage/value": "PHASE_III",
+        "/result/indications/data/records/0/attribution": {
+          "omits": [
+            "release"
+          ]
+        },
+        "/result/regulatory_context/indications_linked": false,
+        "/result/regulatory_context/applications/0/identity/id": "NDA999999",
+        "/result/regulatory_context/applications/0/approvals/data/records/0/event/status": "AP",
+        "/result/regulatory_context/applications/0/approvals/data/records/0/event/dates/0/date": "2025-01-16",
+        "/result/regulatory_context/applications/0/approvals/data/records/0/event": {
+          "omits": [
+            "indication"
+          ]
+        }
+      }
+    }
+  ]
+}

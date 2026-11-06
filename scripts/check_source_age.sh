@@ -20,7 +20,7 @@ case "${1:-focused}" in
     ;;
   cases)
     cargo test --locked -p biomcp-fetch calendar_days_preserve_leap_years_and_reject_partial_dates
-    sh scripts/check_study_rows.sh focused --case-file source-age/openfda.yaml --case-file source-age/configured.yaml --case-file source-age/ema.yaml --case-file source-age/cellosaurus.yaml --case-file source-age/chembl.yaml --case-file source-age/ctgov.yaml source-data-age/restored-age source-data-age/hosted-stale-ema
+    sh scripts/check_study_rows.sh focused --case-file source-age/comparison.yaml --case-file source-age/fda-unavailable.yaml --case-file source-age/openfda.yaml --case-file source-age/configured.yaml --case-file source-age/ema.yaml --case-file source-age/cellosaurus.yaml --case-file source-age/chembl.yaml --case-file source-age/ctgov.yaml source-data-age/restored-age source-data-age/hosted-stale-ema
     ;;
   prepare)
     cargo fmt --all
