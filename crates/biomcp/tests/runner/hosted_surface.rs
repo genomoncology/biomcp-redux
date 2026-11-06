@@ -11,7 +11,14 @@ mod components;
 
 type Check = Result<(), String>;
 
-pub(super) fn check() -> Check {
+pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
+    vec![crate::runner::transcript::trial(
+        "mcp-hosted/served-surface-and-source-policy",
+        || check().map_err(Into::into),
+    )]
+}
+
+fn check() -> Check {
     let mut failures = Vec::new();
     for mode in ["single", "typed"] {
         for (claim, result) in [

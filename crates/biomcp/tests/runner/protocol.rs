@@ -32,10 +32,8 @@ use std::{io::Write, process::Stdio, time::Instant};
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
-    let mut trials = vec![
-        transcript_trial("mcp-hosted/served-surface-and-source-policy", || {
-            hosted_surface::check().map_err(Into::into)
-        }),
+    let mut trials = hosted_surface::trials();
+    trials.extend([
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)
         }),
@@ -94,7 +92,7 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-parity/discovers-artifact-command-tree", || {
             discovery().map_err(Into::into)
         }),
-    ];
+    ]);
     trials.extend(label_priority::trials());
     tool_only! {
         trials.push(transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
