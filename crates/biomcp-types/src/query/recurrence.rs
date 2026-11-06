@@ -41,7 +41,11 @@ crate::query::validation::checked_query!(VariantRecurrenceQuery, Fields);
 impl TryFrom<Fields> for VariantRecurrenceQuery {
     type Error = super::gene::QueryInvalid;
     fn try_from(v: Fields) -> Result<Self, Self::Error> {
-        crate::VariantGet::new(v.input.clone(), crate::VariantResolver::Car, v.build)?;
+        crate::VariantGet::new(
+            v.input.clone(),
+            crate::VariantResolver::Car,
+            Some(identity_build(v.build)),
+        )?;
         if !(1..=100).contains(&v.limit) {
             return Err(super::gene::QueryInvalid::new(&["limit"]));
         }
@@ -67,9 +71,9 @@ impl VariantRecurrenceQuery {
     pub fn input(&self) -> &VariantInput {
         &self.0.input
     }
-    /// Caller assembly for identity resolution.
+    /// Effective identity assembly, including the shared default.
     pub fn build(&self) -> Option<crate::Build> {
-        self.0.build
+        Some(identity_build(self.0.build))
     }
     /// Caller-selected gene symbol.
     pub fn gene(&self) -> &GeneSymbol {
@@ -109,4 +113,8 @@ biodata::wire_enum! {
         /// Public cBioPortal mutation rows.
         Cbioportal => "cbioportal",
     }
+}
+
+fn identity_build(build: Option<crate::Build>) -> crate::Build {
+    build.unwrap_or(crate::VariantGet::DEFAULT_BUILD)
 }
