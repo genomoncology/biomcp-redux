@@ -1,6 +1,7 @@
 //! Typed follow-ups remain executable calls across replay, errors and reply forms.
 //! live_check: local transport replay using public recorded gene replies; no live calls.
 use super::super::{
+    http::Server,
     launch::{Environment, fixtures},
     mcp::{exchange_with_globals, request},
 };
@@ -8,39 +9,63 @@ use serde_json::{Value, json};
 
 pub(super) fn check() -> Result<(), String> {
     for form in ["structured-only", "text-only", "both"] {
-        let env = Environment::new().map_err(|e| e.to_string())?;
-        env.config(
-            &json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,
-            "mcp_reply_form":form}),
-        )
-        .map_err(|e| e.to_string())?;
-        let replay = fixtures().join("replies/gene/main");
-        let globals = env.globals(Some(&replay), false);
-        let replies = exchange_with_globals(
-            &env,
-            &[
-                request(json!(1), "tools/list", json!({})),
-                request(
-                    json!(2),
-                    "tools/call",
-                    json!({"name":"get_gene","arguments":{"input":["BRAF"]}}),
-                ),
-                request(
-                    json!(3),
-                    "tools/call",
-                    json!({"name":"get_gene","arguments":{}}),
-                ),
-            ],
-            &globals,
-        )?;
-        let tools = replies
+        for hosted in [false, true] {
+            check_form(form, hosted)?;
+        }
+    }
+    Ok(())
+}
+fn check_form(form: &str, hosted: bool) -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,
+        "mcp_reply_form":form});
+    env.config(&config).map_err(|e| e.to_string())?;
+    let replay = fixtures().join("replies/gene/main");
+    let mut globals = env.globals(Some(&replay), false);
+    let hosted_globals = if hosted {
+        vec!["--hosted".into()]
+    } else {
+        vec![]
+    };
+    globals.extend(hosted_globals.clone());
+    let frames = [
+        request(json!(1), "tools/list", json!({})),
+        request(
+            json!(2),
+            "tools/call",
+            json!({"name":"get_gene","arguments":{"input":["BRAF"]}}),
+        ),
+        request(
+            json!(3),
+            "tools/call",
+            json!({"name":"get_gene","arguments":{}}),
+        ),
+    ];
+    let replies = exchange_with_globals(&env, &frames, &globals)?;
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(config),
+        Some(replay),
+        None,
+        None,
+        &hosted_globals,
+    )?;
+    let tools = replies
+        .iter()
+        .find(|v| v["id"] == 1)
+        .and_then(|v| v.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .ok_or("tools")?;
+    for (index, frame) in frames.iter().enumerate().skip(1) {
+        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200 {
+            return Err(format!("HTTP {status}: {http}"));
+        }
+        let stdio = replies
             .iter()
-            .find(|v| v["id"] == 1)
-            .and_then(|v| v.pointer("/result/tools"))
-            .and_then(Value::as_array)
-            .ok_or("tools")?;
-        let mut sections = 0;
-        for reply in replies.iter().filter(|v| v["id"] != 1) {
+            .find(|v| v["id"] == frame["id"])
+            .ok_or("stdio reply")?;
+        for reply in [stdio, &http] {
             let text = reply
                 .pointer("/result/content/0/text")
                 .and_then(Value::as_str)
@@ -50,20 +75,30 @@ pub(super) fn check() -> Result<(), String> {
                 .cloned()
                 .or_else(|| serde_json::from_str(text.split_once('\n')?.1).ok())
                 .ok_or("typed body")?;
+            let mut sections = 0;
             check_next(&value, tools, &mut sections)?;
+            if index == 1 && sections == 0 {
+                return Err("gene replay supplied no typed section follow-up".into());
+            }
             if text.contains("--config")
                 || text.contains("--replay")
                 || text.contains("--case-cache")
             {
                 return Err(format!("server arguments leaked: {text}"));
             }
-        }
-        if sections == 0 {
-            return Err("gene replay supplied no typed section follow-up".into());
+            let owner = tools
+                .iter()
+                .find(|tool| tool["name"] == "get_gene")
+                .ok_or("get_gene")?;
+            jsonschema::validator_for(&owner["outputSchema"])
+                .map_err(|e| e.to_string())?
+                .validate(&value)
+                .map_err(|e| e.to_string())?;
         }
     }
     Ok(())
 }
+
 fn check_next(value: &Value, tools: &[Value], sections: &mut usize) -> Result<(), String> {
     match value {
         Value::Object(fields) => {
