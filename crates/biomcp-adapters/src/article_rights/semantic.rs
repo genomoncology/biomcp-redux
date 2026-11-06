@@ -25,7 +25,14 @@ pub(crate) fn filter(
     } else {
         licenses(leg, &ids)
     };
-    apply(&mut root, parent, &licenses);
+    filter_with_licenses(root, parent, &licenses)
+}
+pub(super) fn filter_with_licenses(
+    mut root: Value,
+    parent: Option<Pmid>,
+    licenses: &BTreeMap<Pmid, License>,
+) -> Result<Vec<u8>, BadReply> {
+    apply(&mut root, parent, licenses);
     serde_json::to_vec(&root).map_err(|_| BadReply)
 }
 fn id(value: &Value) -> Option<Pmid> {

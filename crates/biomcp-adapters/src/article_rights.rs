@@ -1,6 +1,7 @@
 //! One record-owned license decision for article snippets and retained pools.
 pub(crate) mod pubmed;
 pub(crate) mod semantic;
+mod stored;
 use biodata::Pmid;
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{ArticleItem, Use};
@@ -9,6 +10,7 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     time::Duration,
 };
+pub use stored::StoredRights;
 
 /// At most twenty record lookups and three seconds per text-bearing response.
 const MAX_RECORDS: usize = 20;
@@ -64,7 +66,13 @@ pub(crate) fn litsense(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> 
         .filter_map(|row| pmid(&row["pmid"]))
         .collect();
     let allowed = licenses(leg, &ids);
-    for row in rows_array {
+    litsense_body(rows, &allowed)
+}
+fn litsense_body(
+    mut rows: Value,
+    allowed: &BTreeMap<Pmid, biodata::License>,
+) -> Result<Vec<u8>, BadReply> {
+    for row in rows.as_array_mut().ok_or(BadReply)? {
         let license = pmid(&row["pmid"]).and_then(|id| allowed.get(&id).copied());
         if let Some(row) = row.as_object_mut() {
             row.remove("license");
@@ -107,28 +115,34 @@ pub fn items(leg: &Leg<'_>, rows: &mut [ArticleItem]) {
         licenses(leg, &ids)
     };
     for row in rows {
-        let license = row
-            .sentence
-            .as_ref()
-            .and_then(|sentence| sentence.license)
-            .or_else(|| row.pmid.and_then(|id| allowed.get(&id).copied()));
         if let Some(sentence) = &mut row.sentence {
-            sentence.license = license;
+            sentence.license = sentence
+                .license
+                .or_else(|| row.pmid.and_then(|id| allowed.get(&id).copied()));
         }
-        let abstract_text = row
-            .sentence
-            .as_ref()
-            .and_then(|sentence| sentence.section.as_ref())
-            .is_some_and(|section| is_abstract(section.as_str()));
-        if !permitted(license, abstract_text) && (row.sentence.is_some()) {
-            row.sentence = None;
-            row.text_withheld = row.pmid.map(withheld);
-        }
-        if row.contexts.is_some() && !permitted(row.context_license, false) {
-            row.contexts = None;
-            row.text_withheld = row.pmid.map(withheld);
-        }
+        scrub_item(row);
     }
+}
+/// Apply the same per-record rule to a checked stored item without provider access.
+pub fn scrub_item(row: &mut ArticleItem) -> bool {
+    let license = row.sentence.as_ref().and_then(|sentence| sentence.license);
+    let abstract_text = row
+        .sentence
+        .as_ref()
+        .and_then(|sentence| sentence.section.as_ref())
+        .is_some_and(|section| is_abstract(section.as_str()));
+    let sentence = row.sentence.is_some() && !permitted(license, abstract_text);
+    let contexts = row.contexts.is_some() && !permitted(row.context_license, false);
+    if sentence {
+        row.sentence = None;
+    }
+    if contexts {
+        row.contexts = None;
+    }
+    if sentence || contexts {
+        row.text_withheld = row.pmid.map(withheld);
+    }
+    sentence || contexts
 }
 
 pub(crate) fn withheld(id: Pmid) -> biomcp_types::WithheldArticleText {
@@ -178,7 +192,13 @@ pub(crate) fn pubtator(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> 
         .filter_map(|row| pmid(&row["id"]))
         .collect();
     let licenses = licenses(leg, &ids);
-    for document in documents {
+    pubtator_body(root, &licenses)
+}
+fn pubtator_body(
+    mut root: Value,
+    licenses: &BTreeMap<Pmid, biodata::License>,
+) -> Result<Vec<u8>, BadReply> {
+    for document in root["PubTator3"].as_array_mut().ok_or(BadReply)? {
         let license = pmid(&document["id"]).and_then(|id| licenses.get(&id).copied());
         if let Some(passages) = document["passages"].as_array_mut() {
             for passage in passages {
@@ -212,6 +232,9 @@ pub(crate) fn europepmc(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply>
     if !leg.disabled_use(Use::PerRecord) {
         return Ok(body.to_vec());
     }
+    europepmc_body(body)
+}
+fn europepmc_body(body: &[u8]) -> Result<Vec<u8>, BadReply> {
     let mut root: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
     let record = &mut root["result"];
     let license = record["license"].as_str().map(crate::pmc_oa::license);
@@ -228,6 +251,9 @@ pub(crate) fn pubtator_search(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, Bad
     if !leg.disabled_use(Use::PerRecord) {
         return Ok(body.to_vec());
     }
+    pubtator_search_body(body)
+}
+fn pubtator_search_body(body: &[u8]) -> Result<Vec<u8>, BadReply> {
     let mut root: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
     if let Some(rows) = root["results"].as_array_mut() {
         for row in rows {
