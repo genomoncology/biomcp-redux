@@ -526,7 +526,9 @@ help-recovery-check:
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
 
-.PHONY: typed-description-check
+.PHONY: typed-description-check typed-description-contract-check
 typed-description-check:
+	+$(MAKE) --keep-going typed-description-contract-check typed-schema-check typed-hosted-check help-contract-check
+
+typed-description-contract-check:
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
-	+$(MAKE) typed-schema-check typed-hosted-check help-contract-check
