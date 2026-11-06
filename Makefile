@@ -658,7 +658,11 @@ population-reply-metadata-check:
 	+$(MAKE) hosted-surface-generate typed-schema-check
 	python3 scripts/trials.py mcp-parity/mcp-typed-tools --case-file variant/population/indel-invalid-crossref.yaml --case-file variant/population/indel-typed.yaml
 
-.PHONY: enum-case-metadata-prepare enum-case-metadata-check
+.PHONY: enum-case-metadata-prepare enum-case-metadata-check enum-case-front-map-check
+enum-case-front-map-check:
+	cargo build --locked -p biomcp
+	python3 scripts/check_front_map.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
+
 enum-case-metadata-prepare:
 	cargo fmt --all
 	+$(MAKE) schema-generate docs-generate
