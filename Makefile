@@ -635,3 +635,6 @@ article-rights-mechanical:
 
 article-rights-routine:
 	sh scripts/check_article_rights.sh routine
+
+article-rights-review:
+	sh scripts/check_article_rights.sh review

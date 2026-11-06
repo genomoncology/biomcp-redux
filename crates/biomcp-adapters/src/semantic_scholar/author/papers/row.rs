@@ -17,7 +17,7 @@ pub struct Paper {
     #[serde(with = "crate::mapped::refusal_serde")]
     pub refusals: crate::Refusal,
     detail: AuthorPaperDetail,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(skip_serializing_if = "Option::is_none")]
     text_withheld: Option<biomcp_types::WithheldArticleText>,
     problems: Vec<biomcp_types::Problem>,
 }

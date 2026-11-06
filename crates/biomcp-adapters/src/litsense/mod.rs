@@ -58,11 +58,10 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
         problems.record = record(sentence.pmid.0);
         let section = problems.field("section", sentence.section);
         let text = problems.source_field("text", sentence.text);
+        let text_withheld = sentence.text_withheld == Some(true);
         items.push(ArticleItem {
             context_license: None,
-            text_withheld: sentence
-                .text_withheld
-                .then(|| crate::article_rights::withheld(sentence.pmid.0)),
+            text_withheld: text_withheld.then(|| crate::article_rights::withheld(sentence.pmid.0)),
             key: Some(ArticleKey::Pubmed(sentence.pmid.0)),
             pmid: Some(sentence.pmid.0),
             found_by: [(ArticleSource::Litsense, (index + 1) as u32)].into(),
@@ -71,7 +70,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
             influential: None,
             contexts: None,
             header: None,
-            sentence: (!sentence.text_withheld).then_some(ArticleSentence {
+            sentence: (!text_withheld).then_some(ArticleSentence {
                 license: sentence.license,
                 section,
                 text,
@@ -88,8 +87,8 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
 struct Sentences(Vec<Field<Sentence>>);
 #[derive(Deserialize)]
 struct Sentence {
-    #[serde(default, rename = "biomcp_text_withheld")]
-    text_withheld: bool,
+    #[serde(rename = "biomcp_text_withheld")]
+    text_withheld: Option<bool>,
     #[serde(rename = "biomcp_license")]
     license: Option<biodata::License>,
     pmid: crate::raw::NumericPmid,

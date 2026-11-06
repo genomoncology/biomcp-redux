@@ -182,7 +182,8 @@ fn execute<'a>(
         ))
     .then(|| biomcp_types::WithheldArticleText {
         reason: Reason::NotOpen,
-        url: Text::new(&format!("https://pmc.ncbi.nlm.nih.gov/articles/{id}/")).ok(),
+        url: biomcp_adapters::article_rights::text_withheld(&biomcp_types::ArticleInput::Pmcid(id))
+            .url,
     });
     out.body = (ArticleTextResult {
         text_withheld,

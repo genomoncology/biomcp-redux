@@ -39,7 +39,14 @@ fn assert_refusal(out: &biomcp_query::Outcome) {
         2,
         "only the explicit NC abstract must be withheld"
     );
-    assert!(out.sources.iter().flat_map(|source| &source.notices).any(|notice| matches!(notice, SourceNotice::RequestGuidance {message,..} if message.contains("withheld") && message.contains("https://pubmed.ncbi.nlm.nih.gov/1002/"))),"the withheld abstract needs a reason and reading link: {out:?}");
+    let notice = out.sources.iter().flat_map(|source| &source.notices).any(|notice| {
+        matches!(notice, SourceNotice::RequestGuidance { message, .. }
+            if message.contains("withheld") && message.contains("https://pubmed.ncbi.nlm.nih.gov/1002/"))
+    });
+    assert!(
+        notice,
+        "the withheld abstract needs a reason and reading link: {out:?}"
+    );
 }
 #[test]
 fn author_abstract_diagnostics_survive_source_cache_and_continuation() {

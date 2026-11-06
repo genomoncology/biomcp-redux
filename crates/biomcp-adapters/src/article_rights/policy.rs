@@ -37,22 +37,28 @@ pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License>
     });
     remaining = remaining.saturating_sub(before.saturating_sub(leg.remaining()));
     let mut allowed = BTreeMap::new();
-    if let Ok(headers) = headers {
-        for header in headers.value {
-            let (Some(id), Some(pmcid)) = (header.pmid, header.pmcid) else {
-                continue;
-            };
-            if remaining.is_zero() || deadline.expired() {
-                break;
-            }
-            let before = leg.remaining();
-            let license = leg.dependency(&crate::pmc_oa::SPEC, remaining, |dependency| {
-                crate::pmc_oa::record_license(dependency, pmcid, Some(id))
-            });
-            remaining = remaining.saturating_sub(before.saturating_sub(leg.remaining()));
-            if let Some(license) = license {
+    // Failed metadata never grants record text rights; the caller retains the paper and refusal.
+    let headers = match headers {
+        Ok(headers) => headers,
+        Err(_) => return allowed,
+    };
+    for header in headers.value {
+        let (Some(id), Some(pmcid)) = (header.pmid, header.pmcid) else {
+            continue;
+        };
+        if remaining.is_zero() || deadline.expired() {
+            break;
+        }
+        let before = leg.remaining();
+        let license = leg.dependency(&crate::pmc_oa::SPEC, remaining, |dependency| {
+            crate::pmc_oa::record_license(dependency, pmcid, Some(id))
+        });
+        remaining = remaining.saturating_sub(before.saturating_sub(leg.remaining()));
+        match license {
+            Ok(Some(license)) => {
                 allowed.insert(id, license);
             }
+            Ok(None) | Err(_) => {} // Missing or unreadable terms grant no body-text rights.
         }
     }
     allowed
@@ -168,7 +174,7 @@ pub(crate) fn withheld_item(row: &ArticleItem) -> biomcp_types::WithheldArticleT
     });
     biomcp_types::WithheldArticleText {
         reason: biomcp_types::Reason::Disabled,
-        url: url.and_then(|url| biodata::Text::new(&url).ok()),
+        url: url.and_then(|url| read_url(&url)),
     }
 }
 pub(crate) fn withheld(id: Pmid) -> biomcp_types::WithheldArticleText {
@@ -185,16 +191,16 @@ pub fn text_withheld(input: &biomcp_types::ArticleInput) -> biomcp_types::Withhe
     };
     biomcp_types::WithheldArticleText {
         reason: biomcp_types::Reason::Disabled,
-        url: biodata::Text::new(&url).ok(),
+        url: read_url(&url),
     }
 }
 pub(super) fn pmid(value: &Value) -> Option<Pmid> {
-    value
-        .as_str()
-        .map(str::to_owned)
-        .or_else(|| value.as_u64().map(|id| id.to_string()))?
-        .parse()
-        .ok()
+    parse_pmid(
+        &value
+            .as_str()
+            .map(str::to_owned)
+            .or_else(|| value.as_u64().map(|id| id.to_string()))?,
+    )
 }
 
 /// Abstracts retain their source policy when no explicit record license exists.
@@ -242,4 +248,19 @@ fn europepmc_body(body: &[u8]) -> Result<Vec<u8>, BadReply> {
 /// Repeat abstract rights when reading a source-native author continuation.
 pub fn snapshot(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
     semantic::snapshot(leg, body)
+}
+
+/// An unusable identity cannot establish rights; native mappers retain their field problem.
+pub(super) fn parse_pmid(value: &str) -> Option<Pmid> {
+    match value.parse() {
+        Ok(id) => Some(id),
+        Err(_) => None,
+    }
+}
+fn read_url(value: &str) -> Option<biodata::Text> {
+    // URLs are built only from checked article identities; a malformed destination cannot erase a refusal.
+    match biodata::Text::new(value) {
+        Ok(url) => Some(url),
+        Err(_) => None,
+    }
 }

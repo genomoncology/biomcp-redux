@@ -24,6 +24,10 @@ case "${1:-focused}" in
     focused)
         cargo test --locked -p biomcp-query --test article_rights -- --nocapture > "$proof/run.log" 2>&1
         ;;
+    review)
+        cargo test --locked -p biomcp-query --test article_rights -- --nocapture > "$proof/run.log" 2>&1
+        make check-cheap >> "$proof/run.log" 2>&1
+        ;;
     authors)
         cargo test --locked -p biomcp-query --test article_rights authors:: -- --nocapture > "$proof/run.log" 2>&1
         ;;

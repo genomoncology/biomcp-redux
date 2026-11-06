@@ -105,10 +105,18 @@ pub fn read(
     })
 }
 /// Read only the record-owned license; never fetch the article body.
-pub fn record_license(leg: &Leg<'_>, id: Pmcid, pmid: Option<Pmid>) -> Option<License> {
-    let (_, record) = metadata(leg, id, pmid).ok()??;
-    let code = record.license_code?.value()?;
-    Some(license(&code))
+pub fn record_license(
+    leg: &Leg<'_>,
+    id: Pmcid,
+    pmid: Option<Pmid>,
+) -> Result<Option<License>, RequestError> {
+    let Some((_, record)) = metadata(leg, id, pmid)? else {
+        return Ok(None);
+    };
+    Ok(record
+        .license_code
+        .and_then(crate::raw::Field::value)
+        .map(|code| license(&code)))
 }
 fn metadata(
     leg: &Leg<'_>,

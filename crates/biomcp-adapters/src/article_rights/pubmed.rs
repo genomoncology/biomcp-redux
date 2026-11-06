@@ -9,16 +9,15 @@ pub(crate) fn filter(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
     }
     let xml = std::str::from_utf8(body).map_err(|_| BadReply)?;
     let articles = descendants(xml, "PubmedArticle")?;
-    let ids: Vec<_> = articles
-        .iter()
-        .filter_map(|article| {
-            article
-                .value(&["MedlineCitation", "PMID"])
-                .ok()??
-                .parse()
-                .ok()
-        })
-        .collect();
+    let mut ids = Vec::new();
+    for article in &articles {
+        if let Some(id) = article
+            .value(&["MedlineCitation", "PMID"])?
+            .and_then(super::policy::parse_pmid)
+        {
+            ids.push(id);
+        }
+    }
     let licenses = super::licenses(leg, &ids);
     filter_with_licenses(body, &licenses)
 }
@@ -32,7 +31,7 @@ pub(super) fn filter_with_licenses(
     for article in articles {
         let id = article
             .value(&["MedlineCitation", "PMID"])?
-            .and_then(|id| id.parse().ok());
+            .and_then(super::policy::parse_pmid);
         let license = id.and_then(|id| licenses.get(&id).copied());
         if super::permitted(license, true) {
             continue;

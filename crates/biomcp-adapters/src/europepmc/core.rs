@@ -138,10 +138,9 @@ pub fn core(
                     .map(|code| pmc_oa::license(code)),
                 true,
             ) {
-            Some(biomcp_types::WithheldArticleText {
-                reason: biomcp_types::Reason::Disabled,
-                url: Text::new(&format!("https://europepmc.org/article/PPR/{}", raw.id)).ok(),
-            })
+            Some(crate::article_rights::text_withheld(
+                &biomcp_types::ArticleInput::EuropePmc(raw.id.clone()),
+            ))
         } else {
             None
         },

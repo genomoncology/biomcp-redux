@@ -47,7 +47,7 @@ pub(super) fn filter_with_licenses(
     licenses: &BTreeMap<Pmid, License>,
     saved: bool,
 ) -> Result<Vec<u8>, BadReply> {
-    apply(&mut root, parent, licenses, saved);
+    apply(&mut root, parent, licenses, saved)?;
     serde_json::to_vec(&root).map_err(|_| BadReply)
 }
 fn id(value: &Value, saved: bool) -> Option<Pmid> {
@@ -69,7 +69,7 @@ fn id(value: &Value, saved: bool) -> Option<Pmid> {
                         if !namespace.eq_ignore_ascii_case("pubmed") {
                             return None;
                         }
-                        id["id"].as_str()?.rsplit(':').next()?.parse().ok()
+                        super::policy::parse_pmid(id["id"].as_str()?.rsplit(':').next()?)
                     })
                 })
         })
@@ -97,7 +97,7 @@ fn apply(
     inherited: Option<Pmid>,
     licenses: &BTreeMap<Pmid, License>,
     saved: bool,
-) {
+) -> Result<(), BadReply> {
     // A nested paper owns its text even when it has no resolvable PMID.
     let own = if value.get("paperId").is_some() || value.get("externalIds").is_some() {
         id(value, saved)
@@ -110,12 +110,14 @@ fn apply(
     let license = own.and_then(|id| licenses.get(&id).copied());
     match value {
         Value::Object(object) => {
-            super::abstracts::filter(object, own, license);
+            super::abstracts::filter(object, own, license)?;
             let context_license = citing.and_then(|id| licenses.get(&id).copied());
             object.remove("biomcpContextLicense");
             if object.contains_key("contexts")
-                && let Some(value) =
-                    context_license.and_then(|license| serde_json::to_value(license).ok())
+                && let Some(value) = context_license
+                    .map(serde_json::to_value)
+                    .transpose()
+                    .map_err(|_| BadReply)?
             {
                 object.insert("biomcpContextLicense".into(), value);
             }
@@ -129,23 +131,25 @@ fn apply(
                             reason: biomcp_types::Reason::Disabled,
                             url: None,
                         });
-                if let Ok(notice) = serde_json::to_value(notice) {
-                    object.insert("biomcpTextWithheld".into(), notice);
-                }
+                object.insert(
+                    "biomcpTextWithheld".into(),
+                    serde_json::to_value(notice).map_err(|_| BadReply)?,
+                );
                 object.remove("contexts");
             }
             for child in object.values_mut() {
-                apply(child, own, licenses, saved);
+                apply(child, own, licenses, saved)?;
             }
             super::abstracts::lift(object);
         }
         Value::Array(rows) => {
             for child in rows {
-                apply(child, own, licenses, saved);
+                apply(child, own, licenses, saved)?;
             }
         }
         _ => {}
     }
+    Ok(())
 }
 
 fn has_text(value: &Value) -> bool {
