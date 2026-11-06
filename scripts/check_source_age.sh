@@ -6,7 +6,7 @@ case "${1:-focused}" in
     source_age_proof=$(mktemp -d "${TMPDIR:-/tmp}/source-age-proof.XXXXXX")
     export BIOMCP_TRANSCRIPT_DIR="$source_age_proof/transcripts"
     set +e
-    sh "$0" cases > "$source_age_proof/run.log" 2>&1
+    sh "$0" "${2:-cases}" > "$source_age_proof/run.log" 2>&1
     source_age_status=$?
     set -e
     cat "$source_age_proof/run.log"

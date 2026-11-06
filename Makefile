@@ -629,4 +629,4 @@ source-age-focused:
 
 .PHONY: source-age-corrections
 source-age-corrections:
-	sh scripts/check_source_age.sh corrections
+	sh scripts/check_source_age.sh focused corrections
