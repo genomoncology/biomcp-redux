@@ -35,3 +35,22 @@ Measure the complete catalog with the complete description lane incorporated. If
 ## Proof boundaries
 
 Existing installed discovery cases prove complete registry reachability through direct or reference routes and exact count/serialized-byte boundaries. Existing pathway parity witnesses use the grouped wrapper; the historical recorded parity helper likewise routes grouped commands through the advertised wrapper. Existing hosted cases preserve execution refusals and caller source exclusions. Shared follow-up tests validate actual advertised schemas. The routine gate covers formatting, lint, docs and the complete local suite. No deployment, release candidate, publication or new data source is part of this change.
+
+## Measured configured profiles
+
+Job `j31622` measured the complete catalog at `c2bde9975c11a05aac332bd18068cdd5788a658f`, including complete description changes and caller-aware typed follow-ups. The enum-case hint changes were not composed. Every typed profile has nineteen tools. Expansion profiles explicitly used `mcp_typed_definition_bytes: 200000` for measurement; that is a diagnostic override, not a product default.
+
+| Output schemas | Enum limit | Stdio definition bytes | Hosted stdio definition bytes |
+| --- | ---: | ---: | ---: |
+| Off | 1 | 33,798 | 33,765 |
+| Off | 30 (normal default) | 36,667 | 36,634 |
+| Off | 1000 | 39,486 | 39,453 |
+| On | 1 | 55,226 | 55,193 |
+| On | 30 | 58,095 | 58,062 |
+| On | 1000 | 60,914 | 60,881 |
+
+The ordinary default profiles succeeded with the actual default 49,152-byte ceiling. Excluding ctgov, who-pq and gwas measured 36,580 bytes. Single mode measured three tools / 10,631 bytes; its 230-byte growth from the original baseline comes from the shared research descriptions, not the grouping.
+
+All measured output-schema expansion profiles exceed 49,152 bytes. This was reported for a PM ruling without changing the production default, grouping a clinical tool or truncating descriptions. The measurement preceded the focused cases: 24 passed, while the description-contract case explicitly enabled output schemas without a larger budget and therefore received the expected catalog-budget error. Its generic “tools” failure obscured that configuration cause.
+
+Raw profile configurations, compact definitions, RPC replies, binary binding, the full job log and transcripts were copied to the separate ticket evidence store on Yellow under this exact revision / `j31622-red`. The receiver verified every file against the sender's SHA-256 manifest. The original baseline and the earlier obsolete-80-character-assertion failure are stored separately. No baseline was remeasured.
