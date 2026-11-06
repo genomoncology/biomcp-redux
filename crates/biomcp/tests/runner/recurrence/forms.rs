@@ -141,7 +141,9 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
                 .ok_or("variant input schema")?,
         );
     }
-    let first = definitions.first().ok_or("variant lookup schemas missing")?;
+    let first = definitions
+        .first()
+        .ok_or("variant lookup schemas missing")?;
     if definitions.iter().any(|definition| definition != first) {
         return Err("variant lookup commands advertise different identifier forms".into());
     }
