@@ -626,3 +626,7 @@ source-age-prepare:
 	sh scripts/check_source_age.sh prepare
 source-age-focused:
 	sh scripts/check_source_age.sh focused
+
+.PHONY: source-age-corrections
+source-age-corrections:
+	sh scripts/check_source_age.sh corrections

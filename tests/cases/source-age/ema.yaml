@@ -48,5 +48,12 @@
         "/sources/0/notices/0/data_date": "2026-10-24T18:22:32Z"
       }
     }
-  ]
+  ],
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "chembl",
+      "openfda-label"
+    ]
+  }
 }
