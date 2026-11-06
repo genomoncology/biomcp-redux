@@ -5,7 +5,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "Fields"))]
+#[cfg_attr(
+    feature = "schema",
+    schemars(with = "Fields", extend("x-reply-query-titles" = ["VariantPopulationQueryEcho"]))
+)]
 pub struct VariantPopulationQuery(Fields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(

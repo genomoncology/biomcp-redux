@@ -3682,7 +3682,10 @@
         "command",
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "VariantPopulationQueryEcho"
+      ]
     },
     {
       "additionalProperties": false,

@@ -608,3 +608,8 @@ help-recovery-check:
 	cargo test --locked -p biomcp --test cases trial/input-boundaries $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-hosted-catalog $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases mcp-parity/mcp-typed-tools $(TEST_THREADS)
+
+.PHONY: population-reply-metadata-check
+population-reply-metadata-check:
+	+$(MAKE) hosted-surface-generate typed-schema-check
+	python3 scripts/trials.py mcp-parity/mcp-typed-tools --case-file variant/population/indel-invalid-crossref.yaml --case-file variant/population/indel-typed.yaml
