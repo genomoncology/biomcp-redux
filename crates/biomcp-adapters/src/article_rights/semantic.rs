@@ -95,7 +95,6 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                 citing.and_then(|id| licenses.get(&id).copied())
             };
             object.remove("biomcpContextLicense");
-            object.remove("biomcpTextWithheld");
             if !mapped
                 && object.contains_key("contexts")
                 && let Some(value) =
@@ -103,7 +102,9 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
             {
                 object.insert("biomcpContextLicense".into(), value);
             }
-            if !permitted(context_license, false) {
+            if !permitted(context_license, false)
+                && object.get("contexts").is_some_and(has_contexts)
+            {
                 if mapped {
                     if let Some(contexts) =
                         object.get_mut("contexts").and_then(Value::as_object_mut)
@@ -115,16 +116,15 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
                         serde_json::json!({"reason":"disabled"}),
                     );
                 } else {
-                    if object.get("contexts").is_some_and(|value| !value.is_null()) {
-                        let notice = citing.map(super::withheld).unwrap_or(
-                            biomcp_types::WithheldArticleText {
+                    let notice =
+                        citing
+                            .map(super::withheld)
+                            .unwrap_or(biomcp_types::WithheldArticleText {
                                 reason: biomcp_types::Reason::Disabled,
                                 url: None,
-                            },
-                        );
-                        if let Ok(notice) = serde_json::to_value(notice) {
-                            object.insert("biomcpTextWithheld".into(), notice);
-                        }
+                            });
+                    if let Ok(notice) = serde_json::to_value(notice) {
+                        object.insert("biomcpTextWithheld".into(), notice);
                     }
                     object.remove("contexts");
                 }
@@ -145,12 +145,20 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
 fn has_text(value: &Value) -> bool {
     match value {
         Value::Object(object) => {
-            ["abstract", "abstract_text", "contexts"]
+            ["abstract", "abstract_text"]
                 .iter()
                 .any(|key| object.get(*key).is_some_and(|value| !value.is_null()))
+                || object.get("contexts").is_some_and(has_contexts)
                 || object.values().any(has_text)
         }
         Value::Array(rows) => rows.iter().any(has_text),
         _ => false,
     }
+}
+
+fn has_contexts(value: &Value) -> bool {
+    value
+        .as_array()
+        .or_else(|| value.get("items").and_then(Value::as_array))
+        .is_some_and(|items| !items.is_empty())
 }

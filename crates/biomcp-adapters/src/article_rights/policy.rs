@@ -137,7 +137,11 @@ fn filter_item(row: &mut ArticleItem) -> bool {
         .and_then(|sentence| sentence.section.as_ref())
         .is_some_and(|section| is_abstract(section.as_str()));
     let sentence = row.sentence.is_some() && !permitted(license, abstract_text);
-    let contexts = row.contexts.is_some() && !permitted(row.context_license, false);
+    let contexts = row
+        .contexts
+        .as_ref()
+        .is_some_and(|contexts| !contexts.items.is_empty())
+        && !permitted(row.context_license, false);
     if sentence {
         row.sentence = None;
     }

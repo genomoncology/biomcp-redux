@@ -14,7 +14,8 @@ fn citation_context_rights_preserve_papers_and_explain_withheld_text() {
                 }
             }
         }
-    }).unwrap();
+    })
+    .unwrap();
     let empty_fetch = hosted(empty.path());
     let empty_leg = empty_fetch.leg(
         &biomcp_adapters::semantic_scholar::SPEC,
@@ -25,10 +26,16 @@ fn citation_context_rights_preserve_papers_and_explain_withheld_text() {
         &biomcp_types::ArticleInput::Pmid("1001".parse().unwrap()),
         false,
         None,
-    ).unwrap();
+    )
+    .unwrap();
     assert_eq!(empty_result.data.len(), 3);
-    assert!(empty_result.data.iter().all(|edge| edge.text_withheld.is_none()),
-        "no source context text must remain distinct from a policy refusal");
+    assert!(
+        empty_result
+            .data
+            .iter()
+            .all(|edge| edge.text_withheld.is_none()),
+        "no source context text must remain distinct from a policy refusal"
+    );
     let fetch = hosted(input.path());
     let leg = fetch.leg(
         &biomcp_adapters::semantic_scholar::SPEC,
@@ -67,6 +74,22 @@ fn citation_context_rights_preserve_papers_and_explain_withheld_text() {
             .count(),
         2,
         "withheld contexts must explain the refusal and give a reading destination"
+    );
+    let cached = biomcp_adapters::semantic_scholar::edges(
+        &leg,
+        &biomcp_types::ArticleInput::Pmid("1001".parse().unwrap()),
+        false,
+        None,
+    )
+    .unwrap();
+    assert_eq!(
+        cached
+            .data
+            .iter()
+            .filter(|edge| edge.text_withheld.is_some())
+            .count(),
+        2,
+        "reusing a mixed-license cache entry must retain prior refusal reasons"
     );
     let connection = fetch.cache_access().unwrap().connect().unwrap();
     let body: Vec<u8> = connection
