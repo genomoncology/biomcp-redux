@@ -6,6 +6,15 @@ use std::io;
 pub(in crate::mcp) struct Catalog {
     pub(super) tools: Vec<Value>,
     commands: Vec<Value>,
+    globals: crate::grammar::Globals,
+    read_only: bool,
+}
+
+impl Catalog {
+    pub(super) fn permits(&self, parsed: &mut crate::grammar::Parsed) -> bool {
+        parsed.globals.inherit(&self.globals).is_ok()
+            && crate::command::mcp_policy::refusal(parsed, self.read_only).is_none()
+    }
 }
 
 fn direct(name: &str) -> bool {
@@ -66,6 +75,8 @@ pub(super) fn catalog(
     Ok(Catalog {
         tools,
         commands: canonical,
+        globals: context.globals.clone(),
+        read_only,
     })
 }
 

@@ -131,7 +131,10 @@ fn checked_call(
         return None;
     }
     let args = super::arguments::cli(root, verb, entity, schema, arguments)?;
-    let parsed = crate::grammar::parse(root, &args).ok()?;
+    let mut parsed = crate::grammar::parse(root, &args).ok()?;
+    if !tools.permits(&mut parsed) {
+        return None;
+    }
     let call = json!({"name":super::name(verb,entity),"arguments":arguments});
     if !matches!(parsed.action, Some(biomcp_query::Action::Run { .. })) {
         return None;
