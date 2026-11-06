@@ -630,3 +630,7 @@ article-pools-review-check: article-pools-check landing-gate
 
 .PHONY: article-pools-mechanical-check
 article-pools-mechanical-check: fmt lint-workspace lint-tools
+
+.PHONY: article-pools-mapping-check
+article-pools-mapping-check:
+	python3 scripts/check_article_pool_mapping.py
