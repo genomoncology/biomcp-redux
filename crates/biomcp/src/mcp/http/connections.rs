@@ -23,10 +23,6 @@ pub(super) fn run(
         |work| thread::Builder::new().name("mcp-http".into()).spawn(work),
     )
 }
-#[expect(
-    clippy::disallowed_methods,
-    reason = "Own bounded HTTP worker handles until shutdown"
-)]
 pub(super) fn run_with(
     listener: TcpListener,
     service: Arc<Service>,
