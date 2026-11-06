@@ -1,6 +1,7 @@
 """Reproduce literal-name gaps using an existing current-main executable."""
 import hashlib
 import json
+import platform
 import subprocess
 import sys
 import tempfile
@@ -10,7 +11,9 @@ names = ["Canonical therapy", "EX-66", "Example brand"]
 with tempfile.TemporaryDirectory(prefix="drug-search-baseline-") as temporary:
     root = Path(temporary)
     binary = root / "biomcp"
-    subprocess.run(["scp", sys.argv[1], str(binary)], check=True)
+    member = {("Linux", "x86_64"): "biomcp-linux-x86_64",
+              ("Darwin", "arm64"): "biomcp-macos-arm64"}[(platform.system(), platform.machine())]
+    subprocess.run(["scp", sys.argv[1].rstrip("/") + "/" + member, str(binary)], check=True)
     binary.chmod(0o755)
     results = {}
     for entity in ["trial", "article"]:
