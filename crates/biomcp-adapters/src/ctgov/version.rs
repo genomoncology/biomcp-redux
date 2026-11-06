@@ -15,7 +15,7 @@ pub fn version(
         record: None,
         list: Vec::new(),
     };
-    let value = problems
+    let value: Option<biomcp_types::SourceTimestamp> = problems
         .field("dataTimestamp", raw.data_timestamp)
         .and_then(|native| {
             // The official /version OpenAPI description declares this unsuffixed
