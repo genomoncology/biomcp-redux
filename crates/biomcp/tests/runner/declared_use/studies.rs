@@ -48,6 +48,7 @@ pub(super) fn check() -> Result<(), String> {
     let args = ["search", "study", "--limit", "1", "--pool", pool];
     let restricted = data(call(&server, &args, RESTRICTED, false)?)?;
     if restricted.pointer("/page/total") != Some(&json!(2))
+        || restricted.pointer("/page/pool/size") != Some(&json!(2))
         || restricted.pointer("/result/items/0/studyId") != Some(&json!("synthetic_1"))
     {
         return Err(format!(
@@ -75,6 +76,7 @@ pub(super) fn check() -> Result<(), String> {
     for header in [ACADEMIC, COMMERCIAL] {
         let restored = data(call(&server, &args, header, false)?)?;
         if restored.pointer("/page/total") != Some(&json!(3))
+            || restored.pointer("/page/pool/size") != Some(&json!(3))
             || restored.pointer("/result/items/0/studyId") != Some(&json!(FLAG))
         {
             return Err(format!(

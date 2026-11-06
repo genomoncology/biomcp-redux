@@ -55,7 +55,7 @@ pub(super) fn search(
 fn render(
     cx: &Ctx<'_>,
     q: &StudySearch,
-    pool: Option<biomcp_types::PoolInfo>,
+    mut pool: Option<biomcp_types::PoolInfo>,
     retained: Retained,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
@@ -72,6 +72,9 @@ fn render(
         }
     });
     super::policy::notice(out, &excluded, false);
+    if let Some(pool) = &mut pool {
+        pool.size = rows.len() as u32;
+    }
     let query = q.with_pool(pool.as_ref().map(|p| p.id.clone()));
     let total = rows.len() as u64;
     let items: Box<[_]> = rows

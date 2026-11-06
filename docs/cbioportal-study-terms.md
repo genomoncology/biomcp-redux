@@ -8,7 +8,7 @@ The flags apply when reading results. Existing catalogs, cached source replies a
 
 Read on 2026-11-06: [public detailed study list](https://www.cbioportal.org/api/studies?projection=DETAILED), 551 studies. The returned JSON had SHA-256 `1345b97d3f636b8ed86339abd55e8b63f5c2c9f38bdf4323b22400f3d1ee91f2`. The restriction wording lives in each study's `description` field, not its access groups or public-read flag.
 
-The [checked-in flag list](../crates/biomcp-adapters/src/cbioportal/commercial-restrictions.tsv) records each flagged study ID and its exact description. Nine descriptions explicitly specify the Creative Commons BY-NC-ND 4.0 license. Eight link to [the license](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en); the ninth names it in plain text. This list is the shared source for all study filtering.
+The [checked-in flag list](../crates/biomcp-adapters/src/cbioportal/commercial-restrictions.tsv) records each flagged study ID, exclusion reason and exact description. Nine descriptions explicitly specify the Creative Commons BY-NC-ND 4.0 license. Eight link to [the license](https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en); the ninth names it in plain text. This list is the shared source for all study filtering.
 
 When the public study list changes, review the descriptions and refresh the flag list in the same change. Copy the exact study ID and description for explicit noncommercial wording. Check new, changed and removed studies. Keep studies without explicit noncommercial wording enabled. Send ambiguous wording to the product owner for a decision; do not infer a commercial restriction from research-only language, access groups, public availability or a citation.
 

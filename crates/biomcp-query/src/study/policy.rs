@@ -18,10 +18,11 @@ pub(super) fn notice(out: &mut Outcome, ids: &[biodata::StudyId], skipped: bool)
     };
     let mut source = biomcp_adapters::registry::outcome(Source::Cbioportal, status);
     for id in ids {
+        let Some(reason) = biomcp_adapters::cbioportal::commercial_restriction(id) else {
+            continue;
+        };
         source.notices.push(SourceNotice::RequestGuidance {
-            message: format!(
-                "Study {id} was left out in restricted mode: its study information explicitly specifies a noncommercial license (CC BY-NC-ND 4.0)."
-            ).into(),
+            message: format!("Study {id} was left out in restricted mode: {reason}").into(),
             retry_after_seconds: None,
         });
     }
