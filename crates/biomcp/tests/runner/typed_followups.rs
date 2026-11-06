@@ -32,7 +32,8 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
         vec!["oncokb"]
     };
     let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,"mcp_typed_definition_bytes":200000,
-        "mcp_reply_form":form,"disable_sources":disabled});
+        "mcp_reply_form":form,"disable_sources":disabled,
+        "mcp_typed_enum_limit":if restricted {1} else {30}});
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = fixtures().join("replies/gene/main");
     let mut globals = env.globals(Some(&replay), false);
@@ -87,13 +88,18 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
             .find(|v| v["id"] == frame["id"])
             .ok_or("stdio reply")?;
         for reply in [stdio, &http] {
-            check_reply(reply, tools, index == 1 && !restricted)?;
+            check_reply(reply, tools, index == 1 && !restricted, restricted)?;
         }
     }
     Ok(())
 }
 
-fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result<(), String> {
+fn check_reply(
+    reply: &Value,
+    tools: &[Value],
+    section_expected: bool,
+    restricted: bool,
+) -> Result<(), String> {
     let text = reply
         .pointer("/result/content/0/text")
         .and_then(Value::as_str)
@@ -105,6 +111,22 @@ fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result
         .ok_or("typed body")?;
     let mut sections = 0;
     check_next(&value, tools, &mut sections)?;
+    if restricted
+        && value
+            .get("next")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(|call| call.pointer("/arguments/section"))
+            .any(|section| {
+                section == "civic"
+                    || section
+                        .as_array()
+                        .is_some_and(|sections| sections.contains(&json!("civic")))
+            })
+    {
+        return Err("lowering the public enum limit admitted a disabled CIViC follow-up".into());
+    }
     if section_expected && sections == 0 {
         return Err("gene replay supplied no typed section follow-up".into());
     }
