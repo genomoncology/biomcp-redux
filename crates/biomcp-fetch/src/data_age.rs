@@ -18,6 +18,12 @@ impl Leg<'_> {
 }
 
 impl Fetch {
+    /// Attach a retained publisher dataset date without repeating the same fact.
+    pub fn retain_data_date(&self, source: &mut SourceOutcome, date: &str) {
+        if !source.notices.iter().any(|notice| matches!(notice, SourceNotice::RequestGuidance { data_date: Some(known), .. } if known.as_ref() == date)) {
+            source.notices.push(self.data_date_notice(date));
+        }
+    }
     /// Reassess retained publisher dates when returning stored continuations.
     pub fn refresh_data_dates(&self, sources: &mut [SourceOutcome]) {
         for source in sources {
