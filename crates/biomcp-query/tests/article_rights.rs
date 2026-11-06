@@ -63,7 +63,13 @@ fn record(dir: &Path) {
     else {
         panic!("{out:?}")
     };
-    assert_eq!(page.items.len(), 3);
+    assert_eq!(
+        page.items.len(),
+        3,
+        "record source outcomes: {:?}; local: {:?}",
+        out.sources,
+        out.local
+    );
     // Record the license metadata without calling LitSense again.
     let deadline = fetch.command_deadline(Duration::from_secs(20));
     let leg = fetch.leg(&biomcp_adapters::pmc_oa::SPEC, deadline.deadline());

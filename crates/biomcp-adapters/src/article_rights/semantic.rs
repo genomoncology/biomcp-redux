@@ -15,6 +15,9 @@ pub(crate) fn filter(
         return Ok(body.to_vec());
     }
     let root: Value = serde_json::from_slice(body).map_err(|_| BadReply)?;
+    if !has_text(&root) {
+        return Ok(body.to_vec());
+    }
     let mut ids = Vec::new();
     if let Some(parent) = parent {
         ids.push(parent);
@@ -124,5 +127,18 @@ fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, L
             }
         }
         _ => {}
+    }
+}
+
+fn has_text(value: &Value) -> bool {
+    match value {
+        Value::Object(object) => {
+            ["abstract", "abstract_text", "contexts"]
+                .iter()
+                .any(|key| object.get(*key).is_some_and(|value| !value.is_null()))
+                || object.values().any(has_text)
+        }
+        Value::Array(rows) => rows.iter().any(has_text),
+        _ => false,
     }
 }

@@ -25,6 +25,9 @@ pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> BTreeMap<Pmid, biodata::License>
         .into_iter()
         .take(MAX_RECORDS)
         .collect();
+    if ids.is_empty() {
+        return BTreeMap::new();
+    }
     let deadline = leg.local_deadline();
     let mut remaining = LOOKUP_BUDGET.min(leg.remaining());
     let before = leg.remaining();

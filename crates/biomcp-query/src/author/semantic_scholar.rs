@@ -71,7 +71,10 @@ fn execute(
         let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, deadline);
         let body_filtered = biomcp_adapters::article_rights::snapshot(&leg, &body)
             .map_err(|_| biomcp_fetch::CacheError::Encoding)?;
-        filtered = body != body_filtered;
+        filtered = serde_json::from_slice::<serde_json::Value>(&body)
+            .map_err(|_| biomcp_fetch::CacheError::Encoding)?
+            != serde_json::from_slice::<serde_json::Value>(&body_filtered)
+                .map_err(|_| biomcp_fetch::CacheError::Encoding)?;
         saved = serde_json::from_slice(&body_filtered)
             .map_err(|_| biomcp_fetch::CacheError::Encoding)?;
     }
