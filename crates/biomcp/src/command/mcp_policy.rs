@@ -17,7 +17,7 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
     if http {
         let command = match action {
             Action::Sync { .. } => Some(ErrorMessage::McpSync),
-            Action::StoreClean { .. } => Some(ErrorMessage::McpStoreClean),
+            Action::StoreClean => Some(ErrorMessage::McpStoreClean),
             _ => None,
         };
         if let Some(command) = command {
@@ -37,7 +37,7 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
 pub(crate) fn hosted_refused(action: &Action) -> bool {
     matches!(
         action,
-        Action::Health | Action::Sync { .. } | Action::StoreClean { .. }
+        Action::Health | Action::Sync { .. } | Action::StoreClean
     ) || matches!(action, Action::Run { request, fresh } if *fresh || saves(request))
 }
 fn replaces(request: &Request) -> bool {

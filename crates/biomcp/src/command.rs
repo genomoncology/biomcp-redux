@@ -97,9 +97,6 @@ fn dispatch_using(
         Ok(action) => action,
         Err(error) => return usage_envelope(error, encoding),
     };
-    if let Action::StoreClean { scrub_to_copy: Some(destination) } = &action {
-        return maintenance::scrub(destination, encoding);
-    }
     let transport = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,
         Err(error) => return local::startup(error, encoding),
@@ -202,7 +199,7 @@ pub(crate) fn execute(
                 crate::exit::Status::Success,
             )
         }
-        Action::StoreClean { .. } => maintenance::clean(fetch, encoding),
+        Action::StoreClean => maintenance::clean(fetch, encoding),
         Action::Health => maintenance::health(fetch, encoding),
         Action::KeyHelp(source) => key_help(source, encoding),
         Action::Sync { bundle } => sync::run(fetch, bundle, encoding),

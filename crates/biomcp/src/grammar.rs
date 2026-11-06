@@ -168,9 +168,7 @@ pub(crate) fn root() -> Result<Root, ParseInvalid> {
     root = root.subcommand(
         Command::new("store")
             .subcommand_required(true)
-            .subcommand(Command::new("clean")
-                .arg(Arg::new("scrub-to-copy").long("scrub-to-copy").value_name("DESTINATION").value_parser(clap::value_parser!(PathBuf)).help("Prepare a restricted-use article text scrub on a new copy; inspect the copy before deployment."))
-                .after_help("Example: biomcp store clean")),
+            .subcommand(Command::new("clean").after_help("Example: biomcp store clean")),
     );
     root = root.subcommand(crate::keys::grammar());
     root = root.subcommand(local::serve_command());
@@ -235,7 +233,7 @@ pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseIn
     }
     let help = entry::help_path(verb, matches)?;
     let action = if verb == "store" {
-        Action::StoreClean { scrub_to_copy: matches.subcommand_matches("clean").and_then(|clean| clean.get_one::<PathBuf>("scrub-to-copy")).cloned() }
+        Action::StoreClean
     } else if verb == "health" {
         Action::Health
     } else if verb == "help" {

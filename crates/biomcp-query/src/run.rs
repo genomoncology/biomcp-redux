@@ -14,10 +14,7 @@ pub enum Action {
     /// Follow an exact checked author record to its deferred native paper surface.
     AuthorPapers(biomcp_types::AuthorPapersQuery),
     /// Remove expired local state and older incompatible cache files.
-    StoreClean {
-        /// Write a restricted-use scrubbed copy without replacing the original.
-        scrub_to_copy: Option<std::path::PathBuf>,
-    },
+    StoreClean,
     /// Probe source reachability and report publisher terms.
     Health,
     /// Run a query, retaining fresh policy.
