@@ -1,12 +1,23 @@
 {
   "feature": "query-validation",
-  "live_check": "offline parser-only; no source requests",
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
   "story": "Enumerated values accept any letter case and echo canonical values while unknown choices keep the valid list.",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
   },
   "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
     {
       "run": [
         "search",
@@ -279,5 +290,6 @@
         }
       }
     }
-  ]
+  ],
+  "replay": "trial/condition"
 }

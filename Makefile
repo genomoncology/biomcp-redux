@@ -547,8 +547,19 @@ enum-case-schema-check:
 	+$(MAKE) current-schema-check schema-release-check
 	cargo test --locked -p biomcp-types --features schema --test schemas enum_field_scope_is_checked_metadata_without_a_schema_major_change
 
-.PHONY: enum-case-review-check
-enum-case-review-check:
-	+$(MAKE) --keep-going fmt enum-case-check enum-case-lint enum-case-schema-check
+.PHONY: enum-case-fixture-prepare enum-case-fixture-check enum-case-retired-check enum-case-bridge-check
+enum-case-fixture-prepare:
+	cargo fmt --all
+	+$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	git diff --binary > dist/enum-case-generated.patch
+	+$(MAKE) --keep-going enum-case-fixture-check enum-case-retired-check enum-case-bridge-check enum-case-lint enum-case-schema-check
+
+enum-case-fixture-check:
+	BIOMCP_TRANSCRIPT_DIR="$(abspath $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target))/enum-case-fixture-transcripts" cargo test --locked -p biomcp --test cases grammar/enum-case.yaml $(TEST_THREADS)
+
+enum-case-retired-check:
 	cargo test --locked -p biomcp --test cases retired $(TEST_THREADS)
+
+enum-case-bridge-check:
 	cargo test --locked -p biomcp --test cases mcp-parity/typed-cli-bridge $(TEST_THREADS)
