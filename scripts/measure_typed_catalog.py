@@ -26,8 +26,8 @@ def main():
         env = {key: value for key, value in os.environ.items()
                if key in {"PATH", "SystemRoot", "WINDIR", "TMPDIR", "TEMP", "TMP"}}
         env.update(HOME=scratch, XDG_CONFIG_HOME=scratch, XDG_CACHE_HOME=scratch, APPDATA=scratch)
-        for label, flags in (("single", []), ("typed", ["--mcp-tool-mode", "typed"]),
-                             ("hosted-typed", ["--mcp-tool-mode", "typed", "--hosted"])):
+        for label, flags in (("single", []), ("typed", ["--tool-mode", "typed"]),
+                             ("hosted-typed", ["--tool-mode", "typed", "--hosted"])):
             result = subprocess.run([str(binary), "serve", "--offline", *flags],
                                     input=json.dumps(frame) + "\n", env=env,
                                     capture_output=True, text=True, timeout=30, check=True)
