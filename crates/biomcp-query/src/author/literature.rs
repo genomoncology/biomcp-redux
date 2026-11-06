@@ -3,8 +3,8 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::pubmed;
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
-    AuthorLiterature, AuthorPage, AuthorSearch, AuthorSearchSource, PageInfo, Paged, ReplyBody,
-    Request, Source, StepKind,
+    AuthorLiterature, AuthorPage, AuthorPublication, AuthorSearch, AuthorSearchSource, PageInfo,
+    Paged, ReplyBody, Request, Source, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
@@ -68,38 +68,7 @@ fn execute(
         } else {
             Vec::new()
         };
-        let returned = papers.len() as u32;
-        if q.offset().saturating_add(ids.len() as u32) < found.count.min(9999) as u32 {
-            let next = q.with_source(AuthorSearchSource::Pubmed);
-            out.next.push(crate::next::Step::new(
-                StepKind::Page,
-                &[Source::PubMed],
-                super::run(Request::SearchAuthor(
-                    next.at_offset(q.offset() + q.limit()),
-                )),
-            ));
-        }
-        out.page = Some(PageInfo {
-            offset: q.offset(),
-            returned,
-            total: found.count,
-            pool: None,
-            truncated: (found.count > 9999).then_some(true),
-        });
-        out.body = AuthorPage {
-            items: Box::default(),
-            matching_records: None,
-            literature: Some(AuthorLiterature {
-                identity_resolution: concat!(
-                    "Unresolved: these are author names on individual papers, not verified researcher identities. ",
-                    "Equal names may refer to different people; names are not merged. ",
-                    "Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. ",
-                    "PubMed matches papers, not people; only the first 9999 matching papers can be paged."
-                ).parse().map_err(|_| biomcp_fetch::CacheError::Encoding)?,
-                papers: papers.into(),
-            }),
-        }.with_query(q.clone());
-        Ok(())
+        present(q, out, papers, found.count, ids.len() as u32)
     })();
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::PubMed, leg.finish(), error);
@@ -129,4 +98,45 @@ fn execute(
         status::item(out, true, false, false);
     }
     result
+}
+
+fn present(
+    q: &AuthorSearch,
+    out: &mut Outcome,
+    papers: Vec<AuthorPublication>,
+    count: u64,
+    consumed: u32,
+) -> Result<(), RequestError> {
+    let returned = papers.len() as u32;
+    if q.offset().saturating_add(consumed) < count.min(9999) as u32 {
+        let next = q.with_source(AuthorSearchSource::Pubmed);
+        out.next.push(crate::next::Step::new(
+            StepKind::Page,
+            &[Source::PubMed],
+            super::run(Request::SearchAuthor(
+                next.at_offset(q.offset() + q.limit()),
+            )),
+        ));
+    }
+    out.page = Some(PageInfo {
+        offset: q.offset(),
+        returned,
+        total: count,
+        pool: None,
+        truncated: (count > 9999).then_some(true),
+    });
+    out.body = AuthorPage {
+        items: Box::default(),
+        matching_records: None,
+        literature: Some(AuthorLiterature {
+            identity_resolution: concat!(
+                "Unresolved: these are author names on individual papers, not verified researcher identities. ",
+                "Equal names may refer to different people; names are not merged. ",
+                "Affiliations, author-specific publication totals, citation metrics and topic expertise are not established. ",
+                "PubMed matches papers, not people; only the first 9999 matching papers can be paged."
+            ).parse().map_err(|_| biomcp_fetch::CacheError::Encoding)?,
+            papers: papers.into(),
+        }),
+    }.with_query(q.clone());
+    Ok(())
 }
