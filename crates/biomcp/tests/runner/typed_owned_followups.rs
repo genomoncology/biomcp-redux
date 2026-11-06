@@ -16,6 +16,12 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("mcp-parity/typed-owned-organization-pivot", || {
             organization().map_err(Into::into)
         }),
+        trial("mcp-parity/typed-owned-native-json-boundary", || {
+            native_boundary().map_err(Into::into)
+        }),
+        trial("mcp-parity/typed-owned-branch-deduplication", || {
+            branch_deduplication().map_err(Into::into)
+        }),
         trial("mcp-parity/typed-owned-research-text", || {
             research_text().map_err(Into::into)
         }),
@@ -227,6 +233,38 @@ fn fresh() -> Result<(), String> {
         return Err(format!(
             "unavailable force-refresh survived typed output: {value}"
         ));
+    }
+    Ok(())
+}
+
+// Direct schema-boundary checks cannot be injected through the closed command models.
+fn native_boundary() -> Result<(), String> {
+    let schema = json!({"$defs":{"Reply_Step":{"type":"object"},
+        "Cycle":{"$ref":"#/$defs/Cycle"}},"type":"object","properties":{
+        "owned":{"type":"object","properties":{"next":{"$ref":"#/$defs/Reply_Step"}}},
+        "native":{"type":"object","additionalProperties":true},"cycle":{"$ref":"#/$defs/Cycle"}}});
+    let native = json!({"next":{"kind":"pivot","args":["KEEP LITERAL"]},
+        "alternatives":[{"kind":"pivot","args":["KEEP TOO"]}]});
+    let mut value = json!({"owned":{"next":{"kind":"pivot","args":["get","gene","BRAF"]}},
+        "native":native,"cycle":{"next":{"args":["KEEP CYCLE"]}}});
+    if super::step_paths::paths(&schema, &schema, &value) != ["/owned/next"]
+        || !super::step_paths::paths(&schema, &schema["properties"]["native"], &value["native"])
+            .is_empty()
+    {
+        return Err("native JSON or nonproductive reference became executable control".into());
+    }
+    super::step_paths::remove(&mut value, "/owned/next");
+    if value["native"] != native || value["cycle"]["next"]["args"] != json!(["KEEP CYCLE"]) {
+        return Err("native JSON changed while removing an owned Step".into());
+    }
+    Ok(())
+}
+fn branch_deduplication() -> Result<(), String> {
+    let schema = json!({"$defs":{"Reply_Step":{"type":"object"}},"properties":{
+        "next":{"items":{"anyOf":[{"$ref":"#/$defs/Reply_Step"},{"$ref":"#/$defs/Reply_Step"}]}}}});
+    let value = json!({"next":[{"kind":"pivot","args":["a"]},{"kind":"pivot","args":["b"]}]});
+    if super::step_paths::paths(&schema, &schema, &value) != ["/next/0", "/next/1"] {
+        return Err("overlapping branches did not retain one visit per owned Step".into());
     }
     Ok(())
 }
