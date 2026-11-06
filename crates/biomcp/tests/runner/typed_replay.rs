@@ -418,18 +418,20 @@ fn compare(
     typed_globals.extend(["--tool-mode".into(), "typed".into()]);
     let reply = exchange_with_globals(
         env,
-        &[request(
-            json!(1),
-            "tools/call",
-            json!({"name":name,"arguments":input}),
-        )],
+        &[
+            request(json!(1), "tools/call", json!({"name":name,"arguments":input})),
+            request(json!(2), "tools/list", json!({})),
+        ],
         &typed_globals,
     )?;
-    let reply = reply.first().ok_or("missing typed reply")?;
+    let tools = reply.iter().find(|reply| reply["id"] == 2)
+        .and_then(|reply| reply.pointer("/result/tools")).and_then(Value::as_array).ok_or("typed catalog")?;
+    let reply = reply.iter().find(|reply| reply["id"] == 1).ok_or("missing typed reply")?;
     *calls += 1;
     let actual = reply
         .pointer("/result/structuredContent")
         .ok_or_else(|| format!("{name}: {reply}"))?;
+    super::super::typed_followups::check_next(actual, tools, &mut 0)?;
     let actual_data = super::super::typed_followups::data(actual);
     let expected_data = super::super::typed_followups::data(expected);
     let checked = volatile::expected(case.0, case.1, &expected_data, &actual_data)?;

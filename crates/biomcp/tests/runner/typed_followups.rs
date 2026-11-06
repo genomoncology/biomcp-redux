@@ -108,7 +108,11 @@ fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result
     Ok(())
 }
 
-fn check_next(value: &Value, tools: &[Value], sections: &mut usize) -> Result<(), String> {
+pub(super) fn check_next(
+    value: &Value,
+    tools: &[Value],
+    sections: &mut usize,
+) -> Result<(), String> {
     match value {
         Value::Object(fields) => {
             if let Some(next) = fields.get("next").and_then(Value::as_array) {
