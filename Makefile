@@ -636,3 +636,10 @@ recurrence-forms-prepare:
 recurrence-forms-review:
 	+$(MAKE) landing-gate
 	+$(MAKE) schema-release-check
+
+.PHONY: recurrence-indel-check
+recurrence-indel-check: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/recurrence-indel-proofs
+recurrence-indel-check:
+	python3 scripts/trials.py --target tools --case-file variant/id-forms/deletion.yaml --case-file variant/id-forms/insertion.yaml
+	+$(MAKE) fmt
+	python3 scripts/check_docs.py
