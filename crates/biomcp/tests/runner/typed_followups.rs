@@ -10,15 +10,22 @@ use serde_json::{Value, json};
 pub(super) fn check() -> Result<(), String> {
     for form in ["structured-only", "text-only", "both"] {
         for hosted in [false, true] {
-            check_form(form, hosted)?;
+            check_form(form, hosted, false)?;
         }
     }
+    check_form("both", false, true)?;
+    check_form("both", true, true)?;
     Ok(())
 }
-fn check_form(form: &str, hosted: bool) -> Result<(), String> {
+fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
+    let disabled = if restricted {
+        vec!["oncokb", "civic"]
+    } else {
+        vec!["oncokb"]
+    };
     let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,
-        "mcp_reply_form":form,"disable_sources":["oncokb"]});
+        "mcp_reply_form":form,"disable_sources":disabled});
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = fixtures().join("replies/gene/main");
     let mut globals = env.globals(Some(&replay), false);
@@ -73,7 +80,7 @@ fn check_form(form: &str, hosted: bool) -> Result<(), String> {
             .find(|v| v["id"] == frame["id"])
             .ok_or("stdio reply")?;
         for reply in [stdio, &http] {
-            check_reply(reply, tools, index == 1)?;
+            check_reply(reply, tools, index == 1 && !restricted)?;
         }
     }
     Ok(())
