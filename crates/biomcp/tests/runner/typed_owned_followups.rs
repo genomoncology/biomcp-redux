@@ -125,18 +125,11 @@ fn response(
     fields.insert("mcp_tool_mode".into(), json!("typed"));
     fields.insert("mcp_typed_output_schema".into(), json!(true));
     env.config(&config).map_err(|e| e.to_string())?;
-    let frames = [
-        request(json!(1), "tools/list", json!({})),
-        request(
-            json!(2),
-            "tools/call",
-            json!({"name":name,"arguments":arguments}),
-        ),
-    ];
+    let globals = env.globals(Some(&fixtures().join("replies").join(replay)), false);
     let replies = exchange_with_globals(
         &env,
-        &frames,
-        &env.globals(Some(&fixtures().join("replies").join(replay)), false),
+        &[request(json!(1), "tools/list", json!({}))],
+        &globals,
     )?;
     let tools = replies
         .iter()
@@ -145,6 +138,16 @@ fn response(
         .and_then(Value::as_array)
         .ok_or("catalog")?
         .clone();
+    let route = super::super::typed_catalog::command(&tools, name).ok_or("nested request route")?;
+    let replies = exchange_with_globals(
+        &env,
+        &[request(
+            json!(2),
+            "tools/call",
+            super::super::typed_catalog::call(&route, &arguments),
+        )],
+        &globals,
+    )?;
     let reply = replies
         .iter()
         .find(|v| v["id"] == 2)

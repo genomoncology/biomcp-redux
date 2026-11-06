@@ -422,7 +422,7 @@ fn compare(
             request(
                 json!(1),
                 "tools/call",
-                json!({"name":name,"arguments":input}),
+                super::super::typed_catalog::call(tool, input),
             ),
             request(json!(2), "tools/list", json!({})),
         ],

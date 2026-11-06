@@ -245,14 +245,14 @@ fn source_notices(server: &Server, mode: &str) -> Check {
                 "{mode}: disabled source lacks {expected} explanation: {reply}"
             ));
         }
-        followups(server, mode, &reply)?;
+        offered_next(server, mode, &reply)?;
     }
     Ok(())
 }
 
-fn followups(server: &Server, mode: &str, reply: &Value) -> Check {
+fn offered_next(server: &Server, mode: &str, reply: &Value) -> Check {
     if mode == "typed" {
-        return super::typed_followups::check_next(reply, &catalog(server)?, &mut 0);
+        super::typed_followups::check_next(reply, &catalog(server)?, &mut 0)?;
     }
     for step in reply
         .get("next")
@@ -260,17 +260,31 @@ fn followups(server: &Server, mode: &str, reply: &Value) -> Check {
         .into_iter()
         .flatten()
     {
-        let args = step
-            .get("args")
-            .and_then(Value::as_array)
-            .ok_or("next args")?;
-        if args.iter().any(|word| {
-            matches!(
-                word.as_str(),
-                Some("--fresh" | "--config" | "sync" | "health")
-            )
-        }) {
-            return Err(format!("{mode}: unavailable next: {step}"));
+        if mode == "typed" {
+            let fields = step
+                .pointer("/arguments/arguments")
+                .or_else(|| step.get("arguments"))
+                .and_then(Value::as_object)
+                .ok_or("typed next arguments")?;
+            if ["fresh", "config", "source_pacing"]
+                .iter()
+                .any(|key| fields.contains_key(*key))
+            {
+                return Err(format!("{mode}: unavailable next option: {step}"));
+            }
+        } else {
+            let args = step
+                .get("args")
+                .and_then(Value::as_array)
+                .ok_or("next args")?;
+            if args.iter().any(|word| {
+                matches!(
+                    word.as_str(),
+                    Some("--fresh" | "--config" | "sync" | "health")
+                )
+            }) {
+                return Err(format!("{mode}: unavailable next: {step}"));
+            }
         }
     }
     Ok(())
@@ -386,7 +400,16 @@ fn query(
     words: &[&str],
     input: Value,
 ) -> Result<Value, String> {
-    call(server, params(mode, tool, words, input))
+    let params = if mode == "typed" {
+        let tools = catalog(server)?;
+        super::typed_catalog::command(&tools, tool).map_or_else(
+            || params(mode, tool, words, input.clone()),
+            |route| super::typed_catalog::call(&route, &input),
+        )
+    } else {
+        params(mode, tool, words, input)
+    };
+    call(server, params)
 }
 
 fn call(server: &Server, params: Value) -> Result<Value, String> {

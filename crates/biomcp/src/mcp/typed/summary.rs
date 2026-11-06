@@ -5,7 +5,7 @@ pub(super) fn render(
     root: &crate::grammar::Root,
     value: &Value,
     args: &[std::ffi::OsString],
-    tools: &[Value],
+    tools: &super::grouping::Catalog,
     projected: &[Value],
 ) -> String {
     let status = value
@@ -39,7 +39,7 @@ fn correction(
     root: &crate::grammar::Root,
     value: &Value,
     args: &[std::ffi::OsString],
-    tools: &[Value],
+    tools: &super::grouping::Catalog,
 ) -> Option<Value> {
     let option = value.pointer("/error/option")?.as_str()?;
     let mut skip = false;
@@ -66,11 +66,11 @@ fn correction(
 pub(super) fn translate(
     root: &crate::grammar::Root,
     args: &[Value],
-    tools: &[Value],
+    tools: &super::grouping::Catalog,
 ) -> Option<Value> {
     let args = args.iter().map(Value::as_str).collect::<Option<Vec<_>>>()?;
     if let Some(call) = super::help::next(root, &args) {
-        return super::followups::allowed(&call, tools).then_some(call);
+        return super::grouping::call(call, tools);
     }
     let mut argv = vec!["biomcp"];
     argv.extend(args);
@@ -107,15 +107,19 @@ fn checked_call(
     entity: &str,
     schema: &Value,
     arguments: &Value,
-    tools: &[Value],
+    tools: &super::grouping::Catalog,
 ) -> Option<Value> {
     if !super::validation::valid(&super::arguments::input(schema), arguments) {
         return None;
     }
     let args = super::arguments::cli(root, verb, entity, schema, arguments)?;
-    let parsed = crate::grammar::parse(root, &args).ok()?;
+    let mut parsed = crate::grammar::parse(root, &args).ok()?;
+    if !tools.permits(&mut parsed) {
+        return None;
+    }
     let call = json!({"name":super::name(verb,entity),"arguments":arguments});
-    (matches!(parsed.action, Some(biomcp_query::Action::Run { .. }))
-        && super::followups::allowed(&call, tools))
-    .then_some(call)
+    if !matches!(parsed.action, Some(biomcp_query::Action::Run { .. })) {
+        return None;
+    }
+    super::grouping::call(call, tools)
 }

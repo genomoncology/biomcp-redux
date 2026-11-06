@@ -28,6 +28,50 @@ pub(super) fn check() -> Result<(), String> {
     }
     check_form("both", false, true)?;
     check_form("both", true, true)?;
+    reference_admission()?;
+    Ok(())
+}
+
+fn reference_admission() -> Result<(), String> {
+    let config = json!({"mcp_tool_mode":"typed","mcp_typed_enum_limit":1,
+        "disable_sources":["civic","gmdn"]});
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    env.config(&config).map_err(|error| error.to_string())?;
+    let server = Server::configured_globals(
+        "127.0.0.1:0",
+        Some(config),
+        None,
+        None,
+        None,
+        &["--offline".into()],
+    )?;
+    for (index, arguments) in [
+        json!({"command":"biomcp","arguments":{"args":["help"]}}),
+        json!({"command":"biomcp_help","arguments":{"command":"get gene"}}),
+        json!({"command":"get_gene","arguments":{"input":["BRAF"]}}),
+        json!({"command":"unknown","arguments":{}}),
+        json!({"command":"get_pathway","arguments":{"id":"hsa04151"},"extra":true}),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let frame = request(
+            json!(index),
+            "tools/call",
+            json!({"name":"biomcp_reference","arguments":arguments}),
+        );
+        let stdio =
+            exchange_with_globals(&env, std::slice::from_ref(&frame), &["--offline".into()])?;
+        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
+        if status != 200
+            || stdio.first().and_then(|reply| reply.pointer("/error/code")) != Some(&json!(-32602))
+            || http.pointer("/error/code") != Some(&json!(-32602))
+        {
+            return Err(format!(
+                "reference accepted an unadvertised or malformed route: {stdio:?} {http}"
+            ));
+        }
+    }
     Ok(())
 }
 fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> {
@@ -37,8 +81,9 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
     } else {
         vec!["oncokb"]
     };
-    let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,
-        "mcp_reply_form":form,"disable_sources":disabled});
+    let config = json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,"mcp_typed_definition_bytes":200000,
+        "mcp_reply_form":form,"disable_sources":disabled,
+        "mcp_typed_enum_limit":if restricted {1} else {30}});
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = fixtures().join("replies/gene/main");
     let mut globals = env.globals(Some(&replay), false);
@@ -93,13 +138,18 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
             .find(|v| v["id"] == frame["id"])
             .ok_or("stdio reply")?;
         for reply in [stdio, &http] {
-            check_reply(reply, tools, index == 1 && !restricted)?;
+            check_reply(reply, tools, index == 1 && !restricted, restricted)?;
         }
     }
     Ok(())
 }
 
-fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result<(), String> {
+fn check_reply(
+    reply: &Value,
+    tools: &[Value],
+    section_expected: bool,
+    restricted: bool,
+) -> Result<(), String> {
     let text = reply
         .pointer("/result/content/0/text")
         .and_then(Value::as_str)
@@ -111,6 +161,22 @@ fn check_reply(reply: &Value, tools: &[Value], section_expected: bool) -> Result
         .ok_or("typed body")?;
     let mut sections = 0;
     check_next(&value, tools, &mut sections)?;
+    if restricted
+        && value
+            .get("next")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .filter_map(|call| call.pointer("/arguments/section"))
+            .any(|section| {
+                section == "civic"
+                    || section
+                        .as_array()
+                        .is_some_and(|sections| sections.contains(&json!("civic")))
+            })
+    {
+        return Err("lowering the public enum limit admitted a disabled CIViC follow-up".into());
+    }
     if section_expected && sections == 0 {
         return Err("gene replay supplied no typed section follow-up".into());
     }
@@ -150,7 +216,11 @@ pub(in crate::runner) fn check_next(
             .validate(&call["arguments"])
             .map_err(|e| format!("{call}: {e}"))?;
         if call.get("kind") == Some(&json!("section")) {
-            if call.pointer("/arguments/section").is_none() {
+            if call
+                .pointer("/arguments/section")
+                .or_else(|| call.pointer("/arguments/arguments/section"))
+                .is_none()
+            {
                 return Err(format!("section stayed in input: {call}"));
             }
             *sections += 1;

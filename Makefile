@@ -672,6 +672,7 @@ typed-description-contract-check:
 typed-description-lint-check:
 	+$(MAKE) --keep-going fmt lint-workspace lint-tools typed-description-contract-check
 
+
 .PHONY: typed-followups-check typed-followups-affected
 typed-followups-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-followups $(TEST_THREADS)
@@ -687,6 +688,16 @@ typed-followups-aliases:
 	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases source-aliases $(filter-out --,$(TEST_THREADS))
 typed-followups-faers:
 	cargo test --locked -p biomcp --test tools -- --cases ../../tests/tool-cases faers-reaction-counts.yaml $(filter-out --,$(TEST_THREADS))
+.PHONY: typed-description-check typed-description-contract-check
+typed-description-check:
+	+$(MAKE) --keep-going typed-description-contract-check typed-schema-check typed-hosted-check help-contract-check
+
+typed-description-contract-check:
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
+
+.PHONY: typed-description-lint-check
+typed-description-lint-check:
+	+$(MAKE) --keep-going fmt lint-workspace lint-tools typed-description-contract-check
 
 .PHONY: typed-followups-recovery typed-followups-recovery-check
 typed-followups-recovery: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-recovery
@@ -694,7 +705,6 @@ typed-followups-recovery:
 	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)
 typed-followups-recovery-check:
 	+$(MAKE) --keep-going typed-followups-recovery typed-followups-parity check-cheap
-
 .PHONY: population-reply-metadata-check
 population-reply-metadata-check:
 	+$(MAKE) hosted-surface-generate typed-schema-check
@@ -713,6 +723,7 @@ trial-provenance-check:
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 
+
 .PHONY: typed-owned-followups-check
 typed-owned-followups-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-owned-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-owned- $(TEST_THREADS)
@@ -722,6 +733,20 @@ typed-owned-followups-green:
 	+$(MAKE) --keep-going typed-owned-followups-check typed-followups-recovery typed-followups-parity typed-followups-toolcases typed-followups-research check-cheap
 typed-followups-research:
 	cargo test --locked -p biomcp --test cases mcp-research/ $(TEST_THREADS)
+.PHONY: trial-provenance-check
+trial-provenance-check:
+	cargo test --locked -p biomcp --test ratchets required_surface_has_asserted_calls $(TEST_THREADS)
+	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance"
+	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
+	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
+
+.PHONY: typed-grouped-integration-check
+typed-grouped-integration-check: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-grouped-integration
+typed-grouped-integration-check:
+	+$(MAKE) --keep-going fmt lint-workspace lint-tools
+	cargo test --locked -p biomcp --test cases mcp-research/ $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases variant-population/variant/population/indel- $(TEST_THREADS)
 
 .PHONY: typed-followups-hosted-recovery
 # Reuse the owner trial without rebuilding an installed release binary.
@@ -729,3 +754,11 @@ typed-followups-hosted-recovery: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/targe
 typed-followups-hosted-recovery:
 	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
 	+$(MAKE) --keep-going typed-followups-recovery typed-followups-parity check-cheap
+
+
+.PHONY: typed-catalog-followups-composition-check
+typed-catalog-followups-composition-check: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-catalog-followups-composition
+typed-catalog-followups-composition-check:
+	+$(MAKE) --keep-going check-cheap typed-followups-parity typed-followups-research
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases query-validation/argument-recovery $(TEST_THREADS)

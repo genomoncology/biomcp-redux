@@ -4,7 +4,7 @@ use serde_json::Value;
 pub(super) fn project(
     root: &crate::grammar::Root,
     value: &mut Value,
-    tools: &[Value],
+    tools: &super::grouping::Catalog,
 ) -> std::io::Result<Vec<Value>> {
     let Some(id) = value.get("schema").and_then(Value::as_str) else {
         return Ok(Vec::new());
