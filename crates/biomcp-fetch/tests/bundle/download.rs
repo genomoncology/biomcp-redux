@@ -43,7 +43,7 @@ Err(biomcp_fetch::RequestError::Source(e)) if e.reason==biomcp_types::Reason::Of
 #[test]
 fn interrupted_download_resumes_only_the_same_representation() {
     for scenario in [
-        "safe", "ignored", "changed", "offset", "total", "missing", "412",
+        "safe", "ignored", "changed", "offset", "total", "missing", "412", "moved",
     ] {
         let server = support::Server::new();
         let b = declared(&server);
@@ -60,6 +60,13 @@ fn interrupted_download_resumes_only_the_same_representation() {
             ));
             assert!(call.join().unwrap().is_err());
         });
+        let moved_path = dir.path().join("moved.sqlite");
+        let f = if scenario == "moved" {
+            drop(f);
+            std::fs::rename(&path, &moved_path).unwrap();
+            std::fs::rename(path.with_extension("parts"), moved_path.with_extension("parts")).unwrap();
+            cached(&moved_path)
+        } else { f };
         std::thread::scope(|scope| {
             let call = scope.spawn(|| f.sync(&b));
             let request = server.next();
