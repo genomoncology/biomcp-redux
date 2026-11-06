@@ -9,47 +9,69 @@ pub(super) use grouping::Catalog;
 mod help;
 mod summary;
 mod validation;
-pub(super) fn tool_result(
-    id: Value,
-    outcome: &crate::command::Outcome,
-    modern: bool,
-    context: crate::command::Context<'_>,
-    args: &[std::ffi::OsString],
-    read_only: bool,
-) -> Value {
-    let form = crate::config::mcp_reply_form(context.settings);
-    let reply = super::protocol::tool_result(id, outcome, modern, form);
-    summarize(reply, context, args, form, read_only)
-}
 
-fn summarize(
-    mut reply: Value,
+pub(super) fn prepare(
+    outcome: &mut crate::command::Outcome,
     context: crate::command::Context<'_>,
     args: &[std::ffi::OsString],
-    form: crate::config::ReplyForm,
     read_only: bool,
-) -> Value {
+) -> io::Result<Option<String>> {
     if crate::config::mcp_tool_mode(context.globals, context.settings)
         != crate::config::ToolMode::Typed
     {
-        return reply;
+        return Ok(None);
     }
+    let advertised = catalog(context, read_only)?;
+    prepare_with_catalog(outcome, context, args, &advertised)
+}
+
+pub(super) fn prepare_with_catalog(
+    outcome: &mut crate::command::Outcome,
+    context: crate::command::Context<'_>,
+    args: &[std::ffi::OsString],
+    advertised: &Catalog,
+) -> io::Result<Option<String>> {
+    if crate::config::mcp_tool_mode(context.globals, context.settings)
+        != crate::config::ToolMode::Typed
+    {
+        return Ok(None);
+    }
+    let value = outcome.value_mut()?;
+    followups::project(context.root, value, advertised);
+    Ok(Some(summary::render(context.root, value, args, advertised)))
+}
+
+pub(super) fn tool_result(
+    id: Value,
+    completed: &super::research::Completed,
+    modern: bool,
+    settings: &crate::config::Settings,
+) -> Value {
+    let form = crate::config::mcp_reply_form(settings);
+    let mut reply = super::protocol::tool_result(id, &completed.outcome, modern, form);
+    let Some(summary) = completed.summary.as_ref() else {
+        return reply;
+    };
     let value = reply
         .pointer("/result/structuredContent")
         .cloned()
-        .or_else(|| {
-            let text = reply.pointer("/result/content/0/text")?.as_str()?;
-            serde_json::from_str(text).ok()
-        });
-    if let Some(mut value) = value {
-        let advertised = catalog(context, read_only).unwrap_or_default();
-        followups::project(context.root, &mut value, &advertised);
-        if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut)
-            && result.contains_key("structuredContent")
+        .or_else(|| serde_json::from_str(reply.pointer("/result/content/0/text")?.as_str()?).ok());
+    if let Some(value) = value {
+        let summary = if completed
+            .outcome
+            .value()
+            .is_ok_and(|original| original == &value)
         {
-            result.insert("structuredContent".into(), value.clone());
-        }
-        let summary = summary::render(context.root, &value, args, &advertised);
+            summary.clone()
+        } else {
+            format!(
+                "{}: JSON reply is in structuredContent.",
+                value
+                    .get("status")
+                    .and_then(Value::as_str)
+                    .unwrap_or("complete")
+            )
+        };
         let text = if matches!(form, crate::config::ReplyForm::StructuredOnly) {
             summary
         } else {
@@ -245,12 +267,15 @@ pub(super) fn rejection(
     let mut outcome =
         crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
     super::hosted::project(&mut outcome, context, &rejected.args)?;
+    let summary = if let Some(catalog) = rejected.catalog.as_ref() {
+        prepare_with_catalog(&mut outcome, context, &rejected.args, catalog)?
+    } else {
+        prepare(&mut outcome, context, &rejected.args, read_only)?
+    };
     Ok(tool_result(
         id,
-        &outcome,
+        &super::research::Completed { outcome, summary },
         modern,
-        context,
-        &rejected.args,
-        read_only,
+        context.settings,
     ))
 }
