@@ -132,7 +132,6 @@ fn input_description(schema: &Value) -> String {
         .unwrap_or_default();
     let description = description
         .replace("identifiers", "IDs")
-        .replace(" accession", "")
         .replace("reference-qualified ", "")
         .replace("VCF-style genomic coordinates", "VCF")
         .replace(", in input order", "")

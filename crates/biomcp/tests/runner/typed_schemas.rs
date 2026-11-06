@@ -295,9 +295,12 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
                     .get("description")
                     .and_then(Value::as_str)
                     .ok_or("choice description")?;
-                if !description.contains("biomcp_help") {
+                if description.is_empty()
+                    || description.contains("biomcp_help")
+                    || Some(description) != property.get("description").and_then(Value::as_str)
+                {
                     return Err(format!(
-                        "{name}.{key}: removed choices lack canonical help route"
+                        "{name}.{key}: lowering enum limit changed the standalone description"
                     ));
                 }
             }
