@@ -121,7 +121,7 @@ fn legacy_drug_pool() -> Check {
     literal.push("--exact-term".into());
     let first = command(&env, &literal, &globals, 0)?;
     let id = first
-        .pointer("/page/pool")
+        .pointer("/page/pool/id")
         .and_then(serde_json::Value::as_str)
         .ok_or("literal pool")?;
     if first.pointer("/page/total") != Some(&json!(1)) {

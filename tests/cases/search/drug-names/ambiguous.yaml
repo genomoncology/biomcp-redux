@@ -95,10 +95,8 @@
         "/sources/0/notices/0/names": [
           "Refused therapy"
         ],
-        "/sources/1/notices/0/names": [
-          "Refused therapy"
-        ],
-        "/query/query": "Refused therapy"
+        "/query/query": "Refused therapy",
+        "/sources/0/notices/0/message": "The provider rejected the expanded request; searched the typed term."
       }
     },
     {
