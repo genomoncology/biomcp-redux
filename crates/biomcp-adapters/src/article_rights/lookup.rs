@@ -33,7 +33,8 @@ impl Licenses {
 pub fn licenses(leg: &Leg<'_>, ids: &[Pmid]) -> Licenses {
     let mut seen = BTreeSet::new();
     let ids: Vec<_> = ids.iter().copied().filter(|id| seen.insert(*id)).collect();
-    let found = bounded(leg, &ids[..ids.len().min(MAX_RECORDS)]);
+    let capped: Vec<_> = ids.iter().copied().take(MAX_RECORDS).collect();
+    let found = bounded(leg, &capped);
     if ids.iter().any(|id| found.unchecked(*id)) {
         leg.note_license_unchecked();
     }
