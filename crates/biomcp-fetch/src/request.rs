@@ -301,14 +301,7 @@ impl Leg<'_> {
             })?
         {
             let mut wire = self.replayed_wire(prepared, exchange)?;
-            if (200..300).contains(&wire.status)
-                && let std::borrow::Cow::Owned(body) =
-                    codec.filtered_body(&wire.body).map_err(|_| {
-                        Failure::Local(self.failure(Reason::BadReply, Some(wire.status)).into())
-                    })?
-            {
-                wire.body = body;
-            }
+            self.filter_wire(&mut wire, codec)?;
             return Ok(wire);
         }
         let started = Instant::now();
@@ -364,16 +357,23 @@ impl Leg<'_> {
         };
         self.contain_response(prepared, &wire, &wire.body, status)
             .map_err(Failure::Local)?;
-        if (200..300).contains(&wire.status) {
-            wire.body = codec
-                .filtered_body(&wire.body)
-                .map_err(|_| Failure::Local(self.failure(Reason::BadReply, Some(status)).into()))?;
-        }
+        self.filter_wire(&mut wire, codec)?;
         if recording {
             self.record_wire(prepared, codec, &wire, started)
                 .map_err(local)?;
         }
         Ok(wire)
+    }
+    fn filter_wire<T: Reply>(&self, wire: &mut Wire, codec: &Read<T>) -> Result<(), Failure> {
+        if (200..300).contains(&wire.status)
+            && let std::borrow::Cow::Owned(body) =
+                codec.filtered_body(&wire.body).map_err(|_| {
+                    Failure::Local(self.failure(Reason::BadReply, Some(wire.status)).into())
+                })?
+        {
+            wire.body = body;
+        }
+        Ok(())
     }
     fn replayed_wire(&self, prepared: &Prepared, mut exchange: Exchange) -> Result<Wire, Failure> {
         if !self
