@@ -14,6 +14,9 @@ PATHS = [
 output = Path("dist/seer-live")
 output.mkdir(parents=True, exist_ok=True)
 for index, url in enumerate(PATHS):
+    if index:
+        # Leave at least the conservative SEER quota's one-second gap between probes.
+        time.sleep(1)
     start = time.monotonic()
     try:
         with urllib.request.urlopen(url, timeout=15) as response:
