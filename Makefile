@@ -624,3 +624,7 @@ trial-provenance-check:
 .PHONY: commercial-config-check
 commercial-config-check:
 	python3 scripts/trials.py --case-file readme/gene.yaml --case-file readme/article.yaml --case-file readme/trial.yaml mcp-hosted/use/commercial-config
+
+.PHONY: study-flags-focused
+study-flags-focused:
+	+sh scripts/check_hosted_modes.sh focused

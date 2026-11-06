@@ -5,6 +5,27 @@ use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{fs, path::Path};
 const FLAG: &str = "msk_chord_2024";
+const FLAGS: &[(&str, &str)] = &[
+    (FLAG, "noncommercial"),
+    ("asclc_msk_2024", "noncommercial"),
+    ("hcc_msk_2024", "noncommercial"),
+    ("msk_ctdna_vte_2024", "noncommercial"),
+    ("msk_met_2021", "noncommercial"),
+    ("pancreas_msk_2024", "noncommercial"),
+    ("panet_msk_2018", "noncommercial"),
+    ("prostate_msk_2024", "noncommercial"),
+    ("msk_impact_50k_2026", "noncommercial"),
+    ("all_phase2_target_2018_pub", "pediatric"),
+    ("aml_target_2018_pub", "pediatric"),
+    ("nbl_target_2018_pub", "pediatric"),
+    ("wt_target_2018_pub", "pediatric"),
+    ("rt_target_2018_pub", "pediatric"),
+    ("angs_painter_2020", "clinical decision-making"),
+    ("angs_painter_2025", "clinical decision-making"),
+    ("brca_mbcproject_wagle_2017", "clinical decision-making"),
+    ("brca_mbcproject_2022", "clinical decision-making"),
+    ("mpcproject_broad_2021", "clinical decision-making"),
+];
 const RESTRICTED: &str = "x-biomcp-use: restricted\r\n";
 const COMMERCIAL: &str = "x-biomcp-use: commercial\r\n";
 
@@ -14,6 +35,12 @@ pub(super) fn check() -> Result<(), String> {
     rows.as_array_mut().ok_or("catalog")?.truncate(3);
     rows[0]["studyId"] = json!(FLAG);
     rows[2]["studyId"] = json!("brca_tcga");
+    let template = rows[0].clone();
+    for (id, _) in &FLAGS[1..] {
+        let mut row = template.clone();
+        row["studyId"] = json!(id);
+        rows.as_array_mut().ok_or("catalog")?.push(row);
+    }
     let replay = study_catalog::seed(&assets, rows, 200)?;
     recurrence_recordings(&replay)?;
     let mut server = Server::configured_globals(
@@ -36,7 +63,7 @@ pub(super) fn check() -> Result<(), String> {
         ACADEMIC,
         false,
     )?)?;
-    if first.pointer("/page/total") != Some(&json!(3))
+    if first.pointer("/page/total") != Some(&json!(21))
         || first.pointer("/result/items/0/studyId") != Some(&json!(FLAG))
     {
         return Err(format!("academic catalog: {first}"));
@@ -48,13 +75,18 @@ pub(super) fn check() -> Result<(), String> {
     let args = ["search", "study", "--limit", "1", "--pool", pool];
     let restricted = data(call(&server, &args, RESTRICTED, false)?)?;
     if restricted.pointer("/page/total") != Some(&json!(2))
+        || restricted.pointer("/page/pool/size") != Some(&json!(2))
         || restricted.pointer("/result/items/0/studyId") != Some(&json!("synthetic_1"))
     {
         return Err(format!(
             "restricted retained catalog leaked a flagged study: {restricted}"
         ));
     }
-    notice(&restricted)?;
+    for (id, reason) in FLAGS {
+        notice(&restricted, id, reason)?;
+        let direct = data(call(&server, &["get", "study", id], RESTRICTED, false)?)?;
+        blocked(&direct, id, reason)?;
+    }
     let next = restricted["next"]
         .as_array()
         .and_then(|rows| rows.iter().find(|v| v["kind"] == "page"))
@@ -74,18 +106,19 @@ pub(super) fn check() -> Result<(), String> {
     }
     for header in [ACADEMIC, COMMERCIAL] {
         let restored = data(call(&server, &args, header, false)?)?;
-        if restored.pointer("/page/total") != Some(&json!(3))
+        if restored.pointer("/page/total") != Some(&json!(21))
+            || restored.pointer("/page/pool/size") != Some(&json!(21))
             || restored.pointer("/result/items/0/studyId") != Some(&json!(FLAG))
         {
             return Err(format!(
                 "restricted read changed the shared snapshot: {restored}"
             ));
         }
-        let card = data(call(&server, &["get", "study", FLAG], header, false)?)?;
-        if card.pointer("/result/study/header/studyId").is_none()
-            && !card.to_string().contains("Synthetic Atlas 0")
-        {
-            return Err(format!("permitted study missing: {card}"));
+        for id in [FLAG, "all_phase2_target_2018_pub", "angs_painter_2020"] {
+            let card = data(call(&server, &["get", "study", id], header, false)?)?;
+            if !card.to_string().contains("Synthetic Atlas 0") {
+                return Err(format!("permitted study missing: {card}"));
+            }
         }
     }
     for section in [
@@ -94,12 +127,16 @@ pub(super) fn check() -> Result<(), String> {
         Some("sample-lists"),
         Some("files"),
         Some("samples"),
+        Some("mutations"),
         Some("all"),
     ] {
         let mut args = vec!["get", "study", FLAG];
         args.extend(section);
+        if section == Some("mutations") {
+            args.extend(["--gene", "BRAF"]);
+        }
         let reply = data(call(&server, &args, RESTRICTED, false)?)?;
-        blocked(&reply)?;
+        blocked(&reply, FLAG, "noncommercial")?;
     }
     let words = [
         "variant",
@@ -127,12 +164,19 @@ pub(super) fn check() -> Result<(), String> {
     for page in ["0", "1"] {
         let mut args = words.to_vec();
         args.extend(["--page", page]);
-        let reply = data(call(&server, &args, RESTRICTED, false)?)?;
-        blocked(&reply)?;
-        if reply.pointer("/result/observed_sample_count").is_some()
-            || reply.pointer("/result/selected_sample_count").is_some()
-        {
-            return Err(format!("restricted recurrence leaked counts: {reply}"));
+        for (id, reason) in [
+            (FLAG, "noncommercial"),
+            ("all_phase2_target_2018_pub", "pediatric"),
+            ("angs_painter_2020", "clinical decision-making"),
+        ] {
+            args[8] = id;
+            let reply = data(call(&server, &args, RESTRICTED, false)?)?;
+            blocked(&reply, id, reason)?;
+            if reply.pointer("/result/observed_sample_count").is_some()
+                || reply.pointer("/result/selected_sample_count").is_some()
+            {
+                return Err(format!("restricted recurrence leaked counts: {reply}"));
+            }
         }
     }
     server.stop()
@@ -143,9 +187,9 @@ fn data(reply: Value) -> Result<Value, String> {
         .cloned()
         .ok_or_else(|| format!("missing tool reply: {reply}"))
 }
-fn notice(reply: &Value) -> Result<(), String> {
+fn notice(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
     let text = reply["sources"].to_string();
-    if !text.contains(FLAG) || !text.contains("left out") || !text.contains("noncommercial") {
+    if !text.contains(id) || !text.contains("left out") || !text.contains(reason) {
         return Err(format!("study exclusion has no reason: {reply}"));
     }
     if reply.pointer("/sources/0/use") != Some(&json!("attribution")) {
@@ -153,8 +197,8 @@ fn notice(reply: &Value) -> Result<(), String> {
     }
     Ok(())
 }
-fn blocked(reply: &Value) -> Result<(), String> {
-    notice(reply)?;
+fn blocked(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
+    notice(reply, id, reason)?;
     if reply.get("result").is_some()
         || reply.pointer("/sources/0/reason") != Some(&json!("disabled"))
         || reply["next"]
@@ -172,12 +216,17 @@ fn catalog_key() -> String {
     )
 }
 fn key(method: &str, url: &str) -> String {
-    format!("{:x}.json", Sha256::digest(format!("{method}\0{url}")))
+    let digest = Sha256::digest(format!("{method}\0{url}"));
+    let hex: String = digest.iter().map(|byte| format!("{byte:02x}")).collect();
+    format!("{hex}.json")
 }
 fn recurrence_recordings(target: &Path) -> Result<(), String> {
     let original = crate::runner::launch::fixtures().join("replies/variant/recurrence");
     for source in fs::read_dir(original).map_err(|e| e.to_string())? {
         let source = source.map_err(|e| e.to_string())?;
+        if !source.file_type().map_err(|e| e.to_string())?.is_dir() {
+            continue;
+        }
         let destination = target.join(source.file_name());
         fs::create_dir_all(&destination).map_err(|e| e.to_string())?;
         for file in fs::read_dir(source.path()).map_err(|e| e.to_string())? {
