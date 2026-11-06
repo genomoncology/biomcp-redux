@@ -90,27 +90,8 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let resolved = if query
-                .sources()
-                .contains(&biomcp_types::ArticleSource::Pubmed)
-                || query
-                    .sources()
-                    .contains(&biomcp_types::ArticleSource::Litvar)
-                || query
-                    .sources()
-                    .contains(&biomcp_types::ArticleSource::Pubtator)
-                    && !cx.fetch.disabled(biomcp_types::Source::PubTator)
-            {
-                let Some(term) = term::resolve(cx, query, deadline, out)? else {
-                    return Ok(());
-                };
-                term
-            } else {
-                term::Resolved {
-                    names: Vec::new(),
-                    symbol: None,
-                    entrez: None,
-                }
+            let Some(resolved) = resolve_terms(cx, query, deadline, out)? else {
+                return Ok(());
             };
             let mut items = match sources::search(cx, query, &resolved, deadline, out)? {
                 sources::SearchResult::Items(items) => items,
@@ -152,6 +133,33 @@ fn execute<'a>(
     );
     *deadline = store.deadline();
     result
+}
+/// Resolve terms only for sources that consume checked gene names.
+fn resolve_terms<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<Option<term::Resolved>, RequestError> {
+    if query
+        .sources()
+        .contains(&biomcp_types::ArticleSource::Pubmed)
+        || query
+            .sources()
+            .contains(&biomcp_types::ArticleSource::Litvar)
+        || query
+            .sources()
+            .contains(&biomcp_types::ArticleSource::Pubtator)
+            && !cx.fetch.disabled(biomcp_types::Source::PubTator)
+    {
+        term::resolve(cx, query, deadline, out)
+    } else {
+        Ok(Some(term::Resolved {
+            names: Vec::new(),
+            symbol: None,
+            entrez: None,
+        }))
+    }
 }
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
     out.body = ReplyData::PoolError { mismatch };
