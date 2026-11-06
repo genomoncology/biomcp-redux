@@ -140,8 +140,11 @@ fn opentargets() -> Result<(), String> {
             let body: Value =
                 serde_json::from_str(request.split_once("\r\n\r\n").ok_or("missing body")?.1)
                     .map_err(|e| e.to_string())?;
-            if body.get("query") == Some(&json!("query DataVersion{meta{dataVersion{year month}}}")) {
-                return Ok(json!({"data":{"meta":{"dataVersion":{"year":"26","month":"09"}}}}).to_string());
+            if body.get("query") == Some(&json!("query DataVersion{meta{dataVersion{year month}}}"))
+            {
+                return Ok(
+                    json!({"data":{"meta":{"dataVersion":{"year":"26","month":"09"}}}}).to_string(),
+                );
             }
             if body.get("variables") == Some(&json!({"q":"synthetic words"})) {
                 if body.get("query")
