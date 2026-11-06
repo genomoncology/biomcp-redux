@@ -62,6 +62,7 @@ impl Outcome {
     ) -> Result<(), RequestError> {
         crate::drug::label_bound::bound(fetch, request, self, fresh)?;
         crate::next::finish(fetch, self);
+        fetch.refresh_data_dates(&mut self.sources);
         Ok(())
     }
 

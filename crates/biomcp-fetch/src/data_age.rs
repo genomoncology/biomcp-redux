@@ -1,12 +1,41 @@
 //! Disclose publisher dataset dates without treating acquisition as publication.
-use crate::Leg;
-use biomcp_types::SourceNotice;
+use crate::{Fetch, Leg};
+use biomcp_types::{SourceNotice, SourceOutcome};
 
 impl Leg<'_> {
     /// Retain a native dataset date or timestamp after the adapter identifies its role.
     /// Invalid dates and dates without day precision are disclosed without an age claim.
     pub fn data_date(&self, date: &str) {
-        let max_days = self.fetch.config.source_data_max_age_days;
+        let notice = self.fetch.data_date_notice(date);
+        let mut report = self
+            .report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if !report.data_notices.contains(&notice) {
+            report.data_notices.push(notice);
+        }
+    }
+}
+
+impl Fetch {
+    /// Reassess retained publisher dates when returning stored continuations.
+    pub fn refresh_data_dates(&self, sources: &mut [SourceOutcome]) {
+        for source in sources {
+            for notice in &mut source.notices {
+                if let SourceNotice::RequestGuidance {
+                    data_date: Some(date),
+                    ..
+                } = notice
+                {
+                    *notice = self.data_date_notice(date);
+                }
+            }
+        }
+    }
+
+    /// Describe one native publisher dataset date using the current configured age limit.
+    pub fn data_date_notice(&self, date: &str) -> SourceNotice {
+        let max_days = self.config.source_data_max_age_days;
         let old = day(date).is_some_and(|date| {
             let today = crate::cache::now().div_euclid(86_400);
             today.saturating_sub(date) > i64::from(max_days)
@@ -20,16 +49,10 @@ impl Leg<'_> {
                 "Publisher dataset date: {date}. This is distinct from retrieval and record event dates."
             )
         };
-        let notice = SourceNotice::RequestGuidance {
+        SourceNotice::RequestGuidance {
+            data_date: Some(date.into()),
             message: message.into(),
             retry_after_seconds: None,
-        };
-        let mut report = self
-            .report
-            .lock()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        if !report.data_notices.contains(&notice) {
-            report.data_notices.push(notice);
         }
     }
 }

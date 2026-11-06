@@ -117,6 +117,7 @@ pub(super) fn kind(k: KeyKind) -> u8 {
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
     BundleInfo {
+        data_date: None,
         rejections: m.rejections.clone(),
         etag: m.etag.as_deref().map(Into::into),
         last_modified: m.modified.as_deref().map(Into::into),
@@ -154,7 +155,7 @@ impl Cache {
         name: &str,
         find: Find<'_>,
         d: Deadline<'_>,
-    ) -> Result<Option<(Meta, Vec<String>)>, CacheError> {
+    ) -> Result<Option<(Meta, Vec<String>, Option<String>)>, CacheError> {
         self.sql(d, |c| {
             let tx = c.unchecked_transaction().map_err(|error| db_error(error))?;
             let meta = tx
@@ -162,11 +163,25 @@ impl Cache {
                 .optional()
                 .map_err(|error| db_error(error))?;
             let value = meta
-                .map(|meta| selected_rows(&tx, name, find).map(|rows| (meta, rows)))
+                .map(|meta| {
+                    let rows = selected_rows(&tx, name, find)?;
+                    let sample = match rows.first() {
+                        Some(row) => Some(row.clone()),
+                        None => first_row(&tx, name)?,
+                    };
+                    Ok::<_, CacheError>((meta, rows, sample))
+                })
                 .transpose()?;
             tx.commit().map_err(|error| db_error(error))?;
             Ok(value)
         })
+    }
+    pub(super) fn bundle_first_row(
+        &self,
+        name: &str,
+        d: Deadline<'_>,
+    ) -> Result<Option<String>, CacheError> {
+        self.sql(d, |c| first_row(c, name))
     }
     pub(super) fn syncing(&self, name: &str, d: Deadline<'_>) -> Result<bool, CacheError> {
         self.sql(d, |c| {
@@ -348,6 +363,16 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
         out.push(row.get(0).map_err(|error| db_error(error))?);
     }
     Ok(out)
+}
+
+fn first_row(c: &Connection, name: &str) -> Result<Option<String>, CacheError> {
+    c.query_row(
+        "SELECT row FROM bundle_row WHERE bundle=?1 ORDER BY n LIMIT 1",
+        [name],
+        |r| r.get(0),
+    )
+    .optional()
+    .map_err(db_error)
 }
 
 fn metadata(row: &rusqlite::Row<'_>) -> rusqlite::Result<Meta> {

@@ -46,7 +46,6 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Words(query))?;
-    dates(leg, &rows);
     Ok(name_headers(&rows, query, false))
 }
 /// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
@@ -56,7 +55,6 @@ pub fn search_names(
     query: &str,
 ) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Prefix(KeyKind::Id, ""))?;
-    dates(leg, &rows);
     Ok(name_headers(&rows, query, true))
 }
 fn name_headers(
@@ -104,21 +102,8 @@ fn name_headers(
 }
 fn exact(leg: &Leg<'_>, id: &DrugId) -> Result<Option<raw::Medicine>, RequestError> {
     let (mut rows, _) = leg.stored_rows(&MEDICINES, Find::Exact(KeyKind::Id, &id.to_string()))?;
-    dates(leg, &rows);
     // SQLite indexes fold keys; exact get still requires the published identifier itself.
     Ok(rows.pop().filter(|row| row.id == *id))
-}
-fn dates(leg: &Leg<'_>, rows: &[raw::Medicine]) {
-    for row in rows {
-        if let Some(date) = row
-            .meta
-            .timestamp
-            .as_ref()
-            .and_then(crate::raw::Field::as_ref)
-        {
-            leg.data_date(date.as_str());
-        }
-    }
 }
 /// Exact native EMA identity card without authorization events.
 pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>>, RequestError> {

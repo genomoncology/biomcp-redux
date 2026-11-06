@@ -20,11 +20,17 @@ case "${1:-focused}" in
     ;;
   cases)
     cargo test --locked -p biomcp-fetch calendar_days_preserve_leap_years_and_reject_partial_dates
-    sh scripts/check_study_rows.sh focused --case-file source-age/openfda.yaml --case-file source-age/configured.yaml --case-file source-age/ema.yaml --case-file source-age/cellosaurus.yaml --case-file source-age/chembl.yaml --case-file source-age/ctgov.yaml
+    sh scripts/check_study_rows.sh focused --case-file source-age/openfda.yaml --case-file source-age/configured.yaml --case-file source-age/ema.yaml --case-file source-age/cellosaurus.yaml --case-file source-age/chembl.yaml --case-file source-age/ctgov.yaml source-data-age/restored-age source-data-age/hosted-stale-ema
     ;;
   prepare)
     cargo fmt --all
     cargo check --locked -p biomcp
+    make schema-generate
+    source_age_revision=$(git rev-parse HEAD)
+    mkdir -p "${CARGO_TARGET_DIR:-target}"
+    git diff --binary > "${CARGO_TARGET_DIR:-target}/source-age-generated.patch"
+    ssh -o BatchMode=yes yellow 'mkdir -p /home/ian/workspace/data/biomcp-redux-evidence/0718'
+    scp "${CARGO_TARGET_DIR:-target}/source-age-generated.patch" "yellow:/home/ian/workspace/data/biomcp-redux-evidence/0718/generated-$source_age_revision.patch"
     ;;
   cheap)
     make check-cheap

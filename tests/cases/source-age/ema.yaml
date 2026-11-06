@@ -11,7 +11,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/rows": 6
+        "/result/rows": 6,
+        "/result/data_date": "2026-10-24T18:22:32Z"
       }
     },
     {
@@ -32,6 +33,19 @@
         "/page/returned": 1,
         "/page/offset": 0,
         "/sources/0/notices/0/message": "Publisher dataset date: 2026-10-24T18:22:32Z. This is distinct from retrieval and record event dates."
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "NoSuchSyntheticMedicine",
+        "--source",
+        "ema"
+      ],
+      "expect": {
+        "/result/total": 0,
+        "/sources/0/notices/0/data_date": "2026-10-24T18:22:32Z"
       }
     }
   ]

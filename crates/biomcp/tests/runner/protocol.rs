@@ -1,5 +1,7 @@
 #[path = "hosted_surface.rs"]
 mod hosted_surface;
+#[path = "source_age.rs"]
+mod source_age;
 
 #[path = "label_priority.rs"]
 mod label_priority;
@@ -33,6 +35,7 @@ type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<Trial> {
     let mut trials = hosted_surface::trials();
+    trials.extend(source_age::trials());
     trials.extend([
         transcript_trial("mcp-parity/typed-cli-bridge", || {
             typed_bridge::check().map_err(Into::into)

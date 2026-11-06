@@ -266,6 +266,7 @@ fn notices(
             }
             let source: Source = serde_json::from_value(row["source"].clone())?;
             let notice = serde_json::to_value(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
                 message: reason(source, cx, required)?.into(),
                 retry_after_seconds: None,
             })?;
