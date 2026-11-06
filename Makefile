@@ -622,5 +622,6 @@ trial-provenance-check:
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 
 .PHONY: recurrence-forms-focused
+recurrence-forms-focused: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/recurrence-forms-proofs
 recurrence-forms-focused:
-	cargo test --locked -p biomcp --test tools -- --proofs variant-recurrence/accepted-forms-across-surfaces
+	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/cases" variant-recurrence/accepted-forms-across-surfaces --exact
