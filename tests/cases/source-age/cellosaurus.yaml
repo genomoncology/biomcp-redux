@@ -17,7 +17,7 @@
       "expect": {
         "/result/accession": "CVCL_0004",
         "/result/species/items/0/id": "9606",
-        "/sources/0/notices/0/message": "Publisher dataset date: 2026-10-22. This is distinct from retrieval and record event dates."
+        "/sources/0/notices/0/data_date": "2026-10-22"
       }
     }
   ]

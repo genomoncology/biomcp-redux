@@ -32,7 +32,7 @@
         "/result/items/0/id": "EMEA/H/C/005936",
         "/page/returned": 1,
         "/page/offset": 0,
-        "/sources/0/notices/0/message": "Publisher dataset date: 2026-10-24T18:22:32Z. This is distinct from retrieval and record event dates."
+        "/sources/0/notices/0/data_date": "2026-10-24T18:22:32Z"
       }
     },
     {

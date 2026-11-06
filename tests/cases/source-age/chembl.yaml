@@ -17,7 +17,7 @@
         "/result/items/items/0/id": "CHEMBL3308378",
         "/result/items/items/0/name": "K562",
         "/result/release/version": "ChEMBL_37",
-        "/sources/0/notices/0/message": "Publisher dataset date: 2026-05-01. This is distinct from retrieval and record event dates."
+        "/sources/0/notices/0/data_date": "2026-05-01"
       }
     }
   ]
