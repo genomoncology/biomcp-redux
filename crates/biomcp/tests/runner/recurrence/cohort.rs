@@ -8,7 +8,8 @@ const SELECTED_SAMPLES: u64 = 10_945;
 
 pub(super) fn check() -> Result<(), String> {
     common()?;
-    large()
+    large()?;
+    uncounted()
 }
 
 fn common() -> Result<(), String> {
@@ -72,6 +73,18 @@ fn large() -> Result<(), String> {
     Ok(())
 }
 
+fn uncounted() -> Result<(), String> {
+    let (env, stub) = serve_lists(COMMON_ROWS, lists(None))?;
+    let reply = super::call(&env, &default_page(), 0)?;
+    stub.finish()?;
+    if reply.pointer("/result/selected_sample_count").is_some()
+        || !reply.to_string().contains("sample_set.selected_sample_count")
+    {
+        return Err(format!("a missing list size was not shown missing: {reply}"));
+    }
+    Ok(())
+}
+
 fn default_page() -> Vec<String> {
     let mut args = super::args();
     args.truncate(args.len() - 2);
@@ -91,6 +104,26 @@ fn mutation_reads(stub: Stub) -> Result<usize, String> {
 }
 
 fn serve(rows: usize) -> Result<(Environment, Stub), String> {
+    serve_lists(rows, lists(Some(SELECTED_SAMPLES)))
+}
+
+/// A DETAILED list reply: another list first, and the selected list's count as given.
+fn lists(count: Option<u64>) -> Value {
+    let mut selected = json!({
+        "studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all",
+        "category":"all_cases_in_study","name":"All samples","description":"All samples"
+    });
+    if let (Some(count), Some(fields)) = (count, selected.as_object_mut()) {
+        fields.insert("sampleCount".into(), json!(count));
+    }
+    json!([{
+        "studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_Anal_Cancer",
+        "category":"other","name":"Tumor Type: Anal Cancer","description":"All tumors",
+        "sampleCount":12
+    }, selected])
+}
+
+fn serve_lists(rows: usize, lists: Value) -> Result<(Environment, Stub), String> {
     let stub = Stub::for_sources(
         &[
             "www.cbioportal.org",
@@ -104,20 +137,16 @@ fn serve(rows: usize) -> Result<(Environment, Stub), String> {
                 "application/json"
             }
         },
-        move |request| reply(request, rows),
+        move |request| reply(request, rows, &lists),
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     super::config(&env, &stub)?;
     Ok((env, stub))
 }
 
-fn reply(request: &str, rows: usize) -> Result<String, String> {
+fn reply(request: &str, rows: usize, lists: &Value) -> Result<String, String> {
     if request.contains("/sample-lists?") {
-        return Ok(json!([{
-            "studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all",
-            "sampleCount":SELECTED_SAMPLES
-        }])
-        .to_string());
+        return Ok(lists.to_string());
     }
     if !request.contains("/mutations?") {
         return super::cbio(request);

@@ -169,7 +169,8 @@ pub(super) fn cbio(request: &str) -> Result<String, String> {
         return hgnc(request);
     }
     Ok(if request.contains("/sample-lists?") {
-        json!([{"studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all","sampleCount":100}])
+        json!([{"studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all","category":"all_cases_in_study",
+"name":"All samples","description":"All samples (100 samples)","sampleCount":100}])
     } else if request.starts_with("GET /api/studies/") {
         json!({"studyId":"msk_impact_2017",
 "name":"Synthetic cohort",
