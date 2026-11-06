@@ -16,17 +16,83 @@
       ],
       "offline": true,
       "expect": {
-        "/query/status": [
-          "RECRUITING"
-        ]
+        "/query/status": "RECRUITING"
       },
       "mcp_call": {
         "name": "search_trial",
         "arguments": {
-          "status": [
-            "recruiting"
-          ]
+          "status": "recruiting"
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "NCI",
+        "--status",
+        "wItHdRaWn"
+      ],
+      "mcp_call": {
+        "name": "search_trial",
+        "arguments": {
+          "source": "NCI",
+          "status": "WITHDRAWN"
+        }
+      },
+      "offline": true,
+      "expect": {
+        "/query/status": "Withdrawn",
+        "/query/source": "nci"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--status",
+        "not-a-choice"
+      ],
+      "mcp_call": {
+        "name": "search_trial",
+        "arguments": {
+          "status": "not-a-choice"
+        }
+      },
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--status",
+        "/error/valid_values": [
+          "ACTIVE_NOT_RECRUITING",
+          "COMPLETED",
+          "ENROLLING_BY_INVITATION",
+          "NOT_YET_RECRUITING",
+          "RECRUITING",
+          "SUSPENDED",
+          "TERMINATED",
+          "WITHDRAWN",
+          "AVAILABLE",
+          "NO_LONGER_AVAILABLE",
+          "TEMPORARILY_NOT_AVAILABLE",
+          "APPROVED_FOR_MARKETING",
+          "WITHHELD",
+          "UNKNOWN",
+          "Active",
+          "Administratively Complete",
+          "Approved",
+          "Closed to Accrual",
+          "Closed to Accrual and Intervention",
+          "Complete",
+          "INACTIVE",
+          "Enrolling by Invitation",
+          "Temporarily Closed to Accrual",
+          "Temporarily Closed to Accrual and Intervention",
+          "Withdrawn"
+        ]
       }
     }
   ]

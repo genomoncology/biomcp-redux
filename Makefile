@@ -528,4 +528,20 @@ help-recovery-check:
 
 .PHONY: enum-case-check
 enum-case-check:
+	cargo test --locked -p biomcp --test cases enumerated-letter-case $(TEST_THREADS)
 	cargo test --locked -p biomcp --test cases grammar/enum-case.yaml $(TEST_THREADS)
+
+.PHONY: enum-case-prepare enum-case-lint enum-case-schema-check
+enum-case-prepare:
+	cargo fmt --all
+	+$(MAKE) schema-generate docs-generate
+	mkdir -p dist
+	git diff --binary > dist/enum-case-generated.patch
+	+$(MAKE) --keep-going enum-case-check enum-case-lint enum-case-schema-check
+
+enum-case-lint:
+	cargo clippy --keep-going --locked -p biomcp -p biomcp-types --all-targets --features biomcp-types/schema -- -D warnings
+
+enum-case-schema-check:
+	+$(MAKE) current-schema-check schema-release-check
+	cargo test --locked -p biomcp-types --features schema --test schemas enum_field_scope_is_checked_metadata_without_a_schema_major_change -- --exact

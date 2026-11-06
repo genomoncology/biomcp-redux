@@ -59,7 +59,7 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
     let root = schema.clone();
     if let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) {
         for (name, property) in properties {
-            let original = property
+            let mut original = property
                 .get("description")
                 .and_then(Value::as_str)
                 .unwrap_or_default()
@@ -70,6 +70,9 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
                 object.insert("x-section-rule".into(), original.clone().into());
             }
             let form = choice_form(property, &root);
+            if form == Some("text") {
+                original = format!("Case-insensitive. {original}");
+            }
             if form.is_none() && name != "section" {
                 continue;
             }
@@ -85,7 +88,9 @@ pub(super) fn command_descriptions(schema: &mut Value, id: &str) {
             } else {
                 String::new()
             };
-            let wording = if first.is_empty() {
+            let wording = if name == "section" && form == Some("text") {
+                format!("Case-insensitive. {first}")
+            } else if first.is_empty() {
                 format!("{} {}", name.replace('_', " "), form.unwrap_or("text"))
             } else {
                 first.into()
