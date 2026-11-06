@@ -1,4 +1,6 @@
 //! The process argument and settings boundary.
+mod mcp;
+pub(crate) use mcp::mcp_typed_budget;
 pub(crate) mod credentials;
 pub(crate) mod key_file;
 mod pacing;
@@ -221,9 +223,6 @@ fn fetch_using(
         source_pacing: pacing::resolve(globals, file)?,
         disabled_sources: disabled_sources(globals, file)?,
         disabled_uses: biomcp_query::sources::disabled_uses(&disabled_names(globals, file)),
-        legacy_restricted: disabled_names(globals, file)
-            .iter()
-            .any(|name| name == "restricted"),
         observations: globals
             .observe
             .as_ref()
@@ -425,12 +424,6 @@ pub(crate) fn restrict(fetch: Fetch, globals: &Globals) -> std::io::Result<Fetch
     let disabled = biomcp_query::sources::disabled(&globals.disable_sources)
         .map_err(|_| std::io::Error::other("unchecked source policy"))?;
     Ok(fetch
-        .restrict_legacy(
-            globals
-                .disable_sources
-                .iter()
-                .any(|name| name == "restricted"),
-        )
         .restrict_sources(disabled)
         .restrict_uses(biomcp_query::sources::disabled_uses(
             &globals.disable_sources,
