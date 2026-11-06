@@ -634,3 +634,7 @@ author-search-check: fmt
 	cargo test --locked -p biomcp --test cases author/ $(TEST_THREADS)
 	cargo test --locked -p biomcp --test tools -- --cases "$(CURDIR)/tests/cases" author/open-literature
 	$(MAKE) current-schema-check ratchets
+
+.PHONY: author-search-review
+author-search-review: author-search-check
+	$(MAKE) landing-gate
