@@ -1,0 +1,169 @@
+//! Schema-owned follow-ups retain data while arrays and singular Steps become calls.
+//! live_check: synthetic drug replay and retained native public organization replay; no live requests.
+use crate::runner::{
+    launch::{Environment, fixtures},
+    mcp::{exchange_with_globals, request},
+    transcript::trial,
+};
+use libtest_mimic::Trial;
+use serde_json::{Value, json};
+
+pub(super) fn trials() -> Vec<Trial> {
+    vec![
+        trial("mcp-parity/typed-owned-drug-alternatives", || {
+            drug().map_err(Into::into)
+        }),
+        trial("mcp-parity/typed-owned-organization-pivot", || {
+            organization().map_err(Into::into)
+        }),
+        trial("mcp-parity/typed-owned-fresh-unavailable", || {
+            fresh().map_err(Into::into)
+        }),
+    ]
+}
+fn drug() -> Result<(), String> {
+    let (value, tools) = response(
+        "drug/name-get",
+        json!({}),
+        "get_drug",
+        json!({"input":"Example ingredient","section":["approvals"]}),
+    )?;
+    if value.pointer("/result/identity/id") != Some(&json!("NDA021335"))
+        || value.pointer("/result/identity/name_resolution/input")
+            != Some(&json!("Example ingredient"))
+    {
+        return Err(format!("drug source data changed: {value}"));
+    }
+    call(
+        value
+            .pointer("/result/identity/name_resolution/alternatives/0")
+            .ok_or("drug alternatives")?,
+        "get_drug",
+        json!({"input":"NDA021588","source":"drugsfda"}),
+        &tools,
+    )
+}
+fn organization() -> Result<(), String> {
+    let (value, tools) = response(
+        "organization/native",
+        json!({"keys":{"nci_api_key":"synthetic-nci-replay"}}),
+        "search_organization",
+        json!({"source":"nci","name":"Dana-Farber","limit":5}),
+    )?;
+    if value.pointer("/result/items/3/name") != Some(&json!("Dana-Farber Cancer Institute"))
+        || value.pointer("/result/items/3/count") != Some(&json!(3376))
+    {
+        return Err(format!("organization source data changed: {value}"));
+    }
+    call(
+        value
+            .pointer("/result/items/3/next")
+            .ok_or("organization pivot")?,
+        "search_trial",
+        json!({"facility":"Dana-Farber Cancer Institute","source":"nci"}),
+        &tools,
+    )
+}
+fn call(step: &Value, name: &str, arguments: Value, tools: &[Value]) -> Result<(), String> {
+    if step.get("args").is_some()
+        || step.get("name") != Some(&json!(name))
+        || step.get("arguments") != Some(&arguments)
+    {
+        return Err(format!(
+            "CLI follow-up survived or typed call changed: {step}"
+        ));
+    }
+    let tool = tools
+        .iter()
+        .find(|tool| tool["name"] == name)
+        .ok_or("unadvertised nested call")?;
+    jsonschema::validator_for(&tool["inputSchema"])
+        .map_err(|e| e.to_string())?
+        .validate(&arguments)
+        .map_err(|e| e.to_string())
+}
+fn response(
+    replay: &str,
+    mut config: Value,
+    name: &str,
+    arguments: Value,
+) -> Result<(Value, Vec<Value>), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    config["mcp_tool_mode"] = json!("typed");
+    config["mcp_typed_output_schema"] = json!(true);
+    env.config(&config).map_err(|e| e.to_string())?;
+    let frames = [
+        request(json!(1), "tools/list", json!({})),
+        request(
+            json!(2),
+            "tools/call",
+            json!({"name":name,"arguments":arguments}),
+        ),
+    ];
+    let replies = exchange_with_globals(
+        &env,
+        &frames,
+        &env.globals(Some(&fixtures().join("replies").join(replay)), false),
+    )?;
+    let tools = replies
+        .iter()
+        .find(|v| v["id"] == 1)
+        .and_then(|v| v.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .ok_or("catalog")?
+        .clone();
+    let value = replies
+        .iter()
+        .find(|v| v["id"] == 2)
+        .and_then(|v| v.pointer("/result/structuredContent"))
+        .ok_or("nested reply")?
+        .clone();
+    Ok((value, tools))
+}
+fn fresh() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    env.config(&json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":true}))
+        .map_err(|e| e.to_string())?;
+    let output = env
+        .command(
+            env!("CARGO_BIN_EXE_biomcp"),
+            &["get", "gene", "BRAF", "--offline"].map(str::to_owned),
+        )
+        .output()
+        .map_err(|e| e.to_string())?;
+    let cli: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if !cli
+        .get("next")
+        .and_then(Value::as_array)
+        .is_some_and(|steps| steps.iter().any(|step| step["kind"] == "fresh"))
+    {
+        return Err(format!("CLI supplied no force-refresh witness: {cli}"));
+    }
+    let replies = exchange_with_globals(
+        &env,
+        &[request(
+            json!(1),
+            "tools/call",
+            json!({"name":"get_gene","arguments":{"input":["BRAF"]}}),
+        )],
+        &["--offline".into()],
+    )?;
+    let value = replies
+        .first()
+        .and_then(|v| v.pointer("/result/structuredContent"))
+        .ok_or("fresh reply")?;
+    if value
+        .get("next")
+        .and_then(Value::as_array)
+        .is_some_and(|steps| {
+            steps
+                .iter()
+                .any(|step| step["kind"] == "fresh" || step.get("args").is_some())
+        })
+    {
+        return Err(format!(
+            "unavailable force-refresh survived typed output: {value}"
+        ));
+    }
+    Ok(())
+}
