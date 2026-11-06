@@ -389,6 +389,28 @@ fn busy_capacity(configured: bool, flags: bool) -> Check {
     }
     if configured {
         refuse_over_capacity(&server, &probe, &mut held)?;
+    } else {
+        let call = super::mcp::request(
+            serde_json::json!(10),
+            "tools/call",
+            serde_json::json!({"name":"biomcp", "arguments":{"args":["get","protein","private-query"]}}),
+        );
+        let (status, _) = server.request("POST", "/mcp", &call.to_string())?;
+        if status != 503 {
+            return Err(format!("tool call escaped connection cap: {status}"));
+        }
+        let diagnostics = server.diagnostics.lock().map_err(|_| "diagnostic receiver poisoned")?;
+        let event = diagnostics.recv_timeout(Duration::from_secs(60)).map_err(|e| e.to_string())?;
+        let event: serde_json::Value = serde_json::from_str(&event).map_err(|e| e.to_string())?;
+        if event["event"] != "mcp_call"
+            || event["tool"] != "biomcp"
+            || event["status"] != "error"
+            || event["failed_sources"] != serde_json::json!([])
+            || event.to_string().contains("private-query")
+            || diagnostics.try_recv().is_ok()
+        {
+            return Err(format!("unsafe, missing or repeated capacity diagnostic: {event}"));
+        }
     }
     let (status, body) = server.request("GET", "/health", "")?;
     if status != 200 || body.get("store") != Some(&serde_json::json!(true)) {
