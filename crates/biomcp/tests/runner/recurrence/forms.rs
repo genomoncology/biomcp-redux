@@ -45,6 +45,7 @@ pub(super) fn check() -> Result<(), String> {
     ] {
         let mut args = super::args();
         args[2] = input.into();
+        *args.last_mut().ok_or("recurrence limit")? = "100".into();
         let cli = super::call(&env, &args, 0)?;
         observed(&cli, input)?;
         let single = mcp::call_with_globals(&env, &args, false, &[])?;
@@ -55,7 +56,7 @@ pub(super) fn check() -> Result<(), String> {
             json!({
                 "input":input,"source":"cbioportal","gene":"BRAF",
                 "study":"msk_impact_2017","profile":"msk_impact_2017_mutations",
-                "sample_set":"msk_impact_2017_all","limit":3
+                "sample_set":"msk_impact_2017_all","limit":100
             }),
         )?;
         observed(&typed, input)?;
@@ -64,7 +65,10 @@ pub(super) fn check() -> Result<(), String> {
     Ok(())
 }
 fn observed(value: &Value, input: &str) -> Result<(), String> {
-    if value.pointer("/result/observed_sample_count") != Some(&json!(1))
+    if value.pointer("/query/input") != Some(&json!(input))
+        || value.pointer("/result/observed_sample_count") != Some(&json!(1))
+        || value.pointer("/result/selected_sample_count") != Some(&json!(100))
+        || value.pointer("/result/all_pages_read") != Some(&json!(true))
         || value.pointer("/result/matching_granularity") != Some(&json!("exact-genomic-allele"))
     {
         return Err(format!(
