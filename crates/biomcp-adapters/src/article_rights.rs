@@ -1,7 +1,6 @@
 //! One record-owned license decision for article snippets and retained pools.
 pub(crate) mod pubmed;
 pub(crate) mod semantic;
-mod stored;
 use biodata::Pmid;
 use biomcp_fetch::{BadReply, Leg};
 use biomcp_types::{ArticleItem, Use};
@@ -10,7 +9,6 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     time::Duration,
 };
-pub use stored::StoredRights;
 
 /// At most twenty record lookups and three seconds per text-bearing response.
 const MAX_RECORDS: usize = 20;
