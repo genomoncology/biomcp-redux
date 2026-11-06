@@ -222,7 +222,7 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     for tool in enabled {
         if matches!(
             field(&tool, "name").as_str(),
-            Some("biomcp_help" | "biomcp" | "biomcp_reference" | "search" | "fetch")
+            Some("biomcp_help" | "biomcp" | "search" | "fetch")
         ) {
             if !default.contains(&tool) {
                 return Err("shared help/research contract changed".into());

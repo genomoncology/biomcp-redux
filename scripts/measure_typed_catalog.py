@@ -1,4 +1,5 @@
 """Measure compact UTF-8 tools/list definitions from an isolated installed server."""
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -18,7 +19,12 @@ def main():
     else:
         binary = Path(sys.argv[1])
     binary = binary.resolve()
+    output = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("target/typed-catalog-measurement")
+    output.mkdir(parents=True, exist_ok=True)
     revision = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    (output / "binding.json").write_bytes(encoded({"revision": revision,
+        "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
+        "command": "serve --offline; isolated tools/list; compact UTF-8 result.tools"}))
     frame = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {"_meta": {
         "io.modelcontextprotocol/protocolVersion": "2026-07-28",
         "io.modelcontextprotocol/clientCapabilities": {}}}}
@@ -33,6 +39,8 @@ def main():
                                     capture_output=True, text=True, timeout=30, check=True)
             reply = json.loads(result.stdout)
             tools = reply["result"]["tools"]
+            (output / (label + ".tools.json")).write_bytes(encoded(tools))
+            (output / (label + ".reply.json")).write_text(result.stdout)
             print(json.dumps({"mode": label, "revision": revision, "tool_count": len(tools),
                               "definition_bytes": len(encoded(tools)),
                               "tools": [{"name": tool["name"], "bytes": len(encoded(tool)),

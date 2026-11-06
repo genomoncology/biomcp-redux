@@ -29,9 +29,26 @@ pub(super) fn catalog(
         .iter()
         .cloned()
         .partition(|tool| tool["name"].as_str().is_some_and(direct));
-    tools.push(reference(&grouped));
+    let shared = super::super::protocol::tools(context.root, read_only)?;
+    let mut reference = reference(&grouped);
+    if commands
+        .iter()
+        .any(|tool| tool.get("outputSchema").is_some())
+    {
+        let output = shared
+            .iter()
+            .find(|tool| tool["name"] == "biomcp")
+            .and_then(|tool| tool.get("outputSchema"))
+            .cloned()
+            .ok_or_else(|| io::Error::other("missing reference output schema"))?;
+        reference
+            .as_object_mut()
+            .ok_or_else(|| io::Error::other("missing reference tool"))?
+            .insert("outputSchema".into(), output);
+    }
+    tools.push(reference);
     tools.push(super::help::tool());
-    tools.extend(super::super::protocol::tools(context.root, read_only)?);
+    tools.extend(shared);
     let (tool_limit, byte_limit) = crate::config::mcp_typed_budget(context.settings);
     let bytes = serde_json::to_vec(&tools)?.len();
     if tools.len() > tool_limit || bytes > byte_limit {
