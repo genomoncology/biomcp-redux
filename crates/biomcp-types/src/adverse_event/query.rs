@@ -34,7 +34,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
-    #[doc = "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. \
+    #[doc = "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. \
         Other filters AND with the names. BioMCP caps the escaped native query, including filters, \
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -42,20 +42,25 @@ struct SearchFields {
     #[doc = "MAUDE manufacturer.\n\
         MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     manufacturer: Option<Text>,
     #[doc = "MAUDE product codes; OR.\nMAUDE exact native device.device_report_product_code; repeated codes join with OR."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     product_code: Vec<Text>,
     #[doc = "MAUDE product problem.\nMAUDE phrase on native product_problems."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     problem: Option<Text>,
     #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
     #[serde(default = "default_source")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
     source: AdverseEventSource,
     #[doc = "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. \
         Counts are not rates or causal associations; a report may contribute to several terms. \
         Requires MedDRA and offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSection::Reactions.required_component())))]
     aggregate: Option<AdverseEventAggregate>,
     /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -66,6 +71,7 @@ struct SearchFields {
     snapshot: Option<Text>,
     #[doc = "FAERS MedDRA phrase.\nFAERS MedDRA term phrase match, not exact equality."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSection::Reactions.required_component())))]
     reaction: Option<Text>,
     #[doc = "FAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -87,6 +93,21 @@ struct SearchFields {
     offset: u32,
 }
 impl SearchFields {
+    fn validate_drug_names(&self) -> Result<(), QueryInvalid> {
+        if self.source == AdverseEventSource::Faers
+            && self.drug.iter().any(|name| {
+                let mut words = name.as_str().split_whitespace();
+                let _ = words.next();
+                let _ = words.next_back();
+                words.any(|word| word.eq_ignore_ascii_case("OR"))
+            })
+        {
+            return Err(
+                QueryInvalid::new(&["drug"]).with_message(crate::ErrorMessage::FaersDrugNames)
+            );
+        }
+        Ok(())
+    }
     fn validate_aggregate(&self) -> Result<(), QueryInvalid> {
         if self.aggregate.is_some() && self.source != AdverseEventSource::Faers {
             return Err(QueryInvalid::new(&["source", "aggregate"]));
@@ -166,6 +187,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
                 "received_to",
             ]));
         }
+        v.validate_drug_names()?;
         let query = Self(v);
         if query.source() == AdverseEventSource::Faers
             && query.faers_expression().len() > super::faers::FAERS_QUERY_MAX_BYTES

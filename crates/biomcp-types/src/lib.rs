@@ -39,7 +39,6 @@ pub use predictor::{
 pub use query::PhaseFilter;
 pub use query::SponsorType;
 pub use query::TrialDocumentGet;
-pub use query::VariantPopulationQuery;
 pub use query::{ArticleEdges, EdgeSource};
 pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
 pub use query::{
@@ -60,10 +59,13 @@ pub use query::{
     NciBiomarkerUse, NciStatusFilter, TrialFilter, TrialPhaseFilter, TrialSearch, TrialSource,
     TrialStatusFilter,
 };
-pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolver};
+pub use query::{
+    NormalizationSource, VariantGet, VariantGetEcho, VariantNormalize, VariantResolver,
+};
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
+pub use query::{VariantPopulationQuery, VariantPopulationQueryEcho};
 pub use response::TrialParameter;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
@@ -272,7 +274,7 @@ pub use response::{UsageArguments, UsageError};
 pub use response::{Reply, ReplyBody, ReplyData};
 
 mod coverage;
-pub use coverage::{command_implicit_sources, command_section_sources};
+pub use coverage::{command_implicit_sources, command_section_component, command_section_sources};
 
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;
