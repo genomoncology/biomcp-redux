@@ -646,3 +646,10 @@ typed-owned-followups-green:
 	+$(MAKE) --keep-going typed-owned-followups-check typed-followups-recovery typed-followups-parity typed-followups-toolcases typed-followups-research check-cheap
 typed-followups-research:
 	cargo test --locked -p biomcp --test cases mcp-research/ $(TEST_THREADS)
+
+.PHONY: typed-followups-hosted-recovery
+# Reuse the owner trial without rebuilding an installed release binary.
+typed-followups-hosted-recovery: export BIOMCP_TRANSCRIPT_DIR := $(CURDIR)/target/typed-followups-hosted-recovery
+typed-followups-hosted-recovery:
+	cargo test --locked -p biomcp --test cases mcp-hosted/served-surface-and-source-policy $(TEST_THREADS)
+	+$(MAKE) --keep-going typed-followups-recovery typed-followups-parity check-cheap
