@@ -18,6 +18,8 @@ The reply preserves the source URL, document metadata and license without granti
 
 ## Variant profiles, normalization and search
 
+In variant get and population replies, `query.resolver` names the identity resolver that answered. It is omitted when no named resolver answered. The source outcomes retain failures and identify direct identity services such as MyVariant. The executable request and its continuations retain the caller's resolver selection.
+
 A checked member match preserves the full compound profile and its source claim context. Name matches remain candidates. Claims that the common model cannot represent retain their native facts. Rows marked `candidate` with `no_join_id` have no established transcript and consequence join to the requested variant. These residue counts do not state an allele frequency or clinical actionability. Cancer Hotspots data reuse terms remain unverified. VariantValidator and `all` require `--build GRCh37|GRCh38`. Each service keeps its own outcome, source mappings, messages and available version metadata. A provider validation warning can reject an HTTP 200 reply. `all` returns independent results and never chooses a transcript or consensus. Mapping and message pages use `--limit` and `--offset`; typed next commands keep the remaining rows reachable. Gene and protein values are escaped as source literals. The reply echoes the exact source query and assembly and keeps native candidate order and totals. Protein and raw searches send no assembly unless `--build` supplies one. Returned coordinates retain only the assembly stated by the source. Page actions retain every selector; a warm page uses the ordinary checked cache. Broad queries disclose the command's result-window bound. No candidate becomes a chosen allele.
 
 ## Cohort recurrence
@@ -46,6 +48,8 @@ The population join requires one source-given GRCh38 single-nucleotide allele. M
 An exact rsID needs no allele-resolution request. Association pages retain the source study, trait and effect allele with the source's effect estimates. An empty result means the catalog returned no associations for that request. It supplies no clinical classification. Named source sections use `--section-limit` and `--section-offset` independently of identity candidate paging.
 
 ## CPIC and FAERS searches
+
+An explicit `--drug` value containing a standalone OR between names is refused regardless of letter case. Pass `--drug` once per name. Positional drug text stays literal.
 
 Named `recommendations` and `guidelines` sections preserve complete source rows and use `--section-limit` and `--section-offset`. An exact `--drug-id RxNorm:10324` on CYP2D6 recommendations selects the distinct native recommendation table. These commands preserve source labels and source-local empty replies. They calculate no phase, activity score, phenotype or treatment. Published website updates may precede the API tables; a retrieval date does not establish a dataset release. CPIC uses the registry's noncommercial policy ruling. The reply retains the exact source expression, native order and report total. A report total is not incidence, risk or causation. Publisher dates and retrieval dates have separate roles.
 
@@ -166,6 +170,10 @@ NCI trial facility searches use `sites.org_name` for an exact case-insensitive o
 
 These commands return terminology. `search diagnostic --biomarker` filters diagnostic tests, and `search trial --variant` searches literal variant text. Native inclusion and exclusion values remain source assertions and do not establish patient eligibility. Search pages retain one bounded observation. A broad request can return narrowing guidance; a source failure never establishes zero concepts.
 
+## Drug names across sources
+
+After an empty name lookup, BioMCP may consult existing MyChem, openFDA label or ChEMBL records for source-stated names. ChEMBL first tries its native exact synonym filter when no selector was supplied. Cross-source retries require one exact name-resolution candidate and preserve the selected source's filters, IDs and native counts. Ambiguous names offer a source search instead of selecting an alias. The reply identifies any source supplying names, shows the actual successful search spelling and preserves it in continuation commands. A matching record in another source does not establish presence in the selected source. Source exclusions and the command budget also govern alias lookups; failed or disabled reads remain visible.
+
 ## Medical device recalls
 
 `search diagnostic --source fda-device-recall` covers every medical device. It searches the native recalling firm phrase, exact product code and inclusive initiation dates. The [FDA field mapping](https://github.com/FDA/openfda/blob/master/schemas/device_recall_mapping.json) defines `product_code` as a keyword field and `product_res_number.exact` as the exact recall identity. Totals count product recall records, including separate records under one event number. A count makes no claim about harm.
@@ -174,6 +182,6 @@ The card preserves the recall's reason, root cause, product description and dist
 
 The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.
 
-openFDA label search first tries exact brand and generic fields, then word matches, then label text (including indications) when the name fields have no results. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand, generic, or `spl_product_data_elements` value, in that order, falling back to the source SPL set ID when all are absent. Product data is original source text, not an inferred name. Paging preserves the selected source query and its native total.
+openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value, falling back to the native SPL set ID when neither is available. Product-data paragraphs remain in the original label sections.
 
 `search drug --indication "pancreatic cancer" --source openfda-label` searches only the label's native `indications_and_usage` field. It preserves the phrase without disease synonym expansion or clinical inference. An optional name query further narrows that same search. Results remain SPL label identities in source order, with the source total; follow `get drug` and the label section to read the original wording. Drugs@FDA does not support this filter.
