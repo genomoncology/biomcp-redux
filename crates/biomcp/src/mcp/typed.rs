@@ -5,7 +5,6 @@ pub(super) use catalog::instructions;
 mod description;
 mod followups;
 mod help;
-mod step_paths;
 mod summary;
 mod validation;
 pub(super) type Catalog = Vec<Value>;

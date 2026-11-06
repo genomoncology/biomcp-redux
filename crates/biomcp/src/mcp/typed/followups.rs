@@ -13,7 +13,10 @@ pub(super) fn project(
         crate::schema::find(id).ok_or_else(|| std::io::Error::other("missing reply schema"))?;
     let schema: Value = serde_json::from_str(text).map_err(std::io::Error::other)?;
     let mut calls = Vec::new();
-    for path in super::step_paths::paths(&schema, value).into_iter().rev() {
+    for path in crate::schema::steps::paths(&schema, value)
+        .into_iter()
+        .rev()
+    {
         let call = value.pointer(&path).and_then(|step| {
             let args = without_globals(root, step.get("args")?.as_array()?)?;
             let mut call = super::summary::translate(root, &args, tools)?;
@@ -28,7 +31,7 @@ pub(super) fn project(
             }
             calls.push(call);
         } else {
-            super::step_paths::remove(value, &path);
+            crate::schema::steps::remove(value, &path);
         }
     }
     calls.reverse();
