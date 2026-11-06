@@ -536,3 +536,9 @@ typed-followups-parity:
 	cargo test --locked -p biomcp --test cases mcp-parity/ $(TEST_THREADS)
 typed-followups-toolcases:
 	python3 scripts/trials.py --target tools --case-file drug/source-aliases.yaml --case-file drug/source-aliases-review-evidence.yaml --case-file drug/source-aliases-review-later.yaml --case-file drug/source-aliases-review-salt.yaml --case-file adverse-event/faers-reaction-counts.yaml
+.PHONY: typed-description-check typed-description-contract-check
+typed-description-check:
+	+$(MAKE) --keep-going typed-description-contract-check typed-schema-check typed-hosted-check help-contract-check
+
+typed-description-contract-check:
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-description-contract $(TEST_THREADS)
