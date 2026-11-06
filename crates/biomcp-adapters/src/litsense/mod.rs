@@ -88,8 +88,9 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
 struct Sentences(Vec<Field<Sentence>>);
 #[derive(Deserialize)]
 struct Sentence {
-    #[serde(default)]
+    #[serde(default, rename = "biomcp_text_withheld")]
     text_withheld: bool,
+    #[serde(rename = "biomcp_license")]
     license: Option<biodata::License>,
     pmid: crate::raw::NumericPmid,
     section: Option<Field<Text>>,

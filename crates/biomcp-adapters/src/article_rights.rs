@@ -80,7 +80,8 @@ fn litsense_body(
     for row in rows.as_array_mut().ok_or(BadReply)? {
         let license = pmid(&row["pmid"]).and_then(|id| allowed.get(&id).copied());
         if let Some(row) = row.as_object_mut() {
-            row.remove("license");
+            row.remove("biomcp_license");
+            row.remove("biomcp_text_withheld");
             if let Some(license) = license {
                 row.insert(
                     "license".into(),
@@ -94,7 +95,7 @@ fn litsense_body(
         {
             row.remove("text");
             row.remove("section");
-            row.insert("text_withheld".into(), Value::Bool(true));
+            row.insert("biomcp_text_withheld".into(), Value::Bool(true));
         }
     }
     serde_json::to_vec(&rows).map_err(|_| BadReply)

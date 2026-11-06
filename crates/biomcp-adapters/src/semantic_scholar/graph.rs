@@ -100,6 +100,7 @@ struct RawEdge {
     intents: Option<Field<Vec<Field<biomcp_types::CitationIntent>>>>,
     is_influential: Option<Field<bool>>,
     contexts: Option<Field<Vec<Field<String>>>>,
+    #[serde(rename = "biomcpContextLicense")]
     context_license: Option<biodata::License>,
 }
 impl From<RawEdge> for Edge {
