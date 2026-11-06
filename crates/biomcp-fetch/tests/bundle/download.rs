@@ -80,33 +80,7 @@ fn interrupted_download_resumes_only_the_same_representation() {
             assert!(lower.contains(&format!("range: bytes={cut}-")));
             assert!(lower.contains("if-match: \"one\""));
             assert!(!lower.contains("if-range"));
-            match scenario {
-                "ignored" => request.respond(200, "ETag: \"two\"\r\n", TSV),
-                "412" => {
-                    request.respond(412, "", "");
-                    let next = server.next();
-                    assert!(!next.text.to_ascii_lowercase().contains("range:"));
-                    next.respond(200, "ETag: \"two\"\r\n", TSV);
-                }
-                _ => {
-                    let etag = if scenario == "changed" { "two" } else { "one" };
-                    let offset = if scenario == "offset" { cut + 1 } else { cut };
-                    let total = if scenario == "total" {
-                        TSV.len() + 1
-                    } else {
-                        TSV.len()
-                    };
-                    let range = if scenario == "missing" {
-                        String::new()
-                    } else {
-                        format!(
-                            "Content-Range: bytes {offset}-{}/{total}\r\n",
-                            TSV.len() - 1
-                        )
-                    };
-                    request.respond(206, &format!("ETag: \"{etag}\"\r\n{range}"), &TSV[cut..]);
-                }
-            }
+            answer_resume(&server, request, scenario, cut);
             let result = call.join().unwrap();
             if ["safe", "ignored", "412", "moved"].contains(&scenario) {
                 assert_download(result.unwrap(), scenario, cut);
@@ -136,6 +110,41 @@ fn interrupted_download_resumes_only_the_same_representation() {
             .count(),
             0
         );
+    }
+}
+
+fn answer_resume(
+    server: &support::Server,
+    request: support::Request<()>,
+    scenario: &str,
+    cut: usize,
+) {
+    match scenario {
+        "ignored" => request.respond(200, "ETag: \"two\"\r\n", TSV),
+        "412" => {
+            request.respond(412, "", "");
+            let next = server.next();
+            assert!(!next.text.to_ascii_lowercase().contains("range:"));
+            next.respond(200, "ETag: \"two\"\r\n", TSV);
+        }
+        _ => {
+            let etag = if scenario == "changed" { "two" } else { "one" };
+            let offset = if scenario == "offset" { cut + 1 } else { cut };
+            let total = if scenario == "total" {
+                TSV.len() + 1
+            } else {
+                TSV.len()
+            };
+            let range = if scenario == "missing" {
+                String::new()
+            } else {
+                format!(
+                    "Content-Range: bytes {offset}-{}/{total}\r\n",
+                    TSV.len() - 1
+                )
+            };
+            request.respond(206, &format!("ETag: \"{etag}\"\r\n{range}"), &TSV[cut..]);
+        }
     }
 }
 
