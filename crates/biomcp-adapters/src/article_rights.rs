@@ -80,8 +80,8 @@ fn litsense_body(
     for row in rows.as_array_mut().ok_or(BadReply)? {
         let license = pmid(&row["pmid"]).and_then(|id| allowed.get(&id).copied());
         if let Some(row) = row.as_object_mut() {
-            row.remove("biomcp_license");
-            row.remove("biomcp_text_withheld");
+            // Cache only the native fields this route actually consumes.
+            row.retain(|key, _| matches!(key.as_str(), "pmid" | "section" | "text"));
             if let Some(license) = license {
                 row.insert(
                     "biomcp_license".into(),

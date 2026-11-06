@@ -96,7 +96,7 @@ pub(super) fn record(dir: &Path) {
 
 fn response(request: &str) -> Result<String, String> {
     if request.contains("sentences") {
-        return Ok(r#"[{"pmid":1001,"section":"RESULTS","text":"permitted body witness"},{"pmid":1002,"section":"RESULTS","text":"noncommercial body witness"},{"pmid":1003,"section":"RESULTS","text":"unknown body witness"}]"#.into());
+        return Ok(r#"[{"pmid":1001,"section":"RESULTS","text":"permitted body witness"},{"pmid":1002,"section":"RESULTS","text":"noncommercial body witness"},{"pmid":1003,"section":"RESULTS","text":"unknown body witness","body_copy":"unlicensed ignored source field"}]"#.into());
     }
     if request.contains("esummary") {
         return Ok(r#"{"result":{"uids":["1001","1002","1003"],"1001":{"uid":"1001","title":"First paper","articleids":[{"idtype":"pmc","value":"PMC1001"}]},"1002":{"uid":"1002","title":"Second paper","articleids":[{"idtype":"pmc","value":"PMC1002"}]},"1003":{"uid":"1003","title":"Third paper","articleids":[{"idtype":"pmc","value":"PMC1003"}]}}}"#.into());

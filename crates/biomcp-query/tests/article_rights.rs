@@ -87,6 +87,7 @@ fn restricted_keeps_every_paper_and_persists_only_permitted_body_text() {
     assert!(raw.contains("permitted body witness"));
     assert!(!raw.contains("noncommercial body witness"));
     assert!(!raw.contains("unknown body witness"));
+    assert!(!raw.contains("unlicensed ignored source field"));
     let query = biomcp_types::ArticleText::part(
         biomcp_types::ArticleInput::Pmcid("PMC1002".parse().unwrap()),
         1,
