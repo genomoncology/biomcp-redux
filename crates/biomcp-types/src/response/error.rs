@@ -372,7 +372,13 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 });
                 out.next.push(super::Step {
                     kind: super::StepKind::Section,
-                    args: vec!["get".into(), "article".into(), input.to_string().into(), "fulltext".into()].into(),
+                    args: vec![
+                        "get".into(),
+                        "article".into(),
+                        input.to_string().into(),
+                        "fulltext".into(),
+                    ]
+                    .into(),
                 });
             }
             UsageError::UnsupportedTrialFilter { source, option } => {

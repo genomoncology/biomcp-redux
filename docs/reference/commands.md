@@ -4179,7 +4179,7 @@ Usage: biomcp article [OPTIONS] <COMMAND>
 Commands:
   supplement         Read a checked supplement file or page its original rows.
   pdf                Download one publisher PDF to an explicit file or existing folder.
-  text               Read one bounded body part, find matching rows, or save the complete Markdown document.
+  text               Return the abstract card by default, or explicitly read body text.
   citations          Page the citing or referenced PubMed papers of one checked PMID.
   references         Page the citing or referenced PubMed papers of one checked PMID.
   citation-evidence  Read every source context and optional explicit full-text citation paragraph.
@@ -4357,7 +4357,7 @@ Save a research article PDF. Sources: semantic-scholar.
 ## biomcp article text
 
 ```text
-Read one bounded body part, find matching rows, or save the complete Markdown document.
+Return the abstract card by default, or explicitly read body text.
 
 Usage: biomcp article text [OPTIONS] <input>
 
@@ -4382,7 +4382,7 @@ Options:
           Number of matching rows already returned.
 
       --part <part>
-          One-based outline part number.
+          One-based outline part; omit reader selectors for the abstract card.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -4416,12 +4416,12 @@ Options:
 
 ```
 
-Read research article full text. Sources: europepmc, pmc-oa, pubmed.
+Get the abstract card by default, or explicitly read article body text. Sources: europepmc, pmc-oa, pubmed.
 
 - `--find`: Case-insensitive exact text to find. Value form: string. Example: --find AXIN2. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
 - `--offset`: Number of matching rows already returned. Value form: integer. Example: --offset 0. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--part`: One-based outline part number. Value form: integer. Example: --part 1. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--part`: One-based outline part; omit reader selectors for the abstract card. Value form: integer. Example: --part 1. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `--save`: Save the whole original document to an explicit file or existing folder. Example: --save article-output. Value form: string. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
 - `--variant`: Explicit checked protein substitution. Example: --variant p.V600E. Value form: string. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.

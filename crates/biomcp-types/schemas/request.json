@@ -4707,29 +4707,7 @@
     },
     {
       "additionalProperties": false,
-      "anyOf": [
-        {
-          "required": [
-            "part"
-          ]
-        },
-        {
-          "required": [
-            "find"
-          ]
-        },
-        {
-          "required": [
-            "variant"
-          ]
-        },
-        {
-          "required": [
-            "save"
-          ]
-        }
-      ],
-      "description": "Read research article full text.",
+      "description": "Get the abstract card by default, or explicitly read article body text.",
       "properties": {
         "command": {
           "const": "article-text",
@@ -4752,7 +4730,7 @@
           "type": "integer"
         },
         "part": {
-          "description": "One-based outline part number.",
+          "description": "One-based outline part; omit reader selectors for the abstract card.",
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
@@ -4774,7 +4752,10 @@
         "command",
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "ArticleGet"
+      ]
     },
     {
       "additionalProperties": false,

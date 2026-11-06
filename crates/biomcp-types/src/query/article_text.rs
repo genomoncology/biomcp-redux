@@ -1,7 +1,7 @@
 use super::gene::{QueryInvalid, present};
 use crate::{ArticleInput, Text};
 use serde::{Deserialize, Serialize};
-/// Return the article card with its abstract by default, or explicitly read body text.
+/// Return the abstract card by default, or explicitly read body text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "Fields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -15,7 +15,7 @@ struct Fields {
     /// PubMed or PMC identity. DOI selectors are not accepted by the reader.
     #[cfg_attr(feature="schema", schemars(extend("x-positional"=0)))]
     input: ArticleInput,
-    /// One-based body outline part number. Omit reader selectors for the article card and abstract.
+    /// One-based outline part; omit reader selectors for the abstract card.
     #[serde(
         default,
         deserialize_with = "present",

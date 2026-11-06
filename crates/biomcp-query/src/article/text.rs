@@ -231,11 +231,21 @@ fn select(
 
 fn position_error(query: &ArticleText, document: &pmc_oa::Document) -> biomcp_types::UsageError {
     if query.selected_part().is_some_and(|number| {
-        !document.body.parts.iter().any(|part| part.meta.number == number)
+        !document
+            .body
+            .parts
+            .iter()
+            .any(|part| part.meta.number == number)
     }) {
         biomcp_types::UsageError::ArticlePartRange {
             input: query.input().clone(),
-            last: document.body.parts.iter().map(|part| part.meta.number).max().unwrap_or(0),
+            last: document
+                .body
+                .parts
+                .iter()
+                .map(|part| part.meta.number)
+                .max()
+                .unwrap_or(0),
         }
     } else {
         biomcp_types::UsageError::TextPositionError
