@@ -1,5 +1,10 @@
 .DEFAULT_GOAL := landing-gate
 
+.PHONY: markdown-help-red
+markdown-help-red:
+	python3 scripts/markdown_help_probe.py "$(MARKDOWN_HELP_BASELINE)" target/markdown-help-baseline-evidence
+	python3 scripts/trials.py --target tools --proofs --executable "$(MARKDOWN_HELP_BASELINE)" --installed schema-discovery/rejects-bad-cases
+
 .PHONY: drug-alias-review-regressions drug-alias-review-tools
 drug-alias-review-regressions:
 	cargo test --locked -p biomcp --test cases drug/source-aliases-review
