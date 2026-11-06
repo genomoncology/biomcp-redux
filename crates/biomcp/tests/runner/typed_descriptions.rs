@@ -7,30 +7,10 @@ use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
 pub(super) fn check(env: &Environment) -> Result<(), String> {
-    let replies = exchange_with_globals(
-        env,
-        &[request(json!(1), "tools/list", json!({}))],
-        &["--offline".into()],
-    )?;
-    let tools = replies
-        .first()
-        .and_then(|r| r.pointer("/result/tools"))
-        .and_then(Value::as_array)
-        .ok_or("tools")?;
-    standalone(tools)?;
-    let hosted = exchange_with_globals(
-        env,
-        &[request(json!(2), "tools/list", json!({}))],
-        &["--offline".into(), "--hosted".into()],
-    )?;
-    standalone(
-        hosted
-            .first()
-            .and_then(|r| r.pointer("/result/tools"))
-            .and_then(Value::as_array)
-            .ok_or("hosted tools")?,
-    )?;
-    faers_drug(tools)?;
+    let tools = catalog(env, false)?;
+    standalone(&tools)?;
+    standalone(&catalog(env, true)?)?;
+    faers_drug(&tools)?;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let Some(tool) = tools.iter().find(|tool| tool["name"] == name) else {
@@ -57,8 +37,9 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         }
         let schema = cli(env, &["schema".into(), id.into()])?;
         complete_words(&schema, summary, description, &name)?;
-        for (key, property) in tool["inputSchema"]["properties"]
-            .as_object()
+        for (key, property) in tool
+            .pointer("/inputSchema/properties")
+            .and_then(Value::as_object)
             .ok_or("tool properties")?
         {
             let description = property["description"]
@@ -202,8 +183,8 @@ fn standalone(tools: &[Value]) -> Result<(), String> {
     for tool in tools {
         let name = tool["name"].as_str().ok_or("tool name")?;
         let descriptions = std::iter::once((name.to_owned(), &tool["description"])).chain(
-            tool["inputSchema"]["properties"]
-                .as_object()
+            tool.pointer("/inputSchema/properties")
+                .and_then(Value::as_object)
                 .into_iter()
                 .flatten()
                 .map(|(key, property)| (format!("{name}.{key}"), &property["description"])),
@@ -250,4 +231,19 @@ fn complete_words(
             "{name}: description contains words absent from its source: {unknown:?}: {description}"
         ))
     }
+}
+
+fn catalog(env: &Environment, hosted: bool) -> Result<Vec<Value>, String> {
+    let mut globals = vec!["--offline".into()];
+    if hosted {
+        globals.push("--hosted".into());
+    }
+    let replies =
+        exchange_with_globals(env, &[request(json!(1), "tools/list", json!({}))], &globals)?;
+    replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .cloned()
+        .ok_or_else(|| "tools".into())
 }

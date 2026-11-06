@@ -47,31 +47,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .and_then(|s| s.get("properties"))
                 .and_then(|p| p.get(key))
                 .ok_or("property")?;
-            let expected = node
-                .get("x-section-rule")
-                .or_else(|| node.get("description"))
-                .and_then(Value::as_str)
-                .map(|s| {
-                    let mut lines = s.lines();
-                    let first = lines.next().unwrap_or_default();
-                    let text = if first.contains("biomcp_help") {
-                        lines
-                            .next()
-                            .unwrap_or(first)
-                            .split("; biomcp_help")
-                            .next()
-                            .unwrap_or(first)
-                            .to_owned()
-                    } else {
-                        first.to_owned()
-                    };
-                    text.split(". ")
-                        .next()
-                        .unwrap_or_default()
-                        .trim_end_matches('.')
-                        .to_owned()
-                        + "."
-                });
+            let expected = description(node);
             if property.get("description").and_then(Value::as_str) != expected.as_deref() {
                 failures.push(format!("{name}.{key}: lost own description"));
             }
@@ -311,4 +287,31 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
         }
     }
     Ok(())
+}
+
+fn description(node: &Value) -> Option<String> {
+    let text = node
+        .get("x-section-rule")
+        .or_else(|| node.get("description"))?
+        .as_str()?;
+    let mut lines = text.lines();
+    let first = lines.next().unwrap_or_default();
+    let text = if first.contains("biomcp_help") {
+        lines
+            .next()
+            .unwrap_or(first)
+            .split("; biomcp_help")
+            .next()
+            .unwrap_or(first)
+    } else {
+        first
+    };
+    Some(
+        text.split(". ")
+            .next()
+            .unwrap_or_default()
+            .trim_end_matches('.')
+            .to_owned()
+            + ".",
+    )
 }
