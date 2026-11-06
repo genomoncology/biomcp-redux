@@ -546,3 +546,9 @@ enum-case-lint:
 enum-case-schema-check:
 	+$(MAKE) current-schema-check schema-release-check
 	cargo test --locked -p biomcp-types --features schema --test schemas enum_field_scope_is_checked_metadata_without_a_schema_major_change
+
+.PHONY: enum-case-review-check
+enum-case-review-check:
+	+$(MAKE) --keep-going fmt enum-case-check enum-case-lint enum-case-schema-check
+	cargo test --locked -p biomcp --test cases retired $(TEST_THREADS)
+	cargo test --locked -p biomcp --test cases mcp-parity/typed-cli-bridge $(TEST_THREADS)
