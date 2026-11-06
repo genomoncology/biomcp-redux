@@ -5,7 +5,7 @@ use crate::QueryInvalid;
 use crate::query::ProteinQuery;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
-/// One native cell line search with optional text, species, NCIt disease, variation and derived-line filters.
+/// One native cell line search with optional text, species, disease, variation and derived-line filters.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "CommandFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -46,7 +46,7 @@ struct CommandFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     disease: Option<Text>,
-    /// Cellosaurus sequence variation text: gene symbol or HGNC ID as the source writes it (for example KRAS). Also matches lines the source marks None_reported for that gene.
+    /// Cellosaurus variation gene, as the source writes it (for example KRAS).
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -54,7 +54,7 @@ struct CommandFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     gene: Option<Text>,
-    /// Cellosaurus sequence variation text, matched exactly as the source writes it (for example p.Gly12Asp or c.35G>A). Use --protein for G12D.
+    /// Cellosaurus variation text, as the source writes it (for example p.Gly12Asp).
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -62,7 +62,7 @@ struct CommandFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     mutation: Option<Text>,
-    /// Protein substitution, sent in the source's three-letter HGVS spelling (for example G12D is sent as p.Gly12Asp).
+    /// Protein change, sent in the source's spelling (G12D is sent as p.Gly12Asp).
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -70,7 +70,7 @@ struct CommandFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "ProteinQuery"))]
     protein: Option<ProteinQuery>,
-    /// Leave out lines Cellosaurus records as derived from a parent line; needs another search term.
+    /// Leave out lines derived from a parent line; needs another search term.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exclude_derived: bool,
 }

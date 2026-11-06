@@ -79,6 +79,7 @@ fn variation(
             )
             .into_vec()
             .into_iter()
+            .map(raw::Provenance::from)
             .map(|r| CellLineProvenance {
                 reference: problems
                     .field("sequence-variation-list.source-list.reference", r.reference)

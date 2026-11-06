@@ -258,6 +258,11 @@
           "includes_all_of": [
             0
           ]
+        },
+        "/result/items/*/variations/items/*/provenance/*/value": {
+          "includes_all_of": [
+            "Direct_author_submission"
+          ]
         }
       },
       "max_bytes": 14000
