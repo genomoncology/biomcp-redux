@@ -13,6 +13,7 @@ pub(crate) fn filter(leg: &Leg<'_>, body: &[u8]) -> Result<Vec<u8>, BadReply> {
     for article in &articles {
         if let Some(id) = article
             .value(&["MedlineCitation", "PMID"])?
+            .as_deref()
             .and_then(super::policy::parse_pmid)
         {
             ids.push(id);
@@ -31,6 +32,7 @@ pub(super) fn filter_with_licenses(
     for article in articles {
         let id = article
             .value(&["MedlineCitation", "PMID"])?
+            .as_deref()
             .and_then(super::policy::parse_pmid);
         let license = id.and_then(|id| licenses.get(&id).copied());
         if super::permitted(license, true) {
