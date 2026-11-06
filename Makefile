@@ -628,6 +628,6 @@ recurrence-forms-focused:
 
 .PHONY: recurrence-forms-prepare
 recurrence-forms-prepare:
-	+$(MAKE) schema-generate
-	git diff --binary -- crates/biomcp-types/schemas > target/recurrence-forms-generated.patch
+	+$(MAKE) schema-generate docs-generate
+	git diff --binary -- crates/biomcp-types/schemas docs/reference/commands.md > target/recurrence-forms-generated.patch
 	+$(MAKE) recurrence-forms-focused
