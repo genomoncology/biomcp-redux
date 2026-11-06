@@ -11,24 +11,41 @@ use std::collections::BTreeMap;
 pub struct StoredRights {
     licenses: BTreeMap<Pmid, License>,
     pmc: BTreeMap<Pmcid, License>,
+    versions: BTreeMap<Pmcid, u32>,
     identities: BTreeMap<Pmid, Pmcid>,
     preprints: BTreeMap<String, License>,
 }
 impl StoredRights {
     /// Collect record-owned license metadata before any text is changed.
-    pub fn observe(&mut self, source: Source, _url: &str, body: &[u8]) -> Result<(), BadReply> {
+    pub fn observe(&mut self, source: Source, url: &str, body: &[u8]) -> Result<(), BadReply> {
         let Ok(value) = serde_json::from_slice::<Value>(body) else {
             return Ok(());
         };
         match source {
             Source::PmcOa => {
                 let license = value["license_code"].as_str().map(crate::pmc_oa::license);
-                if let Some(license) = license {
-                    if let Some(id) = value["pmcid"].as_str().and_then(|id| id.parse().ok()) {
+                if let (Some(license), Some(id)) = (
+                    license,
+                    value["pmcid"]
+                        .as_str()
+                        .and_then(|id| id.parse::<Pmcid>().ok()),
+                ) {
+                    let version = url
+                        .split(&format!("{id}."))
+                        .nth(1)
+                        .and_then(|rest| rest.split('/').next())
+                        .and_then(|version| version.parse().ok())
+                        .unwrap_or(0);
+                    if self
+                        .versions
+                        .get(&id)
+                        .is_none_or(|current| version >= *current)
+                    {
+                        self.versions.insert(id, version);
                         self.pmc.insert(id, license);
                     }
-                    if let Some(id) = pmid(&value["pmid"]) {
-                        self.licenses.insert(id, license);
+                    if let Some(pmid) = pmid(&value["pmid"]) {
+                        self.identities.entry(pmid).or_insert(id);
                     }
                 }
             }
@@ -174,7 +191,11 @@ fn strip_fulltext(value: &mut Value) {
             let license = body
                 .and_then(|data| data.get("license"))
                 .and_then(|license| serde_json::from_value(license.clone()).ok());
-            if body.is_some() && !permitted(license, false) {
+            let article = object
+                .get("source")
+                .and_then(Value::as_str)
+                .is_some_and(|source| matches!(source, "pmc-oa" | "europepmc"));
+            if article && body.is_some() && !permitted(license, false) {
                 object.remove("data");
                 object.insert("state".into(), Value::String("skipped".into()));
                 object.insert("reason".into(), Value::String("disabled".into()));

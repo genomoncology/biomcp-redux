@@ -229,6 +229,11 @@ impl Leg<'_> {
             let filtered = codec
                 .filtered_body(&entry.body)
                 .map_err(|_| self.failure(Reason::BadReply, Some(entry.status)))?;
+            if filtered.len() as u64 > codec.limit.unwrap_or(self.fetch.config.max_body) {
+                return Err(self
+                    .failure(codec.overflow_reason, Some(entry.status))
+                    .into());
+            }
             if filtered != entry.body {
                 entry.body = filtered;
                 cache.write(key, self.spec.source, &prepared.url, &entry, self.budget())?;
