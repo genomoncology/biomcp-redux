@@ -58,7 +58,13 @@
         "/status": "complete",
         "/result/items/0/requested_site": "47",
         "/result/items/0/requested_selectors/4/label": "2019–2023",
-        "/result/items/0/returned_selectors/3/label": "Localized"
+        "/result/items/0/returned_selectors/3/label": "Localized",
+        "/problems/*/code": {
+          "includes": "value.unknown"
+        },
+        "/problems/*/field": {
+          "includes": "observed_or_delay_adjusted_rate"
+        }
       },
       "max_bytes": 3500
     },
@@ -102,7 +108,13 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/requested_site": "55",
-        "/result/items/0/requested_selectors/4/label": "5-year Relative Survival"
+        "/result/items/0/requested_selectors/4/label": "5-year Relative Survival",
+        "/problems/*/code": {
+          "includes": "value.unknown"
+        },
+        "/problems/*/field": {
+          "includes": "modeling_method"
+        }
       },
       "max_bytes": 4200
     },

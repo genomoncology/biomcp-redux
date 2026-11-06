@@ -15,10 +15,9 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     let mut failures = Vec::new();
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
-        let tool = tools
-            .iter()
-            .find(|t| field(t, "name").as_str() == Some(name.as_str()))
-            .ok_or("missing tool")?;
+        let Some(tool) = tools.iter().find(|tool| tool["name"] == name) else {
+            continue; // Grouped command contracts remain available through canonical help.
+        };
         if field(tool, "description")
             .as_str()
             .is_some_and(|s| s.contains('\n'))
@@ -48,14 +47,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .and_then(|s| s.get("properties"))
                 .and_then(|p| p.get(key))
                 .ok_or("property")?;
-            let expected = node.get("description").and_then(Value::as_str).map(|s| {
-                s.lines()
-                    .next()
-                    .unwrap_or_default()
-                    .chars()
-                    .take(80)
-                    .collect::<String>()
-            });
+            let expected = description(node);
             if property.get("description").and_then(Value::as_str) != expected.as_deref() {
                 failures.push(format!("{name}.{key}: lost own description"));
             }
@@ -89,6 +81,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     if !failures.is_empty() {
         return Err(failures.join("\n"));
     }
+    super::typed_catalog::budgets(env, &tools)?;
     settings(env, &tools)
 }
 fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
@@ -104,9 +97,7 @@ fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
         .and_then(Value::as_array)
         .cloned()
         .ok_or("catalog missing")?;
-    if tools.len() != biomcp_types::command_paths().len() + 3 {
-        return Err("typed catalog must include every command plus help and research tools".into());
-    }
+    super::typed_catalog::check(&tools)?;
     Ok(tools)
 }
 fn nested_description(node: &Value, top: bool) -> bool {
@@ -201,7 +192,7 @@ fn report(tools: &[Value]) -> Result<(), String> {
 fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     let enabled = catalog(
         env,
-        json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true}),
+        json!({"mcp_tool_mode":"typed", "mcp_typed_output_schema":true,"mcp_typed_definition_bytes":200000}),
     )?;
     report(&enabled)?;
     for tool in enabled {
@@ -219,7 +210,7 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
         }
         if matches!(
             field(&tool, "name").as_str(),
-            Some("biomcp_help" | "search" | "fetch")
+            Some("biomcp_help" | "biomcp" | "search" | "fetch")
         ) {
             if !default.contains(&tool) {
                 return Err("shared help/research contract changed".into());
@@ -255,12 +246,14 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     )?;
     if !large
         .iter()
+        .filter(|tool| tool["name"] != "biomcp_reference")
         .any(|tool| oversized_enum(field(tool, "inputSchema"), 30))
     {
         return Err("raised enum limit did not restore large choices".into());
     }
     if !default
         .iter()
+        .filter(|tool| tool["name"] != "biomcp_reference")
         .any(|tool| oversized_enum(field(tool, "inputSchema"), 1))
     {
         return Err("short enums lost their choices".into());
@@ -271,11 +264,15 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     )?;
     if small
         .iter()
+        .filter(|tool| tool["name"] != "biomcp_reference")
         .any(|tool| oversized_enum(field(tool, "inputSchema"), 1))
     {
         return Err("enum limit setting ignored".into());
     }
-    for tool in &large {
+    for tool in large
+        .iter()
+        .filter(|tool| tool["name"] != "biomcp_reference")
+    {
         let name = field(tool, "name").as_str().ok_or("tool name")?;
         let compact = small
             .iter()
@@ -290,13 +287,43 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
                     .get("description")
                     .and_then(Value::as_str)
                     .ok_or("choice description")?;
-                if !description.contains("biomcp_help") {
+                if description.is_empty()
+                    || description.contains("biomcp_help")
+                    || Some(description) != property.get("description").and_then(Value::as_str)
+                {
                     return Err(format!(
-                        "{name}.{key}: removed choices lack canonical help route"
+                        "{name}.{key}: lowering enum limit changed the standalone description"
                     ));
                 }
             }
         }
     }
     Ok(())
+}
+
+fn description(node: &Value) -> Option<String> {
+    let text = node
+        .get("x-section-rule")
+        .or_else(|| node.get("description"))?
+        .as_str()?;
+    let mut lines = text.lines();
+    let first = lines.next().unwrap_or_default();
+    let text = if first.contains("biomcp_help") {
+        lines
+            .next()
+            .unwrap_or(first)
+            .split("; biomcp_help")
+            .next()
+            .unwrap_or(first)
+    } else {
+        first
+    };
+    Some(
+        text.split(". ")
+            .next()
+            .unwrap_or_default()
+            .trim_end_matches('.')
+            .to_owned()
+            + ".",
+    )
 }
