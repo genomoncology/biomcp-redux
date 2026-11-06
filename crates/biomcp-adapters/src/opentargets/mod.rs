@@ -115,33 +115,34 @@ pub fn version(leg: &Leg<'_>) -> Vec<biomcp_types::Problem> {
         Input::json(&[], &body),
         biomcp_fetch::Read::<raw::Response<raw::VersionData>>::json(),
     );
-    let date = reply
-        .ok()
-        .and_then(|received| received.value.data.meta.data_version)
-        .and_then(crate::raw::Field::value)
-        .and_then(release_month);
+    let date = reply.map_err(|_| BadReply).and_then(|received| {
+        let version = received.value.data.meta.data_version;
+        release_month(version.and_then(crate::raw::Field::value).ok_or(BadReply)?)
+    });
     let mut problems = crate::mapped::Problems {
         source: Source::Opentargets,
         record: None,
         list: Vec::new(),
     };
-    if let Some(date) = problems.required("meta.dataVersion", date) {
+    if let Some(date) = problems.optional("meta.dataVersion", Some(date)) {
         leg.data_date(&date);
     }
     problems.list
 }
 /// Spell a release as a year and month; it has no day, so it carries no age claim.
-fn release_month(version: raw::DataVersion) -> Option<String> {
-    let year: u16 = version.year.parse().ok()?;
+fn release_month(version: raw::DataVersion) -> Result<String, BadReply> {
+    let year: u16 = version.year.parse().map_err(|_| BadReply)?;
     let year = match version.year.len() {
         2 => 2000 + year,
         4 => year,
-        _ => return None,
+        _ => return Err(BadReply),
     };
-    let month: u8 = version.month.parse().ok()?;
-    (1..=12)
-        .contains(&month)
-        .then(|| format!("{year}-{month:02}"))
+    let month: u8 = version.month.parse().map_err(|_| BadReply)?;
+    if (1..=12).contains(&month) {
+        Ok(format!("{year}-{month:02}"))
+    } else {
+        Err(BadReply)
+    }
 }
 mod map;
 pub use map::{
