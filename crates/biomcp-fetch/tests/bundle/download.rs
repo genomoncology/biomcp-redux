@@ -64,9 +64,15 @@ fn interrupted_download_resumes_only_the_same_representation() {
         let f = if scenario == "moved" {
             drop(f);
             std::fs::rename(&path, &moved_path).unwrap();
-            std::fs::rename(path.with_extension("parts"), moved_path.with_extension("parts")).unwrap();
+            std::fs::rename(
+                path.with_extension("parts"),
+                moved_path.with_extension("parts"),
+            )
+            .unwrap();
             cached(&moved_path)
-        } else { f };
+        } else {
+            f
+        };
         std::thread::scope(|scope| {
             let call = scope.spawn(|| f.sync(&b));
             let request = server.next();

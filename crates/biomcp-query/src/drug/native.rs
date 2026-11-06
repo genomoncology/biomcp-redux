@@ -121,9 +121,10 @@ fn search_page(
             query.offset() / query.limit(),
             query.limit(),
         )?;
-        let mapped = opentargets::search_headers(page, (query.offset() % query.limit()) as usize);
+        let skipped = (query.offset() % query.limit()) as usize;
+        let received = page.received().saturating_sub(skipped) as u32;
+        let mapped = opentargets::search_headers(page, skipped);
         problems.extend(mapped.problems);
-        let received = mapped.value.items.len() as u32;
         Ok(NativeWindow::new(
             mapped.value.items.into_vec(),
             query.offset(),

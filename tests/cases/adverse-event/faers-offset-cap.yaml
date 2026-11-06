@@ -15,9 +15,10 @@
         "25001"
       ],
       "expect": {
-        "/status": "failed",
+        "/status": "usage",
         "/error/message": "FAERS supports --offset up to 25000; narrow the filters to retrieve more reports"
-      }
+      },
+      "exit": 2
     }
   ]
 }

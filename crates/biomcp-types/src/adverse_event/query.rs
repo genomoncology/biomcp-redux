@@ -123,6 +123,11 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
     type Error = QueryInvalid;
     fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
         v.validate_aggregate()?;
+        if v.source == AdverseEventSource::Faers && v.offset > 25_000 {
+            return Err(
+                QueryInvalid::new(&["offset"]).with_message(crate::ErrorMessage::FaersOffset)
+            );
+        }
         let maude_filter =
             v.manufacturer.is_some() || !v.product_code.is_empty() || v.problem.is_some();
         if v.source != AdverseEventSource::Maude && maude_filter {
