@@ -57,6 +57,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             ));
         }
         let schema = cli(env, &["schema".into(), id.into()])?;
+        complete_words(&schema, summary, description, &name)?;
         primary(&schema, description, &name)?;
         publishers(verb, entity, &schema, description)?;
     }
@@ -210,5 +211,30 @@ fn standalone(tools: &[Value]) -> Result<(), String> {
         Ok(())
     } else {
         Err(failures.join("\n"))
+    }
+}
+
+// A truncated operand creates a word that is absent from the owning schema and registry.
+fn complete_words(
+    schema: &Value,
+    summary: &str,
+    description: &str,
+    name: &str,
+) -> Result<(), String> {
+    let declared = format!("{schema} {summary} IDs Sections");
+    let vocabulary = declared
+        .split(|c: char| !c.is_alphanumeric())
+        .map(str::to_lowercase)
+        .collect::<BTreeSet<_>>();
+    let unknown = description
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|word| !word.is_empty() && !vocabulary.contains(&word.to_lowercase()))
+        .collect::<Vec<_>>();
+    if unknown.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{name}: description contains words absent from its source: {unknown:?}: {description}"
+        ))
     }
 }
