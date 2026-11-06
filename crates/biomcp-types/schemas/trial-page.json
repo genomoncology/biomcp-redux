@@ -1196,14 +1196,14 @@
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "description": "Local request limits and source-specific recovery guidance.",
+          "description": "Local request limits, source observations and recovery guidance.",
           "properties": {
             "kind": {
               "const": "request-guidance",
               "type": "string"
             },
             "message": {
-              "description": "Reviewed guidance without provider response text.",
+              "description": "Reviewed guidance; any quoted provider wording remains source data.",
               "type": "string"
             },
             "retry_after_seconds": {
@@ -1342,7 +1342,7 @@
       ]
     },
     "Reply_SourceOutcome": {
-      "description": "One source's outcome, without provider text.",
+      "description": "One source's outcome with source notices and request guidance.",
       "properties": {
         "count": {
           "description": "Provider matching count.",
@@ -1858,13 +1858,39 @@
         "III",
         "IV"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-by-field": {
+        "choices": {
+          "ctgov": [
+            "early-1",
+            "1",
+            "2",
+            "3",
+            "4",
+            "not-applicable",
+            "1/2",
+            "2/3"
+          ],
+          "nci": [
+            "NA",
+            "0",
+            "I",
+            "I_II",
+            "II",
+            "II_III",
+            "III",
+            "IV"
+          ]
+        },
+        "default": "ctgov",
+        "field": "source"
+      }
     },
     "Reply_TrialSearch": {
       "description": "Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.",
       "properties": {
         "age": {
-          "description": "Age in years; unstated source bounds count as no limit.",
+          "description": "Age in years.\nClinicalTrials.gov only; unstated source bounds count as no limit.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -1894,7 +1920,7 @@
           "type": "boolean"
         },
         "country": {
-          "description": "Country label; biomcp_help search trial.\nExact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
+          "description": "Country label.\nExact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its native country filter.",
           "items": {
             "enum": [
               "Afghanistan",
@@ -2131,11 +2157,11 @@
         },
         "criteria": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Criteria text.\nSearch literal registry eligibility text for discovery only; no eligibility judgment."
+          "description": "Criteria text.\nClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment."
         },
         "distance": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Radius, mi or km.\nSource distance with explicit mi or km units."
+          "description": "Radius, mi or km.\nClinicalTrials.gov only: source distance with explicit mi or km units."
         },
         "exact_condition": {
           "description": "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.",
@@ -2147,15 +2173,15 @@
         },
         "gene": {
           "$ref": "#/$defs/Reply_GeneInput",
-          "description": "Gene symbol/ID.\nResolve one checked gene for registry text discovery only; no eligibility judgment."
+          "description": "Gene symbol/ID.\nClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment."
         },
         "has_results": {
-          "description": "Posted results.\nRequire posted source results.",
+          "description": "Posted results.\nClinicalTrials.gov only: require posted source results.",
           "type": "boolean"
         },
         "id": {
           "$ref": "#/$defs/Reply_NctId",
-          "description": "NCT identifier.\nExact NCT identity in a conjunction with other filters."
+          "description": "NCT identifier.\nClinicalTrials.gov only: exact NCT identity in a conjunction with other filters."
         },
         "intervention": {
           "description": "Treatment terms; OR.\nIntervention alternatives joined with OR; supported by ClinicalTrials.gov.",
@@ -2175,11 +2201,11 @@
         },
         "lat": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Latitude degrees.\nRadius center latitude in degrees."
+          "description": "Latitude degrees.\nClinicalTrials.gov only: radius center latitude in degrees."
         },
         "limit": {
           "default": 10,
-          "description": "Headers per page; NCI applies its own lower publisher limit.",
+          "description": "Page size.\nHeaders per page; NCI applies its own lower publisher limit.",
           "format": "uint32",
           "maximum": 100,
           "minimum": 1,
@@ -2187,7 +2213,7 @@
         },
         "lon": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Longitude degrees.\nRadius center longitude in degrees."
+          "description": "Longitude degrees.\nClinicalTrials.gov only: radius center longitude in degrees."
         },
         "next_page": {
           "$ref": "#/$defs/Reply_Text",
@@ -2195,7 +2221,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Zero-based offset of the first row in this continuation page.",
+          "description": "Page offset.\nZero-based offset of the first row in this continuation page.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -2211,7 +2237,7 @@
         },
         "sex": {
           "$ref": "#/$defs/Reply_TrialSex",
-          "description": "Registry sex facet."
+          "description": "ClinicalTrials.gov only: registry sex facet."
         },
         "source": {
           "$ref": "#/$defs/Reply_TrialSource",
@@ -2219,11 +2245,11 @@
         },
         "sponsor": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Sponsor.\nSponsor name; ClinicalTrials.gov broadens after zero exact matches. Use --sponsor-type for the funding category."
+          "description": "Sponsor.\nClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category."
         },
         "sponsor_type": {
           "$ref": "#/$defs/Reply_SponsorType",
-          "description": "Funding class.\nRegistry sponsor funding category; use --sponsor for a sponsor name."
+          "description": "Funding class.\nClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name."
         },
         "status": {
           "$ref": "#/$defs/Reply_TrialStatusFilter",
@@ -2231,19 +2257,19 @@
         },
         "study_type": {
           "$ref": "#/$defs/Reply_StudyType",
-          "description": "Study type.\nExact registry study type."
+          "description": "Study type.\nClinicalTrials.gov only: exact registry study type."
         },
         "updated_since": {
           "$ref": "#/$defs/Reply_PartialDate",
-          "description": "First date.\nFirst included registry update date."
+          "description": "First date.\nClinicalTrials.gov only: first included registry update date."
         },
         "updated_until": {
           "$ref": "#/$defs/Reply_PartialDate",
-          "description": "Last date.\nLast included registry update date."
+          "description": "Last date.\nClinicalTrials.gov only: last included registry update date."
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Variant text.\nLiteral variant text for registry discovery only; no eligibility judgment."
+          "description": "Variant text.\nClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment."
         }
       },
       "type": "object"
@@ -2313,7 +2339,42 @@
         "Temporarily Closed to Accrual and Intervention",
         "Withdrawn"
       ],
-      "type": "string"
+      "type": "string",
+      "x-enum-by-field": {
+        "choices": {
+          "ctgov": [
+            "ACTIVE_NOT_RECRUITING",
+            "COMPLETED",
+            "ENROLLING_BY_INVITATION",
+            "NOT_YET_RECRUITING",
+            "RECRUITING",
+            "SUSPENDED",
+            "TERMINATED",
+            "WITHDRAWN",
+            "AVAILABLE",
+            "NO_LONGER_AVAILABLE",
+            "TEMPORARILY_NOT_AVAILABLE",
+            "APPROVED_FOR_MARKETING",
+            "WITHHELD",
+            "UNKNOWN"
+          ],
+          "nci": [
+            "Active",
+            "Administratively Complete",
+            "Approved",
+            "Closed to Accrual",
+            "Closed to Accrual and Intervention",
+            "Complete",
+            "INACTIVE",
+            "Enrolling by Invitation",
+            "Temporarily Closed to Accrual",
+            "Temporarily Closed to Accrual and Intervention",
+            "Withdrawn"
+          ]
+        },
+        "default": "ctgov",
+        "field": "source"
+      }
     },
     "Reply_UniProtAcc": {
       "description": " A whole UniProt base accession, without an isoform suffix.",

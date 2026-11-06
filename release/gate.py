@@ -64,7 +64,7 @@ def cli_checks(binary, record):
         env = environment(root)
         config = root / "config/biomcp/config.json"
         config.parent.mkdir(parents=True)
-        groups = ["open", "noncommercial", "restricted"]
+        groups = ["open", "noncommercial", "licensed"]
         config.write_text(json.dumps({"disable_sources": groups}))
         # Terms groups preserve aggregators with independently labeled components.
         # Discover their IDs offline from the installed candidate, then disable
@@ -158,6 +158,7 @@ def installed(args):
         completed = smoke(binary, executable, fixtures, record["version"], server_args, suite_timeout,
                           python=args.python)
         if suite_timeout is None:
+            # The first channel reports its measured margin with the absolute floor.
             suite_timeout = completed["timeout_seconds"]
         if declared_tools is not None and sorted(completed["tools"]) != sorted(declared_tools):
             raise ValueError("desktop manifest tools differ from installed server")

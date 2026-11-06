@@ -12,11 +12,11 @@ pub(super) fn check() -> Check {
     for (argv, call) in [
         (
             vec!["get", "pathway", "hsa04151"],
-            json!({"name":"get_pathway","arguments":{"id":"hsa04151"}}),
+            json!({"name":"biomcp_reference","arguments":{"command":"get_pathway","arguments":{"id":"hsa04151"}}}),
         ),
         (
             vec!["get", "pathway", "R-HSA-109581", "enrichment"],
-            json!({"name":"get_pathway","arguments":{"id":"R-HSA-109581","section":"enrichment"}}),
+            json!({"name":"biomcp_reference","arguments":{"command":"get_pathway","arguments":{"id":"R-HSA-109581","section":"enrichment"}}}),
         ),
         (
             vec![
@@ -50,7 +50,38 @@ pub(super) fn check() -> Check {
         json!({"name":"get_gene","arguments":{"input":["--help"]}}),
         &literal,
     )?;
-    fresh_cases()
+    reference_record()?;
+    fresh_cases()?;
+    indication()
+}
+
+fn indication() -> Check {
+    let env = environment()?;
+    let replay = fixtures().join("replies/drug/indication");
+    let globals = env.globals(Some(&replay), false);
+    let expected = cli(
+        &env,
+        &[
+            "search",
+            "drug",
+            "--indication",
+            "melanoma",
+            "--source",
+            "openfda-label",
+            "--limit",
+            "1",
+        ],
+        &globals,
+    )?;
+    if expected.get("status") != Some(&json!("complete")) {
+        return Err(format!("indication CLI search failed: {expected}"));
+    }
+    parity(
+        &env,
+        &globals,
+        json!({"name":"search_drug","arguments":{"indication":"melanoma","source":"openfda-label","limit":1}}),
+        &expected,
+    )
 }
 
 fn environment() -> Result<Environment, String> {
@@ -72,15 +103,32 @@ fn parity(env: &Environment, globals: &[String], call: Value, expected: &Value) 
         globals,
     )?;
     let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-    if &actual != expected
+    if super::typed_followups::data(&actual) != super::typed_followups::data(expected)
         || status != 200
-        || http.pointer("/result/structuredContent") != Some(expected)
+        || http.pointer("/result/structuredContent") != Some(&actual)
     {
         return Err(format!(
             "typed bridge differs: CLI {expected}, stdio {actual}, HTTP {http}"
         ));
     }
     Ok(())
+}
+
+fn reference_record() -> Check {
+    let env = environment()?;
+    let replay = fixtures().join("replies/pathway/native");
+    let globals = env.globals(Some(&replay), false);
+    let expected = cli(&env, &["get", "pathway", "R-HSA-5673001"], &globals)?;
+    if expected.get("status") != Some(&json!("complete")) {
+        return Err(format!("recorded pathway fixture failed: {expected}"));
+    }
+    parity(
+        &env,
+        &globals,
+        json!({"name":"biomcp_reference","arguments":{
+        "command":"get_pathway","arguments":{"id":"R-HSA-5673001"}}}),
+        &expected,
+    )
 }
 
 fn fresh_cases() -> Check {
@@ -136,7 +184,7 @@ fn fresh(source: &str, argv: &[&str], call: Value) -> Check {
     }
     let frame = request(json!(1), "tools/call", call);
     let actual = typed(&env, &globals, &frame)?;
-    if actual != expected {
+    if super::typed_followups::data(&actual) != super::typed_followups::data(&expected) {
         return Err(format!(
             "server freshness lost: CLI {expected}, typed {actual}"
         ));

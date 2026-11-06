@@ -46,29 +46,7 @@
       "type": "object"
     },
     "Reply_ArticleText": {
-      "anyOf": [
-        {
-          "required": [
-            "part"
-          ]
-        },
-        {
-          "required": [
-            "find"
-          ]
-        },
-        {
-          "required": [
-            "variant"
-          ]
-        },
-        {
-          "required": [
-            "save"
-          ]
-        }
-      ],
-      "description": "Read one bounded body part, find matching rows, or save the complete Markdown document.",
+      "description": "Return the abstract card by default, or explicitly read body text.",
       "properties": {
         "find": {
           "$ref": "#/$defs/Reply_Text",
@@ -87,7 +65,7 @@
           "type": "integer"
         },
         "part": {
-          "description": "One-based outline part number.",
+          "description": "One-based outline part; omit reader selectors for the abstract card.",
           "format": "uint32",
           "minimum": 1,
           "type": "integer"
@@ -98,17 +76,20 @@
         },
         "save": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Save the whole original document to an explicit file or existing folder."
+          "description": "Save the whole original document to an explicit file or existing folder. Example: --save article-output."
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Explicit checked protein substitution."
+          "description": "Explicit checked protein substitution. Example: --variant p.V600E."
         }
       },
       "required": [
         "input"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "ArticleGet"
+      ]
     },
     "Reply_ArticleTextResult": {
       "description": "Body text response; the envelope supplies advancing reader steps.",
@@ -645,14 +626,14 @@
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
-          "description": "Local request limits and source-specific recovery guidance.",
+          "description": "Local request limits, source observations and recovery guidance.",
           "properties": {
             "kind": {
               "const": "request-guidance",
               "type": "string"
             },
             "message": {
-              "description": "Reviewed guidance without provider response text.",
+              "description": "Reviewed guidance; any quoted provider wording remains source data.",
               "type": "string"
             },
             "retry_after_seconds": {
@@ -791,7 +772,7 @@
       ]
     },
     "Reply_SourceOutcome": {
-      "description": "One source's outcome, without provider text.",
+      "description": "One source's outcome with source notices and request guidance.",
       "properties": {
         "count": {
           "description": "Provider matching count.",

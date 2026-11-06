@@ -197,7 +197,7 @@ macro_rules! command_types {
                 "get", "disease", DiseaseGet, "disease-get", "biomcp.disease-get/3", DiseaseGet, "disease-get", "biomcp.disease-get/3",
                 "biomcp.disease-get/3", 35, Direct
             );
-            /// Search drugs and medicines by name.
+            /// Search drugs and medicines by name or native label indication.
             SearchDrug(DrugSearch) => (
                 "search", "drug", DrugSearch, "drug-search", "biomcp.drug-search/4", DrugSearch, "drug-search", "biomcp.drug-search/4",
                 "biomcp.drug-search/4", 36, Direct
@@ -278,7 +278,7 @@ macro_rules! command_types {
                 "article", "supplement", ArticleSupplement, "article-supplement", "biomcp.article-supplement/3", ArticleSupplement,
                 "article-supplement", "biomcp.article-supplement/3", "biomcp.article-supplement/3", 42, Direct
             );
-            /// Read research article full text.
+            /// Get the abstract card by default, or explicitly read article body text.
             ArticleText(ArticleText) => (
                 "article", "text", ArticleText, "article-text", "biomcp.article-text/4", ArticleText, "article-text", "biomcp.article-text/4",
                 "biomcp.article-text/4", 44, Direct

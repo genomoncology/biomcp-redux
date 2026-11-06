@@ -7,22 +7,15 @@ use serde_json::{Value, json};
 use std::collections::BTreeSet;
 
 pub(super) fn check(env: &Environment) -> Result<(), String> {
-    let replies = exchange_with_globals(
-        env,
-        &[request(json!(1), "tools/list", json!({}))],
-        &["--offline".into()],
-    )?;
-    let tools = replies
-        .first()
-        .and_then(|r| r.pointer("/result/tools"))
-        .and_then(Value::as_array)
-        .ok_or("tools")?;
+    let tools = catalog(env, false)?;
+    standalone(&tools)?;
+    standalone(&catalog(env, true)?)?;
+    faers_drug(&tools)?;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
-        let tool = tools
-            .iter()
-            .find(|tool| tool.get("name") == Some(&json!(name)))
-            .ok_or("registry tool")?;
+        let Some(tool) = tools.iter().find(|tool| tool["name"] == name) else {
+            continue; // Grouped command contracts remain available through canonical help.
+        };
         let description = tool
             .get("description")
             .and_then(Value::as_str)
@@ -43,6 +36,17 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             ));
         }
         let schema = cli(env, &["schema".into(), id.into()])?;
+        complete_words(&schema, summary, description, &name)?;
+        for (key, property) in tool
+            .pointer("/inputSchema/properties")
+            .and_then(Value::as_object)
+            .ok_or("tool properties")?
+        {
+            let description = property["description"]
+                .as_str()
+                .ok_or("parameter description")?;
+            complete_words(&schema, summary, description, &format!("{name}.{key}"))?;
+        }
         primary(&schema, description, &name)?;
         publishers(verb, entity, &schema, description)?;
     }
@@ -74,6 +78,20 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         .trim();
     if !description.starts_with(summary) {
         return Err("CLI help lost the command summary".into());
+    }
+    Ok(())
+}
+fn faers_drug(tools: &[Value]) -> Result<(), String> {
+    let description = tools
+        .iter()
+        .find(|tool| tool.get("name") == Some(&json!("search_adverse_event")))
+        .and_then(|tool| tool.pointer("/inputSchema/properties/drug/description"))
+        .and_then(Value::as_str)
+        .ok_or("typed FAERS drug description")?;
+    if description != "FAERS drug names; OR." {
+        return Err(format!(
+            "typed FAERS drug lost its owning description: {description}"
+        ));
     }
     Ok(())
 }
@@ -158,4 +176,81 @@ fn words(node: &Value, root: &Value, out: &mut BTreeSet<String>) {
             words(node, root, out);
         }
     }
+}
+
+fn standalone(tools: &[Value]) -> Result<(), String> {
+    let mut failures = Vec::new();
+    for tool in tools {
+        let name = tool["name"].as_str().ok_or("tool name")?;
+        let descriptions = std::iter::once((name.to_owned(), &tool["description"])).chain(
+            tool.pointer("/inputSchema/properties")
+                .and_then(Value::as_object)
+                .into_iter()
+                .flatten()
+                .map(|(key, property)| (format!("{name}.{key}"), &property["description"])),
+        );
+        for (path, value) in descriptions {
+            let text = value.as_str().unwrap_or_default();
+            if text.is_empty() || text.contains("biomcp_help") {
+                failures.push(format!("{path}: incomplete description: {text}"));
+            }
+        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("\n"))
+    }
+}
+
+// A truncated operand creates a word that is absent from the owning schema and registry.
+fn complete_words(
+    schema: &Value,
+    summary: &str,
+    description: &str,
+    name: &str,
+) -> Result<(), String> {
+    let sources = biomcp_types::Source::ALL
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(" ");
+    let declared = format!("{schema} {summary} {sources} IDs Sections");
+    let vocabulary = declared
+        .split(|c: char| !c.is_alphanumeric())
+        .map(str::to_lowercase)
+        .collect::<BTreeSet<_>>();
+    let unknown = description
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|word| !word.is_empty() && !vocabulary.contains(&word.to_lowercase()))
+        .collect::<Vec<_>>();
+    if unknown.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{name}: description contains words absent from its source: {unknown:?}: {description}"
+        ))
+    }
+}
+
+fn catalog(env: &Environment, hosted: bool) -> Result<Vec<Value>, String> {
+    let mut globals = vec!["--offline".into()];
+    if hosted {
+        globals.push("--hosted".into());
+    }
+    let replies = exchange_with_globals(
+        env,
+        &[request(
+            json!(if hosted { 2 } else { 1 }),
+            "tools/list",
+            json!({}),
+        )],
+        &globals,
+    )?;
+    replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .cloned()
+        .ok_or_else(|| "tools".into())
 }

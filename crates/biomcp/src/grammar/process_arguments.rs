@@ -1,5 +1,5 @@
 //! Process options share one declaration with installed replay discovery.
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, Command, builder::TypedValueParser};
 use std::path::PathBuf;
 
 /// Shared literal semantics for actual booleans; fixed-value enum switches opt out.
@@ -35,7 +35,7 @@ pub(crate) fn command() -> Command {
     root = root.arg(
         Arg::new("disable-sources")
             .long("disable-sources")
-            .help("Exclude source names or source terms groups.")
+            .help("Exclude source names or source terms groups. Example: --disable-sources civic.")
             .global(true)
             .num_args(1)
             .value_delimiter(',')
@@ -45,7 +45,7 @@ pub(crate) fn command() -> Command {
         Arg::new("source_pacing")
             .long("source_pacing")
             .help(
-                "Override source pacing with a JSON map of rate, keyed_rate and in_flight values.",
+                "Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.",
             )
             .global(true),
     );
@@ -54,7 +54,7 @@ pub(crate) fn command() -> Command {
             Arg::new(name)
                 .long(name)
                 .hide(name != "config")
-                .help("Read configuration from this file.")
+                .help("Read configuration from this file. Example: --config config.json.")
                 .global(true)
                 .value_parser(clap::value_parser!(PathBuf)),
         );
@@ -72,5 +72,32 @@ pub(crate) fn command() -> Command {
                 .overrides_with(name),
         ));
     }
-    root
+    case_choices(root)
+}
+
+/// Apply the same choice matching to every parser-owned enum, including local commands.
+pub(super) fn case_choices(command: Command) -> Command {
+    command
+        .mut_args(|argument| {
+            let parser = argument.get_value_parser();
+            let Some(choices) = parser.possible_values().map(Iterator::collect::<Vec<_>>) else {
+                return argument;
+            };
+            let strings = parser.type_id() == clap::builder::ValueParser::string().type_id();
+            let argument = argument.ignore_case(true);
+            if strings {
+                let canonical = choices.clone();
+                argument.value_parser(clap::builder::PossibleValuesParser::new(choices).map(
+                    move |text| {
+                        canonical
+                            .iter()
+                            .find(|choice| choice.matches(&text, true))
+                            .map_or(text.clone(), |choice| choice.get_name().to_owned())
+                    },
+                ))
+            } else {
+                argument
+            }
+        })
+        .mut_subcommands(case_choices)
 }

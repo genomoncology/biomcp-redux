@@ -39,7 +39,6 @@ pub use predictor::{
 pub use query::PhaseFilter;
 pub use query::SponsorType;
 pub use query::TrialDocumentGet;
-pub use query::VariantPopulationQuery;
 pub use query::{ArticleEdges, EdgeSource};
 pub use query::{ArticleEvidence, ArticlePdf, ArticleRecommend};
 pub use query::{
@@ -60,10 +59,13 @@ pub use query::{
     NciBiomarkerUse, NciStatusFilter, TrialFilter, TrialPhaseFilter, TrialSearch, TrialSource,
     TrialStatusFilter,
 };
-pub use query::{NormalizationSource, VariantGet, VariantNormalize, VariantResolver};
+pub use query::{
+    NormalizationSource, VariantGet, VariantGetEcho, VariantNormalize, VariantResolver,
+};
 pub use query::{RecurrenceSource, VariantRecurrenceQuery};
 pub use query::{TrialGet, TrialSection};
 pub use query::{VariantInput, VariantNamespace};
+pub use query::{VariantPopulationQuery, VariantPopulationQueryEcho};
 pub use response::TrialParameter;
 pub use response::{AnnotatedEntity, AnnotationKind, Annotations, ArticleSections, Tldr};
 pub use response::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
@@ -103,7 +105,8 @@ pub use response::{
 pub use response::{Constraint, GeneSections, Protein};
 pub use response::{
     EmptyQuery, Envelope, GeneCards, GeneItem, GenePage, ItemStatus, PageInfo, ResponseBody,
-    Section, SourceOutcome, SourceRecord, SourceState, Status, Step, StepKind,
+    Section, SourceOutcome, SourceRecord, SourceState, SourceStatus, SourceStatusView, Status,
+    Step, StepKind,
 };
 pub use response::{ErrorCode, ErrorEnvelope, ErrorMessage, ErrorStatus, Problem, ProblemCode};
 pub use response::{
@@ -175,26 +178,27 @@ pub use drug::{
     DEFAULT_DRUG_APPROVALS_LIMIT, DrugApprovals, DrugCard, DrugCivic, DrugCivicClaim,
     DrugCivicMember, DrugCivicPage, DrugCivicProfile, DrugCivicStreams, DrugFdaCandidate,
     DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
-    DrugFdaSubmission, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
-    DrugLabelFragment, DrugLabelText, DrugNameMatch, DrugNameResolution, DrugNameSelector,
-    DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification,
-    DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory, DrugSearch,
-    DrugSection, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
-    DrugXrefs, OPENFDA_LABEL_HEADINGS,
+    DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
+    DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
+    DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage,
+    DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
+    DrugRecallPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets,
+    DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, OPENFDA_LABEL_HEADINGS,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
 
 mod adverse_event;
 pub use adverse_event::{
-    AdverseEventDevice, AdverseEventDevices, AdverseEventDrug, AdverseEventDrugs,
-    AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader, AdverseEventIdentifierRecords,
-    AdverseEventIdentifierSection, AdverseEventIdentifiers, AdverseEventIdentityCounts,
-    AdverseEventMaudeCard, AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage,
-    AdverseEventReaction, AdverseEventReactionMatch, AdverseEventReactions, AdverseEventRecords,
-    AdverseEventSearch, AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit,
-    VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,
-    vaers_vaccine_code,
+    AdverseEventAggregate, AdverseEventDevice, AdverseEventDevices, AdverseEventDrug,
+    AdverseEventDrugs, AdverseEventFaersCard, AdverseEventGet, AdverseEventHeader,
+    AdverseEventIdentifierRecords, AdverseEventIdentifierSection, AdverseEventIdentifiers,
+    AdverseEventIdentityCounts, AdverseEventMaudeCard, AdverseEventNarrative,
+    AdverseEventNarrativeItem, AdverseEventPage, AdverseEventReaction, AdverseEventReactionCount,
+    AdverseEventReactionCounts, AdverseEventReactionMatch, AdverseEventReactions,
+    AdverseEventRecords, AdverseEventSearch, AdverseEventSection, AdverseEventSerious,
+    AdverseEventSource, ReportUnit, VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope,
+    VaersSection, VaersSummary, vaers_vaccine_code,
 };
 
 mod pgx;
@@ -270,7 +274,7 @@ pub use response::{UsageArguments, UsageError};
 pub use response::{Reply, ReplyBody, ReplyData};
 
 mod coverage;
-pub use coverage::{command_implicit_sources, command_section_sources};
+pub use coverage::{command_implicit_sources, command_section_component, command_section_sources};
 
 #[cfg(feature = "schema")]
 pub use adverse_event::AdverseEventSearchCommand;

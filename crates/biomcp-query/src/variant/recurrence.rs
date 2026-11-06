@@ -29,9 +29,9 @@ fn empty() -> VariantRecurrence {
         all_pages_read: false,
         more: false,
         terms: biomcp_types::RecurrenceTerms {
-            unverified: true,
-            notice: "Individual studies may impose commercial restrictions; public access does not verify study-specific reuse rights".into(),
-            url: "https://docs.cbioportal.org/user-guide/faq/".into(),
+            unverified: false,
+            notice: cbioportal::SPEC.terms.name.into(),
+            url: cbioportal::SPEC.terms.url.into(),
         },
     }
 }
@@ -100,10 +100,9 @@ fn metadata(query: &VariantRecurrenceQuery, cohort: &cbioportal::Cohort, out: &m
     out.problems.extend(cohort.problems.iter().cloned());
     if let Some(error) = cohort.count_error {
         if let Some(source) = out.sources.last_mut() {
-            source.state = biomcp_types::SourceState::Failed;
-            if let Some(reason) = status::reason(error) {
-                source.reason = Some(reason);
-            }
+            source.set_status(biomcp_types::SourceStatus::Failed(
+                status::reason(error).or(source.reason),
+            ));
         }
         out.local = status::local(error);
         out.problems.push(matching::problem(
@@ -158,8 +157,7 @@ fn identity(
             "identity.exact_allele",
         ));
         if let Some(source) = out.sources.last_mut() {
-            source.state = biomcp_types::SourceState::Failed;
-            source.reason = Some(Reason::Rejected);
+            source.set_status(biomcp_types::SourceStatus::Failed(Some(Reason::Rejected)));
         }
         return Err(rejected(spec.source, Reason::Rejected));
     }

@@ -1,4 +1,5 @@
 //! The fixed schema usage response, including its checked wire literals.
+use crate::UsageError;
 use serde::{Deserialize, Serialize};
 
 // One literal defines both serde and schema, including the fixed message.
@@ -84,6 +85,12 @@ singleton! {
             [associations|ancestries]; bare numbers are unsupported; sections must match the resource kind; \
             --section-limit is 1..50 and --section-offset is a nonnegative integer; identities are never \
             repaired",
+        TrialSectionPool => "nonzero --offset requires --pool from the returned continuation; run the suggested \
+            first-page command, then follow its next command",
+        TrialSearchCursor => "nonzero --offset requires --next-page from the returned continuation; run the suggested \
+            first-page command, then follow its next command",
+        FaersDrugNames => "pass --drug once per literal name to search several names with OR; OR inside one --drug value \
+            is not supported",
         FaersQueryLength => "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
@@ -190,7 +197,9 @@ singleton! {
         DiseaseName => "use: search disease <TEXT>; select an exact CURIE before get",
         DiseaseSite => "use: search disease --source seer; then get disease <SITE> survival --source seer --dataset <CODE> --interval <CODE>",
         DiseaseOpenTargets => "deferred; Open Targets disease genes have no proved current section",
+        // Retain the old error/4 wire value for legacy artifact deserialization.
         DiseaseDrugs => "use: search drug --source chembl --indication <TEXT>; no disease synonym expansion",
+        DiseaseLabelSearch => "use: search drug --source openfda-label --indication <TEXT>; no disease synonym expansion",
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
         PhenotypeHelp => "use: help phenotype",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
@@ -212,7 +221,10 @@ singleton! {
         DrugRegion => "--region is retired: select an explicit --source.",
         DrugWhoRegion => "--region who is retired: use --source who-pq.",
         DrugProductType => "--product-type is retired: WHO prequalification is outside this question bank.",
+        // Retain the old error/4 wire value for legacy artifact deserialization.
         DrugUnproved => "drug search filters --target, --indication, --type, --atc and --pharm-class are not yet supported; \
+            select a drug identity to read source sections.",
+        DrugUnsupportedFilters => "drug search filters --target, --type, --atc and --pharm-class are not yet supported; \
             select a drug identity to read source sections.",
         DrugName => "--name is retired: use search drug <TEXT> --source <SOURCE> and select a native identity.",
         DrugRaw => "--raw is retired: use get drug <SPL-SET-ID> label --source openfda-label --label-section <NATIVE-HEADING>.",
@@ -306,7 +318,6 @@ pub struct ErrorEnvelope {
 
 impl From<crate::UsageError> for ErrorEnvelope {
     fn from(usage: crate::UsageError) -> Self {
-        use crate::UsageError;
         let mut out = Self::empty(
             ErrorStatus::Usage,
             ErrorCode::Arguments,
@@ -353,6 +364,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.source = Some(crate::Source::Nci);
             }
             UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
+            UsageError::ArticlePartRange { input, last } => out.article_part_range(input, last),
             UsageError::UnsupportedTrialFilter { source, option } => {
                 out.error.filter(source, option.as_str())
             }
@@ -390,6 +402,30 @@ impl From<crate::UsageError> for ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    fn article_part_range(&mut self, input: crate::ArticleInput, last: u32) {
+        self.error.option = Some("--part".into());
+        self.error.message = ErrorMessage::ArgumentGuidance;
+        self.error.count = Some(u64::from(last));
+        self.error.valid_values = Some(if last == 0 {
+            Box::default()
+        } else {
+            crate::Text::new(&format!("1..{last}"))
+                .ok()
+                .into_iter()
+                .collect()
+        });
+        self.next.push(super::Step {
+            kind: super::StepKind::Section,
+            args: vec![
+                "get".into(),
+                "article".into(),
+                input.to_string().into(),
+                "fulltext".into(),
+            ]
+            .into(),
+        });
+    }
+
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self::empty(ErrorStatus::Local, ErrorCode::Local, ErrorMessage::Local)

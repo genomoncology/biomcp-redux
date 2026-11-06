@@ -73,8 +73,7 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
             if rejection.is_some() {
                 found.reason = Some(Reason::Rejected);
                 if let Some(source) = found.sources.first_mut() {
-                    source.state = biomcp_types::SourceState::Failed;
-                    source.reason = Some(Reason::Rejected);
+                    source.set_status(biomcp_types::SourceStatus::Failed(Some(Reason::Rejected)));
                 }
             }
             if let Some(rejection) = &rejection
@@ -192,7 +191,16 @@ pub(super) fn missing(source: Source) -> Problem {
         Source::Erepo | Source::Civic => "one CAid",
         Source::Gwas => "one rsID",
         Source::Gnomad => {
-            "one source-qualified GRCh38 SNV (CAid or reference-qualified genomic HGVS); indels need a padded source representation"
+            return Problem {
+                source,
+                record: None,
+                field: concat!(
+                    "input: no unique source-qualified GRCh38 allele or registry ",
+                    "gnomAD v4 cross-reference; population lookup cannot proceed for this allele"
+                )
+                .into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            };
         }
         _ => {
             "one exact source-qualified allele (CAid or reference-qualified genomic HGVS) with the source's required annotations"

@@ -12,8 +12,59 @@ use super::super::{
     launch::Environment,
     mcp::{exchange_with_globals, request},
 };
+use crate::runner::transcript::trial as transcript_trial;
+use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::io::Write;
+
+pub(super) fn trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("mcp-parity/typed-cli-bridge", || {
+            super::typed_bridge::check().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-description-contract", || {
+            description_contract().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-hosted-catalog", || {
+            super::typed_hosted::check().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-help-research-discovery", || {
+            super::typed_help::discovery().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-getter-help", || {
+            getter_help().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-help-next-recovery", || {
+            super::typed_help::recovery().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/compact-typed-schemas", || {
+            let env = Environment::new()?;
+            super::typed_schemas::check(&env).map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-reply-forms-and-cap", || {
+            super::typed_reply::check().map_err(Into::into)
+        }),
+        transcript_trial(super::super::pool_contract::TYPED_TOOLS.0, || {
+            check().map_err(Into::into)
+        }),
+    ]
+}
+
+tool_only! {
+pub(super) fn proof_trials() -> Vec<Trial> {
+    vec![
+        transcript_trial("mcp-parity/typed-baseline-and-replay-guards", || {
+            guards().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-historical-baseline-and-replay", || {
+            historical().map_err(Into::into)
+        }),
+        transcript_trial("mcp-parity/typed-clock-controls", || {
+            clock_controls().map_err(Into::into)
+        }),
+    ]
+}
+}
 
 pub(super) fn getter_help() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -24,7 +75,7 @@ pub(super) fn getter_help() -> Result<(), String> {
 
 pub(super) fn description_contract() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
-    env.config(&json!({"mcp_tool_mode":"typed"}))
+    env.config(&json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":true}))
         .map_err(|e| e.to_string())?;
     policy::check_descriptions(&env)
 }
@@ -54,11 +105,9 @@ pub(super) fn historical() -> Result<(), String> {
     let mut case_index = 0;
     for (verb, entity, _) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
-        let tool = tools
-            .iter()
-            .find(|tool| tool.get("name") == Some(&json!(name)))
-            .ok_or_else(|| format!("missing registry tool {name}"))?;
-        if let Err(error) = replay::check(tool, &mut case_index) {
+        let tool = super::typed_catalog::command(&tools, &name)
+            .ok_or_else(|| format!("missing registry route {name}"))?;
+        if let Err(error) = replay::check(&tool, &mut case_index) {
             failures.push(error);
         }
     }
@@ -89,9 +138,7 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
         .and_then(Value::as_array)
         .ok_or("missing tools")?;
     let paths = biomcp_types::command_paths();
-    if tools.len() != paths.len() + 3 {
-        return Err("missing registry tools".into());
-    }
+    super::typed_catalog::check(tools)?;
     let instructions = replies
         .iter()
         .find(|r| r["id"] == 2)
@@ -103,10 +150,9 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
     }
     for (verb, entity, _) in paths {
         let name = format!("{verb}_{entity}").replace('-', "_");
-        let tool = tools
-            .iter()
-            .find(|tool| tool["name"] == name)
-            .ok_or_else(|| format!("missing {name}"))?;
+        let Some(tool) = tools.iter().find(|tool| tool["name"] == name) else {
+            continue;
+        };
         let description = tool["description"].as_str().ok_or("description")?;
         if description.chars().count() > 300 {
             return Err(format!(
@@ -114,7 +160,6 @@ fn discovery(env: &Environment, globals: &[String]) -> Result<Vec<Value>, String
                 description.chars().count()
             ));
         }
-        descriptions(&tool["inputSchema"])?;
     }
     writeln!(
         std::io::stdout(),
@@ -243,29 +288,6 @@ fn validation_parity(
     }
     Ok(stdio.clone())
 }
-fn descriptions(node: &Value) -> Result<(), String> {
-    if node
-        .get("description")
-        .and_then(Value::as_str)
-        .is_some_and(|s| s.chars().count() > 80)
-    {
-        return Err("argument description budget".into());
-    }
-    match node {
-        Value::Object(map) => {
-            for value in map.values() {
-                descriptions(value)?;
-            }
-        }
-        Value::Array(values) => {
-            for value in values {
-                descriptions(value)?;
-            }
-        }
-        _ => {}
-    }
-    Ok(())
-}
 
 tool_only! {
 pub(super) fn guards() -> Result<(), String> {
@@ -275,11 +297,9 @@ pub(super) fn guards() -> Result<(), String> {
     env.config(&json!({"mcp_tool_mode":"typed"}))
         .map_err(|e| e.to_string())?;
     let tools = discovery(&env, &["--offline".into()])?;
-    let tool = tools
-        .iter()
-        .find(|tool| tool.get("name") == Some(&json!("search_biomarker")))
-        .ok_or("missing search_biomarker registry tool")?;
-    replay::rejects_overstrict_schema(tool)?;
+    let tool = super::typed_catalog::command(&tools, "search_biomarker")
+        .ok_or("missing search_biomarker registry route")?;
+    replay::rejects_overstrict_schema(&tool)?;
     let mut failures = Vec::new();
     if let Err(error) = baseline::invalid_id_witness() {
         failures.push(error);

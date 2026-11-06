@@ -20,7 +20,7 @@ article-sections: A caller requests indexing and normalized entity annotations w
 article-citations: A caller sorts by iCite citation counts and walks citing or referenced papers with explicit missing counts.
 article-fulltext: A caller reads available full text through semantic parts, tables, outlines and checked continuations.
 article-retired: A caller using a retired article spelling receives its fixed replacement or removal explanation.
-mcp-parity: A caller sends CLI arguments through the default MCP tool or named arguments through registry-generated typed tools, receives the same command result and validates structured replies against each advertised schema; typed discovery includes command help, research search and fetch, executable help follow-ups, and a catalog whose tools, sources and file-write hints reflect serving authority.
+mcp-parity: A caller sends CLI arguments through the default MCP tool or named arguments through registry-generated typed tools, receives the same command result and validates structured replies against each advertised schema; typed discovery includes command help, research search and fetch, typed follow-ups admitted against the caller’s advertised tools and input schemas, section names in the section argument, and a catalog whose tools, sources and file-write hints reflect serving authority.
 schema-discovery: A caller lists versioned schemas with descriptions, discovers resolvable command reply contracts and scoped help aliases, and follows safe guidance for invalid schema requests and unknown commands.
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures.
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP.
@@ -37,7 +37,7 @@ article-saves: Save whole article Markdown or original supplement bytes only to 
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP.
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call.
 variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair.
-trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch notices, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
+trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch and per-trial gene-context notices, omitted intervention counts with commands to read the full registered list, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations.
 trial-nci: Explicit NCI phase and status filters use publisher vocabularies; trial search and exact retrieval require the user key and preserve native fields without registry fallback; exact facility search returns one matched site and its match count; exact biomarker code search retains native criterion and inclusion_indicator entries and reports same-entry mismatches.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path.
@@ -52,12 +52,12 @@ variant-civic: Preserve CIViC exact profile membership and separate native claim
 variant-hotspots: Retain native transcript and residue counts without an inferred variant join.
 variant-oncokb: Retrieve only user-keyed OncoKB annotations with explicit assembly and tumor context, preserving source protein claims and native implication groups.
 variant-help: Variant help gives executable examples and explicit migration steps without clinical interpretation.
-drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications without inferring authorization.
+drug-native-sources: Retrieve native ChEMBL and Open Targets drug candidates, identities, mechanisms and indications, retry empty name lookups using uniquely source-stated aliases and disclose other sources with matches, without inferring authorization.
 drug-ema: Explicitly synchronize EMA medicines and read separate native candidates, exact identity cards and source-scoped regulatory dates without implicit synchronization.
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context and shared native evidence level and status selectors.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.
-drug-label: Search source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
-drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection and configurable submission pages.
+drug-label: Search literal label indication phrases or source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
+drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts.
@@ -69,7 +69,7 @@ drug-failures: Every kept drug source reports synthetic transport and broken-bod
 drug-identity: Drug sources reject mismatched, conflicting and absent identity joins before cache admission or product selection.
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples.
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference.
-adverse-event-search: Search literal FAERS drug names joined with OR and other filters joined with AND, with typed phrase, seriousness and receipt selectors, native report pages and exact next requests.
+adverse-event-search: Search literal FAERS names and filters for native report pages with exact next requests, or return openFDA reaction count buckets without derived rates or causal interpretation.
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes and product problem phrases and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
@@ -120,14 +120,14 @@ housekeeping: Print build provenance and ready-to-paste local MCP configuration 
 store-coexistence: Allowed bundle reads import only names missing from the current generation through a verified atomic transfer, preserve both files, and retain current published bundles on conflicts.
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory.
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key.
-query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, and optional true or false values for boolean flags.
+query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, optional true or false values for boolean flags, and case-insensitive enumerated choices echoed canonically.
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order.
 diagnostic-device-recall: Search native device recall records, inspect exact recall numbers and follow product codes to MAUDE without inferring harm.
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging.
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code.
 drug-recall: Search published FDA drug recall records by name, firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems.
 variant-clinvar-haplotype: Preserve native ClinVar haplotype kind, version, chromosome grouping and ordered member identities.
-mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; HTTP calls declare commercial or academic use with commercial defaults and server exclusions preserved, use caller source headers under declared fallback tiers without retaining credentials, pace each effective key independently, share keyless pacing, scale provider rates with --rate-share and cap whole-call time and active hosted HTTP work.
+mcp-hosted: A server operator refuses host file saves, health details and store or key changes over every MCP transport in hosted mode; discovery and follow-ups offer only served operations without server paths, source notices distinguish operator exclusions from hosted use policy, and HTTP preserves caller credential scope, pacing and whole-call bounds.
 
 source-pacing: Operators can lower source rates and simultaneous requests within documented source ceilings.
 

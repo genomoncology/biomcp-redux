@@ -16,13 +16,17 @@ The reply preserves the source URL, document metadata and license without granti
 
 `get diagnostic P170019 summary --source fda-pma` reads FDA's published SSED. `get drug NDA021588 approvals --source drugsfda --document-id 64255` reads the native submission's approval letter. The reader returns mechanically extracted embedded text, without summaries or clinical interpretation. It admits at most 25 MiB, 100 pages, and 4 MiB of expanded stream or total text. Each continuation returns at most 6144 escaped text bytes. `no-text` means no embedded text was found, including scanned documents; OCR is not run. `too-large` reports a reader bound. Native document URLs and submission ownership remain visible.
 
+Do not put patient names, identifiers or other private information in query text; source queries may be sent to public providers.
+
 ## Variant profiles, normalization and search
 
-A checked member match preserves the full compound profile and its source claim context. Name matches remain candidates. Claims that the common model cannot represent retain their native facts. Rows marked `candidate` with `no_join_id` have no established transcript and consequence join to the requested variant. These residue counts do not state an allele frequency or clinical actionability. Cancer Hotspots data reuse terms remain unverified. VariantValidator and `all` require `--build GRCh37|GRCh38`. Each service keeps its own outcome, source mappings, messages and available version metadata. A provider validation warning can reject an HTTP 200 reply. `all` returns independent results and never chooses a transcript or consensus. Mapping and message pages use `--limit` and `--offset`; typed next commands keep the remaining rows reachable. Gene and protein values are escaped as source literals. The reply echoes the exact source query and assembly and keeps native candidate order and totals. Protein and raw searches send no assembly unless `--build` supplies one. Returned coordinates retain only the assembly stated by the source. Page actions retain every selector; a warm page uses the ordinary checked cache. Broad queries disclose the command's result-window bound. No candidate becomes a chosen allele.
+In variant get and population replies, `query.resolver` names the identity resolver that answered. It is omitted when no named resolver answered. The source outcomes retain failures and identify direct identity services such as MyVariant. The executable request and its continuations retain the caller's resolver selection.
+
+A checked member match preserves the full compound profile and its source claim context. Name matches remain candidates. Claims that the common model cannot represent retain their native facts. Rows marked `candidate` with `no_join_id` have no established transcript and consequence join to the requested variant. These residue counts do not state an allele frequency or clinical actionability. Cancer Hotspots uses ODbL with attribution and share-alike. VariantValidator and `all` require `--build GRCh37|GRCh38`. Each service keeps its own outcome, source mappings, messages and available version metadata. A provider validation warning can reject an HTTP 200 reply. `all` returns independent results and never chooses a transcript or consensus. Mapping and message pages use `--limit` and `--offset`; typed next commands keep the remaining rows reachable. Gene and protein values are escaped as source literals. The reply echoes the exact source query and assembly and keeps native candidate order and totals. Protein and raw searches send no assembly unless `--build` supplies one. Returned coordinates retain only the assembly stated by the source. Page actions retain every selector; a warm page uses the ordinary checked cache. Broad queries disclose the command's result-window bound. No candidate becomes a chosen allele.
 
 ## Cohort recurrence
 
-The result counts distinct matched samples on that page. `selected_sample_count` is the source sample-list size and supplies no assayed denominator. The source may omit that count from its summary metadata. Missing genome builds and uncertain insertion or deletion representations remain problems. The reply preserves study metadata and flags study-specific reuse terms as unverified.
+The result counts distinct matched samples on that page. `selected_sample_count` is the source sample-list size and supplies no assayed denominator. The source may omit that count from its summary metadata. Missing genome builds and uncertain insertion or deletion representations remain problems. The reply preserves study metadata and the reviewed ODbL terms, including the warning that individual studies may restrict commercial use.
 
 ## Historical COSMIC fragments
 
@@ -30,12 +34,12 @@ Each fragment names its MyVariant parent record, preserves the component's origi
 
 ## Prediction, conservation and source assertions
 
-Every component is on by default. Commercial users should set `"disable_sources": ["noncommercial", "restricted"]` in the configuration file. The same groups work with `--disable-sources`. Groups switch off matching component fields while other aggregator fields remain available. Naming `myvariant` switches off the entire service. These settings apply before requests and prevent disabled values from returning through cached replies or replay. Public API access grants no additional component rights. The retired `predictions` spelling names `predict` as its replacement. Select a native assertion ID and version to inspect its source details. Source-local absence does not establish allele absence. Selected historical records include an exact version link and compact native assessments. A conflict flag preserves disagreements between source outcome labels and identifiers; the original nested evidence remains behind the source link.
+Every component is on by default. See the [commercial source configuration](../README.md#configure-sources-and-keys) for source exclusions. Groups switch off matching component fields while other aggregator fields remain available. Naming `myvariant` switches off the entire service. These settings apply before requests and prevent disabled values from returning through cached replies or replay. Public API access grants no additional component rights. The retired `predictions` spelling names `predict` as its replacement. Select a native assertion ID and version to inspect its source details. Source-local absence does not establish allele absence. Selected historical records include an exact version link and compact native assessments. A conflict flag preserves disagreements between source outcome labels and identifiers; the original nested evidence remains behind the source link.
 
 
 ## AlphaGenome scores
 
-The section requires the user's key, configured with `biomcp key set alphagenome` or `ALPHAGENOME_API_KEY`, and a source-resolved GRCh38 allele. Mitochondrial alleles return `unsupported` because this integration has not verified chromosome mapping and interval handling for them. Each scorer retains native numeric values, tensor coordinates and track and gene metadata. Finite values remain JSON numbers. Native nonfinite values carry `kind` as `nan`, `positive_infinity` or `negative_infinity`; Markdown shows `NaN`, `+Inf` or `-Inf`. These categories do not assert missingness. Section paging applies independently to every scorer. Scorer names, the interval and checkpoint selection describe the request. The source does not supply score units or a returned model version. Scores do not classify a variant. The publisher's [terms](https://alphagenome.google/terms) govern use; the service is labeled restricted.
+The section requires the user's key, configured with `biomcp key set alphagenome` or `ALPHAGENOME_API_KEY`, and a source-resolved GRCh38 allele. Mitochondrial alleles return `unsupported` because this integration has not verified chromosome mapping and interval handling for them. Each scorer retains native numeric values, tensor coordinates and track and gene metadata. Finite values remain JSON numbers. Native nonfinite values carry `kind` as `nan`, `positive_infinity` or `negative_infinity`; Markdown shows `NaN`, `+Inf` or `-Inf`. These categories do not assert missingness. Section paging applies independently to every scorer. Scorer names, the interval and checkpoint selection describe the request. The source does not supply score units or a returned model version. Scores do not classify a variant. The publisher's [terms](https://alphagenome.google/terms) govern use; the service is labeled licensed.
 
 ## Population counts
 
@@ -47,13 +51,19 @@ An exact rsID needs no allele-resolution request. Association pages retain the s
 
 ## CPIC and FAERS searches
 
-Named `recommendations` and `guidelines` sections preserve complete source rows and use `--section-limit` and `--section-offset`. An exact `--drug-id RxNorm:10324` on CYP2D6 recommendations selects the distinct native recommendation table. These commands preserve source labels and source-local empty replies. They calculate no phase, activity score, phenotype or treatment. Published website updates may precede the API tables; a retrieval date does not establish a dataset release. CPIC uses the registry's noncommercial policy ruling. The reply retains the exact source expression, native order and report total. A report total is not incidence, risk or causation. Publisher dates and retrieval dates have separate roles.
+An explicit `--drug` value containing a standalone OR between names is refused regardless of letter case. Pass `--drug` once per name. Positional drug text stays literal.
+
+Named `recommendations` and `guidelines` sections preserve complete source rows and use `--section-limit` and `--section-offset`. An exact `--drug-id RxNorm:10324` on CYP2D6 recommendations selects the distinct native recommendation table. These commands preserve source labels and source-local empty replies. They calculate no phase, activity score, phenotype or treatment. Published website updates may precede the API tables; a retrieval date does not establish a dataset release. CPIC curated content is CC0 1.0. The reply retains the exact source expression, native order and report total. A report total is not incidence, risk or causation. Publisher dates and retrieval dates have separate roles.
 
 ## Vaccine identity
 
 CVX vaccine identity lookup and sync are unavailable because no mapping to WONDER was proved. BioMCP does not translate vaccine identities or synchronize a CVX bundle.
 
 ## FAERS report sections
+
+FAERS `search adverse-event --aggregate reactions` requests openFDA's exact reaction-term counts across matching reports. The reply separates these buckets from report headers and retains native terms, counts and order. A report may list several drugs and several reactions: buckets can overlap and do not identify a causal drug–reaction pair. BioMCP never sums them into a report total or derives rates, incidence, risk or comparative safety. The source provides no exposure denominator.
+
+`--limit` bounds the returned reaction terms. `reaction_counts.limit_reached` means that the source filled that limit; it does not establish a total or prove that more terms exist. Count mode has no report offset or report total. Reaction terms require the MedDRA component and retain its terms of use. See [openFDA's count response](https://open.fda.gov/apis/drug/event/understanding-the-api-results/).
 
 The drug index is its absolute position in the report. Missing retained reports offer an explicit restart. Drug roles belong to each original drug row, and reaction labels carry separate MedDRA terms. Report counts and identifiers do not establish causation or a marketed-product identity.
 
@@ -91,7 +101,7 @@ It keeps the source decision fields and offers its exact companion-table selecto
 
 ## WHO finished products
 
-Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is restricted and links WHO's copyright policy.
+Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.
 
 ## WHO diagnostic search
 
@@ -99,7 +109,7 @@ Both selectors match literal whole words in their native columns, ignore case an
 
 ## Study metadata
 
-Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. Reads never synchronize. Missing or stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal remains restricted under its publisher terms. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
+Text matches literally and case-insensitively in native study IDs, names and descriptions; cancer-type codes remain case-sensitive. Reads never synchronize. Missing or stale copies offer an explicit sync command. Returned page commands retain the catalog revision and every selector. cBioPortal uses ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use. The catalog contains metadata only. File references preserve repository blob size and native LICENSE links without downloading data files. Source counts keep their native names. No frequency, denominator, survival or comparison is calculated. Gene-count rows and patient totals remain deferred because the source lacks a gene-row filter.
 
 ## Phenotype sections
 
@@ -162,6 +172,10 @@ NCI trial facility searches use `sites.org_name` for an exact case-insensitive o
 
 These commands return terminology. `search diagnostic --biomarker` filters diagnostic tests, and `search trial --variant` searches literal variant text. Native inclusion and exclusion values remain source assertions and do not establish patient eligibility. Search pages retain one bounded observation. A broad request can return narrowing guidance; a source failure never establishes zero concepts.
 
+## Drug names across sources
+
+After an empty name lookup, BioMCP may consult existing MyChem, openFDA label or ChEMBL records for source-stated names. ChEMBL first tries its native exact synonym filter when no selector was supplied. Cross-source retries require one exact name-resolution candidate and preserve the selected source's filters, IDs and native counts. Ambiguous names offer a source search instead of selecting an alias. The reply identifies any source supplying names, shows the actual successful search spelling and preserves it in continuation commands. A matching record in another source does not establish presence in the selected source. Source exclusions and the command budget also govern alias lookups; failed or disabled reads remain visible.
+
 ## Medical device recalls
 
 `search diagnostic --source fda-device-recall` covers every medical device. It searches the native recalling firm phrase, exact product code and inclusive initiation dates. The [FDA field mapping](https://github.com/FDA/openfda/blob/master/schemas/device_recall_mapping.json) defines `product_code` as a keyword field and `product_res_number.exact` as the exact recall identity. Totals count product recall records, including separate records under one event number. A count makes no claim about harm.
@@ -170,4 +184,6 @@ The card preserves the recall's reason, root cause, product description and dist
 
 The MAUDE next step selects the recall's product code across manufacturers. Recall records and adverse-event reports remain separate source facts. Neither establishes product-specific harm or clinical suitability.
 
-openFDA label search first tries exact brand and generic fields, then word matches, then label text (including indications) when the name fields have no results. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand, generic, or `spl_product_data_elements` value, in that order, falling back to the source SPL set ID when all are absent. Product data is original source text, not an inferred name. Paging preserves the selected source query and its native total.
+openFDA label search first tries exact brand and generic fields, then word matches, then indication wording, then other label text. The first field query with native results supplies every page and its total. A source match need not be the complete product name; `matched_name` records complete name matches separately. Display names use the first brand or generic value, falling back to the native SPL set ID when neither is available. Product-data paragraphs remain in the original label sections.
+
+`search drug --indication "pancreatic cancer" --source openfda-label` searches only the label's native `indications_and_usage` field. It preserves the phrase without disease synonym expansion or clinical inference. An optional name query further narrows that same search. Results remain SPL label identities in source order, with the source total; follow `get drug` and the label section to read the original wording. Drugs@FDA does not support this filter.

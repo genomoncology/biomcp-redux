@@ -4,6 +4,28 @@ type Check<T> = Result<T, String>;
 
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
+    validate_enum_scope(object)?;
+    let source = |value: &Value| {
+        value
+            .as_str()
+            .is_some_and(|word| word.parse::<biomcp_types::Source>().is_ok())
+    };
+    if object
+        .get("x-required-component")
+        .is_some_and(|value| !source(value))
+    {
+        return Err("invalid required-component annotation".into());
+    }
+    if object.get("x-required-components").is_some_and(|value| {
+        !value.as_object().is_some_and(|map| {
+            !map.is_empty()
+                && map.iter().all(|(name, component)| {
+                    name.parse::<biomcp_types::Source>().is_ok() && source(component)
+                })
+        })
+    }) {
+        return Err("invalid source-component annotation".into());
+    }
     if object
         .get("x-identifier")
         .is_some_and(|value| value != &Value::Bool(true))
@@ -62,4 +84,84 @@ fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
         }
     }
     Ok(())
+}
+
+fn validate_enum_scope(object: &serde_json::Map<String, Value>) -> Check<()> {
+    let Some(scope) = object.get("x-enum-by-field") else {
+        return Ok(());
+    };
+    let scope = scope.as_object().ok_or("invalid enum field scope")?;
+    let field = scope
+        .get("field")
+        .and_then(Value::as_str)
+        .ok_or("enum scope field")?;
+    let default = scope
+        .get("default")
+        .and_then(Value::as_str)
+        .ok_or("enum scope default")?;
+    let choices = scope
+        .get("choices")
+        .and_then(Value::as_object)
+        .ok_or("enum scope choices")?;
+    let values = object
+        .get("enum")
+        .and_then(Value::as_array)
+        .ok_or("enum scope values")?;
+    if scope.len() != 3
+        || field.is_empty()
+        || !choices.contains_key(default)
+        || choices.iter().any(|(key, list)| {
+            key.is_empty()
+                || list.as_array().is_none_or(|list| {
+                    list.is_empty() || list.iter().any(|v| !v.is_string() || !values.contains(v))
+                })
+        })
+    {
+        return Err("invalid enum field scope".into());
+    }
+    Ok(())
+}
+pub(super) fn required_component_annotations_are_metadata_with_checked_sources() -> Check<()> {
+    use serde_json::json;
+    let old = json!({"$id":"biodata.example/1", "type":"object", "properties":{"name":{"type":"string"}},
+        "required":["name"], "additionalProperties":false});
+    for annotation in [
+        json!({"x-required-component":"meddra"}),
+        json!({"x-required-components":{"maude":"gmdn"}}),
+    ] {
+        let new = annotated(&old, &annotation)?;
+        assert!(
+            super::compatibility::check(&old, &new).is_ok(),
+            "valid component metadata must preserve compatibility: {annotation}"
+        );
+    }
+    for annotation in [
+        json!({"x-required-component":null}),
+        json!({"x-required-component":"unknown-component"}),
+        json!({"x-required-components":[]}),
+        json!({"x-required-components":{}}),
+        json!({"x-required-components":{"maude":false}}),
+        json!({"x-required-components":{"unknown":"gmdn"}}),
+    ] {
+        let new = annotated(&old, &annotation)?;
+        assert!(
+            super::compatibility::check(&old, &new).is_err(),
+            "invalid component metadata must fail compatibility: {annotation}"
+        );
+    }
+    Ok(())
+}
+
+fn annotated(old: &Value, annotation: &Value) -> Check<Value> {
+    let mut new = old.clone();
+    new.pointer_mut("/properties/name")
+        .and_then(Value::as_object_mut)
+        .ok_or("schema fixture needs an object name property")?
+        .extend(
+            annotation
+                .as_object()
+                .ok_or("annotation fixture must be an object")?
+                .clone(),
+        );
+    Ok(new)
 }

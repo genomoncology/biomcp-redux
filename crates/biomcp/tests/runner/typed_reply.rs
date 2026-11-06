@@ -39,6 +39,11 @@ fn forms() -> Result<(), String> {
                 "tools/call",
                 json!({"name":"get_trial","arguments":{"input":["not-an-nct"]}}),
             ),
+            request(
+                json!(3),
+                "tools/call",
+                json!({"name":"get_trial","arguments":{"input":["NCT07491445"],"section":["summary","eligibility"],"source":"ctgov"}}),
+            ),
         ];
         let replies = exchange_with_globals(&env, &frames, &env.globals(Some(&capture), false))?;
         let values = frames
@@ -93,11 +98,20 @@ fn http_forms(
 }
 fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     let value = represented(result, form)?;
-    if result.get("isError") != Some(&json!(index == 1)) {
+    if result.get("isError") != Some(&json!(index != 0)) {
         return Err("typed reply lost error status".into());
     }
     if index == 0 && value.get("status") != Some(&json!("complete")) {
         return Err(format!("recorded search did not succeed: {value}"));
+    }
+    if index == 2
+        && value.get("next")
+            != Some(&json!([
+                {"kind":"configure","name":"get_trial","arguments":{"input":["NCT07491445"],"section":["eligibility"]}},
+                {"kind":"configure","name":"biomcp_help","arguments":{"command":"get trial"}}
+            ]))
+    {
+        return Err(format!("typed reply lost ordered recovery steps: {value}"));
     }
     Ok(value)
 }
@@ -184,7 +198,7 @@ fn cap() -> Result<(), String> {
                 ));
             }
             if let Some(reference) = &reference {
-                if reference != value {
+                if super::typed_followups::data(reference) != super::typed_followups::data(value) {
                     return Err("single and typed cap replies differ".into());
                 }
             } else {
