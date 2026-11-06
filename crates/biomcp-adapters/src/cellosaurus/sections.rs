@@ -110,10 +110,15 @@ impl Terms<'_> {
     /// Case follows the source's own case-insensitive var search.
     fn shown_by(&self, row: &CellLineVariation) -> bool {
         let same = |value: &Text, term: &Text| value.as_str().eq_ignore_ascii_case(term.as_str());
+        // Only human genes carry HGNC ids; other species name theirs in the other references.
+        let mut xrefs = row
+            .genes
+            .iter()
+            .map(|gene| &gene.reference)
+            .chain(&row.references);
         let gene = self.gene.is_none_or(|term| {
-            row.genes.iter().any(|gene| {
-                same(&gene.reference.id, term)
-                    || gene.reference.label.as_ref().is_some_and(|v| same(v, term))
+            xrefs.any(|xref| {
+                same(&xref.id, term) || xref.label.as_ref().is_some_and(|v| same(v, term))
             })
         });
         gene && self.mutations.iter().all(|term| {

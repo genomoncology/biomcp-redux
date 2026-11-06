@@ -10,7 +10,11 @@
             "--limit",
             "--offset",
             "--species",
-            "--disease"
+            "--disease",
+            "--gene",
+            "--mutation",
+            "--protein",
+            "--exclude-derived"
           ]
         },
         "/result/commands/0/description": "Search cell lines by name or identifier. Sources: cellosaurus.",
