@@ -1053,7 +1053,7 @@ Options:
 
       --drug <drug>...
           FAERS drug names; OR.
-          FAERS literal drug name; repeat --drug for OR. OR inside one quoted value stays literal. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+          FAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 
       --limit <limit>
           Native report headers, counted FAERS reaction terms or VAERS rows; default five.
@@ -1125,7 +1125,7 @@ Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 FAERS reaction counts.
 Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
-FAERS exact drug name; repeat --drug for OR. OR inside one quoted value stays exact. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
+FAERS exact drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1799,7 +1799,7 @@ Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; 
 - `--facility`: Facility.
 Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string. Example: --facility 'Dana-Farber Cancer Institute'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--gene`: Gene symbol/ID.
-ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string. Example: --gene KIT. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string. Example: --gene BRAF. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--has-results`: Posted results.
 ClinicalTrials.gov only: require posted source results. Value form: boolean. Example: --has-results true. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--id`: NCT identifier.
@@ -1820,7 +1820,7 @@ Opaque registry continuation; keep filters unchanged. Value form: string. Exampl
 Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--phase`: Source phase; biomcp_help search trial
 Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string. Example: --phase 1. Command sources: ctgov, nci; source restrictions in the field description apply.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string. Example: --phase 3. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `query`: Trial text.
 General registry discovery text.
 - `--sex`: ClinicalTrials.gov only: registry sex facet; biomcp_help search trial
@@ -1835,7 +1835,7 @@ Funding class.
 ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--status`: Source status; biomcp_help search trial
 Source status.
-Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status COMPLETED. Command sources: ctgov, nci; source restrictions in the field description apply.
+Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string. Example: --status RECRUITING. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--study-type`: Study type; biomcp_help search trial
 Study type.
 ClinicalTrials.gov only: exact registry study type. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
@@ -3326,7 +3326,7 @@ rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style geno
 - `--offset`: Candidate rows to skip in source order. Value form: integer. Example: --offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--resolver`: Resolver; biomcp_help get variant
 Resolver.
-Resolver for reference-qualified notation; never repairs the input locally. Value form: string. Example: --resolver car. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+Resolver for reference-qualified notation; never repairs the input locally. Value form: string. Example: --resolver variantvalidator. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `section`: Sections; biomcp_help get variant
 - `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer. Example: --section-limit 2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer. Example: --section-offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
@@ -4967,13 +4967,13 @@ Options:
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
 - `--build`: Explicit source assembly when required by; biomcp_help variant population
-Explicit source assembly when required by identity input. Value form: string. Example: --build GRCh37. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+Explicit source assembly when required by identity input. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean. Example: --detail. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
 - `--limit`: Maximum rows per page. Value form: integer. Example: --limit 3. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 10. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 - `--resolver`: Resolver for reference-qualified input; biomcp_help variant population
-Resolver for reference-qualified input. Value form: string. Example: --resolver car. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+Resolver for reference-qualified input. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
 
 ## biomcp variant recurrence
 
