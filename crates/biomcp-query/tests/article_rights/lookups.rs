@@ -71,6 +71,7 @@ fn failed_lookup_is_not_a_refusal_and_is_not_stored_as_whole() {
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(query),
     );
@@ -79,6 +80,31 @@ fn failed_lookup_is_not_a_refusal_and_is_not_stored_as_whole() {
         Status::Partial,
         "a stored pool must keep saying it is not whole"
     );
+    drop(stub);
+}
+
+#[test]
+fn failed_lookup_pool_does_not_answer_a_new_search() {
+    let dir = tempfile::tempdir().unwrap();
+    let recovered = Arc::new(Mutex::new(false));
+    let lookup = recovered.clone();
+    let (stub, fetch) = fixture::live(dir.path(), move |request| {
+        if request.contains("list-type") && !*lookup.lock().unwrap() {
+            return Ok("not a listing".into());
+        }
+        fixture::response(request)
+    });
+    let first = run(&fetch);
+    assert_eq!(first.status(), Status::Partial);
+    let pool = first.page.unwrap().pool.unwrap().id;
+    *recovered.lock().unwrap() = true;
+    let second = run(&fetch);
+    assert_eq!(
+        second.status(),
+        Status::Complete,
+        "a new search must reach the recovered lookup"
+    );
+    assert_ne!(second.page.unwrap().pool.unwrap().id, pool);
     drop(stub);
 }
 
@@ -108,6 +134,7 @@ fn papers_past_the_lookup_cap_say_they_went_unchecked() {
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(query),
     );
@@ -229,6 +256,7 @@ fn repeat_reads_keep_refusal_markers_and_write_nothing_new() {
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(query),
     );

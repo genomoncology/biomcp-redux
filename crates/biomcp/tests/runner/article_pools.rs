@@ -57,6 +57,9 @@ pub(super) fn trials() -> Vec<Trial> {
         super::transcript::trial("article-search/whole-pool-publication/disabled", || {
             disabled().map_err(Into::into)
         }),
+        super::transcript::trial("article-search/whole-pool-publication/drug-names", || {
+            failed_names().map_err(Into::into)
+        }),
     ]
 }
 
@@ -159,6 +162,39 @@ fn disabled() -> Result<(), String> {
     Ok(())
 }
 
+/// A search that may be missing names keeps no pool, so the next search reaches the sources.
+fn failed_names() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let cache = env.root().join("article-case-cache");
+    let replay = env.root().join("replay");
+    copy_capture("search/drug-names", &replay, |source, record| {
+        if matches!(source, "mychem" | "chembl") {
+            fail_exchanges(record)
+        } else {
+            Ok(())
+        }
+    })?;
+    let command = ["search", "article", "Canonical therapy"];
+    let first = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
+    if first.get("status").and_then(Value::as_str) != Some("partial")
+        || first.pointer("/page/pool").is_some_and(|pool| !pool.is_null())
+    {
+        return Err(format!("failed lookup stored a pool: {first}"));
+    }
+    copy_capture("search/drug-names", &replay, |_, _| Ok(()))?;
+    let second = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
+    if second.get("status").and_then(Value::as_str) != Some("complete")
+        || second.pointer("/page/total") != Some(&json!(3))
+    {
+        return Err(format!("new search did not reach recovered lookup: {second}"));
+    }
+    let third = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
+    if third.pointer("/page/pool/id") != second.pointer("/page/pool/id") {
+        return Err(format!("whole drug pool did not become current: {third}"));
+    }
+    Ok(())
+}
+
 // Fixture mutations are fallible even though the shared copy callback returns no value.
 fn copy_capture(
     recording: &str,
@@ -199,6 +235,17 @@ fn fail_doi_lookup(source: &str, record: &mut Value) -> Result<(), String> {
         .get_mut("exchanges")
         .ok_or("missing DOI lookup exchanges")? =
         json!([failure.clone(), failure.clone(), failure]);
+    Ok(())
+}
+
+fn fail_exchanges(record: &mut Value) -> Result<(), String> {
+    let exchanges = record
+        .get_mut("exchanges")
+        .and_then(Value::as_array_mut)
+        .ok_or("missing recording exchanges")?;
+    let mut failure = exchanges.first().cloned().ok_or("recording has no exchanges")?;
+    *failure.get_mut("status").ok_or("missing exchange status")? = json!(500);
+    *exchanges = vec![failure.clone(), failure.clone(), failure];
     Ok(())
 }
 

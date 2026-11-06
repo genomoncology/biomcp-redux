@@ -15,6 +15,7 @@ fn run(fetch: &Fetch) -> biomcp_query::Outcome {
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(
             serde_json::from_str::<ArticleSearch>(
@@ -122,6 +123,7 @@ fn assert_withheld_fulltext(fetch: &Fetch) {
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::ArticleText(query),
     );
@@ -168,6 +170,7 @@ fn restricted_continuation_keeps_legacy_pool_rank_and_removes_disallowed_text() 
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(query),
     );
