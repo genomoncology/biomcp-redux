@@ -33,9 +33,7 @@ pub(super) fn trial() -> Trial {
                 .filter(|row| row.get("requires_repository_python") == Some(&json!(true)))
                 .filter_map(|row| row.get("name").and_then(Value::as_str))
                 .collect::<Vec<_>>();
-            if excluded != ["live-source-checks/retained-drift-witnesses"]
-                || rows.len() <= excluded.len()
-            {
+            if !excluded.is_empty() || rows.is_empty() {
                 return Err(
                     format!("repository Python proof exclusions changed: {excluded:?}").into(),
                 );

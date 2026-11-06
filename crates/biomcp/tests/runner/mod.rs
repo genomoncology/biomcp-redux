@@ -72,9 +72,6 @@ mod replay;
 mod socket_read;
 mod source_pacing;
 mod source_status;
-tool_only! { pub(crate) mod live; }
-tool_only! { mod live_follow_proof; }
-tool_only! { mod live_proof; }
 mod declared_use;
 mod licensed_cache;
 mod maude;
@@ -526,8 +523,6 @@ tool_only! {
         trials.extend(hgnc_sync::trials());
         trials.extend(schema_proof::trials(registry));
         trials.extend(source_terms::trials());
-        trials.extend(live_proof::trials());
-        trials.extend(live_follow_proof::trials());
         Ok(trials)
     }
 }
