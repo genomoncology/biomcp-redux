@@ -43,32 +43,7 @@ pub(super) fn search<'a>(
     // Keep the worker count bounded by the existing source list, even for many aliases.
     for batch in queries.chunks(query.sources().len()) {
         let start = *deadline;
-        let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = batch
-            .iter()
-            .filter_map(|(selector, query)| {
-                let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
-                    ArticleSource::Pubmed => {
-                        Box::new(move || pubmed_search(cx, query, &resolved.names, start))
-                    }
-                    ArticleSource::Europepmc => Box::new(move || europe_search(cx, query, start)),
-                    ArticleSource::Litsense => {
-                        Box::new(move || super::named::litsense(cx, query, start))
-                    }
-                    ArticleSource::Pubtator => {
-                        Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start))
-                    }
-                    ArticleSource::SemanticScholar => {
-                        Box::new(move || super::semantic_scholar::search(cx, query, start))
-                    }
-                    ArticleSource::Litvar => {
-                        let prepared = prepared.take()?;
-                        Box::new(move || litvar_search(prepared))
-                    }
-                };
-                Some(job)
-            })
-            .collect();
-        let mut batch_results = fan_out::run(jobs);
+        let mut batch_results = fetch_batch(cx, batch, resolved, start, &mut prepared);
         let elapsed = batch_results
             .iter()
             .map(|r| r.elapsed)
@@ -97,6 +72,40 @@ pub(super) fn search<'a>(
         results.into_iter().map(|r| (r.source, r.items)).collect(),
         query.sources().len() > 1,
     )))
+}
+fn fetch_batch<'a>(
+    cx: &Ctx<'a>,
+    batch: &[(ArticleSource, ArticleSearch)],
+    resolved: &super::term::Resolved,
+    start: Deadline<'a>,
+    prepared: &mut Option<PreparedLitvar<'a>>,
+) -> Vec<ResultLeg> {
+    let jobs: Vec<Box<dyn FnOnce() -> ResultLeg + Send + '_>> = batch
+        .iter()
+        .filter_map(|(selector, query)| {
+            let job: Box<dyn FnOnce() -> ResultLeg + Send + '_> = match selector {
+                ArticleSource::Pubmed => {
+                    Box::new(move || pubmed_search(cx, query, &resolved.names, start))
+                }
+                ArticleSource::Europepmc => Box::new(move || europe_search(cx, query, start)),
+                ArticleSource::Litsense => {
+                    Box::new(move || super::named::litsense(cx, query, start))
+                }
+                ArticleSource::Pubtator => {
+                    Box::new(move || super::named::pubtator(cx, query, resolved.entrez, start))
+                }
+                ArticleSource::SemanticScholar => {
+                    Box::new(move || super::semantic_scholar::search(cx, query, start))
+                }
+                ArticleSource::Litvar => {
+                    let prepared = prepared.take()?;
+                    Box::new(move || litvar_search(prepared))
+                }
+            };
+            Some(job)
+        })
+        .collect();
+    fan_out::run(jobs)
 }
 fn append_results(out: &mut Outcome, results: &[ResultLeg]) {
     for result in results {

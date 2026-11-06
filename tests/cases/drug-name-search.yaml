@@ -304,6 +304,66 @@
           "Example brand"
         ]
       }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "Canonical therapy",
+        "--source",
+        "semantic-scholar"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/*/pmid": {
+          "equals": [
+            "99000001",
+            "99000002",
+            "99000003"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "EX-66",
+        "--source",
+        "semantic-scholar"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/*/pmid": {
+          "equals": [
+            "99000001",
+            "99000002",
+            "99000003"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "Example brand",
+        "--source",
+        "semantic-scholar"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3,
+        "/result/items/*/pmid": {
+          "equals": [
+            "99000001",
+            "99000002",
+            "99000003"
+          ]
+        }
+      }
     }
   ]
 }
