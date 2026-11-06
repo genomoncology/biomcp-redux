@@ -34,7 +34,8 @@ fn check() -> Result<(), String> {
                 .get("enum")
                 .and_then(Value::as_array)
                 .and_then(|v| {
-                    property.get("default")
+                    property
+                        .get("default")
                         .filter(|value| v.contains(value))
                         .and_then(Value::as_str)
                         .or_else(|| v.iter().filter_map(Value::as_str).find(|s| !s.is_ascii()))
@@ -83,7 +84,9 @@ fn parameter(
     values.insert(key.into(), value(canonical));
     let expected = cli(env, &argv(verb, entity, schema, &values))?;
     if expected.get("query").is_none() {
-        return Err(format!("canonical baseline did not reach an accepted query: {expected}"));
+        return Err(format!(
+            "canonical baseline did not reach an accepted query: {expected}"
+        ));
     }
     for spelling in [canonical.to_lowercase(), canonical.to_uppercase()] {
         values.insert(key.into(), value(&spelling));
