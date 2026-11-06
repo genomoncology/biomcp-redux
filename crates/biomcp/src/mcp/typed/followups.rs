@@ -13,7 +13,7 @@ pub(super) fn project(
         crate::schema::find(id).ok_or_else(|| std::io::Error::other("missing reply schema"))?;
     let schema: Value = serde_json::from_str(text).map_err(std::io::Error::other)?;
     let mut calls = Vec::new();
-    for path in crate::schema::steps::paths(&schema, value)
+    for path in crate::schema::steps::paths(&schema, &schema, value)
         .into_iter()
         .rev()
     {

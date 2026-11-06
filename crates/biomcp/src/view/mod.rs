@@ -340,7 +340,9 @@ fn controls(text: &str) -> String {
 fn projected_step(value: &Value, schema: &Value, root: &Value) -> bool {
     value.get("name").is_some()
         && value.get("arguments").is_some()
-        && crate::schema::steps::owns(root, schema, value)
+        && crate::schema::steps::paths(root, schema, value)
+            .iter()
+            .any(String::is_empty)
 }
 fn typed_step(value: &Value, schema: &Value, root: &Value, out: &mut String) -> bool {
     if !projected_step(value, schema, root) {

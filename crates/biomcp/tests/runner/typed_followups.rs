@@ -136,7 +136,7 @@ pub(in crate::runner) fn check_next(
     let Some(schema) = response_schema(value) else {
         return Ok(());
     };
-    for path in step_paths::paths(&schema, value) {
+    for path in step_paths::paths(&schema, &schema, value) {
         let call = value.pointer(&path).ok_or("owned follow-up")?;
         if call.get("args").is_some() {
             return Err(format!("CLI follow-up survived at {path}: {call}"));
@@ -170,7 +170,10 @@ fn response_schema(value: &Value) -> Option<Value> {
 pub(in crate::runner) fn data(value: &Value) -> Value {
     let mut value = value.clone();
     if let Some(schema) = response_schema(&value) {
-        for path in step_paths::paths(&schema, &value).into_iter().rev() {
+        for path in step_paths::paths(&schema, &schema, &value)
+            .into_iter()
+            .rev()
+        {
             step_paths::remove(&mut value, &path);
         }
     }
