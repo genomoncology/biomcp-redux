@@ -30,8 +30,8 @@ fn empty() -> VariantRecurrence {
         more: false,
         terms: biomcp_types::RecurrenceTerms {
             unverified: false,
-            notice: "ODbL with original-study attribution unless otherwise noted; individual studies may restrict commercial use".into(),
-            url: "https://docs.cbioportal.org/user-guide/faq/".into(),
+            notice: cbioportal::SPEC.terms.name.into(),
+            url: cbioportal::SPEC.terms.url.into(),
         },
     }
 }
