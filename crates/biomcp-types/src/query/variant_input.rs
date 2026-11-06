@@ -39,6 +39,10 @@ impl VariantInput {
 
     /// Maximum bytes in one published identifier.
     pub const MAX_BYTES: usize = 2048;
+    #[cfg(feature = "schema")]
+    const FORMS: &str = "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, chromosome genomic HGVS, or VCF-style chromosome-position-reference-alternate coordinates";
+    #[cfg(feature = "schema")]
+    const ASSEMBLY: &str = "defaulting to GRCh38. Reference bases are validated by the source.";
     /// Check the identifier spelling and canonicalize the ClinVar namespace prefix.
     pub fn new(value: &str) -> Result<Self, Error> {
         let value = if value
@@ -302,9 +306,11 @@ text_value!(
     VariantInput,
     "VariantInput",
     Self::input_pattern(crate::VariantId::pattern()),
-    "Accepted forms: rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS, chromosome genomic HGVS, \
-    or VCF-style chromosome-position-reference-alternate coordinates (SNVs, deletions, insertions and delins), \
-    defaulting to GRCh38. Reference bases are validated by the source."
+    format!(
+        "{} (SNVs, deletions, insertions and delins), {}",
+        Self::FORMS,
+        Self::ASSEMBLY
+    )
 );
 
 #[cfg(feature = "schema")]
@@ -340,6 +346,30 @@ impl schemars::JsonSchema for LookupInput {
                 biodata::ClinVarVariationId::pattern(),
                 biodata::VcvId::pattern()
             ))
+            .into(),
+        );
+        schema
+    }
+}
+
+/// Recurrence shares routed forms and advertises only its supported allele comparison.
+#[cfg(feature = "schema")]
+pub(super) struct RecurrenceInput;
+#[cfg(feature = "schema")]
+impl schemars::JsonSchema for RecurrenceInput {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "RecurrenceInput".into()
+    }
+    fn json_schema(generator: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        let mut schema = LookupInput::json_schema(generator);
+        schema.insert(
+            "description".into(),
+            format!(
+                "{}, {} Requires {}.",
+                VariantInput::FORMS,
+                VariantInput::ASSEMBLY,
+                crate::VariantRecurrenceQuery::INPUT_REQUIREMENT
+            )
             .into(),
         );
         schema

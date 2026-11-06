@@ -23,6 +23,17 @@ pub(super) fn check() -> Result<(), String> {
     super::config(&env, &stub)?;
     shared_forms(&env)?;
     rejections(&env)?;
+    let help = super::call(
+        &env,
+        &["help".into(), "variant".into(), "recurrence".into()],
+        0,
+    )?;
+    if !help
+        .to_string()
+        .contains(biomcp_types::VariantRecurrenceQuery::INPUT_REQUIREMENT)
+    {
+        return Err("recurrence help lost its exact-replacement requirement".into());
+    }
     for input in [
         "rs113488022",
         "CA123643",
@@ -85,7 +96,7 @@ fn reply(request: &str) -> Result<String, String> {
 
 fn shared_forms(env: &Environment) -> Result<(), String> {
     let mut definitions = Vec::new();
-    for (_, _, id) in biomcp_types::command_paths()
+    for (_, entity, id) in biomcp_types::command_paths()
         .into_iter()
         .filter(|(verb, entity, _)| {
             matches!(
@@ -99,14 +110,29 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
             .output()
             .map_err(|e| e.to_string())?;
         let schema: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-        if schema.pointer("/properties/input/$ref") != Some(&json!("#/$defs/VariantLookupInput")) {
+        let name = if entity == "recurrence" {
+            "RecurrenceInput"
+        } else {
+            "VariantLookupInput"
+        };
+        if schema.pointer("/properties/input/$ref") != Some(&json!(format!("#/$defs/{name}"))) {
             return Err(format!(
                 "{id} no longer uses the shared variant input contract"
             ));
         }
+        if entity == "recurrence"
+            && !schema
+                .pointer(&format!("/$defs/{name}/description"))
+                .and_then(Value::as_str)
+                .is_some_and(|text| {
+                    text.contains(biomcp_types::VariantRecurrenceQuery::INPUT_REQUIREMENT)
+                })
+        {
+            return Err("recurrence schema lost its exact-replacement requirement".into());
+        }
         definitions.push(
             schema
-                .pointer("/$defs/VariantLookupInput")
+                .pointer(&format!("/$defs/{name}/pattern"))
                 .cloned()
                 .ok_or("variant input schema")?,
         );
@@ -117,7 +143,8 @@ fn shared_forms(env: &Environment) -> Result<(), String> {
     {
         return Err("variant lookup commands advertise different identifier forms".into());
     }
-    let validator = jsonschema::validator_for(&definitions[0]).map_err(|e| e.to_string())?;
+    let validator = jsonschema::validator_for(&json!({"type":"string","pattern":definitions[0]}))
+        .map_err(|e| e.to_string())?;
     for input in UNSUPPORTED {
         if validator.is_valid(&json!(input)) {
             return Err(format!(
@@ -167,6 +194,17 @@ fn rejections(env: &Environment) -> Result<(), String> {
             ),
         ] {
             for value in [super::call(env, &args, 2)?, typed(env, tool, arguments)?] {
+                if tool == "variant_recurrence"
+                    && !value.pointer("/error/valid_values").is_some_and(|values| {
+                        values
+                            .to_string()
+                            .contains(biomcp_types::VariantRecurrenceQuery::INPUT_REQUIREMENT)
+                    })
+                {
+                    return Err(format!(
+                        "recurrence error lost its exact-replacement requirement: {value}"
+                    ));
+                }
                 if value.pointer("/error/code") != Some(&json!("usage.arguments")) {
                     return Err(format!(
                         "unrouted identifier did not fail command admission: {value}"

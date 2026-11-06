@@ -10,11 +10,11 @@ pub struct VariantRecurrenceQuery(Fields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields {
-    /// Published variant identity; ambiguous identities are never selected silently.
+    /// Variant identity accepted by the recurrence comparison.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[cfg_attr(
         feature = "schema",
-        schemars(with = "super::variant_input::LookupInput")
+        schemars(with = "super::variant_input::RecurrenceInput", extend("description" = format!("Variant identity resolving to {}.", VariantRecurrenceQuery::INPUT_REQUIREMENT)))
     )]
     input: VariantInput,
     /// Explicit cohort source.
@@ -71,6 +71,8 @@ impl TryFrom<Fields> for VariantRecurrenceQuery {
     }
 }
 impl VariantRecurrenceQuery {
+    /// Source evidence required for exact recurrence matching and its public guidance.
+    pub const INPUT_REQUIREMENT: &str = "one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable)";
     /// Unchanged variant identifier.
     pub fn input(&self) -> &VariantInput {
         &self.0.input
