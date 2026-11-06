@@ -77,8 +77,13 @@ fn collect(value: &Value, ids: &mut Vec<Pmid>) {
     }
 }
 fn apply(value: &mut Value, inherited: Option<Pmid>, licenses: &BTreeMap<Pmid, License>) {
-    let own = id(value).or(inherited);
-    let citing = value.get("citingPaper").and_then(id).or(own);
+    // A nested paper owns its text even when it has no resolvable PMID.
+    let own = if value.get("paperId").is_some() || value.get("externalIds").is_some() {
+        id(value)
+    } else {
+        id(value).or(inherited)
+    };
+    let citing = value.get("citingPaper").map_or(own, id);
     let license = own.and_then(|id| licenses.get(&id).copied());
     match value {
         Value::Object(object) => {
