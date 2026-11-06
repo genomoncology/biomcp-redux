@@ -121,6 +121,13 @@ fn tcga(server: &Server) -> Result<(), String> {
         false,
     )?)?;
     notice(&reply, FLAG, "noncommercial")?;
+    // Hosting's check takes the first cBioPortal row and refuses any other state or a reason.
+    if reply.pointer("/sources/0/source") != Some(&json!("cbioportal"))
+        || reply.pointer("/sources/0/state") != Some(&json!("ok"))
+        || reply.pointer("/sources/0/reason").is_some()
+    {
+        return Err(format!("restricted TCGA lookup lost its source: {reply}"));
+    }
     let items = reply.pointer("/result/items").and_then(Value::as_array);
     if !items.is_some_and(|rows| {
         rows.iter()
@@ -259,6 +266,16 @@ fn notice(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
 }
 fn blocked(reply: &Value, id: &str, reason: &str) -> Result<(), String> {
     notice(reply, id, reason)?;
+    if reply
+        .pointer("/sources/0/notices")
+        .and_then(Value::as_array)
+        .map(Vec::len)
+        != Some(1)
+    {
+        return Err(format!(
+            "cBioPortal itself must not read as disabled: {reply}"
+        ));
+    }
     if reply.pointer("/result/study").is_some_and(|v| !v.is_null())
         || reply.pointer("/result/items").is_some()
         || reply.pointer("/sources/0/reason") != Some(&json!("disabled"))
