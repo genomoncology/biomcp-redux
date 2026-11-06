@@ -44,7 +44,7 @@ struct SearchFields {
     /// Literal query from the positional argument.
     #[cfg_attr(feature = "schema", schemars(length(min = 1), extend("x-positional" = 0)))]
     query: Box<str>,
-    /// Provider; auto uses PubMed when Semantic Scholar is disabled.
+    /// Source; auto uses PubMed if Semantic Scholar is off.
     /// PubMed accepts names or topics and returns unresolved names on papers.
     #[serde(default)]
     source: AuthorSearchSource,

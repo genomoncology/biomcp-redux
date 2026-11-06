@@ -258,8 +258,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Provider; auto uses PubMed when Semantic Scholar is; biomcp_help search author
-          Provider; auto uses PubMed when Semantic Scholar is disabled.
+          Source; auto uses PubMed if Semantic Scholar is off; biomcp_help search author
+          Source; auto uses PubMed if Semantic Scholar is off.
           PubMed accepts names or topics and returns unresolved names on papers.
 
       --offline[=<offline>]
@@ -282,8 +282,8 @@ Search research paper authors. Sources: pubmed, semantic-scholar.
 - `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
 - `--pool`: Retained page identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
 - `query`: Exact query from the positional argument.
-- `--source`: Source; auto uses PubMed when Semantic Scholar is; biomcp_help search author
-Source; auto uses PubMed when Semantic Scholar is disabled.
+- `--source`: Source; auto uses PubMed if Semantic Scholar is off; biomcp_help search author
+Source; auto uses PubMed if Semantic Scholar is off.
 PubMed accepts names or topics and returns unresolved names on papers.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semanticscholar. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
 

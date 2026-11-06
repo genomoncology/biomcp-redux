@@ -1296,7 +1296,7 @@
         "source": {
           "$ref": "#/$defs/AuthorSearchSource",
           "default": "auto",
-          "description": "Provider; auto uses PubMed when Semantic Scholar is disabled.\nPubMed accepts names or topics and returns unresolved names on papers."
+          "description": "Source; auto uses PubMed if Semantic Scholar is off.\nPubMed accepts names or topics and returns unresolved names on papers."
         }
       },
       "required": [
