@@ -93,8 +93,12 @@ impl Calls {
                 });
                 let _ = sender.send(outcome);
             });
-        let Ok(worker) = worker else {
-            return protocol::error(id, -32603, "Internal error");
+        let worker = match worker {
+            Ok(worker) => worker,
+            Err(error) => {
+                super::connections::failure("tool thread start", error);
+                return protocol::error(id, -32603, "Internal error");
+            }
         };
         active.push(Active {
             worker,

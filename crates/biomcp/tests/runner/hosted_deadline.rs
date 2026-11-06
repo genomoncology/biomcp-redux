@@ -155,7 +155,7 @@ fn replay_partial() -> Result<(), String> {
         "127.0.0.1:0",
         Some(json!({"command_timeout_seconds":15})),
         Some(replay),
-        None,
+        Some(("ONCOKB_TOKEN", "diagnostic-private-key")),
         None,
         &["--hosted".into()],
     )?;
@@ -196,6 +196,7 @@ fn replay_partial() -> Result<(), String> {
         || event["status"] != "partial"
         || event["failed_sources"] != json!(["mygene"])
         || event.to_string().contains("KRAS")
+        || event.to_string().contains("diagnostic-private-key")
     {
         return Err(format!("unsafe or missing partial diagnostic: {event}"));
     }

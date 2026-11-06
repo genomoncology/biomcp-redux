@@ -41,7 +41,7 @@ pub(super) fn run_with(
         let mut stream = match accept(&listener) {
             Ok(stream) => {
                 if let Err(error) = stream.set_nonblocking(false) {
-                    record(Err(error));
+                    failure("socket setup", error);
                     continue;
                 }
                 stream
@@ -54,7 +54,7 @@ pub(super) fn run_with(
             }
             Err(error) if error.kind() == io::ErrorKind::Interrupted => continue,
             Err(error) => {
-                record(Err(error));
+                failure("accept", error);
                 match stopped.recv_timeout(ACCEPT_POLL) {
                     Ok(()) | Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
                     Err(std::sync::mpsc::RecvTimeoutError::Timeout) => continue,
@@ -86,7 +86,7 @@ pub(super) fn run_with(
             record(service.handle(stream, reader, connection));
         })) {
             Ok(worker) => workers.push(worker),
-            Err(error) => record(Err(error)),
+            Err(error) => failure("thread start", error),
         }
     }
     drop(listener);
@@ -97,4 +97,10 @@ pub(super) fn run_with(
             .map_err(|_| io::Error::other("HTTP worker stopped"))?;
     }
     Ok(())
+}
+
+pub(super) fn failure(operation: &str, error: io::Error) {
+    crate::output::diagnostic(
+        format!("biomcp: HTTP {operation} failed ({:?})\n", error.kind()).as_bytes(),
+    );
 }
