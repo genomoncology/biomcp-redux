@@ -544,4 +544,4 @@ enum-case-lint:
 
 enum-case-schema-check:
 	+$(MAKE) current-schema-check schema-release-check
-	cargo test --locked -p biomcp-types --features schema --test schemas enum_field_scope_is_checked_metadata_without_a_schema_major_change -- --exact
+	cargo test --locked -p biomcp-types --features schema --test schemas enum_field_scope_is_checked_metadata_without_a_schema_major_change
