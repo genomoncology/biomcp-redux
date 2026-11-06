@@ -620,25 +620,3 @@ trial-provenance-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
-
-.PHONY: article-pools-check
-article-pools-check:
-	cargo test --locked -p biomcp --test cases article-search/whole-pool-publication
-
-.PHONY: article-pools-review-check
-article-pools-review-check: article-pools-check landing-gate
-
-.PHONY: article-pools-mechanical-check
-article-pools-mechanical-check: fmt lint-workspace lint-tools
-
-.PHONY: article-pools-mapping-check
-article-pools-mapping-check:
-	python3 scripts/check_article_pool_mapping.py
-
-.PHONY: article-pools-library-check article-pools-repair-check
-article-pools-library-check:
-	cargo test --locked -p biomcp-query --test article_search
-
-ARTICLE_POOL_DEBUG_BINARY = $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp
-article-pools-repair-check: article-pools-library-check article-pools-mechanical-check plain-cli-build
-	ARTICLE_POOL_REVIEW_HOST= python3 scripts/check_article_pool_mapping.py "$(ARTICLE_POOL_DEBUG_BINARY)" "$$(git rev-parse HEAD)" "$(CURDIR)" "$$(python3 -c 'import hashlib,pathlib,sys; print(hashlib.sha256(pathlib.Path(sys.argv[1]).read_bytes()).hexdigest())' "$(ARTICLE_POOL_DEBUG_BINARY)")"
