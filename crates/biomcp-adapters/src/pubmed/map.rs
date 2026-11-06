@@ -59,10 +59,10 @@ pub(super) fn author_summaries(
             let names: Box<[_]> = row
                 .authors
                 .as_ref()
-                .and_then(|field| field.as_ref())
+                .and_then(|field| context.required("authors", field.as_ref()))
                 .into_iter()
                 .flatten()
-                .filter_map(|field| field.as_ref())
+                .filter_map(|field| context.required("authors", field.as_ref()))
                 .filter_map(|author| context.text("authors", Some(&author.name)))
                 .collect();
             authors.insert(key.clone(), names);
@@ -90,7 +90,7 @@ pub(super) fn author_summaries(
                     .pmid
                     .as_ref()
                     .and_then(|id| authors.remove(&id.to_string()))
-                    .unwrap_or_default();
+                    .expect("mapped PubMed summaries retain their author collection");
                 biomcp_types::AuthorPublication {
                     paper,
                     authors: names,

@@ -103,7 +103,18 @@ fn execute(
     })();
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::PubMed, leg.finish(), error);
-    source.term = q.query().parse().ok();
+    source.term = match q.query().parse() {
+        Ok(term) => Some(term),
+        Err(_) => {
+            out.problems.push(biomcp_types::Problem {
+                source: Source::PubMed,
+                record: None,
+                field: "term".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
+            None
+        }
+    };
     source.count = count;
     source.notices = notices;
     // The source can explain PubMed's query interpretation without claiming identity resolution.
