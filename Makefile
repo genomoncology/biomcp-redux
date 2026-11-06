@@ -759,20 +759,6 @@ trial-provenance-check:
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 
-.PHONY: source-age-prepare source-age-focused
-source-age-prepare:
-	sh scripts/check_source_age.sh prepare
-source-age-focused:
-	sh scripts/check_source_age.sh focused
-
-.PHONY: source-age-corrections
-source-age-corrections:
-	sh scripts/check_source_age.sh focused corrections
-
-.PHONY: source-age-recheck
-source-age-recheck: check-cheap
-	sh scripts/check_source_age.sh focused review
-
 .PHONY: typed-owned-followups-check
 typed-owned-followups-check:
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-owned-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-owned- $(TEST_THREADS)
