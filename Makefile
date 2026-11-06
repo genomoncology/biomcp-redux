@@ -650,3 +650,9 @@ population-reply-metadata-check:
 typed-owned-followups-check:
 	cargo test --locked -p biomcp --bin biomcp schema::steps_tests $(TEST_THREADS)
 	BIOMCP_TRANSCRIPT_DIR="$(CURDIR)/target/typed-owned-followups" cargo test --locked -p biomcp --test cases mcp-parity/typed-owned- $(TEST_THREADS)
+
+.PHONY: typed-owned-followups-green typed-followups-research
+typed-owned-followups-green:
+	+$(MAKE) --keep-going typed-owned-followups-check typed-followups-recovery typed-followups-parity typed-followups-toolcases typed-followups-research check-cheap
+typed-followups-research:
+	cargo test --locked -p biomcp --test cases mcp-research/ $(TEST_THREADS)

@@ -16,6 +16,9 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("mcp-parity/typed-owned-organization-pivot", || {
             organization().map_err(Into::into)
         }),
+        trial("mcp-parity/typed-owned-research-text", || {
+            research_text().map_err(Into::into)
+        }),
         trial("mcp-parity/typed-owned-fresh-unavailable", || {
             fresh().map_err(Into::into)
         }),
@@ -153,6 +156,33 @@ fn response(
         .ok_or("nested body")?;
     Ok((value, tools))
 }
+fn research_text() -> Result<(), String> {
+    for (value, _) in responses(
+        "drug/name-get",
+        json!({}),
+        "fetch",
+        json!({"id":"drug 'Example ingredient' approvals"}),
+    )? {
+        let text = value
+            .get("text")
+            .and_then(Value::as_str)
+            .ok_or_else(|| format!("missing research text: {value}"))?;
+        let alternative =
+            json!({"name":"get_drug","arguments":{"input":"NDA021588","source":"drugsfda"}})
+                .to_string();
+        if !text.contains("Example ingredient")
+            || !text.contains("NDA021335")
+            || !text.contains(&alternative)
+            || text.contains("biomcp get drug")
+        {
+            return Err(format!(
+                "research text lost native data or typed alternatives: {text}"
+            ));
+        }
+    }
+    Ok(())
+}
+
 fn fresh() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"mcp_tool_mode":"typed","mcp_typed_output_schema":true}))
