@@ -330,7 +330,7 @@ impl Fetch {
         restricted.commercial_studies_only = true;
         restricted
     }
-    /// Whether explicit noncommercial studies must be withheld on this request.
+    /// Whether reviewed study restrictions must be enforced on this request.
     pub fn commercial_studies_only(&self) -> bool {
         self.commercial_studies_only
     }
