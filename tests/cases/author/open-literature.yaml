@@ -1,0 +1,74 @@
+{
+  "feature": "author-search",
+  "live_check": "synthetic control",
+  "story": "Names and topics find citation authors and papers with noncommercial sources and ORCID disabled; same-named people remain unresolved independent assertions.",
+  "replay": "author/literature",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "author",
+        "Morgan Lee",
+        "--disable-sources",
+        "noncommercial,orcid"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/*/source": {
+          "includes_all_of": [
+            "pubmed"
+          ]
+        },
+        "/result/literature/papers/*/paper/pmid": [
+          "10002",
+          "10001"
+        ],
+        "/result/literature/papers/0/authors": [
+          "Lee M",
+          "Patel R"
+        ],
+        "/result/literature/papers/1/authors": [
+          "Lee M",
+          "Garcia S"
+        ],
+        "/result/literature/identity_resolution": {
+          "contains": "Unresolved"
+        }
+      },
+      "max_bytes": 6000
+    },
+    {
+      "run": [
+        "search",
+        "author",
+        "DNA repair",
+        "--disable-sources",
+        "noncommercial,orcid"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/*/source": {
+          "includes_all_of": [
+            "pubmed"
+          ]
+        },
+        "/result/literature/papers/*/paper/pmid": [
+          "10002",
+          "10001"
+        ],
+        "/result/literature/papers/0/authors": [
+          "Lee M",
+          "Patel R"
+        ],
+        "/result/literature/papers/1/authors": [
+          "Lee M",
+          "Garcia S"
+        ],
+        "/result/literature/identity_resolution": {
+          "contains": "Unresolved"
+        }
+      },
+      "max_bytes": 6000
+    }
+  ]
+}
