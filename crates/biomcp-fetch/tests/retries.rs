@@ -266,7 +266,9 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
 fn stall(request: support::Request<timing::Timing>) -> mpsc::Sender<Vec<u8>> {
     let (hold, continuation) = mpsc::channel();
     let _ = request.reply.send(support::Response {
-        bytes: b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 15\r\n\r\n{\"ans".to_vec(),
+        bytes:
+            b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 15\r\n\r\n{\"ans"
+                .to_vec(),
         continuation: Some(continuation),
     });
     hold
