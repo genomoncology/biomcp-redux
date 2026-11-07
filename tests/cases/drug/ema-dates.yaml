@@ -26,7 +26,7 @@
         "/result/date_roles/0/procedure": "REF/0000287477",
         "/result/date_roles/3/role": "marketing_authorisation_date",
         "/result/date_roles/3/label": "Marketing authorisation issued",
-        "/result/date_roles/4/label": "dates related to procedural steps"
+        "/result/date_roles/4/label": "Opinion adopted"
       }
     },
     {
@@ -36,7 +36,7 @@
           "includes_all_of": [
             "| European Commission decision date; latest procedure affecting product information | REF/0000287477 | european\\_commission\\_decision\\_date |",
             "| Marketing authorisation issued |  | marketing\\_authorisation\\_date |",
-            "| dates related to procedural steps |  | opinion\\_adopted\\_date |",
+            "| Opinion adopted |  | opinion\\_adopted\\_date |",
             "| 2026-05-28 | european\\_commission\\_decision\\_date |",
             "| 2022-01-06 | marketing\\_authorisation\\_date |"
           ]

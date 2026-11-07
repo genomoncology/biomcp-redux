@@ -5,22 +5,22 @@ use biomcp_types::{DateRoleLabel, DrugCard, DrugHeader, DrugSection, DrugSource}
 /// - "Download website data in JSON data format", section "Medicines through centralised procedure -
 ///   data included":
 ///   <https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format>.
-///   It names "European Commission decision date", "first published date", "last updated date", and
-///   `opinion_adopted_date` only as an example of "dates related to procedural steps".
+///   It names "European Commission decision date", "first published date" and "last updated date".
 /// - Each medicine's EPAR page, for example
 ///   <https://www.ema.europa.eu/en/medicines/human/EPAR/tecovirimat-siga>, shows the
 ///   `european_commission_decision_date` value beside "Latest procedure affecting product
-///   information" and its reference, and the `marketing_authorisation_date` value as "Marketing
-///   authorisation issued".
+///   information" and its reference, the `marketing_authorisation_date` value as "Marketing
+///   authorisation issued", and the `opinion_adopted_date` value as "Opinion adopted".
 ///
-/// Neither page describes any other date key, so those keep their native name only.
+/// Neither page labels the other date keys, such as `start_of_evaluation_date` or
+/// `withdrawal_of_application_date`, so those keep their native name only.
 fn date_label(role: &str) -> Option<Text> {
     Some(match role {
         "european_commission_decision_date" => biodata::text!(
             "European Commission decision date; latest procedure affecting product information"
         ),
         "marketing_authorisation_date" => biodata::text!("Marketing authorisation issued"),
-        "opinion_adopted_date" => biodata::text!("dates related to procedural steps"),
+        "opinion_adopted_date" => biodata::text!("Opinion adopted"),
         "first_published_date" => biodata::text!("first published date"),
         "last_updated_date" => biodata::text!("last updated date"),
         _ => return None,
