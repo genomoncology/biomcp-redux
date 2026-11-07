@@ -158,7 +158,8 @@ fn metadata(
     Ok(Some((version, record)))
 }
 pub(crate) fn license(value: &str) -> License {
-    match value.to_ascii_uppercase().replace('-', " ").as_str() {
+    let text = value.to_ascii_uppercase().replace('-', " ");
+    match text.as_str() {
         "CC BY" => License::CcBy,
         "CC BY NC" => License::CcByNc,
         "CC BY SA" => License::CcBySa,
@@ -168,7 +169,37 @@ pub(crate) fn license(value: &str) -> License {
         "CC0" => License::Cc0,
         "PUBLIC DOMAIN" => License::PublicDomain,
         "TDM" => License::Tdm,
-        _ => License::Other,
+        _ => stated_restriction(&text),
+    }
+}
+/// A version, URL or compact spelling must not hide a stated restriction, because
+/// abstracts are withheld only for the restrictions named here. Permissive spellings
+/// stay `Other`, so body text still needs an exact match above.
+fn stated_restriction(text: &str) -> License {
+    let words: Vec<_> = text
+        .split(|c: char| !c.is_ascii_alphanumeric())
+        .filter(|word| !word.is_empty())
+        .collect();
+    let has = |names: &[&str]| words.iter().any(|word| names.contains(word));
+    let compact = |suffix: &str| {
+        words
+            .iter()
+            .any(|word| word.starts_with("CCBYNC") && word.ends_with(suffix))
+    };
+    if has(&["TDM"]) {
+        return License::Tdm;
+    }
+    let noncommercial = has(&["NC", "NONCOMMERCIAL"])
+        || has(&["NON"]) && has(&["COMMERCIAL"])
+        || compact("");
+    if !noncommercial {
+        License::Other
+    } else if has(&["ND", "NODERIVATIVES", "NODERIVS"]) || compact("ND") {
+        License::CcByNcNd
+    } else if has(&["SA", "SHAREALIKE"]) || compact("SA") {
+        License::CcByNcSa
+    } else {
+        License::CcByNc
     }
 }
 
