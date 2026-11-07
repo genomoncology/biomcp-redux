@@ -92,8 +92,27 @@ fn execute<'a>(
             return Ok(());
         }
         None => {
-            let Some(resolved) = resolved_term(cx, query, deadline, out)? else {
-                return Ok(());
+            let resolved = if query
+                .sources()
+                .contains(&biomcp_types::ArticleSource::Pubmed)
+                || query
+                    .sources()
+                    .contains(&biomcp_types::ArticleSource::Litvar)
+                || query
+                    .sources()
+                    .contains(&biomcp_types::ArticleSource::Pubtator)
+                    && !cx.fetch.disabled(biomcp_types::Source::PubTator)
+            {
+                let Some(term) = term::resolve(cx, query, deadline, out)? else {
+                    return Ok(());
+                };
+                term
+            } else {
+                term::Resolved {
+                    names: Vec::new(),
+                    symbol: None,
+                    entrez: None,
+                }
             };
             let mut items = match sources::search(cx, query, &resolved, deadline, out)? {
                 sources::SearchResult::Items(items) => items,
@@ -137,27 +156,6 @@ fn execute<'a>(
     }
     *deadline = store.deadline();
     result
-}
-/// Resolve the search term only for the sources that need it.
-fn resolved_term<'a>(
-    cx: &Ctx<'a>,
-    query: &ArticleSearch,
-    deadline: &mut Deadline<'a>,
-    out: &mut Outcome,
-) -> Result<Option<term::Resolved>, RequestError> {
-    use biomcp_types::ArticleSource::{Litvar, Pubmed, Pubtator};
-    let sources = query.sources();
-    if sources.contains(&Pubmed)
-        || sources.contains(&Litvar)
-        || sources.contains(&Pubtator) && !cx.fetch.disabled(biomcp_types::Source::PubTator)
-    {
-        return term::resolve(cx, query, deadline, out);
-    }
-    Ok(Some(term::Resolved {
-        names: Vec::new(),
-        symbol: None,
-        entrez: None,
-    }))
 }
 /// Apply the record policy before publishing a newly fetched ranked pool.
 fn filter_text<'a>(
