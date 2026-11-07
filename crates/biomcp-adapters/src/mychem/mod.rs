@@ -37,6 +37,12 @@ const CARD_FIELDS: &str = concat!(
                     gtopdb.synonyms,gtopdb.chembl_id,gtopdb.xrefs,unii.rxcui,unii.ncit,ndc.applicationnumber,ndc.dosageformname,\
                     ndc.package,openfda.generic_name,openfda.brand_name,openfda.spl_set_id,openfda.application_number"
 );
+/// The fields a name lookup reads: names, synonyms and types, without the card's packages and
+/// cross-references, which for a drug sold in thousands of products overflow the reply limit.
+const NAME_READ_FIELDS: &str = "drugbank.name,drugbank.synonyms,chembl.pref_name,chembl.molecule_type,\
+                    chembl.molecule_synonyms,drugcentral.synonyms,gtopdb.name,gtopdb.type,gtopdb.synonyms,\
+                    unii.display_name,unii.ingredient_type,ndc.producttypename,ndc.nonproprietaryname,\
+                    ndc.proprietaryname,openfda.generic_name,openfda.brand_name";
 /// Synonym fields the source's free-text search does not reach, such as a development code.
 const NAME_FIELDS: &str = "drugbank.synonyms,gtopdb.synonyms,drugcentral.synonyms,\
                     chembl.molecule_synonyms.molecule_synonym";
@@ -58,7 +64,7 @@ pub fn search_names(
     limit: u32,
     offset: u32,
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
-    search_fields(leg, query, limit, offset, CARD_FIELDS)
+    search_fields(leg, query, limit, offset, NAME_READ_FIELDS)
 }
 /// One source row stating a name, with the structure that row describes.
 #[derive(Debug)]
@@ -92,7 +98,7 @@ pub fn name_records(
         )
         .collect::<Vec<_>>()
         .join(" OR ");
-    let fields = crate::drug_sources::components::allowed_fields(leg, CARD_FIELDS);
+    let fields = crate::drug_sources::components::allowed_fields(leg, NAME_READ_FIELDS);
     let reply = leg
         .call(
             &SEARCH,

@@ -87,6 +87,7 @@ pub(super) fn page(
             continue;
         }
         let (id, _, rows) = components(hit, leg, &mut problems);
+        let rows = super::names::speaking(rows);
         let mut item = header(&id, &rows)?;
         item.matched_name = super::names::matching(&rows, query);
         items.push(item);
