@@ -69,7 +69,7 @@ def build():
     return executable
 
 
-def reason(result):
+def reason(result, searching):
     """Name why a command failed from its reply, or return None when it answered."""
     try:
         reply = json.loads(result.stdout)
@@ -89,6 +89,10 @@ def reason(result):
     page = reply.get('page')
     if isinstance(page, dict) and page.get('returned') == 0:
         return 'no results'
+    # Some searches have no top-level page, and an empty list may be left out of the reply.
+    body = reply.get('result')
+    if searching and not (isinstance(body, dict) and body.get('items')):
+        return 'no results'
     return None
 
 
@@ -100,7 +104,7 @@ def check(executable, args, environment, timeout):
         return 'no reply in {} seconds'.format(timeout)
     except OSError as error:
         return str(error)
-    return reason(result)
+    return reason(result, args[0] == 'search')
 
 
 def main():

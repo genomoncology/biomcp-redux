@@ -38,6 +38,7 @@ for key, (code, body, *once) in replies.items():
         sys.exit(code)
 print(json.dumps({'schema': 'biomcp.article-page/9', 'status': 'complete',
                   'page': {'offset': 0, 'returned': 1, 'total': 193},
+                  'result': {'items': [{'pmid': '1'}]},
                   'sources': [{'source': 'pubmed', 'state': 'ok', 'count': 193}],
                   'problems': [{'source': 'pubmed', 'field': 'electronic_date',
                                 'code': 'value.unknown'}]}))
@@ -48,6 +49,12 @@ FAILED_SOURCE = {'schema': 'biomcp.article-page/9', 'status': 'failed',
 NO_RESULTS = {'schema': 'biomcp.trial-page/14', 'status': 'complete',
               'page': {'offset': 0, 'returned': 0, 'total': 0},
               'sources': [{'source': 'ctgov', 'state': 'ok', 'count': 0}]}
+# Cell line and pathway searches carry no top-level page, and an empty list may be left out.
+NO_ITEMS = {'schema': 'biomcp.cell-line-page/1', 'status': 'complete', 'page': None,
+            'result': {'release': '53'}, 'sources': [{'source': 'cellosaurus', 'state': 'ok'}]}
+EMPTY_ITEMS = {'schema': 'biomcp.pathway-page/1', 'status': 'complete', 'page': None,
+               'result': {'items': [], 'page': {'offset': 0, 'returned': 0, 'total': 0}},
+               'sources': [{'source': 'reactome', 'state': 'ok'}]}
 USAGE = {'schema': 'biomcp.error/4', 'status': 'usage',
          'error': {'code': 'usage.arguments', 'message': 'expected a supported command'}}
 PARTIAL = {'schema': 'biomcp.gene-cards/13', 'status': 'partial',
@@ -102,6 +109,12 @@ class LiveCheck(unittest.TestCase):
             'FAIL biomcp get trial NCT04303780: expected a supported command',
             'FAIL biomcp search cell-line MOLM13: exit 101: crash detail',
         ])
+
+    def test_a_search_with_no_top_level_page_and_no_items_fails(self):
+        result, _ = self.run_check({'MOLM13': [0, NO_ITEMS], 'Signaling by EGFR': [0, EMPTY_ITEMS]})
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("FAIL biomcp search pathway 'Signaling by EGFR': no results", result.stdout)
+        self.assertIn('FAIL biomcp search cell-line MOLM13: no results', result.stdout)
 
     def test_a_hung_command_fails_alone_and_the_run_continues(self):
         result, rows = self.run_check({'MOLM13': [0, 'hang']}, extra=('--timeout', '1'))
