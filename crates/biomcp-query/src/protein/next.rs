@@ -3,7 +3,7 @@ use biodata::{ProteinHeader, UniProtIsoform};
 use biomcp_types::Paged;
 use biomcp_types::{
     ProteinCardItem, ProteinDomainsQuery, ProteinGet, ProteinInput, ProteinRelationQuery,
-    ProteinSearch, ProteinSection, Request, StepKind,
+    ProteinSearch, Request, Source, StepKind,
 };
 pub(super) fn accession(
     header: &ProteinHeader,
@@ -90,32 +90,35 @@ pub(super) fn cards(
 }
 /// Offer the standalone commands that answer without the failed UniProt entry.
 pub(super) fn unread(
+    cx: &crate::Ctx<'_>,
     q: &ProteinGet,
-    items: &[ProteinCardItem],
-    unread: &[Option<UniProtIsoform>],
+    unread: &[UniProtIsoform],
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Vec<Step> {
     let mut steps = Vec::new();
-    for (item, id) in items.iter().zip(unread) {
-        let Some(id) = id else { continue };
-        for section in &item.more {
-            let source = section_source(*section);
-            let request = match section {
-                ProteinSection::Domains => crate::next::checked(
-                    ProteinDomainsQuery::new(id.clone(), q.section_limit()),
-                    source,
+    for id in unread {
+        let limit = q.section_limit();
+        for (source, request) in [
+            (
+                Source::InterPro,
+                crate::next::checked(
+                    ProteinDomainsQuery::new(id.clone(), limit),
+                    Source::InterPro,
                     problems,
                 )
                 .map(Request::ProteinDomains),
-                ProteinSection::Complexes => crate::next::checked(
-                    ProteinRelationQuery::new(id.clone(), q.section_limit()),
-                    source,
+            ),
+            (
+                Source::ComplexPortal,
+                crate::next::checked(
+                    ProteinRelationQuery::new(id.clone(), limit),
+                    Source::ComplexPortal,
                     problems,
                 )
                 .map(Request::ProteinComplexes),
-                _ => None,
-            };
-            if let Some(request) = request {
+            ),
+        ] {
+            if let Some(request) = request.filter(|_| !cx.fetch.disabled(source)) {
                 steps.push(Step::run(StepKind::Section, &[source], request, false));
             }
         }

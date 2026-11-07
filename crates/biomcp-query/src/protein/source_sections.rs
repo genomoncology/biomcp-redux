@@ -4,7 +4,6 @@ use super::{
     source_relations::{self, Selection},
 };
 use crate::{Ctx, Outcome, status};
-use biodata::UniProtIsoform;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
     ProteinCardItem, ProteinDomainsQuery, ProteinGet, ProteinRelationQuery, ProteinSection,
@@ -14,11 +13,10 @@ pub(super) fn supplement(
     cx: &Ctx<'_>,
     q: &ProteinGet,
     items: &mut [ProteinCardItem],
-    unread: &[Option<UniProtIsoform>],
     out: &mut Outcome,
     deadline: Deadline<'_>,
 ) {
-    for (item, missed) in items.iter_mut().zip(unread) {
+    for item in items {
         item.more = item
             .more
             .iter()
@@ -30,16 +28,10 @@ pub(super) fn supplement(
                 _ => true,
             })
             .collect();
-        let Some(id) = item
-            .header
-            .as_ref()
-            .map(|header| header.protein.accession.clone())
-            .or_else(|| missed.clone())
-        else {
+        let Some(header) = &item.header else {
             continue;
         };
-        // A failed identity stays failed, whatever the other sources return.
-        let identity = item.status;
+        let id = header.protein.accession.clone();
         let mut selections = Vec::new();
         if wants(q, ProteinSection::Domains)
             && let Ok(query) = ProteinDomainsQuery::new(id.clone(), q.section_limit())
@@ -53,9 +45,6 @@ pub(super) fn supplement(
         }
         for selection in selections {
             apply(item, out, page(cx, &selection, deadline));
-        }
-        if item.header.is_none() {
-            item.status = identity;
         }
     }
 }

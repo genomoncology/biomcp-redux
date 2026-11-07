@@ -32,13 +32,18 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
             out.local = out.local.or(status::local(e));
         }
         let mut item = empty_item(input.clone());
-        let mut missed = None;
         if let Ok(ids) = result {
             asked |= !ids.is_empty();
-            missed = hydrate(&leg, ids, q, &mut item, &mut out, &mut protein_error);
+            unread.extend(hydrate(
+                &leg,
+                ids,
+                q,
+                &mut item,
+                &mut out,
+                &mut protein_error,
+            ));
         }
         items.push(item);
-        unread.push(missed);
     }
     if q.input().iter().any(|v| matches!(v, ProteinInput::Gene(_))) {
         out.sources
@@ -59,12 +64,12 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
             }
         }
     }
-    super::source_sections::supplement(cx, q, &mut items, &unread, &mut out, deadline);
+    super::source_sections::supplement(cx, q, &mut items, &mut out, deadline);
     status::get(&mut out, items.iter().map(|i| i.status));
     if out.next.is_empty() {
         out.next = next::cards(&items, &mut out.problems);
     }
-    let steps = next::unread(q, &items, &unread, &mut out.problems);
+    let steps = next::unread(cx, q, &unread, &mut out.problems);
     out.next.extend(steps);
     recovery(q, &mut out);
     out.body = (ProteinCard {
@@ -114,7 +119,7 @@ fn ids(
     }
     Ok(ids)
 }
-/// Return the one accession whose entry failed, whose other sources still answer.
+/// Return an accession whose entry failed; its other sources can still answer.
 fn hydrate(
     leg: &Leg<'_>,
     ids: Vec<UniProtIsoform>,
@@ -184,16 +189,7 @@ fn hydrate(
                         crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
                     ));
                 }
-                if !ambiguous {
-                    item.more = super::sections::NAMES
-                        .into_iter()
-                        .filter(|name| {
-                            name.source() != Some(Source::UniProt)
-                                && !super::sections::wants(q, *name)
-                        })
-                        .collect();
-                    missed = Some(id);
-                }
+                missed = Some(id);
                 *error = Some(e);
                 out.local = out.local.or(status::local(e));
             }
