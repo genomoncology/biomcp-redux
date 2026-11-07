@@ -49,7 +49,7 @@ Set `"mcp_typed_output_schema": true` to include reply envelope schemas on the e
 ```
 
 
-`mcp_typed_tool_limit` and `mcp_typed_definition_bytes` set positive ceilings on the complete typed catalog. Their defaults live in [the typed budget configuration](../crates/biomcp/src/config/mcp.rs). Counts include help, research and escape-hatch tools. Bytes include descriptions, annotations and any output schemas, excluding the JSON-RPC envelope and server instructions. A catalog exceeding either ceiling returns an error naming the required size and configured limits. Clinical tools and complete descriptions are retained. An explicit `mcp_typed_definition_bytes` value overrides either default, including when output schemas are enabled. Larger catalogs may require a larger configured byte ceiling. Single mode is unaffected.
+`mcp_typed_tool_limit` and `mcp_typed_definition_bytes` set positive ceilings on the complete typed catalog. Defaults are 20 tools, 128 KiB of compact UTF-8 tool definitions, or 192 KiB when output schemas are explicitly enabled; their owner is [the typed budget configuration](../crates/biomcp/src/config/mcp.rs). Counts include help, research and escape-hatch tools. Bytes include descriptions, annotations and any output schemas, excluding the JSON-RPC envelope and server instructions. A catalog exceeding either ceiling returns an error naming the required size and configured limits. Clinical tools and complete descriptions are retained. An explicit `mcp_typed_definition_bytes` value overrides either default, including when output schemas are enabled. Larger catalogs may require a larger configured byte ceiling. Single mode is unaffected.
 
 ## HTTP capacity
 
