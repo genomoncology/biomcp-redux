@@ -12,9 +12,8 @@ pub(super) fn append(
 ) -> Result<(), Box<dyn Error>> {
     let mut runs = Vec::new();
     collect(directory, directory, &mut runs)?;
-    // A command's own case folder documents it; cross-cutting folders hold controls.
-    runs.sort_by_key(|(own, _)| !own);
-    for (_, run) in runs {
+    // Only a command's own case folder documents it; cross-cutting folders hold test controls.
+    for (_, run) in runs.into_iter().filter(|(own, _)| *own) {
         let command = run.get(..2).ok_or("command path missing")?.join(" ");
         let retained = examples.entry(command).or_default();
         let known = retained
@@ -82,7 +81,10 @@ fn collect(
                 .ok()
                 .and_then(|path| path.components().next())
                 .map(|part| part.as_os_str().to_string_lossy().into_owned());
-            let own = folder.as_deref() == run.get(1).map(String::as_str);
+            let own = run.get(..2).is_some_and(|path| {
+                path.iter()
+                    .any(|word| folder.as_deref() == Some(word.as_str()))
+            });
             runs.push((own, run));
         }
     }
