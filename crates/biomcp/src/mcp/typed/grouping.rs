@@ -80,7 +80,10 @@ pub(super) fn catalog(
     }
     Ok(Catalog {
         tools,
-        commands: commands.into_iter().map(|command| command.canonical).collect(),
+        commands: commands
+            .into_iter()
+            .map(|command| command.canonical)
+            .collect(),
         globals: context.globals.clone(),
         read_only,
         excluded,

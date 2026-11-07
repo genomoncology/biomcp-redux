@@ -195,12 +195,15 @@ pub(super) fn parse(
         Some(_) => return None,
     };
     let action = fields.get("action").and_then(Value::as_str);
-    let Some(&(action, command, _)) = placed
-        .iter()
-        .find(|(placed, _, _)| Some(*placed) == action)
+    let Some(&(action, command, _)) = placed.iter().find(|(placed, _, _)| Some(*placed) == action)
     else {
         let actions = catalog.actions(tool);
-        return Some(Err(rejected("action", &actions, vec!["help".into()], catalog)));
+        return Some(Err(rejected(
+            "action",
+            &actions,
+            vec!["help".into()],
+            catalog,
+        )));
     };
     if let Some(key) = fields
         .keys()

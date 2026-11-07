@@ -12,12 +12,10 @@ fn field<'a>(node: &'a Value, key: &str) -> &'a Value {
 
 pub(super) fn check(env: &Environment) -> Result<(), String> {
     let tools = catalog(env, json!({"mcp_tool_mode":"typed"}))?;
+    let views = crate::runner::protocol::typed_catalog::commands(&tools);
     let mut failures = Vec::new();
-    for (verb, entity, id) in biomcp_types::command_paths() {
-        let name = format!("{verb}_{entity}").replace('-', "_");
-        let Some(tool) = tools.iter().find(|tool| tool["name"] == name) else {
-            continue; // Grouped command contracts remain available through canonical help.
-        };
+    for tool in &tools {
+        let name = field(tool, "name");
         if field(tool, "description")
             .as_str()
             .is_some_and(|s| s.contains('\n'))
@@ -28,6 +26,21 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         }
         if tool.get("outputSchema").is_some() {
             failures.push(format!("{name}: outputSchema must default off"));
+        }
+    }
+    for (verb, entity, id) in biomcp_types::command_paths() {
+        let name = format!("{verb}_{entity}").replace('-', "_");
+        let tool = views
+            .iter()
+            .find(|tool| tool["name"] == name)
+            .ok_or_else(|| format!("{name}: no advertised action"))?;
+        if field(tool, "description")
+            .as_str()
+            .is_some_and(|s| s.contains('\n'))
+        {
+            failures.push(format!(
+                "{name}: full schema prose leaked into action summary"
+            ));
         }
         let output = env
             .command(env!("CARGO_BIN_EXE_biomcp"), &["schema".into(), id.into()])
@@ -73,7 +86,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     {
         return Err("oversized synthetic tool passed budget".into());
     }
-    for tool in &tools {
+    for tool in &views {
         if let Err(error) = budget(tool) {
             failures.push(error);
         }
@@ -196,7 +209,7 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     )?;
     report(&enabled)?;
     for tool in enabled {
-        if field(&tool, "name").as_str() == Some("get_disease")
+        if field(&tool, "name").as_str() == Some("disease")
             && !tool
                 .pointer("/outputSchema/anyOf/0/properties/schema/enum")
                 .and_then(Value::as_array)
@@ -206,11 +219,11 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
                     ))
                 })
         {
-            return Err("get_disease output schema omits site disambiguation".into());
+            return Err("disease output schema omits site disambiguation".into());
         }
         if matches!(
             field(&tool, "name").as_str(),
-            Some("biomcp_help" | "biomcp" | "search" | "fetch")
+            Some("help" | "biomcp" | "search" | "fetch")
         ) {
             if !default.contains(&tool) {
                 return Err("shared help/research contract changed".into());
@@ -240,39 +253,34 @@ fn settings(env: &Environment, default: &[Value]) -> Result<(), String> {
     enum_settings(env, default)
 }
 fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
-    let large = catalog(
+    let large = crate::runner::protocol::typed_catalog::commands(&catalog(
         env,
         json!({"mcp_tool_mode":"typed", "mcp_typed_enum_limit":1000}),
-    )?;
+    )?);
+    let default = crate::runner::protocol::typed_catalog::commands(default);
     if !large
         .iter()
-        .filter(|tool| tool["name"] != "biomcp_reference")
         .any(|tool| oversized_enum(field(tool, "inputSchema"), 30))
     {
         return Err("raised enum limit did not restore large choices".into());
     }
     if !default
         .iter()
-        .filter(|tool| tool["name"] != "biomcp_reference")
         .any(|tool| oversized_enum(field(tool, "inputSchema"), 1))
     {
         return Err("short enums lost their choices".into());
     }
-    let small = catalog(
+    let small = crate::runner::protocol::typed_catalog::commands(&catalog(
         env,
         json!({"mcp_tool_mode":"typed", "mcp_typed_enum_limit":1}),
-    )?;
+    )?);
     if small
         .iter()
-        .filter(|tool| tool["name"] != "biomcp_reference")
         .any(|tool| oversized_enum(field(tool, "inputSchema"), 1))
     {
         return Err("enum limit setting ignored".into());
     }
-    for tool in large
-        .iter()
-        .filter(|tool| tool["name"] != "biomcp_reference")
-    {
+    for tool in &large {
         let name = field(tool, "name").as_str().ok_or("tool name")?;
         let compact = small
             .iter()
@@ -288,7 +296,7 @@ fn enum_settings(env: &Environment, default: &[Value]) -> Result<(), String> {
                     .and_then(Value::as_str)
                     .ok_or("choice description")?;
                 if description.is_empty()
-                    || description.contains("biomcp_help")
+                    || description.contains("; help ")
                     || Some(description) != property.get("description").and_then(Value::as_str)
                 {
                     return Err(format!(
@@ -308,11 +316,11 @@ fn description(node: &Value) -> Option<String> {
         .as_str()?;
     let mut lines = text.lines();
     let first = lines.next().unwrap_or_default();
-    let text = if first.contains("biomcp_help") {
+    let text = if first.contains("; help ") {
         lines
             .next()
             .unwrap_or(first)
-            .split("; biomcp_help")
+            .split("; help ")
             .next()
             .unwrap_or(first)
     } else {
