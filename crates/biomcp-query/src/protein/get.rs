@@ -119,7 +119,7 @@ fn ids(
     }
     Ok(ids)
 }
-/// Return an accession whose entry failed; its other sources can still answer.
+/// Return the accessions whose entries failed; their other sources can still answer.
 fn hydrate(
     leg: &Leg<'_>,
     ids: Vec<UniProtIsoform>,
@@ -127,9 +127,9 @@ fn hydrate(
     item: &mut ProteinCardItem,
     out: &mut Outcome,
     error: &mut Option<RequestError>,
-) -> Option<UniProtIsoform> {
+) -> Vec<UniProtIsoform> {
     let ambiguous = ids.len() > 1;
-    let mut missed = None;
+    let mut missed = Vec::new();
     item.status = crate::status::item_status(false, false, false);
     let mut failed = false;
     for id in ids {
@@ -189,7 +189,7 @@ fn hydrate(
                         crate::status::reason(e).unwrap_or(biomcp_types::Reason::Unavailable),
                     ));
                 }
-                missed = Some(id);
+                missed.push(id);
                 *error = Some(e);
                 out.local = out.local.or(status::local(e));
             }

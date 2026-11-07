@@ -57,7 +57,7 @@ impl Leg<'_> {
             return Ok(body);
         }
         let mut plain = Vec::new();
-        flate2::read::GzDecoder::new(body.as_slice())
+        flate2::read::MultiGzDecoder::new(body.as_slice())
             .take(limit + 1)
             .read_to_end(&mut plain)
             .map_err(|_| Failure::Local(self.failure(Reason::BadReply, Some(status)).into()))?;
