@@ -53,9 +53,9 @@ pub(super) fn check() -> Result<(), String> {
             )
         })
         .collect::<Vec<_>>();
-    // The server runs at most 32 calls at once, so send them in batches.
+    // Small batches stay under the call limit and well inside the stdio watchdog.
     let mut stdio = Vec::new();
-    for batch in frames.chunks(30) {
+    for batch in frames.chunks(8) {
         stdio.extend(exchange_with_globals(&env, batch, &offline)?);
     }
     let mut failures = Vec::new();
