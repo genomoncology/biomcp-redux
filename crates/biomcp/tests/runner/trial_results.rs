@@ -96,7 +96,7 @@ fn posted() -> Check {
         .collect();
     if json!([&outcomes, &serious, &other])
         .to_string()
-        .contains('\\')
+        .contains(r"\\")
     {
         return Err("a Markdown escape reached posted result text".into());
     }
