@@ -76,7 +76,7 @@ pub use response::{
 };
 pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CacheProblem, LitVarCandidate, PoolInfo,
-    SourceNotice,
+    SourceNotice, WithheldArticleText,
 };
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{
@@ -116,7 +116,7 @@ pub use response::{
 pub use response::{
     Help, HelpArgument, HelpCommand, HelpQuery, HelpWord, KeyHelp, KeyState, KeyTier, Oncokb,
     OncokbCard, OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean,
-    SyncQuery, SyncResult,
+    SwitchableSource, SwitchableSources, SyncQuery, SyncResult,
 };
 pub use response::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,
@@ -182,8 +182,9 @@ pub use drug::{
     DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameMatch,
     DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage,
     DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
-    DrugRecallPage, DrugRecords, DrugRegulatory, DrugSearch, DrugSection, DrugSource, DrugTargets,
-    DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, OPENFDA_LABEL_HEADINGS,
+    DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugSearch, DrugSection,
+    DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs,
+    OPENFDA_LABEL_HEADINGS,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

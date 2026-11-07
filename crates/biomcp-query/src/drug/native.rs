@@ -2,6 +2,7 @@
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod identity;
+mod regulatory_context;
 mod sections;
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{NativeWindow, chembl, opentargets};
@@ -79,9 +80,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         }
         out.body = page.with_query(query.clone());
     }
+    let remaining = leg.remaining();
     finish(&mut out, leg, query.source().source(), error);
     status::search(&mut out);
-    command.finish(deadline.remaining());
+    command.finish(remaining);
     out
 }
 fn search_page(
@@ -121,6 +123,7 @@ fn search_page(
             query.offset() / query.limit(),
             query.limit(),
         )?;
+        problems.extend(opentargets::version(leg));
         let skipped = (query.offset() % query.limit()) as usize;
         let received = page.received().saturating_sub(skipped) as u32;
         let mapped = opentargets::search_headers(page, skipped);
@@ -160,8 +163,15 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     if error.is_some() {
         crate::status::item(&mut out, false, true, false);
     }
+    let remaining = leg.remaining();
     finish(&mut out, leg, query.source().source(), error);
-    command.finish(deadline.remaining());
+    if error.is_none()
+        && query.source() == DrugSource::Opentargets
+        && query.sections() == [DrugSection::Indications]
+    {
+        regulatory_context::attach(cx, query, deadline, &mut out);
+    }
+    command.finish(remaining);
     out
 }
 fn finish(out: &mut Outcome, leg: Leg<'_>, source: Source, error: Option<RequestError>) {

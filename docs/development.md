@@ -6,6 +6,8 @@ Run `make schema-release-check` to compare the generated schemas with the record
 
 A test that uses real time starts a short deadline only after the setup it is not testing has finished, such as a child starting or a connection opening, or makes the deadline end at a point the test controls. It accepts every valid result of the deadline ending earlier. A real-time limit the test expects to pass is at least 15 seconds or is a lower limit. A limit set from one earlier run has an absolute floor. See [the child-readiness fix (0667)](../release/test_mutations.py) and [the timing analysis](../sdlc/records/2026-11-05-timing-tests-under-load.md).
 
+`make stress` is the long suite for those tests: it repeats every real-time and multi-process check at 1.5 times the job's booked cores, offline, and the first failure ends the run and names the SQLite step. It runs at final release. A ticket that adds or changes such a test runs only that check, for example `make stress STRESS_ARGS="--only fetch/retries"`; `scripts/cache_process_load.py --list` shows the names. A failure is never retried: fix or delete the test, or fix the product.
+
 ## Compare replies while restructuring
 
 Set `BIOMCP_TRANSCRIPT_DIR` to an empty output directory when running the case runner. It records exact stdout bytes, exit codes, surfaces and arguments before assertions or JSON parsing. Without the variable, tests run normally. Keep transcript directories outside Git.
@@ -22,11 +24,23 @@ Capture covers YAML steps and trial commands whose existing consumer obtains com
 
 ## Exercise installed artifacts
 
+For focused execution, use `python3 scripts/trials.py --runner RUNNER --executable EXECUTABLE --cases CASE_ROOT EXACT_NAME`. Select the runner and executable from Cargo's `compiler-artifact` JSON records (`--message-format=json`), matching the target names `cases` (or `tools`) and `biomcp`. Keep these artifacts from the same build and pass an absolute case root. This reuses both artifacts without compiling. Omitting `--runner` builds the selected test target; omitting `--executable` builds the CLI after validating selection. `--list` does not prepare or build the CLI, but still builds a runner when `--runner` is absent. The existing default build profile is `dev`.
+
+YAML cases use `--cases DIRECTORY`; custom tool trials use `--target tools --proofs`. Copy exact names from the matching `--list` catalog. A focused execution selecting no tests fails and names the relevant selector, including a run that `--skip` or `--ignored` leaves empty. Native case and proof runners retain their own filtered listing behavior; use listing to discover names before execution.
+
 The release rehearsal copies all of `tests/` outside the checkout and runs the complete `cases` target against each installed executable. `BIOMCP_TEST_EXECUTABLE` selects the installed executable and `BIOMCP_TEST_FIXTURES` selects the copied tree. Every case directory registers the same Rust trials. Use ordinary feature names to select the cache publication, HTTP and AlphaGenome trials.
 
 Reports include the YAML case count, total trial count and elapsed time. The first complete installed run measures the suite timeout; later installation channels use the larger of that measurement plus 15 percent and `BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS` (60 seconds by default). The platform job bounds the first measurement. The installed smoke cleanup check uses `BIOMCP_INSTALLED_SMOKE_HANG_GUARD_SECONDS` (600 seconds by default) to catch hangs. Fixture path checks reject direct manifest-directory reads outside the launcher.
 
-The separate `tools` target contains opt-in schema and assertion boundary proofs, parity validation, synthetic adapter projections, generators and live checks. These library or tooling calls do not test the installed executable. Repository ratchets and library contracts remain separate targets. `make library-tests` runs the retained library and private boundary tests. The architecture's test-placement table records their reasons.
+The separate `tools` target contains opt-in schema and assertion boundary proofs, parity validation, synthetic adapter projections, and generators. These library or tooling calls do not test the installed executable. Repository ratchets and library contracts remain separate targets. `make library-tests` runs the retained library and private boundary tests. The architecture's test-placement table records their reasons.
+
+## Check live sources
+
+`make nightly-live-check` builds the command and runs a short fixed list of real commands against live sources, one or two per source family. It takes a few minutes. It is a scheduled check and never joins a landing.
+
+Each command runs without credentials, in a throwaway home and cache, with a pause between commands so public source limits hold. A failed command gets one second try after a wait, so one slow reply does not raise an alarm. A command that fails twice prints one line with the command and the reason, and the last line counts the failures. The script exits 1 on any failure. The scheduler mails that output to the PM, who opens a ticket.
+
+To add a command, add a row to `CHECKS` in `scripts/nightly_live_check.py`. Keep to public sources that need no key. KEGG and the LitSense licensed subset stay out; a test refuses them. Recorded cases remain the check of exact reply content.
 
 ## Check a change
 

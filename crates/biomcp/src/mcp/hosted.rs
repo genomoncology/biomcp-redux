@@ -4,6 +4,18 @@ use biomcp_types::{Help, ResponseBody, Source};
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
+/// Ordinary HTTP also refuses synchronization and fresh reads; share execution's authority.
+pub(super) fn transport_next(
+    out: &mut crate::command::Outcome,
+    cx: Context<'_>,
+    http: bool,
+) -> io::Result<()> {
+    if http && !cx.globals.hosted {
+        next(out.value_mut()?, cx);
+    }
+    Ok(())
+}
+
 pub(super) fn project(
     out: &mut crate::command::Outcome,
     cx: Context<'_>,
@@ -261,11 +273,17 @@ fn notices(
 ) -> io::Result<()> {
     if let Some(rows) = value.get_mut("sources").and_then(Value::as_array_mut) {
         for row in rows {
-            if row.get("reason") != Some(&json!("disabled")) {
+            // A row with its own notice, such as one left-out study, has a source that stays on.
+            let explained = row
+                .get("notices")
+                .and_then(Value::as_array)
+                .is_some_and(|rows| !rows.is_empty());
+            if row.get("reason") != Some(&json!("disabled")) || explained {
                 continue;
             }
             let source: Source = serde_json::from_value(row["source"].clone())?;
             let notice = serde_json::to_value(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
                 message: reason(source, cx, required)?.into(),
                 retry_after_seconds: None,
             })?;
@@ -353,6 +371,33 @@ fn reason(
 ) -> io::Result<String> {
     let operator = crate::config::excluded_sources(cx.globals, cx.settings)
         .map_err(|e| io::Error::other(e.0))?;
+    // A source the use limit keeps off stays off whatever the list says, so say that first.
+    let use_limit = crate::command::hosted_use::disabled(cx.declared_use, cx.secrets);
+    let limited = use_limit.contains(&source)
+        || biomcp_query::sources::components().any(|component| {
+            component.source == source
+                && component
+                    .native_source
+                    .is_some_and(|native| required.contains(&native) && use_limit.contains(&native))
+        });
+    if !operator.contains(&source)
+        && !limited
+        && cx.excluded.is_some_and(|excluded| {
+            excluded.contains(&source)
+                || biomcp_query::sources::components().any(|component| {
+                    component.source == source
+                        && component.native_source.is_some_and(|native| {
+                            required.contains(&native) && excluded.contains(&native)
+                        })
+                })
+        })
+    {
+        return Ok(
+            "This request's source list leaves out this source or a required component. \
+                   Change the source list in your account settings to include it."
+                .to_owned(),
+        );
+    }
     let component_disabled = |hosted| {
         cx.fetch.as_ref().is_ok_and(|fetch| {
             let effective = if hosted {
@@ -374,9 +419,7 @@ fn reason(
     };
     let explanation = if operator.contains(&source) || component_disabled(false) {
         "The server operator disabled this source or a required component.".to_owned()
-    } else if crate::command::hosted_use::disabled(cx.declared_use, cx.secrets).contains(&source)
-        || component_disabled(true)
-    {
+    } else if limited || component_disabled(true) {
         let ceiling =
             crate::config::hosted_max_use(cx.settings).map_err(|e| io::Error::other(e.0))?;
         let effective = cx

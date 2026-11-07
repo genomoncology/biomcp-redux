@@ -8,6 +8,7 @@ tool_only! { use std::env; }
 tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
 tool_only! { #[path = "native_evidence_proof.rs"] mod native_evidence_proof; }
 tool_only! { #[path = "markdown_pair_proof.rs"] mod markdown_pair_proof; }
+tool_only! { #[path = "proof_zero_selection.rs"] mod zero_selection; }
 
 tool_only! { type Check = Result<(), String>; }
 
@@ -22,7 +23,8 @@ pub(crate) fn trials() -> Vec<Trial> {
         }),
         transcript_trial("mcp-http/readiness-rejects-eof-and-hung-child", || {
             super::http::readiness_proof().map_err(Into::into)
-        }),
+        })
+        .with_kind(super::proof_requirements::REPOSITORY_PYTHON),
         transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
@@ -241,6 +243,7 @@ fn selection() -> Check {
 
 tool_only! {
 fn empty_selection() -> Check {
+    zero_selection::check()?;
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     // Discovery rejects empty directories before applying any name filter.
     if invoke(directory.path(), &[])?.status.success() {

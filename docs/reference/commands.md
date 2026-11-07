@@ -25,6 +25,7 @@ Commands:
   variant     Read source variant assertions, populations and recurrence.
   sync        Synchronize a local source bundle.
   skill       Read embedded guidance and worked examples. No source requests. Overview and catalog are bounded by the embedded payload; install and status return one summary. Install writes only inside DIR and refuses symbolic links and parent traversal.
+  source      List source names as JSON. No source requests or key reads.
   version     Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
   mcp-config  Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
   health      Report source terms and bounded reachability.
@@ -78,6 +79,7 @@ trial: Read trial groups and public documents.
 variant: Read source variant assertions, populations and recurrence.
 sync: Synchronize a local source bundle.
 skill: Read embedded guidance and worked examples
+source: List source names as JSON
 version: Print version; --verbose adds build, schema and path provenance
 mcp-config: Print MCP configuration with this executable’s absolute path
 health: Report source terms and bounded reachability.
@@ -258,8 +260,9 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --source <source>
-          Native author source; biomcp_help search author
-          Native author source.
+          Source; auto uses PubMed if Semantic Scholar is off; biomcp_help search author
+          Source; auto uses PubMed if Semantic Scholar is off.
+          PubMed accepts names or topics and returns unresolved names on papers.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -275,15 +278,16 @@ Options:
 
 ```
 
-Search research paper authors. Sources: semantic-scholar.
+Search research paper authors. Sources: pubmed, semantic-scholar.
 
-- `--limit`: Bounded source page size. Value form: integer. Example: --limit 5. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Retained page identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--limit`: Bounded source page size. Value form: integer. Example: --limit 5. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Retained page identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
 - `query`: Exact query from the positional argument.
-- `--source`: Source author source; biomcp_help search author
-Source author source.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semanticscholar. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--source`: Source; auto uses PubMed if Semantic Scholar is off; biomcp_help search author
+Source; auto uses PubMed if Semantic Scholar is off.
+PubMed accepts names or topics and returns unresolved names on papers.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semanticscholar. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
 
 ## biomcp search organization
 
@@ -1182,7 +1186,7 @@ Usage: biomcp search disease [OPTIONS] [text]
 
 Arguments:
   [text]
-          Literal source search text; absent for the SEER site catalog.
+          Literal source search text; optional site-name filter for SEER.
 
 Options:
       --format <format>
@@ -1238,7 +1242,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `--source`: One explicit source, default OLS; biomcp_help search disease
 One explicit source, default OLS.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `text`: Exact source search text; absent for the SEER site catalog.
+- `text`: Exact source search text; optional site-name filter for SEER.
 
 ## biomcp search drug
 
@@ -1468,6 +1472,12 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --exact-term[=<exact_term>]
+          Search the typed drug term without resolving its other names.
+
+          [default: false]
+          [possible values: true, false]
+
       --gene <gene>
           Gene symbol or ID.
           Gene input; PubMed resolves it through HGNC.
@@ -1486,11 +1496,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --offset <offset>
           Number of pool items to skip.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1498,12 +1514,6 @@ Options:
       --open-access[=<open_access>]
           Native open access.
           PubMed, Europe PMC and Semantic Scholar only: require native open access; Semantic Scholar means a public PDF.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1567,6 +1577,7 @@ PubMed and Europe PMC only: author words sent to the source's author field. Valu
 Available for command sources except LitVar. Value form: string. Example: --disease meningioma. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--drug`: Drug words.
 Available for command sources except LitVar. Value form: string. Example: --drug 'drug words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--exact-term`: Search the typed drug term without resolving its other names. Value form: boolean. Example: --exact-term. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--gene`: Gene symbol or ID.
 Gene input; PubMed resolves it through HGNC. Value form: string. Example: --gene NF2. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
 - `--journal`: PubMed/Europe PMC journal words.
@@ -1704,6 +1715,12 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --exact-term[=<exact_term>]
+          Search typed treatment terms without resolving their other names.
+
+          [default: false]
+          [possible values: true, false]
+
       --facility <facility>
           Facility.
           Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius.
@@ -1824,6 +1841,7 @@ ClinicalTrials.gov only: search exact registry eligibility text for discovery; n
 ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean. Example: --exact-condition. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--exact-term`: Search typed treatment terms without resolving their other names. Value form: boolean. Example: --exact-term. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--facility`: Facility.
 Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string. Example: --facility 'Dana-Farber Cancer Institute'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--gene`: Gene symbol/ID.
@@ -2835,7 +2853,7 @@ Usage: biomcp get disease [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact ontology CURIE or an explicit SEER catalog site ID.
+          Exact ontology CURIE or a SEER site code or name.
 
   [section]
           One named section; absent means identity card only; biomcp_help get disease
@@ -2906,7 +2924,7 @@ Get disease details and source statistics. Sources: monarch, mydisease, ols, see
 
 - `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `id`: Exact ontology CURIE or an explicit SEER catalog site ID.
+- `id`: Exact ontology CURIE or a SEER site code or name.
 - `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--ontology`: One OLS ontology; biomcp_help get disease
 One OLS ontology.
@@ -5062,7 +5080,7 @@ Usage: biomcp variant recurrence [OPTIONS] --gene <gene> --profile <profile> --s
 
 Arguments:
   <input>
-          Published variant identity; ambiguous identities are never selected silently.
+          Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable).
 
 Options:
       --build <build>
@@ -5126,7 +5144,7 @@ Get genetic variant observations in a cohort. Sources: cbioportal.
 Identity lookup assembly; omitted uses the shared GRCh38 default.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: cbioportal; source restrictions in the field description apply.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
-- `input`: Published variant identity; ambiguous identities are never selected silently.
+- `input`: Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable).
 - `--limit`: Source mutation rows per page, including excluded alleles. Value form: integer. Example: --limit 3. Command sources: cbioportal; source restrictions in the field description apply.
 - `--page`: Zero-based source page. Value form: integer. Example: --page 0. Command sources: cbioportal; source restrictions in the field description apply.
 - `--profile`: Explicit mutation molecular profile. Value form: string. Example: --profile msk_impact_2017_mutations. Command sources: cbioportal; source restrictions in the field description apply.
@@ -5485,6 +5503,93 @@ Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directl
 
 - `directory`: Directory to inspect or install BioMCP guidance.
 - `--force`: Repair managed files; retain unrelated files. Value form: boolean. Example: --force. Local command option; independent of source selection.
+
+## biomcp source
+
+```text
+List source names as JSON. No source requests or key reads.
+
+Usage: biomcp source [OPTIONS] <COMMAND>
+
+Commands:
+  list  List the source names a hosted request may leave out.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+Example: biomcp source list
+
+```
+
+List source names as JSON. No source requests or key reads.
+
+
+## biomcp source list
+
+```text
+List the source names a hosted request may leave out.
+
+Usage: biomcp source list [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+Example: biomcp source list
+
+```
+
+List the source names a hosted request may leave out.
+
 
 ## biomcp version
 
@@ -6050,6 +6155,7 @@ Commands:
   variant            Read source variant assertions, populations and recurrence.
   sync               Synchronize a local source bundle.
   skill
+  source
   version
   mcp-config
   health             Report source terms and bounded reachability.
@@ -9506,6 +9612,87 @@ Options:
 ```
 
 Describe help skill install.
+
+
+## biomcp help source
+
+```text
+Usage: biomcp help source [OPTIONS] [COMMAND]
+
+Commands:
+  list  List supported discovery topics.
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help source.
+
+
+## biomcp help source list
+
+```text
+List supported discovery topics.
+
+Usage: biomcp help source list [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+List supported discovery topics.
 
 
 ## biomcp help version

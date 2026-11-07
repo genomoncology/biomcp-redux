@@ -108,6 +108,17 @@
             }
           ],
           "description": "Requested PMC record when known."
+        },
+        "text_withheld": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_WithheldArticleText"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Explain a withheld body and provide the public reading destination."
         }
       },
       "required": [
@@ -626,8 +637,46 @@
       "description": "A source notice or request recovery step.",
       "oneOf": [
         {
+          "description": "Source-stated names used in a trial or article search.",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied name."
+            },
+            "kind": {
+              "const": "drug-name-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "Why the names were expanded or retained.",
+              "type": "string"
+            },
+            "names": {
+              "description": "Names actually searched; ambiguous identities retain the typed name only.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "names",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
           "description": "Local request limits, source observations and recovery guidance.",
           "properties": {
+            "data_date": {
+              "description": "Retained publisher dataset date, independent of acquisition and record events.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "kind": {
               "const": "request-guidance",
               "type": "string"
@@ -1087,6 +1136,30 @@
         "per-record"
       ],
       "type": "string"
+    },
+    "Reply_WithheldArticleText": {
+      "description": "Why article text was withheld, with a public reading destination.",
+      "properties": {
+        "reason": {
+          "$ref": "#/$defs/Reply_Reason",
+          "description": "`disabled` when the use policy refuses the record's text; `unavailable`\nwhen its license could not be checked, so body text was left out."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Public record where the caller can read the paper."
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "type": "object"
     }
   },
   "$id": "biomcp.article-text/7",
