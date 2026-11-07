@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "ctgov",
-  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&pageSize=1&query.term=%28%22Mixed%20therapy%22%20OR%20%22MX-7%22%29",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults&pageSize=10&query.term=%28%22Mixed%20therapy%22%20OR%20%22MX-7%22%29",
   "exchanges": [
     {
       "fetched": 1793329799,
