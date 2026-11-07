@@ -33,6 +33,7 @@ impl SourceSpec {
             idempotent: true,
             identity_encoding: false,
             double_gzip: false,
+            stall_limit: None,
             octet_stream: None,
             publisher: false,
             byte_limit: None,
@@ -92,6 +93,7 @@ pub struct Endpoint {
     pub(crate) idempotent: bool,
     pub(crate) identity_encoding: bool,
     pub(crate) double_gzip: bool,
+    pub(crate) stall_limit: Option<Duration>,
     pub(crate) octet_stream: Option<&'static str>,
     pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
@@ -245,6 +247,11 @@ impl Endpoint {
     /// Take a compressed reply from a source that gzips its body twice; a plain body passes.
     pub const fn double_gzip(mut self) -> Self {
         self.double_gzip = true;
+        self
+    }
+    /// Give up on a first try still unfinished after `limit` and send one more, within the same deadline.
+    pub const fn stall_retry(mut self, limit: Duration) -> Self {
+        self.stall_limit = Some(limit);
         self
     }
     /// Attempt this endpoint once, without retries for status or transport failures.

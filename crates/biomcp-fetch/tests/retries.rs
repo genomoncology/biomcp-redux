@@ -11,6 +11,7 @@ mod timing;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
 use biomcp_types::Reason;
 use std::{
+    sync::mpsc,
     thread,
     time::{Duration, SystemTime},
 };
@@ -259,6 +260,90 @@ fn body_truncation_decode_and_check_failures_do_not_retry_and_release_permits() 
             assert!(peer.join().unwrap().unwrap().answer);
         });
     }
+}
+
+/// Start a reply and never finish it: the connection stays open with half a body sent.
+fn stall(request: support::Request<timing::Timing>) -> mpsc::Sender<Vec<u8>> {
+    let (hold, continuation) = mpsc::channel();
+    let _ = request.reply.send(support::Response {
+        bytes: b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 15\r\n\r\n{\"ans".to_vec(),
+        continuation: Some(continuation),
+    });
+    hold
+}
+
+#[test]
+fn a_stalled_first_try_gets_exactly_one_more_request() {
+    let server = Server::new();
+    let spec = server.spec(quota(), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                .call(
+                    &spec.get("/stall").stall_retry(Duration::from_millis(100)),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
+                .map(|received| received.value)
+        });
+        let _hold = stall(server.next());
+        server.next().ok();
+        assert!(worker.join().unwrap().unwrap().answer);
+        assert!(server.requests.try_recv().is_err());
+    });
+}
+
+#[test]
+fn a_second_stall_ends_at_the_deadline_without_a_third_request() {
+    let server = Server::new();
+    let spec = server.spec(quota(), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_millis(400)))
+                .call(
+                    &spec.get("/stall").stall_retry(Duration::from_millis(100)),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
+                .map(|received| received.value)
+        });
+        let _first = stall(server.next());
+        let _second = stall(server.next());
+        assert_eq!(
+            source(worker.join().unwrap().unwrap_err()).reason,
+            Reason::DeadlineExceeded
+        );
+        assert!(server.requests.try_recv().is_err());
+    });
+}
+
+#[test]
+fn a_silent_first_try_without_a_stall_limit_is_not_sent_again() {
+    let server = Server::new();
+    let spec = server.spec(quota(), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_millis(200)))
+                .call(
+                    &spec.get("/stall"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
+                .map(|received| received.value)
+        });
+        let _hold = stall(server.next());
+        assert_eq!(
+            source(worker.join().unwrap().unwrap_err()).reason,
+            Reason::DeadlineExceeded
+        );
+        assert!(server.requests.try_recv().is_err());
+    });
 }
 
 #[expect(

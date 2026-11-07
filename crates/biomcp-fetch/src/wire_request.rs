@@ -7,6 +7,7 @@ impl Leg<'_> {
         prepared: &Prepared,
         accept: &str,
         headers: &[(&str, String)],
+        limit: Option<std::time::Duration>,
     ) -> Result<ureq::http::Response<ureq::Body>, ureq::Error> {
         let agent = self.fetch.agents.for_url(
             &self.fetch.config.network,
@@ -56,7 +57,7 @@ impl Leg<'_> {
         }
         request
             .config()
-            .timeout_global(Some(remaining))
+            .timeout_global(Some(limit.map_or(remaining, |limit| limit.min(remaining))))
             .build()
             .send(prepared.body.as_slice())
     }
