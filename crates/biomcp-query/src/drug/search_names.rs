@@ -150,8 +150,9 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     let remaining = leg.remaining();
     let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
     command.finish(remaining);
-    let Ok(mapped) = result else {
-        return failure(error, vec![parent]);
+    let mapped = match result {
+        Ok(mapped) => mapped,
+        Err(_) => return failure(error, vec![parent]),
     };
     let carried = super::components(cx, &parent, false);
     let evidence: Vec<_> = std::iter::once(parent).chain(carried).collect();
@@ -170,8 +171,7 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     let names = mapped
         .value
         .iter()
-        .flat_map(|row| &row.names)
-        .filter_map(|name| Text::from_source(name).ok())
+        .flat_map(|row| row.names.iter().cloned())
         .collect();
     with_other_names(names, input, record, evidence, mapped.problems)
 }
@@ -365,19 +365,15 @@ pub(crate) fn one_request_each(input: Option<&Text>, names: &[Text]) -> Vec<Text
 }
 
 /// Source names are literal terms inside a native Boolean group.
-pub(crate) fn alternatives(names: &[Text]) -> Option<Text> {
-    Text::new(&format!(
-        "({})",
-        names
-            .iter()
-            .map(|name| {
-                format!(
-                    "\"{}\"",
-                    name.as_str().replace('\\', "\\\\").replace('"', "\\\"")
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(" OR ")
-    ))
-    .ok()
+pub(crate) fn alternatives(names: &[Text], input: &Text) -> Text {
+    let terms: Vec<_> = names
+        .iter()
+        .map(|name| {
+            format!(
+                "\"{}\"",
+                name.as_str().replace('\\', "\\\\").replace('"', "\\\"")
+            )
+        })
+        .collect();
+    Text::new(&format!("({})", terms.join(" OR "))).unwrap_or_else(|_| input.clone())
 }

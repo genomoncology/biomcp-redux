@@ -32,13 +32,11 @@ pub(super) fn expand<'a>(
         let mut term = |input: &Text| {
             let resolved = search_names::resolve(cx, input, out, lookup);
             expanded.failed |= resolved.failed;
-            match search_names::alternatives(&resolved.names) {
-                Some(group) if resolved.names.len() > 1 => {
-                    expanded.inputs.push(input.clone());
-                    group
-                }
-                _ => input.clone(),
+            if resolved.names.len() < 2 {
+                return input.clone();
             }
+            expanded.inputs.push(input.clone());
+            search_names::alternatives(&resolved.names, input)
         };
         let text = query.query().map(&mut term);
         let interventions = query.intervention().iter().map(&mut term).collect();

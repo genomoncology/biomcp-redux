@@ -52,7 +52,7 @@ pub(super) fn search<'a>(
         *deadline = deadline.after_stage(elapsed);
         results.append(&mut batch_results);
     }
-    retry_typed(
+    let retried = retry_typed(
         cx,
         query,
         resolved,
@@ -60,8 +60,10 @@ pub(super) fn search<'a>(
         &mut results,
         deadline,
         &mut prepared,
-        out,
     );
+    if retried && query.sources().iter().all(|source| grouped(*source)) {
+        search_names::retract(out);
+    }
     resolve_rows(cx, query, &mut results, deadline, out)?;
     let answered = results
         .iter()
@@ -85,10 +87,6 @@ pub(super) fn search<'a>(
     )))
 }
 /// Search the typed term where a provider refused the name group, and say so on that provider.
-#[expect(
-    clippy::too_many_arguments,
-    reason = "One search's borrowed stages, kept apart from its source fan-out"
-)]
 fn retry_typed<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
@@ -97,10 +95,9 @@ fn retry_typed<'a>(
     results: &mut [ResultLeg],
     deadline: &mut Deadline<'a>,
     prepared: &mut Option<PreparedLitvar<'a>>,
-    out: &mut Outcome,
-) {
+) -> bool {
     let Some(input) = query.drug_name_input().filter(|_| names.len() > 1) else {
-        return;
+        return false;
     };
     let mut retried = false;
     for result in results
@@ -118,9 +115,7 @@ fn retry_typed<'a>(
             retried = true;
         }
     }
-    if retried && query.sources().iter().all(|source| grouped(*source)) {
-        search_names::retract(out);
-    }
+    retried
 }
 /// A provider taking one request per name reports which names it had time for.
 fn note_request_limit(query: &ArticleSearch, names: &[Text], out: &mut Outcome) {
@@ -228,8 +223,10 @@ fn drug_queries(query: &ArticleSearch, names: &[Text]) -> Vec<(ArticleSource, Ar
             }
             match source {
                 ArticleSource::Pubmed | ArticleSource::Europepmc | ArticleSource::Pubtator => {
-                    let expanded = search_names::alternatives(names)
-                        .map_or_else(|| query.clone(), |term| query.with_drug_term(term));
+                    let expanded = query.drug_name_input().map_or_else(
+                        || query.clone(),
+                        |input| query.with_drug_term(search_names::alternatives(names, input)),
+                    );
                     vec![(*source, expanded)]
                 }
                 ArticleSource::Litvar => vec![(*source, query.clone())],
