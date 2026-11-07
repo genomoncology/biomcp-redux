@@ -183,7 +183,7 @@ fn failed_names() -> Result<(), String> {
             Ok(())
         }
     })?;
-    let command = ["search", "article", "Canonical therapy", "--limit", "1"];
+    let command = ["search", "article", "EX-66", "--limit", "1"];
     let first = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
     let id = first
         .pointer("/page/pool/id")
