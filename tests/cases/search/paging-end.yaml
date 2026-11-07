@@ -14,11 +14,13 @@
         "2"
       ],
       "expect": {
-        "/next/*/kind": {
-          "excludes": "page"
-        },
         "/page/total": 2,
-        "/page/returned": 2
+        "/page/returned": 2,
+        "": {
+          "omits": [
+            "next"
+          ]
+        }
       }
     },
     {

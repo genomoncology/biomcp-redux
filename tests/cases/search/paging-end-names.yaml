@@ -13,11 +13,13 @@
         "3"
       ],
       "expect": {
-        "/next/*/kind": {
-          "excludes": "page"
-        },
         "/page/total": 3,
-        "/page/returned": 3
+        "/page/returned": 3,
+        "": {
+          "omits": [
+            "next"
+          ]
+        }
       }
     },
     {
