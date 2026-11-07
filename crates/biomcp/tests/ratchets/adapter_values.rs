@@ -75,18 +75,53 @@ pub(crate) fn validate(text: &str) -> Result<Audit, Box<dyn std::error::Error>> 
     }
     Ok(audit)
 }
-// These two reviewed policy absences are not additions to the frozen migration debt.
-// Their errors cannot grant text rights or discard the paper/refusal.
+// These reviewed absences are not additions to the frozen migration debt. Each one's
+// audit entry states why the dropped error cannot make a partial answer read as complete.
 fn reviewed_absence(entry: &Site) -> bool {
     entry.class == "legitimate_absence"
         && entry.maximum == 1
-        && entry.path == "crates/biomcp-adapters/src/article_rights/policy.rs"
-        && matches!(
-            entry.site.as_str(),
-            "parse_pmid: - > Option < Pmid > { value . parse ( ) . ok ( )"
-                | "read_url: > { biodata : : Text : : new ( value ) . ok ( )"
-        )
+        && REVIEWED_ABSENCES
+            .iter()
+            .any(|(path, site)| *path == entry.path && *site == entry.site)
 }
+const REVIEWED_ABSENCES: &[(&str, &str)] = &[
+    (
+        "crates/biomcp-adapters/src/article_rights/policy.rs",
+        "parse_pmid: - > Option < Pmid > { value . parse ( ) . ok ( )",
+    ),
+    (
+        "crates/biomcp-adapters/src/article_rights/policy.rs",
+        "read_url: > { biodata : : Text : : new ( value ) . ok ( )",
+    ),
+    (
+        "crates/biomcp-query/src/article/semantic_edges.rs",
+        "resolve_input: . is_some ( ) = > return Err ( error ) , Err ( _ ) = > None ,",
+    ),
+    (
+        "crates/biomcp-query/src/pathway/get.rs",
+        "get: out . problems = mapped . problems ; mapped . value } Err ( _ ) = > None ,",
+    ),
+    (
+        "crates/biomcp-query/src/trial/condition.rs",
+        "resolve: ( ) , mapped . value , & mut resolution ) } Err ( _ ) = > None ,",
+    ),
+    (
+        "crates/biomcp-query/src/variant/gwas.rs",
+        "continuation: ( ) ) { Ok ( input ) = > input , Err ( _ ) = > return None",
+    ),
+    (
+        "crates/biomcp-query/src/variant/gwas.rs",
+        "continuation: ( input ) { Ok ( candidate ) = > candidate , Err ( _ ) = > return None",
+    ),
+    (
+        "crates/biomcp-query/src/variant/mod.rs",
+        "join_for_build: , build ) { Ok ( chromosome ) = > chromosome , Err ( _ ) = > return None",
+    ),
+    (
+        "crates/biomcp-adapters/src/gnomad/map.rs",
+        "constraint: ) > ( field , None ) ; return None ; } Err ( _ ) = > return None",
+    ),
+];
 fn initial_entry(entry: &Site) -> bool {
     let identity = format!("{}\n{}", entry.path, entry.site);
     let hash: String = Sha256::digest(identity.as_bytes())
@@ -196,9 +231,12 @@ fn fingerprints(root: &Path, tokens: &[String], path: &str) -> BTreeMap<String, 
                         "parse" | "from_str" | "from_slice" | "from_value" | "from_reader"
                     )
                 }));
-        if ok || default || pattern {
+        let dropped = dropped_error(tail);
+        if ok || default || pattern || dropped {
             let end = if pattern {
                 (index + 16).min(tokens.len())
+            } else if dropped {
+                (index + 8).min(tokens.len())
             } else {
                 index + 4
             };
@@ -210,6 +248,16 @@ fn fingerprints(root: &Path, tokens: &[String], path: &str) -> BTreeMap<String, 
         }
     }
     result
+}
+// `Err(_) => None` drops a failure the same way `.ok()` does, and `return None` is one spelling.
+fn dropped_error(tail: &[String]) -> bool {
+    let arm = |word: &str, at: usize| tail.get(at).is_some_and(|token| token == word);
+    arm("Err", 0)
+        && arm("(", 1)
+        && arm(")", 3)
+        && arm("=", 4)
+        && arm(">", 5)
+        && (arm("None", 6) || arm("return", 6) && arm("None", 7))
 }
 pub(super) fn attribute_site(tokens: &[String], index: usize) -> Option<String> {
     if tokens.get(index)? != "#" {
