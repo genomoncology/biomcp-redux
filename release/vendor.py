@@ -15,10 +15,15 @@ def path_flags(folder):
     """Give a release binary's panic locations fixed names, not this machine's folders."""
     home = os.environ.get("CARGO_HOME") or Path.home() / ".cargo"
     prefixes = ((home, "cargo"), (ROOT, "biomcp"), (folder / "sources", "vendor"))
-    flags = [f"--remap-path-prefix={path}={name}" for path, name in prefixes]
+    # Rustc reads the flags from this file and Cargo compares only its name. The
+    # stage's name is random, so naming it in rustflags would rebuild every
+    # dependency for each release command that shares the target folder.
+    arguments = ROOT / "target" / "release-path-flags"
+    arguments.parent.mkdir(exist_ok=True)
+    arguments.write_text("".join(f"--remap-path-prefix={path}={name}\n" for path, name in prefixes), encoding="utf-8")
     # Cargo joins this table with .cargo/config.toml. RUSTFLAGS would replace
     # that file's flags, and Windows would lose its static C runtime silently.
-    return "\n[target.'cfg(all())']\nrustflags = " + json.dumps(flags) + "\n"
+    return "\n[target.'cfg(all())']\nrustflags = " + json.dumps(["@" + str(arguments)]) + "\n"
 
 
 @lru_cache(maxsize=1)
@@ -43,8 +48,8 @@ def stage():
 
 
 def environment(clean_paths=False):
-    """Only the shipped binary cleans paths, because the flags name this run's
-    stage and any other build sharing the target folder would rebuild each run."""
+    """Release-profile builds clean paths, so the shipped binary and the test
+    runners share compiled dependencies. Other profiles keep their own flags."""
     home = stage() / ("release-cargo-home" if clean_paths else "cargo-home")
     return dict(os.environ, CARGO_HOME=str(home), CARGO_NET_OFFLINE="true")
 
