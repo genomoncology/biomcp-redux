@@ -181,9 +181,9 @@ pub fn sample_lists(
                     Err(RequestError::Source(error)) => {
                         // Out of time: the remaining counts are not attempted.
                         if error.reason == Reason::DeadlineExceeded {
-                            stopped = Some(error.reason.as_str());
+                            stopped = Some(<&str>::from(error.reason));
                         }
-                        error.reason.as_str()
+                        <&str>::from(error.reason)
                     }
                     Err(_) => "local",
                 }
