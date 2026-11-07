@@ -69,9 +69,9 @@ Collection's exit is this section's result. A shard exits zero on survivors, on 
 
 `release/linux.sh` already builds the manylinux artifacts, prepares matching runners, runs installed forms without the checkout and checks the matching runtime container. Retain its actual install report, raw log and container receipt. Do not rebuild that platform merely to repeat those checks.
 
-A release-profile build refuses a binary that still names a folder of the machine that built it: the checkout's `crates` folder, the output folder, the vendored source folder or the Cargo registry. That refusal fails this section on any platform. Until a preflight passes, this check has real proof only on macOS arm64, so Windows and Intel macOS prove it here.
+A release-profile build refuses a binary that still names a folder of the machine that built it: the checkout's `crates` folder, Cargo's target folder, the vendored source folder or the Cargo registry. That refusal fails this section on any platform. Until a preflight passes, this check has real proof only on macOS arm64, so every other platform proves it here.
 
-The runtime container installs its packages only from the dated Debian snapshot named by `debian-snapshot` in `release/toolchain.json`, over plain http, with the signed Release file carrying the trust. A snapshot that cannot be reached fails the container build; do not switch to the live archive. Until a preflight passes, a real build from the snapshot has proof only on arm64, so amd64 proves it here.
+The runtime container installs its packages only from the dated Debian snapshot named by `debian-snapshot` in `release/toolchain.json`, over plain http, with the signed Release file carrying the trust. A snapshot that cannot be reached fails the container build; do not switch to the live archive. Until a preflight passes, a real build from the snapshot has proof only on arm64 and, emulated, on amd64, so native amd64 proves it here.
 
 | Section | Command | Host and inputs |
 | --- | --- | --- |
