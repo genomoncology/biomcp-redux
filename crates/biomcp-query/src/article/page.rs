@@ -70,21 +70,7 @@ pub(super) fn read<'a>(
         .iter()
         .any(|s| cx.fetch.disabled(s.source) && s.reason != Some(biomcp_types::Reason::Disabled))
     {
-        out.sources = pool
-            .sources
-            .iter()
-            .cloned()
-            .map(|mut s| {
-                if cx.fetch.disabled(s.source) {
-                    s.set_status(biomcp_types::SourceStatus::Skipped(Some(
-                        biomcp_types::Reason::Disabled,
-                    )));
-                    s.count = None;
-                    s.retrieved_count = None;
-                }
-                s
-            })
-            .collect();
+        out.sources = withheld_sources(cx, pool);
         crate::status::item(out, false, true, false);
         return Ok(());
     }
@@ -141,8 +127,64 @@ pub(super) fn read<'a>(
             }
         }
     }
+    filter_stored_text(cx, store, id, &mut rows, out)?;
     finish(query, pool, rows, out);
     Ok(())
+}
+/// Recheck and rewrite retained article text before returning a stored page.
+fn filter_stored_text<'a>(
+    cx: &Ctx<'a>,
+    store: &mut Store<'a>,
+    id: &str,
+    rows: &mut [StoredItem],
+    out: &mut Outcome,
+) -> Result<(), RequestError> {
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+        let leg = cx.fetch.leg(&pubmed::SPEC, store.deadline());
+        let started = leg.remaining();
+        let mut items: Vec<_> = rows.iter().map(|row| row.item.clone()).collect();
+        out.dropped |= biomcp_adapters::article_rights::items(&leg, &mut items);
+        let mut changed = Vec::new();
+        for (row, item) in rows.iter_mut().zip(items) {
+            // An unfinished lookup settles nothing, so its row stays as stored.
+            if row.item != item && !biomcp_adapters::article_rights::item_unchecked(&item) {
+                changed.push(item.clone());
+            }
+            row.item = item;
+        }
+        store.set_deadline(consume(store.deadline(), started, leg.remaining()));
+        if !changed.is_empty() {
+            store.rewrite_article_text(id, &changed)?;
+        }
+    }
+    Ok(())
+}
+
+fn withheld_sources(cx: &Ctx<'_>, pool: &Pool) -> Vec<biomcp_types::SourceOutcome> {
+    // Expansion terms and provider warnings can repeat names from a disabled component.
+    let expanded = pool
+        .sources
+        .iter()
+        .flat_map(|source| &source.notices)
+        .any(|notice| matches!(notice, biomcp_types::SourceNotice::DrugNameSearch { .. }));
+    pool.sources
+        .iter()
+        .cloned()
+        .map(|mut s| {
+            if expanded {
+                s.term = None;
+                s.notices.clear();
+            }
+            if cx.fetch.disabled(s.source) {
+                s.set_status(biomcp_types::SourceStatus::Skipped(Some(
+                    biomcp_types::Reason::Disabled,
+                )));
+                s.count = None;
+                s.retrieved_count = None;
+            }
+            s
+        })
+        .collect()
 }
 fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outcome) {
     for source in rows.iter().filter_map(|r| r.outcome.as_ref()) {

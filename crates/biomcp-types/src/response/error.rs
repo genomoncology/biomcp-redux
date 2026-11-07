@@ -10,7 +10,8 @@ macro_rules! singleton {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         $visibility enum $name {
-            $(#[doc = $literal]
+            // Double backticks: one literal holds single backticks.
+            $(#[doc = concat!("`` ", $literal, " ``")]
             #[serde(rename = $literal)]
             $variant,)+
         }
@@ -236,7 +237,7 @@ singleton! {
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
-        Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
+        Gene => "use: get gene <gene>", GeneSearch => "use: search gene <query>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
         Drugs => "use: search drug --target <gene>",
         Variant => "moved to the variant entity", LocusGroup => "use: --locus-group",

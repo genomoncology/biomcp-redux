@@ -9,6 +9,7 @@ tool_only! { mod protein_commands; }
 tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
 mod article_lean;
+mod article_pools;
 mod article_save;
 mod article_save_reply;
 mod assertions;
@@ -127,6 +128,7 @@ mod variant_civic;
 mod variant_hotspots;
 mod variant_population;
 mod wikipathways;
+mod word_order;
 
 pub(super) fn output_limit(name: &str) -> Result<usize, String> {
     let limits: std::collections::BTreeMap<String, usize> =
@@ -259,6 +261,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(enum_case::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
+    trials.extend(article_pools::trials());
     trials.extend(configuration::trials());
     trials.extend(bundle_wait::trials());
     trials.extend(bundle_refresh::trials());
@@ -314,7 +317,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
-    trials.push(help_contract::trial());
+    trials.extend([help_contract::trial(), word_order::trial()]);
     trials.push(wikipathways::trial());
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());

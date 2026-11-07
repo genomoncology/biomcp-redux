@@ -1,5 +1,6 @@
 //! PubMed snapshots and stable pages through one checked command consumer.
 use biomcp_types::ReplyBody;
+mod drug_names;
 mod edges;
 mod empty_litvar;
 pub(crate) mod evidence;
@@ -10,6 +11,7 @@ pub(crate) mod next;
 mod order;
 mod page;
 pub mod pdf;
+mod pool;
 mod preprint;
 mod protein_change;
 pub(crate) mod recommend;
@@ -25,7 +27,6 @@ use crate::{Action, Ctx, Outcome, status, store::Store};
 use biodata::Text;
 use biomcp_fetch::{CacheError, Deadline, RequestError};
 use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, StepKind};
-use sha2::{Digest, Sha256};
 /// Run one article command under a single absolute deadline.
 pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     let mut out = empty(
@@ -62,6 +63,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &ArticleSearch) -> Outcome {
     }
     out
 }
+/// Sentences kept out of the store and given back to this reply.
+type Held = Vec<(biomcp_types::ArticleKey, biomcp_types::ArticleSentence)>;
 fn execute<'a>(
     cx: &Ctx<'a>,
     query: &ArticleSearch,
@@ -70,80 +73,114 @@ fn execute<'a>(
 ) -> Result<(), RequestError> {
     let mut store = Store::open(cx.fetch.cache_access()?, *deadline)?;
     let bytes = serde_json::to_vec(&query.identity()).map_err(|_| CacheError::Encoding)?;
-    let key = Sha256::digest([b"biomcp.article_page/1\0".as_slice(), &bytes].concat());
+    let keys = pool::key(cx, b"biomcp.article_page/1\0", &bytes)?;
+    let key = keys.identity;
     let explicit = query.pool().map(Text::as_str);
     let stored = if cx.fresh && explicit.is_none() {
         None
     } else {
-        store.find(&key, explicit)?
+        store.find(&keys.current, explicit)?
     };
-    let pool = match stored {
+    // A repeat search rechecks what an unfinished lookup left out; a named pool stays as paged.
+    let restricted = cx.fetch.disabled_use(biomcp_types::Use::PerRecord);
+    let stored = stored.filter(|pool| explicit.is_some() || !(restricted && pool.dropped));
+    let (stored, looked_up) = drug_names::reuse(cx, query, stored, out, deadline);
+    let publish = stored.is_none() && explicit.is_none();
+    let (pool, held, whole) = match stored {
         Some(pool) if pool.key != key.as_slice() => {
             pool_error(query, true, out);
             return Ok(());
         }
-        Some(pool) => pool,
+        Some(pool) => (pool, Vec::new(), true),
         None if explicit.is_some() => {
             pool_error(query, false, out);
             return Ok(());
         }
-        None => {
-            let resolved = if query
-                .sources()
-                .contains(&biomcp_types::ArticleSource::Pubmed)
-                || query
-                    .sources()
-                    .contains(&biomcp_types::ArticleSource::Litvar)
-                || query
-                    .sources()
-                    .contains(&biomcp_types::ArticleSource::Pubtator)
-                    && !cx.fetch.disabled(biomcp_types::Source::PubTator)
-            {
-                let Some(term) = term::resolve(cx, query, deadline, out)? else {
-                    return Ok(());
-                };
-                term
-            } else {
-                term::Resolved {
-                    names: Vec::new(),
-                    symbol: None,
-                    entrez: None,
-                }
-            };
-            let mut items = match sources::search(cx, query, &resolved, deadline, out)? {
-                sources::SearchResult::Items(items) => items,
-                sources::SearchResult::Answer => return Ok(()),
-                sources::SearchResult::Unavailable => {
-                    retry(query, None, out);
-                    return Ok(());
-                }
-            };
-            if query.sort() == biomcp_types::ArticleSort::Citations
-                && !order::apply(cx, deadline, &mut items, out)?
-            {
-                retry(query, None, out);
-                return Ok(());
-            }
-            store.set_deadline(*deadline);
-            match crate::publish::keep(
-                store
-                    .publish(&key, &items, &out.sources, &out.problems, out.dropped)
-                    .map_err(Into::into),
-                out,
-            )? {
-                Some(pool) => pool,
-                None => {
-                    page::fetched(page::Cursor::Search(query), items, out);
-                    return Ok(());
-                }
-            }
-        }
+        None => match fetch_pool(cx, query, &key, looked_up, &mut store, deadline, out)? {
+            Some(fetched) => fetched,
+            None => return Ok(()),
+        },
     };
     out.sources = pool.sources.clone();
-    let result = page::read(cx, page::Cursor::Search(query), &mut store, &pool, out);
+    let result = self::pool::read(
+        cx,
+        page::Cursor::Search(query),
+        &mut store,
+        &pool,
+        out,
+        keys.current.as_slice(),
+        publish && whole,
+    );
+    if let ReplyData::ArticlePage {
+        body: Some(page), ..
+    } = &mut out.body
+    {
+        biomcp_adapters::article_rights::return_unchecked(&mut page.items, &held);
+    }
     *deadline = store.deadline();
     result
 }
+/// Fetch and store a new pool. `None` means the reply is already complete in `out`.
+fn fetch_pool<'a>(
+    cx: &Ctx<'a>,
+    query: &ArticleSearch,
+    key: &[u8],
+    looked_up: Option<crate::drug::search_names::Resolved>,
+    store: &mut Store<'a>,
+    deadline: &mut Deadline<'a>,
+    out: &mut Outcome,
+) -> Result<Option<(crate::store::Pool, Held, bool)>, RequestError> {
+    let Some(resolved) = term::search(cx, query, deadline, out)? else {
+        return Ok(None);
+    };
+    let drug_names =
+        looked_up.unwrap_or_else(|| crate::drug::search_names::article(cx, query, out, deadline));
+    let mut items = match sources::search(cx, query, &resolved, &drug_names.names, deadline, out)? {
+        sources::SearchResult::Items(items) => items,
+        sources::SearchResult::Answer => return Ok(None),
+        sources::SearchResult::Unavailable => {
+            retry(query, None, out);
+            return Ok(None);
+        }
+    };
+    if query.sort() == biomcp_types::ArticleSort::Citations
+        && !order::apply(cx, deadline, &mut items, out)?
+    {
+        retry(query, None, out);
+        return Ok(None);
+    }
+    filter_text(cx, deadline, &mut items, out);
+    let held = biomcp_adapters::article_rights::take_unchecked(&mut items);
+    store.set_deadline(*deadline);
+    let Some(pool) = crate::publish::keep(
+        store
+            .publish(key, &items, &out.sources, &out.problems, out.dropped)
+            .map_err(Into::into),
+        out,
+    )?
+    else {
+        biomcp_adapters::article_rights::return_unchecked(&mut items, &held);
+        page::fetched(page::Cursor::Search(query), items, out);
+        return Ok(None);
+    };
+    // Names may be missing, so the pool serves this search's pages and never a new search.
+    Ok(Some((pool, held, !drug_names.failed)))
+}
+/// Apply the record policy before publishing a newly fetched ranked pool.
+fn filter_text<'a>(
+    cx: &Ctx<'a>,
+    deadline: &mut Deadline<'a>,
+    items: &mut [biomcp_types::ArticleItem],
+    out: &mut Outcome,
+) {
+    if cx.fetch.disabled_use(biomcp_types::Use::PerRecord) {
+        let leg = cx.fetch.leg(&biomcp_adapters::pubmed::SPEC, *deadline);
+        let started = leg.remaining();
+        out.dropped |= biomcp_adapters::article_rights::items(&leg, items);
+        *deadline = consume(*deadline, started, leg.remaining());
+    }
+}
+
 fn pool_error(query: &ArticleSearch, mismatch: bool, out: &mut Outcome) {
     out.body = ReplyData::PoolError { mismatch };
     out.next.push(crate::next::Step::run(

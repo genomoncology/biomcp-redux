@@ -5,6 +5,9 @@ type Check = Result<(), Box<dyn std::error::Error>>;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     vec![
+        super::transcript::trial("drug-name-search/legacy-literal-pool", || {
+            legacy_drug_pool().map_err(|e| e.to_string().into())
+        }),
         super::transcript::trial("cache-resilience/older-source-snapshot-rebuilds", || {
             older_version().map_err(|e| e.to_string().into())
         }),
@@ -105,4 +108,62 @@ fn older_version() -> Check {
         return Err("expected a rebuilt snapshot alongside the older version".into());
     }
     Ok(())
+}
+
+fn legacy_drug_pool() -> Check {
+    let env = Environment::new()?;
+    let replay = env.root().join("recordings");
+    copy_capture("search/drug-names", &replay, |_, _| {})?;
+    let globals = env.globals(Some(&replay), false);
+    let args = ["search", "article", "Canonical therapy", "--limit", "1"].map(str::to_owned);
+    let mut literal = args.to_vec();
+    literal.push("--exact-term".into());
+    let first = command(&env, &literal, &globals, 0)?;
+    let id = pool_id(&first)?;
+    if first.pointer("/page/total") != Some(&json!(1)) {
+        return Err(format!("literal control did not return one identity: {first}").into());
+    }
+    // Seed the pre-expansion representation in this isolated cache only: the literal pool takes
+    // over the request and current slot of a real expanded search.
+    let current = pool_id(&command(&env, &args, &globals, 0)?)?;
+    let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))?;
+    if db.execute(
+        "UPDATE pool SET request_key=(SELECT request_key FROM pool WHERE id=?2) WHERE id=?1",
+        rusqlite::params![id, current],
+    )? != 1
+        || db.execute(
+            "UPDATE pool_current SET pool=?1 WHERE pool=?2",
+            rusqlite::params![id, current],
+        )? != 1
+    {
+        return Err("expected one isolated literal pool".into());
+    }
+    drop(db);
+    let expanded = command(&env, &args, &globals, 0)?;
+    if expanded.pointer("/page/total") != Some(&json!(3)) {
+        return Err(format!("legacy literal pool hid source names: {expanded}").into());
+    }
+    let rebuilt = pool_id(&expanded)?;
+    if rebuilt == id {
+        return Err("legacy literal pool was reused".into());
+    }
+    let again = command(&env, &args, &globals, 0)?;
+    if pool_id(&again)? != rebuilt {
+        return Err(format!("rebuilt drug pool did not become current: {again}").into());
+    }
+    let mut historical = args.to_vec();
+    historical.extend(["--pool".into(), id]);
+    let retained = command(&env, &historical, &globals, 0)?;
+    if retained.pointer("/page/total") != Some(&json!(1)) {
+        return Err(format!("explicit historical pool changed: {retained}").into());
+    }
+    Ok(())
+}
+
+fn pool_id(reply: &serde_json::Value) -> Result<String, Box<dyn std::error::Error>> {
+    reply
+        .pointer("/page/pool/id")
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_owned)
+        .ok_or_else(|| format!("no stored pool: {reply}").into())
 }
