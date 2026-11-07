@@ -88,8 +88,11 @@ def command(name, spec, built, binary):
     if name == 'first-open':
         target = Path(binary or built['biomcp']).resolve(strict=True)
         digest = hashlib.sha256(target.read_bytes()).hexdigest()
+        source = 'supplied binary' if binary else subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
         return [sys.executable, 'scripts/cache_installed_first_open.py', str(target), digest,
-                str(OUTPUT / 'first-open' / str(time.time_ns())), '--artifact', 'stress run']
+                str(OUTPUT / 'first-open' / str(time.time_ns())), '--artifact', 'stress run',
+                '--source', source]
     if name == 'cache-process':
         return [built['cache'], '--exact', CACHE_PROCESS, '--nocapture']
     if isinstance(spec, list):
