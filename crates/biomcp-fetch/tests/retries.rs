@@ -5,9 +5,9 @@
 )]
 use biomcp_fetch::{Input, Read};
 
-mod support;
 #[path = "support/early.rs"]
 mod early;
+mod support;
 #[path = "support/timing.rs"]
 mod timing;
 use biomcp_fetch::{Fetch, FetchConfig, KeyUse, Quota, Rate, SourceKey};
