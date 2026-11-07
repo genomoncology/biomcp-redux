@@ -23,6 +23,9 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("mcp-hosted/exclude/discovery-agrees", || {
             discovery().map_err(Into::into)
         }),
+        trial("mcp-hosted/exclude/use-limit-explained-first", || {
+            use_limit_first().map_err(Into::into)
+        }),
         trial("mcp-hosted/exclude/stored-article-pools", || {
             article_pools().map_err(Into::into)
         }),
@@ -252,6 +255,28 @@ fn discovery() -> Check {
     }
     if card.to_string().contains("--disable-sources") {
         return Err(format!("the header became a flag: {card}"));
+    }
+    server.stop()
+}
+
+/// A caller who leaves out a source their use limit keeps off is told about the limit, not the list.
+fn use_limit_first() -> Check {
+    let mut server =
+        Server::configured_globals("127.0.0.1:0", None, None, None, None, &["--hosted".into()])?;
+    let help = |header: &str| -> Check<String> {
+        Ok(call(&server, &["help", "sources"], header, false)?.to_string())
+    };
+    let left_out = "oncokb: This request's source list leaves out";
+    let limited = "oncokb: This source or a required component is disabled by the requested hosted use policy";
+    for use_header in ["", "x-biomcp-use: commercial\r\n"] {
+        let reply = help(&format!("{use_header}{}", list("oncokb")))?;
+        if !reply.contains(limited) || reply.contains(left_out) {
+            return Err(format!("{use_header:?} blamed the list: {reply}"));
+        }
+    }
+    let academic = help(&format!("{ACADEMIC}{}", list("oncokb")))?;
+    if !academic.contains(left_out) {
+        return Err(format!("academic caller must change the list: {academic}"));
     }
     server.stop()
 }
