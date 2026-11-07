@@ -1182,7 +1182,7 @@ Usage: biomcp search disease [OPTIONS] [text]
 
 Arguments:
   [text]
-          Literal source search text; absent for the SEER site catalog.
+          Literal source search text; optional site-name filter for SEER.
 
 Options:
       --format <format>
@@ -1238,7 +1238,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `--source`: One explicit source, default OLS; biomcp_help search disease
 One explicit source, default OLS.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `text`: Exact source search text; absent for the SEER site catalog.
+- `text`: Exact source search text; optional site-name filter for SEER.
 
 ## biomcp search drug
 
@@ -2835,7 +2835,7 @@ Usage: biomcp get disease [OPTIONS] <id> [section]
 
 Arguments:
   <id>
-          Exact ontology CURIE or an explicit SEER catalog site ID.
+          Exact ontology CURIE or a SEER site code or name.
 
   [section]
           One named section; absent means identity card only; biomcp_help get disease
@@ -2906,7 +2906,7 @@ Get disease details and source statistics. Sources: monarch, mydisease, ols, see
 
 - `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `id`: Exact ontology CURIE or an explicit SEER catalog site ID.
+- `id`: Exact ontology CURIE or a SEER site code or name.
 - `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--ontology`: One OLS ontology; biomcp_help get disease
 One OLS ontology.
@@ -5062,7 +5062,7 @@ Usage: biomcp variant recurrence [OPTIONS] --gene <gene> --profile <profile> --s
 
 Arguments:
   <input>
-          Published variant identity; ambiguous identities are never selected silently.
+          Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable).
 
 Options:
       --build <build>
@@ -5126,7 +5126,7 @@ Get genetic variant observations in a cohort. Sources: cbioportal.
 Identity lookup assembly; omitted uses the shared GRCh38 default.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: cbioportal; source restrictions in the field description apply.
 - `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
-- `input`: Published variant identity; ambiguous identities are never selected silently.
+- `input`: Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable).
 - `--limit`: Source mutation rows per page, including excluded alleles. Value form: integer. Example: --limit 3. Command sources: cbioportal; source restrictions in the field description apply.
 - `--page`: Zero-based source page. Value form: integer. Example: --page 0. Command sources: cbioportal; source restrictions in the field description apply.
 - `--profile`: Explicit mutation molecular profile. Value form: string. Example: --profile msk_impact_2017_mutations. Command sources: cbioportal; source restrictions in the field description apply.
