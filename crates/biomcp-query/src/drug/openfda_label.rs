@@ -269,7 +269,7 @@ fn headings(record: &source::Record) -> Result<Box<[biodata::Text]>, RequestErro
 fn invalid_heading(record: &source::Record) -> Result<biomcp_types::UsageError, RequestError> {
     Ok(biomcp_types::UsageError::SourceSelector {
         source: SOURCE,
-        message: biomcp_types::ErrorMessage::SourceSelector,
+        message: biomcp_types::ErrorMessage::LabelSectionMissing,
         option: "--label-section".into(),
         valid_values: headings(record)?,
         next: vec![biomcp_types::Step {

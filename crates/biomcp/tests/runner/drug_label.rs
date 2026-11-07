@@ -47,6 +47,16 @@ fn bare_label() -> Check {
             return Err(format!("hint lacks the option: {hint}"));
         }
     }
+    let mut unknown = args.clone();
+    unknown.extend(["--label-section".into(), "effective_time".into()]);
+    let refused = invoke(&env, unknown, 2)?;
+    let message = refused
+        .pointer("/error/message")
+        .and_then(Value::as_str)
+        .ok_or("no refusal message")?;
+    if !message.contains("--label-section") || refused.pointer("/error/valid_values").is_none() {
+        return Err(format!("unknown section refusal unclear: {refused}"));
+    }
     Ok(())
 }
 fn identity(n: usize) -> Result<Value, String> {
