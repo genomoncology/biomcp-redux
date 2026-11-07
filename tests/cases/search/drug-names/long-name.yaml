@@ -13,8 +13,8 @@
       "expect": {
         "/status": "complete",
         "/sources/0/notices/0/names": [
-          "LT-5",
-          "Long therapy"
+          "Long therapy",
+          "LT-5"
         ],
         "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names too long for the provider to search.",
         "/page/total": 2
@@ -29,8 +29,8 @@
       "expect": {
         "/status": "complete",
         "/sources/0/notices/0/names": [
-          "LT-5",
-          "Long therapy"
+          "Long therapy",
+          "LT-5"
         ],
         "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names too long for the provider to search.",
         "/page/total": 2
