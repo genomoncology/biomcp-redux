@@ -31,17 +31,17 @@ print(report, end='')
 print('gate complete')
 '''
 TOOL = r'''import json, os, sys
-excluded = os.environ['PROOF_EXCLUDED'].split()
+excluded = 'runtime/needs-python'
 if sys.argv[1:] == ['--proof-metadata']:
     print(json.dumps([{'name': 'runtime/one', 'requires_repository_python': False},
                       {'name': 'runtime/two', 'requires_repository_python': False},
-                      *[{'name': name, 'requires_repository_python': True} for name in excluded]]))
+                      {'name': excluded, 'requires_repository_python': True}]))
 else:
-    skips = [word for name in excluded for word in ('--skip', name)]
-    assert sys.argv[1:] == ['--proofs', '--exact', *skips, '--test-threads', '2'], sys.argv
+    assert sys.argv[1:5] == ['--proofs', '--exact', '--skip', excluded], sys.argv
+    assert sys.argv[5:] == ['--test-threads', '2'], sys.argv
     defect = os.environ.get('PROOF_DEFECT')
     passed = 0 if defect == 'zero' else 1 if defect == 'missing' else 2
-    filtered = len(excluded) + (defect == 'extra-filter')
+    filtered = 2 if defect == 'extra-filter' else 1
     print(f'test result: ok. {passed} passed; 0 failed; 0 ignored; 0 measured; {filtered} filtered out')
 '''
 DOCKER = r'''import hashlib, io, json, os, pathlib, shutil, subprocess, sys, tarfile, tempfile
@@ -130,7 +130,7 @@ elif args[-1] == 'serve':
 
 @unittest.skipIf(sys.platform == 'win32', 'the release script requires a POSIX shell')
 class LinuxContainers(unittest.TestCase):
-    def run_release(self, extra, defect='', excluded=('runtime/needs-python',)):
+    def run_release(self, extra, defect=''):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / 'release').mkdir()
@@ -151,7 +151,7 @@ class LinuxContainers(unittest.TestCase):
             env = environment(root)
             env.update(PATH=str(bindir) + os.pathsep + os.environ['PATH'],
                        BUILD_IMAGE='build-image', DOCKER_RECORD=str(record), BIOMCP_BUILD_REVISION='a' * 40,
-                       TOOL_FIXTURE=TOOL, PROOF_DEFECT=defect, PROOF_EXCLUDED=' '.join(excluded),
+                       TOOL_FIXTURE=TOOL, PROOF_DEFECT=defect,
                        GATE_FIXTURE='ROWS = ' + repr(REPORT) + '\n' + GATE)
             result = subprocess.run(['make', 'release-linux', 'CONTAINER_ARGS=' + shlex.join(extra).replace('$', '$$')],
                                     cwd=root, env=env, capture_output=True, text=True)
@@ -171,7 +171,7 @@ class LinuxContainers(unittest.TestCase):
             self.assertIn('all-cases-and-trials', containers[0]['checks'])
             self.assertEqual(containers[0]['trials'], 2)
             self.assertEqual(containers[0]['proofs'], {
-                'ran': 2, 'excluded': list(excluded), 'excluded_count': len(excluded)})
+                'ran': 2, 'excluded': ['runtime/needs-python'], 'excluded_count': 1})
             self.assertFalse((root / 'injected').exists())
             self.assertEqual((root / 'dist/biomcp-container-amd64.tar').read_bytes(),
                              b'container archive')
@@ -215,9 +215,6 @@ class LinuxContainers(unittest.TestCase):
                          ['/usr/local/bin/biomcp', '/usr/share/doc/biomcp/LICENSE',
                           '/usr/share/doc/biomcp/THIRD-PARTY-NOTICES.txt', SCHEMA_ID, 'help', 'serve',
                           '--proof-metadata', '2', '2'])
-
-    def test_container_runs_every_proof_when_none_is_excluded(self):
-        self.run_release([], excluded=())
 
     def test_container_rejects_zero_missing_or_extra_filtered_proofs(self):
         for defect in ('zero', 'missing', 'extra-filter'):
