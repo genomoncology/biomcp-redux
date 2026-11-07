@@ -183,20 +183,7 @@ fn select(
         return Ok(());
     }
     let Some(heading) = query.label_section().map(|h| h.as_str()) else {
-        out.body = DrugLabel {
-            identity: record.header()?,
-            label: Section::Empty {
-                source: SOURCE,
-                record: None,
-            },
-            sections: headings(record)?,
-            hint: Some(
-                "pass one of sections as label_section (--label-section on the command line) to read its text"
-                    .parse()
-                    .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
-            ),
-        }
-        .with_query(query.clone());
+        out.body = section_names(query, record)?;
         return Ok(());
     };
     if !source::HEADINGS.contains(&heading) {
@@ -254,6 +241,27 @@ fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
         pool: None,
         truncated: None,
     }
+}
+
+/// A bare label read: list the section names and say how to read one.
+fn section_names(
+    query: &DrugGet,
+    record: &source::Record,
+) -> Result<biomcp_types::ReplyData, RequestError> {
+    Ok(DrugLabel {
+        identity: record.header()?,
+        label: Section::Empty {
+            source: SOURCE,
+            record: None,
+        },
+        sections: headings(record)?,
+        hint: Some(
+            "pass one of sections as label_section (--label-section on the command line) to read its text"
+                .parse()
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
+        ),
+    }
+    .with_query(query.clone()))
 }
 
 fn headings(record: &source::Record) -> Result<Box<[biodata::Text]>, RequestError> {
