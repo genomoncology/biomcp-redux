@@ -145,6 +145,23 @@ fn inner_layer_cannot_pass_the_body_limit() {
 }
 
 #[test]
+fn outer_layer_cannot_pass_the_body_limit() {
+    let large = format!(r#"{{"answer":"{}"}}"#, "a".repeat(100_000));
+    let (result, _) = read(true, gzip(large.as_bytes()), 4096);
+    assert_eq!(reason(result), Some(Reason::BadReply));
+}
+
+#[test]
+fn inner_layer_read_every_gzip_member() {
+    let mut inner = gzip(br#"{"answer":"#);
+    inner.extend(gzip(br#""ok"}"#));
+    assert_eq!(
+        read(true, gzip(&inner), 1024).0.ok().as_deref(),
+        Some("ok")
+    );
+}
+
+#[test]
 fn damaged_inner_layer_is_a_bad_reply() {
     let mut inner = gzip(BODY);
     inner.truncate(inner.len() - 6);
