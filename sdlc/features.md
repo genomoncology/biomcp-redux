@@ -60,7 +60,7 @@ drug-label: Search literal label indication phrases or source brand, generic and
 drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
-disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts.
+disease-seer: Find native SEER sites by name or code, report all required selectors together, and page labeled incidence or annual survival within the source deadline.
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision.
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference.
 drug-next-steps: Follow source-stated variant, build and tumor context from drug claims to keyed variant annotation, with explicit missing context and no drug-name inference.
@@ -112,7 +112,7 @@ cell-line-identity: A caller searches Cellosaurus headers by literal text, nativ
 cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance.
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference.
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests.
-author-search: Literal Semantic Scholar author candidates retain provider identities and native order.
+author-search: Search native author identities or open PubMed citation authors and papers, keeping equal names unresolved.
 author-orcid: Read exact public ORCID names and locally page whole public work groups without identity joins.
 author-papers: Exact Semantic Scholar author papers preserve native order, IDs and details.
 cache-resilience: Checked provider replies and absences survive cache admission failures, and busy reads leave time for the source.
@@ -136,3 +136,4 @@ fda-document-text: Read FDA-published PMA SSED and selected drug approval letter
 drug-name-get: Resolve source names with the fixed single-term salt/ester rule in one get call, infer an unambiguous section source, report bounded alternatives and direct unresolved names to source search.
 trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, and adverse-event tables from the same registry record, with its first posting date.
 source-data-age: Replies disclose supplied publisher dataset dates separately from acquisition and flag old data using a configurable age limit.
+drug-name-search: Trial and article searches expand a uniquely resolved drug to source-stated names, disclose the searched names and preserve exact-term search and article pools.

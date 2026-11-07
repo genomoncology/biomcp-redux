@@ -185,7 +185,7 @@
         },
         "id": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Exact ontology CURIE or an explicit SEER catalog site ID.",
+          "description": "Exact ontology CURIE or a SEER site code or name.",
           "x-positional": 0
         },
         "interval": {
@@ -272,7 +272,10 @@
       "required": [
         "id"
       ],
-      "type": "object"
+      "type": "object",
+      "x-reply-query-titles": [
+        "DiseaseSearch"
+      ]
     },
     "Reply_DiseaseIncidence": {
       "description": "Native incidence rows preserving requested and returned dimensions.",
@@ -754,6 +757,37 @@
     "Reply_SourceNotice": {
       "description": "A source notice or request recovery step.",
       "oneOf": [
+        {
+          "description": "Source-stated names used in a trial or article search.",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied name."
+            },
+            "kind": {
+              "const": "drug-name-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "Why the names were expanded or retained.",
+              "type": "string"
+            },
+            "names": {
+              "description": "Names actually searched; ambiguous identities retain the typed name only.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "names",
+            "message"
+          ],
+          "type": "object"
+        },
         {
           "description": "Local request limits, source observations and recovery guidance.",
           "properties": {

@@ -124,7 +124,7 @@ The check-file check verifies references, not coverage or runtime results. A rev
 | Case fixture access uses the shared launcher boundary. | `crates/biomcp/tests/runner/launch.rs` | Check: `crates/biomcp/tests/ratchets/source_files.rs` |
 | Required command, option, section and MCP coverage comes from the shipped surface. | Required coverage ratchet | Check: `crates/biomcp/tests/ratchets/required.rs`; Check: `crates/biomcp/tests/ratchets/required/proof.rs` |
 | Tool-mode flags stay in the tools entry point. | `cases` and `tools` entry points | Check: `crates/biomcp/tests/ratchets/source.rs`; Check: `crates/biomcp/tests/ratchets/proof.rs` |
-| Nightly live selection uses real-recorded cases and excludes synthetic failures. | `scripts/nightly_live_check.py` | Check: `scripts/test_nightly_live_check.py` |
+| The scheduled live check runs a short fixed list of real commands without credentials. | `scripts/nightly_live_check.py` | Check: `scripts/test_nightly_live_check.py` |
 
 ## 10. Test boundaries
 
@@ -239,6 +239,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/grpc_persistence/policy.rs` | Exercise credential containment, concurrent stream capture and atomic publication through the public transport API. |
 | `crates/biomcp-fetch/tests/grpc_persistence/process.rs` | Exercise ordinary checked reply cache reuse from an isolated second process through the public transport API. |
 | `crates/biomcp-fetch/tests/grpc_worker.rs` | Exercise blocking streaming RPC admission, local TLS HTTP/2, proxy routing, deadlines and cancellation through the public transport API. |
+| `crates/biomcp-fetch/tests/double_gzip.rs` | Exercise double-compressed replies and body limits on each layer through the public transport API. |
 | `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -262,6 +263,11 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
 | `crates/biomcp/tests/ratchets/dependency_sources.rs` | Reject unapproved Git revisions and missing source policy inputs through the dependency guard. |
 | `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
+| `crates/biomcp-query/tests/article_rights.rs` | Inspect raw replies, ranked pools and full-text refusal identities through public queries using synthetic transport. |
+| `crates/biomcp-query/tests/article_rights/authors.rs` | Prove private abstract refusal metadata survives raw cache reuse and rewrite legacy author continuation bytes through public queries. |
+| `crates/biomcp-query/tests/article_rights/contexts.rs` | Inspect retained citation reply bytes and distinguish absent contexts from rights refusals through public adapters. |
+| `crates/biomcp-query/tests/article_rights/lookups.rs` | Inspect stored replies and pools after failed or capped license lookups, and repeat reads, through public queries. |
+| `crates/biomcp-query/tests/article_rights/routes.rs` | Inspect synthetic transport replies for source-owned abstract and passage rights and bounded dependency admission. |
 
 Everything else goes through the runner.
 

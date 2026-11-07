@@ -2,6 +2,7 @@
 use biomcp_types::ReplyBody;
 mod condition;
 pub mod document;
+mod drug_names;
 mod gene_notice;
 pub(crate) mod get;
 mod nci;
@@ -28,12 +29,19 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         command.finish(deadline.remaining());
         return outcome;
     };
+    let expanded = drug_names::expand(cx, query, &mut outcome, &mut deadline);
     let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
-    let (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
+    let (mut result, mut name_notice) =
+        ctgov::search_query(&leg, &expanded.query, gene.as_deref(), conditions);
+    let typed_only =
+        !expanded.inputs.is_empty() && crate::drug::search_names::rejected(result.as_ref().err());
+    if typed_only {
+        (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
+    }
     let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
@@ -48,34 +56,21 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
+    if typed_only {
+        retract_names(&expanded.inputs, &mut source, &mut outcome);
+    }
     {
-        let (found, identity_failed, unavailable) = if result.is_err() {
-            (false, true, false)
-        } else if version.is_err()
-            || error.is_some()
-            || source.state == SourceState::Stale
-            || outcome
-                .sources
-                .iter()
-                .any(|source| source.state != SourceState::Ok)
-        {
-            (true, false, true)
-        } else {
-            (true, false, false)
-        };
+        let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
+        let (found, identity_failed, unavailable) = item_state(&outcome, result.is_ok(), missing);
         crate::status::item(&mut outcome, found, identity_failed, unavailable);
     };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
         }
-        if let Some(gene) = gene.as_deref() {
-            gene_notice::append(gene, &page.gene_contexts, &mut source);
-        }
-        intervention_notices(query, &page.items, &mut source);
-        source.count = page.total;
-        source.retrieved_count = Some(page.items.len() as u32);
-        apply_page(query, cx.fresh, gene.as_deref(), &mut outcome, page);
+        page_notices(query, gene.as_deref(), &page, &mut source);
+        let sent = sent_query(query, &expanded, typed_only);
+        apply_page(query, &sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let Ok(version) = version {
         outcome.problems.extend(version.problems);
@@ -91,9 +86,63 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
-    status::search_for(&mut outcome, &[Source::ClinicalTrialsGov]);
+    status::search_for(&mut outcome, &asked_sources(expanded.failed));
     command.finish(deadline.remaining());
     outcome
+}
+/// The found, identity-failed and unavailable states, counting earlier source outcomes.
+fn item_state(outcome: &Outcome, answered: bool, missing: bool) -> (bool, bool, bool) {
+    let earlier = outcome
+        .sources
+        .iter()
+        .any(|source| source.state != SourceState::Ok);
+    (answered, !answered, answered && (missing || earlier))
+}
+/// Say the registry searched only the typed terms after refusing the expanded names.
+fn retract_names(
+    inputs: &[biodata::Text],
+    source: &mut biomcp_types::SourceOutcome,
+    outcome: &mut Outcome,
+) {
+    crate::drug::search_names::retract(outcome);
+    source.notices.extend(
+        inputs
+            .iter()
+            .map(|input| crate::drug::search_names::typed_only(input, Source::ClinicalTrialsGov)),
+    );
+}
+fn page_notices(
+    query: &TrialSearch,
+    gene: Option<&str>,
+    page: &ctgov::SearchPage,
+    source: &mut biomcp_types::SourceOutcome,
+) {
+    if let Some(gene) = gene {
+        gene_notice::append(gene, &page.gene_contexts, source);
+    }
+    intervention_notices(query, &page.items, source);
+    source.count = page.total;
+    source.retrieved_count = Some(page.items.len() as u32);
+}
+/// The registry's token belongs to the request that was sent, so the next page repeats it.
+fn sent_query(
+    query: &TrialSearch,
+    expanded: &drug_names::Expanded,
+    typed_only: bool,
+) -> TrialSearch {
+    if expanded.inputs.is_empty() || typed_only {
+        query.clone()
+    } else {
+        expanded.query.exact()
+    }
+}
+/// A failed name lookup leaves the search incomplete even when the registry answered.
+fn asked_sources(failed: bool) -> Vec<Source> {
+    let mut asked = vec![Source::ClinicalTrialsGov];
+    if failed {
+        asked.extend([Source::Mychem, Source::Chembl, Source::OpenfdaLabel]);
+    }
+    asked
 }
 fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
     matches!(error, Some(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400))
@@ -128,6 +177,7 @@ fn intervention_notices(
 
 fn apply_page(
     query: &TrialSearch,
+    sent: &TrialSearch,
     fresh: bool,
     symbol: Option<&str>,
     outcome: &mut Outcome,
@@ -171,7 +221,7 @@ fn apply_page(
         outcome.next.push(crate::next::Step::run(
             StepKind::Page,
             &[query.source().source()],
-            Request::SearchTrial(query.at_page(
+            Request::SearchTrial(sent.at_page(
                 token,
                 query.offset().saturating_add(page.items.len() as u32),
             )),

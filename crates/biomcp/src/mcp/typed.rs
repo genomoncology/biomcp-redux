@@ -44,6 +44,7 @@ pub(super) fn prepare_with_catalog(
         args,
         advertised,
         &calls,
+        crate::config::mcp_reply_form(context.settings),
     )))
 }
 
@@ -71,11 +72,12 @@ pub(super) fn tool_result(
             summary.clone()
         } else {
             format!(
-                "{}: JSON reply is in structuredContent.",
+                "{}: {}",
                 value
                     .get("status")
                     .and_then(Value::as_str)
-                    .unwrap_or("complete")
+                    .unwrap_or("complete"),
+                super::protocol::reply_note(form)
             )
         };
         let text = if matches!(form, crate::config::ReplyForm::StructuredOnly) {
@@ -95,6 +97,21 @@ use std::io;
 
 fn name(verb: &str, entity: &str) -> String {
     format!("{verb}_{entity}").replace('-', "_")
+}
+/// Catalog tools that no command path names. A test walks the real catalog against this list.
+const FIXED_TOOLS: [&str; 5] = [
+    "biomcp",
+    "biomcp_help",
+    "biomcp_reference",
+    "search",
+    "fetch",
+];
+/// Whether a caller-supplied tool name is one this build can serve, so it is safe to log.
+pub(in crate::mcp) fn served(tool: &str) -> bool {
+    FIXED_TOOLS.contains(&tool)
+        || crate::grammar::command_paths()
+            .iter()
+            .any(|(verb, entity, _)| name(verb, entity) == tool)
 }
 pub(in crate::mcp) fn schema(id: &str) -> io::Result<Value> {
     serde_json::from_str(
