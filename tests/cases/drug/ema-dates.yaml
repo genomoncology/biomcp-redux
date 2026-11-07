@@ -32,12 +32,10 @@
       "expect": {
         "": {
           "includes_all_of": [
-            "european_commission_decision_date",
-            "2026-05-28",
-            "European Commission decision date",
-            "marketing_authorisation_date",
-            "2022-01-06",
-            "dates related to procedural steps"
+            "| European Commission decision date | european\\_commission\\_decision\\_date |",
+            "| dates related to procedural steps | opinion\\_adopted\\_date |",
+            "| 2026-05-28 | european\\_commission\\_decision\\_date |",
+            "| 2022-01-06 | marketing\\_authorisation\\_date |"
           ]
         }
       }
