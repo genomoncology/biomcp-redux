@@ -367,22 +367,34 @@ fn source_budget_caps_supplied_deadline_during_headers_and_body() {
         let stub = Stub::new(200, "application/json", r#"{"answer":"late"}"#, Some(block));
         let spec = stub.spec(KeyUse::None, Duration::from_secs(1));
         let fetch = fetch();
-        let error = fetch
-            .leg(spec, fetch.deadline(Duration::from_secs(30)))
-            .call(
-                &spec.get("/answer"),
-                Input::Params(&[]),
-                biomcp_fetch::Read::<Answer>::json(),
-            )
-            .unwrap_err();
+        let supplied = fetch.deadline(Duration::from_secs(30));
+        let (error, late) = thread::scope(|scope| {
+            let worker = scope.spawn(|| {
+                fetch
+                    .leg(spec, supplied)
+                    .call(
+                        &spec.get("/answer"),
+                        Input::Params(&[]),
+                        biomcp_fetch::Read::<Answer>::json(),
+                    )
+                    .unwrap_err()
+            });
+            let late = stub
+                .requests
+                .recv_timeout(Duration::from_millis(500))
+                .is_err();
+            (worker.join().unwrap(), late)
+        });
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
         };
         assert_eq!(error.reason, Reason::DeadlineExceeded);
-        // A budget spent before the headers arrive has no status to report.
-        assert!(error.status == status || error.status.is_none());
-        // The server stays blocked until after the call returns. No elapsed-time assertion.
-        assert!(stub.finish().len() <= 1);
+        // Only a request that reached the server late may lose the race to its headers.
+        assert!(error.status == status || late && error.status.is_none());
+        // The source budget ended the call, with most of the supplied budget unspent.
+        assert!(supplied.remaining() > Duration::from_secs(15));
+        // The server stays blocked until after the call returns.
+        assert!(stub.finish().len() <= usize::from(late));
     }
 }
 
