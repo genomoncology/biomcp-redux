@@ -29,7 +29,7 @@ fn bare_label() -> Check {
     let cli = invoke(&env, args.clone(), 0)?;
     let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
     for value in [&cli, &mcp] {
-        let body = value.pointer("/data/body").unwrap_or(value);
+        let body = value.pointer("/result").unwrap_or(value);
         let listed = body
             .pointer("/sections")
             .and_then(Value::as_array)
