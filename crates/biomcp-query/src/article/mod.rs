@@ -77,6 +77,10 @@ fn execute<'a>(
     } else {
         store.find(&key, explicit)?
     };
+    // A repeat search rechecks what an unfinished lookup left out; a named pool stays as paged.
+    let restricted = cx.fetch.disabled_use(biomcp_types::Use::PerRecord);
+    let stored = stored.filter(|pool| explicit.is_some() || !(restricted && pool.dropped));
+    let mut held = Vec::new();
     let pool = match stored {
         Some(pool) if pool.key != key.as_slice() => {
             pool_error(query, true, out);
@@ -125,6 +129,7 @@ fn execute<'a>(
                 return Ok(());
             }
             filter_text(cx, deadline, &mut items, out);
+            held = biomcp_adapters::article_rights::take_unchecked(&mut items);
             store.set_deadline(*deadline);
             match crate::publish::keep(
                 store
@@ -134,6 +139,7 @@ fn execute<'a>(
             )? {
                 Some(pool) => pool,
                 None => {
+                    biomcp_adapters::article_rights::return_unchecked(&mut items, &held);
                     page::fetched(page::Cursor::Search(query), items, out);
                     return Ok(());
                 }
@@ -142,6 +148,12 @@ fn execute<'a>(
     };
     out.sources = pool.sources.clone();
     let result = page::read(cx, page::Cursor::Search(query), &mut store, &pool, out);
+    if let ReplyData::ArticlePage {
+        body: Some(page), ..
+    } = &mut out.body
+    {
+        biomcp_adapters::article_rights::return_unchecked(&mut page.items, &held);
+    }
     *deadline = store.deadline();
     result
 }
