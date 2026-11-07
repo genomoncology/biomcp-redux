@@ -30,11 +30,6 @@ pub(crate) fn decode_entities(text: &str) -> Cow<'_, str> {
 }
 
 fn entity(name: &str) -> Option<char> {
-    // An unparsable reference returns None, so the caller keeps its text as written.
-    let number = |digits: &str, radix| match u32::from_str_radix(digits, radix) {
-        Ok(code) => Some(code),
-        Err(_) => None,
-    };
     match name {
         "nbsp" => Some(' '),
         "lt" => Some('<'),
@@ -42,16 +37,21 @@ fn entity(name: &str) -> Option<char> {
         "amp" => Some('&'),
         "quot" => Some('"'),
         "apos" => Some('\''),
-        _ => name
-            .strip_prefix("#x")
-            .or_else(|| name.strip_prefix("#X"))
-            .map_or_else(
-                || name.strip_prefix('#').and_then(|d| number(d, 10)),
-                |d| number(d, 16),
-            )
-            .filter(|code| *code != 0)
-            .and_then(char::from_u32),
+        _ => numeric(name),
     }
+}
+
+/// A numeric reference; an unparsable one returns None, so its text stays as written.
+fn numeric(name: &str) -> Option<char> {
+    let (digits, radix) = match name.strip_prefix("#x").or_else(|| name.strip_prefix("#X")) {
+        Some(hex) => (hex, 16),
+        None => (name.strip_prefix('#')?, 10),
+    };
+    let code = match u32::from_str_radix(digits, radix) {
+        Ok(code) => code,
+        Err(_) => return None,
+    };
+    char::from_u32(code).filter(|ch| *ch != '\0')
 }
 
 /// Remove Markdown backslash escapes: a backslash before ASCII punctuation only.
