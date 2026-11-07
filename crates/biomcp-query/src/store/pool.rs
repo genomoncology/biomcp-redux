@@ -73,10 +73,7 @@ impl Store<'_> {
             .cloned()
             .collect();
         let outcomes = self.policy().encode(sources, &global, dropped)?;
-        // A locked store must not spend the time the reply still needs to read its titles.
-        let whole = self.deadline;
-        self.deadline = whole.child(whole.remaining() / 2);
-        let stored = self.write(|tx| {
+        self.write(|tx| {
             Self::collect_expired(tx)?;
             let created = Self::now();
             let expires = created.saturating_add(86400);
@@ -122,9 +119,7 @@ impl Store<'_> {
                 problems: global,
                 dropped,
             })
-        });
-        self.deadline = whole;
-        stored
+        })
     }
     /// Make a checked whole article answer available to new searches.
     pub(crate) fn publish_current(&mut self, pool: &Pool, key: &[u8]) -> Result<(), CacheError> {
