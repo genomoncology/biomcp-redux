@@ -7,7 +7,9 @@ mod ceiling;
 mod commercial;
 mod components;
 mod continuation;
+mod exclusions;
 mod records;
+mod studies;
 const ACADEMIC: &str = "x-biomcp-use: academic\r\n";
 const KEY: &str = "7c28f96a-3f48-4d6b-8d30-512c5d41e979";
 const CLINPGX: &[&str] = &[
@@ -22,7 +24,10 @@ const CLINPGX: &[&str] = &[
 const ONCOKB: &[&str] = &["get", "gene", "TP53", "oncokb"];
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![
+    let mut trials = vec![
+        trial("mcp-hosted/use/study-commercial-flags", || {
+            studies::check().map_err(Into::into)
+        }),
         trial("mcp-hosted/use/mode-ceiling", || {
             ceiling::check().map_err(Into::into)
         }),
@@ -53,7 +58,9 @@ pub(super) fn trials() -> Vec<Trial> {
         trial("mcp-hosted/use/header-boundary", || {
             headers().map_err(Into::into)
         }),
-    ]
+    ];
+    trials.extend(exclusions::trials());
+    trials
 }
 fn disabled(reply: &Value, source: &str) -> bool {
     reply
