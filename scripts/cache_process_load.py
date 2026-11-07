@@ -108,8 +108,11 @@ def command(name, spec, built, binary):
 def sqlite_steps(log, diagnostics):
     """Return each SQLite operation and code a failed run recorded."""
     text = diagnostics.read_text(errors='replace') + log.read_text(errors='replace')
-    pattern = r'"operation":\s*"([^"]+)",\s*"primary_code":\s*(\w+),\s*"extended_code":\s*(\w+)'
-    return sorted(set(re.findall(pattern, text)))
+    steps = set()
+    for record in re.findall(r'\{[^{}]*"operation"[^{}]*\}', text):
+        row = json.loads(record)
+        steps.add((row['operation'], row['primary_code'], row['extended_code']))
+    return sorted(steps, key=str)
 
 
 def run_once(name, argv, path):
