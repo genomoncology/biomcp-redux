@@ -50,11 +50,16 @@ fn declared_sources() -> Result<(), String> {
                         .ok_or("context")?
                         .clone(),
                 );
+                if (entity, key) == ("pgx", "annotation_id") {
+                    values.remove("gene"); // The annotation form takes its ID in place of a gene.
+                }
                 let sample = sample(key, property, &schema);
                 values.insert(key.into(), sample);
                 count += 1;
                 let reply = cli(&env, &argv(verb, entity, &schema, &values))?;
-                if reply.get("query").is_none() {
+                // Only an argument refusal breaks the promise; a later answer such as an
+                // expired retained pool means the command took the field.
+                if reply.get("status") == Some(&json!("usage")) {
                     failures.push(format!("{verb} {entity}.{key} with {word}: {reply}"));
                 }
             }
