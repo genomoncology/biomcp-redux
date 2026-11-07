@@ -109,15 +109,7 @@ pub(super) fn recording_raw(
         let mut value: Value =
             serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
-        if value["url"]
-            .as_str()
-            .is_some_and(|url| url.contains("/api/sample-lists/"))
-        {
-            fs::copy(
-                file.path(),
-                replay.join("cbioportal").join(file.file_name()),
-            )
-            .map_err(|e| e.to_string())?;
+        if copied_count(replay, &file, &value)? {
             continue;
         }
         if value.pointer("/exchanges/0/fetched") != acquired.pointer("/result/acquired")
@@ -145,6 +137,21 @@ pub(super) fn recording_raw(
         .map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+/// Copies a sample-list count recording as recorded; returns whether the file was one.
+fn copied_count(replay: &Path, file: &fs::DirEntry, value: &Value) -> Result<bool, String> {
+    let count = value
+        .get("url")
+        .and_then(Value::as_str)
+        .is_some_and(|url| url.contains("/api/sample-lists/"));
+    if count {
+        fs::copy(
+            file.path(),
+            replay.join("cbioportal").join(file.file_name()),
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    Ok(count)
 }
 fn synthetic_reply(request: &str) -> Result<String, String> {
     Ok(if request.contains("/molecular-profiles?") {
@@ -192,8 +199,8 @@ fn oversized_list() -> Check {
     invoke(&["sync", "cbioportal-studies"])?;
     let reply = invoke(&["get", "study", "synthetic_0", "sample-lists"])?;
     let row = reply.pointer("/result/items/0").ok_or("list row missing")?;
-    if reply["status"] != "partial"
-        || row["sampleListId"] != "native_list_big"
+    if reply.get("status") != Some(&json!("partial"))
+        || row.get("sampleListId") != Some(&json!("native_list_big"))
         || row.get("sampleCount").is_some()
         || reply.pointer("/problems/0/field") != Some(&json!("sampleCount: too-large"))
         || reply.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
@@ -245,7 +252,7 @@ fn failed_count() -> Check {
                 .cloned()
         })
         .collect();
-    if reply["status"] != "partial"
+    if reply.get("status") != Some(&json!("partial"))
         || counts != [Some(json!(7)), None, Some(json!(7))]
         || reply.pointer("/problems/0/record") != Some(&json!("native_list_2"))
         || reply.pointer("/problems/0/field") != Some(&json!("sampleCount: bad-reply"))
@@ -294,14 +301,15 @@ fn count_deadline() -> Check {
                 .cloned()
         })
         .collect();
-    let missing: Vec<_> = reply["problems"]
-        .as_array()
+    let missing: Vec<_> = reply
+        .get("problems")
+        .and_then(Value::as_array)
         .into_iter()
         .flatten()
-        .filter(|p| p["field"] == "sampleCount: deadline-exceeded")
-        .map(|p| p["record"].clone())
+        .filter(|p| p.get("field") == Some(&json!("sampleCount: deadline-exceeded")))
+        .filter_map(|p| p.get("record").cloned())
         .collect();
-    if reply["status"] != "partial"
+    if reply.get("status") != Some(&json!("partial"))
         || counts != [Some(json!(7)), None, None]
         || missing != [json!("native_list_2"), json!("native_list_3")]
     {
