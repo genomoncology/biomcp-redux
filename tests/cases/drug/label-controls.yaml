@@ -15,7 +15,7 @@
         "--limit",
         "1"
       ],
-      "exit": 0,
+      "exit": 5,
       "expect": {
         "/status": "complete",
         "/result": {
