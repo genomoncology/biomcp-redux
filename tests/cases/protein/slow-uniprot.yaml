@@ -1,5 +1,5 @@
 {
-  "live_check": "synthetic deadline; the 9-second UniProt reply is past its 8-second limit",
+  "live_check": "synthetic deadline; the 16-second UniProt reply is past its 15-second limit",
   "feature": "protein-search",
   "story": "A slow UniProt entry reads as failed, names the deadline and offers the sections other sources can still give.",
   "replay": "protein/timeout",
