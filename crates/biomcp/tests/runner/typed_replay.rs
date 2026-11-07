@@ -108,7 +108,7 @@ fn prepare_in(
     index: usize,
     binary: &std::path::Path,
 ) -> Result<(Vec<String>, Value), String> {
-    let config = case.config.clone().unwrap_or_else(|| json!({}));
+    let config = case.environment_config();
     env.config(&config).map_err(|e| e.to_string())?;
     let replay = response_cases::replay(env, case.replay.as_deref(), case.cache_acquired)?;
     let environment = env.using_executable(binary);
