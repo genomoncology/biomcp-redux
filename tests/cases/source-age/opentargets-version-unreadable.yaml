@@ -14,7 +14,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/identity/name": "Canonical therapy",
+        "/result/header/name": "Canonical therapy",
         "/problems/0/source": "opentargets",
         "/problems/0/field": "meta.dataVersion",
         "/sources/0": {

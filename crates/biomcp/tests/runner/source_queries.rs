@@ -130,6 +130,11 @@ fn article(source: &'static str) -> Result<(), String> {
     Ok(())
 }
 fn opentargets_reply(request: &str) -> Result<String, String> {
+    if request.contains("drugsfda") {
+        return Ok(
+            json!({"meta":{"results":{"skip":0,"limit":1,"total":0}},"results":[]}).to_string(),
+        );
+    }
     if request.lines().next() != Some("POST /api/v4/graphql HTTP/1.1") {
         return Err(format!("unexpected Open Targets request: {request}"));
     }
@@ -165,9 +170,9 @@ fn opentargets_reply(request: &str) -> Result<String, String> {
     }}}).to_string())
 }
 fn opentargets() -> Result<(), String> {
-    let stub = Stub::for_source(
-        "api.platform.opentargets.org",
-        "application/json",
+    let stub = Stub::for_sources(
+        &["api.platform.opentargets.org", "api.fda.gov"],
+        |_| "application/json",
         opentargets_reply,
     )?;
     let env = environment(&stub)?;
@@ -210,7 +215,8 @@ fn opentargets() -> Result<(), String> {
     }
     let requests = stub.finish()?;
     record_requests(&requests)?;
-    if requests.len() != 3 {
+    let reads = requests.iter().filter(|(_, r)| r.contains("/graphql"));
+    if reads.count() != 3 {
         return Err("Open Targets search/detail/version cache reads changed".into());
     }
     Ok(())
