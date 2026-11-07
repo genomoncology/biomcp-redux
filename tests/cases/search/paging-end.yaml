@@ -1,7 +1,7 @@
 {
   "feature": "search-paging",
   "live_check": "synthetic paging controls in real reply shapes; tests/replies/search/paging-end/README.md lists them",
-  "story": "A reply offers a next page only when one exists: a source token and a known-total window stop at exactly the total, one row short still pages, and an unknown total keeps the token.",
+  "story": "A reply offers a next page only when one exists: a source token and a known-total window stop at exactly the total, one row short still pages, and a later page whose count request fails keeps the token.",
   "replay": "search/paging-end",
   "steps": [
     {
@@ -47,7 +47,11 @@
         "--sponsor",
         "Paging unknown",
         "--limit",
-        "2"
+        "2",
+        "--offset",
+        "2",
+        "--next-page",
+        "synthetic-next"
       ],
       "expect": {
         "/next/*/kind": {
