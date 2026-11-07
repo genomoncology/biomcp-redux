@@ -11,7 +11,7 @@ use biomcp_types::{
 pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
-    let (section, sources, problems, local, dropped) = resolved(cx, query, deadline);
+    let (section, sources, mut problems, local, dropped) = resolved(cx, query, deadline);
     let conversion = matches!(
         section,
         Section::Unavailable {
@@ -19,7 +19,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
             ..
         }
     )
-    .then(|| conversion(query))
+    .then(|| conversion(query, &mut problems))
     .flatten();
     let (status, body) = match section {
         Section::Data { data, .. } => (crate::status::item_status(true, false, dropped), data),
@@ -58,16 +58,19 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
     )
 }
 /// The caller's unchanged input is the one a variant lookup can turn into a source key.
-fn conversion(query: &VariantAssertionsGet) -> Option<crate::next::Step> {
-    let lookup = match VariantGet::new(
-        query.input().clone(),
-        biomcp_types::VariantResolver::Car,
-        query.build(),
-    ) {
-        Ok(lookup) => lookup,
-        // Checking the assertion query builds this same lookup, so no value is lost here.
-        Err(_) => return None,
-    };
+fn conversion(
+    query: &VariantAssertionsGet,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<crate::next::Step> {
+    let lookup = crate::next::checked(
+        VariantGet::new(
+            query.input().clone(),
+            biomcp_types::VariantResolver::Car,
+            query.build(),
+        ),
+        query.source().source(),
+        problems,
+    )?;
     let source = super::source(&lookup).source;
     Some(crate::next::Step::run(
         StepKind::Configure,
