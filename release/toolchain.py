@@ -58,8 +58,10 @@ def check():
             or 'snapshot.debian.org/archive/debian/${debian_snapshot}/ bookworm main' not in dockerfile
             or re.search(r'^ARG (?:runtime_image|runtime_packages|debian_snapshot)=', dockerfile, re.M)):
         raise ValueError('Dockerfile must consume runtime pins without defaults')
-    if 'deb.debian.org' in dockerfile:
+    if re.findall(r'[a-z+]+://[^\s"]+', dockerfile) != ['http://snapshot.debian.org/archive/debian/${debian_snapshot}/']:
         raise ValueError('Dockerfile must install only from the dated snapshot')
+    if re.search(r'trusted|insecure|unauthenticated', dockerfile, re.I):
+        raise ValueError('Dockerfile must keep apt signature checks')
     scanner = (ROOT / 'release/secrets.py').read_text()
     if re.search(r'^VERSION\s*=\s*[\"\']', scanner, re.M):
         raise ValueError('secrets.py duplicates the scanner pin')
