@@ -101,6 +101,19 @@ fn commands(
         }
         for argument in &mut command.arguments {
             argument.description = super::typed::catalog::summary(&argument.description, &excluded);
+            let served = schema
+                .iter()
+                .flat_map(|schema| super::typed::catalog::argument_sources(schema, &argument.name))
+                .filter(|source| !excluded.contains(source))
+                .map(|source| source.to_string())
+                .collect::<Vec<_>>();
+            if !served.is_empty() {
+                argument.description = format!(
+                    "{} Answered by: {}.",
+                    argument.description,
+                    served.join(", ")
+                );
+            }
             if matches!(
                 argument.name.trim_start_matches('-'),
                 "section" | "sections"

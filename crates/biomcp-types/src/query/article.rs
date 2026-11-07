@@ -94,6 +94,7 @@ pub struct ArticleSearch(Fields);
 struct Fields {
     #[doc = "Native open access.\nPubMed, Europe PMC and Semantic Scholar only: require native open access; Semantic Scholar means a public PDF."]
     #[serde(default, skip_serializing_if = "is_false")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::PubMed, crate::Source::EuropePmc, crate::Source::SemanticScholar])))]
     open_access: bool,
     /// Search the typed drug term without resolving its other names.
     #[serde(default, skip_serializing_if = "is_false")]
@@ -188,6 +189,7 @@ struct Fields {
         skip_serializing_if = "Option::is_none"
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::PubMed, crate::Source::EuropePmc, crate::Source::SemanticScholar])))]
     since: Option<PartialDate>,
     #[doc = "Last publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date \
         bound; PubMed matches electronic or print date."]
@@ -197,6 +199,7 @@ struct Fields {
         skip_serializing_if = "Option::is_none"
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PartialDate"))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::PubMed, crate::Source::EuropePmc, crate::Source::SemanticScholar])))]
     until: Option<PartialDate>,
     #[doc = "Publication type.\nPubMed and Europe PMC only: native publication-type filter."]
     #[serde(

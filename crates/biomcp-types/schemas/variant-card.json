@@ -7381,7 +7381,8 @@
               "type": "null"
             }
           ],
-          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation."
+          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation.",
+          "x-required-component": "oncokb"
         }
       },
       "required": [
@@ -7520,7 +7521,8 @@
               "type": "null"
             }
           ],
-          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation."
+          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation.",
+          "x-required-component": "oncokb"
         }
       },
       "required": [
