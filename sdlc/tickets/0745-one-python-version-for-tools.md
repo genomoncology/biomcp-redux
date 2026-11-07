@@ -1,6 +1,7 @@
 # 0745 — One Python version for tools
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f636524bbb3b3ef6b3fbd5d2875fec06d143d0a5
 
 Milestone: 5
 
@@ -30,7 +31,7 @@ Release tooling and development use one Python version, 3.13, and `scripts/check
 
 ## Defers
 
-- Defers: nothing.
+- Defers: bare `python3` in the Makefile stays for 1.0, because the ticket gate pins Python 3.13 first on PATH.
 
 ## Depends on
 
