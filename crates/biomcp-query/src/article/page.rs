@@ -376,7 +376,7 @@ fn live_titles<'a>(
         .filter(|item| item.header.is_none())
         .filter_map(|item| item.pmid)
         .collect();
-    if missing.is_empty() {
+    if missing.is_empty() || cx.fetch.disabled(Source::PubMed) {
         return;
     }
     let leg = cx.fetch.leg(&pubmed::SPEC, *deadline).fresh(cx.fresh);
