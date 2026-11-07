@@ -7,6 +7,8 @@ use biomcp_types::{
 };
 
 type Rank = (u8, u8, String);
+/// Most MyChem rows a name get reads while looking for an exact name.
+const MYCHEM_NAME_CAP: u32 = 250;
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
@@ -284,35 +286,65 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
     )
 }
 
+/// Read MyChem's free-text pages until one holds an exact name. Its ranking can place an exact
+/// name past looser matches, so a page without one is no answer, but the read stops at a page cap.
 fn mychem(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    native_names(cx, query, &biomcp_adapters::mychem::SPEC, |leg, offset| {
-        let rows = super::search_names::NAME_ROWS;
-        let (page, _) =
-            biomcp_adapters::mychem::search_names(leg, get.input().as_str(), rows, offset)?;
-        Ok(NativePage {
-            candidates: page
+    let rows = super::search_names::NAME_ROWS;
+    let read = std::cell::Cell::new((0u32, None::<u64>));
+    let (mut out, candidates) =
+        native_names(cx, query, &biomcp_adapters::mychem::SPEC, |leg, offset| {
+            let (page, received) =
+                biomcp_adapters::mychem::search_names(leg, get.input().as_str(), rows, offset)?;
+            let next = offset + received;
+            read.set((next, page.value.total));
+            let candidates: Vec<_> = page
                 .value
                 .items
                 .iter()
                 .filter_map(|header| {
                     header.matched_name.map(|matched| {
-                        (
-                            (
-                                u8::from(matched == DrugNameMatch::Generic),
-                                0,
-                                String::new(),
-                            ),
-                            header.clone(),
-                        )
+                        let rank = u8::from(matched == DrugNameMatch::Generic);
+                        ((rank, 0, String::new()), header.clone())
                     })
                 })
-                .collect(),
-            // One ranked page, as in the trial-name lookup.
-            next_offset: None,
-            problems: page.problems,
-            refusals: page.refusals,
-        })
-    })
+                .collect();
+            let more = received > 0
+                && page
+                    .value
+                    .total
+                    .is_some_and(|total| u64::from(next) < total);
+            Ok(NativePage {
+                next_offset: (candidates.is_empty() && more && next < MYCHEM_NAME_CAP)
+                    .then_some(next),
+                candidates,
+                problems: page.problems,
+                refusals: page.refusals,
+            })
+        });
+    let (examined, total) = read.get();
+    if candidates.is_empty()
+        && let Some(total) = total.filter(|total| u64::from(examined) < *total)
+    {
+        out.dropped = true;
+        if let Some(source) = out
+            .sources
+            .iter_mut()
+            .find(|s| s.source == biomcp_types::Source::Mychem)
+        {
+            source
+                .notices
+                .push(biomcp_types::SourceNotice::RequestGuidance {
+                    data_date: None,
+                    message: format!(
+                        "Read the first {examined} of {total} matches without an exact name; \
+                         later matches were not examined."
+                    )
+                    .into(),
+                    retry_after_seconds: None,
+                });
+        }
+    }
+    (out, candidates)
 }
 fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     let deadline = cx.fetch.deadline(cx.budget);
