@@ -199,3 +199,20 @@ fn sqlite_diagnostic_records_exclude_error_text_and_ignore_unavailable_files() {
     );
     crate::sqlite_diagnostic::append(root.path(), "fixture.insert", &error);
 }
+
+#[test]
+fn first_open_waits_out_an_exclusive_holder_at_the_owner_check() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let holder = Connection::open(&path).unwrap();
+    holder.execute_batch("BEGIN EXCLUSIVE").unwrap();
+    // The holder stays until the opener is known to be refused or waiting.
+    let release = std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(200));
+        holder.execute_batch("ROLLBACK").unwrap();
+    });
+    let started = std::time::Instant::now();
+    Cache::open_with_owners(&path, &[]).expect("first open must wait out the holder");
+    assert!(started.elapsed() >= Duration::from_millis(100));
+    release.join().unwrap();
+}

@@ -110,13 +110,21 @@ impl Cache {
             }
         }
         let mut connection = Connection::open(path).map_err(|error| db_error(error))?;
-        check_owners(&connection, owners)?;
-        connection
-            .busy_timeout(OPEN_WAIT)
-            .map_err(|error| db_error(error))?;
-        Self::initialize(&mut connection)?;
+        // One deadline covers every step. Each step is idempotent and ends
+        // with its snapshot closed, so a refused attempt can be retried.
+        let deadline = Deadline::start(OPEN_WAIT, None);
+        retry_busy(&connection, deadline, |connection| {
+            check_owners(connection, owners)
+        })?;
+        loop {
+            sql_deadline(&connection, deadline)?;
+            match Self::initialize(&mut connection) {
+                Err(CacheError::Busy) if !deadline.expired() => pause(deadline),
+                result => break result?,
+            }
+        }
         // Ownership is validated before changing the file's journal mode.
-        enable_wal(&connection)?;
+        retry_busy(&connection, deadline, enable_wal)?;
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
@@ -319,32 +327,37 @@ impl Cache {
     }
 }
 
-// SQLite may refuse a read-to-exclusive journal-mode upgrade without invoking
-// its busy handler. Finalize that attempt before waiting, so another opener can
-// finish its upgrade; every attempt shares the original five-second wait.
-fn enable_wal(connection: &Connection) -> Result<(), CacheError> {
-    let deadline = Deadline::start(OPEN_WAIT, None);
+fn pause(deadline: Deadline<'_>) {
+    std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
+}
+
+// SQLite may refuse a lock upgrade, or a read while another opener switches the
+// journal mode, without waiting. Finalize each attempt before pausing, so
+// another opener can finish; every attempt shares the original deadline.
+fn retry_busy(
+    connection: &Connection,
+    deadline: Deadline<'_>,
+    mut step: impl FnMut(&Connection) -> Result<(), CacheError>,
+) -> Result<(), CacheError> {
     loop {
         sql_deadline(connection, deadline)?;
-        let result = (|| {
-            let journal: String = connection
-                .pragma_query_value(None, "journal_mode", |row| row.get(0))
-                .map_err(|error| db_error(error))?;
-            if !journal.eq_ignore_ascii_case("wal") {
-                sql_deadline(connection, deadline)?;
-                connection
-                    .pragma_update(None, "journal_mode", "WAL")
-                    .map_err(|error| db_error(error))?;
-            }
-            Ok(())
-        })();
-        match result {
-            Err(CacheError::Busy) if !deadline.expired() => {
-                std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
-            }
+        match step(connection) {
+            Err(CacheError::Busy) if !deadline.expired() => pause(deadline),
             result => return result,
         }
     }
+}
+
+fn enable_wal(connection: &Connection) -> Result<(), CacheError> {
+    let journal: String = connection
+        .pragma_query_value(None, "journal_mode", |row| row.get(0))
+        .map_err(|error| db_error(error))?;
+    if !journal.eq_ignore_ascii_case("wal") {
+        connection
+            .pragma_update(None, "journal_mode", "WAL")
+            .map_err(|error| db_error(error))?;
+    }
+    Ok(())
 }
 
 // Required writers reserve admission before reading a snapshot they will mutate.
