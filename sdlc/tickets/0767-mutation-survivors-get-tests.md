@@ -38,3 +38,7 @@ The three mutants that survived the release mutation section are caught by outsi
 ## Depends on
 
 - Depends on: nothing.
+
+## Notes
+
+- Each source carries one terminology, so the test for survivor 3 pins the mismatched owner and terminology pair, the only case where the mutant differs.
