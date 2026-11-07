@@ -17,6 +17,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial(required_contract::STUDY_PAGES.0, || {
             pages().map_err(Into::into)
         }),
+        transcript_trial("study-get/oversized-list-keeps-its-row", || {
+            oversized_list().map_err(Into::into)
+        }),
         // Replace the native catalog after acquiring a pool and revisit its old immutable membership.
         transcript_trial(
             "study-get/resource-refusals-survive-catalog-replacement",
@@ -80,6 +83,8 @@ pub(super) fn recording_raw(
             "study",
             "synthetic_0",
             selected,
+            "--section-limit",
+            "50",
             "--record",
             directory.to_str().ok_or("recording path")?,
         ]
@@ -87,7 +92,9 @@ pub(super) fn recording_raw(
         .to_vec(),
         0,
     )?;
-    if stub.finish()?.len() != 2 {
+    // One catalog read and one section read; sample lists add one count read per list.
+    let counts = if selected == "sample-lists" { 13 } else { 0 };
+    if stub.finish()?.len() != 2 + counts {
         return Err("synthetic study recording changed request count".into());
     }
     for file in fs::read_dir(directory.join("cbioportal")).map_err(|e| e.to_string())? {
@@ -95,6 +102,17 @@ pub(super) fn recording_raw(
         let mut value: Value =
             serde_json::from_slice(&fs::read(file.path()).map_err(|e| e.to_string())?)
                 .map_err(|e| e.to_string())?;
+        if value["url"]
+            .as_str()
+            .is_some_and(|url| url.contains("/api/sample-lists/"))
+        {
+            fs::copy(
+                file.path(),
+                replay.join("cbioportal").join(file.file_name()),
+            )
+            .map_err(|e| e.to_string())?;
+            continue;
+        }
         if value.pointer("/exchanges/0/fetched") != acquired.pointer("/result/acquired")
             || acquired
                 .pointer("/result/acquired")
@@ -128,10 +146,53 @@ fn synthetic_reply(request: &str) -> Result<String, String> {
         json!([{ "sampleId": "synthetic_sample", "studyId": "synthetic_0", "sampleType": "Primary" }])
     } else if request.contains("/sample-lists?") {
         lists()
+    } else if let Some(list) = request
+        .strip_prefix("GET /api/sample-lists/")
+        .and_then(|path| path.split([' ', '?']).next())
+    {
+        let count = list.rsplit('_').next().and_then(|n| n.parse::<u64>().ok());
+        json!({ "sampleListId": list, "studyId": "synthetic_0", "sampleCount": count })
     } else {
         rows()
     }
     .to_string())
+}
+
+/// One list above the read bound leaves its row and says its count is missing.
+fn oversized_list() -> Check {
+    let stub = crate::runner::network_stub::Stub::for_source(
+        "www.cbioportal.org",
+        "application/json",
+        |request| {
+            Ok(if request.contains("/sample-lists?") {
+                json!([{"sampleListId":"native_list_big","studyId":"synthetic_0",
+                    "category":"all_cases_in_study","name":"Synthetic list",
+                    "description":"Synthetic list (200000 samples)"}])
+            } else if request.starts_with("GET /api/sample-lists/") {
+                json!({"sampleListId":"native_list_big","studyId":"synthetic_0","sampleCount":200_000,
+                    "sampleIds":vec!["synthetic_member"; 200_000]})
+            } else {
+                rows()
+            }
+            .to_string())
+        },
+    )?;
+    let env = crate::runner::variant::source_environment(&stub)?;
+    let invoke = |args: &[&str]| {
+        let args = args.iter().map(|arg| (*arg).to_owned()).collect();
+        crate::runner::configuration::invoke(&env, args, 0)
+    };
+    invoke(&["sync", "cbioportal-studies"])?;
+    let reply = invoke(&["get", "study", "synthetic_0", "sample-lists"])?;
+    let row = reply.pointer("/result/items/0").ok_or("list row missing")?;
+    if row["sample_list_id"] != "native_list_big"
+        || row.get("sample_count").is_some()
+        || reply.pointer("/problems/0/field") != Some(&json!("sampleCount"))
+        || reply.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
+    {
+        return Err(format!("oversized list reply changed: {reply}"));
+    }
+    Ok(())
 }
 
 fn pages() -> Check {

@@ -1,7 +1,7 @@
 {
   "source": "cbioportal",
   "method": "GET",
-  "url": "https://www.cbioportal.org/api/studies/synthetic_0/sample-lists?projection=DETAILED",
+  "url": "https://www.cbioportal.org/api/studies/synthetic_0/sample-lists?projection=SUMMARY",
   "exchanges": [
     {
       "status": 200,

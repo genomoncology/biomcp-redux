@@ -5,8 +5,9 @@ use crate::raw::Field;
 use biodata::{StudyId, StudyProfile, StudyProfileId, StudySampleList, StudySampleListId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, PathSegment, Reply, RequestError};
 use biomcp_fetch::{Input, Read};
+use biomcp_types::Reason;
 use serde::Deserialize;
-/// Measured MSK DETAILED response plus fifteen percent, rounded upward.
+/// Bound for one study's metadata collection, which carries no sample members.
 const MAX_SAMPLE_LIST_BYTES: u64 = 1_526_432;
 /// Complete source collection, after dropping records belonging to another study.
 #[derive(Debug)]
@@ -62,7 +63,7 @@ struct SampleList {
     name: Option<Field<Box<str>>>,
     description: Option<Field<Box<str>>>,
     sample_count: Option<Field<u64>>,
-    // Unknown sampleIds is discarded by serde without storing or counting members.
+    // The summary projection carries neither members nor a count; the page read adds the count.
 }
 impl SampleList {
     fn mapped(self, problems: &mut Problems) -> StudySampleList {
@@ -155,8 +156,37 @@ pub fn profiles(
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Cbioportal, None))?,
     })
 }
-/// Exact DETAILED metadata; source sampleCount remains optional and member IDs have no field.
+/// One page of a study's lists, each with its source count read alone, because the
+/// study-wide detailed reply carries every member of every list: 5.4 MB on the largest study.
 pub fn sample_lists(
+    leg: &Leg<'_>,
+    id: &StudyId,
+    offset: u32,
+    limit: u32,
+) -> Result<Records<StudySampleList>, RequestError> {
+    let mut records = list_summaries(leg, id, offset, limit)?;
+    for row in &mut records.window.rows {
+        match super::super::list_sample_count(leg, id.as_str(), row.sample_list_id.as_str()) {
+            Ok(count) => {
+                row.sample_count = count.value;
+                records.problems.extend(count.problems);
+            }
+            // The row still answers: its source description states the size in words.
+            Err(RequestError::Source(error)) if error.reason == Reason::TooLarge => {
+                records.problems.push(biomcp_types::Problem {
+                    source: biomcp_types::Source::Cbioportal,
+                    record: crate::mapped::record(&row.sample_list_id),
+                    field: "sampleCount".into(),
+                    code: biomcp_types::ProblemCode::CollectionIncomplete,
+                });
+            }
+            Err(error) => return Err(error),
+        }
+    }
+    Ok(records)
+}
+/// Exact SUMMARY metadata, whose rows hold no member IDs and no source count.
+pub(super) fn list_summaries(
     leg: &Leg<'_>,
     id: &StudyId,
     offset: u32,
@@ -165,17 +195,19 @@ pub fn sample_lists(
     let (reply, metadata) = leg
         .call(
             &endpoint(id, "sample-lists")?,
-            Input::Params(&[("projection", Arg::Text("DETAILED"))]),
-            Read::<SampleLists>::json().cache_if(&|r| {
-                let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
-                let refusals = if accepted < r.0.len() {
-                    crate::Refusal::Refused
-                } else {
-                    crate::Refusal::None
-                };
-                r.0.iter().all(|v| v.scope.study_id == *id)
-                    && refusals.identities_admitted(accepted, r.0.len())
-            }),
+            Input::Params(&[("projection", Arg::Text("SUMMARY"))]),
+            Read::<SampleLists>::json()
+                .bounded(MAX_SAMPLE_LIST_BYTES, Reason::TooLarge)
+                .cache_if(&|r| {
+                    let accepted = r.0.iter().filter(|v| v.value.as_ref().is_some()).count();
+                    let refusals = if accepted < r.0.len() {
+                        crate::Refusal::Refused
+                    } else {
+                        crate::Refusal::None
+                    };
+                    r.0.iter().all(|v| v.scope.study_id == *id)
+                        && refusals.identities_admitted(accepted, r.0.len())
+                }),
         )
         .map(|received| (received.value, received.meta))?;
     let mut problems = Problems {

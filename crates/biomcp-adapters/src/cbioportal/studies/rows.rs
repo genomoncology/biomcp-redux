@@ -268,7 +268,7 @@ fn sample_list(
     leg: &Leg<'_>,
     id: &StudyId,
 ) -> Result<(biodata::StudySampleListId, Vec<biomcp_types::Problem>), RequestError> {
-    let lists = super::sample_lists(leg, id, 0, u32::MAX)?;
+    let lists = super::sections::list_summaries(leg, id, 0, u32::MAX)?;
     let list = lists
         .window
         .rows
