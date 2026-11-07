@@ -88,10 +88,7 @@ pub(super) fn name_records(
                     .filter_map(|name| problems.text("name", Some(name.as_str())))
                     .collect(),
                 preferred: preferred(&rows),
-                official: rows
-                    .iter()
-                    .flat_map(|(_, c)| official(c))
-                    .collect(),
+                official: rows.iter().flat_map(|(_, c)| official(c)).collect(),
                 id,
             });
         }
