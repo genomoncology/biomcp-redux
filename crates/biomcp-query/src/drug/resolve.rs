@@ -286,9 +286,9 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
 
 fn mychem(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
     native_names(cx, query, &biomcp_adapters::mychem::SPEC, |leg, offset| {
-        let (page, received) =
-            biomcp_adapters::mychem::search_names(leg, get.input().as_str(), 50, offset)?;
-        let next = offset + received;
+        let rows = super::search_names::NAME_ROWS;
+        let (page, _) =
+            biomcp_adapters::mychem::search_names(leg, get.input().as_str(), rows, offset)?;
         Ok(NativePage {
             candidates: page
                 .value
@@ -307,12 +307,8 @@ fn mychem(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
                     })
                 })
                 .collect(),
-            next_offset: (received > 0
-                && page
-                    .value
-                    .total
-                    .is_some_and(|total| u64::from(next) < total))
-            .then_some(next),
+            // One ranked page, as in the trial-name lookup.
+            next_offset: None,
             problems: page.problems,
             refusals: page.refusals,
         })
