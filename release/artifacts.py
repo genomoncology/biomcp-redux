@@ -41,11 +41,11 @@ def run(args):
                                    env=vendor_environment() if args[:1] == ["cargo"] else None)
 
 
-def cargo(profile, tests=False, revision=None):
+def cargo(profile, tests=False, revision=None, clean_paths=False):
     args = ["cargo", "test" if tests else "build", "--locked", "-p", "biomcp", "--profile", profile, "--message-format=json"]
     target = tests if isinstance(tests, str) else "cases"
     args += ["--test", target, "--no-run"] if tests else ["--bin", "biomcp"]
-    environment = {**vendor_environment(profile == "release"), **({"BIOMCP_BUILD_REVISION": revision} if revision else {})}
+    environment = {**vendor_environment(clean_paths), **({"BIOMCP_BUILD_REVISION": revision} if revision else {})}
     process = subprocess.Popen(args, stdout=subprocess.PIPE, text=True, env=environment)
     found = None
     for line in process.stdout:
@@ -224,7 +224,7 @@ def build(args):
     if platform.system() == "Darwin":
         os.environ["MACOSX_DEPLOYMENT_TARGET"] = "11.0"
     revision = source_revision(args.revision)
-    artifact = cargo(args.profile, revision=revision)
+    artifact = cargo(args.profile, revision=revision, clean_paths=args.profile == "release")
     binary = Path(artifact["executable"])
     metadata = json.loads(run(["cargo", "metadata", "--locked", "--format-version", "1", "--no-deps"]))
     version = next(p["version"] for p in metadata["packages"] if p["name"] == "biomcp")

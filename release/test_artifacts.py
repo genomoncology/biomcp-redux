@@ -13,7 +13,6 @@ from release.smoke import environment
 from release.test_licenses import wheel_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
-PATH_FLAGS = '@' + str(ROOT / 'target/release-path-flags')
 CARGO = r'''import json, os, pathlib, sys
 args = sys.argv[1:]
 root = pathlib.Path(__file__).parent
@@ -88,8 +87,7 @@ class ReleaseCommands(unittest.TestCase):
             (name, config), = [json.loads(line) for line in (tools / 'configs.jsonl').read_text().splitlines()]
             self.assertEqual(name, 'biomcp')
             import tomllib
-            self.assertEqual(tomllib.loads(config)['target']['cfg(all())']['rustflags'], [PATH_FLAGS])
-            flags = Path(PATH_FLAGS[1:]).read_text().splitlines()
+            flags = tomllib.loads(config)['target']['cfg(all())']['rustflags']
             self.assertEqual([flag.rsplit('=', 1)[1] for flag in flags], ['cargo', 'biomcp', 'vendor'])
             self.assertTrue(all(flag.startswith('--remap-path-prefix=') for flag in flags))
             self.assertEqual(record['revision'], 'a' * 40)
@@ -158,9 +156,7 @@ class ReleaseCommands(unittest.TestCase):
             self.assertFalse((scratch / 'venv').exists())
             configs = [json.loads(line) for line in (tools / 'configs.jsonl').read_text().splitlines()]
             self.assertEqual([name for name, _ in configs], ['cases', 'tools'])
-            import tomllib
-            self.assertEqual([tomllib.loads(config)['target']['cfg(all())']['rustflags'] for _, config in configs],
-                             [[PATH_FLAGS], [PATH_FLAGS]])
+            self.assertFalse(any('remap-path-prefix' in config for _, config in configs))
 
     def test_build_keeps_notice_bytes_with_windows_text_newlines(self):
         with tempfile.TemporaryDirectory() as temporary:
