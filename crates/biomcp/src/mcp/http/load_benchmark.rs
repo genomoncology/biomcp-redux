@@ -16,6 +16,8 @@ const CALLS: usize = 300;
 const SYNCS: usize = 8;
 // Publish a bundle the size of the real HGNC set, so each sync is a large cache write.
 const PUBLISH_ROWS: usize = 44_000;
+// Leave one connection for /health, so its samples never refuse a call.
+const CALL_WORKERS: usize = crate::config::DEFAULT_HTTP_CAPACITY - 1;
 const SYNC_GAP: Duration = Duration::from_secs(1);
 const WINDOW: Duration = Duration::from_secs(5 * 60);
 
@@ -47,7 +49,7 @@ fn hosted_http_sync_load() -> Result<(), Box<dyn std::error::Error>> {
         running: AtomicBool::new(true),
         syncing: AtomicBool::new(false),
         next: AtomicUsize::new(0),
-        barrier: Barrier::new(crate::config::DEFAULT_HTTP_CAPACITY + 1),
+        barrier: Barrier::new(CALL_WORKERS + 1),
         started: Instant::now(),
     };
     let measurements = collect(&service, &control);
@@ -103,7 +105,7 @@ fn collect(service: &Service, control: &Control) -> Measurements {
     std::thread::scope(|scope| {
         let sync = scope.spawn(|| sync_worker(service, control));
         let health = scope.spawn(|| health_worker(service, control));
-        let workers: Vec<_> = (0..crate::config::DEFAULT_HTTP_CAPACITY)
+        let workers: Vec<_> = (0..CALL_WORKERS)
             .map(|_| scope.spawn(|| call_worker(service.address, control)))
             .collect();
         let samples = workers
@@ -237,7 +239,7 @@ fn report(measurements: &Measurements, initial_rows: u64, started: Instant) -> i
     "publisher_delay":"zero; measure local shared cache work",
     "acquisition":"measurement time assigned to copied captures for cache admission",
     "latency_seconds":latencies,
-    "workers":crate::config::DEFAULT_HTTP_CAPACITY,"call_limit":CALLS,"window_seconds":WINDOW.as_secs(),
+    "workers":CALL_WORKERS,"call_limit":CALLS,"window_seconds":WINDOW.as_secs(),
     "elapsed_seconds":started.elapsed().as_secs_f64(),"completed_calls":measurements.samples.len(),
     "p50_seconds":percentile(50),"p95_seconds":percentile(95),"max_seconds":latencies.last(),
     "failed_calls":failures,"initial_sync_rows":initial_rows,
@@ -247,7 +249,8 @@ fn report(measurements: &Measurements, initial_rows: u64, started: Instant) -> i
     let mut output = serde_json::to_vec(&report)?;
     output.push(b'\n');
     crate::output::bytes(&output)?;
-    if measurements.samples.is_empty()
+    if initial_rows < PUBLISH_ROWS as u64
+        || measurements.samples.is_empty()
         || !failures.is_empty()
         || measurements.syncs.is_empty()
         || measurements.syncs.iter().any(Result::is_err)
@@ -342,7 +345,7 @@ fn request(address: SocketAddr, body: Option<&str>) -> io::Result<(u16, Value)> 
         .ok_or_else(|| io::Error::other("HTTP status missing"))?;
     Ok((status, serde_json::from_str(body)?))
 }
-// Extend the complete set with synthetic genes that copy its last row's shape.
+// Extend the complete set with synthetic genes that share no identifier with a real row.
 fn enlarge(body: &mut Value) {
     let Some(text) = body.as_str().filter(|text| text.starts_with("hgnc_id\t")) else {
         return;
@@ -350,11 +353,13 @@ fn enlarge(body: &mut Value) {
     let Some((_, row)) = text.trim_end().rsplit_once('\n') else {
         return;
     };
-    let tail = row.splitn(3, '\t').nth(2).unwrap_or_default();
+    let mut fields = row.split('\t').collect::<Vec<_>>();
+    fields.iter_mut().skip(7).for_each(|field| *field = "");
+    let tail = fields[3..].join("\t");
     let mut enlarged = text.trim_end().to_owned();
     for index in 0..PUBLISH_ROWS {
         enlarged.push_str(&format!(
-            "\nHGNC:{}\tLOADGENE{index}\t{tail}",
+            "\nHGNC:{}\tLOADGENE{index}\tload gene {index}\t{tail}",
             9_000_000 + index
         ));
     }
