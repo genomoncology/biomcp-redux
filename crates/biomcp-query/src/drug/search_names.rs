@@ -367,8 +367,8 @@ fn capped(
             .iter()
             .rposition(|name| !official.contains(&lowered(name)))
             .or(names.len().checked_sub(1));
-        if let Some(slot) = slot {
-            cut.push(std::mem::replace(&mut names[slot], typed));
+        if let Some(kept) = slot.and_then(|slot| names.get_mut(slot)) {
+            cut.push(std::mem::replace(kept, typed));
         }
     }
     let official_left_out = cut
