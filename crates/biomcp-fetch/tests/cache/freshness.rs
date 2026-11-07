@@ -26,14 +26,14 @@ fn fresh_hits_skip_quota_and_stale_positives_survive_quota_deadline() {
             scope.spawn(|| get(&fetch, spec, &spec.get("/answer"), &[("hold", Arg::Num(1))]));
         let request = server.next();
         // This budget only guards a hang: a hit that waited for the quota would outlast it.
+        let hit = fetch.leg(spec, fetch.deadline(Duration::from_secs(15)));
         assert!(
-            fetch
-                .leg(spec, fetch.deadline(Duration::from_secs(15)))
-                .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
+            hit.call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
                 .map(|received| received.value)
                 .unwrap()
                 .answer
         );
+        assert!(!hit.finish().stale);
         expire(&path);
         let leg = fetch.leg(spec, fetch.deadline(Duration::from_millis(100)));
         assert!(
