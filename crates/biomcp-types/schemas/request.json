@@ -166,7 +166,6 @@
       "description": "Author identity search or open citation-author discovery.",
       "enum": [
         "semantic-scholar",
-        "semanticscholar",
         "pubmed",
         "auto"
       ],
@@ -2569,8 +2568,7 @@
               "type": "null"
             }
           ],
-          "description": "Unchanged declared expression required for the diplotype section only.",
-          "x-required-component": "cpic"
+          "description": "Unchanged declared expression required for the diplotype section only."
         },
         "drug_id": {
           "anyOf": [
@@ -2581,8 +2579,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact published CPIC drug key; recommendations only.",
-          "x-required-component": "cpic"
+          "description": "Exact published CPIC drug key; recommendations only."
         },
         "gene": {
           "$ref": "#/$defs/GeneSymbol",
@@ -2597,8 +2594,7 @@
               "type": "null"
             }
           ],
-          "description": "One ClinPGx collection; clinical is the default only on annotations.",
-          "x-required-component": "clinpgx"
+          "description": "One ClinPGx collection; clinical is the default only on annotations."
         },
         "section": {
           "anyOf": [
@@ -2635,8 +2631,7 @@
               "type": "null"
             }
           ],
-          "description": "Retained collection for local continuation.",
-          "x-required-component": "clinpgx"
+          "description": "Retained collection for local continuation."
         },
         "source": {
           "$ref": "#/$defs/PgxSource",
@@ -2687,8 +2682,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact table-0 cell.\nExact table-0 biomarker cell; unsupported in the group table.",
-          "x-required-component": "fda-cdx"
+          "description": "Exact table-0 cell.\nExact table-0 biomarker cell; unsupported in the group table."
         },
         "bundle_revision": {
           "anyOf": [
@@ -2714,8 +2708,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact MedGen:CUI.\nExact MedGen:CUI identifier only.",
-          "x-required-component": "gtr"
+          "description": "Exact MedGen:CUI.\nExact MedGen:CUI identifier only."
         },
         "decision_from": {
           "anyOf": [
@@ -2726,11 +2719,7 @@
               "type": "null"
             }
           ],
-          "description": "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only.",
-          "x-required-component": [
-            "fda-pma",
-            "fda-510k"
-          ]
+          "description": "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."
         },
         "decision_to": {
           "anyOf": [
@@ -2741,11 +2730,7 @@
               "type": "null"
             }
           ],
-          "description": "Last date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only.",
-          "x-required-component": [
-            "fda-pma",
-            "fda-510k"
-          ]
+          "description": "Last date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."
         },
         "device_id": {
           "anyOf": [
@@ -2756,8 +2741,7 @@
               "type": "null"
             }
           ],
-          "description": "PMA or K identifier.\nExact PMA application, application/supplement or native K identity.",
-          "x-required-component": "fda-cdx"
+          "description": "PMA or K identifier.\nExact PMA application, application/supplement or native K identity."
         },
         "drug_application": {
           "anyOf": [
@@ -2768,8 +2752,7 @@
               "type": "null"
             }
           ],
-          "description": "NDA/BLA application.\nCell-owned typed NDA/BLA application.",
-          "x-required-component": "fda-cdx"
+          "description": "NDA/BLA application.\nCell-owned typed NDA/BLA application."
         },
         "gene": {
           "anyOf": [
@@ -2780,8 +2763,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact gene symbol.\nExact source gene_symbol field, without alias expansion.",
-          "x-required-component": "gtr"
+          "description": "Exact gene symbol.\nExact source gene_symbol field, without alias expansion."
         },
         "gene_id": {
           "anyOf": [
@@ -2792,8 +2774,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact NCBI GeneID.\nExact source GeneID, exclusive with gene symbol.",
-          "x-required-component": "gtr"
+          "description": "Exact NCBI GeneID.\nExact source GeneID, exclusive with gene symbol."
         },
         "initiated_from": {
           "anyOf": [
@@ -2804,8 +2785,7 @@
               "type": "null"
             }
           ],
-          "description": "First date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only.",
-          "x-required-component": "fda-device-recall"
+          "description": "First date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only."
         },
         "initiated_to": {
           "anyOf": [
@@ -2816,8 +2796,7 @@
               "type": "null"
             }
           ],
-          "description": "Last date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only.",
-          "x-required-component": "fda-device-recall"
+          "description": "Last date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only."
         },
         "limit": {
           "default": 5,
@@ -2836,13 +2815,7 @@
               "type": "null"
             }
           ],
-          "description": "Manufacturer phrase.\nWHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase.",
-          "x-required-component": [
-            "who-ivd",
-            "fda-pma",
-            "fda-510k",
-            "fda-device-recall"
-          ]
+          "description": "Manufacturer phrase.\nWHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase."
         },
         "marker": {
           "anyOf": [
@@ -2853,8 +2826,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell.",
-          "x-required-component": "who-ivd"
+          "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell."
         },
         "name": {
           "anyOf": [
@@ -2865,11 +2837,7 @@
               "type": "null"
             }
           ],
-          "description": "Native device name.\nNative trade_name (PMA) or device_name (510(k)) phrase.",
-          "x-required-component": [
-            "fda-pma",
-            "fda-510k"
-          ]
+          "description": "Native device name.\nNative trade_name (PMA) or device_name (510(k)) phrase."
         },
         "offset": {
           "default": 0,
@@ -2887,8 +2855,7 @@
               "type": "null"
             }
           ],
-          "description": "FDA product code.\nExact native FDA device recall product code.",
-          "x-required-component": "fda-device-recall"
+          "description": "FDA product code.\nExact native FDA product code; PMA, 510(k) and device recalls only."
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",
@@ -2903,8 +2870,7 @@
               "type": "null"
             }
           ],
-          "description": "Native test_type.\nExact native test_type value.",
-          "x-required-component": "gtr"
+          "description": "Native test_type.\nExact native test_type value."
         }
       },
       "required": [
@@ -3412,8 +3378,7 @@
               "type": "null"
             }
           ],
-          "description": "Native FDA classification; drug recalls only.",
-          "x-required-component": "fda-drug-recall"
+          "description": "Native FDA classification; drug recalls only."
         },
         "command": {
           "const": "search-drug",
@@ -3428,13 +3393,11 @@
               "type": "null"
             }
           ],
-          "description": "Literal published recalling firm phrase; drug recalls only.",
-          "x-required-component": "fda-drug-recall"
+          "description": "Literal published recalling firm phrase; drug recalls only."
         },
         "indication": {
           "$ref": "#/$defs/Text",
-          "description": "Literal label indication; openFDA labels only.\nSearch the native Indications and Usage field without disease synonym expansion.\nAn optional name query further narrows the same source search.",
-          "x-required-component": "openfda-label"
+          "description": "Literal label indication; openFDA labels only.\nSearch the native Indications and Usage field without disease synonym expansion.\nAn optional name query further narrows the same source search."
         },
         "initiated_from": {
           "anyOf": [
@@ -3445,8 +3408,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
-          "x-required-component": "fda-drug-recall"
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
         },
         "initiated_to": {
           "anyOf": [
@@ -3457,8 +3419,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
-          "x-required-component": "fda-drug-recall"
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only."
         },
         "limit": {
           "default": 10,
@@ -3470,8 +3431,7 @@
         },
         "name_selector": {
           "$ref": "#/$defs/DrugNameSelector",
-          "description": "Explicit ChEMBL native name selector; omitted means preferred name.",
-          "x-required-component": "chembl"
+          "description": "Explicit ChEMBL native name selector; omitted means preferred name."
         },
         "offset": {
           "default": 0,
@@ -3489,8 +3449,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.",
-          "x-required-component": "who-pq"
+          "description": "Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only."
         },
         "prequalified_to": {
           "anyOf": [
@@ -3501,8 +3460,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.",
-          "x-required-component": "who-pq"
+          "description": "Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only."
         },
         "query": {
           "$ref": "#/$defs/Text",
@@ -3518,8 +3476,7 @@
               "type": "null"
             }
           ],
-          "description": "Phrase in the published recall reason; drug recalls only.",
-          "x-required-component": "fda-drug-recall"
+          "description": "Phrase in the published recall reason; drug recalls only."
         },
         "source": {
           "$ref": "#/$defs/DrugSource",
@@ -3535,8 +3492,7 @@
               "type": "null"
             }
           ],
-          "description": "Literal native recall status; drug recalls only.",
-          "x-required-component": "fda-drug-recall"
+          "description": "Literal native recall status; drug recalls only."
         }
       },
       "required": [
@@ -3639,7 +3595,7 @@
           "description": "FDA product number.\nExplicit native application product number, only for approvals."
         },
         "section": {
-          "description": "Explicit named disclosures; empty means identity only.",
+          "description": "One named disclosure per call for every source; empty means identity only.",
           "items": {
             "$ref": "#/$defs/DrugSection"
           },
@@ -4080,8 +4036,7 @@
               "type": "null"
             }
           ],
-          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation.",
-          "x-required-component": "oncokb"
+          "description": "Tumor\nExplicit tumor context for keyed OncoKB annotation."
         }
       },
       "required": [
@@ -4303,7 +4258,7 @@
           "type": "string"
         },
         "condition": {
-          "description": "Disease or NCIt.\nCondition alternatives joined with OR; NCI requires NCIt codes.",
+          "description": "Disease; NCI needs NCIt.\nConditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers.",
           "items": {
             "$ref": "#/$defs/Text"
           },
@@ -5144,12 +5099,7 @@
         },
         "open_access": {
           "description": "Native open access.\nPubMed, Europe PMC and Semantic Scholar only: require native open access; Semantic Scholar means a public PDF.",
-          "type": "boolean",
-          "x-required-component": [
-            "pubmed",
-            "europepmc",
-            "semantic-scholar"
-          ]
+          "type": "boolean"
         },
         "pool": {
           "$ref": "#/$defs/Text",
@@ -5165,12 +5115,7 @@
         },
         "since": {
           "$ref": "#/$defs/PartialDate",
-          "description": "First publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date.",
-          "x-required-component": [
-            "pubmed",
-            "europepmc",
-            "semantic-scholar"
-          ]
+          "description": "First publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date."
         },
         "sort": {
           "$ref": "#/$defs/ArticleSort",
@@ -5200,12 +5145,7 @@
         },
         "until": {
           "$ref": "#/$defs/PartialDate",
-          "description": "Last publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date.",
-          "x-required-component": [
-            "pubmed",
-            "europepmc",
-            "semantic-scholar"
-          ]
+          "description": "Last publication date.\nPubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date."
         },
         "variant": {
           "$ref": "#/$defs/Text",

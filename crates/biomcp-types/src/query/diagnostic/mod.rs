@@ -48,6 +48,13 @@ const MANUFACTURER_SOURCES: [crate::Source; 4] = [
     crate::Source::Fda510k,
     crate::Source::FdaDeviceRecall,
 ];
+// Sources that answer this field; it stays offered while any of them is on.
+#[cfg(feature = "schema")]
+const PRODUCT_CODE_SOURCES: [crate::Source; 3] = [
+    crate::Source::FdaPma,
+    crate::Source::Fda510k,
+    crate::Source::FdaDeviceRecall,
+];
 /// Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -97,9 +104,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = MANUFACTURER_SOURCES)))]
     manufacturer: Option<Text>,
-    #[doc = "FDA product code.\nExact native FDA device recall product code."]
+    #[doc = "FDA product code.\nExact native FDA product code; PMA, 510(k) and device recalls only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = PRODUCT_CODE_SOURCES)))]
     product_code: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -142,10 +149,9 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
         let who = v.marker.is_some() || v.manufacturer.is_some();
-        let recall =
-            v.product_code.is_some() || v.initiated_from.is_some() || v.initiated_to.is_some();
-        validate_device(&v, gtr || cdx || v.marker.is_some() || recall)?;
-        validate_recall(&v, gtr || cdx, recall)?;
+        let dates = v.initiated_from.is_some() || v.initiated_to.is_some();
+        validate_device(&v, gtr || cdx || v.marker.is_some() || dates)?;
+        validate_recall(&v, gtr || cdx)?;
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
@@ -284,7 +290,7 @@ impl DiagnosticSearch {
     pub fn manufacturer(&self) -> Option<&Text> {
         self.0.manufacturer.as_ref()
     }
-    /// Exact native recall device category code.
+    /// Exact native FDA product code.
     pub fn product_code(&self) -> Option<&Text> {
         self.0.product_code.as_ref()
     }
