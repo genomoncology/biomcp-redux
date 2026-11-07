@@ -27,6 +27,26 @@
         "/status": "complete",
         "/result/regulatory/data/records/0/indication": "Synthetic use at doses <10 mg or >2 mg, with haemoglobin ?10 g/dl &unknown; AT&T"
       }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "EMEA/H/C/000406",
+        "regulatory",
+        "--source",
+        "ema",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "&lt;10 mg",
+            "&gt;2 mg"
+          ]
+        }
+      }
     }
   ]
 }

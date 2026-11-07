@@ -161,7 +161,7 @@ fn present(
     Ok(())
 }
 
-/// Keep source order, showing names like the query first and then the leading names.
+/// Keep source order, showing names like the query first (best effort) and then the leading names.
 fn bound(query: &str, paper: &mut AuthorPublication) {
     let total = paper.authors.len();
     if total <= AUTHOR_NAMES {
@@ -199,13 +199,60 @@ fn bound(query: &str, paper: &mut AuthorPublication) {
 fn words(text: &str) -> Vec<String> {
     text.split(|ch: char| !ch.is_alphanumeric())
         .filter(|word| !word.is_empty())
-        .map(str::to_lowercase)
+        .map(|word| {
+            word.chars()
+                .flat_map(char::to_lowercase)
+                .fold(String::new(), |mut out, ch| {
+                    match fold(ch) {
+                        Some(base) => out.push_str(base),
+                        None => out.push(ch),
+                    }
+                    out
+                })
+        })
         .collect()
 }
 
-/// PubMed does not say which name matched and citation names carry initials, so every
-/// query word must pair with its own name word, one a prefix of the other. This only
-/// picks which names to show; it claims no identity.
+/// Base letters for Latin-1 and Latin Extended-A, from Unicode decompositions, so `Müller`
+/// and `Muller` compare equal on both sides.
+fn fold(ch: char) -> Option<&'static str> {
+    Some(match ch {
+        'À' | 'Á' | 'Â' | 'Ã' | 'Ä' | 'Å' | 'à' | 'á' | 'â' | 'ã' | 'ä' | 'å' | 'Ā' | 'ā' | 'Ă'
+        | 'ă' | 'Ą' | 'ą' => "a",
+        'Æ' | 'æ' => "ae",
+        'Ç' | 'ç' | 'Ć' | 'ć' | 'Ĉ' | 'ĉ' | 'Ċ' | 'ċ' | 'Č' | 'č' => "c",
+        'È' | 'É' | 'Ê' | 'Ë' | 'è' | 'é' | 'ê' | 'ë' | 'Ē' | 'ē' | 'Ĕ' | 'ĕ' | 'Ė' | 'ė' | 'Ę'
+        | 'ę' | 'Ě' | 'ě' => "e",
+        'Ì' | 'Í' | 'Î' | 'Ï' | 'ì' | 'í' | 'î' | 'ï' | 'Ĩ' | 'ĩ' | 'Ī' | 'ī' | 'Ĭ' | 'ĭ' | 'Į'
+        | 'į' | 'İ' | 'ı' => "i",
+        'Ð' | 'ð' | 'Ď' | 'ď' | 'Đ' | 'đ' => "d",
+        'Ñ' | 'ñ' | 'Ń' | 'ń' | 'Ņ' | 'ņ' | 'Ň' | 'ň' | 'ŉ' | 'Ŋ' | 'ŋ' => "n",
+        'Ò' | 'Ó' | 'Ô' | 'Õ' | 'Ö' | 'Ø' | 'ò' | 'ó' | 'ô' | 'õ' | 'ö' | 'ø' | 'Ō' | 'ō' | 'Ŏ'
+        | 'ŏ' | 'Ő' | 'ő' => "o",
+        'Ù' | 'Ú' | 'Û' | 'Ü' | 'ù' | 'ú' | 'û' | 'ü' | 'Ũ' | 'ũ' | 'Ū' | 'ū' | 'Ŭ' | 'ŭ' | 'Ů'
+        | 'ů' | 'Ű' | 'ű' | 'Ų' | 'ų' => "u",
+        'Ý' | 'ý' | 'ÿ' | 'Ŷ' | 'ŷ' | 'Ÿ' => "y",
+        'Þ' | 'þ' => "th",
+        'ß' => "ss",
+        'Ĝ' | 'ĝ' | 'Ğ' | 'ğ' | 'Ġ' | 'ġ' | 'Ģ' | 'ģ' => "g",
+        'Ĥ' | 'ĥ' | 'Ħ' | 'ħ' => "h",
+        'Ĵ' | 'ĵ' => "j",
+        'Ķ' | 'ķ' | 'ĸ' => "k",
+        'Ĺ' | 'ĺ' | 'Ļ' | 'ļ' | 'Ľ' | 'ľ' | 'Ŀ' | 'ŀ' | 'Ł' | 'ł' => "l",
+        'Œ' | 'œ' => "oe",
+        'Ŕ' | 'ŕ' | 'Ŗ' | 'ŗ' | 'Ř' | 'ř' => "r",
+        'Ś' | 'ś' | 'Ŝ' | 'ŝ' | 'Ş' | 'ş' | 'Š' | 'š' => "s",
+        'Ţ' | 'ţ' | 'Ť' | 'ť' | 'Ŧ' | 'ŧ' => "t",
+        'Ŵ' | 'ŵ' => "w",
+        'Ź' | 'ź' | 'Ż' | 'ż' | 'Ž' | 'ž' => "z",
+        _ => return None,
+    })
+}
+
+/// Best effort: PubMed does not say which name matched and citation names carry initials,
+/// so every accent-folded query word must pair with its own name word, one a prefix of the
+/// other. A miss only changes which names are shown; the notice still counts the omitted
+/// names and links the full list. It claims no identity.
 fn same_words(query: &[String], name: &str) -> bool {
     let mut name = words(name);
     !query.is_empty()

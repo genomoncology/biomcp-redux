@@ -165,23 +165,36 @@ pub fn sample_lists(
     limit: u32,
 ) -> Result<Records<StudySampleList>, RequestError> {
     let mut records = list_summaries(leg, id, offset, limit)?;
+    let mut stopped = None;
     for row in &mut records.window.rows {
-        match super::super::list_sample_count(leg, id.as_str(), row.sample_list_id.as_str()) {
-            Ok(count) => {
-                row.sample_count = count.value;
-                records.problems.extend(count.problems);
+        // A failed count leaves its row: the source description states the size in words.
+        let failed = match stopped {
+            Some(reason) => reason,
+            None => {
+                match super::super::list_sample_count(leg, id.as_str(), row.sample_list_id.as_str())
+                {
+                    Ok(count) => {
+                        row.sample_count = count.value;
+                        records.problems.extend(count.problems);
+                        continue;
+                    }
+                    Err(RequestError::Source(error)) => {
+                        // Out of time: the remaining counts are not attempted.
+                        if error.reason == Reason::DeadlineExceeded {
+                            stopped = Some(error.reason.as_str());
+                        }
+                        error.reason.as_str()
+                    }
+                    Err(_) => "local",
+                }
             }
-            // The row still answers: its source description states the size in words.
-            Err(RequestError::Source(error)) if error.reason == Reason::TooLarge => {
-                records.problems.push(biomcp_types::Problem {
-                    source: biomcp_types::Source::Cbioportal,
-                    record: crate::mapped::record(&row.sample_list_id),
-                    field: "sampleCount".into(),
-                    code: biomcp_types::ProblemCode::CollectionIncomplete,
-                });
-            }
-            Err(error) => return Err(error),
-        }
+        };
+        records.problems.push(biomcp_types::Problem {
+            source: biomcp_types::Source::Cbioportal,
+            record: crate::mapped::record(&row.sample_list_id),
+            field: format!("sampleCount: {failed}").into(),
+            code: biomcp_types::ProblemCode::CollectionIncomplete,
+        });
     }
     Ok(records)
 }

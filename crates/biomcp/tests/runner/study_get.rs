@@ -20,6 +20,9 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("study-get/oversized-list-keeps-its-row", || {
             oversized_list().map_err(Into::into)
         }),
+        transcript_trial("study-get/failed-list-count-keeps-the-section", || {
+            failed_count().map_err(Into::into)
+        }),
         // Replace the native catalog after acquiring a pool and revisit its old immutable membership.
         transcript_trial(
             "study-get/resource-refusals-survive-catalog-replacement",
@@ -187,10 +190,63 @@ fn oversized_list() -> Check {
     let row = reply.pointer("/result/items/0").ok_or("list row missing")?;
     if row["sampleListId"] != "native_list_big"
         || row.get("sampleCount").is_some()
-        || reply.pointer("/problems/0/field") != Some(&json!("sampleCount"))
+        || reply.pointer("/problems/0/field") != Some(&json!("sampleCount: too-large"))
         || reply.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
     {
         return Err(format!("oversized list reply changed: {reply}"));
+    }
+    Ok(())
+}
+
+/// The second list's count reply names another study; both rows stay, and only it lacks a count.
+fn failed_count() -> Check {
+    let stub = crate::runner::network_stub::Stub::for_source(
+        "www.cbioportal.org",
+        "application/json",
+        |request| {
+            Ok(if request.contains("/sample-lists?") {
+                json!(
+                    ["native_list_1", "native_list_2", "native_list_3"].map(|id| json!({
+                    "sampleListId": id, "studyId": "synthetic_0", "category": "all_cases_in_study",
+                    "name": "Synthetic list", "description": "Synthetic list"}))
+                )
+            } else if let Some(list) = request
+                .strip_prefix("GET /api/sample-lists/")
+                .and_then(|path| path.split([' ', '?']).next())
+            {
+                let study = if list == "native_list_2" {
+                    "other_study"
+                } else {
+                    "synthetic_0"
+                };
+                json!({ "sampleListId": list, "studyId": study, "sampleCount": 7 })
+            } else {
+                rows()
+            }
+            .to_string())
+        },
+    )?;
+    let env = crate::runner::variant::source_environment(&stub)?;
+    let invoke = |args: &[&str]| {
+        let args = args.iter().map(|arg| (*arg).to_owned()).collect();
+        crate::runner::configuration::invoke(&env, args, 0)
+    };
+    invoke(&["sync", "cbioportal-studies"])?;
+    let reply = invoke(&["get", "study", "synthetic_0", "sample-lists"])?;
+    let counts: Vec<_> = (0..3)
+        .map(|i| {
+            reply
+                .pointer(&format!("/result/items/{i}/sampleCount"))
+                .cloned()
+        })
+        .collect();
+    if reply["status"] != "complete"
+        || counts != [Some(json!(7)), None, Some(json!(7))]
+        || reply.pointer("/problems/0/record") != Some(&json!("native_list_2"))
+        || reply.pointer("/problems/0/field") != Some(&json!("sampleCount: bad-reply"))
+        || reply.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
+    {
+        return Err(format!("failed list count reply changed: {reply}"));
     }
     Ok(())
 }
