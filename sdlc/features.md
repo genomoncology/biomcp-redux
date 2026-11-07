@@ -37,7 +37,7 @@ article-saves: Save whole article Markdown or original supplement bytes only to 
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP.
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call.
 variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair.
-trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch and per-trial gene-context notices, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
+trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch and per-trial gene-context notices, omitted intervention counts with commands to read the full registered list, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations.
 trial-nci: Explicit NCI phase and status filters use publisher vocabularies; trial search and exact retrieval require the user key and preserve native fields without registry fallback; exact facility search returns one matched site and its match count; exact biomarker code search retains native criterion and inclusion_indicator entries and reports same-entry mismatches.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path.
@@ -112,7 +112,7 @@ cell-line-identity: A caller searches Cellosaurus headers by literal text, nativ
 cell-line-chembl: A caller reads exact accession-linked ChEMBL metadata and requests native assay totals separately, with source terms and independent release provenance.
 cell-line-sections: A caller pages complete native Cellosaurus names, identities, cross-references and variation rows without inference.
 cell-line-all: A caller receives every bounded first section page with independent source failures, skips and provenance, while deferred routes return fixed guidance before provider requests.
-author-search: Literal Semantic Scholar author candidates retain provider identities and native order.
+author-search: Search native author identities or open PubMed citation authors and papers, keeping equal names unresolved.
 author-orcid: Read exact public ORCID names and locally page whole public work groups without identity joins.
 author-papers: Exact Semantic Scholar author papers preserve native order, IDs and details.
 cache-resilience: Checked provider replies and absences survive cache admission failures, and busy reads leave time for the source.
@@ -135,3 +135,5 @@ device-approval-search: Search native FDA PMA and 510(k) submission records by n
 fda-document-text: Read FDA-published PMA SSED and selected drug approval letter text in bounded continuable fragments, with explicit no-text and oversized states.
 drug-name-get: Resolve source names with the fixed single-term salt/ester rule in one get call, infer an unambiguous section source, report bounded alternatives and direct unresolved names to source search.
 trial-results: A caller pages posted outcome measures, source group values, dispersion and analyses, and adverse-event tables from the same registry record, with its first posting date.
+
+drug-name-search: Trial and article searches expand a uniquely resolved drug to source-stated names, disclose the searched names and preserve exact-term search and article pools.

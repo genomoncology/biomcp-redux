@@ -47,6 +47,11 @@ pub(crate) fn restrict(fetch: Fetch, context: Option<Context<'_>>) -> Fetch {
     ) {
         return fetch;
     }
+    let fetch = if context.declared_use == Some(DeclaredUse::Restricted) {
+        fetch.restrict_studies()
+    } else {
+        fetch
+    };
     fetch
         .restrict_sources(disabled(context.declared_use, context.secrets))
         .restrict_uses(

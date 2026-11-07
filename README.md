@@ -48,6 +48,8 @@ Which registered trials match melanoma?
 biomcp search trial --condition melanoma
 ```
 
+Trial and article searches expand a whole drug name to the other names stated by an existing drug source when it identifies one drug. Source notices list the names searched and any left out by the limit. Ambiguous names stay as typed, and a reply says when lookups failed and names were not expanded. Use `--exact-term` to skip this expansion; the selected provider still controls its own matching and ranking.
+
 These commands come from recorded cases. Live replies can change. Inspect source outcomes before interpreting a result. Follow returned next commands to page records, inspect source sections or resolve an ambiguous identity. A missing result does not establish absence.
 
 JSON is the default output. Use `--format md` for readable Markdown with tables and copyable next commands, or set `"format": "md"` in configuration. MCP always returns JSON. The [command reference](docs/reference/commands.md) lists every command, option and section. The [worked commands](docs/recipes.md) provide more examples. The [source and entity cautions](docs/cautions.md) explain interpretation limits.
@@ -66,6 +68,6 @@ See [hosted server configuration](docs/configuration.md#hosted-servers) for depl
 
 The documentation check does not run the exact `uv tool install biomcp-cli` or `uv tool upgrade biomcp-cli` shell instructions.
 
-Run `make docs-generate` after command changes and `make docs-check` to check generated documentation and execute documented examples against recordings. Run `make landing-gate` for the routine formatting, lint, coverage and dependency checks. See [ROADMAP.md](ROADMAP.md) for scope and source availability.
+Run `make docs-generate` after command changes and `make docs-check` to check generated documentation and execute documented examples against recordings. Run `make landing-gate` for the short landing check: formatting, lint, rights, dependency and secret checks, then the CLI and MCP cases. See [ROADMAP.md](ROADMAP.md) for scope and source availability.
 
 `make schema-release-check` compares generated schemas with the portable snapshot named in `release/schema-baseline.json`. It enforces schema major-version compatibility and rejects missing, malformed or incomplete baselines. Release artifact checks install and exercise the produced package in an isolated environment.

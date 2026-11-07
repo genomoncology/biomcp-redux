@@ -119,10 +119,13 @@ export RUST_TEST_THREADS ?= $(PM_WORKERS)
 endif
 TEST_THREADS = $(if $(strip $(RUST_TEST_THREADS)),-- --test-threads $(RUST_TEST_THREADS))
 
-.PHONY: landing-gate plain-cli-build fmt lint ratchets test audit coverage unreached
+.PHONY: landing-gate full-suite plain-cli-build fmt lint ratchets test audit coverage unreached
 
 landing-gate:
 	+python3 scripts/landing_gate.py
+
+full-suite:
+	+python3 scripts/landing_gate.py --full
 
 # Keep these sequential even when the caller uses make -j.
 .PHONY: pre-job check-cheap proof-check proof-list proof proof-unpack gate-stage-check
@@ -194,6 +197,15 @@ public-dump-check:
 audit:
 	cargo deny --locked check licenses advisories bans sources
 
+.PHONY: cases
+cases:
+	cargo test --locked -p biomcp --test cases $(TEST_THREADS)
+
+.PHONY: rights
+rights:
+	python3 scripts/article_licenses.py
+	python3 scripts/test_article_licenses.py
+
 .PHONY: library-tests
 library-tests:
 	cargo test --workspace --exclude biomcp --features biomcp-types/schema --locked $(TEST_THREADS)
@@ -220,8 +232,7 @@ docs-check:
 	python3 -m unittest release.test_tools release.test_linux release.test_mutations
 	python3 scripts/check_docs.py
 	python3 scripts/check_front_map.py "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp"
-	python3 scripts/article_licenses.py
-	python3 scripts/test_article_licenses.py
+	+$(MAKE) --no-print-directory rights
 	python3 scripts/test_docs.py
 	python3 scripts/test_source_capture.py
 	python3 scripts/test_source_capture_plan.py
@@ -758,7 +769,6 @@ trial-provenance-check:
 	mkdir -p "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance"
 	cargo build --locked -p biomcp --bin biomcp --test cases --message-format=json-render-diagnostics > "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
 	python3 -c 'import json,subprocess,sys; rows=[json.loads(line) for line in open(sys.argv[1]) if line.startswith("{")]; executables={row["target"]["name"]:row["executable"] for row in rows if row.get("reason")=="compiler-artifact" and row.get("executable")}; subprocess.run([sys.executable,"scripts/trials.py","--runner",executables["cases"],"--executable",executables["biomcp"],"--installed","trial-search/trial/gene-notices.yaml","trial-search/trial/gene-notices-context.yaml","trial-search/trial/gene-notices-mcp-typed-mode"],check=True)' "$(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/trial-provenance/build.jsonl"
-
 
 .PHONY: typed-owned-followups-check
 typed-owned-followups-check:
