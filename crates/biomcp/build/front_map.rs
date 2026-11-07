@@ -232,7 +232,11 @@ mod tests {
         let command = format!("{verb} {child}");
         let line = map
             .lines()
-            .find(|line| line.split(';').next().is_some_and(|head| head.split(',').any(|shown| shown == command)))
+            .find(|line| {
+                line.split(';')
+                    .next()
+                    .is_some_and(|head| head.split(',').any(|shown| shown == command))
+            })
             .unwrap_or_else(|| panic!("command missing: {command}"));
         let words = || line.split([' ', ':', ';', ',', '(', ')']);
         let sources = coverage::command_sources(verb, child, schema);

@@ -61,11 +61,17 @@ fn single_mcp(env: &Environment, args: &[&str]) -> Check<Value> {
 fn names_command(reply: &Value, verb: &str, entity: &str) -> Check {
     if reply.pointer("/error/code") == Some(&json!("usage.unknown_command"))
         && reply.pointer("/next/0/args") == Some(&json!(["help", verb, entity]))
-        && reply.pointer("/next").and_then(Value::as_array).map(Vec::len) == Some(1)
+        && reply
+            .pointer("/next")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            == Some(1)
     {
         return Ok(());
     }
-    Err(format!("{entity} {verb} must name {verb} {entity}: {reply}"))
+    Err(format!(
+        "{entity} {verb} must name {verb} {entity}: {reply}"
+    ))
 }
 
 fn check() -> Check {
