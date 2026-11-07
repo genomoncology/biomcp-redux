@@ -118,6 +118,10 @@ const REVIEWED_ABSENCES: &[(&str, &str)] = &[
         "join_for_build: , build ) { Ok ( chromosome ) = > chromosome , Err ( _ ) = > return None",
     ),
     (
+        "crates/biomcp-adapters/src/oncokb/variant.rs",
+        "release_date: ) = > Some ( date . to_string ( ) ) , Err ( _ ) = > None ,",
+    ),
+    (
         "crates/biomcp-adapters/src/gnomad/map.rs",
         "constraint: ) > ( field , None ) ; return None ; } Err ( _ ) = > return None",
     ),
