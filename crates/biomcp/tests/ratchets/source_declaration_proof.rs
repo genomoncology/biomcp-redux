@@ -208,6 +208,12 @@ fn dropped_error_arm_requires_its_own_classification() -> Check {
     for source in [
         "fn map() { let title = match input.parse() { Ok(v) => Some(v), Err(_) => None }; }",
         "fn map() { let title = match input.parse() { Ok(v) => v, Err(_) => return None }; }",
+        "fn map() { let title = match input.parse() { Ok(v) => Some(v), Err(..) => None }; }",
+        "fn map() { let title = match input.parse() { Ok(v) => Some(v), Err(Kind::Gone) => None }; }",
+        "fn map() { let title = match input.parse() { Ok(v) => Some(v), Err(_) => { None } }; }",
+        "fn map() { let title = match input.parse() { Ok(v) => v, Err(_) => { return None; } }; }",
+        "fn map() { let title = match input.parse() { Ok(v) => Some(v), Err(e) if e.quiet() => None, Err(e) => panic() }; }",
+        "fn map() -> Result<Option<u8>, E> { let v = match input.parse() { Ok(v) => v, Err(_) => return Ok(None) }; }",
     ] {
         for path in [
             "crates/biomcp-adapters/src/new_source/details.rs",

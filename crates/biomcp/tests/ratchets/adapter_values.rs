@@ -253,15 +253,66 @@ fn fingerprints(root: &Path, tokens: &[String], path: &str) -> BTreeMap<String, 
     }
     result
 }
-// `Err(_) => None` drops a failure the same way `.ok()` does, and `return None` is one spelling.
+// An `Err` arm whose body is only `None` drops a failure the same way `.ok()` does:
+// any pattern or guard, braced or not, and `return None` or `return Ok(None)`.
 fn dropped_error(tail: &[String]) -> bool {
-    let arm = |word: &str, at: usize| tail.get(at).is_some_and(|token| token == word);
-    arm("Err", 0)
-        && arm("(", 1)
-        && arm(")", 3)
-        && arm("=", 4)
-        && arm(">", 5)
-        && (arm("None", 6) || arm("return", 6) && arm("None", 7))
+    let is = |at: usize, word: &str| tail.get(at).is_some_and(|token| token == word);
+    if !is(0, "Err") || !is(1, "(") {
+        return false;
+    }
+    let Some(mut at) = close(tail, 1) else {
+        return false;
+    };
+    at += 1;
+    if is(at, "if") {
+        let Some(arrow) = (at..tail.len().min(at + 64)).find(|&i| is(i, "=") && is(i + 1, ">"))
+        else {
+            return false;
+        };
+        at = arrow;
+    }
+    if !(is(at, "=") && is(at + 1, ">")) {
+        return false;
+    }
+    at += 2;
+    let braced = is(at, "{");
+    at += usize::from(braced);
+    if is(at, "return") {
+        at += 1;
+        if is(at, "Ok") && is(at + 1, "(") && is(at + 2, "None") && is(at + 3, ")") {
+            at += 4;
+        } else if is(at, "None") {
+            at += 1;
+        } else {
+            return false;
+        }
+    } else if is(at, "None") {
+        at += 1;
+    } else {
+        return false;
+    }
+    if braced {
+        at += usize::from(is(at, ";"));
+        is(at, "}")
+    } else {
+        is(at, ",") || is(at, "}") || is(at, ";")
+    }
+}
+fn close(tail: &[String], open: usize) -> Option<usize> {
+    let mut depth = 0usize;
+    for (index, token) in tail.iter().enumerate().skip(open) {
+        match token.as_str() {
+            "(" => depth += 1,
+            ")" => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(index);
+                }
+            }
+            _ => {}
+        }
+    }
+    None
 }
 pub(super) fn attribute_site(tokens: &[String], index: usize) -> Option<String> {
     if tokens.get(index)? != "#" {

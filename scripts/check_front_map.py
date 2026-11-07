@@ -74,9 +74,11 @@ def main():
         require(source_help.startswith("Services:") and "Components:" in source_help,
                 "help sources lacks its Services and Components lists")
         trial_help = json.loads(run(binary, ["help", "search", "trial"], env))["result"]["commands"][0]
-        country = next(argument for argument in trial_help["arguments"] if argument["name"] == "--country")
+        country = next((argument for argument in trial_help["arguments"] if argument["name"] == "--country"), None)
+        require(country is not None, "search trial help has no --country argument")
         require("Exact ClinicalTrials.gov country label" in country["description"],
                 "search trial --country help lost its label description")
+        require("biomcp schema " in country["description"], "search trial --country help names no schema to read")
         schema_id = country["description"].rsplit("biomcp schema ", 1)[1].rstrip(".")
         query_schema = json.loads(run(binary, ["schema", schema_id], env))
         complete_choices = query_schema["properties"]["country"]["items"]["enum"]
@@ -119,7 +121,8 @@ def main():
                 require(process.returncode == 0 and not process.stderr, f"{label} serve failed: {process.stderr}")
                 tools = json.loads(process.stdout)["result"]["tools"]
                 (args.output / f"mcp-{label}.json").write_text(process.stdout)
-                tool = next(tool for tool in tools if tool["name"] == "biomcp")
+                tool = next((tool for tool in tools if tool["name"] == "biomcp"), None)
+                require(tool is not None, f"{label} tools/list has no biomcp tool")
                 mcp_measurements[label] = {}
                 for field in ("description", "inputSchema", "outputSchema"):
                     value = tool[field] if field == "description" else json.dumps(tool[field], ensure_ascii=False, separators=(",", ":"))
