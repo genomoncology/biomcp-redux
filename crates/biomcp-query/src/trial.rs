@@ -57,30 +57,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
     if typed_only {
-        crate::drug::search_names::retract(&mut outcome);
-        source.notices.extend(
-            expanded.inputs.iter().map(|input| {
-                crate::drug::search_names::typed_only(input, Source::ClinicalTrialsGov)
-            }),
-        );
+        retract_names(&expanded.inputs, &mut source, &mut outcome);
     }
-    {
-        let (found, identity_failed, unavailable) = if result.is_err() {
-            (false, true, false)
-        } else if version.is_err()
-            || error.is_some()
-            || source.state == SourceState::Stale
-            || outcome
-                .sources
-                .iter()
-                .any(|source| source.state != SourceState::Ok)
-        {
-            (true, false, true)
-        } else {
-            (true, false, false)
-        };
-        crate::status::item(&mut outcome, found, identity_failed, unavailable);
-    };
+    let unavailable = version.is_err() || error.is_some() || source.state == SourceState::Stale;
+    item_status(&mut outcome, result.is_ok(), unavailable);
     if let Ok(page) = result {
         if page.condition_word_mismatch {
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
@@ -100,13 +80,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         apply_page(query, &sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let Ok(version) = version {
-        outcome.problems.extend(version.problems);
-        if let ReplyData::TrialPage {
-            body: Some(body), ..
-        } = &mut outcome.body
-        {
-            body.source_updated = version.value.map(Into::into);
-        }
+        apply_version(version, &mut outcome);
     }
     if rejected {
         outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
@@ -121,6 +95,40 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     status::search_for(&mut outcome, &asked);
     command.finish(deadline.remaining());
     outcome
+}
+/// Set the item status once the registry has answered, counting earlier source outcomes.
+fn item_status(outcome: &mut Outcome, answered: bool, unavailable: bool) {
+    let earlier = outcome
+        .sources
+        .iter()
+        .any(|source| source.state != SourceState::Ok);
+    let unavailable = answered && (unavailable || earlier);
+    crate::status::item(outcome, answered, !answered, unavailable);
+}
+/// Say the registry searched only the typed terms after refusing the expanded names.
+fn retract_names(
+    inputs: &[biodata::Text],
+    source: &mut biomcp_types::SourceOutcome,
+    outcome: &mut Outcome,
+) {
+    crate::drug::search_names::retract(outcome);
+    source.notices.extend(
+        inputs
+            .iter()
+            .map(|input| crate::drug::search_names::typed_only(input, Source::ClinicalTrialsGov)),
+    );
+}
+fn apply_version(
+    version: biomcp_adapters::Mapped<Option<biomcp_types::SourceTimestamp>>,
+    outcome: &mut Outcome,
+) {
+    outcome.problems.extend(version.problems);
+    if let ReplyData::TrialPage {
+        body: Some(body), ..
+    } = &mut outcome.body
+    {
+        body.source_updated = version.value.map(Into::into);
+    }
 }
 fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
     matches!(error, Some(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400))
