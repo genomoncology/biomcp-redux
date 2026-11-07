@@ -130,6 +130,10 @@ def run_once(name, argv, path):
                                     timeout=HANG_GUARD_SECONDS).returncode
         except subprocess.TimeoutExpired:
             status = 'hang-guard'
+    # A libtest filter that matches nothing exits 0, so a check that ran no test fails.
+    if name == 'cache-process' and not status and not re.search(
+            r'running [1-9]\d* tests?', path.read_text(errors='replace')):
+        status = 'no-tests'
     record = {'check': name, 'exit': status, 'elapsed_seconds': round(time.monotonic() - started, 3),
               'host_load': os.getloadavg(), 'log': str(path.relative_to(ROOT))}
     print(json.dumps(record), flush=True)
@@ -176,6 +180,8 @@ def main(arguments=None):
     parser.add_argument('--binary', help='run first-open against this installed binary')
     parser.add_argument('--list', action='store_true', help='print check names and stop')
     args = parser.parse_args(arguments)
+    if args.rounds is not None and args.rounds < 1:
+        parser.error('--rounds must be at least 1')
     listed = checks()
     if args.list:
         print('\n'.join(listed))
