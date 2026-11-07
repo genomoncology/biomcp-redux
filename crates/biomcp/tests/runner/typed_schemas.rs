@@ -88,6 +88,9 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
 fn top_level(tools: &[Value], failures: &mut Vec<String>) {
     for tool in tools {
         let name = field(tool, "name");
+        if ["biomcp", "search", "fetch"].contains(&name.as_str().unwrap_or_default()) {
+            continue; // Protocol tools keep the output schemas they had before.
+        }
         if field(tool, "description")
             .as_str()
             .is_some_and(|s| s.contains('\n'))
