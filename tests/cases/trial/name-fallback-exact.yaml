@@ -1,5 +1,5 @@
 {
-  "live_check": "Tool-specific local replay; excluded from provider live checks.",
+  "live_check": "local replay of the recorded public registry bodies that the public name-fallback case checks",
   "feature": "trial-search",
   "story": "An exact sponsor phrase that finds a native trial never runs a broader search.",
   "replay": "trial/name-fallback",
