@@ -146,11 +146,7 @@
       ],
       "exit": 2,
       "expect": {
-        "/error": {
-          "omits": [
-            "message"
-          ]
-        }
+        "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command"
       }
     }
   ]
