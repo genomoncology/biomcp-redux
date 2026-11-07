@@ -285,21 +285,22 @@ mod tests {
             &service.settings,
         );
         let tools = crate::mcp::typed::tools(context, false).unwrap();
-        let reference = tools
-            .iter()
-            .find(|tool| tool["name"] == "biomcp_reference")
-            .unwrap();
-        let grouped = reference["inputSchema"]["properties"]["command"]["enum"]
-            .as_array()
-            .unwrap();
-        assert!(!grouped.is_empty());
+        assert_eq!(tools.len(), 17);
         let log = |name: &serde_json::Value| {
             super::super::logging::line(&json!({"name":name}), Duration::ZERO, 200, None)
         };
-        for name in tools.iter().map(|tool| &tool["name"]).chain(grouped) {
+        for name in tools.iter().map(|tool| &tool["name"]) {
             assert_eq!(&log(name)["tool"], name);
         }
-        for name in ["biomcp_private", "get_private", "reference", "BIOMCP", ""] {
+        for name in [
+            "biomcp_private",
+            "get_private",
+            "get_gene",
+            "biomcp_reference",
+            "biomcp_help",
+            "BIOMCP",
+            "",
+        ] {
             assert_eq!(log(&json!(name))["tool"], "unknown");
         }
     }
