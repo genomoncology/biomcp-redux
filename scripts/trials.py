@@ -14,6 +14,10 @@ sys.path.insert(0, str(ROOT))
 from release.artifacts import cargo
 
 
+SELECTOR_HINT = ("; use --cases DIRECTORY for YAML cases or --target tools --proofs "
+                 "for custom trials, then --list to find exact names")
+
+
 def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
                  prepare: Callable[[], None], *, case_files: Sequence[str] = ()) -> None:
     """List and run the same target in its required directory using exact names."""
@@ -34,15 +38,13 @@ def run_selected(target: Sequence[str], cwd: Path, names: Sequence[str],
                 path, sorted(available), n=3, cutoff=0)
             raise ValueError(f"case file {path!r} requires exactly one catalog match; "
                              f"found {len(matches)}; nearest catalog entries: "
-                             + ", ".join(nearest))
+                             + ", ".join(nearest) + SELECTOR_HINT)
         selected.append(matches[0])
     selected = list(dict.fromkeys(selected))
     unknown = [name for name in selected if name not in available]
     if not selected or unknown:
         raise ValueError("trial selection requires exact names from this target's --list: "
-                         + ", ".join(unknown)
-                         + "; use --cases DIRECTORY for YAML cases or --target tools --proofs "
-                         "for custom trials, then --list to find exact names")
+                         + ", ".join(unknown) + SELECTOR_HINT)
     prepare()
     status = 0
     for name in selected:
