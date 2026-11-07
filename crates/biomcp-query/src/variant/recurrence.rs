@@ -92,7 +92,7 @@ fn execute(
     if more && let Some(next) = query.next_page() {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
-            &[biomcp_types::Source::CancerHotspots],
+            &[Source::Cbioportal],
             Request::VariantRecurrence(next),
             false,
         ));
