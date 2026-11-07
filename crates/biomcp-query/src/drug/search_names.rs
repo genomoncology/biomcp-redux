@@ -133,7 +133,8 @@ pub(crate) fn resolve<'a>(
     Resolved::default()
 }
 
-/// Read the rows stating the name. Product rows and stereo forms are not separate drugs.
+/// Read the rows stating the name. Product rows and stereo forms are not separate drugs, and
+/// product rows give no names when the drug has rows of its own.
 fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     let command = cx.fetch.command_deadline(cx.budget);
     let leg = cx
@@ -163,15 +164,12 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
         return Found::Nothing;
     };
     let record = record.id.clone();
-    let names = mapped
-        .value
-        .iter()
+    // A product row with no structure of its own never describes this drug.
+    let drug_rows = || mapped.value.iter().filter(|row| row.structure.is_some());
+    let names = drug_rows()
         .flat_map(|row| row.names.iter().cloned())
         .collect();
-    let preferred = mapped
-        .value
-        .iter()
-        .filter(|row| row.structure.is_some())
+    let preferred = drug_rows()
         .flat_map(|row| row.preferred.iter().cloned())
         .collect();
     with_other_names((names, preferred), input, record, evidence, mapped.problems)

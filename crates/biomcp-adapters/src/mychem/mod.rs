@@ -67,7 +67,7 @@ pub struct NameRecord {
     pub id: String,
     /// Structure identity; product rows have none and never count as another drug.
     pub structure: Option<String>,
-    /// Every name the row states, one name per value.
+    /// The drug's names, one per value; product names only for a row with no others.
     pub names: Vec<biodata::Text>,
     /// The main name each of the row's sources gives it, not its synonyms or products.
     pub preferred: Vec<String>,

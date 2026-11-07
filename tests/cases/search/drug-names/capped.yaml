@@ -34,7 +34,8 @@
           "Canonical therapy",
           "Example brand"
         ],
-        "/page/total": 1
+        "/page/total": 1,
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record KTUFNOKKBVMGRW-SFHVURJKSA-N. Left out 1 of 3 names, past the drug_search_name_limit setting."
       }
     }
   ]
