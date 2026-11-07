@@ -86,29 +86,31 @@ fn registry_not_cached() -> Check {
         (format!("{:?}", mapped.value), mapped.refusals)
     };
     for case in ["wrong-identity", "error-reply"] {
+        let mut changed = false;
         let (_root, fetch) = replay("variant/normalization/grch37", |source, recording| {
-            if source != "car" {
-                return;
+            if source == "car"
+                && let Some(exchanges) = recording
+                    .pointer_mut("/exchanges")
+                    .and_then(|v| v.as_array_mut())
+                && let Some(mut bad) = exchanges.first().cloned()
+                && let Some(body) = bad.pointer_mut("/body/value")
+            {
+                changed = true;
+                if case == "wrong-identity" {
+                    replace(
+                        body,
+                        "/@id",
+                        &(json!("http://reg.genome.network/allele/not-an-id")),
+                    );
+                } else {
+                    replace(body, "/errorType", &(json!("InternalServerError")));
+                }
+                exchanges.insert(0, bad);
             }
-            let Some(exchanges) = recording
-                .pointer_mut("/exchanges")
-                .and_then(|v| v.as_array_mut())
-            else {
-                return;
-            };
-            let mut bad = exchanges[0].clone();
-            let body = bad.pointer_mut("/body/value").expect("registry body");
-            if case == "wrong-identity" {
-                replace(
-                    body,
-                    "/@id",
-                    &(json!("http://reg.genome.network/allele/not-an-id")),
-                );
-            } else {
-                replace(body, "/errorType", &(json!("InternalServerError")));
-            }
-            exchanges.insert(0, bad);
         })?;
+        if !changed {
+            return Err("Registry native allele missing".into());
+        }
         let leg = fetch.leg(
             &allele_registry::SPEC,
             fetch.deadline(Duration::from_secs(20)),

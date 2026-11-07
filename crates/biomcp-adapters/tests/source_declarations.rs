@@ -154,9 +154,11 @@ mod adverse_event_terminologies {
             (Source::Maude, Source::Gmdn, "gmdn"),
         ] {
             let labels = components::labels(owner, component)?;
-            assert_eq!(labels.len(), 1);
+            let [label] = &*labels else {
+                return Err(format!("{owner:?}: expected one label").into());
+            };
             assert!(
-                labels[0].component.as_str().eq_ignore_ascii_case(name),
+                label.component.as_str().eq_ignore_ascii_case(name),
                 "{owner:?}"
             );
         }
