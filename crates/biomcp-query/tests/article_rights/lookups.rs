@@ -3,7 +3,10 @@ use super::{fixture, run};
 use biomcp_fetch::Fetch;
 use biomcp_types::{ArticleItem, ArticleSearch, Reason, ReplyData, Request, Status};
 use std::{
-    sync::{Arc, Mutex},
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
     time::Duration,
 };
 
@@ -256,6 +259,110 @@ fn repeat_reads_keep_refusal_markers_and_write_nothing_new() {
         row.text_withheld.as_ref().unwrap().reason,
         Reason::Disabled,
         "a later commercial lookup must not erase the cached refusal"
+    );
+    drop(stub);
+}
+
+#[test]
+fn a_stated_restriction_withholds_the_abstract_in_any_spelling() {
+    for license in [
+        "CC BY-NC 4.0",
+        "cc by-nc-nd/4.0",
+        "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "CCBYNC",
+        "Non-Commercial",
+        "TDM only",
+    ] {
+        let dir = tempfile::tempdir().unwrap();
+        let (stub, fetch) = fixture::live(dir.path(), move |_| {
+            Ok(serde_json::json!({"result": {
+                "id": "PPR1002", "source": "PPR", "title": "Preprint identity",
+                "license": license, "abstractText": "spelled license witness"
+            }})
+            .to_string())
+        });
+        let leg = fetch.leg(
+            &biomcp_adapters::europepmc::SPEC,
+            fetch.deadline(Duration::from_secs(20)),
+        );
+        let (article, _) =
+            biomcp_adapters::europepmc::core(&leg, &"PPR1002".parse().unwrap()).unwrap();
+        assert!(
+            article.value.abstract_parts.is_empty() && article.value.text_withheld.is_some(),
+            "{license} states a restriction"
+        );
+        drop(stub);
+    }
+}
+
+fn both_sources(fetch: &Fetch) -> biomcp_query::Outcome {
+    biomcp_query::run(
+        &biomcp_query::Ctx {
+            fetch,
+            budget: Duration::from_secs(20),
+            fresh: false,
+            ncbi_email: None,
+        },
+        &Request::SearchArticle(
+            serde_json::from_str::<ArticleSearch>(
+                r#"{"text":"rights witness","source":["pubmed","litsense"],"limit":3}"#,
+            )
+            .unwrap(),
+        ),
+    )
+}
+
+#[test]
+fn unchecked_text_reaches_the_reply_and_not_the_store_and_a_repeat_rechecks() {
+    let healthy = Arc::new(AtomicBool::new(false));
+    let dir = tempfile::tempdir().unwrap();
+    let state = healthy.clone();
+    let (stub, fetch) = fixture::live(dir.path(), move |request| {
+        if request.contains("sentences") {
+            return Ok(serde_json::json!([
+                {"pmid":2001,"section":"ABSTRACT","text":"unchecked abstract witness"},
+                {"pmid":2002,"section":"RESULTS","text":"unchecked body witness"}
+            ])
+            .to_string());
+        }
+        if request.contains("esearch") {
+            return Ok(serde_json::json!({"esearchresult":{
+                "count":"2","retmax":"2","retstart":"0","idlist":["2001","2002"]
+            }})
+            .to_string());
+        }
+        if !state.load(Ordering::SeqCst) && request.contains("list-type") {
+            return Ok("not a listing".into());
+        }
+        Ok(fixture::many_papers(request, &[2001, 2002]))
+    });
+    let out = both_sources(&fetch);
+    assert_eq!(out.status(), Status::Partial, "this pool is not whole");
+    let rows = items(out);
+    assert_eq!(rows.len(), 2, "a failed lookup keeps every paper");
+    assert!(
+        rows[0].sentence.is_some() && rows[1].sentence.is_none(),
+        "the abstract stays in the reply and the body does not: {rows:?}"
+    );
+    assert!(
+        rows.iter()
+            .all(|row| row.text_withheld.as_ref().unwrap().reason == Reason::Unavailable),
+        "a paper found by two sources keeps its reason: {rows:?}"
+    );
+    assert_eq!(
+        stored(
+            &fetch,
+            "SELECT count(*) FROM pool_item WHERE item LIKE '%unchecked%witness%'"
+        ),
+        0,
+        "text from an unchecked paper must not reach a stored row"
+    );
+    healthy.store(true, Ordering::SeqCst);
+    let rows = items(both_sources(&fetch));
+    assert!(
+        rows.iter()
+            .all(|row| row.sentence.is_some() && row.text_withheld.is_none()),
+        "a repeat search rechecks what the failed lookup left out: {rows:?}"
     );
     drop(stub);
 }

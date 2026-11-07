@@ -94,6 +94,27 @@ pub fn item_unchecked(row: &ArticleItem) -> bool {
         .as_ref()
         .is_some_and(|notice| notice.reason == biomcp_types::Reason::Unavailable)
 }
+/// Take unchecked papers' sentences out of rows about to be stored. A failed lookup
+/// keeps an abstract in the reply, but nothing unsettled reaches the store.
+pub fn take_unchecked(
+    rows: &mut [ArticleItem],
+) -> Vec<(biomcp_types::ArticleKey, biomcp_types::ArticleSentence)> {
+    rows.iter_mut()
+        .filter(|row| item_unchecked(row))
+        .filter_map(|row| Some((row.key.clone()?, row.sentence.take()?)))
+        .collect()
+}
+/// Give this reply's rows the sentences kept out of the store.
+pub fn return_unchecked(
+    rows: &mut [ArticleItem],
+    held: &[(biomcp_types::ArticleKey, biomcp_types::ArticleSentence)],
+) {
+    for row in rows {
+        if let Some((_, sentence)) = held.iter().find(|(key, _)| row.key.as_ref() == Some(key)) {
+            row.sentence = Some(sentence.clone());
+        }
+    }
+}
 /// Apply the same per-record rule to a checked stored item without provider access.
 fn filter_item(row: &mut ArticleItem, unchecked: bool) {
     let license = row.sentence.as_ref().and_then(|sentence| sentence.license);
