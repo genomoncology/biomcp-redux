@@ -75,7 +75,7 @@ pub(super) fn check() -> Result<(), String> {
             .pointer("/result/structuredContent")
             .filter(|_| status == 200)
             .ok_or_else(|| format!("{label}: no hosted reply: {http}"))?;
-        if let Err(error) = reached(http, &expected) {
+        if let Err(error) = reached(http, &expected, served_action(&served, tool, action)) {
             failures.push(format!("{label} hosted HTTP: {error}"));
         }
     }
@@ -93,20 +93,39 @@ pub(super) fn check() -> Result<(), String> {
     }
 }
 
-/// A hosted reply reaches the same command: the same canonical query, or a hosted refusal
-/// for an action hosting does not serve.
-/// Hosted HTTP reaches the same command, or meets the existing hosted refusal.
-fn reached(http: &Value, expected: &Value) -> Result<(), String> {
-    if http.pointer("/error/code") == Some(&json!("usage.mcp_unavailable")) {
-        return Ok(());
+/// A served action gives the CLI's reply; hosting refuses it only for a source whose key the
+/// CLI also lacked. An action hosting hides meets the hosted refusal or a disabled source.
+fn reached(http: &Value, expected: &Value, served: bool) -> Result<(), String> {
+    let refused = http.pointer("/error/code") == Some(&json!("usage.mcp_unavailable"));
+    let ok = if served {
+        let keyless = refused
+            && expected["sources"].as_array().is_some_and(|sources| {
+                sources.iter().any(|source| {
+                    source["source"] == http["error"]["source"] && source["reason"] == "no-key"
+                })
+            });
+        keyless || super::typed_followups::data(http) == super::typed_followups::data(expected)
+    } else {
+        refused
+            || http["sources"]
+                .as_array()
+                .is_some_and(|sources| sources.iter().all(|source| source["reason"] == "disabled"))
+    };
+    if ok {
+        Ok(())
+    } else {
+        Err(format!(
+            "served={served} reply differs from its command: {http} versus {expected}"
+        ))
     }
-    match (http.get("query"), expected.get("query")) {
-        (Some(actual), Some(query)) if actual == query => Ok(()),
-        (None, None) if http.get("schema") == expected.get("schema") => Ok(()),
-        _ => Err(format!(
-            "reply differs from its command: {http} versus {expected}"
-        )),
-    }
+}
+fn served_action(tools: &[Value], tool: &str, action: &str) -> bool {
+    tools
+        .iter()
+        .find(|advertised| advertised["name"] == tool)
+        .and_then(|advertised| advertised.pointer("/inputSchema/properties/action/enum"))
+        .and_then(Value::as_array)
+        .is_some_and(|actions| actions.contains(&json!(action)))
 }
 
 fn path(command: &str) -> Result<(&'static str, &'static str, &'static str), String> {
