@@ -258,8 +258,12 @@ fn offered_next(server: &Server, mode: &str, reply: &Value) -> Check {
         .flatten()
     {
         if mode == "typed" {
+            let action = step
+                .pointer("/arguments/action")
+                .and_then(Value::as_str)
+                .unwrap_or_default();
             let fields = step
-                .pointer("/arguments/arguments")
+                .pointer(&format!("/arguments/{action}"))
                 .or_else(|| step.get("arguments"))
                 .and_then(Value::as_object)
                 .ok_or("typed next arguments")?;

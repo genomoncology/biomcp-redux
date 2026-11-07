@@ -198,31 +198,34 @@ pub(super) fn parse(
     let Some(&(action, command, _)) = placed.iter().find(|(placed, _, _)| Some(*placed) == action)
     else {
         let actions = catalog.actions(tool);
-        return Some(Err(rejected(
-            "action",
-            &actions,
-            vec!["help".into()],
-            catalog,
-        )));
+        return Some(Err(rejected("action", &actions, catalog)));
     };
-    if let Some(key) = fields
-        .keys()
-        .find(|key| !matches!(key.as_str(), "action") && *key != action)
-    {
+    if let Some(key) = fields.keys().find(|key| *key != "action" && *key != action) {
         return Some(Err(rejected(
             key,
             &["action".into(), action.into()],
-            vec!["help".into()],
             catalog,
         )));
     }
-    let &(verb, entity, id) = crate::grammar::command_paths()
-        .iter()
-        .find(|&&(verb, entity, _)| name(verb, entity) == command)?;
+    let path = crate::grammar::command_paths()
+        .into_iter()
+        .find(|&(verb, entity, _)| name(verb, entity) == command)?;
+    let values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
+    command_call(root, path, action, &values, fresh, catalog)
+}
+
+/// Check one action's object against its command's schema and spell its CLI call.
+fn command_call(
+    root: &crate::grammar::Root,
+    (verb, entity, id): (&'static str, &'static str, &'static str),
+    action: &str,
+    values: &Value,
+    fresh: bool,
+    catalog: Catalog,
+) -> Option<Result<super::research::Call, Rejected>> {
     let schema = schema(id).ok()?;
     let input = arguments::input(&schema);
-    let values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
-    if !validation::valid(&input, &values) {
+    if !validation::valid(&input, values) {
         let properties = input.get("properties")?.as_object()?;
         let fields = values.as_object();
         let key =
@@ -261,7 +264,7 @@ pub(super) fn parse(
             catalog: Some(catalog),
         }));
     }
-    let mut args = arguments::cli(root, verb, entity, &schema, &values)?;
+    let mut args = arguments::cli(root, verb, entity, &schema, values)?;
     if fresh {
         args.insert(2, "--fresh".into());
     }
@@ -273,12 +276,7 @@ pub(super) fn parse(
 }
 
 /// Refuse an entity call's own shape: a missing or unknown action, or a field beside it.
-fn rejected(
-    argument: &str,
-    valid: &[String],
-    args: Vec<std::ffi::OsString>,
-    catalog: Catalog,
-) -> Rejected {
+fn rejected(argument: &str, valid: &[String], catalog: Catalog) -> Rejected {
     let error = biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some(argument.into()),
         valid_values: valid
@@ -294,7 +292,7 @@ fn rejected(
     });
     Rejected {
         error,
-        args,
+        args: vec!["help".into()],
         command: None,
         catalog: Some(catalog),
     }
