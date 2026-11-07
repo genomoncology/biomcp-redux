@@ -59,12 +59,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantAssertionsGet) -> Outcome {
 }
 /// The caller's unchanged input is the one a variant lookup can turn into a source key.
 fn conversion(query: &VariantAssertionsGet) -> Option<crate::next::Step> {
-    let lookup = VariantGet::new(
+    let lookup = match VariantGet::new(
         query.input().clone(),
         biomcp_types::VariantResolver::Car,
         query.build(),
-    )
-    .ok()?;
+    ) {
+        Ok(lookup) => lookup,
+        // Checking the assertion query builds this same lookup, so no value is lost here.
+        Err(_) => return None,
+    };
     let source = super::source(&lookup).source;
     Some(crate::next::Step::run(
         StepKind::Configure,
