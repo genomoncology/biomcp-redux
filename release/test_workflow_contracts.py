@@ -43,6 +43,13 @@ class HostedWorkflow(unittest.TestCase):
                         workflow.index('python release/gate.py --artifacts'))
         self.assertNotIn('original_run', Path('release/section.py').read_text())
 
+    def test_native_sections_keep_room_above_the_slowest_platform(self):
+        # Intel Mac qualified at 119m44s, and all five platforms share these jobs.
+        qualify = Path('.github/workflows/release.yml').read_text().split('\n  qualify:\n')[1].split('\n  stage:\n')[0]
+        recover = Path('.github/workflows/recover-section.yml').read_text()
+        self.assertEqual(re.findall(r'timeout-minutes: (\d+)', qualify), ['180'])
+        self.assertEqual(re.findall(r'^    timeout-minutes: (\d+)', recover, re.M), ['180'])
+
     def test_security_checks_install_pinned_cargo_deny_first(self):
         workflow = Path('.github/workflows/release.yml').read_text()
         install = 'cargo install cargo-deny --version "${{ steps.tools.outputs.cargo_deny }}" --locked'
