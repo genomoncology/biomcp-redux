@@ -158,7 +158,7 @@ fn listed_value(
     let array = resolved(property, schema).get("type") == Some(&json!("array"));
     values.insert(key.into(), if array { json!([word]) } else { json!(word) });
     let reply = cli(env, &argv(verb, entity, schema, &values))?;
-    if refuses(&reply, key) {
+    if refuses(&reply, key, word) {
         return Err(format!("CLI refused a listed value: {reply}"));
     }
     let frame = request(
@@ -171,7 +171,7 @@ fn listed_value(
         .first()
         .and_then(|reply| reply.pointer("/result/structuredContent"))
     {
-        Some(typed) if !refuses(typed, key) => Ok(()),
+        Some(typed) if !refuses(typed, key, word) => Ok(()),
         typed => Err(format!("typed tool refused a listed value: {typed:?}")),
     }
 }
@@ -187,10 +187,27 @@ fn scope_for(scope: &Value, word: &str, values: &mut Map<String, Value>) {
     }
 }
 
-fn refuses(reply: &Value, key: &str) -> bool {
-    let option = reply.pointer("/error/option").and_then(Value::as_str);
-    reply.pointer("/error/code") == Some(&json!("usage.arguments"))
+// A refusal that lists the word, names a source or offers other sources is a rule about
+// other fields; only a refusal of this field that omits the word is a false listing.
+fn refuses(reply: &Value, key: &str, word: &str) -> bool {
+    let error = field(reply, "error");
+    let option = error.get("option").and_then(Value::as_str);
+    let listed = field(error, "valid_values")
+        .as_array()
+        .is_some_and(|values| {
+            values
+                .iter()
+                .filter_map(Value::as_str)
+                .any(|value| value.eq_ignore_ascii_case(word))
+        });
+    error.get("code") == Some(&json!("usage.arguments"))
         && option.is_some_and(|option| option.trim_start_matches('-').replace('-', "_") == key)
+        && !listed
+        && error.get("source").is_none()
+        && error.get("message")
+            != Some(&json!(
+                "a selected source does not support the requested filters"
+            ))
 }
 
 // The hosted list must never offer a word that only reaches a source hosting has switched off.
