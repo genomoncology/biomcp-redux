@@ -224,7 +224,10 @@ fn examples(env: &Environment, tools: &[Value]) -> Result<(), String> {
                     .next()
                     .ok_or("example call")?
                     .map_err(|e| format!("{}: unparsable example: {e}", tool["name"]))?;
-                let command = example["command"].as_str().ok_or("example command")?;
+                let command = example
+                    .get("command")
+                    .and_then(Value::as_str)
+                    .ok_or("example command")?;
                 crate::runner::protocol::typed_catalog::command(tools, command).ok_or_else(
                     || format!("{}: example names unadvertised {command}", tool["name"]),
                 )?;
@@ -239,7 +242,7 @@ fn examples(env: &Environment, tools: &[Value]) -> Result<(), String> {
                 let schema = cli(env, &["schema".into(), id.into()])?;
                 jsonschema::validator_for(&schema)
                     .map_err(|e| e.to_string())?
-                    .validate(&example["arguments"])
+                    .validate(example.get("arguments").ok_or("example arguments")?)
                     .map_err(|e| {
                         format!("{}: example {example} fails {command}: {e}", tool["name"])
                     })?;
