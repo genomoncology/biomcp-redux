@@ -4,6 +4,18 @@ use biomcp_types::{Help, ResponseBody, Source};
 use serde_json::{Value, json};
 use std::{ffi::OsString, io};
 
+/// Ordinary HTTP also refuses synchronization and fresh reads; share execution's authority.
+pub(super) fn transport_next(
+    out: &mut crate::command::Outcome,
+    cx: Context<'_>,
+    http: bool,
+) -> io::Result<()> {
+    if http && !cx.globals.hosted {
+        next(out.value_mut()?, cx, false);
+    }
+    Ok(())
+}
+
 pub(super) fn project(
     out: &mut crate::command::Outcome,
     cx: Context<'_>,
@@ -15,7 +27,7 @@ pub(super) fn project(
     let value = out.value_mut()?;
     help(value, cx)?;
     recovery(value, cx)?;
-    next(value, cx);
+    next(value, cx, true);
     let required = match crate::grammar::parse(cx.root, args)
         .ok()
         .and_then(|parsed| parsed.action)
@@ -212,11 +224,14 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
     Ok(())
 }
 
-fn next(value: &mut Value, cx: Context<'_>) {
+fn next(value: &mut Value, cx: Context<'_>, drop_empty: bool) {
     // Envelope recovery commands are Steps; source-body continuations are queries.
     if let Some(steps) = value.get_mut("next").and_then(Value::as_array_mut) {
+        let offered = !steps.is_empty();
         steps.retain_mut(|step| next_step(step, cx));
-        if steps.is_empty()
+        // Ordinary HTTP leaves an already-empty list as stdio shows it; only a list this filter emptied goes.
+        if (drop_empty || offered)
+            && steps.is_empty()
             && let Some(fields) = value.as_object_mut()
         {
             fields.remove("next");
@@ -271,6 +286,7 @@ fn notices(
             }
             let source: Source = serde_json::from_value(row["source"].clone())?;
             let notice = serde_json::to_value(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
                 message: reason(source, cx, required)?.into(),
                 retry_after_seconds: None,
             })?;

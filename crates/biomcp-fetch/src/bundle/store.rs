@@ -20,6 +20,12 @@ pub(super) struct Meta {
     pub content_revision: Option<String>,
     pub retrieved_at: Option<i64>,
 }
+/// One atomic bundle read, including metadata for an empty selection.
+pub(super) struct StoredBundle {
+    pub meta: Meta,
+    pub rows: Vec<String>,
+    pub sample: Option<String>,
+}
 #[derive(Debug)]
 pub(super) struct Part {
     pub path: String,
@@ -28,6 +34,26 @@ pub(super) struct Part {
     pub total: Option<u64>,
 }
 impl Part {
+    fn relocate(&mut self, folder: &std::path::Path) -> Result<(), CacheError> {
+        let path = std::path::Path::new(&self.path);
+        let parent = path.parent().ok_or(CacheError::Limit)?;
+        let name = path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .filter(|name| part_name(name))
+            .ok_or(CacheError::Limit)?;
+        // A moved cache owns the same named transfer file in its new parts folder.
+        // Existing foreign folders still follow the strict ownership check.
+        if matches!(parent.canonicalize(), Err(error) if error.kind() == std::io::ErrorKind::NotFound)
+        {
+            self.path = folder
+                .join(name)
+                .to_str()
+                .ok_or(CacheError::Filesystem)?
+                .to_owned();
+        }
+        Ok(())
+    }
     fn in_use(&self, folder: &std::path::Path) -> Result<bool, CacheError> {
         if !self.validate(folder)? {
             return Ok(false);
@@ -117,6 +143,7 @@ pub(super) fn kind(k: KeyKind) -> u8 {
 }
 pub(super) fn info<R: Row>(b: &Bundle<R>, m: &Meta) -> BundleInfo {
     BundleInfo {
+        data_date: None,
         rejections: m.rejections.clone(),
         etag: m.etag.as_deref().map(Into::into),
         last_modified: m.modified.as_deref().map(Into::into),
@@ -154,7 +181,7 @@ impl Cache {
         name: &str,
         find: Find<'_>,
         d: Deadline<'_>,
-    ) -> Result<Option<(Meta, Vec<String>)>, CacheError> {
+    ) -> Result<Option<StoredBundle>, CacheError> {
         self.sql(d, |c| {
             let tx = c.unchecked_transaction().map_err(|error| db_error(error))?;
             let meta = tx
@@ -162,11 +189,25 @@ impl Cache {
                 .optional()
                 .map_err(|error| db_error(error))?;
             let value = meta
-                .map(|meta| selected_rows(&tx, name, find).map(|rows| (meta, rows)))
+                .map(|meta| {
+                    let rows = selected_rows(&tx, name, find)?;
+                    let sample = match rows.first() {
+                        Some(row) => Some(row.clone()),
+                        None => first_row(&tx, name)?,
+                    };
+                    Ok::<_, CacheError>(StoredBundle { meta, rows, sample })
+                })
                 .transpose()?;
             tx.commit().map_err(|error| db_error(error))?;
             Ok(value)
         })
+    }
+    pub(super) fn bundle_first_row(
+        &self,
+        name: &str,
+        d: Deadline<'_>,
+    ) -> Result<Option<String>, CacheError> {
+        self.sql(d, |c| first_row(c, name))
     }
     pub(super) fn syncing(&self, name: &str, d: Deadline<'_>) -> Result<bool, CacheError> {
         self.sql(d, |c| {
@@ -189,7 +230,7 @@ impl Cache {
     ) -> Result<Option<Part>, CacheError> {
         self.write_sql(d, |c| {
             let tx = write_transaction(c)?;
-            let old = tx
+            let mut old = tx
                 .query_row(
                     "SELECT holder,lease_until,url,part,bytes,etag,total FROM bundle_sync WHERE name=?1",
                     [name],
@@ -209,6 +250,9 @@ impl Cache {
                 )
                 .optional()
                 .map_err(|error| db_error(error))?;
+            if let Some((_, _, _, part)) = &mut old {
+                part.relocate(&self.1)?;
+            }
             if let Some((Some(_), until, _, part)) = &old
                 && *until > now()
                 && part.in_use(&self.1)?
@@ -348,6 +392,16 @@ fn selected_rows(c: &Connection, name: &str, find: Find<'_>) -> Result<Vec<Strin
         out.push(row.get(0).map_err(|error| db_error(error))?);
     }
     Ok(out)
+}
+
+fn first_row(c: &Connection, name: &str) -> Result<Option<String>, CacheError> {
+    c.query_row(
+        "SELECT row FROM bundle_row WHERE bundle=?1 ORDER BY n LIMIT 1",
+        [name],
+        |r| r.get(0),
+    )
+    .optional()
+    .map_err(db_error)
 }
 
 fn metadata(row: &rusqlite::Row<'_>) -> rusqlite::Result<Meta> {
