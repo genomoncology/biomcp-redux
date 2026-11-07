@@ -79,7 +79,9 @@ fn organization() -> Result<(), String> {
 }
 fn call(step: &Value, command: &str, arguments: Value, tools: &[Value]) -> Result<(), String> {
     let expected = crate::runner::protocol::typed_catalog::entity(command, arguments);
-    let (name, arguments) = (&expected["name"], &expected["arguments"]);
+    let (Some(name), Some(arguments)) = (expected.get("name"), expected.get("arguments")) else {
+        return Err(format!("no entity call for {command}"));
+    };
     if step.get("args").is_some()
         || step.get("name") != Some(name)
         || step.get("arguments") != Some(arguments)

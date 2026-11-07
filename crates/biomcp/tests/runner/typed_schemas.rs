@@ -14,20 +14,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     let tools = catalog(env, json!({"mcp_tool_mode":"typed"}))?;
     let views = crate::runner::protocol::typed_catalog::commands(&tools);
     let mut failures = Vec::new();
-    for tool in &tools {
-        let name = field(tool, "name");
-        if field(tool, "description")
-            .as_str()
-            .is_some_and(|s| s.contains('\n'))
-        {
-            failures.push(format!(
-                "{name}: full schema prose leaked into tool summary"
-            ));
-        }
-        if tool.get("outputSchema").is_some() {
-            failures.push(format!("{name}: outputSchema must default off"));
-        }
-    }
+    top_level(&tools, &mut failures);
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
         let tool = views
@@ -96,6 +83,23 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     }
     super::typed_catalog::budgets(env, &tools)?;
     settings(env, &tools)
+}
+/// The entity tools themselves: one-line descriptions and no default output schema.
+fn top_level(tools: &[Value], failures: &mut Vec<String>) {
+    for tool in tools {
+        let name = field(tool, "name");
+        if field(tool, "description")
+            .as_str()
+            .is_some_and(|s| s.contains('\n'))
+        {
+            failures.push(format!(
+                "{name}: full schema prose leaked into tool summary"
+            ));
+        }
+        if tool.get("outputSchema").is_some() {
+            failures.push(format!("{name}: outputSchema must default off"));
+        }
+    }
 }
 fn catalog(env: &Environment, config: Value) -> Result<Vec<Value>, String> {
     env.config(&config).map_err(|e| e.to_string())?;

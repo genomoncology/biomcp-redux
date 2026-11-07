@@ -65,6 +65,24 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         primary(&schema, description, &name)?;
         publishers(verb, entity, &schema, description)?;
     }
+    spot_words(&tools)?;
+    let help = cli(env, &["help".into(), "get".into(), "drug".into()])?;
+    let description = help
+        .pointer("/result/commands/0/description")
+        .and_then(Value::as_str)
+        .ok_or("drug help")?;
+    let summary = biomcp_types::COMMANDS
+        .iter()
+        .find(|row| row.verb == "get" && row.entity == "drug")
+        .ok_or("drug registry")?
+        .summary
+        .trim();
+    if !description.starts_with(summary) {
+        return Err("CLI help lost the command summary".into());
+    }
+    Ok(())
+}
+fn spot_words(tools: &[Value]) -> Result<(), String> {
     for (name, words) in [
         ("get_drug", ["drug", "medicine"]),
         ("search_adverse_event", ["adverse", "events"]),
@@ -79,20 +97,6 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
         if !words.into_iter().all(|word| description.contains(word)) {
             return Err(format!("{name}: missing search words"));
         }
-    }
-    let help = cli(env, &["help".into(), "get".into(), "drug".into()])?;
-    let description = help
-        .pointer("/result/commands/0/description")
-        .and_then(Value::as_str)
-        .ok_or("drug help")?;
-    let summary = biomcp_types::COMMANDS
-        .iter()
-        .find(|row| row.verb == "get" && row.entity == "drug")
-        .ok_or("drug registry")?
-        .summary
-        .trim();
-    if !description.starts_with(summary) {
-        return Err("CLI help lost the command summary".into());
     }
     Ok(())
 }
