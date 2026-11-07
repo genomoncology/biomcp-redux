@@ -185,7 +185,9 @@ fn same_refusal(server: &Server) -> Result<(), String> {
         json!({"name":"search_diagnostic","arguments":{"source":"gtr","marker":"HIV"}}),
     );
     let (_, reply) = server.request("POST", "/mcp", &call.to_string())?;
-    if reply.pointer("/result/structuredContent/error/code") != Some(&json!("usage.invalid_query"))
+    let error = reply.pointer("/result/structuredContent/error");
+    if error.and_then(|error| error.get("code")) != Some(&json!("usage.arguments"))
+        || error.and_then(|error| error.get("option")) != Some(&json!("--marker"))
     {
         return Err(format!("hidden field changed its refusal: {reply}"));
     }

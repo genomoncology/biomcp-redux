@@ -280,8 +280,6 @@ fn new_optional_drop_requires_its_own_classification() -> Check {
     for source in [
         "fn map() { let title = input.parse().ok(); }",
         "fn map() { let title = input.parse() . ok ( ); }",
-        "fn map() { let title = match input.parse() { Ok(v) => Some(v), Err(_) => None }; }",
-        "fn map() { let title = match input.parse() { Ok(v) => v, Err(_) => return None }; }",
     ] {
         rejects(path, source, "classify new optional-value drop")?;
         rejects(

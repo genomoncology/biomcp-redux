@@ -40,6 +40,14 @@ biodata::wire_enum! {
 fn limit() -> u32 {
     5
 }
+// Sources that answer this field; it stays offered while any of them is on.
+#[cfg(feature = "schema")]
+const MANUFACTURER_SOURCES: [crate::Source; 4] = [
+    crate::Source::WhoIvd,
+    crate::Source::FdaPma,
+    crate::Source::Fda510k,
+    crate::Source::FdaDeviceRecall,
+];
 /// Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -87,7 +95,7 @@ struct SearchFields {
     marker: Option<Text>,
     #[doc = "Manufacturer phrase.\nWHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::WhoIvd, crate::Source::FdaPma, crate::Source::Fda510k, crate::Source::FdaDeviceRecall])))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = MANUFACTURER_SOURCES)))]
     manufacturer: Option<Text>,
     #[doc = "FDA product code.\nExact native FDA device recall product code."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
