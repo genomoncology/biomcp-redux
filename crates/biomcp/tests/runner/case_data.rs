@@ -23,22 +23,6 @@ pub(crate) struct Case {
     pub(crate) steps: Vec<Step>,
 }
 
-impl Case {
-    /// Case configuration with the publisher dataset age limit pinned, so a
-    /// fixture's date never turns old as the calendar moves. Age cases set their own.
-    pub(crate) fn environment_config(&self) -> Value {
-        let mut config = self
-            .config
-            .clone()
-            .unwrap_or_else(|| Value::Object(serde_json::Map::new()));
-        if let Some(map) = config.as_object_mut() {
-            map.entry("source_data_max_age_days")
-                .or_insert_with(|| Value::from(1_000_000));
-        }
-        config
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, serde::Serialize)]
 #[serde(deny_unknown_fields)]
 pub(crate) struct Step {

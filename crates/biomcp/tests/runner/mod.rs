@@ -232,7 +232,7 @@ fn run_case_owned(
         environment = environment.with_replay_owner(owner);
     }
     environment
-        .config(&case.environment_config())
+        .case_config(&case)
         .map_err(|error| error.to_string())?;
     let replay = response_cases::replay(&environment, case.replay.as_deref(), case.cache_acquired)?;
     let mut previous = None;
@@ -264,7 +264,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(configuration::trials());
     trials.extend(bundle_wait::trials());
     trials.extend(bundle_refresh::trials());
-    trials.extend(bundle_pinned::trials());
     trials.extend(bundle_sync::trials());
     trials.push(hgnc_sync::live_trial());
     trials.extend(source_pacing::trials());

@@ -27,8 +27,7 @@ fn check(mode: &str) -> Result<(), String> {
     let step = case.steps.first().ok_or("missing trial case step")?;
     let env = launch::Environment::new().map_err(|e| e.to_string())?;
     case.config.as_ref().ok_or("missing tool mode")?;
-    env.config(&case.environment_config())
-        .map_err(|e| e.to_string())?;
+    env.case_config(&case).map_err(|e| e.to_string())?;
     let parameters = if let Some(call) = &step.mcp_call {
         json!({"name": call.name, "arguments": call.arguments})
     } else {
