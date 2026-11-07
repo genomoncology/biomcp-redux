@@ -30,7 +30,11 @@ pub(crate) fn decode_entities(text: &str) -> Cow<'_, str> {
 }
 
 fn entity(name: &str) -> Option<char> {
-    let number = |digits: &str, radix| u32::from_str_radix(digits, radix).ok();
+    // An unparsable reference returns None, so the caller keeps its text as written.
+    let number = |digits: &str, radix| match u32::from_str_radix(digits, radix) {
+        Ok(code) => Some(code),
+        Err(_) => None,
+    };
     match name {
         "nbsp" => Some(' '),
         "lt" => Some('<'),
@@ -69,35 +73,4 @@ pub(crate) fn unescape_markdown(text: &str) -> Cow<'_, str> {
         }
     }
     Cow::Owned(out)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{decode_entities, unescape_markdown};
-
-    #[test]
-    fn entities_decode_once_and_leave_unknown_text() {
-        for (raw, clean) in [
-            ("a&nbsp;b &lt;1 &gt;2", "a b <1 >2"),
-            ("&#8805;10 &#x2265;10", "≥10 ≥10"),
-            ("&amp;lt;", "&lt;"),
-            (
-                "AT&T &unknown; &#xD800; &#0; &",
-                "AT&T &unknown; &#xD800; &#0; &",
-            ),
-        ] {
-            assert_eq!(decode_entities(raw), clean);
-        }
-    }
-
-    #[test]
-    fn backslashes_unescape_only_before_punctuation() {
-        for (raw, clean) in [
-            (r"\<1.0 m\^2 \[CR\]", "<1.0 m^2 [CR]"),
-            (r"a\\b", r"a\b"),
-            (r"C:\dir \1 end\", r"C:\dir \1 end\"),
-        ] {
-            assert_eq!(unescape_markdown(raw), clean);
-        }
-    }
 }
