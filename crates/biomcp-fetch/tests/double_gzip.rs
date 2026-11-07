@@ -152,13 +152,10 @@ fn outer_layer_cannot_pass_the_body_limit() {
 }
 
 #[test]
-fn inner_layer_read_every_gzip_member() {
+fn inner_layer_reads_every_gzip_member() {
     let mut inner = gzip(br#"{"answer":"#);
     inner.extend(gzip(br#""ok"}"#));
-    assert_eq!(
-        read(true, gzip(&inner), 1024).0.ok().as_deref(),
-        Some("ok")
-    );
+    assert_eq!(read(true, gzip(&inner), 1024).0.ok().as_deref(), Some("ok"));
 }
 
 #[test]
