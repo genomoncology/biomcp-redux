@@ -104,6 +104,10 @@ pub(super) fn name_records(
 fn product(component: &str) -> bool {
     matches!(component, "ndc" | "openfda")
 }
+/// Whether a record states a drug of its own, not only products.
+pub(super) fn has_drug_rows(rows: &[(&str, Component)]) -> bool {
+    rows.iter().any(|(component, _)| !product(component))
+}
 /// The names of the drug itself. A product row can be a combination or a store brand, and even
 /// its generic name cannot show one ingredient, so it speaks only when no drug row exists.
 fn drug_names(rows: &[(&str, Component)]) -> Vec<String> {

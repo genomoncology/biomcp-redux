@@ -57,14 +57,19 @@ pub fn search(
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
     search_fields(leg, query, limit, offset, SEARCH_FIELDS)
 }
-/// Search the same source with its complete native brand and generic name fields for exact resolution.
+/// Search the same source with its complete native brand and generic name fields for exact
+/// resolution. Each item comes with whether its record has drug rows, not only product rows.
 pub fn search_names(
     leg: &Leg<'_>,
     query: &str,
     limit: u32,
     offset: u32,
-) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
-    search_fields(leg, query, limit, offset, NAME_READ_FIELDS)
+) -> Result<(crate::Mapped<DrugPage>, u32, Vec<bool>), RequestError> {
+    let reply = search_reply(leg, query, limit, offset, NAME_READ_FIELDS)?;
+    let received = reply.hits.len() as u32;
+    map::page_records(reply, leg, query)
+        .map(|(page, drug)| (page, received, drug))
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }
 /// One source row stating a name, with the structure that row describes.
 #[derive(Debug)]
@@ -122,8 +127,21 @@ fn search_fields(
     offset: u32,
     requested: &str,
 ) -> Result<(crate::Mapped<DrugPage>, u32), RequestError> {
+    let reply = search_reply(leg, query, limit, offset, requested)?;
+    let received = reply.hits.len() as u32;
+    map::page(reply, leg, query)
+        .map(|page| (page, received))
+        .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
+}
+fn search_reply(
+    leg: &Leg<'_>,
+    query: &str,
+    limit: u32,
+    offset: u32,
+    requested: &str,
+) -> Result<raw::Page, RequestError> {
     let fields = crate::drug_sources::components::allowed_fields(leg, requested);
-    let reply = leg
+    Ok(leg
         .call(
             &SEARCH,
             biomcp_fetch::Input::Params(&[
@@ -136,11 +154,7 @@ fn search_fields(
                 .check(&|_| Ok(()))
                 .cache_if(&raw::Page::identities_admitted),
         )?
-        .value;
-    let received = reply.hits.len() as u32;
-    map::page(reply, leg, query)
-        .map(|page| (page, received))
-        .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
+        .value)
 }
 /// Retrieve an exact native document and verify the returned identity, never searching by name.
 pub fn get(leg: &Leg<'_>, id: &str) -> Result<crate::Mapped<DrugDocument>, RequestError> {
