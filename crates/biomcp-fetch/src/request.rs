@@ -311,8 +311,12 @@ impl Leg<'_> {
         let mut response = if prepared.publisher {
             self.publisher_call(&prepared.url, codec.name())?
         } else {
-            self.wire_call(prepared, codec.name(), &[], limit)
-                .map_err(Failure::Transport)?
+            let max_body = codec.limit.unwrap_or(self.fetch.config.max_body);
+            match limit {
+                Some(limit) => self.hedged_call(prepared, codec.name(), limit, max_body),
+                None => self.wire_call(prepared, codec.name(), &[]),
+            }
+            .map_err(Failure::Transport)?
         };
         let status = response.status().as_u16();
         let content_type = response
