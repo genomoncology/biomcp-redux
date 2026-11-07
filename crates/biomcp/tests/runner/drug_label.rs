@@ -26,26 +26,25 @@ fn bare_label() -> Check {
     let (env, _stub) = get_setup(&id, record(&id))?;
     let mut args = get_args(&id)?;
     args.push("label".into());
-    let cli = invoke(&env, args.clone(), 2)?;
-    let mcp = super::mcp::call_with_globals(&env, &args, true, &[])?;
+    let cli = invoke(&env, args.clone(), 0)?;
+    let mcp = super::mcp::call_with_globals(&env, &args, false, &[])?;
     for value in [&cli, &mcp] {
-        let listed = value
-            .pointer("/error/valid_values")
+        let body = value.pointer("/data/body").unwrap_or(value);
+        let listed = body
+            .pointer("/sections")
             .and_then(Value::as_array)
-            .ok_or("no valid_values")?;
+            .ok_or_else(|| format!("no sections: {value}"))?;
         if !listed.contains(&json!("boxed_warning"))
             || !listed.contains(&json!("indications_and_usage"))
         {
             return Err(format!("section names missing: {value}"));
         }
-        let message = value
-            .pointer("/error/message")
+        let hint = body
+            .pointer("/hint")
             .and_then(Value::as_str)
-            .ok_or("no message")?;
-        if !message.contains("--label-section NAME")
-            || !message.contains("biomcp get drug imatinib label --label-section ")
-        {
-            return Err(format!("message lacks the option or example: {message}"));
+            .ok_or("no hint")?;
+        if !hint.contains("label_section") || !hint.contains("--label-section") {
+            return Err(format!("hint lacks the option: {hint}"));
         }
     }
     Ok(())

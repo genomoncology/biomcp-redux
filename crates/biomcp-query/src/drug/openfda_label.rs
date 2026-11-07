@@ -182,7 +182,23 @@ fn select(
         out.body = card.with_query(query.clone());
         return Ok(());
     }
-    let heading = query.label_section().map_or("", |h| h.as_str());
+    let Some(heading) = query.label_section().map(|h| h.as_str()) else {
+        out.body = DrugLabel {
+            identity: record.header()?,
+            label: Section::Empty {
+                source: SOURCE,
+                record: None,
+            },
+            sections: headings(record)?,
+            hint: Some(
+                "pass one of sections as label_section (--label-section on the command line) to read its text"
+                    .parse()
+                    .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
+            ),
+        }
+        .with_query(query.clone());
+        return Ok(());
+    };
     if !source::HEADINGS.contains(&heading) {
         out.body = biomcp_types::ReplyData::Usage(invalid_heading(record)?);
         return Ok(());
@@ -223,6 +239,8 @@ fn select(
     out.body = (DrugLabel {
         identity: record.header()?,
         label,
+        sections: Box::default(),
+        hint: None,
     })
     .with_query(query.clone());
     Ok(())
@@ -238,18 +256,22 @@ fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
     }
 }
 
+fn headings(record: &source::Record) -> Result<Box<[biodata::Text]>, RequestError> {
+    source::HEADINGS
+        .iter()
+        .filter(|h| record.has_heading(h))
+        .map(|h| h.parse())
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))
+        .map(Into::into)
+}
+
 fn invalid_heading(record: &source::Record) -> Result<biomcp_types::UsageError, RequestError> {
     Ok(biomcp_types::UsageError::SourceSelector {
         source: SOURCE,
         message: biomcp_types::ErrorMessage::SourceSelector,
         option: "--label-section".into(),
-        valid_values: source::HEADINGS
-            .iter()
-            .filter(|h| record.has_heading(h))
-            .map(|h| h.parse())
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?
-            .into(),
+        valid_values: headings(record)?,
         next: vec![biomcp_types::Step {
             kind: StepKind::Configure,
             args: ["help", "get", "drug"].map(Into::into).into(),
