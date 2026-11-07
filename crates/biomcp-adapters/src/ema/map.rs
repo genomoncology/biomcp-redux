@@ -1,6 +1,31 @@
 use super::raw;
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent, DrugIdentityLevel, Text};
-use biomcp_types::{DrugCard, DrugHeader, DrugSection, DrugSource};
+use biomcp_types::{DateRoleLabel, DrugCard, DrugHeader, DrugSection, DrugSource};
+/// EMA's own words for its medicine date keys, verbatim from "Download website data in JSON data
+/// format", section "Medicines through centralised procedure - data included":
+/// <https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format>.
+/// The page names `opinion_adopted_date` only as an example of "dates related to procedural steps"
+/// and publishes no description of any other date key, so those keep their native name only.
+fn date_label(role: &str) -> Option<Text> {
+    Some(match role {
+        "european_commission_decision_date" => biodata::text!("European Commission decision date"),
+        "opinion_adopted_date" => biodata::text!("dates related to procedural steps"),
+        "first_published_date" => biodata::text!("first published date"),
+        "last_updated_date" => biodata::text!("last updated date"),
+        _ => return None,
+    })
+}
+/// Each date role in the event, labelled only with EMA's published words.
+pub(super) fn date_roles(event: &biodata::AuthorizationEvent) -> Box<[DateRoleLabel]> {
+    event
+        .dates
+        .iter()
+        .map(|date| DateRoleLabel {
+            role: date.role.clone(),
+            label: date_label(date.role.as_str()),
+        })
+        .collect()
+}
 pub(super) fn header(row: &raw::Medicine, problems: &mut crate::mapped::Problems) -> DrugHeader {
     problems.required(
         "_bundle_meta.timestamp",
