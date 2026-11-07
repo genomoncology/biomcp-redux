@@ -113,6 +113,7 @@ pub(super) fn card(
     let mut card = DrugCard {
         header: header(&id, &rows)?,
         alternate_names: Box::default(),
+        official_names: Box::default(),
         cross_references: Box::default(),
         parents: Box::default(),
         products: Box::default(),
@@ -125,10 +126,12 @@ pub(super) fn card(
     };
     let mut problems = mapped.list;
     let mut aliases = Vec::new();
+    let mut official = Vec::new();
     let mut refs = Vec::new();
     let mut parents = Vec::new();
     for (component, c) in rows {
         aliases.extend(aliases_for(&c));
+        official.extend(official_for(&c));
         refs.extend(references_for(&id, component, &c, &mut problems));
         refs.extend(native_xrefs(&id, component, &c, &mut problems));
         parents.extend(parents_for(&id, component, &c, &mut problems));
@@ -141,6 +144,14 @@ pub(super) fn card(
         }
     }
     card.alternate_names = names.into();
+    let mut names = Vec::new();
+    for name in official {
+        let name = crate::mapped::source_text(&name)?;
+        if !names.contains(&name) {
+            names.push(name);
+        }
+    }
+    card.official_names = names.into();
     let mut distinct = Vec::new();
     for reference in refs.into_iter().chain(parents) {
         if !distinct.contains(&reference) {
@@ -160,6 +171,18 @@ pub(super) fn card(
     })
 }
 
+/// The synonyms the source types as official.
+pub(super) fn official_for(c: &Component) -> Vec<String> {
+    c.molecule_synonyms
+        .as_ref()
+        .into_iter()
+        .flatten()
+        .filter(|s| crate::drug_sources::official_name(s.syn_type.as_deref()))
+        .filter_map(|s| s.molecule_synonym.as_deref())
+        .flat_map(super::names::split)
+        .map(str::to_owned)
+        .collect()
+}
 pub(super) fn aliases_for(c: &Component) -> Vec<String> {
     let mut aliases = Vec::new();
     aliases.extend(
