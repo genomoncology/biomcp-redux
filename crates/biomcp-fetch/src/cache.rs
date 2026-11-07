@@ -110,29 +110,18 @@ impl Cache {
             }
         }
         let mut connection = Connection::open(path).map_err(|error| db_error(error))?;
-        // One deadline covers every step. Each step is idempotent and ends
-        // with its snapshot closed, so a refused attempt can be retried.
+        // One deadline covers the lock and every step. Setup is serialized across
+        // processes, so waiting openers never hold up the one doing setup.
         let deadline = Deadline::start(OPEN_WAIT, None);
-        retry_busy("owners", &connection, deadline, |connection| {
+        let _setup = setup_lock(path, deadline)?;
+        step("owners", &mut connection, deadline, |connection| {
             check_owners(connection, owners)
         })?;
-        let (mut retries, started) = (0, std::time::Instant::now());
-        loop {
-            sql_deadline(&connection, deadline)?;
-            match Self::initialize(&mut connection) {
-                Err(CacheError::Busy) if !deadline.expired() => {
-                    retries += 1;
-                    pause(deadline);
-                }
-                Err(CacheError::Busy) => {
-                    crate::observe::record_open_failure("initialize", retries, started);
-                    return Err(CacheError::Busy);
-                }
-                result => break result?,
-            }
-        }
+        step("initialize", &mut connection, deadline, Self::initialize)?;
         // Ownership is validated before changing the file's journal mode.
-        retry_busy("wal", &connection, deadline, enable_wal)?;
+        step("wal", &mut connection, deadline, |connection| {
+            enable_wal(connection)
+        })?;
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
@@ -335,34 +324,42 @@ impl Cache {
     }
 }
 
-fn pause(deadline: Deadline<'_>) {
-    std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
-}
-
-// SQLite may refuse a lock upgrade, or a read while another opener switches the
-// journal mode, without waiting. Finalize each attempt before pausing, so
-// another opener can finish; every attempt shares the original deadline.
-fn retry_busy(
-    name: &str,
-    connection: &Connection,
-    deadline: Deadline<'_>,
-    mut step: impl FnMut(&Connection) -> Result<(), CacheError>,
-) -> Result<(), CacheError> {
-    let (mut retries, started) = (0, std::time::Instant::now());
+// Hold the sibling lock only while the file is set up. A file system without
+// locks proceeds unlocked, and SQLite's own wait then applies.
+fn setup_lock(path: &Path, deadline: Deadline<'_>) -> Result<Option<std::fs::File>, CacheError> {
+    let mut options = std::fs::OpenOptions::new();
+    options.read(true).write(true).create(true);
+    #[cfg(unix)]
+    std::os::unix::fs::OpenOptionsExt::mode(&mut options, 0o600);
+    let Ok(file) = options.open(path.with_extension("open-lock")) else {
+        return Ok(None);
+    };
     loop {
-        sql_deadline(connection, deadline)?;
-        match step(connection) {
-            Err(CacheError::Busy) if !deadline.expired() => {
-                retries += 1;
-                pause(deadline);
+        match file.try_lock() {
+            Ok(()) => return Ok(Some(file)),
+            Err(std::fs::TryLockError::WouldBlock) if !deadline.expired() => {
+                std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
             }
-            Err(CacheError::Busy) => {
-                crate::observe::record_open_failure(name, retries, started);
-                return Err(CacheError::Busy);
-            }
-            result => return result,
+            Err(std::fs::TryLockError::WouldBlock) => return Err(CacheError::Busy),
+            Err(std::fs::TryLockError::Error(_)) => return Ok(None),
         }
     }
+}
+
+// Run one open step under the shared deadline; a Busy result is noted for proof runs.
+fn step(
+    name: &str,
+    connection: &mut Connection,
+    deadline: Deadline<'_>,
+    operation: impl FnOnce(&mut Connection) -> Result<(), CacheError>,
+) -> Result<(), CacheError> {
+    let started = std::time::Instant::now();
+    sql_deadline(connection, deadline)?;
+    let result = operation(connection);
+    if result == Err(CacheError::Busy) {
+        crate::observe::record_open_failure(name, 0, started);
+    }
+    result
 }
 
 fn enable_wal(connection: &Connection) -> Result<(), CacheError> {
