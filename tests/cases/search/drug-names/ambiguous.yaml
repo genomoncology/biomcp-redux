@@ -106,6 +106,25 @@
           "Refused therapy"
         ]
       }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "Canonical therapy",
+        "--source",
+        "pubmed,europepmc"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/notices/0/names": [
+          "Canonical therapy",
+          "EX-66",
+          "Example brand"
+        ],
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record KTUFNOKKBVMGRW-SFHVURJKSA-N.",
+        "/page/total": 3
+      }
     }
   ]
 }
