@@ -64,6 +64,7 @@ singleton! {
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
  SourceSelector => "choose one of the source selector values",
+ OneSection => "choose one section per call from valid_values; call again for another section",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  McpResultTooBroad => "MCP tool result exceeds the character cap in error.count; narrow \
@@ -71,6 +72,8 @@ singleton! {
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+ LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
+ --label-section indications_and_usage",
  McpSync => "sync is unavailable over MCP; run it from the command line",
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
@@ -386,15 +389,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.message = ErrorMessage::TooManyPmids;
                 out.error.count = Some(count);
             }
-            UsageError::SourceSelector {
-                source,
-                option,
-                valid_values,
-                next,
-            } => {
-                out.error.source_selector(source, option, valid_values);
-                out.next = next;
-            }
+            selector @ UsageError::SourceSelector { .. } => out.source_selector(selector),
             UsageError::PoolMismatch { restart } => {
                 out.error.code = ErrorCode::PoolMismatch;
                 out.error.message = ErrorMessage::PoolMismatch;
@@ -406,6 +401,20 @@ impl From<crate::UsageError> for ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    fn source_selector(&mut self, usage: crate::UsageError) {
+        if let crate::UsageError::SourceSelector {
+            source,
+            message,
+            option,
+            valid_values,
+            next,
+        } = usage
+        {
+            self.error.source_selector(source, option, valid_values);
+            self.error.message = message;
+            self.next = next;
+        }
+    }
     fn article_part_range(&mut self, input: crate::ArticleInput, last: u32) {
         self.error.option = Some("--part".into());
         self.error.message = ErrorMessage::ArgumentGuidance;
@@ -491,7 +500,6 @@ impl ErrorDetail {
         self.source = Some(source);
         self.option = Some(option);
         self.valid_values = Some(values);
-        self.message = ErrorMessage::SourceSelector;
     }
     fn filter(&mut self, source: crate::Source, option: &str) {
         self.source = Some(source);

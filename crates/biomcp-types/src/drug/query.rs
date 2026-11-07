@@ -52,7 +52,7 @@ struct GetFields {
     #[serde(default, deserialize_with = "selected_source")]
     #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
     source: Option<DrugSource>,
-    /// Explicit named disclosures; empty means identity only.
+    /// One named disclosure per call for every source; empty means identity only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
@@ -152,7 +152,12 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
         ]));
     }
     if fields.section.contains(&DrugSection::Label) != fields.label_section.is_some() {
-        return Err(QueryInvalid::new(&["label_section", "section"]));
+        let cause = QueryInvalid::new(&["label_section", "section"]);
+        return Err(if fields.label_section.is_none() {
+            cause.with_message(crate::ErrorMessage::LabelSectionMissing)
+        } else {
+            cause
+        });
     }
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));
