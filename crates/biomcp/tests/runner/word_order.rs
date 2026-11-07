@@ -155,7 +155,9 @@ fn check() -> Check {
     }
     let (code, reply) = cli(&env, &["unknownword", "get", "X"])?;
     if code != Some(2) || reply.pointer("/error/code") != Some(&json!("usage.unknown_command")) {
-        return Err(format!("an unknown entity-first word must stay unknown: {reply}"));
+        return Err(format!(
+            "an unknown entity-first word must stay unknown: {reply}"
+        ));
     }
     let (_, reply) = cli(&env, &["help", "variant", "get"])?;
     names_command(&reply, "get", "variant")?;
