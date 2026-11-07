@@ -38,3 +38,18 @@ A fresh independent reviewer accepted the hosted evidence after checking all 132
 ## Amendment, 2026-11-06
 
 The 12 staged-artifact findings recorded in this ticket's earlier progress as unclassified were classified (m26534: one harmless compiled pairing of the public AlphaGenome address and a neighboring message, no credential) and fixed by 0665. Load tests (0641, 0670) and the follow-ups 0649 and 0676 now come before this rehearsal, per `decisions/2026-11-05-release-finds-no-bugs.md`. Publish commands that stay unproved until the tag are named by 0697.
+
+## Publish commands unproved until the tag
+
+From 0697. The rehearsal skips every step below, so each first runs at `v1.0.0`. `twine check` and the installer byte comparison in the `staged-payload` job are the only proofs of these payloads before the tag. No TestPyPI or scratch registry stands in.
+
+| Job | Command that stays unproved |
+| --- | --- |
+| `publish-github` | `release/publication.py github`: `gh release create` |
+| `publish-ghcr` | GHCR login, `release/publication.py ghcr`: `docker push` and `docker manifest`, then the container attestation |
+| `publish-pypi` | `release/publication.py wheels`, then `pypa/gh-action-pypi-publish` with Trusted Publishing and attestations |
+| `publish-homebrew` | `release/publication.py homebrew`: the tap commit and push |
+| `publish-installer` | `release/publication.py installer`: the `gh-pages` commit and push, and the Pages build request |
+| `publish-registry` | `release/toolchain.py install-mcp-publisher`, then `release/publication.py registry`: `mcp-publisher login github-oidc` and `publish` |
+| `post-publish` | `release/published.py` for `pypi`, `ghcr`, `homebrew`, `installer` and `registry` against the public channels |
+| `publish-latest` | `release/publication.py promote`: the latest image and `gh release edit --latest` |

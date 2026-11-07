@@ -182,6 +182,8 @@ with patch('io.open', windows_open):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             notices = (output / 'THIRD-PARTY-NOTICES.txt').read_bytes()
             self.assertTrue(notices.startswith(b'Generated third-party notices\n'))
+            self.assertIn(b'crates/biomcp-fetch/proto/alphagenome', notices)
+            self.assertIn((ROOT / 'crates/biomcp-fetch/proto/LICENSE').read_bytes(), notices)
             with zipfile.ZipFile(next(output.glob('*.whl'))) as wheel:
                 self.assertEqual(wheel.read('biomcp_cli-1.0.0.dist-info/THIRD-PARTY-NOTICES.txt'), notices)
 
