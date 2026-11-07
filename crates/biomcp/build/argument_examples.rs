@@ -12,8 +12,11 @@ pub(super) fn append(
 ) -> Result<(), Box<dyn Error>> {
     let mut runs = Vec::new();
     collect(directory, directory, &mut runs)?;
-    // Only a command's own case folder documents it; cross-cutting folders hold test controls.
-    for (_, run) in runs.into_iter().filter(|(own, _)| *own) {
+    // A command's own case folder documents it first. Folders that name no command, such as
+    // search/ or readme/, hold cross-cutting test controls and never supply help examples.
+    runs.retain(|(rank, _)| *rank < 2);
+    runs.sort_by_key(|(rank, _)| *rank);
+    for (_, run) in runs {
         let command = run.get(..2).ok_or("command path missing")?.join(" ");
         let retained = examples.entry(command).or_default();
         let known = retained
@@ -30,7 +33,7 @@ pub(super) fn append(
 fn collect(
     root: &Path,
     directory: &Path,
-    runs: &mut Vec<(bool, Vec<String>)>,
+    runs: &mut Vec<(u8, Vec<String>)>,
 ) -> Result<(), Box<dyn Error>> {
     let mut paths = fs::read_dir(directory)?
         .map(|entry| entry.map(|entry| entry.path()))
@@ -81,14 +84,32 @@ fn collect(
                 .ok()
                 .and_then(|path| path.components().next())
                 .map(|part| part.as_os_str().to_string_lossy().into_owned());
-            let own = run.get(..2).is_some_and(|path| {
-                path.iter()
-                    .any(|word| folder.as_deref() == Some(word.as_str()))
-            });
-            runs.push((own, run));
+            runs.push((rank(folder.as_deref(), &run), run));
         }
     }
     Ok(())
+}
+/// A folder names a command by its entity, or by its verb when the verb is not get or search.
+fn names(folder: &str, verb: &str, entity: &str) -> bool {
+    folder == entity || (!matches!(verb, "get" | "search") && folder == verb)
+}
+/// 0 for the command's own folder, 1 for another command's folder, 2 for anything else.
+fn rank(folder: Option<&str>, run: &[String]) -> u8 {
+    let Some(folder) = folder else { return 2 };
+    let (verb, entity) = (
+        run.first().map_or("", String::as_str),
+        run.get(1).map_or("", String::as_str),
+    );
+    if names(folder, verb, entity) {
+        0
+    } else if biomcp_types::COMMANDS
+        .iter()
+        .any(|command| names(folder, command.verb, command.entity))
+    {
+        1
+    } else {
+        2
+    }
 }
 fn flags(run: &[String]) -> impl Iterator<Item = &str> {
     run.iter()
