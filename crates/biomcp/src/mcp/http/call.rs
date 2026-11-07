@@ -243,8 +243,7 @@ mod tests {
     }
     #[test]
     fn call_diagnostic_keeps_only_safe_fields() {
-        let params =
-            json!({"name":"get_gene", "arguments":{"id":"private-query", "key":"private-key"}});
+        let params = json!({"name":"gene", "arguments":{"action":"get","get":{"id":"private-query", "key":"private-key"}}});
         let reply = json!({"result":{"structuredContent":{
             "status":"partial", "query":"private-query", "sources":[
                 {"source":"mygene", "state":"failed", "term":"private-key"},
@@ -255,7 +254,7 @@ mod tests {
             super::super::logging::line(&params, Duration::from_millis(7), 200, Some(&reply));
         assert_eq!(
             line,
-            json!({"event":"mcp_call", "tool":"get_gene", "duration_ms":7, "status":"partial", "failed_sources":["mygene"]})
+            json!({"event":"mcp_call", "tool":"gene", "duration_ms":7, "status":"partial", "failed_sources":["mygene"]})
         );
         let envelope = &reply["result"]["structuredContent"];
         for content in [
