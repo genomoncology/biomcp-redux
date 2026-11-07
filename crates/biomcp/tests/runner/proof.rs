@@ -8,6 +8,7 @@ tool_only! { use std::env; }
 tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
 tool_only! { #[path = "native_evidence_proof.rs"] mod native_evidence_proof; }
 tool_only! { #[path = "markdown_pair_proof.rs"] mod markdown_pair_proof; }
+tool_only! { #[path = "proof_zero_selection.rs"] mod zero_selection; }
 
 tool_only! { type Check = Result<(), String>; }
 
@@ -241,42 +242,7 @@ fn selection() -> Check {
 
 tool_only! {
 fn empty_selection() -> Check {
-    let executable = env::current_exe().map_err(|error| error.to_string())?;
-    for options in [
-        vec!["--proofs", "no-such-runner-selection-7e41", "--exact"],
-        vec!["--proofs", "schema-discovery/selected.yaml", "--exact"],
-        vec!["--proofs", "--skip", ""],
-    ] {
-        let output = Environment::new()
-            .map_err(|error| error.to_string())?
-            .command(&executable, &options.iter().map(|value| (*value).to_owned()).collect::<Vec<_>>())
-            .output()
-            .map_err(|error| error.to_string())?;
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        if output.status.success() || !stderr.contains("--cases") || stderr.contains("Some(") {
-            return Err(format!("empty proof selection must fail and suggest --cases: {stderr}; {}",
-                String::from_utf8_lossy(&output.stdout)));
-        }
-    }
-    let output = Environment::new()
-        .map_err(|error| error.to_string())?
-        .command(&executable, &["--proofs".into(), "no-such-runner-selection-7e41".into(), "--list".into()])
-        .output()
-        .map_err(|error| error.to_string())?;
-    if !output.status.success() {
-        return Err("empty filtered proof listing must remain successful".into());
-    }
-    for (args, empty) in [
-        (vec!["cases", "--skip", "selected.yaml"], true),
-        (vec!["cases", "--ignored"], true),
-        (vec!["cases", "--skip", "selected.yaml", "--list"], false),
-    ] {
-        let arguments = libtest_mimic::Arguments::from_iter(args.iter().copied());
-        let trials = [libtest_mimic::Trial::test("selected.yaml", || Ok(()))];
-        if super::case_main::selects_nothing(&arguments, &trials) != empty {
-            return Err(format!("no-filter selection {args:?} must report empty={empty}"));
-        }
-    }
+    zero_selection::check()?;
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     // Discovery rejects empty directories before applying any name filter.
     if invoke(directory.path(), &[])?.status.success() {
