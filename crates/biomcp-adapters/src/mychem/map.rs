@@ -63,15 +63,8 @@ fn header(id: &str, rows: &[(&str, Component)]) -> Result<DrugHeader, BadReply> 
         url: Some(text(&format!("https://mychem.info/v1/chem/{id}"))?),
     })
 }
-pub(super) fn page(
-    page: Page,
-    leg: &Leg<'_>,
-    query: &str,
-) -> Result<crate::Mapped<DrugPage>, BadReply> {
-    page_records(page, leg, query).map(|(page, _)| page)
-}
 /// One page, with whether each item's record has drug rows of its own, not only product rows.
-pub(super) fn page_records(
+pub(super) fn page(
     page: Page,
     leg: &Leg<'_>,
     query: &str,

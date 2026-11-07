@@ -67,7 +67,7 @@ pub fn search_names(
 ) -> Result<(crate::Mapped<DrugPage>, u32, Vec<bool>), RequestError> {
     let reply = search_reply(leg, query, limit, offset, NAME_READ_FIELDS)?;
     let received = reply.hits.len() as u32;
-    map::page_records(reply, leg, query)
+    map::page(reply, leg, query)
         .map(|(page, drug)| (page, received, drug))
         .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }
@@ -130,7 +130,7 @@ fn search_fields(
     let reply = search_reply(leg, query, limit, offset, requested)?;
     let received = reply.hits.len() as u32;
     map::page(reply, leg, query)
-        .map(|page| (page, received))
+        .map(|(page, _)| (page, received))
         .map_err(|_| biomcp_fetch::bad_reply(Source::Mychem, None))
 }
 fn search_reply(
