@@ -389,17 +389,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.message = ErrorMessage::TooManyPmids;
                 out.error.count = Some(count);
             }
-            UsageError::SourceSelector {
-                source,
-                message,
-                option,
-                valid_values,
-                next,
-            } => {
-                out.error.source_selector(source, option, valid_values);
-                out.error.message = message;
-                out.next = next;
-            }
+            selector @ UsageError::SourceSelector { .. } => out.source_selector(selector),
             UsageError::PoolMismatch { restart } => {
                 out.error.code = ErrorCode::PoolMismatch;
                 out.error.message = ErrorMessage::PoolMismatch;
@@ -411,6 +401,20 @@ impl From<crate::UsageError> for ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    fn source_selector(&mut self, usage: crate::UsageError) {
+        if let crate::UsageError::SourceSelector {
+            source,
+            message,
+            option,
+            valid_values,
+            next,
+        } = usage
+        {
+            self.error.source_selector(source, option, valid_values);
+            self.error.message = message;
+            self.next = next;
+        }
+    }
     fn article_part_range(&mut self, input: crate::ArticleInput, last: u32) {
         self.error.option = Some("--part".into());
         self.error.message = ErrorMessage::ArgumentGuidance;
