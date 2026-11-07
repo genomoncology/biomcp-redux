@@ -47,14 +47,13 @@ fn numeric(name: &str) -> Option<char> {
         Some(hex) => (hex, 16),
         None => (name.strip_prefix('#')?, 10),
     };
-    // `from_str_radix` also takes a leading sign; a reference is digits alone.
-    if digits.is_empty() || !digits.chars().all(|ch| ch.is_digit(radix)) {
+    // A reference is digits alone, with no sign; one too large for a code point stays as written.
+    if digits.is_empty() {
         return None;
     }
-    let code = match u32::from_str_radix(digits, radix) {
-        Ok(code) => code,
-        Err(_) => return None,
-    };
+    let code = digits.chars().try_fold(0u32, |code, ch| {
+        code.checked_mul(radix)?.checked_add(ch.to_digit(radix)?)
+    })?;
     char::from_u32(code).filter(|ch| *ch != '\0')
 }
 
