@@ -5,6 +5,7 @@ mod map;
 mod raw;
 mod receive;
 mod release;
+mod rows;
 pub use release::release;
 mod sections;
 use biodata::{CellLineSourceId, CellosaurusAccession};
@@ -173,39 +174,7 @@ fn candidates(
         return Err(InputError::Serialization.into());
     };
     let received = data.rows.len() as u32;
-    let mut problems = Vec::new();
-    let mut items = Vec::new();
-    let mut refusals = crate::Refusal::None;
-    for mut row in data.rows {
-        problems.append(&mut row.problems);
-        if row.accession().is_err() {
-            refusals = crate::Refusal::Refused;
-            crate::mapped::push_problem(&mut problems, Source::Cellosaurus, None, "accession-list");
-            continue;
-        }
-        if row.name().is_none() {
-            crate::mapped::push_problem(
-                &mut problems,
-                Source::Cellosaurus,
-                crate::mapped::record(
-                    row.accession()
-                        .map_err(|_| biomcp_fetch::bad_reply(Source::Cellosaurus, None))?,
-                ),
-                "name-list",
-            );
-        }
-        let variations = shown
-            .as_ref()
-            .map(|terms| sections::matching(&mut row, terms))
-            .transpose()?;
-        let mut header = map::header(row)?;
-        if let Some(mapped) = variations {
-            refusals.include(mapped.refusals);
-            problems.extend(mapped.problems);
-            header.variations = Some(mapped.value);
-        }
-        items.push(header);
-    }
+    let (items, problems, refusals) = rows::headers(data.rows, shown)?;
     Ok(Page {
         refusals,
         items,

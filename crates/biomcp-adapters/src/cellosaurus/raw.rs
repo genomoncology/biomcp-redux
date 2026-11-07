@@ -64,7 +64,7 @@ pub(super) struct Variation {
 #[serde(untagged)]
 pub(super) enum VariationSource {
     Named(NativeText),
-    Record(Provenance),
+    Record(Box<Provenance>),
 }
 impl From<VariationSource> for Provenance {
     fn from(row: VariationSource) -> Self {
@@ -75,7 +75,7 @@ impl From<VariationSource> for Provenance {
                 value: Some(crate::raw::Field::Value(value)),
                 xref: None,
             },
-            VariationSource::Record(row) => row,
+            VariationSource::Record(row) => *row,
         }
     }
 }
