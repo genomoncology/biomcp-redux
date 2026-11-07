@@ -63,7 +63,7 @@ struct GetFields {
     /// Named section continuation, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
-    #[doc = "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields. A label read without it lists the section names to pass here."]
+    #[doc = "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields. Omit it to list names."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     label_section: Option<Text>,
     #[doc = "FDA product number.\nExplicit native application product number, only for approvals."]
