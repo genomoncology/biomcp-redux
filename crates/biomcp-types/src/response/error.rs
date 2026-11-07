@@ -64,6 +64,7 @@ singleton! {
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
  SourceSelector => "choose one of the source selector values",
+ OneSection => "choose one section per call from valid_values; call again for another section",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  McpResultTooBroad => "MCP tool result exceeds the character cap in error.count; narrow \
@@ -389,11 +390,13 @@ impl From<crate::UsageError> for ErrorEnvelope {
             }
             UsageError::SourceSelector {
                 source,
+                message,
                 option,
                 valid_values,
                 next,
             } => {
                 out.error.source_selector(source, option, valid_values);
+                out.error.message = message;
                 out.next = next;
             }
             UsageError::PoolMismatch { restart } => {
@@ -492,7 +495,6 @@ impl ErrorDetail {
         self.source = Some(source);
         self.option = Some(option);
         self.valid_values = Some(values);
-        self.message = ErrorMessage::SourceSelector;
     }
     fn filter(&mut self, source: crate::Source, option: &str) {
         self.source = Some(source);
