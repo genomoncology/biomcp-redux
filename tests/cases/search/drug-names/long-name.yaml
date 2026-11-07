@@ -1,0 +1,40 @@
+{
+  "feature": "drug-name-search",
+  "live_check": "synthetic names in real source reply shapes; no clinical or live completeness claim",
+  "story": "A name past the words ClinicalTrials.gov accepts stays out of the trial name group and is counted, whichever name was typed.",
+  "replay": "search/drug-names",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "Long therapy"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/notices/0/names": [
+          "LT-5",
+          "Long therapy"
+        ],
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names too long for the provider to search.",
+        "/page/total": 2
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "LT-5"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/notices/0/names": [
+          "LT-5",
+          "Long therapy"
+        ],
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names too long for the provider to search.",
+        "/page/total": 2
+      }
+    }
+  ]
+}

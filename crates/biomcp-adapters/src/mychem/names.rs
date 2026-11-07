@@ -87,6 +87,7 @@ pub(super) fn name_records(
                     .iter()
                     .filter_map(|name| problems.text("name", Some(name.as_str())))
                     .collect(),
+                preferred: preferred(&rows),
                 id,
             });
         }
@@ -96,6 +97,20 @@ pub(super) fn name_records(
         value: records,
         problems: problems.list,
     })
+}
+/// The main name each source gives the row.
+fn preferred(rows: &[(&str, Component)]) -> Vec<String> {
+    rows.iter()
+        .flat_map(|(_, c)| {
+            [
+                c.name.as_deref(),
+                c.pref_name.as_deref(),
+                c.display_name.as_deref(),
+            ]
+        })
+        .flatten()
+        .map(str::to_owned)
+        .collect()
 }
 /// Every name the rows state, with source values that join several names split apart.
 fn stated(rows: &[(&str, Component)]) -> Vec<String> {

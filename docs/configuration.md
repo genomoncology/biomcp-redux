@@ -84,7 +84,7 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 `drug_approvals_limit` sets the number of Drugs@FDA submissions returned by the approvals section, from 1 through 50. Omit it to use the [built-in submission page size](../crates/biomcp-types/src/drug/mod.rs). An explicit `--section-limit` overrides this setting. Continue with the returned page action when more submissions remain.
 
-`drug_search_name_limit` sets the most names one trial or article search sends for a drug, as a positive whole number. Omit it to use the [built-in limit](../crates/biomcp-query/src/context.rs). A capped search keeps the typed name and the shortest other names, and its reply says how many it left out.
+`drug_search_name_limit` sets the most names one trial or article search sends for a drug, as a positive whole number. Omit it to use the [built-in limit](../crates/biomcp-query/src/context.rs). A capped search keeps the typed name, the record's preferred name and the shortest other names, and its reply says how many it left out. ClinicalTrials.gov refuses a name of more than 12 words, so a trial search also leaves those out and counts them.
 
 ## MCP reply form
 
