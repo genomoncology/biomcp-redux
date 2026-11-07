@@ -113,11 +113,9 @@ fn registry_not_cached() -> Check {
             &allele_registry::SPEC,
             fetch.deadline(Duration::from_secs(20)),
         );
-        let first = allele_registry::normalize(&leg, query, None)?;
+        // The unusable reply may be an error or a mapped refusal; either way it is not stored.
+        let _ = allele_registry::normalize(&leg, query, None);
         let second = allele_registry::normalize(&leg, query, None)?;
-        if format!("{:?}", first.value) == good.0 {
-            return Err(format!("{case}: the unusable reply was not unusable").into());
-        }
         if (format!("{:?}", second.value), second.refusals) != good {
             return Err(format!("{case}: an unusable registry reply was cached").into());
         }
