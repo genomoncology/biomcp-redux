@@ -103,11 +103,11 @@ fn variation(
     }
 }
 /// Caller terms a search row's variations are shown against.
-pub(super) struct Terms<'a> {
+pub(super) struct Wanted<'a> {
     pub gene: Option<&'a Text>,
     pub mutations: &'a [Text],
 }
-impl Terms<'_> {
+impl Wanted<'_> {
     /// Case follows the source's own case-insensitive var search.
     fn shown_by(&self, row: &CellLineVariation) -> bool {
         let same = |value: &Text, term: &Text| value.as_str().eq_ignore_ascii_case(term.as_str());
@@ -139,11 +139,14 @@ impl Terms<'_> {
 /// Show which of a row's variations hold the terms; the row itself stays, as the source chose it.
 pub(super) fn matching(
     row: &mut raw::Record,
-    terms: &Terms<'_>,
+    terms: &Wanted<'_>,
 ) -> Result<crate::Mapped<Capped<CellLineVariation>>, RequestError> {
     let mut problems = crate::mapped::Problems {
         source: Source::Cellosaurus,
-        record: row.accession().ok().and_then(crate::mapped::record),
+        record: crate::mapped::record(
+            row.accession()
+                .map_err(|_| biomcp_fetch::bad_reply(Source::Cellosaurus, None))?,
+        ),
         list: Vec::new(),
     };
     let mut refusals = crate::Refusal::None;

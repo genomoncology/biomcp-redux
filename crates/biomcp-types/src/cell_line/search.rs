@@ -9,7 +9,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "CommandFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "CommandFields", extend("anyOf" = [{"required":["query"]},{"required":["species"]},{"required":["disease"]},{"required":["gene"]},{"required":["mutation"]},{"required":["protein"]}])))]
+#[cfg_attr(feature = "schema", schemars(with = "CommandFields", extend(
+    "anyOf" = [{"required":["query"]},{"required":["species"]},{"required":["disease"]},
+    {"required":["gene"]},{"required":["mutation"]},{"required":["protein"]}]
+)))]
 pub struct CellLineSearchCommand(CommandFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

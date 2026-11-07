@@ -56,7 +56,11 @@ impl CellLineVariationMatch {
     pub(super) fn new(terms: Vec<Text>) -> Self {
         Self {
             terms: terms.into(),
-            note: "Matched on Cellosaurus variation text as the source writes it, so a short or empty result is not proof of absence. Terms are not tied to one variation: a line can match on separate variations, and a gene term also matches lines marked None_reported. Each row's variations lists only variations showing every term; a row with none matched across variations.".into(),
+            note: "Matched on Cellosaurus variation text as the source writes it, so a short or empty \
+                result is not proof of absence. Terms are not tied to one variation: a line can \
+                match on separate variations, \
+                and a gene term also matches lines marked None_reported. Each row's variations lists \
+                only variations showing every term; a row with none matched across variations.".into(),
         }
     }
 }

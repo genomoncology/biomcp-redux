@@ -1,5 +1,6 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
 use biomcp_fetch::{Input, Read, Received};
+mod identity;
 mod map;
 mod raw;
 mod receive;
@@ -12,6 +13,7 @@ use biomcp_fetch::{
     SourceSpec, Terms,
 };
 use biomcp_types::{CellLineCard, CellLineHeader, CellLineSearchCommand, Source, Use};
+pub use identity::native_database;
 pub use sections::complete;
 use std::time::Duration;
 /// Publisher access and attribution policy, shared by admission and health.
@@ -95,7 +97,7 @@ pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestE
         terms.push("NOT hi:*".to_owned());
     }
     let query = terms.join(" AND ");
-    let shown = (q.gene().is_some() || !mutations.is_empty()).then_some(sections::Terms {
+    let shown = (q.gene().is_some() || !mutations.is_empty()).then_some(sections::Wanted {
         gene: q.gene(),
         mutations: &mutations,
     });
@@ -122,7 +124,7 @@ fn candidates(
     query: &str,
     limit: u32,
     offset: Option<u32>,
-    shown: Option<sections::Terms<'_>>,
+    shown: Option<sections::Wanted<'_>>,
 ) -> Result<Page, RequestError> {
     let endpoint = SPEC.get("/search/cell-line").fresh(Freshness::Days(1));
     let fields = if shown.is_some() {
@@ -242,7 +244,8 @@ fn fetch_card(
     } = leg.call(
         &endpoint,
         Input::Params(&[("format", Arg::Text("json")), ("fields", Arg::Text(fields))]),
-        Read::<raw::Response>::json().check(&|reply| check_card(reply, accession, source)),
+        Read::<raw::Response>::json()
+            .check(&|reply| identity::check_card(reply, accession, source)),
     )?;
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -279,51 +282,6 @@ fn fetch_card(
         problems,
         metadata,
     })
-}
-fn check_card(
-    reply: &raw::Response,
-    accession: &CellosaurusAccession,
-    source: Option<&CellLineSourceId>,
-) -> Result<(), BadReply> {
-    match reply {
-        raw::Response::Missing { code: 404, message }
-            if message == &format!("Item not found, ac: {accession}") =>
-        {
-            Ok(())
-        }
-        raw::Response::Records { data } if data.rows.len() == 1 => {
-            let row = data.rows.first().ok_or(BadReply)?;
-            if row.accession()? != accession {
-                return Err(BadReply);
-            }
-            if let Some(id) = source {
-                let database = native_database(id).ok_or(BadReply)?;
-                if !row
-                    .xref_list
-                    .as_deref()
-                    .unwrap_or_default()
-                    .iter()
-                    .any(|r| {
-                        r.database.as_str() == database && r.accession.as_str() == id.accession()
-                    })
-                {
-                    return Err(BadReply);
-                }
-            }
-            Ok(())
-        }
-        _ => Err(BadReply),
-    }
-}
-/// Public supported source IDs map only to reviewed native database names.
-pub fn native_database(id: &CellLineSourceId) -> Option<&'static str> {
-    match id.database() {
-        "DepMap" => Some("DepMap"),
-        "CellModelPassports" | "Cell_Model_Passport" => Some("Cell_Model_Passport"),
-        "ChEMBL" | "ChEMBL-Cells" => Some("ChEMBL-Cells"),
-        "PharmacoDB" => Some("PharmacoDB"),
-        _ => None,
-    }
 }
 /// Complete source policy and command declaration.
 pub(crate) mod decl;
