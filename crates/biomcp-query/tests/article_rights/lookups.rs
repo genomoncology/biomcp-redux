@@ -334,7 +334,7 @@ fn both_sources(fetch: &Fetch) -> biomcp_query::Outcome {
         },
         &Request::SearchArticle(
             serde_json::from_str::<ArticleSearch>(
-                r#"{"text":"rights witness","source":["pubmed","litsense"],"limit":3}"#,
+                r#"{"text":"rights witness","exact_term":true,"source":["pubmed","litsense"],"limit":3}"#,
             )
             .unwrap(),
         ),
