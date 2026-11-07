@@ -58,11 +58,11 @@ pub(super) fn check() -> Result<(), String> {
     for (index, ((tool, action, _, argv), frame)) in calls.iter().zip(&frames).enumerate() {
         let label = format!("{tool}.{action}");
         let expected = cli(&env, argv)?;
-        let reply = stdio
-            .iter()
-            .find(|reply| reply["id"] == json!(index))
-            .and_then(|reply| reply.pointer("/result/structuredContent"))
-            .ok_or_else(|| format!("{label}: no stdio reply"))?;
+        let raw = stdio.iter().find(|reply| reply["id"] == json!(index));
+        let Some(reply) = raw.and_then(|reply| reply.pointer("/result/structuredContent")) else {
+            failures.push(format!("{label}: no stdio tool result: {raw:?}"));
+            continue;
+        };
         if super::typed_followups::data(reply) != super::typed_followups::data(&expected) {
             failures.push(format!("{label} stdio differs from CLI {argv:?}: {reply}"));
         }

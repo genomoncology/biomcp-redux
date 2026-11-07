@@ -136,6 +136,7 @@ pub(in crate::runner) fn command(tools: &[Value], name: &str) -> Option<Value> {
     commands(tools)
         .into_iter()
         .find(|tool| tool["name"] == name)
+        .or_else(|| tools.iter().find(|tool| tool["name"] == name).cloned())
 }
 
 /// The call that reaches a route with these command arguments.
