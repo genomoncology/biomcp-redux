@@ -128,7 +128,7 @@ fn disabled() -> Result<(), String> {
     ];
     let mut enabled = cached(&command, &cache, Some(&replay));
     enabled.extend(["--disable-sources".into(), "pubmed".into()]);
-    let first = invoke(&env, enabled, 0)?;
+    let first = invoke(&env, enabled.clone(), 0)?;
     let id = first
         .pointer("/page/pool/id")
         .and_then(Value::as_str)
@@ -158,6 +158,11 @@ fn disabled() -> Result<(), String> {
             })
     {
         return Err("explicit pool did not retain failure branch".into());
+    }
+    // A failed read under another source list says nothing about this list's pool.
+    let repeat = invoke(&env, enabled, 0)?;
+    if repeat.pointer("/page/pool/id") != Some(&json!(id)) {
+        return Err(format!("another list unpublished the pool: {repeat}"));
     }
     Ok(())
 }
