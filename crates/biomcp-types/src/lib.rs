@@ -76,7 +76,7 @@ pub use response::{
 };
 pub use response::{
     ArticleItem, ArticleKey, ArticlePage, ArticleSentence, CacheProblem, LitVarCandidate, PoolInfo,
-    SourceNotice,
+    SourceNotice, WithheldArticleText,
 };
 pub use response::{ArticlePdfResult, OpenAccessStatus, PdfLink, PdfSaved};
 pub use response::{
@@ -116,7 +116,7 @@ pub use response::{
 pub use response::{
     Help, HelpArgument, HelpCommand, HelpQuery, HelpWord, KeyHelp, KeyState, KeyTier, Oncokb,
     OncokbCard, OncokbGeneType, OncokbTranscript, RegisteredKey, RegisteredKeys, StoreClean,
-    SyncQuery, SyncResult,
+    SwitchableSource, SwitchableSources, SyncQuery, SyncResult,
 };
 pub use response::{
     NciArm, NciArmRecord, NciCriterion, NciEligibility, NciEligibilityPage,

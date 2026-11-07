@@ -107,12 +107,6 @@ impl Store<'_> {
                         .map_err(|error| db(error))?;
                 }
             }
-            tx.execute(
-                "INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET \
-                pool=excluded.pool",
-                params![key, id],
-            )
-            .map_err(|error| db(error))?;
             Ok(Pool {
                 info: PoolInfo {
                     id: Text::new(&id).map_err(|_| CacheError::Limit)?,
@@ -125,6 +119,31 @@ impl Store<'_> {
                 problems: global,
                 dropped,
             })
+        })
+    }
+    /// Make a checked whole article answer available to new searches.
+    pub(crate) fn publish_current(&mut self, pool: &Pool, key: &[u8]) -> Result<(), CacheError> {
+        let policy = self.policy();
+        self.write(|tx| {
+            policy.authorize(tx, super::ownership::Table::Pool, pool.info.id.as_str())?;
+            tx.execute(
+                "INSERT INTO pool_current(request_key,pool) VALUES (?1,?2) ON CONFLICT(request_key) DO UPDATE SET pool=excluded.pool",
+                params![key, pool.info.id.as_str()],
+            ).map_err(db)?;
+            Ok(())
+        })
+    }
+    /// Remove this pool's reusable answer for one request key, retaining its explicit pages.
+    pub(crate) fn unpublish_current(&mut self, pool: &Pool, key: &[u8]) -> Result<(), CacheError> {
+        let policy = self.policy();
+        self.write(|tx| {
+            policy.authorize(tx, super::ownership::Table::Pool, pool.info.id.as_str())?;
+            tx.execute(
+                "DELETE FROM pool_current WHERE pool=?1 AND request_key=?2",
+                params![pool.info.id.as_str(), key],
+            )
+            .map_err(db)?;
+            Ok(())
         })
     }
     /// Publish arbitrary source snapshot payload and its fixed-lifetime pool metadata together.
@@ -254,6 +273,38 @@ impl Store<'_> {
         })
     }
 
+    pub(crate) fn rewrite_article_text(
+        &mut self,
+        pool: &str,
+        rows: &[biomcp_types::ArticleItem],
+    ) -> Result<(), CacheError> {
+        let policy = self.policy();
+        self.write(|tx| {
+            policy.authorize(tx, super::ownership::Table::Pool, pool)?;
+            for row in rows {
+                let mut item = row.clone();
+                item.header = None;
+                let identity = item
+                    .key
+                    .as_ref()
+                    .map(serde_json::to_string)
+                    .transpose()
+                    .map_err(|_| CacheError::Encoding)?;
+                if let Some(identity) = identity {
+                    tx.execute(
+                        "UPDATE pool_item SET item=?3 WHERE pool=?1 AND identity=?2",
+                        params![
+                            pool,
+                            identity,
+                            serde_json::to_string(&item).map_err(|_| CacheError::Encoding)?
+                        ],
+                    )
+                    .map_err(db)?;
+                }
+            }
+            Ok(())
+        })
+    }
     pub(crate) fn hydrate(
         &mut self,
         pool: &str,

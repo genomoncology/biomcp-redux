@@ -29,7 +29,8 @@ fn fetch(name: &str, cache: ReplayCache) -> Fetch {
     .unwrap()
 }
 fn query(pool: Option<&str>, offset: u32) -> ArticleSearch {
-    let query: ArticleSearch = serde_json::from_str(r#"{"text":"AKT1 E17K","limit":2}"#).unwrap();
+    let query: ArticleSearch =
+        serde_json::from_str(r#"{"text":"AKT1 E17K","exact_term":true,"limit":2}"#).unwrap();
     query.page(offset, pool.map(|value| value.parse().unwrap()))
 }
 fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
@@ -39,6 +40,7 @@ fn run(fetch: &Fetch, query: ArticleSearch, fresh: bool) -> Outcome {
             budget: Duration::from_secs(20),
             fresh,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(query),
     )
@@ -122,6 +124,7 @@ fn store_corruption_and_exhausted_budget_remain_typed_local_failures() {
             fetch: &fetch,
             budget: Duration::ZERO,
             fresh: false,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             ncbi_email: None,
         },
         &Request::SearchArticle(query(None, 0)),
@@ -167,6 +170,7 @@ fn search_and_hydration_share_one_budget_while_pool_age_uses_wall_time() {
             fetch: &fetch,
             budget: Duration::from_millis(300),
             fresh: false,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             ncbi_email: None,
         },
         &Request::SearchArticle(query(None, 0)),
@@ -236,6 +240,7 @@ fn sequential_replay_commands_receive_new_budgets_after_provider_quota_waits() {
                 fetch: &fetch,
                 budget: Duration::from_secs(2),
                 fresh: true,
+                drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
                 ncbi_email: None,
             },
             &Request::SearchArticle(query(None, 0)),
@@ -275,6 +280,7 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
             fetch: &fetch,
             budget: Duration::from_millis(400),
             fresh: true,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             ncbi_email: None,
         },
         &Request::SearchArticle(query(None, 0)),
@@ -293,6 +299,7 @@ fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
                         fetch: &fetch,
                         budget: Duration::from_secs(2),
                         fresh: true,
+                        drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
                         ncbi_email: None,
                     },
                     &Request::SearchArticle(query(None, 0)),
@@ -304,6 +311,7 @@ fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
                         fetch: &fetch,
                         budget: Duration::from_secs(2),
                         fresh: true,
+                        drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
                         ncbi_email: None,
                     },
                     &Request::SearchArticle(query(None, 0)),
@@ -319,6 +327,16 @@ fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
     }
 }
 
+fn current_rows(fetch: &Fetch, pool: &str) -> i64 {
+    let connection = fetch.cache_access().unwrap().connect().unwrap();
+    connection
+        .query_row(
+            "SELECT count(*) FROM pool_current WHERE pool=?1",
+            [pool],
+            |row| row.get(0),
+        )
+        .unwrap()
+}
 #[test]
 fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     let directory = tempfile::tempdir().unwrap();
@@ -342,6 +360,7 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     .unwrap();
     let (first, _) = page(run(&replay, query(None, 0), false));
     let id = first.pool.unwrap().id;
+    assert_eq!(current_rows(&replay, id.as_str()), 1);
     let connection = replay.cache_access().unwrap().connect().unwrap();
     connection
         .execute_batch("UPDATE pool_item SET checked=0,header=NULL; UPDATE reply SET fresh_until=0")
@@ -362,6 +381,8 @@ fn stale_summary_fallback_stays_partial_when_its_page_is_read_offline() {
     assert_eq!(first.local, None);
     assert_eq!(first.status(), Status::Partial);
     assert_eq!(first.sources[0].state, biomcp_types::SourceState::Stale);
+    // A page that turned partial must stop answering new searches.
+    assert_eq!(current_rows(&live, id.as_str()), 0);
     let biomcp_query::Action::Run {
         request: Request::SearchArticle(retry),
         fresh: true,
