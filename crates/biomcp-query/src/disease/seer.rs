@@ -38,6 +38,9 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DiseaseSearch) -> Outcome {
                 run(Request::SearchDisease(query.at_offset(offset))),
             ));
         }
+        if query.text().is_some() && total == 0 {
+            list_sites(&mut out);
+        }
         out.problems.extend(page.problems);
         out.body = (DiseaseSites {
             items: page.window.rows.into(),
@@ -75,6 +78,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outco
                 .push(status::source(Source::Seer, leg.finish(), error));
             out.local = error.and_then(status::local);
             crate::status::search(&mut out);
+            if error.is_none() && out.page.as_ref().is_some_and(|page| page.total == 0) {
+                crate::status::item(&mut out, false, false, false);
+            }
             command.finish(deadline.remaining());
             return out;
         }
@@ -148,7 +154,14 @@ fn named_site(
             let selected = match exact.as_slice() {
                 [site] => Some(site.code.clone()),
                 _ => match page.window.rows.as_slice() {
-                    [site] => Some(site.code.clone()),
+                    [site]
+                        if site
+                            .label
+                            .as_ref()
+                            .is_some_and(|label| whole_words(label.as_str(), id.as_str())) =>
+                    {
+                        Some(site.code.clone())
+                    }
                     _ => None,
                 },
             };
@@ -169,6 +182,32 @@ fn named_site(
             (None, candidates(query, search, page, out), None)
         }
         Err(error) => (None, out, Some(error)),
+    }
+}
+
+/// A lone match inside a longer word, such as "ear" in "Heart", stays a candidate.
+fn whole_words(label: &str, text: &str) -> bool {
+    let label = label.to_lowercase();
+    let text = text.trim().to_lowercase();
+    label.match_indices(&text).any(|(at, _)| {
+        let before = label[..at].chars().next_back();
+        let after = label[at + text.len()..].chars().next();
+        !before.is_some_and(char::is_alphanumeric) && !after.is_some_and(char::is_alphanumeric)
+    })
+}
+
+/// Send a name that matched nothing to the publisher's own site names.
+fn list_sites(out: &mut Outcome) {
+    if let Some(catalog) = crate::next::checked(
+        DiseaseSearch::seer_widest(),
+        Source::Seer,
+        &mut out.problems,
+    ) {
+        out.next.push(crate::next::Step::new(
+            StepKind::Disambiguate,
+            &[Source::Seer],
+            run(Request::SearchDisease(catalog)),
+        ));
     }
 }
 
@@ -234,6 +273,9 @@ fn candidates(
             &[Source::Seer],
             run(Request::SearchDisease(search.at_offset(search.limit()))),
         ));
+    }
+    if total == 0 {
+        list_sites(&mut out);
     }
     page.window.rows.truncate(search.limit() as usize);
     for site in &page.window.rows {

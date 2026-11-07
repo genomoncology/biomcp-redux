@@ -253,6 +253,15 @@ impl DiseaseSearch {
         })
     }
 
+    /// Select the SEER site catalog in the largest accepted pages.
+    pub fn seer_widest() -> Result<Self, QueryInvalid> {
+        let query = Self::seer()?;
+        Self::try_from(SearchFields {
+            limit: 50,
+            ..query.0
+        })
+    }
+
     /// Select a name-filtered SEER catalog.
     pub fn seer_named(text: &str) -> Result<Self, QueryInvalid> {
         let query = Self::seer()?;

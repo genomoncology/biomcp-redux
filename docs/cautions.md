@@ -26,7 +26,7 @@ A checked member match preserves the full compound profile and its source claim 
 
 ## SEER statistics
 
-SEER site names match the publisher's catalog labels. Ambiguous names return matching sites and commands that preserve the selected statistic options. The catalog also labels required dataset, incidence-period and survival-interval codes. Statistic rows retain separate requested and returned selectors, with labels supplied by that catalog.
+SEER site names match the publisher's catalog labels. BioMCP selects a site for an exact label, or for words that appear whole in one label. Other matches return the matching sites and commands that preserve the selected statistic options. A name that matches no site returns no statistics and a command that lists the publisher's site names. The catalog also labels required dataset, incidence-period and survival-interval codes. Statistic rows retain separate requested and returned selectors, with labels supplied by that catalog.
 
 The `value.unknown` membership and method problems identify facts the structured source reply does not state: dataset and registry membership, the incidence standard population and rate-adjustment method, and survival modeling, eligibility and age adjustment. A requested dataset label identifies the selection sent to SEER; it does not establish membership of the returned rows. These cautions remain alongside the numerical results and the source's connection outcome. Incidence rows retain rates per 100,000 people, and annual survival rows keep observed and modeled values separate.
 
