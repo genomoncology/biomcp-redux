@@ -49,9 +49,13 @@ Paths and environment inputs must exist on that job's host. A missing artifact, 
 | Mutation shard | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-shard.json" MUTATION_ARGS="shard --plan $MUTATIONS/plan.json --index 0"` | The plan's native host, selected main and retained plan/inventory |
 | Mutation collection | `make release-mutations MUTATION_REPORT="$EVIDENCE/mutation-collect.json" MUTATION_ARGS="collect --plan $MUTATIONS/plan.json"` | The same plan and actual shard outputs; retain survivors, timeouts and unrun work alongside the exit |
 
-`make full-suite` stops at its first failed stage. Its stages are `audit`, `secrets-full`, `pre-job`, `workflow-lint`, `docs-check`, `tensor-proto-check`, `library-tests` and `coverage`, in that order. Each is a Make goal, so after a fix rerun only the failed stage with `make STAGE`. The coverage stage reports coverage; no floor gates it.
+`make full-suite` stops at its first failed stage. Its stages are `audit`, `secrets-full`, `pre-job`, `workflow-lint`, `docs-check`, `tensor-proto-check`, `library-tests` and `coverage`, in that order. Each is a Make goal, so after a fix rerun only the failed stage with `make STAGE`. `make coverage` also repeats `docs-check` and `library-tests` unless each is passed with `-o`, as the suite does. The coverage stage reports coverage; no floor gates it.
 
-`STARTED` is one Unix start time shared by the mutation actions, not reset for a shard retry. With no retained measurement, first run the plan, shard and collection actions with `--measure` in place of `--cost-seconds` and `--baseline-seconds`, into their own output directory. That selects the existing 20-mutant sample and only measures cost, so its survivors do not fail it and it does not pass this section. A planned run fails collection on any survivor, timeout or selected mutant left unrun. Retain survivors, timeouts and unrun work alongside the exit.
+`install` puts the tool in `$MUTATION_TOOL/tool/bin`. Put that directory first on `PATH` for the later actions, which refuse to plan without the pinned tool.
+
+`STARTED` is one Unix start time shared by the actions of one run, not reset for a shard retry. With no retained measurement, first run the plan, shard and collection actions with `--measure` in place of `--cost-seconds` and `--baseline-seconds`, into their own output directory and with their own `STARTED`. That selects the existing 20-mutant sample and only measures cost, so its survivors do not fail it and it does not pass this section. `COST` and `BASELINE` are `seconds_per_viable_mutant` and `baseline_seconds` from that run's `mutation-report.json`. Use them only when its `calibration_complete` is true, because a calibration's collection exits zero even when it was cut short.
+
+Collection's exit is this section's result. A shard exits zero on survivors, on timeouts and when the deadline has already passed and nothing ran. A planned run fails collection on any survivor, timeout or selected mutant left unrun. Collection checks only the selected mutants, which the time budget can cut to a small part of the scope, and it exits zero when every selected mutant is unviable. A pass therefore also needs caught mutants in `mutation-report.json`, whose `unrun` list shows what was never tried. Retain survivors, timeouts and unrun work alongside the exit. To retry a shard, first move its `shard-N` directory aside, because the action refuses one that exists.
 
 ### 2. Native production, installed gates and cold Linux
 
@@ -73,6 +77,8 @@ Paths and environment inputs must exist on that job's host. A missing artifact, 
 | Linux runtime container alone | `python3 release/container_check.py "$IMAGE" "$ARCH" "$CONTAINER_PROOF" "$VERSION"` | Matching Linux architecture and retained same-main image; proof directory contains binary, licenses, runners and fixtures; `ARCH` is `amd64` or `arm64` |
 | Cold Linux matrix | `make release-cold COLD_REPORT="$EVIDENCE/cold-report.json"` | A host with Docker and both pinned images; empty container homes; existing command collects every failed stage across both architectures |
 | Cold Linux architecture retry | `make release-linux CONTAINER_ARGS="--platform linux/$ARCH"` | Selected main with `BIOMCP_RELEASE_COLD=1`, `BIOMCP_BUILD_REVISION="$MAIN_REVISION"`, corresponding pinned `BUILD_IMAGE` and owned `BIOMCP_RELEASE_REPORT`; only that architecture's existing cold recipe |
+
+On macOS, a gate without Homebrew exits zero and marks `homebrew-formula` as `deferred` in its report. That section did not run: require `pass` there, as the hosted jobs do.
 
 Label x86_64 container runs on an arm64 host as emulated. They do not replace the native Linux x86_64 result. The cold matrix retains product outputs in `cold-artifacts-amd64` and `cold-artifacts-arm64`, then removes its temporary prepared proofs. Final hosted native ZIPs also do not currently retain runner executables. If a later consumer needs `PROOF`, prepare it once from the same main source with the existing command above, then retain and reuse it.
 
@@ -100,8 +106,8 @@ Windows release proof is the hosted native `release/gate.py` result from the rec
 | Section | Command | Host and inputs |
 | --- | --- | --- |
 | Publication payload | `python3 release/workflow.py stage --artifacts "$ALL_NATIVE" --plugin . --version "$VERSION" --revision "$MAIN_REVISION" --output "$STAGED"` | Any Linux or macOS host; all five same-main native outputs, both Linux container archives and selected-main plugin source |
-| Staged artifact secret scan | `python3 release/secrets.py artifacts "$STAGED"` | Actual complete staged bytes and pinned scanner; includes archive members and compiled binaries |
-| Staged Homebrew formula | `python3 release/gate.py --artifacts "$NATIVE" --scratch "$SCRATCH" --staged-formula "$STAGED/biomcp.rb"` | Run separately on Apple Silicon macOS and on `macos-15-intel`, each with their matching native output and the same universal staged formula |
+| Staged artifact secret scan | `python3 release/secrets.py artifacts "$STAGED"` | Actual complete staged bytes and pinned scanner; includes archive members and compiled binaries. An empty directory scans clean, so this row counts only with a passing subject inventory of the same `STAGED` |
+| Staged Homebrew formula | `python3 release/gate.py --artifacts "$NATIVE" --scratch "$SCRATCH" --staged-formula "$STAGED/biomcp.rb"` | Apple Silicon macOS with its matching native output and the universal staged formula. Intel has no local host and no recovery section, so its half runs only as the rehearsal's `staged-homebrew` job on `macos-15-intel` |
 | Claude plugin | `python3 release/published.py plugin --version "$VERSION" --revision "$MAIN_REVISION" --artifacts "$NATIVE" --plugin-source "$PLUGIN_SOURCE" --binary "$BINARY" --claude "$CLAUDE"` | Native Unix host with real Claude CLI; same-main staged plugin and executable; no model invocation |
 | Attestation subject inventory | `python3 release/workflow.py subjects --artifacts "$STAGED" --output "$EVIDENCE/subjects.sha256"` | Complete staged tree; new output outside that tree |
 
@@ -118,7 +124,7 @@ The rehearsal runs the staged sections again in `release.yml`, on the bytes the 
 | Stage | `stage`, `ubuntu-24.04` | The publication payload command in section 4 |
 | Staged artifact scan | `stage`, `ubuntu-24.04` | The staged artifact secret scan command in section 4 |
 | Attestation | `stage`, `ubuntu-24.04`, from the subject inventory | Signing needs the workflow's identity, so it has no local command and reruns with this rehearsal. The inventory runs alone in section 4 and `gh attestation verify` below checks each file |
-| Staged Homebrew | `staged-homebrew`, `macos-15` and `macos-15-intel` | The staged Homebrew formula command in section 4 |
+| Staged Homebrew | `staged-homebrew`, `macos-15` and `macos-15-intel` | The staged Homebrew formula command in section 4 on Apple Silicon. Intel reruns with this rehearsal |
 
 ```sh
 gh workflow run release.yml --repo genomoncology/biomcp-release-rehearsal --ref "$REHEARSAL_REF" -f rehearsal=true
