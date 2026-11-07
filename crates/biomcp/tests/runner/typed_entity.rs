@@ -93,7 +93,7 @@ pub(super) fn check() -> Result<(), String> {
     }
 }
 
-/// A served action gives the CLI's reply; hosting refuses it only for a source whose key the
+/// A served action reaches the CLI's command (schema and query); hosting refuses it only for a source whose key the
 /// CLI also lacked. An action hosting hides meets the hosted refusal or a disabled source.
 fn reached(http: &Value, expected: &Value, served: bool) -> Result<(), String> {
     let refused = http.pointer("/error/code") == Some(&json!("usage.mcp_unavailable"));
@@ -105,7 +105,11 @@ fn reached(http: &Value, expected: &Value, served: bool) -> Result<(), String> {
                         && source["reason"] == "no-key"
                 })
             });
-        keyless || super::typed_followups::data(http) == super::typed_followups::data(expected)
+        // Hosted use policy may disable a source the CLI reaches, so compare the command.
+        keyless
+            || (!refused
+                && http.get("schema") == expected.get("schema")
+                && http.get("query") == expected.get("query"))
     } else {
         refused
             || http["sources"]
