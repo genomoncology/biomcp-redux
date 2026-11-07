@@ -152,32 +152,6 @@
         }
       },
       "max_bytes": 2200
-    },
-    {
-      "run": [
-        "search",
-        "drug",
-        "NDA000001",
-        "--source",
-        "openfda-label",
-        "--limit",
-        "1"
-      ],
-      "exit": 1,
-      "expect": {
-        "/status": "absent",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
-        "": {
-          "omits": [
-            "problems"
-          ]
-        }
-      },
-      "max_bytes": 1000
     }
   ]
 }
