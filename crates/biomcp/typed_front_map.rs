@@ -232,7 +232,7 @@ pub(crate) fn generate(
             ));
         }
     }
-    lines.push("help: command path (e.g. trial search, sources); search/fetch: research results and exact result IDs.".into());
+    lines.push("help: command path (e.g. search trial, sources); search/fetch: research results and exact result IDs.".into());
     for trap in TRAPS.iter().skip(1) {
         if trap
             .split(|c: char| !c.is_alphanumeric() && c != '-')
