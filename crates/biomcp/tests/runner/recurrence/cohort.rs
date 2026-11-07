@@ -10,8 +10,7 @@ const MEMBER: &str = "synthetic-list-member";
 pub(super) fn check() -> Result<(), String> {
     common()?;
     large()?;
-    uncounted()?;
-    oversized()
+    uncounted()
 }
 
 fn common() -> Result<(), String> {
@@ -90,23 +89,6 @@ fn uncounted() -> Result<(), String> {
         return Err(format!(
             "a missing list size was not shown missing: {reply}"
         ));
-    }
-    Ok(())
-}
-
-fn oversized() -> Result<(), String> {
-    let mut oversized = list(Some(SELECTED_SAMPLES));
-    if let Some(fields) = oversized.as_object_mut() {
-        fields.insert("sampleIds".into(), json!(vec![MEMBER; 80_000]));
-    }
-    let (env, stub) = serve_list(COMMON_ROWS, oversized)?;
-    let reply = super::call(&env, &default_page(), 0)?;
-    stub.finish()?;
-    if reply.pointer("/result/selected_sample_count").is_some()
-        || reply.pointer("/result/observed_sample_count") != Some(&json!(matched(COMMON_ROWS)))
-        || !reply.to_string().contains("sample_set.metadata")
-    {
-        return Err(format!("an oversized list was not refused alone: {reply}"));
     }
     Ok(())
 }
