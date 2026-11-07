@@ -50,7 +50,7 @@ fn declared_sources() -> Result<(), String> {
                         .ok_or("context")?
                         .clone(),
                 );
-                if (entity, key) == ("pgx", "annotation_id") {
+                if (entity, key.as_str()) == ("pgx", "annotation_id") {
                     values.remove("gene"); // The annotation form takes its ID in place of a gene.
                 }
                 let sample = sample(key, property, &schema);
