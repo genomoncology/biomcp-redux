@@ -7,6 +7,9 @@ use biomcp_types::{
     Paged, ReplyBody, Request, Source, StepKind,
 };
 
+/// Names shown per paper, matching the article card; one consortium paper lists thousands.
+const AUTHOR_NAMES: usize = 10;
+
 pub(super) fn search(cx: &Ctx<'_>, q: &AuthorSearch) -> Outcome {
     if q.pool().is_some() {
         let mut out = status::empty(biomcp_types::ReplyData::PoolError { mismatch: true });
@@ -68,7 +71,7 @@ fn execute(
         } else {
             Vec::new()
         };
-        present(q, out, papers, found.count, ids.len() as u32)
+        present(q, out, papers, found.count, ids.len() as u32, &mut notices)
     })();
     let error = result.as_ref().err().copied();
     let mut source = status::source(Source::PubMed, leg.finish(), error);
@@ -105,11 +108,25 @@ fn execute(
 fn present(
     q: &AuthorSearch,
     out: &mut Outcome,
-    papers: Vec<AuthorPublication>,
+    mut papers: Vec<AuthorPublication>,
     count: u64,
     consumed: u32,
+    notices: &mut Vec<biomcp_types::SourceNotice>,
 ) -> Result<(), RequestError> {
     let returned = papers.len() as u32;
+    for paper in &mut papers {
+        bound(q.query(), paper);
+        if let (Some(omitted), Some(pmid)) = (paper.authors_omitted, paper.paper.pmid.as_ref()) {
+            notices.push(biomcp_types::SourceNotice::RequestGuidance {
+                message: format!(
+                    "Paper {pmid}: authors omitted: {omitted}; read every author at \
+                     https://pubmed.ncbi.nlm.nih.gov/{pmid}/."
+                )
+                .into(),
+                retry_after_seconds: None,
+            });
+        }
+    }
     if q.offset().saturating_add(consumed) < count.min(9999) as u32 {
         let next = q.with_source(AuthorSearchSource::Pubmed);
         out.next.push(crate::next::Step::new(
@@ -141,4 +158,60 @@ fn present(
         }),
     }.with_query(q.clone());
     Ok(())
+}
+
+/// Keep source order, showing names like the query first and then the leading names.
+fn bound(query: &str, paper: &mut AuthorPublication) {
+    let total = paper.authors.len();
+    if total <= AUTHOR_NAMES {
+        return;
+    }
+    let query = words(query);
+    let mut keep = vec![false; total];
+    let matched = paper
+        .authors
+        .iter()
+        .enumerate()
+        .filter(|(_, name)| same_words(&query, name.as_str()))
+        .take(AUTHOR_NAMES)
+        .map(|(index, _)| index)
+        .collect::<Vec<_>>();
+    for index in &matched {
+        if let Some(slot) = keep.get_mut(*index) {
+            *slot = true;
+        }
+    }
+    keep.iter_mut()
+        .filter(|slot| !**slot)
+        .take(AUTHOR_NAMES - matched.len())
+        .for_each(|slot| *slot = true);
+    let mut keep = keep.into_iter();
+    let shown: Vec<_> = std::mem::take(&mut paper.authors)
+        .into_vec()
+        .into_iter()
+        .filter(|_| keep.next().unwrap_or(false))
+        .collect();
+    paper.authors_omitted = Some((total - shown.len()) as u64);
+    paper.authors = shown.into();
+}
+
+fn words(text: &str) -> Vec<String> {
+    text.split(|ch: char| !ch.is_alphanumeric())
+        .filter(|word| !word.is_empty())
+        .map(str::to_lowercase)
+        .collect()
+}
+
+/// PubMed does not say which name matched and citation names carry initials, so every
+/// query word must pair with its own name word, one a prefix of the other. This only
+/// picks which names to show; it claims no identity.
+fn same_words(query: &[String], name: &str) -> bool {
+    let mut name = words(name);
+    !query.is_empty()
+        && query.iter().all(|word| {
+            name.iter()
+                .position(|part| part.starts_with(word.as_str()) || word.starts_with(part.as_str()))
+                .map(|index| name.swap_remove(index))
+                .is_some()
+        })
 }
