@@ -1,5 +1,5 @@
 {
-  "feature": "paging-end",
+  "feature": "search-paging",
   "live_check": "synthetic paging controls in real reply shapes; tests/replies/search/paging-end/README.md lists them",
   "story": "A reply offers a next page only when one exists: a source token and a known-total window stop at exactly the total, one row short still pages, and an unknown total keeps the token.",
   "replay": "search/paging-end",

@@ -1,5 +1,5 @@
 {
-  "feature": "paging-end",
+  "feature": "search-paging",
   "live_check": "synthetic names in real source reply shapes; no live completeness claim",
   "story": "An expanded drug name stops paging at exactly the total on the registry's token and on a stored article pool, and one row short still pages.",
   "replay": "search/drug-names",
