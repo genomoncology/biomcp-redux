@@ -42,8 +42,6 @@ Under load, 7 of 8 concurrent first opens exited 5 with `local_error: busy` in r
 
 - Evidence: j34269 log, round 28: `exits [5, 0, 5, 5, 5, 5, 5, 5]`, host load about 9.6, 2 pinned cores, 3 burners.
 
-## Finding
-
-- rusqlite 0.37 and 0.40 `Connection::open` set a 5000 ms busy wait (`inner_connection.rs`), so the owner check did wait. The Busy in j34269 was an immediate refusal that skipped the busy handler during another opener's journal-mode switch. A plain exclusive holder is waited out and does not reproduce it, so the test uses a refusal seam (`refuse_next_owner_checks`). `initialize` also mapped Busy at `SELECT version FROM meta` to Version; it now keeps Busy.
+- Finding: rusqlite 0.37 and 0.40 `Connection::open` set a 5000 ms busy wait (`inner_connection.rs`), so the owner check did wait. The Busy in j34269 is read as an immediate refusal that skipped the busy handler during another opener's journal-mode switch. A plain exclusive holder is waited out and does not reproduce it, so the test uses a refusal seam (`refuse_next_owner_checks`). `initialize` also mapped Busy at `SELECT version FROM meta` to Version; it now keeps Busy.
 
 ## Progress
