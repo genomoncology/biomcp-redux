@@ -83,3 +83,58 @@ pub(super) fn check() -> Result<(), String> {
     }
     Ok(())
 }
+
+/// PubMed rows arrive without titles, so a store that refuses them must not cost the titles.
+/// `locked_on` names the PubMed request that a competing writer arrives during.
+pub(super) fn pubmed_titles(locked_on: &'static str) -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let path = env.root().join(format!(
+        "cache/biomcp/cache-{}-{}.sqlite",
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
+    ));
+    let (writer, held) = mpsc::channel();
+    let stub = Stub::for_source(
+        "eutils.ncbi.nlm.nih.gov",
+        "application/json",
+        move |request| {
+            if request.contains(locked_on) {
+                let db = rusqlite::Connection::open(&path).map_err(|e| e.to_string())?;
+                db.execute_batch("BEGIN IMMEDIATE")
+                    .map_err(|e| e.to_string())?;
+                writer.send(db).map_err(|e| e.to_string())?;
+            }
+            Ok(if request.contains("esearch.fcgi") {
+                json!({"esearchresult":{"count":"1","idlist":["99000001"]}})
+            } else {
+                json!({"result":{"uids":["99000001"],"99000001":{
+                    "uid":"99000001","title":"Synthetic stored title","fulljournalname":"Synthetic journal",
+                    "pubdate":"2026","authors":[],"pubtype":["Journal Article"],"articleids":[]
+                }}})
+            }
+            .to_string())
+        },
+    )?;
+    stub.retain(env.shared_root());
+    let ca = env.root().join("source-ca.pem");
+    fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
+    env.config(&json!({
+        "proxy":format!("http://{}",stub.address),"ca_bundle":ca,"command_timeout_seconds":4
+    }))
+    .map_err(|e| e.to_string())?;
+    let args = ["search", "article", "synthetic stored", "--exact-term"].map(str::to_owned);
+    let output = env
+        .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+        .output()
+        .map_err(|e| e.to_string())?;
+    drop(held.try_recv().map_err(|e| e.to_string())?);
+    stub.finish()?;
+    let answer: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
+    if answer.pointer("/result/items/0/header/title") != Some(&json!("Synthetic stored title"))
+        || answer.get("status") != Some(&json!("complete"))
+        || answer.pointer("/sources/0/notices/0/kind") != Some(&json!("cache-problem"))
+    {
+        return Err(format!("store failure cost the PubMed title: {answer}"));
+    }
+    Ok(())
+}
