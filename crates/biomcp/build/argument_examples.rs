@@ -46,7 +46,7 @@ fn collect(
             continue;
         }
         println!("cargo:rerun-if-changed={}", path.display());
-        let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(path)?)?;
+        let case: serde_json::Value = serde_saphyr::from_str(&fs::read_to_string(&path)?)?;
         for step in case
             .get("steps")
             .and_then(serde_json::Value::as_array)
