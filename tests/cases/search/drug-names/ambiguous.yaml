@@ -76,12 +76,7 @@
         "/status": "partial",
         "/sources/0/notices/0/names": [
           "Failing medicine"
-        ],
-        "/page": {
-          "omits": [
-            "pool"
-          ]
-        }
+        ]
       }
     },
     {

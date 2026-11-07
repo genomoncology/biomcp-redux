@@ -171,7 +171,7 @@ fn disabled() -> Result<(), String> {
     Ok(())
 }
 
-/// A search that may be missing names keeps no pool, so the next search reaches the sources.
+/// A search that may be missing names pages its own pool, and the next search reaches the sources.
 fn failed_names() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cache = env.root().join("article-case-cache");
@@ -183,27 +183,60 @@ fn failed_names() -> Result<(), String> {
             Ok(())
         }
     })?;
-    let command = ["search", "article", "Canonical therapy"];
+    let command = ["search", "article", "Canonical therapy", "--limit", "1"];
     let first = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
+    let id = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or(format!("failed lookup kept no pool: {first}"))?;
+    let total = first
+        .pointer("/page/total")
+        .and_then(Value::as_u64)
+        .unwrap_or(0);
     if first.get("status").and_then(Value::as_str) != Some("partial")
-        || first
-            .pointer("/page/pool")
-            .is_some_and(|pool| !pool.is_null())
-    {
-        return Err(format!("failed lookup stored a pool: {first}"));
-    }
-    copy_capture("search/drug-names", &replay, |_, _| Ok(()))?;
-    let second = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
-    if second.get("status").and_then(Value::as_str) != Some("complete")
-        || second.pointer("/page/total") != Some(&json!(3))
+        || first.pointer("/page/returned") != Some(&json!(1))
+        || total < 2
     {
         return Err(format!(
-            "new search did not reach recovered lookup: {second}"
+            "failed lookup did not page a partial pool: {first}"
         ));
     }
+    let step = first
+        .get("next")
+        .and_then(Value::as_array)
+        .and_then(|steps| {
+            steps
+                .iter()
+                .find(|step| step.get("kind") == Some(&json!("page")))
+        })
+        .ok_or(format!("no next page step: {first}"))?;
+    if !step.to_string().contains(id) {
+        return Err(format!("next page left the pool: {first}"));
+    }
+    let mut named = cached(&command, &cache, Some(&replay));
+    named.extend(["--pool".into(), id.into(), "--offset".into(), "1".into()]);
+    let second = invoke(&env, named, 0)?;
+    if second.get("status").and_then(Value::as_str) != Some("partial")
+        || second.pointer("/page/pool/id") != first.pointer("/page/pool/id")
+        || second.pointer("/page/offset") != Some(&json!(1))
+        || second.pointer("/page/returned") != Some(&json!(1))
+        || second.pointer("/result/items/0/pmid") == first.pointer("/result/items/0/pmid")
+    {
+        return Err(format!("failed lookup's next page was lost: {second}"));
+    }
+    copy_capture("search/drug-names", &replay, |_, _| Ok(()))?;
     let third = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
-    if third.pointer("/page/pool/id") != second.pointer("/page/pool/id") {
-        return Err(format!("whole drug pool did not become current: {third}"));
+    if third.get("status").and_then(Value::as_str) != Some("complete")
+        || third.pointer("/page/total") != Some(&json!(3))
+        || third.pointer("/page/pool/id") == first.pointer("/page/pool/id")
+    {
+        return Err(format!(
+            "new search did not reach recovered lookup: {third}"
+        ));
+    }
+    let fourth = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
+    if fourth.pointer("/page/pool/id") != third.pointer("/page/pool/id") {
+        return Err(format!("whole drug pool did not become current: {fourth}"));
     }
     Ok(())
 }

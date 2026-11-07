@@ -86,12 +86,12 @@ fn execute<'a>(
     let stored = stored.filter(|pool| explicit.is_some() || !(restricted && pool.dropped));
     let (stored, looked_up) = drug_names::reuse(cx, query, stored, out, deadline);
     let publish = stored.is_none() && explicit.is_none();
-    let (pool, held) = match stored {
+    let (pool, held, whole) = match stored {
         Some(pool) if pool.key != key.as_slice() => {
             pool_error(query, true, out);
             return Ok(());
         }
-        Some(pool) => (pool, Vec::new()),
+        Some(pool) => (pool, Vec::new(), true),
         None if explicit.is_some() => {
             pool_error(query, false, out);
             return Ok(());
@@ -109,7 +109,7 @@ fn execute<'a>(
         &pool,
         out,
         keys.current.as_slice(),
-        publish,
+        publish && whole,
     );
     if let ReplyData::ArticlePage {
         body: Some(page), ..
@@ -129,7 +129,7 @@ fn fetch_pool<'a>(
     store: &mut Store<'a>,
     deadline: &mut Deadline<'a>,
     out: &mut Outcome,
-) -> Result<Option<(crate::store::Pool, Held)>, RequestError> {
+) -> Result<Option<(crate::store::Pool, Held, bool)>, RequestError> {
     let Some(resolved) = term::search(cx, query, deadline, out)? else {
         return Ok(None);
     };
@@ -150,11 +150,6 @@ fn fetch_pool<'a>(
         return Ok(None);
     }
     filter_text(cx, deadline, &mut items, out);
-    // Names may be missing, so these rows are this reply's, not the whole pool's.
-    if drug_names.failed {
-        page::fetched(page::Cursor::Search(query), items, out);
-        return Ok(None);
-    }
     let held = biomcp_adapters::article_rights::take_unchecked(&mut items);
     store.set_deadline(*deadline);
     let Some(pool) = crate::publish::keep(
@@ -168,7 +163,8 @@ fn fetch_pool<'a>(
         page::fetched(page::Cursor::Search(query), items, out);
         return Ok(None);
     };
-    Ok(Some((pool, held)))
+    // Names may be missing, so the pool serves this search's pages and never a new search.
+    Ok(Some((pool, held, !drug_names.failed)))
 }
 /// Apply the record policy before publishing a newly fetched ranked pool.
 fn filter_text<'a>(
