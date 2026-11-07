@@ -6,7 +6,6 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
-import tomllib
 import unittest
 import zipfile
 
@@ -87,6 +86,7 @@ class ReleaseCommands(unittest.TestCase):
             self.assertEqual(len([call for call in calls if call[:2] == ['vendor', '--locked']]), 1)
             (name, config), = [json.loads(line) for line in (tools / 'configs.jsonl').read_text().splitlines()]
             self.assertEqual(name, 'biomcp')
+            import tomllib
             flags = tomllib.loads(config)['target']['cfg(all())']['rustflags']
             self.assertEqual([flag.rsplit('=', 1)[1] for flag in flags], ['cargo', 'biomcp', 'vendor'])
             self.assertTrue(all(flag.startswith('--remap-path-prefix=') for flag in flags))
