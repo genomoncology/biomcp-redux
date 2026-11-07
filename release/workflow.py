@@ -34,6 +34,11 @@ PLATFORMS = [
 ]
 
 
+def macos_floor():
+    floor, = {".".join(row["platform"].split("_")[1:3]) for row in PLATFORMS if row["platform"].startswith("macosx_")}
+    return floor
+
+
 def identity(args):
     metadata = json.loads(subprocess.check_output(["cargo", "metadata", "--locked", "--no-deps", "--format-version", "1"], text=True))
     version = next(package["version"] for package in metadata["packages"] if package["name"] == "biomcp")
@@ -60,7 +65,7 @@ def candidates(args):
     return records
 
 
-def copy_native(directory, output, tag, registry):
+def copy_native(directory, output, tag, registry, guide):
     native(directory, tag)
     for pattern in ["*.whl", "*.tar.gz", "*.zip"]:
         for path in directory.glob(pattern):
@@ -76,6 +81,8 @@ def copy_native(directory, output, tag, registry):
     shutil.copy2(checksum, output / checksum.name)
     if json.loads((directory / "server.json").read_text()) != registry:
         raise ValueError("registry payload differs between native producers")
+    if (directory / "SKILL.md").read_bytes() != guide:
+        raise ValueError("skill guide differs between native producers")
     # Desktop support is promised on macOS and Windows only.
     if tag.startswith(("macosx_", "win_")):
         bundle, = directory.glob("*.mcpb")
@@ -100,7 +107,7 @@ def formula(output, version):
     (output / "biomcp.rb").write_text("\n".join(lines))
 
 
-def plugin(source, output, version, notices):
+def plugin(source, output, version, native_output):
     metadata = json.loads((source / ".claude-plugin/plugin.json").read_text())
     marketplace = json.loads((source / ".claude-plugin/marketplace.json").read_text())
     entry, = marketplace["plugins"]
@@ -115,31 +122,37 @@ def plugin(source, output, version, notices):
     guide = source / "skills/SKILL.md"
     if not guide.is_file():
         raise ValueError("plugin must contain the release skill guide")
+    # The repository guide holds a marker; the candidate binary wrote the expanded one.
+    expanded = (native_output / "SKILL.md").read_bytes()
+    if b"{{front-map}}" in expanded:
+        raise ValueError("plugin skill guide must ship its front map expanded")
     metadata["version"] = entry["version"] = version
     paths = [path for path in (source / "skills").rglob("*") if path.is_file()]
     with zipfile.ZipFile(output / "biomcp-plugin.zip", "w", zipfile.ZIP_DEFLATED) as archive:
-        for name, data in payloads(notices).items():
+        for name, data in payloads(native_output).items():
             archive.writestr(name, data)
         for name, value in [("plugin", metadata), ("marketplace", marketplace)]:
             archive.writestr(".claude-plugin/" + name + ".json", json.dumps(value, indent=2) + "\n")
         for path in sorted(paths):
-            archive.write(path, path.relative_to(source).as_posix())
+            name = path.relative_to(source).as_posix()
+            if path == guide:
+                archive.writestr(name, expanded)
+            else:
+                archive.write(path, name)
 
 
 def release_notes(output, version, revision):
     (output / "RELEASE-NOTES.md").write_text(
-        (Path(__file__).with_name("notes.md").read_text() + f"\n\nCandidate source commit: `{revision}`.\n\n"
-         + schema_changes() + "\n\n")
+        (Path(__file__).with_name("notes.md").read_text()
+         + f"\n\n## Platform support\n\nmacOS downloads require macOS {macos_floor()} or later.\n\n"
+         + f"Source commit: `{revision}`.\n\n" + schema_changes() + "\n\n")
         + "Before installation, verify each downloaded release artifact with a current GitHub CLI:\n\n"
         "```sh\ngh attestation verify ARTIFACT --repo genomoncology/biomcp "
         "--signer-workflow genomoncology/biomcp/.github/workflows/release.yml "
         f"--source-ref refs/tags/v{version} --source-digest {revision}\n```\n\n"
         "Replace ARTIFACT with the downloaded file. Compare the source commit above with the release's "
-        "tag before accepting it. Private no-op rehearsals are unsigned and cannot pass attestation verification. "
-        "Their retained release-subject-checksums artifact and candidate.json source commit identify the outputs, "
-        "but do not provide signed provenance. For a signed public rehearsal, use the repository that ran the workflow for both "
-        "repository arguments and replace --source-ref with the actual rehearsal ref. The source commit must match that run. Verification fails if the file, "
-        "signer workflow or source commit differs. Stop if verification fails.\n\n"
+        "tag before accepting it. Verification fails if the file, signer workflow or source commit differs. "
+        "Stop if verification fails.\n\n"
         "The installer also checks the archive's SHA-256 checksum. Attestations identify the workflow "
         "and source that produced the bytes; they do not establish that the software is defect-free.\n"
     )
@@ -173,18 +186,20 @@ def subjects(args):
 def stage(args):
     records = candidates(args)
     args.output.mkdir(parents=True, exist_ok=False)
-    registry = json.loads((next(iter(records.values())) / "server.json").read_text())
+    first = next(iter(records.values()))
+    registry = json.loads((first / "server.json").read_text())
+    guide = (first / "SKILL.md").read_bytes()
     if registry.get("name") != "io.github.genomoncology/biomcp" or registry.get("version") != args.version:
         raise ValueError("registry identity differs from candidate")
     for tag, directory in records.items():
-        copy_native(directory, args.output, tag, registry)
+        copy_native(directory, args.output, tag, registry, guide)
     (args.output / "server.json").write_text(json.dumps(registry, indent=2) + "\n")
     shutil.copy2(Path(__file__).parent / "install.sh", args.output / "install.sh")
     formula(args.output, args.version)
-    plugin(args.plugin, args.output, args.version, next(iter(records.values())))
+    plugin(args.plugin, args.output, args.version, first)
     zip_payload(args.output / "biomcp-plugin.zip")
     index = {"version": args.version, "revision": args.revision,
-             "image": "ghcr.io/genomoncology/biomcp", "publication": "requires Ian's approval before pushing the release tag"}
+             "image": "ghcr.io/genomoncology/biomcp", "macos_floor": macos_floor()}
     (args.output / "candidate.json").write_text(json.dumps(index, indent=2) + "\n")
     release_notes(args.output, args.version, args.revision)
     print(json.dumps(index))

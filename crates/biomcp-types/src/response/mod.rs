@@ -21,7 +21,7 @@ pub use article::{
 mod article_cards;
 pub use article::{
     ArticleEdgeItem, ArticleEdgePage, ArticleItem, ArticleKey, ArticlePage, ArticleSentence,
-    CitationIntent, LitVarCandidate,
+    CitationIntent, LitVarCandidate, WithheldArticleText,
 };
 mod article_text;
 pub use article_cards::{ArticleCardItem, ArticleCards, ArticleMatch, ArticleResolution};
@@ -42,7 +42,9 @@ mod help;
 mod key;
 pub use gene::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
 pub use help::{Help, HelpArgument, HelpCommand, HelpQuery, HelpWord};
-pub use key::{KeyHelp, KeyState, KeyTier, RegisteredKey, RegisteredKeys};
+pub use key::{
+    KeyHelp, KeyState, KeyTier, RegisteredKey, RegisteredKeys, SwitchableSource, SwitchableSources,
+};
 mod page;
 mod section;
 mod source;

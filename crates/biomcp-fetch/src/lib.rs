@@ -79,6 +79,10 @@ use std::{collections::BTreeMap, fmt, time::Duration};
 pub trait Reply: serde::de::DeserializeOwned {
     /// Refuse provider error envelopes and incomplete answers.
     fn check(&self) -> Result<(), BadReply>;
+    /// Publisher dataset date, distinct from record events and local retrieval.
+    fn data_date(&self) -> Option<String> {
+        None
+    }
     /// Source-given identities used to discover dependent requests, only for explicit reply types.
     fn discovery(&self) -> Option<Identities> {
         None
@@ -138,6 +142,8 @@ pub struct FetchConfig {
     pub sync_budget: Duration,
     /// Maximum automatically downloaded bundle bytes.
     pub auto_sync_max_bytes: u64,
+    /// Days after a publisher dataset date before replies flag old data.
+    pub source_data_max_age_days: u32,
     /// Per-source budget overrides.
     pub source_deadlines: BTreeMap<biomcp_types::Source, Duration>,
 }
@@ -163,6 +169,7 @@ impl Default for FetchConfig {
             source_deadlines: BTreeMap::new(),
             sync_budget: Duration::from_secs(120),
             auto_sync_max_bytes: 32 * 1024 * 1024,
+            source_data_max_age_days: 365,
         }
     }
 }
@@ -191,6 +198,7 @@ pub struct Fetch {
     bundle_imports: std::sync::Arc<std::sync::Mutex<std::collections::BTreeSet<&'static str>>>,
     disabled_sources: std::collections::BTreeSet<biomcp_types::Source>,
     disabled_uses: std::collections::BTreeSet<biomcp_types::Use>,
+    commercial_studies_only: bool,
 }
 
 #[expect(
@@ -276,6 +284,7 @@ impl Fetch {
             clock: clock.map(std::sync::Arc::new),
             disabled_sources: config.disabled_sources.clone(),
             disabled_uses: config.disabled_uses.clone(),
+            commercial_studies_only: false,
             config: std::sync::Arc::new(config),
             limiters: std::sync::Arc::default(),
             background_refresh: None,
@@ -320,6 +329,17 @@ impl Fetch {
         let mut restricted = self.clone();
         restricted.disabled_uses.extend(disabled);
         restricted
+    }
+
+    /// Apply the restricted hosted mode's study-level commercial-use policy.
+    pub fn restrict_studies(&self) -> Self {
+        let mut restricted = self.clone();
+        restricted.commercial_studies_only = true;
+        restricted
+    }
+    /// Whether reviewed study restrictions must be enforced on this request.
+    pub fn commercial_studies_only(&self) -> bool {
+        self.commercial_studies_only
     }
 
     /// Replace this command's credentials while retaining every shared transport resource.
@@ -435,6 +455,8 @@ impl Default for Mode {
 /// The retained stale state of a completed source leg.
 #[derive(Debug, Default)]
 pub struct LegReport {
+    /// Publisher dataset dates and their age assessments, never acquisition times.
+    pub data_notices: Vec<biomcp_types::SourceNotice>,
     /// Body bytes read from HTTP in this leg, excluding cache and replay.
     pub(crate) downloaded_bytes: u64,
     /// Successful replies with their canonical identity and original fetch time.
@@ -445,8 +467,41 @@ pub struct LegReport {
     pub failures: Vec<SourceError>,
     /// Cache failures that did not invalidate the checked provider answer.
     pub cache_problems: Vec<CacheError>,
+    /// A license lookup did not settle every paper, so this leg stored no reply.
+    pub license_unchecked: bool,
 }
+mod data_age;
 impl Leg<'_> {
+    /// Keep this leg's replies out of the cache: text filtered on an unfinished
+    /// license lookup is not the source's answer and cannot recover once stored.
+    pub fn note_license_unchecked(&self) {
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .license_unchecked = true;
+    }
+    pub(crate) fn license_unchecked(&self) -> bool {
+        self.report
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .license_unchecked
+    }
+    /// Run a metadata dependency within the remaining request budget.
+    /// Charge its independent replay clock back to the calling source leg.
+    pub fn dependency<T>(
+        &self,
+        spec: &'static SourceSpec,
+        cap: Duration,
+        operation: impl FnOnce(&Leg<'_>) -> T,
+    ) -> T {
+        let mut leg = self.fetch.leg(spec, self.deadline);
+        leg.deadline = leg.deadline.child(self.remaining().min(cap));
+        let started = leg.remaining();
+        let result = operation(&leg);
+        self.budget()
+            .advance(started.saturating_sub(leg.remaining()));
+        result
+    }
     /// Inspect the same source policy without opening another transport leg.
     pub fn disabled_source(&self, source: biomcp_types::Source) -> bool {
         self.fetch.disabled(source)

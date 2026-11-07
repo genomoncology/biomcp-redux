@@ -41,6 +41,9 @@ fn execute(
     deadline: Deadline<'_>,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    if crate::study::blocked(cx, query.study().as_str(), out) {
+        return Ok(());
+    }
     if cx.fetch.disabled(Source::Cbioportal) {
         let leg = cx.fetch.leg(&cbioportal::SPEC, deadline);
         let error = rejected(Source::Cbioportal, Reason::Disabled);
@@ -89,7 +92,7 @@ fn execute(
     if more && let Some(next) = query.next_page() {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
-            &[biomcp_types::Source::CancerHotspots],
+            &[Source::Cbioportal],
             Request::VariantRecurrence(next),
             false,
         ));

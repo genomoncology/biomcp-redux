@@ -10,7 +10,8 @@ macro_rules! singleton {
         #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
         #[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = [$($literal),+])))]
         $visibility enum $name {
-            $(#[doc = $literal]
+            // Double backticks: one literal holds single backticks.
+            $(#[doc = concat!("`` ", $literal, " ``")]
             #[serde(rename = $literal)]
             $variant,)+
         }
@@ -58,6 +59,8 @@ singleton! {
 
  VariantNormalizeForms => "normalization accepts reference-qualified HGVS, or chromosome genomic HGVS with CAR \
  and --build; convert rsIDs, clinvar:N, VCV accessions and genomic coordinates with get variant <ID> first",
+ VariantNormalizeRoute => "normalization needs reference-qualified HGVS; for gene shorthand use search variant \
+ --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>, then get variant <ID>",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
  SourceSelector => "choose one of the source selector values",
@@ -89,6 +92,7 @@ singleton! {
             first-page command, then follow its next command",
         TrialSearchCursor => "nonzero --offset requires --next-page from the returned continuation; run the suggested \
             first-page command, then follow its next command",
+        FaersOffset => "FAERS supports --offset up to 25000; narrow the filters to retrieve more reports",
         FaersDrugNames => "pass --drug once per literal name to search several names with OR; OR inside one --drug value \
             is not supported",
         FaersQueryLength => "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
@@ -234,7 +238,7 @@ singleton! {
         DrugInteractions => "renamed; use: get drug <ID> interactions --source ddinter --section-limit <N> --section-offset <N>",
         DrugTrials => "use: search trial --intervention <text>; no inferred aliases",
         TrialDocument => "use: trial document <NCT> <FILE> --save PATH; first list get trial <NCT> documents",
-        Gene => "use: get gene <gene>", Pathways => "use: get gene <gene> pathways",
+        Gene => "use: get gene <gene>", GeneSearch => "use: search gene <query>", Pathways => "use: get gene <gene> pathways",
         Trials => "use: search trial --gene <gene>", Articles => "use: search article --gene <gene>",
         Drugs => "use: search drug --target <gene>",
         Variant => "moved to the variant entity", LocusGroup => "use: --locus-group",

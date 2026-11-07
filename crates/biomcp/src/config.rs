@@ -131,6 +131,14 @@ pub(crate) fn budget(settings: &Settings) -> Duration {
             Duration::from_secs(u64::from(seconds.get()))
         })
 }
+pub(crate) fn drug_name_limit(settings: &Settings) -> usize {
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.drug_search_name_limit)
+        .map_or(biomcp_query::DRUG_NAME_LIMIT, std::num::NonZeroUsize::get)
+}
 pub(crate) fn request_defaults(
     settings: &Settings,
     request: &biomcp_types::Request,
@@ -240,6 +248,9 @@ fn fetch_using(
             .as_ref()
             .and_then(|file| file.auto_sync_max_bytes)
             .unwrap_or_else(|| FetchConfig::default().auto_sync_max_bytes),
+        source_data_max_age_days: file
+            .and_then(|file| file.source_data_max_age_days)
+            .unwrap_or_else(|| FetchConfig::default().source_data_max_age_days),
         proxy: file.and_then(|file| file.proxy.clone()).map(Secret::new),
         ..FetchConfig::default()
     })

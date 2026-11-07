@@ -9,6 +9,7 @@ tool_only! { mod protein_commands; }
 tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
 mod article_lean;
+mod article_pools;
 mod article_save;
 mod article_save_reply;
 mod assertions;
@@ -41,6 +42,7 @@ mod citation_values;
 mod clinpgx;
 mod configuration;
 mod cpic;
+mod declared_use;
 mod diagnostic_cdx;
 mod diagnostic_retirements;
 mod diagnostic_who;
@@ -66,16 +68,6 @@ mod http_limits;
 mod key_input;
 mod key_registration;
 pub(super) mod launch;
-mod recurrence;
-mod remote_tools;
-mod replay;
-mod socket_read;
-mod source_pacing;
-mod source_status;
-tool_only! { pub(crate) mod live; }
-tool_only! { mod live_follow_proof; }
-tool_only! { mod live_proof; }
-mod declared_use;
 mod licensed_cache;
 mod maude;
 mod maude_budget;
@@ -83,7 +75,13 @@ mod mcp;
 mod mcp_boundaries;
 mod mcp_hosted;
 mod nci;
+mod recurrence;
+mod remote_tools;
+mod replay;
 mod request_keys;
+mod socket_read;
+mod source_pacing;
+mod source_status;
 tool_only! { mod negative_cases; }
 use biomcp_test_support::network_stub;
 mod normalization;
@@ -130,6 +128,7 @@ mod variant_civic;
 mod variant_hotspots;
 mod variant_population;
 mod wikipathways;
+mod word_order;
 
 pub(super) fn output_limit(name: &str) -> Result<usize, String> {
     let limits: std::collections::BTreeMap<String, usize> =
@@ -262,6 +261,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(enum_case::trials());
     trials.extend(protocol::trials());
     trials.extend(article_lean::trials());
+    trials.extend(article_pools::trials());
     trials.extend(configuration::trials());
     trials.extend(bundle_wait::trials());
     trials.extend(bundle_refresh::trials());
@@ -317,7 +317,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(pathway_commands::trials());
     trials.extend(gwas_search::trials());
     trials.extend(diagnostic_who::trials());
-    trials.push(help_contract::trial());
+    trials.extend([help_contract::trial(), word_order::trial()]);
     trials.push(wikipathways::trial());
     trials.extend(variant_civic::trials());
     trials.extend(protein_domains::trials());
@@ -526,8 +526,6 @@ tool_only! {
         trials.extend(hgnc_sync::trials());
         trials.extend(schema_proof::trials(registry));
         trials.extend(source_terms::trials());
-        trials.extend(live_proof::trials());
-        trials.extend(live_follow_proof::trials());
         Ok(trials)
     }
 }

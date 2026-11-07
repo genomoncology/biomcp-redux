@@ -62,6 +62,7 @@ impl Outcome {
     ) -> Result<(), RequestError> {
         crate::drug::label_bound::bound(fetch, request, self, fresh)?;
         crate::next::finish(fetch, self);
+        fetch.refresh_data_dates(&mut self.sources);
         Ok(())
     }
 
@@ -269,6 +270,11 @@ pub(crate) fn source(
             _ => None,
         }),
     ));
+    if report.license_unchecked {
+        outcome
+            .notices
+            .push(biomcp_adapters::article_rights::unchecked_notice());
+    }
     outcome
         .notices
         .extend(report.cache_problems.into_iter().map(|error| {
@@ -276,6 +282,7 @@ pub(crate) fn source(
                 reason: error.into(),
             }
         }));
+    outcome.notices.extend(report.data_notices);
     outcome
 }
 pub(crate) fn local(error: RequestError) -> Option<RequestError> {
