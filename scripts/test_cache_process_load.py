@@ -26,12 +26,13 @@ class FailedRun(unittest.TestCase):
         return passed, logs, output.getvalue()
 
     def test_first_failure_is_not_retried_and_names_its_step(self):
-        record = json.dumps({'operation': 'fetch::cache.rs:enable_wal', 'primary_code': 5, 'extended_code': 5})
+        # The product writes these keys in this order (j34178).
+        record = json.dumps({'extended_code': 5, 'operation': 'fetch::cache.rs:125', 'primary_code': 5})
         script = f'import os,sys; open(os.environ["BIOMCP_SQLITE_DIAGNOSTICS"],"a").write({record!r}); sys.exit(1)'
         passed, logs, output = self.run_check(script)
         self.assertFalse(passed)
         self.assertEqual(logs, 1)
-        self.assertIn('sqlite operation=fetch::cache.rs:enable_wal code=5 extended=5', output)
+        self.assertIn('sqlite operation=fetch::cache.rs:125 code=5 extended=5', output)
 
     def test_every_round_runs_when_all_pass(self):
         passed, logs, _ = self.run_check('pass')
