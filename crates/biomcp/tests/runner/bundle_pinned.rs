@@ -104,9 +104,27 @@ fn expire(env: &Environment) -> Result<(), String> {
         })
         .ok_or("cache missing")?;
     let store = rusqlite::Connection::open(path).map_err(|e| e.to_string())?;
+    // Updating a bundle row clears its content row, so restore it with a fixed date.
+    let revisions: Vec<(String, String)> = store
+        .prepare("SELECT name,revision FROM bundle_content")
+        .and_then(|mut rows| {
+            rows.query_map([], |row| Ok((row.get(0)?, row.get(1)?)))?
+                .collect()
+        })
+        .map_err(|e| e.to_string())?;
+    if revisions.is_empty() {
+        return Err("seeded bundle has no retrieval date".into());
+    }
     store
         .execute("UPDATE bundle SET fresh_until=0", [])
-        .and_then(|_| store.execute("UPDATE bundle_content SET retrieved_at=?1", [RETRIEVED]))
         .map_err(|e| e.to_string())?;
+    for (name, revision) in revisions {
+        store
+            .execute(
+                "INSERT INTO bundle_content VALUES(?1,?2,?3)",
+                rusqlite::params![name, revision, RETRIEVED],
+            )
+            .map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
