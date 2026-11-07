@@ -94,11 +94,11 @@ fn validate_owners(
 // while another opener switches the journal mode. A real switch cannot be held
 // at that point, so the next reads on this thread are refused as that is.
 #[cfg(test)]
-#[expect(
-    clippy::disallowed_types,
-    reason = "Test seam: per-thread count of owner reads to refuse"
-)]
 thread_local! {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "Test seam: per-thread count of owner reads to refuse"
+    )]
     static REFUSE: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
 }
 #[cfg(test)]
