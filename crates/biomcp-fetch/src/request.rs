@@ -145,6 +145,7 @@ impl Leg<'_> {
     ) -> Result<(T, crate::ReplyMetadata), RequestError> {
         self.spec.admit(&prepared.url, ep.publisher)?;
         prepared.identity_encoding = ep.identity_encoding;
+        prepared.double_gzip = ep.double_gzip;
         prepared.exact_count = ep.exact_count;
         if ep.exact_count {
             use sha2::Digest;
@@ -343,6 +344,16 @@ impl Leg<'_> {
                 codec.limit.unwrap_or(self.fetch.config.max_body),
                 codec.overflow_reason,
             )?
+        };
+        let body = if prepared.double_gzip {
+            self.inner_gzip(
+                body,
+                status,
+                codec.limit.unwrap_or(self.fetch.config.max_body),
+                codec.overflow_reason,
+            )?
+        } else {
+            body
         };
         let wire = Wire {
             fetched,
