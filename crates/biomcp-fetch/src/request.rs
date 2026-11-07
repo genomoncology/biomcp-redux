@@ -30,6 +30,7 @@ pub(crate) enum Failure {
 }
 
 /// A body read that runs out of time is already a source failure; a send is still a transport one.
+/// Live stalls overlap inside `hedged_call`; a replayed stall arrives here as a first try that timed out.
 fn timed_out(exchange: &Result<Wire, Failure>) -> bool {
     match exchange {
         Err(Failure::Transport(ureq::Error::Timeout(_))) => true,

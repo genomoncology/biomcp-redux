@@ -35,3 +35,8 @@ Milestone: 5
 ## Depends on
 
 - Depends on: 0736.
+
+## Evidence
+
+- Evidence: j34244 cut the first request at 3 seconds and sent a second: 10 of 12 live tries passed against 9 of 12 without the change, within noise. j34142 had shown a second curl returning while the first stayed open.
+- Evidence: j34537 keeps the first request open while the second runs, first finished reply wins: 12 of 12 live `get protein P00533` tries passed, slowest 13.42 seconds, against 8 of 12 on main in the same interleaved run, where all four failures were 15-second deadlines. Twelve tries each way is a small sample, but the gain is in the direction the ticket asked for and the kept-open design replaces the cut-first one.

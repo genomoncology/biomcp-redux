@@ -249,7 +249,7 @@ impl Endpoint {
         self.double_gzip = true;
         self
     }
-    /// Give up on a first try still unfinished after `limit` and send one more, within the same deadline.
+    /// Send one more request when a first try is unfinished after `limit`, keeping the first open; the first finished reply wins.
     pub const fn stall_retry(mut self, limit: Duration) -> Self {
         self.stall_limit = Some(limit);
         self

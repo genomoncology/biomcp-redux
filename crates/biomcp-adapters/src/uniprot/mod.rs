@@ -28,7 +28,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &quotas::UNIPROT,
     deadline: Duration::from_secs(15),
 };
-/// A normal read ends in under three seconds; a stalled one can pass the deadline while a fresh request returns.
+/// A normal read ends in under three seconds; a stalled one can pass the deadline while a fresh request, sent beside it, returns.
 const STALL_LIMIT: Duration = Duration::from_secs(3);
 const PROTEINS: Endpoint = SPEC
     .get("/uniprotkb/accessions")

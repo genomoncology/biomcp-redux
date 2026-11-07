@@ -1,11 +1,22 @@
 //! Outgoing request construction keeps credentials outside prepared and stored identities.
 use crate::{KeyPlace, KeyUse, Leg, prepared::Prepared};
-use std::{io::Read, sync::mpsc, time::Duration};
+use std::{
+    io::Read,
+    sync::mpsc,
+    time::{Duration, Instant},
+};
 
 type Reply = Result<ureq::http::Response<ureq::Body>, ureq::Error>;
+/// How long a second try may wait for a quota slot while no one watches the first read.
+const SECOND_TRY_ADMISSION: Duration = Duration::from_secs(1);
+const CANCEL_CHECK: Duration = Duration::from_millis(100);
 
 /// Send and read the whole reply, so a stall in the body stays on this worker.
-fn read_whole(request: ureq::RequestBuilder<ureq::typestate::WithBody>, body: &[u8], limit: u64) -> Reply {
+fn read_whole(
+    request: ureq::RequestBuilder<ureq::typestate::WithBody>,
+    body: &[u8],
+    limit: u64,
+) -> Reply {
     let (parts, mut reply) = request.send(body)?.into_parts();
     let mut bytes = Vec::new();
     reply
@@ -42,37 +53,59 @@ impl Leg<'_> {
         let start = |sender: mpsc::Sender<Reply>| -> Result<(), ureq::Error> {
             let request = self.wire_request(prepared, accept, &[])?;
             let body = prepared.body.clone();
+            // The losing read cannot be interrupted: it ends with its own timeout, inside this budget.
             std::thread::Builder::new()
                 .name("source-read".into())
                 .spawn(move || {
-                    // A reply nobody waits for any more has nowhere to go.
+                    // A reply nobody still waits for has nowhere to go.
                     let _ = sender.send(read_whole(request, &body, limit));
                 })
                 .map(|_| ())
                 .map_err(ureq::Error::from)
         };
         start(sender.clone())?;
-        if let Ok(reply) = replies.recv_timeout(stall.min(self.budget().remaining())) {
+        if let Some(reply) = self.next_reply(&replies, stall) {
             return reply;
         }
-        let permit = self.acquire_quota().ok().flatten();
+        // No slot means no second request: the first read goes on alone.
+        let permit = self
+            .acquire_quota_by(self.budget().child(SECOND_TRY_ADMISSION))
+            .ok()
+            .flatten();
         let mut pending = 1;
-        if permit.is_some() {
-            start(sender)?;
+        if permit.is_some() && start(sender).is_ok() {
             pending = 2;
         }
         let mut last = Err(ureq::Error::Timeout(ureq::Timeout::Global));
         while pending > 0 {
-            match replies.recv_timeout(self.budget().remaining()) {
-                Ok(Ok(response)) => return Ok(response),
-                Ok(Err(error)) => {
+            match self.next_reply(&replies, self.budget().remaining()) {
+                Some(Ok(response)) => return Ok(response),
+                Some(Err(error)) => {
                     last = Err(error);
                     pending -= 1;
                 }
-                Err(_) => break,
+                None => break,
             }
         }
         last
+    }
+
+    /// Wait for a reply until `wait` or the budget ends, noticing a cancelled call.
+    fn next_reply(&self, replies: &mpsc::Receiver<Reply>, wait: Duration) -> Option<Reply> {
+        let started = Instant::now();
+        loop {
+            let left = wait
+                .saturating_sub(started.elapsed())
+                .min(self.budget().remaining());
+            if left.is_zero() {
+                return None;
+            }
+            match replies.recv_timeout(left.min(CANCEL_CHECK)) {
+                Ok(reply) => return Some(reply),
+                Err(mpsc::RecvTimeoutError::Timeout) => {}
+                Err(mpsc::RecvTimeoutError::Disconnected) => return None,
+            }
+        }
     }
 
     fn wire_request(
