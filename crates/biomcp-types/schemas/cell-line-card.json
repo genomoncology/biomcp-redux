@@ -521,6 +521,17 @@
         "species": {
           "$ref": "#/$defs/Reply_Capped_CellLineXref",
           "description": "Up to three complete species references and their native total."
+        },
+        "variations": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Capped_CellLineVariation"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Up to three of this line's variations that show every filter term, and their total. Only variation-filtered searches carry it."
         }
       },
       "required": [
@@ -2088,6 +2099,13 @@
         {
           "description": "Local request limits, source observations and recovery guidance.",
           "properties": {
+            "data_date": {
+              "description": "Retained publisher dataset date, independent of acquisition and record events.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "kind": {
               "const": "request-guidance",
               "type": "string"
