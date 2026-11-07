@@ -47,6 +47,10 @@ fn numeric(name: &str) -> Option<char> {
         Some(hex) => (hex, 16),
         None => (name.strip_prefix('#')?, 10),
     };
+    // `from_str_radix` also takes a leading sign; a reference is digits alone.
+    if digits.is_empty() || !digits.chars().all(|ch| ch.is_digit(radix)) {
+        return None;
+    }
     let code = match u32::from_str_radix(digits, radix) {
         Ok(code) => code,
         Err(_) => return None,
