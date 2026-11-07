@@ -101,7 +101,8 @@ fn reached(http: &Value, expected: &Value, served: bool) -> Result<(), String> {
         let keyless = refused
             && expected["sources"].as_array().is_some_and(|sources| {
                 sources.iter().any(|source| {
-                    source["source"] == http["error"]["source"] && source["reason"] == "no-key"
+                    http.pointer("/error/source") == source.get("source")
+                        && source["reason"] == "no-key"
                 })
             });
         keyless || super::typed_followups::data(http) == super::typed_followups::data(expected)
