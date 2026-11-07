@@ -188,7 +188,11 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
     let values = values.map_err(|_| UsageError::arguments())?;
     Err(UsageError::SourceSelector {
         source: query.source().source(),
-        message: biomcp_types::ErrorMessage::OneSection,
+        message: if query.sections().len() > 1 {
+            biomcp_types::ErrorMessage::OneSection
+        } else {
+            biomcp_types::ErrorMessage::SourceSelector
+        },
         option: option.into(),
         valid_values: values.into(),
         next: vec![biomcp_types::Step {
