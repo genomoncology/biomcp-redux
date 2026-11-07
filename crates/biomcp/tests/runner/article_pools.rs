@@ -60,6 +60,10 @@ pub(super) fn trials() -> Vec<Trial> {
         super::transcript::trial("article-search/whole-pool-publication/drug-names", || {
             failed_names().map_err(Into::into)
         }),
+        super::transcript::trial(
+            "article-search/whole-pool-publication/withheld-names",
+            || withheld_names().map_err(Into::into),
+        ),
     ]
 }
 
@@ -200,6 +204,36 @@ fn failed_names() -> Result<(), String> {
     let third = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
     if third.pointer("/page/pool/id") != second.pointer("/page/pool/id") {
         return Err(format!("whole drug pool did not become current: {third}"));
+    }
+    Ok(())
+}
+
+/// A stored pool named under a list that disables its name source repeats none of those names.
+fn withheld_names() -> Result<(), String> {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let cache = env.root().join("article-case-cache");
+    let replay = env.root().join("replay");
+    copy_capture("search/drug-names", &replay, |_, _| Ok(()))?;
+    let command = ["search", "article", "EX-66", "--limit", "1"];
+    let first = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
+    let id = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("expanded pool absent")?;
+    let mut named = cached(&command, &cache, Some(&replay));
+    named.extend([
+        "--disable-sources".into(),
+        "chembl".into(),
+        "--pool".into(),
+        id.into(),
+    ]);
+    let reply = invoke(&env, named, 4)?;
+    if reply.get("status").and_then(Value::as_str) != Some("failed")
+        || reply.pointer("/sources/0/term").is_some()
+        || reply.pointer("/sources/0/notices").is_some()
+        || reply.pointer("/query/text") != Some(&json!("EX-66"))
+    {
+        return Err(format!("disabled name source reached the reply: {reply}"));
     }
     Ok(())
 }
