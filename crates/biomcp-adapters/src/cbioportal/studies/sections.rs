@@ -20,6 +20,8 @@ pub struct Records<T> {
     pub acquired: Option<u64>,
     /// Number of rejected records with a different study identity.
     pub rejected: usize,
+    /// Some rows lack a value the source holds, each named by a problem.
+    pub incomplete: bool,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -146,6 +148,7 @@ pub fn profiles(
         })
         .collect();
     Ok(Records {
+        incomplete: false,
         rejected: total - rows.iter().flatten().count(),
         window: crate::NativeWindow::local(rows, offset, limit),
         problems: problems.list,
@@ -189,6 +192,7 @@ pub fn sample_lists(
                 }
             }
         };
+        records.incomplete = true;
         records.problems.push(biomcp_types::Problem {
             source: biomcp_types::Source::Cbioportal,
             record: crate::mapped::record(&row.sample_list_id),
@@ -245,6 +249,7 @@ pub(super) fn list_summaries(
         })
         .collect();
     Ok(Records {
+        incomplete: false,
         rejected: total - rows.iter().flatten().count(),
         window: crate::NativeWindow::local(rows, offset, limit),
         problems: problems.list,

@@ -5,6 +5,7 @@ use crate::runner::launch::Environment;
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
+use sha2::Digest;
 use std::{fs, path::Path};
 #[path = "study_get/resource_refusals.rs"]
 mod resource_refusals;
@@ -22,6 +23,9 @@ pub(super) fn trials() -> Vec<Trial> {
         }),
         transcript_trial("study-get/failed-list-count-keeps-the-section", || {
             failed_count().map_err(Into::into)
+        }),
+        transcript_trial("study-get/count-deadline-marks-the-rest", || {
+            count_deadline().map_err(Into::into)
         }),
         // Replace the native catalog after acquiring a pool and revisit its old immutable membership.
         transcript_trial(
@@ -188,7 +192,8 @@ fn oversized_list() -> Check {
     invoke(&["sync", "cbioportal-studies"])?;
     let reply = invoke(&["get", "study", "synthetic_0", "sample-lists"])?;
     let row = reply.pointer("/result/items/0").ok_or("list row missing")?;
-    if row["sampleListId"] != "native_list_big"
+    if reply["status"] != "partial"
+        || row["sampleListId"] != "native_list_big"
         || row.get("sampleCount").is_some()
         || reply.pointer("/problems/0/field") != Some(&json!("sampleCount: too-large"))
         || reply.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
@@ -240,7 +245,7 @@ fn failed_count() -> Check {
                 .cloned()
         })
         .collect();
-    if reply["status"] != "complete"
+    if reply["status"] != "partial"
         || counts != [Some(json!(7)), None, Some(json!(7))]
         || reply.pointer("/problems/0/record") != Some(&json!("native_list_2"))
         || reply.pointer("/problems/0/field") != Some(&json!("sampleCount: bad-reply"))
@@ -249,6 +254,74 @@ fn failed_count() -> Check {
         return Err(format!("failed list count reply changed: {reply}"));
     }
     Ok(())
+}
+
+/// The second count read runs out of time, so the third is not attempted and both lack counts.
+fn count_deadline() -> Check {
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    let replay = seed(&env, rows(), 200)?;
+    // Direct calls: these replies have no stored byte budget phase.
+    let run = |args: &[&str]| {
+        let mut words = env.globals(Some(&replay), false);
+        words.extend(args.iter().map(|arg| (*arg).to_owned()));
+        crate::runner::configuration::invoke(&env, words, 0)
+    };
+    run(&["sync", "cbioportal-studies"])?;
+    let lists = ["native_list_1", "native_list_2", "native_list_3"];
+    let summary = json!(lists.map(|id| json!({"sampleListId": id, "studyId": "synthetic_0",
+        "category": "all_cases_in_study", "name": "Synthetic list", "description": "Synthetic list"})));
+    replayed(
+        &replay,
+        "https://www.cbioportal.org/api/studies/synthetic_0/sample-lists?projection=SUMMARY",
+        &summary,
+        0,
+    )?;
+    // The third list has no recording: a read of it would fail the command as a replay miss.
+    for (id, delay) in [("native_list_1", 0), ("native_list_2", 30_001)] {
+        let count = json!({"sampleListId": id, "studyId": "synthetic_0", "sampleCount": 7});
+        replayed(
+            &replay,
+            &format!("https://www.cbioportal.org/api/sample-lists/{id}"),
+            &count,
+            delay,
+        )?;
+    }
+    let reply = run(&["get", "study", "synthetic_0", "sample-lists"])?;
+    let counts: Vec<_> = (0..3)
+        .map(|i| {
+            reply
+                .pointer(&format!("/result/items/{i}/sampleCount"))
+                .cloned()
+        })
+        .collect();
+    let missing: Vec<_> = reply["problems"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|p| p["field"] == "sampleCount: deadline-exceeded")
+        .map(|p| p["record"].clone())
+        .collect();
+    if reply["status"] != "partial"
+        || counts != [Some(json!(7)), None, None]
+        || missing != [json!("native_list_2"), json!("native_list_3")]
+    {
+        return Err(format!("count deadline reply changed: {reply}"));
+    }
+    Ok(())
+}
+fn replayed(replay: &Path, url: &str, body: &Value, delay: u64) -> Check {
+    let key: String = sha2::Sha256::digest(format!("GET\0{url}").as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let recording = json!({"source":"cbioportal","method":"GET","url":url,"exchanges":[{"status":200,
+        "fetched":42,"content_type":"application/json","delay_ms":delay,"retry_after_ms":null,
+        "body":{"kind":"text","value":body.to_string()}}]});
+    fs::write(
+        replay.join("cbioportal").join(format!("{key}.json")),
+        recording.to_string(),
+    )
+    .map_err(|e| e.to_string())
 }
 
 fn pages() -> Check {

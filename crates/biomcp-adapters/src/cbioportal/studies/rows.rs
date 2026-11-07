@@ -119,6 +119,7 @@ pub fn samples(leg: &Leg<'_>, q: &StudyGet) -> Result<Records<StudySample>, Requ
         })
         .collect();
     Ok(Records {
+        incomplete: false,
         rejected: total - rows.iter().flatten().count(),
         window: crate::NativeWindow::local(rows, q.section_offset(), q.section_limit()),
         problems: problems.list,
@@ -192,6 +193,7 @@ pub fn mutations(
         .collect();
     Ok((
         Records {
+            incomplete: false,
             rejected: total - rows.iter().flatten().count(),
             window: crate::NativeWindow::local(rows, q.section_offset(), q.section_limit()),
             problems: problems.list,
