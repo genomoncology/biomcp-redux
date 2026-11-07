@@ -109,22 +109,22 @@
         "--limit",
         "1"
       ],
-      "exit": 1,
       "expect": {
-        "/status": "absent",
-        "/result": {
+        "/status": "complete",
+        "/page/returned": 1,
+        "/result/items/0/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "/result/items/0": {
           "omits": [
-            "items"
+            "matched_name"
           ]
         },
-        "/sources/0/term": "\"CAVHANZA EXTRA\"",
         "": {
           "omits": [
             "problems"
           ]
         }
       },
-      "max_bytes": 1500
+      "max_bytes": 2200
     },
     {
       "run": [
@@ -136,22 +136,22 @@
         "--limit",
         "1"
       ],
-      "exit": 1,
       "expect": {
-        "/status": "absent",
-        "/result": {
+        "/status": "complete",
+        "/page/returned": 1,
+        "/result/items/0/id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "/result/items/0": {
           "omits": [
-            "items"
+            "matched_name"
           ]
         },
-        "/sources/0/term": "\"REFERENCE BRAND\"",
         "": {
           "omits": [
             "problems"
           ]
         }
       },
-      "max_bytes": 1500
+      "max_bytes": 2200
     },
     {
       "run": [
