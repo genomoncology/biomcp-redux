@@ -68,7 +68,7 @@ fn doi_fallback_context() -> Check {
                     && ids.ids.iter().all(|id| discovered.ids.contains(id))
             })
     };
-    if searches.is_empty() || !searches.iter().all(|row| complete(row)) {
+    if searches.is_empty() || !searches.iter().all(complete) {
         return Err("DOI fallback search lost its discovery inputs or context".into());
     }
     Ok(())
