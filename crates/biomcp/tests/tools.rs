@@ -63,8 +63,8 @@ fn main() -> ExitCode {
                         use std::io::Write;
                         let _ = writeln!(
                             std::io::stderr(),
-                            "tools: --proofs filter {:?} selected no tests; use --proofs --list for custom trials or --cases DIRECTORY for YAML cases",
-                            arguments.filter
+                            "tools: --proofs {} selected no tests; use --proofs --list for custom trials or --cases DIRECTORY for YAML cases",
+                            runner::case_main::selector(&arguments)
                         );
                         return ExitCode::FAILURE;
                     }
