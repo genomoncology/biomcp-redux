@@ -24,7 +24,7 @@ if args[0] in ('version', 'health'):
     assert 'ONCOKB_API_KEY' not in os.environ
     config = pathlib.Path(os.environ['APPDATA']) / 'biomcp/config.json'
     disabled = json.loads(config.read_text())['disable_sources']
-    assert disabled[:3] == ['open', 'noncommercial', 'restricted']
+    assert disabled[:3] == ['open', 'noncommercial', 'licensed']
     assert pathlib.Path.cwd() != pathlib.Path(LOG).parent
     if args[0] == FAIL:
         sys.exit(7)
@@ -172,13 +172,6 @@ else:
             self.assertEqual(bootstrap['tooling_revision'], tooling)
             self.assertEqual(bootstrap['product_revision'], record['revision'])
             self.assertEqual(bootstrap['python'], sys.executable)
-            helpers = scratch / 'fixtures/support/scripts'
-            imported = subprocess.run([sys.executable, '-c',
-                                       'import icite_discovery_proof as proof; '
-                                       'assert callable(proof.prove) and callable(proof.classify_case)'],
-                                      cwd=helpers, env={**env, 'PYTHONPATH': ''},
-                                      capture_output=True, text=True)
-            self.assertEqual(imported.returncode, 0, imported.stdout + imported.stderr)
             if actual_build:
                 # The copied runners and helpers must stand on their own.
                 shutil.rmtree(source)

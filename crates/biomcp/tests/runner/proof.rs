@@ -7,6 +7,8 @@ tool_only! { use std::env; }
 
 tool_only! { #[path = "fixture_evidence_proof.rs"] mod fixture_evidence_proof; }
 tool_only! { #[path = "native_evidence_proof.rs"] mod native_evidence_proof; }
+tool_only! { #[path = "markdown_pair_proof.rs"] mod markdown_pair_proof; }
+tool_only! { #[path = "proof_zero_selection.rs"] mod zero_selection; }
 
 tool_only! { type Check = Result<(), String>; }
 
@@ -21,7 +23,8 @@ pub(crate) fn trials() -> Vec<Trial> {
         }),
         transcript_trial("mcp-http/readiness-rejects-eof-and-hung-child", || {
             super::http::readiness_proof().map_err(Into::into)
-        }),
+        })
+        .with_kind(super::proof_requirements::REPOSITORY_PYTHON),
         transcript_trial("article-semantic-sections/checked-edge-boundaries", || {
             super::semantic_tables::check().map_err(|e| e.to_string().into())
         }),
@@ -153,19 +156,7 @@ fn negatives() -> Check {
             "/type max_tokens: expected <= 1, actual 2",
         ),
     ];
-    put(
-        directory.path(),
-        "markdown-pair.yaml",
-        concat!(
-            "  - run: [help, author, --format, json]\n  - run: [help, author, --format, md]\n",
-            "    max_bytes: 8192\n    expect: {'': {includes_all_of: ",
-            "['biomcp author papers', '--format', '--disable-sources']}}",
-        ),
-    )?;
-    let accepted = invoke(directory.path(), &["markdown-pair.yaml", "--exact"])?;
-    if !accepted.status.success() {
-        return Err(format!("matching Markdown pair failed: {}", String::from_utf8_lossy(&accepted.stdout)));
-    }
+    markdown_pair_proof::check(directory.path())?;
     for (name, step, diagnostic) in cases.into_iter().chain(super::negative_cases::cases()) {
         let filename = format!("{name}.yaml");
         put(directory.path(), &filename, step)?;
@@ -252,6 +243,7 @@ fn selection() -> Check {
 
 tool_only! {
 fn empty_selection() -> Check {
+    zero_selection::check()?;
     let directory = tempfile::tempdir().map_err(|error| error.to_string())?;
     // Discovery rejects empty directories before applying any name filter.
     if invoke(directory.path(), &[])?.status.success() {

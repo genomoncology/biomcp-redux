@@ -20,7 +20,7 @@ article-sections: A caller requests indexing and normalized entity annotations w
 article-citations: A caller sorts by iCite citation counts and walks citing or referenced papers with explicit missing counts.
 article-fulltext: A caller reads available full text through semantic parts, tables, outlines and checked continuations.
 article-retired: A caller using a retired article spelling receives its fixed replacement or removal explanation.
-mcp-parity: A caller sends CLI arguments through the default MCP tool or named arguments through registry-generated typed tools, receives the same command result and validates structured replies against each advertised schema; typed discovery includes command help, research search and fetch, executable help follow-ups, and a catalog whose tools, sources and file-write hints reflect serving authority.
+mcp-parity: A caller sends CLI arguments through the default MCP tool or named arguments through registry-generated typed tools, receives the same command result and validates structured replies against each advertised schema; typed discovery includes command help, research search and fetch, typed follow-ups admitted against the caller’s advertised tools and input schemas, section names in the section argument, and a catalog whose tools, sources and file-write hints reflect serving authority.
 schema-discovery: A caller lists versioned schemas with descriptions, discovers resolvable command reply contracts and scoped help aliases, and follows safe guidance for invalid schema requests and unknown commands.
 corporate-network: A caller adds corporate certificate authorities, follows standard proxy settings and receives private configuration guidance for network failures.
 markdown-view: A caller reads gene and article results as Markdown, copies next commands, and keeps JSON for MCP.
@@ -37,7 +37,7 @@ article-saves: Save whole article Markdown or original supplement bytes only to 
 article-pdf: Inspect publisher PDF links and download only to an explicit destination through CLI or stdio MCP.
 key-registration: Register, replace, list and remove local source credentials without exposing values, and reload them on the next server call.
 variant-identity: A caller resolves published variant identifiers, keeps every source candidate, and sees explicit source rejections without local allele repair.
-trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch and per-trial gene-context notices, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
+trial-search: Search the registry with repeated condition, intervention, keyword and exact published country alternatives joined with OR, explicit native filters and exact MyDisease condition resolution, exact totals, opaque pages, one disclosed provider-native sponsor or facility fallback after zero exact matches, factual condition-word mismatch and per-trial gene-context notices, omitted intervention counts with commands to read the full registered list, explicit registered-condition phrase restrictions and caller-controlled wider alternatives for short searches.
 trial-get: Retrieve exact registry cards and recover intact eligibility, outcome and arm records through bounded continuations.
 trial-nci: Explicit NCI phase and status filters use publisher vocabularies; trial search and exact retrieval require the user key and preserve native fields without registry fallback; exact facility search returns one matched site and its match count; exact biomarker code search retains native criterion and inclusion_indicator entries and reports same-entry mismatches.
 trial-publications: Retrieve native registry references and document manifests and save a listed document to an explicit caller path.
@@ -60,7 +60,7 @@ drug-label: Search literal label indication phrases or source brand, generic and
 drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
-disease-seer: Select native SEER catalog sites and page stage incidence or annual observed and modeled survival without inferred population or dataset facts.
+disease-seer: Find native SEER sites by name or code, report all required selectors together, and page labeled incidence or annual survival within the source deadline.
 drug-ddinter: Explicit synchronization replaces all eight native pair files atomically, and stored-only search and interaction pages retain native identity, level, order, provenance and content revision.
 disease-monarch: Read native gene and phenotype association rows with their endpoints, evidence, provenance and component terms, without causal inference.
 drug-next-steps: Follow source-stated variant, build and tumor context from drug claims to keyed variant annotation, with explicit missing context and no drug-name inference.
@@ -120,7 +120,7 @@ housekeeping: Print build provenance and ready-to-paste local MCP configuration 
 store-coexistence: Allowed bundle reads import only names missing from the current generation through a verified atomic transfer, preserve both files, and retain current published bundles on conflicts.
 agent-skill: Agents read case-backed guidance and install managed guidance only inside an explicit directory.
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key.
-query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, and optional true or false values for boolean flags.
+query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, optional true or false values for boolean flags, and case-insensitive enumerated choices echoed canonically.
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order.
 diagnostic-device-recall: Search native device recall records, inspect exact recall numbers and follow product codes to MAUDE without inferring harm.
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging.

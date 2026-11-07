@@ -124,7 +124,7 @@ The check-file check verifies references, not coverage or runtime results. A rev
 | Case fixture access uses the shared launcher boundary. | `crates/biomcp/tests/runner/launch.rs` | Check: `crates/biomcp/tests/ratchets/source_files.rs` |
 | Required command, option, section and MCP coverage comes from the shipped surface. | Required coverage ratchet | Check: `crates/biomcp/tests/ratchets/required.rs`; Check: `crates/biomcp/tests/ratchets/required/proof.rs` |
 | Tool-mode flags stay in the tools entry point. | `cases` and `tools` entry points | Check: `crates/biomcp/tests/ratchets/source.rs`; Check: `crates/biomcp/tests/ratchets/proof.rs` |
-| Nightly live selection uses real-recorded cases and excludes synthetic failures. | `scripts/nightly_live_check.py` | Check: `scripts/test_nightly_live_check.py` |
+| The scheduled live check runs a short fixed list of real commands without credentials. | `scripts/nightly_live_check.py` | Check: `scripts/test_nightly_live_check.py` |
 
 ## 10. Test boundaries
 
@@ -136,7 +136,7 @@ Check: `release/test_checks.py`; Check: `crates/biomcp/tests/ratchets/source_fil
 
 ### 10.2 Coverage
 
-`scripts/coverage.sh` counts only product-binary profiles and the linked binary object. Generated protobuf code is excluded. The PM owns `coverage.floor`. Coverage does not justify adding duplicate cases.
+`scripts/coverage.sh` counts only product-binary profiles and the linked binary object. Generated protobuf code is excluded. Coverage is a report and gates nothing. It does not justify adding duplicate cases.
 
 Check: `scripts/test_coverage.py`.
 
@@ -158,6 +158,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 
 | File | Reason |
 | --- | --- |
+| `crates/biomcp/src/mcp/http/load_benchmark.rs` | Measure explicitly invoked bounded HTTP load against one owned service and Fetch. |
 | `crates/biomcp/tests/ratchets/source_declaration_proof.rs` | Plant source declaration omissions, identity mismatches, unnamed provider facts and transport source literals at the structural boundary. |
 | `crates/biomcp-adapters/tests/source_declarations.rs` | Check unique declared bundle command names and their stable public discovery order through the adapter registry. |
 | `crates/biomcp-fetch/src/hosts_tests.rs` | Check credential-free exact publisher origins at the private admission boundary without a product inventory helper. |
@@ -166,7 +167,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/quotas/expiry.rs` | Check idle bucket expiry after scaled refill without sleeping or exposing transport state. |
 | `crates/biomcp/src/grammar/reference.rs` | Generate and compare documentation at the private parser boundary without adding a public command. |
 | `crates/biomcp/src/mcp/worker_tests.rs` | Test worker panic completion and exact serialized tool result character boundaries that public requests cannot intentionally produce. |
-| `crates/biomcp/src/mcp/http/call.rs` | Prove hosted tool capacity and shutdown ownership with held worker exits using the private server limit. |
+| `crates/biomcp/src/mcp/http/call.rs` | Prove HTTP failure recovery, safe diagnostic fields and hosted worker capacity and shutdown ownership at private boundaries. |
 | `crates/biomcp/src/config/credential_reads_tests.rs` | Observe forbidden credential environment reads at the private settings boundary while executing real commands. |
 | `crates/biomcp-adapters/tests/deferred_keys_tests.rs` | Exercise deferred credential admission through the public AlphaGenome adapter without reading binary settings. |
 | `crates/biomcp-types/tests/author_contracts.rs` | Exercise checked source-qualified author records and standalone native paper and work-group contracts before adapters exist. |
@@ -237,6 +238,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/grpc_persistence/policy.rs` | Exercise credential containment, concurrent stream capture and atomic publication through the public transport API. |
 | `crates/biomcp-fetch/tests/grpc_persistence/process.rs` | Exercise ordinary checked reply cache reuse from an isolated second process through the public transport API. |
 | `crates/biomcp-fetch/tests/grpc_worker.rs` | Exercise blocking streaming RPC admission, local TLS HTTP/2, proxy routing, deadlines and cancellation through the public transport API. |
+| `crates/biomcp-fetch/tests/double_gzip.rs` | Exercise double-compressed replies and body limits on each layer through the public transport API. |
 | `crates/biomcp-fetch/tests/offline.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/paths.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/post.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |

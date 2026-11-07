@@ -1,4 +1,4 @@
-//! Explicit measurement, live-check and generation tools.
+//! Explicit measurement and generation tools.
 #![expect(
     clippy::disallowed_methods,
     reason = "The test entry point reads arguments and locates its own executable"
@@ -13,28 +13,6 @@ use std::{env, path::PathBuf, process::ExitCode};
 fn main() -> ExitCode {
     if let Some(code) = native_proof() {
         return code;
-    }
-    if env::args().nth(1).as_deref() == Some("--live-check") {
-        let mode = env::args().nth(2);
-        let list = mode.as_deref() == Some("--list");
-        let details = mode.as_deref() == Some("--details");
-        if mode.is_some() && !list && !details
-            || env::args().len() > if mode.is_some() { 3 } else { 2 }
-        {
-            return ExitCode::FAILURE;
-        }
-        return match runner::live::run(list, details) {
-            Ok(report) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stdout(), "{report}");
-                ExitCode::SUCCESS
-            }
-            Err(error) => {
-                use std::io::Write;
-                let _ = writeln!(std::io::stderr(), "live-check: {error}");
-                ExitCode::FAILURE
-            }
-        };
     }
     if env::args().nth(1).as_deref() == Some("--runner-environment-probe") {
         return runner::proof::environment_probe();
@@ -56,8 +34,19 @@ fn main() -> ExitCode {
             let arguments = std::iter::once("tools".to_owned()).chain(env::args().skip(2));
             match runner::tool_trials() {
                 Ok(trials) => {
-                    libtest_mimic::run(&libtest_mimic::Arguments::from_iter(arguments), trials)
-                        .exit_code()
+                    let arguments = libtest_mimic::Arguments::from_iter(arguments);
+                    if !arguments.list
+                        && trials.iter().all(|trial| arguments.is_filtered_out(trial))
+                    {
+                        use std::io::Write;
+                        let _ = writeln!(
+                            std::io::stderr(),
+                            "tools: --proofs {} selected no tests; use --proofs --list for custom trials or --cases DIRECTORY for YAML cases",
+                            runner::case_main::selector(&arguments)
+                        );
+                        return ExitCode::FAILURE;
+                    }
+                    libtest_mimic::run(&arguments, trials).exit_code()
                 }
                 Err(error) => {
                     use std::io::Write;

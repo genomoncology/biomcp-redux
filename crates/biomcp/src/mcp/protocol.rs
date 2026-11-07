@@ -8,7 +8,7 @@ pub(super) fn instructions(
     mode: crate::config::ToolMode,
     context: crate::command::Context<'_>,
 ) -> String {
-    if mode == crate::config::ToolMode::Typed {
+    let mut instructions = if mode == crate::config::ToolMode::Typed {
         super::typed::instructions(context)
             .unwrap_or_else(|_| "Use biomcp_help for command arguments.".into())
     } else if context.globals.hosted {
@@ -16,7 +16,10 @@ pub(super) fn instructions(
             .unwrap_or_else(|_| "Use help for command arguments.".into())
     } else {
         INSTRUCTIONS.into()
-    }
+    };
+    instructions.push('\n');
+    instructions.push_str(crate::grammar::ENUM_CASE_GUIDANCE);
+    instructions
 }
 pub(super) const REVISIONS: [&str; 4] = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"];
 pub(super) const VERSION_KEY: &str = "io.modelcontextprotocol/protocolVersion";
@@ -118,12 +121,19 @@ pub(super) fn tool_result(
     };
     result(id, content(error, true, form), modern)
 }
+// A summary line names where this form puts the JSON, so it never names an absent field.
+pub(super) fn reply_note(form: ReplyForm) -> &'static str {
+    match form {
+        ReplyForm::StructuredOnly => "JSON reply is in structuredContent.",
+        ReplyForm::Both | ReplyForm::TextOnly => "JSON reply follows.",
+    }
+}
 fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
     match form {
         ReplyForm::Both => json!({"content":[{"type":"text","text":value.to_string()}],
             "structuredContent":value, "isError":failed}),
         ReplyForm::StructuredOnly => {
-            json!({"content":[{"type":"text","text":"JSON reply is in structuredContent."}],
+            json!({"content":[{"type":"text","text":reply_note(form)}],
             "structuredContent":value, "isError":failed})
         }
         ReplyForm::TextOnly => {
