@@ -43,8 +43,8 @@ def stage():
 
 
 def environment(clean_paths=False):
-    """Only the shipped binary cleans paths, because the flags name this run's
-    stage and any other build sharing the target folder would rebuild each run."""
+    """Only the shipped binary needs clean paths, so every other build keeps the
+    plain config."""
     home = stage() / ("release-cargo-home" if clean_paths else "cargo-home")
     return dict(os.environ, CARGO_HOME=str(home), CARGO_NET_OFFLINE="true")
 
