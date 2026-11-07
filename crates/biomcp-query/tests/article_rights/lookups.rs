@@ -330,6 +330,7 @@ fn both_sources(fetch: &Fetch) -> biomcp_query::Outcome {
             budget: Duration::from_secs(20),
             fresh: false,
             ncbi_email: None,
+            drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         },
         &Request::SearchArticle(
             serde_json::from_str::<ArticleSearch>(
