@@ -113,18 +113,26 @@ impl Cache {
         // One deadline covers every step. Each step is idempotent and ends
         // with its snapshot closed, so a refused attempt can be retried.
         let deadline = Deadline::start(OPEN_WAIT, None);
-        retry_busy(&connection, deadline, |connection| {
+        retry_busy("owners", &connection, deadline, |connection| {
             check_owners(connection, owners)
         })?;
+        let (mut retries, started) = (0, std::time::Instant::now());
         loop {
             sql_deadline(&connection, deadline)?;
             match Self::initialize(&mut connection) {
-                Err(CacheError::Busy) if !deadline.expired() => pause(deadline),
+                Err(CacheError::Busy) if !deadline.expired() => {
+                    retries += 1;
+                    pause(deadline);
+                }
+                Err(CacheError::Busy) => {
+                    crate::observe::record_open_failure("initialize", retries, started);
+                    return Err(CacheError::Busy);
+                }
                 result => break result?,
             }
         }
         // Ownership is validated before changing the file's journal mode.
-        retry_busy(&connection, deadline, enable_wal)?;
+        retry_busy("wal", &connection, deadline, enable_wal)?;
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
@@ -335,14 +343,23 @@ fn pause(deadline: Deadline<'_>) {
 // journal mode, without waiting. Finalize each attempt before pausing, so
 // another opener can finish; every attempt shares the original deadline.
 fn retry_busy(
+    name: &str,
     connection: &Connection,
     deadline: Deadline<'_>,
     mut step: impl FnMut(&Connection) -> Result<(), CacheError>,
 ) -> Result<(), CacheError> {
+    let (mut retries, started) = (0, std::time::Instant::now());
     loop {
         sql_deadline(connection, deadline)?;
         match step(connection) {
-            Err(CacheError::Busy) if !deadline.expired() => pause(deadline),
+            Err(CacheError::Busy) if !deadline.expired() => {
+                retries += 1;
+                pause(deadline);
+            }
+            Err(CacheError::Busy) => {
+                crate::observe::record_open_failure(name, retries, started);
+                return Err(CacheError::Busy);
+            }
             result => return result,
         }
     }
