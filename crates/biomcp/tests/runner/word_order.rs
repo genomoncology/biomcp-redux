@@ -74,6 +74,17 @@ fn names_command(reply: &Value, verb: &str, entity: &str) -> Check {
     ))
 }
 
+fn retired_names(reply: &Value, verb: &str) -> Check {
+    let named = reply
+        .pointer("/error/message")
+        .and_then(Value::as_str)
+        .is_some_and(|message| message.starts_with(&format!("use: {verb} gene ")));
+    if named && reply.pointer("/error/code") == Some(&json!("usage.retired")) {
+        return Ok(());
+    }
+    Err(format!("gene {verb} must name {verb} gene: {reply}"))
+}
+
 fn check() -> Check {
     let env = Environment::new().map_err(|error| error.to_string())?;
     let shown = map_commands(&env)?;
@@ -97,10 +108,10 @@ fn check() -> Check {
         if code != Some(2) {
             return Err(format!("{reversed:?} must be a usage refusal: {reply}"));
         }
-        // The gene root keeps its retired refusal, which is outside this recovery.
+        // The retired gene root names the typed command in its fixed message.
         if *entity == "gene" {
-            if reply.pointer("/error/code") != Some(&json!("usage.retired")) {
-                return Err(format!("{reversed:?} changed its refusal: {reply}"));
+            for reply in [reply, single_mcp(&env, &reversed)?] {
+                retired_names(&reply, verb)?;
             }
             continue;
         }
