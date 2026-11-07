@@ -157,8 +157,9 @@ fn source_help(server: &Server) -> Result<(), String> {
         }
     }
     let drug_id = named(&pgx, "--drug-id").ok_or("get pgx help hid --drug-id")?;
-    if !drug_id["description"]
-        .as_str()
+    if !drug_id
+        .get("description")
+        .and_then(Value::as_str)
         .is_some_and(|text| text.ends_with("Answered by: cpic."))
     {
         return Err(format!("help does not say what answers: {drug_id}"));
@@ -167,12 +168,17 @@ fn source_help(server: &Server) -> Result<(), String> {
     if named(&diagnostic, "--marker").is_some() {
         return Err("search diagnostic help offers --marker".into());
     }
-    let manufacturer = named(&diagnostic, "--manufacturer").ok_or("help hid --manufacturer")?;
-    if !manufacturer["description"]
-        .as_str()
-        .is_some_and(|text| text.ends_with("Answered by: fda-pma, fda-510k, fda-device-recall."))
-    {
-        return Err(format!("help names an off source: {manufacturer}"));
+    for field in ["--manufacturer", "--product-code"] {
+        let argument = named(&diagnostic, field).ok_or_else(|| format!("help hid {field}"))?;
+        if !argument
+            .get("description")
+            .and_then(Value::as_str)
+            .is_some_and(|text| {
+                text.ends_with("Answered by: fda-pma, fda-510k, fda-device-recall.")
+            })
+        {
+            return Err(format!("help names the wrong sources: {argument}"));
+        }
     }
     Ok(())
 }
