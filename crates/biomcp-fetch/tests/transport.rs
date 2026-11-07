@@ -362,6 +362,10 @@ fn refusals_send_zero_requests() {
 }
 
 #[test]
+#[expect(
+    clippy::disallowed_methods,
+    reason = "A scoped caller lets the test see when the server received its request"
+)]
 fn source_budget_caps_supplied_deadline_during_headers_and_body() {
     for (block, status) in [("head", None), ("body", Some(200))] {
         let stub = Stub::new(200, "application/json", r#"{"answer":"late"}"#, Some(block));

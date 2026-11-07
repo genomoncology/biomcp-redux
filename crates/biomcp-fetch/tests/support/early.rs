@@ -12,8 +12,11 @@ pub(super) fn next_unless<T>(server: &Server<T>, stopped: impl Fn() -> bool) -> 
         match server.requests.recv_timeout(Duration::from_millis(10)) {
             Ok(request) => return Some(request),
             Err(RecvTimeoutError::Timeout) if stopped() => return server.requests.try_recv().ok(),
-            Err(RecvTimeoutError::Timeout) if started.elapsed() < Duration::from_secs(30) => {}
-            Err(error) => panic!("caller neither sent its request nor stopped: {error}"),
+            Err(RecvTimeoutError::Timeout) => assert!(
+                started.elapsed() < Duration::from_secs(30),
+                "caller neither sent its request nor stopped"
+            ),
+            Err(RecvTimeoutError::Disconnected) => return None,
         }
     }
 }
