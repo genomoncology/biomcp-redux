@@ -42,3 +42,7 @@ The load test j34423 at d0f18a16c, with the first-open lock fix in, failed this 
 
 ## Progress
 - 2026-11-07 next: Allowance stop. Two branches name this ticket; the work is on ticket/0753-diag at 9f41ef6d3. Next: name the wait that returned Busy with a Yellow-only stress run, then fix; then run the unreached load checks once.
+
+## Amendment, 2026-11-07
+
+PM ruling: the Busy failure did not come back in 30 loaded rounds (j34522) or in a later loaded run, cancelled to free the host, that got through 16 checks without a failure (j34601). The earlier "no SQLite step recorded" was blind, because the test launcher did not pass `BIOMCP_SQLITE_DIAGNOSTICS` to the product. This ticket lands the forwarding fix and closes with the cause unnamed; the scheduled load runs (0641) will name the step if it fails again, and that failure reopens it.

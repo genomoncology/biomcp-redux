@@ -41,3 +41,7 @@ Milestone: 5
 
 - Evidence: j34244 cut the first request at 3 seconds and sent a second: 10 of 12 live tries passed against 9 of 12 without the change, within noise. j34142 had shown a second curl returning while the first stayed open.
 - Evidence: j34537 keeps the first request open while the second runs, first finished reply wins: 12 of 12 live `get protein P00533` tries passed, slowest 13.42 seconds, against 8 of 12 on main in the same interleaved run, where all four failures were 15-second deadlines. Twelve tries each way is a small sample, but the gain is in the direction the ticket asked for and the kept-open design replaces the cut-first one.
+
+## Amendment, 2026-11-07
+
+Review note: a losing request may keep its connection open after the winner returns, for at most the time left in the 15-second budget, and its quota slot is already released. On a long-lived server the number of requests in flight to UniProt can briefly exceed its quota of two. The one-shot CLI is unaffected. Accepted for 1.0 as bounded.
