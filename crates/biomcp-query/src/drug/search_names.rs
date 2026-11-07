@@ -13,6 +13,8 @@ const NAME_ROWS: u32 = 50;
 const LOOKUP_SHARE: u32 = 3;
 /// Most names sent to a provider that takes one request per name, under its request pacing.
 const NAME_REQUESTS: usize = 4;
+/// Most official names one search keeps past the name limit, so one OR group stays bounded.
+const OFFICIAL_NAME_CEILING: usize = 10;
 
 /// What one lookup settled about a typed name.
 #[derive(Debug, Default)]
@@ -286,6 +288,8 @@ struct Capped {
     names: Vec<Text>,
     left_out: usize,
     too_long: usize,
+    /// Official names past [`OFFICIAL_NAME_CEILING`], named in the notice.
+    official_left_out: Vec<Text>,
 }
 
 impl Capped {
@@ -304,12 +308,19 @@ impl Capped {
                 self.left_out
             ));
         }
+        if !self.official_left_out.is_empty() {
+            let names: Vec<_> = self.official_left_out.iter().map(Text::as_str).collect();
+            message.push_str(&format!(
+                " Left out official names past the ceiling of {OFFICIAL_NAME_CEILING}: {}.",
+                names.join(", ")
+            ));
+        }
         message
     }
 }
 
 /// One spelling per name, the typed one kept when the provider can take it. Official names
-/// are never capped; the record's preferred names rank next and then the shortest, so the same
+/// pass the limit up to [`OFFICIAL_NAME_CEILING`]; the record's preferred names rank next and then the shortest, so the same
 /// drug keeps the same names whichever of them was typed.
 fn capped(
     names: Vec<Text>,
@@ -346,25 +357,29 @@ fn capped(
         .iter()
         .filter(|name| official.contains(&lowered(name)))
         .count();
-    let limit = limit.max(kept_official);
-    let mut left_out = names.len().saturating_sub(limit);
-    if left_out > 0 {
-        let typed_cut = names.iter().skip(limit).any(|name| name == input);
-        names.truncate(limit);
-        if typed_cut {
-            match names.last_mut() {
-                Some(last) if !official.contains(&lowered(last)) => *last = input.clone(),
-                _ => {
-                    names.push(input.clone());
-                    left_out -= 1;
-                }
-            }
+    let limit = limit.max(kept_official.min(OFFICIAL_NAME_CEILING));
+    let left_out = names.len().saturating_sub(limit);
+    let mut cut = names.split_off(limit.min(names.len()));
+    // The typed name stays, in place of the last name that is not official, else the last one.
+    if let Some(at) = cut.iter().position(|name| name == input) {
+        let typed = cut.remove(at);
+        let slot = names
+            .iter()
+            .rposition(|name| !official.contains(&lowered(name)))
+            .or(names.len().checked_sub(1));
+        if let Some(slot) = slot {
+            cut.push(std::mem::replace(&mut names[slot], typed));
         }
     }
+    let official_left_out = cut
+        .into_iter()
+        .filter(|name| official.contains(&lowered(name)))
+        .collect();
     Capped {
         names,
         left_out,
         too_long,
+        official_left_out,
     }
 }
 
