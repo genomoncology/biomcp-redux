@@ -69,7 +69,7 @@ def checks():
     listed = {'first-open': None, 'cache-process': None}
     listed.update({f'fetch/{name}': ('fetch', name) for name in FETCH_TESTS})
     listed.update({f'python/{name}': [python, '-m', 'unittest', name] for name in PYTHON_MODULES})
-    listed.update({f'python/{name}': [python, f'scripts/{name}.py'] for name in PYTHON_SCRIPTS})
+    listed.update({f'python/{name}': ['env', 'PYTHONPATH=.', python, f'scripts/{name}.py'] for name in PYTHON_SCRIPTS})
     listed.update({f'cases/{name}': ('cases', name) for name in CASE_TRIALS})
     listed.update({f'tools/{name}': ('tools', name) for name in TOOL_TRIALS})
     return listed
