@@ -69,14 +69,18 @@ Collection's exit is this section's result. A shard exits zero on survivors, on 
 
 `release/linux.sh` already builds the manylinux artifacts, prepares matching runners, runs installed forms without the checkout and checks the matching runtime container. Retain its actual install report, raw log and container receipt. Do not rebuild that platform merely to repeat those checks.
 
+A release-profile build refuses a binary that still names a folder of the machine that built it: the checkout's `crates` folder, the output folder, the vendored source folder or the Cargo registry. That refusal fails this section on any platform. Until a preflight passes, this check has real proof only on macOS arm64, so Windows and Intel macOS prove it here.
+
+The runtime container installs its packages only from the dated Debian snapshot named by `debian-snapshot` in `release/toolchain.json`, over plain http, with the signed Release file carrying the trust. A snapshot that cannot be reached fails the container build; do not switch to the live archive. Until a preflight passes, a real build from the snapshot has proof only on arm64, so amd64 proves it here.
+
 | Section | Command | Host and inputs |
 | --- | --- | --- |
 | Native installed forms | `python3 release/gate.py --artifacts "$NATIVE" --scratch "$SCRATCH" --python python3` | Matching native host; product and runner source both selected main; use `python` on Windows and a writable job-owned `BIOMCP_EVIDENCE_DIR` |
 | Prepare retained runners without rebuilding product | `python3 release/gate.py --prepare-only --artifacts "$NATIVE" --scratch "$PROOF"` | Matching source/platform; reuse an existing prepared proof when available |
 | Prepared installed gate | `python3 release/gate.py --prepared --artifacts "$NATIVE" --scratch "$SCRATCH" --report "$EVIDENCE/install-report.json" --python python3` | Matching platform; first copy only the prepared proof into fresh `SCRATCH`; use Windows Python there |
 | Linux runtime container alone | `python3 release/container_check.py "$IMAGE" "$ARCH" "$CONTAINER_PROOF" "$VERSION"` | Matching Linux architecture and retained same-main image; proof directory contains binary, licenses, runners and fixtures; `ARCH` is `amd64` or `arm64` |
-| Cold Linux matrix | `make release-cold COLD_REPORT="$EVIDENCE/cold-report.json"` | A host with Docker and both pinned images; empty container homes; existing command collects every failed stage across both architectures |
-| Cold Linux architecture retry | `make release-linux CONTAINER_ARGS="--platform linux/$ARCH"` | Selected main with `BIOMCP_RELEASE_COLD=1`, `BIOMCP_BUILD_REVISION="$MAIN_REVISION"`, corresponding pinned `BUILD_IMAGE` and owned `BIOMCP_RELEASE_REPORT`; only that architecture's existing cold recipe |
+| Cold Linux matrix | `make release-cold COLD_REPORT="$EVIDENCE/cold-report.json"` | A host with Docker and both pinned images; `snapshot.debian.org` reachable for the `debian-snapshot` date in `release/toolchain.json`; empty container homes; existing command collects every failed stage across both architectures |
+| Cold Linux architecture retry | `make release-linux CONTAINER_ARGS="--platform linux/$ARCH"` | Selected main with `BIOMCP_RELEASE_COLD=1`, `BIOMCP_BUILD_REVISION="$MAIN_REVISION"`, corresponding pinned `BUILD_IMAGE` and owned `BIOMCP_RELEASE_REPORT`; `snapshot.debian.org` reachable for the `debian-snapshot` date in `release/toolchain.json`; only that architecture's existing cold recipe |
 
 On macOS, a gate without Homebrew exits zero and marks `homebrew-formula` as `deferred` in its report. That section did not run: require `pass` there, as the hosted jobs do.
 
