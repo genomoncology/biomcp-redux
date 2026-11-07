@@ -35,3 +35,7 @@ Job j35187 at main bc6b467d8 on the M5 failed it: "step 1: /result/items/0 omits
 ## Depends on
 
 - Depends on: nothing.
+
+## Finding
+
+- The M5 failure was not host state. Job j35187 ran `tests/tool-cases/drug/label-discovery.yaml`, a stale duplicate no gate runs. It expected no `name`, but label items have shown the SPL set ID as the name since 0605, and its later steps predate the free-text and controls cases. The main case `tests/cases/drug/label-discovery.yaml`, with `label-free-text.yaml` and `label-controls.yaml`, holds every claim and is the proof. The tool-case copy is deleted.
