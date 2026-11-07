@@ -29,6 +29,7 @@
         "--source",
         "mychem"
       ],
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/sources/0/source": "mychem",
