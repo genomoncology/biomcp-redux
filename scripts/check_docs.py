@@ -159,18 +159,85 @@ def catalog(executable):
             return {tool["name"]: tool for tool in message["result"]["tools"]}
     raise ValueError(f"typed server returned no tool list: {reply.stderr}")
 
+ANNOTATIONS = {"$schema", "$id", "$defs", "title", "description", "default", "examples", "deprecated", "readOnly",
+               "format"}
+
+
+def schema_errors(schema, value, root, path="$"):
+    """Check a value against the JSON Schema keywords MCP tool schemas use; refuse keywords it cannot check."""
+    if schema is True:
+        return []
+    if schema is False:
+        return [f"{path}: not allowed"]
+    errors = []
+    for key, rule in schema.items():
+        if key == "$ref":
+            target = root
+            for part in rule.removeprefix("#/").split("/") if rule != "#" else []:
+                target = target[part.replace("~1", "/").replace("~0", "~")]
+            errors += schema_errors(target, value, root, path)
+        elif key == "type":
+            kinds = rule if isinstance(rule, list) else [rule]
+            checks = {"object": dict, "array": list, "string": str, "boolean": bool, "null": type(None)}
+            ok = any(isinstance(value, checks[k]) if k in checks else
+                     (isinstance(value, int) and not isinstance(value, bool)) if k == "integer" else
+                     (isinstance(value, (int, float)) and not isinstance(value, bool)) for k in kinds)
+            if not ok:
+                errors.append(f"{path}: {value!r} is not of type {kinds}")
+        elif key == "enum" and value not in rule:
+            errors.append(f"{path}: {value!r} is not one of {rule}")
+        elif key == "const" and value != rule:
+            errors.append(f"{path}: {value!r} is not {rule!r}")
+        elif key == "required" and isinstance(value, dict):
+            errors += [f"{path}: {name!r} is required" for name in rule if name not in value]
+        elif key == "properties" and isinstance(value, dict):
+            for name, sub in rule.items():
+                if name in value:
+                    errors += schema_errors(sub, value[name], root, f"{path}.{name}")
+        elif key == "additionalProperties" and isinstance(value, dict):
+            extra = [name for name in value if name not in schema.get("properties", {})]
+            if rule is False:
+                errors += [f"{path}: {name!r} is not allowed" for name in extra]
+            elif rule is not True:
+                for name in extra:
+                    errors += schema_errors(rule, value[name], root, f"{path}.{name}")
+        elif key == "items" and isinstance(value, list):
+            for index, item in enumerate(value):
+                errors += schema_errors(rule, item, root, f"{path}[{index}]")
+        elif key in ("minItems", "maxItems") and isinstance(value, list):
+            if (len(value) < rule) if key == "minItems" else (len(value) > rule):
+                errors.append(f"{path}: {len(value)} items violates {key} {rule}")
+        elif key in ("minLength", "maxLength") and isinstance(value, str):
+            if (len(value) < rule) if key == "minLength" else (len(value) > rule):
+                errors.append(f"{path}: length violates {key} {rule}")
+        elif key == "pattern" and isinstance(value, str) and not re.search(rule, value):
+            errors.append(f"{path}: {value!r} does not match {rule}")
+        elif key in ("minimum", "maximum") and isinstance(value, (int, float)) and not isinstance(value, bool):
+            if (value < rule) if key == "minimum" else (value > rule):
+                errors.append(f"{path}: {value} violates {key} {rule}")
+        elif key in ("oneOf", "anyOf", "allOf"):
+            results = [schema_errors(sub, value, root, path) for sub in rule]
+            passed = sum(not found for found in results)
+            if (key == "allOf" and passed != len(rule)) or (key == "anyOf" and not passed) or (key == "oneOf" and passed != 1):
+                errors.append(f"{path}: {value!r} does not satisfy {key}: {[found[:1] for found in results]}")
+        elif key in {"properties", "items", "additionalProperties", "required", "minItems", "maxItems", "minLength",
+                     "maxLength", "pattern", "minimum", "maximum", "enum", "const"}:
+            continue  # a keyword aimed at another kind of value
+        elif key not in ANNOTATIONS and not key.startswith("x-"):
+            raise ValueError(f"{path}: schema keyword {key} is not supported by the docs check")
+    return errors
+
 
 def validate_examples(root, executable):
     """Each example must pass its tool's input schema, as 0758 requires of tool descriptions."""
-    import jsonschema
     tools = catalog(executable)
     if set(tools) != ENTITY_TOOLS | SHARED_TOOLS:
         raise ValueError(f"typed server offers {sorted(tools)}, not the 17 entity and shared tools")
     seen = set()
     for where, tool, call in example_calls(root):
-        errors = list(jsonschema.Draft202012Validator(tools[tool]["inputSchema"]).iter_errors(call))
+        errors = schema_errors(tools[tool]["inputSchema"], call, tools[tool]["inputSchema"])
         if errors:
-            raise ValueError(f"{where}: example call for {tool} fails its schema: {errors[0].message}")
+            raise ValueError(f"{where}: example call for {tool} fails its schema: {errors[0]}")
         seen.add(tool)
     if seen != ENTITY_TOOLS:
         raise ValueError(f"no example call for tools: {sorted(ENTITY_TOOLS - seen)}")
