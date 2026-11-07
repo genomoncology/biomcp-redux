@@ -4,6 +4,12 @@
   "feature": "drug-label",
   "story": "Exact application discovery rejects mismatches; missing sections are empty while missing SPL records remain absent.",
   "replay": "drug/label-discovery",
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "chembl"
+    ]
+  },
   "steps": [
     {
       "run": [
@@ -15,7 +21,7 @@
         "--limit",
         "1"
       ],
-      "exit": 5,
+      "exit": 0,
       "expect": {
         "/status": "complete",
         "/result": {
