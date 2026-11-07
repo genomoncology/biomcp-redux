@@ -22,7 +22,6 @@
           "Lee M",
           "Patel R"
         ],
-        "/result/literature/papers/0/authors_omitted": null,
         "/result/literature/papers/1/authors": [
           "Author1 A",
           "Author2 A",
@@ -39,6 +38,11 @@
         "/sources/0/notices/*/message": {
           "includes_all_of": [
             "Paper 10001: authors omitted: 26; read every author at https://pubmed.ncbi.nlm.nih.gov/10001/."
+          ]
+        },
+        "/result/literature/papers/0": {
+          "omits": [
+            "authors_omitted"
           ]
         }
       }

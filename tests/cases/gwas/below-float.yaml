@@ -13,7 +13,11 @@
       "expect": {
         "/status": "complete",
         "/result/association/exact_p_value/exponent": -320,
-        "/result/association/p_value": null
+        "/result/association": {
+          "omits": [
+            "p_value"
+          ]
+        }
       }
     },
     {
@@ -28,10 +32,14 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/id": "association:6110",
-        "/result/items/0/p_value": null,
         "/result/items/0/exact_p_value/exponent": -320,
         "/result/items/1/id": "association:6111",
-        "/result/items/1/p_value": 0.0
+        "/result/items/1/p_value": 0.0,
+        "/result/items/0": {
+          "omits": [
+            "p_value"
+          ]
+        }
       }
     }
   ]

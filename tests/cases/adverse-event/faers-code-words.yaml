@@ -31,7 +31,11 @@
         "/result/reactions/records/0/outcome": "6",
         "/result/reactions/records/0/outcome_label": "Unknown",
         "/result/reactions/records/1/outcome": "9",
-        "/result/reactions/records/1/outcome_label": null
+        "/result/reactions/records/1": {
+          "omits": [
+            "outcome_label"
+          ]
+        }
       }
     },
     {
@@ -48,7 +52,11 @@
         "/result/drugs/records/0/actiondrug": "5",
         "/result/drugs/records/0/actiondrug_label": "Unknown",
         "/result/drugs/records/1/role": "7",
-        "/result/drugs/records/1/role_label": null
+        "/result/drugs/records/1": {
+          "omits": [
+            "role_label"
+          ]
+        }
       }
     }
   ]

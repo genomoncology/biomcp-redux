@@ -185,8 +185,8 @@ fn oversized_list() -> Check {
     invoke(&["sync", "cbioportal-studies"])?;
     let reply = invoke(&["get", "study", "synthetic_0", "sample-lists"])?;
     let row = reply.pointer("/result/items/0").ok_or("list row missing")?;
-    if row["sample_list_id"] != "native_list_big"
-        || row.get("sample_count").is_some()
+    if row["sampleListId"] != "native_list_big"
+        || row.get("sampleCount").is_some()
         || reply.pointer("/problems/0/field") != Some(&json!("sampleCount"))
         || reply.pointer("/problems/0/code") != Some(&json!("collection.incomplete"))
     {
