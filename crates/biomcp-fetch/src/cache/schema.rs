@@ -44,6 +44,10 @@ fn validate_owners(
     schema: &str,
     owners: &[SchemaOwner],
 ) -> Result<(), CacheError> {
+    #[cfg(test)]
+    if REFUSE.with(|count| count.replace(count.get().saturating_sub(1))) > 0 {
+        return Err(CacheError::Busy);
+    }
     let has_meta: bool = connection
         .query_row(
             &format!("SELECT EXISTS(SELECT 1 FROM {schema}.sqlite_master WHERE name='meta')"),
@@ -85,6 +89,17 @@ fn validate_owners(
         }
     }
     Ok(())
+}
+// Test seam: SQLite can refuse a read at once, skipping its busy handler,
+// while another opener switches the journal mode. A real switch cannot be held
+// at that point, so the next reads on this thread are refused as that is.
+#[cfg(test)]
+thread_local! {
+    static REFUSE: std::cell::Cell<u32> = const { std::cell::Cell::new(0) };
+}
+#[cfg(test)]
+pub(super) fn refuse_next_owner_checks(count: u32) {
+    REFUSE.with(|cell| cell.set(count));
 }
 #[track_caller]
 fn version_error(error: rusqlite::Error) -> CacheError {
@@ -149,7 +164,7 @@ impl Cache {
                     row.get::<_, u32>(0)
                 })
                 .optional()
-                .map_err(|_| CacheError::Version)?
+                .map_err(|error| version_error(error))?
                 == Some(VERSION)
         {
             return Ok(());
@@ -169,7 +184,7 @@ impl Cache {
                 r.get(0)
             })
             .optional()
-            .map_err(|_| CacheError::Version)?
+            .map_err(|error| version_error(error))?
         } else {
             None
         };
