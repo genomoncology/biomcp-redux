@@ -181,35 +181,42 @@ pub fn mutations(
     })
 }
 
-/// The source states a list's size only in the study's DETAILED lists, whose member IDs are dropped at parse.
+/// Largest public list measured, 1,086,826 bytes for 54,331 members, plus fifteen percent, rounded upward.
+const MAX_SAMPLE_LIST_BYTES: u64 = 1_249_850;
+/// The source states a list's size only on its detailed record, whose member IDs are dropped at parse.
+/// A study's lists together outgrow any fixed bound on large studies, so this reads the selected list alone.
 fn sample_count(
     leg: &Leg<'_>,
     query: &VariantRecurrenceQuery,
 ) -> Result<crate::Mapped<Option<u64>>, RequestError> {
-    let study = biodata::StudyId::new(query.study().as_str())
-        .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))?;
-    let lists = studies::sample_lists(leg, &study, 0, u32::MAX)?;
-    let list = lists
-        .window
-        .rows
-        .into_iter()
-        .find(|l| l.sample_list_id.as_str() == query.sample_set().as_str())
-        .ok_or(biomcp_fetch::SourceError {
-            source: Source::Cbioportal,
-            reason: biomcp_types::Reason::Unavailable,
-            status: None,
-            tls_cause: None,
-            retry_after: None,
-        })?;
-    let record = crate::mapped::record(&list.sample_list_id);
+    let endpoint = SPEC
+        .get("/sample-lists")
+        .with_segments(&[PathSegment::new(query.sample_set().as_str())?])
+        .fresh(Freshness::Days(1))
+        .bytes(MAX_SAMPLE_LIST_BYTES);
+    let (list, _) = leg
+        .call(
+            &endpoint,
+            Input::Params(&[]),
+            Read::<raw::SampleList>::json().check(&|v| {
+                if v.study_id == *query.study() && v.sample_list_id == *query.sample_set() {
+                    Ok(())
+                } else {
+                    Err(BadReply)
+                }
+            }),
+        )
+        .map(|received| (received.value, received.meta))?;
+    let mut problems = crate::mapped::Problems {
+        source: Source::Cbioportal,
+        record: Some(list.sample_list_id),
+        list: Vec::new(),
+    };
+    let value = problems.field("sampleCount", list.sample_count);
     Ok(crate::Mapped {
         refusals: crate::Refusal::None,
-        value: list.sample_count,
-        problems: lists
-            .problems
-            .into_iter()
-            .filter(|problem| problem.record == record)
-            .collect(),
+        value,
+        problems: problems.list,
     })
 }
 

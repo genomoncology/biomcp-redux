@@ -17,6 +17,13 @@ pub(super) struct Profile {
     pub study_id: Text,
     pub molecular_alteration_type: Text,
 }
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct SampleList {
+    pub sample_list_id: Text,
+    pub study_id: Text,
+    pub sample_count: Option<crate::raw::Field<u64>>,
+}
 /// Native source mutation identity and sample, without inferred equivalence.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase", from = "ReceivedMutation")]
@@ -81,7 +88,7 @@ macro_rules! reply {
 #[derive(Deserialize)]
 #[serde(transparent)]
 pub(super) struct Mutations(pub Vec<super::scope::Row<Mutation, super::scope::Mutation>>);
-reply!(Study, Profile, Mutations);
+reply!(Study, Profile, SampleList, Mutations);
 
 impl Mutations {
     pub(super) fn identities_admitted(&self) -> bool {

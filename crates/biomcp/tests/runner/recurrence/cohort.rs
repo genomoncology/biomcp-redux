@@ -5,11 +5,13 @@ use serde_json::{Value, json};
 const COMMON_ROWS: usize = 1_670;
 const LARGE_ROWS: usize = 6_000;
 const SELECTED_SAMPLES: u64 = 10_945;
+const MEMBER: &str = "synthetic-list-member";
 
 pub(super) fn check() -> Result<(), String> {
     common()?;
     large()?;
-    uncounted()
+    uncounted()?;
+    oversized()
 }
 
 fn common() -> Result<(), String> {
@@ -26,6 +28,9 @@ fn common() -> Result<(), String> {
     }
     if reply.to_string().contains("percent") || result.get("frequency").is_some() {
         return Err(format!("recurrence computed a percentage: {reply}"));
+    }
+    if reply.to_string().contains(MEMBER) {
+        return Err(format!("a list member reached the reply: {reply}"));
     }
     let reads = mutation_reads(stub)?;
     if reads != 1 {
@@ -74,7 +79,7 @@ fn large() -> Result<(), String> {
 }
 
 fn uncounted() -> Result<(), String> {
-    let (env, stub) = serve_lists(COMMON_ROWS, lists(None))?;
+    let (env, stub) = serve_list(COMMON_ROWS, list(None))?;
     let reply = super::call(&env, &default_page(), 0)?;
     stub.finish()?;
     if reply.pointer("/result/selected_sample_count").is_some()
@@ -85,6 +90,23 @@ fn uncounted() -> Result<(), String> {
         return Err(format!(
             "a missing list size was not shown missing: {reply}"
         ));
+    }
+    Ok(())
+}
+
+fn oversized() -> Result<(), String> {
+    let mut oversized = list(Some(SELECTED_SAMPLES));
+    if let Some(fields) = oversized.as_object_mut() {
+        fields.insert("sampleIds".into(), json!(vec![MEMBER; 80_000]));
+    }
+    let (env, stub) = serve_list(COMMON_ROWS, oversized)?;
+    let reply = super::call(&env, &default_page(), 0)?;
+    stub.finish()?;
+    if reply.pointer("/result/selected_sample_count").is_some()
+        || reply.pointer("/result/observed_sample_count") != Some(&json!(matched(COMMON_ROWS)))
+        || !reply.to_string().contains("sample_set.metadata")
+    {
+        return Err(format!("an oversized list was not refused alone: {reply}"));
     }
     Ok(())
 }
@@ -108,26 +130,39 @@ fn mutation_reads(stub: Stub) -> Result<usize, String> {
 }
 
 fn serve(rows: usize) -> Result<(Environment, Stub), String> {
-    serve_lists(rows, lists(Some(SELECTED_SAMPLES)))
+    serve_list(rows, list(Some(SELECTED_SAMPLES)))
 }
 
-/// A DETAILED list reply: another list first, and the selected list's count as given.
-fn lists(count: Option<u64>) -> Value {
+/// The selected list's own record, with its count as given and its member IDs.
+fn list(count: Option<u64>) -> Value {
     let mut selected = json!({
-        "studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all",
-        "category":"all_cases_in_study","name":"All samples","description":"All samples"
+        "sampleListId":"msk_impact_2017_all","studyId":"msk_impact_2017",
+        "category":"all_cases_in_study","name":"Synthetic list","description":"Synthetic list",
+        "sampleIds":[MEMBER]
     });
     if let (Some(count), Some(fields)) = (count, selected.as_object_mut()) {
         fields.insert("sampleCount".into(), json!(count));
     }
-    json!([{
-        "studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_Anal_Cancer",
-        "category":"other","name":"Tumor Type: Anal Cancer","description":"All tumors",
-        "sampleCount":12
-    }, selected])
+    selected
 }
 
-fn serve_lists(rows: usize, lists: Value) -> Result<(Environment, Stub), String> {
+/// The source's study-wide reads: SUMMARY states no count, and a large study's DETAILED reply
+/// is 2.5 MB and more.
+fn study_lists(request: &str) -> String {
+    let members = if request.contains("projection=DETAILED") {
+        vec![MEMBER; 150_000]
+    } else {
+        Vec::new()
+    };
+    json!([{
+        "studyId":"msk_impact_2017","sampleListId":"msk_impact_2017_all",
+        "category":"all_cases_in_study","name":"Synthetic list","description":"Synthetic list",
+        "sampleIds":members
+    }])
+    .to_string()
+}
+
+fn serve_list(rows: usize, list: Value) -> Result<(Environment, Stub), String> {
     let stub = Stub::for_sources(
         &[
             "www.cbioportal.org",
@@ -141,16 +176,19 @@ fn serve_lists(rows: usize, lists: Value) -> Result<(Environment, Stub), String>
                 "application/json"
             }
         },
-        move |request| reply(request, rows, &lists),
+        move |request| reply(request, rows, &list),
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     super::config(&env, &stub)?;
     Ok((env, stub))
 }
 
-fn reply(request: &str, rows: usize, lists: &Value) -> Result<String, String> {
+fn reply(request: &str, rows: usize, list: &Value) -> Result<String, String> {
+    if request.starts_with("GET /api/sample-lists/") {
+        return Ok(list.to_string());
+    }
     if request.contains("/sample-lists?") {
-        return Ok(lists.to_string());
+        return Ok(study_lists(request));
     }
     if !request.contains("/mutations?") {
         return super::cbio(request);
