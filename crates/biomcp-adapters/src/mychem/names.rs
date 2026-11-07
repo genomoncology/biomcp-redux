@@ -90,7 +90,7 @@ pub(super) fn name_records(
                 preferred: preferred(&rows),
                 official: rows
                     .iter()
-                    .flat_map(|(_, c)| super::map::official_for(c))
+                    .flat_map(|(_, c)| official(c))
                     .collect(),
                 id,
             });
@@ -173,4 +173,16 @@ fn generic_names(c: &Component) -> [Option<&str>; 4] {
         c.display_name.as_deref(),
         c.nonproprietaryname.as_deref(),
     ]
+}
+/// The synonyms the source types as official.
+pub(super) fn official(c: &Component) -> Vec<String> {
+    c.molecule_synonyms
+        .as_ref()
+        .into_iter()
+        .flatten()
+        .filter(|s| crate::drug_sources::official_name(s.syn_type.as_deref()))
+        .filter_map(|s| s.molecule_synonym.as_deref())
+        .flat_map(super::names::split)
+        .map(str::to_owned)
+        .collect()
 }

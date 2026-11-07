@@ -131,7 +131,7 @@ pub(super) fn card(
     let mut parents = Vec::new();
     for (component, c) in rows {
         aliases.extend(aliases_for(&c));
-        official.extend(official_for(&c));
+        official.extend(super::names::official(&c));
         refs.extend(references_for(&id, component, &c, &mut problems));
         refs.extend(native_xrefs(&id, component, &c, &mut problems));
         parents.extend(parents_for(&id, component, &c, &mut problems));
@@ -171,18 +171,6 @@ pub(super) fn card(
     })
 }
 
-/// The synonyms the source types as official.
-pub(super) fn official_for(c: &Component) -> Vec<String> {
-    c.molecule_synonyms
-        .as_ref()
-        .into_iter()
-        .flatten()
-        .filter(|s| crate::drug_sources::official_name(s.syn_type.as_deref()))
-        .filter_map(|s| s.molecule_synonym.as_deref())
-        .flat_map(super::names::split)
-        .map(str::to_owned)
-        .collect()
-}
 pub(super) fn aliases_for(c: &Component) -> Vec<String> {
     let mut aliases = Vec::new();
     aliases.extend(
