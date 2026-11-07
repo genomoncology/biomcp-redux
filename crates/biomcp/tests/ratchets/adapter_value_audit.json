@@ -2218,7 +2218,7 @@
     },
     {
       "path": "crates/biomcp-query/src/trial.rs",
-      "site": "search: as_deref ( ) , & mut outcome , page ) ; } if let Ok ( version ) = version { apply_version ( version , & mut outcome",
+      "site": "search: as_deref ( ) , & mut outcome , page ) ; } if let Ok ( version ) = version { outcome . problems . extend ( version",
       "maximum": 1,
       "class": "migrated",
       "owner": "trial.rs",
@@ -2226,7 +2226,7 @@
     },
     {
       "path": "crates/biomcp-query/src/trial.rs",
-      "site": "search: mut outcome , result . is_ok ( ) , unavailable ) ; if let Ok ( page ) = result { if page . condition_word_mismatch { condition :",
+      "site": "search: mut outcome , found , identity_failed , unavailable ) ; } ; if let Ok ( page ) = result { if page . condition_word_mismatch { condition :",
       "maximum": 1,
       "class": "migrated",
       "owner": "trial.rs",
