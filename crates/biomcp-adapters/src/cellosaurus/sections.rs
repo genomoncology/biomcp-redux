@@ -6,8 +6,8 @@ use biodata::{
 };
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    Capped, CellLineCard, CellLineIdentityPage, CellLineNames, CellLineVariants, CellLineXrefs, Section,
-    Source,
+    Capped, CellLineCard, CellLineIdentityPage, CellLineNames, CellLineVariants, CellLineXrefs,
+    Section, Source,
 };
 /// Read the retained complete projection with primary and qualified identity checks.
 pub fn complete(
