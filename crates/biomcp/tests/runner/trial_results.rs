@@ -81,7 +81,11 @@ fn posted() -> Check {
     {
         return Err("adverse-event group denominator changed".into());
     }
-    // Compare every whole native row, including later pages, to the independent captured reply.
+    native_rows(&rows, &serious)
+}
+
+/// Compares every whole native row, including later pages, to the independent captured reply.
+fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     let source = plain(&source()?)?;
     let native = &source["resultsSection"];
     let outcomes: Vec<_> = rows
