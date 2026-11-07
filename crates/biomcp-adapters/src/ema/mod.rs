@@ -127,7 +127,7 @@ pub fn regulatory(
         let event = map::event(&row, &mut problems);
         DrugRegulatory {
             identity: map::header(&row, &mut problems),
-            date_roles: map::date_roles(&event),
+            date_roles: map::date_roles(&row, &mut problems, &event),
             regulatory: Section::Data {
                 source: Source::Ema,
                 data: DrugRecords {

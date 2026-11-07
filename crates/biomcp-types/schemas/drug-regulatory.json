@@ -256,6 +256,17 @@
           ],
           "description": "The source's published words for this date; omitted when the source publishes none."
         },
+        "procedure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native procedure reference the source shows beside this date; omitted when none."
+        },
         "role": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Native date role, as it appears in the records' dates."

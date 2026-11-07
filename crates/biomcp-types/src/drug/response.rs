@@ -239,6 +239,9 @@ pub struct DateRoleLabel {
     /// The source's published words for this date; omitted when the source publishes none.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub label: Option<Text>,
+    /// Native procedure reference the source shows beside this date; omitted when none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub procedure: Option<Text>,
 }
 /// Native DDInter partner rows and levels without invented management text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
