@@ -288,8 +288,9 @@ tool_only! {
         Ok(())
     }
 
-    // A first snapshot is being published and another owner holds the cache, so
-    // the read stops at once on a busy store. No budget or wall clock decides it.
+    // A first snapshot is being published and another owner holds the cache for
+    // the whole read, so every step finds the store busy until the budget ends.
+    // Host speed changes only how long that takes, never where the read stops.
     fn bounded() -> Check {
         use biomcp_fetch::{Fetch, FetchConfig, Secret};
         let env = Environment::new().map_err(|e| e.to_string())?;
@@ -320,7 +321,7 @@ tool_only! {
                         let _ = done.send(biomcp_query::run(
                             &biomcp_query::Ctx {
                                 fetch: &fetch,
-                                budget: Duration::from_secs(60),
+                                budget: Duration::from_millis(200),
                                 ncbi_email: None,
                                 fresh: false,
                                 drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
@@ -328,18 +329,16 @@ tool_only! {
                             &request,
                         ));
                     });
-                    // A watchdog only: a busy store answers without waiting.
+                    // A watchdog only: the read ends with its own short budget.
                     Ok(completion.recv_timeout(Duration::from_secs(30)))
                 })
                 .map_err(|e| e.to_string())
         })?
         .map_err(|e| format!("busy read did not answer: {e}"))?;
-        if result.local != Some(biomcp_fetch::RequestError::Cache(biomcp_fetch::CacheError::Busy))
-            || !result.sources.iter().any(|source| {
-                source.source == biomcp_types::Source::Hgnc
-                    && source.reason == Some(biomcp_types::Reason::Syncing)
-            })
-        {
+        if !result.sources.iter().any(|source| {
+            source.source == biomcp_types::Source::Hgnc
+                && source.reason == Some(biomcp_types::Reason::DeadlineExceeded)
+        }) {
             return Err(format!("busy first snapshot did not name why: {result:?}"));
         }
         Ok(())
