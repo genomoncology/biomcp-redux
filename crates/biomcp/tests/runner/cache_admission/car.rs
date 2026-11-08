@@ -43,7 +43,9 @@ fn check() -> Result<(), String> {
                     json!("http://reg.genome.network/allele/not-an-id");
             }
             "error-reply" => {
-                body["errorType"] = json!("InternalServerError");
+                body.as_object_mut()
+                    .ok_or("registry allele")?
+                    .insert("errorType".into(), json!("InternalServerError"));
             }
             _ => {}
         }
