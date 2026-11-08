@@ -65,6 +65,8 @@ class TimeoutConfiguration(unittest.TestCase):
     def test_configured_guards_require_positive_finite_seconds(self):
         for module, variable, constant in [
             ('release.smoke', 'BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS', 'SUITE_TIMEOUT_FLOOR_SECONDS'),
+            ('release.smoke', 'BIOMCP_SUITE_TIMEOUT_MULTIPLE', 'SUITE_TIMEOUT_MULTIPLE'),
+            ('release.smoke', 'BIOMCP_SUITE_TIMEOUT_CEILING_SECONDS', 'SUITE_TIMEOUT_CEILING_SECONDS'),
             ('release.test_smoke', 'BIOMCP_INSTALLED_SMOKE_HANG_GUARD_SECONDS', 'INSTALLED_SMOKE_HANG_GUARD_SECONDS'),
         ]:
             script = f'from {module} import {constant}; assert {constant} == 0.1'
@@ -82,31 +84,39 @@ class TimeoutConfiguration(unittest.TestCase):
 
 @unittest.skipIf(os.name == 'nt', 'synthetic executables use POSIX shebangs')
 class InstalledCli(unittest.TestCase):
-    def test_suite_timeout_floor_retains_margin_and_rejects_real_overrun(self):
+    def test_suite_limit_allows_runner_slowdown_and_stops_hang(self):
         script = """
 from pathlib import Path
-import subprocess, sys
-from release.smoke import case_suite, SUITE_TIMEOUT_FLOOR_SECONDS
+import sys
+from release.smoke import case_suite, later_suite_timeout
 root = Path(sys.argv[1])
-command = [sys.executable, '-c', 'print("test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out")']
-first = case_suite(command, None, root, root)
-assert first['timeout_seconds'] == max(SUITE_TIMEOUT_FLOOR_SECONDS, first['elapsed_seconds'] * 1.15)
-if SUITE_TIMEOUT_FLOOR_SECONDS == 60:
+ok = 'print("test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out")'
+def suite(seconds, timeout=None):
+    return case_suite([sys.executable, '-c', f'import time; time.sleep({seconds}); ' + ok], None, root, root, timeout)
+first = suite(sys.argv[2])
+assert first['timeout_seconds'] == later_suite_timeout(first['elapsed_seconds'])
+if sys.argv[2] == '0':
+    # Release defaults: the floor, and room for the 400 second Intel macOS suite to slow down.
     assert first['timeout_seconds'] == 60
+    assert later_suite_timeout(400) >= 400 * 1.6
 else:
-    assert first['timeout_seconds'] >= SUITE_TIMEOUT_FLOOR_SECONDS
+    # A shared runner that slows by 60 percent between channels still passes.
+    suite(first['elapsed_seconds'] * 1.6, first['timeout_seconds'])
     try:
-        case_suite([sys.executable, '-c', 'import time; time.sleep(60)'], None, root, root, first['timeout_seconds'])
-    except subprocess.TimeoutExpired:
-        pass
+        suite(600, first['timeout_seconds'])
+    except ValueError as error:
+        assert 'did not finish within the' in str(error), error
     else:
-        raise AssertionError('real suite overrun passed')
+        raise AssertionError('hung suite passed')
 """
         with tempfile.TemporaryDirectory() as directory:
-            for floor in ('60', '0.1'):
-                env = dict(os.environ, BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS=floor)
-                result = subprocess.run([sys.executable, '-c', script, directory], env=env,
-                                        capture_output=True, text=True, timeout=15)
+            # The ceiling here stands in for the release default, so the hang stops quickly.
+            for floor, ceiling, sleep in (('60', '2400', '0'), ('0.1', '8', '1.5')):
+                env = dict(os.environ, BIOMCP_SUITE_TIMEOUT_FLOOR_SECONDS=floor,
+                           BIOMCP_SUITE_TIMEOUT_CEILING_SECONDS=ceiling)
+                env.pop('BIOMCP_SUITE_TIMEOUT_MULTIPLE', None)
+                result = subprocess.run([sys.executable, '-c', script, directory, sleep], env=env,
+                                        capture_output=True, text=True, timeout=60)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_archive_bootstrap_preserves_tooling_and_product_identity(self):
