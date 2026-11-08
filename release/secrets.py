@@ -3,6 +3,7 @@
 import argparse
 import gzip
 import hashlib
+import http.client
 import io
 import json
 import lzma
@@ -14,6 +15,7 @@ import stat
 import subprocess
 import tarfile
 import tempfile
+import time
 import urllib.request
 import zipfile
 
@@ -31,6 +33,19 @@ ARCHIVES = {tuple(key.split("/")): value for key, value in SCANNER["archives"].i
 
 
 
+def download(url, attempts=3):
+    # A fresh hosted runner fetches the pinned scanner once. Retry only transport
+    # and HTTP failures; the caller still checks the digest of what arrives.
+    for attempt in range(attempts):
+        try:
+            with urllib.request.urlopen(url, timeout=120) as response:
+                return response.read()
+        except (OSError, http.client.HTTPException):
+            if attempt + 1 == attempts:
+                raise
+            time.sleep(5 * (attempt + 1))
+
+
 def scanner(cache, scratch):
     suffix, digest = ARCHIVES[(platform.system(), platform.machine())]
     name = "gitleaks_" + VERSION + "_" + suffix + ".tar.gz"
@@ -38,8 +53,7 @@ def scanner(cache, scratch):
     archive = cache / name
     if not archive.exists():
         url = "https://github.com/gitleaks/gitleaks/releases/download/v" + VERSION + "/" + name
-        with urllib.request.urlopen(url, timeout=120) as response:
-            payload = response.read()
+        payload = download(url)
         if hashlib.sha256(payload).hexdigest() != digest:
             raise ValueError("scanner download checksum mismatch")
         # Atomic replacement also permits concurrent gates using the same cache.
@@ -348,7 +362,8 @@ def findings(report, mapping, staging):
 
 
 ERRORS = (OSError, ValueError, KeyError, subprocess.SubprocessError,
-          tarfile.TarError, zipfile.BadZipFile, lzma.LZMAError, RuntimeError, EOFError, TypeError)
+          tarfile.TarError, zipfile.BadZipFile, lzma.LZMAError, RuntimeError, EOFError, TypeError,
+          http.client.HTTPException)
 
 
 class ScreeningError(Exception):
