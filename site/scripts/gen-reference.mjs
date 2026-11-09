@@ -61,17 +61,14 @@ function json(args, input, env) {
 const normalized = (c) => ({ command: [], ...c, arguments: (c.arguments ?? []).map((a) => ({ choices: [], aliases: [], ...a })), sections: c.sections ?? [], examples: c.examples ?? [] });
 const grammar = fs.readFileSync(path.resolve('../docs/reference/commands.md'), 'utf8');
 const commandPaths = [...grammar.matchAll(/^## biomcp (.+)$/gm)].map((m) => m[1].split(' '));
-const help = commandPaths.flatMap((words) => {
-  const page = json(['help', ...words]);
-  return (page.result.commands ?? []).filter((c) => (c.command ?? []).join(' ') === words.join(' ')).map(normalized);
-});
+const help = JSON.parse(fs.readFileSync(path.resolve('src/data/help.json'), 'utf8')).commands.map(normalized).filter((c) => c.command.length);
 const TOPICS = [['network', 'proxy'], ['network', 'ca_bundle']];
 const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0]));
 const registry = json(['--offline', 'health']).result.sources.map(({ source, use: usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
 const registeredKeys = json(['key', 'list']).result.entries;
 const keys = registeredKeys.map((entry) => {
   const reply = json(['help', 'key', entry.source]);
-  help.push(normalized({ command: ['help', 'key', entry.source], description: 'Show credential registration and environment fallback names.', reply_schemas: [reply.schema] }));
+  if (!help.some((c) => c.command.join(' ') === `help key ${entry.source}`)) help.push(normalized({ command: ['help', 'key', entry.source], description: 'Show credential registration and environment fallback names.', reply_schemas: [reply.schema] }));
   return { name: entry.source, ...reply.result };
 });
 const discoverTools = (args = []) => {

@@ -58,6 +58,7 @@ fn documents() -> Result<Vec<(&'static str, String)>, Box<dyn std::error::Error>
         ("docs/reference/commands.md", reference),
         ("docs/recipes.md", recipes),
         ("docs/reference/source-pacing.md", pacing_document()?),
+        ("site/src/data/help.json", format!("{}\n", serde_json::to_string_pretty(&help)?)),
     ])
 }
 
