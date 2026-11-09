@@ -6,7 +6,7 @@ This plan covers milestone 5. This milestone proves that 1.0 keeps what 0.9 user
 
 Ian approved implementation with AWS first on 2026-11-09 (`decisions/2026-11-09-finish-1-0-with-aws-first.md`). The same owning session drives core qualification and hosting preparation in parallel, without mail to the absent hosting agent; publication follows AWS validation and the source review. Builds for this work may stay on M5 or Yellow.
 
-Qualify the selected landed main on every promised platform, using `records/2026-11-09-release-preparation.md` for the current source and history-merge identities. Refresh the docs site before the cut while preparing hosting, the public-history merge rehearsal and the reviewable publishing-account changes. Reuse passing sections whose inputs still apply, and rerun a failed section after its owning fix. Earlier candidate packets remain historical evidence when the selected source changes.
+Qualify the frozen final correctness source through 0788 on every promised platform, using `records/2026-11-09-release-preparation.md` for the current source and history-merge identities. Refresh the docs site before the cut while preparing hosting, the public-history merge rehearsal and the remaining publishing-account confirmations. Preserve the separately approved publication-environment setup. Reuse passing sections whose inputs still apply, and rerun a failed section after its owning fix. Earlier candidate packets remain historical evidence when the selected source changes.
 
 Use the preliminary source assessment in the same preparation record for the source decision after final AWS validation. It supports the current coverage and introduces no additional source work; it does not treat older evaluation binaries as proof of the final hosted service.
 
@@ -20,9 +20,9 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 
 ### Final review corrections before publication
 
-Fix the November 9 review findings before selecting the final release source: preserve selected-record failure status in capped MyChem name lookup, cancel server-owned bundle downloads on shutdown, let health honor the existing command/source budgets, and report confirmed response overflow as too large. Correct the stdio maintenance documentation and reconcile the site ticket around refresh before the cut and landing in the release session.
+The frozen final source carries the November 9 correctness fixes: preserve selected-record failure status in capped MyChem name lookup, cancel server-owned bundle downloads on shutdown, let health honor the existing command/source budgets, and report confirmed response overflow as too large. It also carries the corrected stdio maintenance documentation and site ordering.
 
-Land these independent fixes in one reviewed batch. Then select the resulting source once and refresh the affected release qualification, history preparation, documentation binding and hosted image pin from that source. Earlier packets remain evidence for their original source; never relabel their artifacts as the new build. The old hosting proposal must not be deployed as the final source after these changes. The two minor cache follow-ups belong after 1.0 as milestone 6.
+Use that selected source for 0788's actual qualification, history preparation, documentation binding and hosted image pin. This order does not claim any unfinished qualification section has passed. Earlier packets remain evidence for their original source; never relabel their artifacts as the new build. The old hosting proposal must not be deployed as the final source after these changes. The two minor cache follow-ups belong after 1.0 as milestone 6.
 
 ### 1. Close milestone 4 and harden the server
 

@@ -4,7 +4,7 @@ This is preparation for ticket 0294, not approval to publish or change an accoun
 
 ## Source and evaluation assessment before AWS validation
 
-A read-only review of the existing evaluation reports did not establish a still-unfixed source-related product defect on core `42a79b1bb`. The ending core `b3809eb1baa6d1e470efaf6499d8be0ba600f511` differs from that core only in cache tests, release mutation tooling, its tests and the owning ticket, so this preliminary assessment carries forward for the unchanged product source coverage. This prepares the source decision; it does not substitute for final deployed-service validation.
+A read-only review of the existing evaluation reports did not establish a still-unfixed source-related product defect on core `42a79b1bb`. That review addressed source coverage, not proof of later runtime behavior. The frozen final source `0adbae81319cbfd89066c880ced85391f7a4775a` includes the later correctness fixes; its actual qualification belongs to 0788, and final AWS validation still has to confirm the relevant queries. The coverage recommendation remains preliminary and authorizes no additional source work. It does not substitute for final deployed-service validation.
 
 The November 4 recommendations and gap recheck describe older binaries. Their accepted drug-name, coordinate, approval-ordering, filter, posted-results, label, population and device findings map to completed fixes in the current plan. The [November 6 life-sciences report](2026-11-06-life-sciences-test.md) used deployed core `1bb97e64`; its mapped repairs still need confirmation on the final hosted image. DailyMed-only labels were deliberately withdrawn in [0612](../tickets/0612-dailymed-labels.md), rather than left as an unfinished source defect.
 
@@ -19,6 +19,8 @@ Evidence: [evaluation recommendations](../planning/eval-recommendations-2026-11-
 Account checks and approved setup on 2026-11-09:
 
 After Ian [approved the prepared environment](../decisions/2026-11-09-approve-publication-environment.md), the operator created `release-publication` and its sole `v*` tag policy. Independent GET requests verified custom policies enabled, protected-branch-only mode disabled, one tag rule, no required reviewers and no wait timer. No secret, deployment or release action was part of this setup. Other publisher access remains unverified.
+
+Read-only environment and deployment-policy GETs were repeated while preparing final source `0adbae81319cbfd89066c880ced85391f7a4775a`; that approved policy is unchanged. PyPI Trusted Publisher confirmation remains pending. This history refresh changes no account and grants no further approval.
 
 The GitHub environment list, secret names, Pages settings, public main and tag absence were unchanged during the earlier `42a79b1bb` preparation. The table includes the later approved environment setup. A subsequent read-only check confirmed public `v1.0.0` still absent and PyPI latest `0.9.3`, with no `1.0.0` release. These version checks do not verify publishing permissions; PyPI, GHCR and MCP Registry access requirements remain unverified.
 
@@ -90,6 +92,14 @@ If public refs move, refresh the scratch clone and repeat only the ancestry-depe
 
 ## Current selected candidate and history merge
 
+The frozen final source is `0adbae81319cbfd89066c880ced85391f7a4775a`, tree `d4e8b3dd8f2a7fbe802f65ccc5496e98096b37ec`. The existing nonshallow clone was reused after refreshing canonical public heads and tags. Public main remains `561d3fe06d9dff5485f13a82a4108371f6fdfe88`; the new unpublished merge is `f5102bc0b944870d74b7f3635cbc47e76c82606a`, with public main first and the frozen final source second, and exactly the final source tree. All original public refs and 77 old tags remain intact. The 181-row ledger is unchanged, SHA-256 `131bb9fa20e87846127943f72dea5b5f6132e86dfdd47849ad06a3a184c4b32c`.
+
+The ancestry-dependent full-history scan is job j36578 at that exact source, using its pinned scanner/toolchain, Python 3.13 first on PATH and the root session's notice route. The actual terminal result and canonical-ref postflight must be collected before this packet is called passing. This preparation does not repeat source-code, packaging, native-build or other qualification checks, and it does not claim that 0788 has passed.
+
+The new bundle is 107,905,426 bytes, SHA-256 `72418a2e30d403d1c231bd733c256b76266d594289da35988b3bcafeb056c57e`. Earlier b380, 42a and 2d2 packets retain their own source identities and cannot supply the final ancestry result. Publication still follows final qualification, AWS validation, the source decision, publisher access confirmation and Ian's release approval. The approved order remains a tag on the unpublished merge first, followed by public main only after publication and public-install success.
+
+## Historical b380 candidate and history merge (2026-11-09)
+
 The ending core is `b3809eb1baa6d1e470efaf6499d8be0ba600f511`, tree `4baf7bddd9487d5adba82589c45351bef36fa2b2`. The fresh canonical public clone selected main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`; the new unpushed two-parent merge is `8d03d93e7d73408a35ba9e63e2ef4e19d544c330`, with public main first and the ending core second, and exactly the ending tree. The clone is nonshallow, all original public refs and 77 old tags remain intact, and the unchanged 181-row ledger still hashes to `131bb9fa20e87846127943f72dea5b5f6132e86dfdd47849ad06a3a184c4b32c`.
 
 Ancestry-dependent full-history job j36352 passed against that exact ending core, exit 0, scanning all 16,647 commits reachable through `--single-worktree --all HEAD`, with no `since` restriction and the unchanged 181-row ledger. The raw terminal log reports no secret findings and the same seven informational opaque-history coverage notices. The executed scanner, ledger and toolchain manifest hashes match the preflight bindings; Python 3.13 was first on PATH, including nested commands. The host reported Python 3.13.17, Git 2.54.0 and pinned Gitleaks 8.30.1, and the actual scanner archive matched its pinned digest. This result comes from the ending-core job, not an earlier packet; no rescan or source-code, native-build or full-gate check was run for this collection.
@@ -100,7 +110,7 @@ The canonical public heads and tags are identical in the ending packet's before/
 
 The source assessment supports current coverage subject to final AWS validation and Ian's source decision. This packet introduces no additional source work and grants no public-tag, account, deployment or publication approval. The approved tag-first order remains: publish and verify from the approved merge tag, then fast-forward public main after success.
 
-## Historical 42a candidate and history merge
+## Historical 42a candidate and history merge (2026-11-09)
 
 The coordinator selected landed core `42a79b1bbdc95108447d19369b7cd69f35f8adef`, tree `6caf63ae9a8ccf80bd5bd440f25da2d61d6f9e9d`, after the runtime zlib and owned-cache WAL retry fixes. A fresh scratch clone of the canonical public repository still selected main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`. The new unpushed merge is `8ca286662dcda20ba132cc50c0e0263e5b188b47`, with public main first and this selected core second, and exactly the selected tree. The clone is nonshallow; all 77 old tags and original public refs are preserved. The selected source's 181-row ledger still hashes to `131bb9fa20e87846127943f72dea5b5f6132e86dfdd47849ad06a3a184c4b32c`, with no classification changes.
 
@@ -110,7 +120,7 @@ The new packet is retained on Yellow at `data/biomcp-redux-evidence/0294/candida
 
 This source selection does not establish AWS validation, the source review, publishing-account readiness or Ian's approval of a public tag. The same owning session drives core and hosting under the recorded instruction; the approval and validation requirements stay in place.
 
-## Historical 2d2 candidate and retained history merge
+## Historical 2d2 candidate and retained history merge (2026-11-09)
 
 The coordinator selected landed main `2d2dbda17ca29202bd332152ab604408cb9b5b14`, tree `dc21594efab5d386f2afca23821bfa108c90633a`. The scratch rehearsal used actual public main `561d3fe06d9dff5485f13a82a4108371f6fdfe88` as first parent and that selected candidate as second parent. The resulting unpushed merge is `d0ca20de511d1b807eb69a7eedc9fbfb7f7da1ca`, with the selected candidate's exact tree. The clone is nonshallow, all original public refs remain unchanged, all 77 old tags remain, and `v0.9.3` still resolves to `5641de7d7b79b53872f8599dbb4dba22e611dcaf`.
 
