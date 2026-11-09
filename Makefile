@@ -213,5 +213,6 @@ site-reference: plain-cli-build docs-generate
 
 .PHONY: site-examples
 site-examples: plain-cli-build
-	cd site && npm ci && npm run examples -- $(SITE_EXAMPLES)
-	@if [ -n "$(SITE_REFRESH_ARCHIVE)" ]; then COPYFILE_DISABLE=1 tar -czf "$(SITE_REFRESH_ARCHIVE)" site/examples; fi
+	@(cd site && npm ci && npm run examples -- $(SITE_EXAMPLES)); status=$$?; \
+	if [ -n "$(SITE_REFRESH_ARCHIVE)" ]; then COPYFILE_DISABLE=1 tar -czf "$(SITE_REFRESH_ARCHIVE)" site/examples; fi; \
+	exit "$$status"
