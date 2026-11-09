@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 6
 
+Depends on: 0294
+
 ## Outcome
 
 Offline replies distinguish a missing cached answer from a previously absent result whose freshness has expired, while refusing to claim stale absence as current fact.
