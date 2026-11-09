@@ -198,6 +198,20 @@ fn sqlite_diagnostic_records_exclude_error_text_and_ignore_unavailable_files() {
         "primary_code":19,"extended_code":1811})
     );
     crate::sqlite_diagnostic::append(root.path(), "fixture.insert", &error);
+    for _ in 0..100 {
+        crate::sqlite_diagnostic::append(&path, "fetch::cache.rs:376", &error);
+    }
+    crate::sqlite_diagnostic::append_open_failure(&path, "wal", 37, 50);
+    let text = std::fs::read_to_string(&path).unwrap();
+    assert!(
+        text.len() <= 4096,
+        "diagnostic output must retain its bound"
+    );
+    let last: serde_json::Value = serde_json::from_str(text.lines().last().unwrap()).unwrap();
+    assert_eq!(
+        last,
+        serde_json::json!({"operation":"open.wal", "retries":37, "elapsed_ms":50})
+    );
 }
 
 #[test]

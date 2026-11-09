@@ -17,3 +17,5 @@ Restore Busy retry only around the complete idempotent journal-mode query/update
 The deterministic concurrency regression holds a real SQLite reserved writer lock and forces the immediate-refusal path. The fixture releases its writer only after observing the first actual WAL Busy, before returning that failed attempt. A single-attempt implementation remains red even though the lock is then released; a retry succeeds. The held-lock counterpart keeps that state until the supplied deadline expires and asserts bounded refusal, without a timer that releases the lock. These inner tests own SQLite locking behavior; the installed eight-process witness and lasting first-open helper exercise its caller surface.
 
 No schema, namespace, BioData pin, user deadline or foreign-file behavior changes. The correction retains sidecar serialization rather than replacing it with a new lock mechanism.
+
+Repeated per-attempt numeric SQLite notes leave a small reserved part of their existing 4096-byte bound for the final open-failure summary, so accurate retries are not dropped after the coordinate sink fills. This changes no diagnostic fields, credential handling or cache behavior.
