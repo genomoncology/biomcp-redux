@@ -4,9 +4,9 @@ This plan covers milestone 5. This milestone proves that 1.0 keeps what 0.9 user
 
 ## Current finish order
 
-Ian approved implementation with AWS first on 2026-11-09 (`decisions/2026-11-09-finish-1-0-with-aws-first.md`). Finish core qualification and prepare hosting in parallel; publication follows AWS validation and the source review. Builds for this work may stay on M5 or Yellow.
+Ian approved implementation with AWS first on 2026-11-09 (`decisions/2026-11-09-finish-1-0-with-aws-first.md`). The same owning session drives core qualification and hosting preparation in parallel, without mail to the absent hosting agent; publication follows AWS validation and the source review. Builds for this work may stay on M5 or Yellow.
 
-Review and batch the remaining fixes, finish the bounded timing-failure diagnosis, and qualify the selected landed main on every promised platform. Refresh the docs site before the cut while preparing the hosting handoff, the public-history merge rehearsal and the reviewable publishing-account changes. Reuse passing sections whose inputs still apply, and rerun a failed section after its owning fix.
+Qualify the selected landed main on every promised platform, using `records/2026-11-09-release-preparation.md` for the current source and history-merge identities. Refresh the docs site before the cut while preparing hosting, the public-history merge rehearsal and the reviewable publishing-account changes. Reuse passing sections whose inputs still apply, and rerun a failed section after its owning fix. Earlier candidate packets remain historical evidence when the selected source changes.
 
 After AWS validation and the source review, present the completed release packet to Ian. Once approved, push `v1.0.0` on the prepared two-parent history merge first. Fast-forward public main only after the tag workflow's publication, public installs and promotion pass, then land the refreshed site in the same release session. No public release, hosting deployment or account change is performed by the preparation steps. Ticket and lane status remain in pm.
 

@@ -6,6 +6,8 @@ This is preparation for ticket 0294, not approval to publish or change an accoun
 
 Read-only GitHub queries on 2026-11-09 found:
 
+The GitHub environment list, secret names, Pages settings, public main and tag absence were checked again when preparing selected core `42a79b1bbdc95108447d19369b7cd69f35f8adef`. Those observations below were unchanged. No account setting was changed, and the unverified PyPI, GHCR and MCP Registry access requirements remain unverified.
+
 | Setting | Observed | Reviewable action before the tag |
 | --- | --- | --- |
 | Public repository | `genomoncology/biomcp`, main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`; no `v1.0.0` ref | Recheck main and release-tag absence immediately before preparing the final merge and pushing the tag. |
@@ -72,15 +74,21 @@ git -C "$S/repo" bundle verify "$S/append-history.bundle"
 
 If public refs move, refresh the scratch clone and repeat only the ancestry-dependent checks against the new public main. Retain selected commit, public main, merge, ordered parents, tree, old refs, scanner job result and bundle with the ticket. A fresh reviewer accepts the final packet before approval is requested.
 
-## Selected candidate and retained history merge
+## Current selected candidate and history merge
+
+The coordinator selected landed core `42a79b1bbdc95108447d19369b7cd69f35f8adef`, tree `6caf63ae9a8ccf80bd5bd440f25da2d61d6f9e9d`, after the runtime zlib and owned-cache WAL retry fixes. A fresh scratch clone of the canonical public repository still selected main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`. The new unpushed merge is `8ca286662dcda20ba132cc50c0e0263e5b188b47`, with public main first and this selected core second, and exactly the selected tree. The clone is nonshallow; all 77 old tags and original public refs are preserved. The selected source's 181-row ledger still hashes to `131bb9fa20e87846127943f72dea5b5f6132e86dfdd47849ad06a3a184c4b32c`, with no classification changes.
+
+This source selection does not establish AWS validation, the source review, publishing-account readiness or Ian's approval of a public tag. The same owning session drives core and hosting under the recorded instruction; the approval and validation requirements stay in place.
+
+## Historical candidate and retained history merge
 
 The coordinator selected landed main `2d2dbda17ca29202bd332152ab604408cb9b5b14`, tree `dc21594efab5d386f2afca23821bfa108c90633a`. The scratch rehearsal used actual public main `561d3fe06d9dff5485f13a82a4108371f6fdfe88` as first parent and that selected candidate as second parent. The resulting unpushed merge is `d0ca20de511d1b807eb69a7eedc9fbfb7f7da1ca`, with the selected candidate's exact tree. The clone is nonshallow, all original public refs remain unchanged, all 77 old tags remain, and `v0.9.3` still resolves to `5641de7d7b79b53872f8599dbb4dba22e611dcaf`.
 
-The retained bundle is 107,888,176 bytes, SHA-256 `1ce4d3318a19cac295bc91d40bf936cd5c65122127ef1784c22a6dafd338575a`. The receiver verified that hash and restored the same merge, ordered parents, tree and old refs on Yellow. The final retained packet is `data/biomcp-redux-evidence/0294/candidate-2d2dbda17ca2-public-append-d0ca20de-j36159` on Yellow. Its 13-file `SHA256SUMS.json` hashes to `089215244f48635857b56f887dc9a92e1dbf39d7a4d0f7e8569850ef5e854a65`; every receiver-side file was checked against that manifest. The earlier bundle-only checkpoint remains intact in the sibling `candidate-2d2dbda17ca2-public-append-d0ca20de-j36148` directory.
+The retained bundle is 107,888,176 bytes, SHA-256 `1ce4d3318a19cac295bc91d40bf936cd5c65122127ef1784c22a6dafd338575a`. The receiver verified that hash and restored the same merge, ordered parents, tree and old refs on Yellow. The historical retained packet is `data/biomcp-redux-evidence/0294/candidate-2d2dbda17ca2-public-append-d0ca20de-j36159` on Yellow. Its 13-file `SHA256SUMS.json` hashes to `089215244f48635857b56f887dc9a92e1dbf39d7a4d0f7e8569850ef5e854a65`; every receiver-side file was checked against that manifest. The earlier bundle-only checkpoint remains intact in the sibling `candidate-2d2dbda17ca2-public-append-d0ca20de-j36148` directory.
 
 The complete-history scan passed as j36159 on M5 at the selected candidate, exit 0, in about 60 seconds. It scanned all 16,643 commits reachable through `--single-worktree --all HEAD`, without a `since` restriction, using the unchanged 181-row ledger. It reported no secret findings and seven existing informational `opaque-history-blob-decoded-coverage-unavailable` notices; the raw log preserves those coverage limits. Python 3.13 was first on PATH, including nested commands; the actual host reported Python 3.13.17, Git 2.54.0 and pinned Gitleaks 8.30.1. The pinned scanner archive's SHA-256 was verified. Source-file hashes in the executed job checkout matched the selected candidate's scanner, ledger and toolchain manifest.
 
-The postflight confirmed that all canonical public heads and tags stayed unchanged before and after the scan, the scratch clone's old refs stayed unchanged, and all 77 old tags still resolve. The final packet retains the raw job log and job receipt, preflight and postflight identities, public-ref snapshots, old-ref snapshots, bundle and bundle verification. No public ref or ledger was changed. Earlier queue requests j36139, j36147 and j36148 were cancelled before execution; only j36159 ran the scan, after an M5 core became available. Fresh review of this packet remains the next step.
+The postflight confirmed that all canonical public heads and tags stayed unchanged before and after the scan, the scratch clone's old refs stayed unchanged, and all 77 old tags still resolve. The historical packet retains the raw job log and job receipt, preflight and postflight identities, public-ref snapshots, old-ref snapshots, bundle and bundle verification. No public ref or ledger was changed. Earlier queue requests j36139, j36147 and j36148 were cancelled before execution; only j36159 ran that scan, after an M5 core became available. These results qualify the earlier candidate, not the later selected core.
 
 ## Approved release order
 
