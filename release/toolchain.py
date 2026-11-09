@@ -64,7 +64,7 @@ def check():
     if ('FROM ${runtime_image}' not in dockerfile
             or '--no-install-recommends ${runtime_packages}' not in dockerfile
             or 'snapshot.debian.org/archive/debian/${debian_snapshot}/ bookworm main' not in dockerfile
-            or re.search(r'^ARG (?:runtime_image|runtime_packages|debian_snapshot|runtime_zlib_[a-z]+)=', dockerfile, re.M)
+            or re.search(r'^ARG (?:runtime_image|runtime_packages|debian_snapshot|runtime_zlib_[a-z0-9_]+)=', dockerfile, re.M)
             or 'apt-get download "${runtime_zlib_package}"' not in dockerfile
             or 'sha256sum -c -' not in dockerfile
             or 'dpkg -i "$1"' not in dockerfile):
