@@ -63,16 +63,18 @@ const topics = TOPICS.map((t) => json(['help', ...t]).result.commands[0]);
 const registry = json(['--offline', 'health']).result.sources.map(({ source, usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
 const keyCommands = help.filter((c) => c.command[0] === 'help' && c.command[1] === 'key' && c.command.length === 3);
 const keys = keyCommands.map((c) => ({ name: c.command[2], ...json(['help', 'key', c.command[2]]).result }));
-const tools = (() => {
+const discoverTools = (args = []) => {
   const msgs = [
     { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'site-reference', version: '1' } } },
     { jsonrpc: '2.0', method: 'notifications/initialized' },
     { jsonrpc: '2.0', id: 2, method: 'tools/list' },
   ];
-  const out = run(['serve'], msgs.map((m) => JSON.stringify(m)).join('\n') + '\n');
+  const out = run(['serve', ...args], msgs.map((m) => JSON.stringify(m)).join('\n') + '\n');
   const reply = out.split('\n').filter(Boolean).map((l) => JSON.parse(l)).find((m) => m.id === 2);
   return reply.result.tools;
-})();
+};
+const tools = discoverTools();
+const typedTools = discoverTools(['--tool-mode', 'typed']);
 const notes = YAML.parse(fs.readFileSync(path.resolve('src/data/sources.yaml'), 'utf8')) ?? {};
 const meanings = YAML.parse(fs.readFileSync(path.resolve('src/data/envelope.yaml'), 'utf8'));
 
@@ -83,7 +85,7 @@ const globalOptions = [...rootBlock.matchAll(/^ {6}(--[a-z-]+)(?: <([a-z-]+)>)?\
   .filter((o) => !HARNESS.includes(o.name));
 
 const exitSrc = fs.readFileSync(path.resolve('../crates/biomcp/src/exit.rs'), 'utf8');
-const exitCodes = [{ code: 0, status: 'Success' }, ...[...exitSrc.matchAll(/Status::(\w+) => ExitCode::from\((\d+)\)/g)].map(([, status, code]) => ({ code: Number(code), status }))]
+const exitCodes = [...exitSrc.matchAll(/Self::(\w+) => (\d+),/g)].map(([, status, code]) => ({ code: Number(code), status }))
   .sort((a, b) => a.code - b.code);
 
 // ---------- helpers ----------
@@ -138,7 +140,7 @@ const entities = [...new Set(help.filter((c) => ['search', 'get'].includes(c.com
 const commandNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/command-notes.yaml'), 'utf8'))?.plain ?? {};
 const plainOf = (c) => {
   const t = commandNotes[name(c)];
-  if (!t) { console.error(`reference: src/data/command-notes.yaml has no plain sentence for ${name(c)}`); process.exit(1); }
+  if (!t) return firstSentence(c.description ?? c.summary ?? name(c));
   return t;
 };
 const sourcesFor = (c) => c.arguments.find((a) => a.name === '--source')?.choices ?? [];
@@ -168,7 +170,7 @@ const schemaOf = (() => {
       const out = spawnSync(bin, ['--offline', ...e], { env, encoding: 'utf8', timeout: 60000 }).stdout;
       let id = null;
       try { id = JSON.parse(out).schema; } catch {}
-      if (known.has(id) && id !== 'biomcp.error/1' && !seen.includes(id)) seen.push(id);
+      if (known.has(id) && !id.startsWith('biomcp.error/') && !seen.includes(id)) seen.push(id);
     }
     map.set(n, seen);
   }
@@ -639,7 +641,7 @@ for (const c of [...help, ...topics]) {
 
   const lines = [
     fm({ title: 'Reply schemas', description: `Every reply schema in ${site.product} ${site.version}, with the commands that return it.`, goal: 'Find the JSON schema of a BioMCP reply and the commands that return it.', reader: 'A developer or agent parsing BioMCP JSON' }),
-    `${site.product} ${site.version} prints one JSON object, the reply, for each command. Its ${code('schema')} field names the reply schema, such as ${code('biomcp.gene_cards/4')}, so code that parses replies can pick the right fields. Each schema below has a page with a real reply and its fields. The fields every reply shares are on [reply envelope and shared types](${TYPES_ROUTE}). ${code('biomcp schema ID')} prints one schema as JSON Schema.`,
+    `${site.product} ${site.version} prints one JSON object, the reply, for each command. Its ${code('schema')} field names the reply schema, such as ${code(replySchemas.find(({ id }) => id.startsWith('biomcp.gene-cards/')).id)}, so code that parses replies can pick the right fields. Each schema below has a page with a real reply and its fields. The fields every reply shares are on [reply envelope and shared types](${TYPES_ROUTE}). ${code('biomcp schema ID')} prints one schema as JSON Schema.`,
     '',
     '| Schema | Returned by |',
     '| --- | --- |',
@@ -740,7 +742,7 @@ for (const r of registry) {
 }
 files.set(path.resolve('src/data/sources.json'), JSON.stringify(sourceRows, null, 2) + '\n');
 {
-  const groups = ['open', 'attribution', 'noncommercial', 'restricted'];
+  const groups = [...new Set(registry.map((r) => r.usage))];
   const lines = [
     fm({ title: 'Data sources', description: `Every data source in ${site.product} ${site.version}, with its use group, publisher terms and key.`, goal: 'Find a BioMCP source, its terms, its key and the commands that read it.', reader: 'A BioMCP user choosing or checking sources' }),
     `${PRODUCT_LINE[0].toUpperCase()}${PRODUCT_LINE.slice(1)}, reads ${registry.length} sources. Each belongs to one use group, a label for its terms: ${groups.map((g) => `${registry.filter((r) => r.usage === g).length} ${code(g)}`).join(', ')}. The table lists every source with its use group, key and publisher terms, as ${code('biomcp --offline health')} reports them without sending a request. The [data sources guide](/sources/) explains use groups and how to turn sources off, and each source links to its own page.`,
@@ -802,13 +804,17 @@ write('error-codes.md', [
     if (t.annotations) lines.push(`Annotations: ${Object.entries(t.annotations).map(([k, v]) => `${code(k)} ${v}`).join(', ')}.`, '');
     lines.push('Description sent to the client, with its lines wrapped at 80 characters:', '', '```text', wrapText(t.description), '```', '');
   }
+  lines.push('## Typed entity tools', '', `${code('biomcp serve --tool-mode typed')} exposes ${typedTools.length} tools. Each entity tool takes an ${code('action')} and an object named for that action. ${code('single')} remains the default mode.`, '', '| Tool | Actions |', '| --- | --- |', ...typedTools.map((t) => `| ${code(t.name)} | ${(t.inputSchema?.properties?.action?.enum ?? []).map(code).join(', ')} |`), '', 'The configured source restrictions apply in both modes.', '');
   write('mcp-server.md', lines.join('\n'));
 }
 
 // ---------- reply envelope: the enums every reply uses, from the JSON schemas ----------
 const envelopeFacts = {};
 {
-  const defs = { ...json(['schema', 'biomcp.gene_cards/4'])['$defs'], ...json(['schema', 'biomcp.error/1'])['$defs'] };
+  const defs = Object.fromEntries(replySchemas.flatMap(({ schema }) => Object.entries(schema.$defs ?? {}).map(([name, def]) => [name.replace(/^Reply_/, ''), def])));
+  for (const [name, def] of Object.entries(defs)) {
+    if (!def.enum && (def.anyOf || def.oneOf)) defs[name] = { ...def, enum: (def.anyOf ?? def.oneOf).flatMap((part) => part.enum ?? (part.const !== undefined ? [part.const] : [])) };
+  }
   const HIDE = ['replay_miss'];
   const table = (d, head) => {
     const xs = d['x-enum-descriptions'] ?? [];
@@ -831,7 +837,7 @@ const envelopeFacts = {};
     ...envelopeFacts[field].map((r) => `| ${code(r.value)} | ${cell(r.meaning)} |${field === 'status' ? ` ${r.exit} |` : ''}`)].join('\n');
   write('envelope.md', [
     fm({ title: 'Reply envelope', description: `The values a ${site.product} ${site.version} reply uses for status, source state, failure reason, use group, next-command kind and error code.`, goal: 'Look up the exact values of the fields every BioMCP reply carries.', reader: 'A developer or agent parsing BioMCP JSON' }),
-    `Every ${site.product} ${site.version} reply is one JSON object. Data replies carry ${code('schema')}, ${code('status')}, ${code('query')}, ${code('result')}, ${code('sources')} and ${code('next')}, and pages add ${code('page')}. Errors carry ${code('schema')} ${code('biomcp.error/1')}, ${code('status')} and ${code('error')}. The values below come from the reply schemas; ${code('biomcp schema ID')} prints a full schema. [Results](/results/) explains how to read them.`,
+    `Every ${site.product} ${site.version} reply is one JSON object. Data replies carry ${code('schema')}, ${code('status')}, ${code('query')}, ${code('result')}, ${code('sources')} and ${code('next')}, and pages add ${code('page')}. Errors carry ${code('schema')} ${code(replySchemas.find(({ id }) => id.startsWith('biomcp.error/')).id)}, ${code('status')} and ${code('error')}. The values below come from the reply schemas; ${code('biomcp schema ID')} prints a full schema. [Results](/results/) explains how to read them.`,
     '',
     '## status',
     '',
@@ -918,8 +924,11 @@ files.set(path.resolve('src/data/reference.json'), JSON.stringify(facts, null, 2
 
 // ---------- the counts in site.json must match the build ----------
 for (const [k, v] of Object.entries({ entities: entities.length, sources: registry.length, commands: help.length, mcp_tools: tools.length, keys: keys.length })) {
+  if (!check) site.counts[k] = v;
   if (site.counts?.[k] !== v) { console.error(`reference: site.json counts.${k} is ${site.counts?.[k]}, the build has ${v}`); process.exit(1); }
 }
+
+if (!check) files.set(path.resolve('src/data/site.json'), JSON.stringify(site, null, 2) + '\n');
 
 // The tools sentence in site.json names every tool the server lists.
 for (const t of tools) if (!String(site.mcp_tools ?? '').includes(`\`${t.name}\``)) { console.error(`reference: site.json mcp_tools does not name the tool ${t.name}`); process.exit(1); }

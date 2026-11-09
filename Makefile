@@ -200,8 +200,10 @@ hosted-surface-check:
 
 .PHONY: site-build site-reference
 site-build: plain-cli-build
+	test "$$(node --version)" = "v$$(python3 release/toolchain.py get node)"
 	cd site && npm ci && npm run test:installer && npm run build
 
 site-reference: plain-cli-build
+	test "$$(node --version)" = "v$$(python3 release/toolchain.py get node)"
 	cd site && npm ci && npm run reference
-	@if [ -n "$(SITE_REFRESH_ARCHIVE)" ]; then tar -czf "$(SITE_REFRESH_ARCHIVE)" site/src/content/docs/reference site/src/content/docs/sources site/src/data/reference.json; fi
+	@if [ -n "$(SITE_REFRESH_ARCHIVE)" ]; then tar -czf "$(SITE_REFRESH_ARCHIVE)" site/src/content/docs/reference site/src/content/docs/sources site/src/data; fi

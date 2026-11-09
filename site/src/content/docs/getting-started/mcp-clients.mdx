@@ -11,6 +11,10 @@ import Fact from '../../../components/Fact.astro';
 
 BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`, so an AI client can call BioMCP commands as tools. Every client needs the same two things: the path of the installed `biomcp` executable and the word `serve`. Pick your client below; each page adds the server and confirms one tool call.
 
+## Entity tools
+
+Use `biomcp serve --tool-mode typed` to expose 17 tools: one per entity, plus `biomcp`, `help`, `search` and `fetch`. An entity tool takes an `action` and an object named for that action. For example, call `gene` with `{"action":"get","get":{"input":["BRAF"]}}`. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The default `single` mode keeps the CLI-argument tool and research tools. [Tool reference](/reference/mcp-server/) lists both modes.
+
 ## Requirements
 
 - BioMCP installed. See [install](/getting-started/installation/).
