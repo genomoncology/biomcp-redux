@@ -119,7 +119,7 @@ impl Cache {
         })?;
         step("initialize", &mut connection, deadline, Self::initialize)?;
         // Ownership is validated before changing the file's journal mode.
-        retry_wal(&connection, deadline, || enable_wal(&connection))?;
+        retry_wal(&connection, deadline, || enable_wal(&connection, deadline))?;
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
@@ -391,11 +391,12 @@ fn retry_wal(
     }
 }
 
-fn enable_wal(connection: &Connection) -> Result<(), CacheError> {
+fn enable_wal(connection: &Connection, deadline: Deadline<'_>) -> Result<(), CacheError> {
     let journal: String = connection
         .pragma_query_value(None, "journal_mode", |row| row.get(0))
         .map_err(|error| db_error(error))?;
     if !journal.eq_ignore_ascii_case("wal") {
+        sql_deadline(connection, deadline)?;
         connection
             .pragma_update(None, "journal_mode", "WAL")
             .map_err(|error| db_error(error))?;

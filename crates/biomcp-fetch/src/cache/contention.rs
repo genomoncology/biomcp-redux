@@ -254,30 +254,27 @@ fn wal_retries_an_observed_busy_after_the_writer_releases() {
         .unwrap();
     let connection = Connection::open(&path).unwrap();
     let mut attempts = 0;
-    let result = super::retry_wal(
-        &connection,
-        Deadline::start(Duration::from_secs(15), None),
-        || {
-            attempts += 1;
-            let timeout: i64 = connection
-                .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
-                .unwrap();
-            assert!(
-                timeout > 0,
-                "the production busy handler must remain enabled"
+    let deadline = Deadline::start(Duration::from_secs(15), None);
+    let result = super::retry_wal(&connection, deadline, || {
+        attempts += 1;
+        let timeout: i64 = connection
+            .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+            .unwrap();
+        assert!(
+            timeout > 0,
+            "the production busy handler must remain enabled"
+        );
+        let result = super::enable_wal(&connection, deadline);
+        if attempts == 1 {
+            assert_eq!(
+                result,
+                Err(CacheError::Busy),
+                "fixture must hold the WAL transition"
             );
-            let result = super::enable_wal(&connection);
-            if attempts == 1 {
-                assert_eq!(
-                    result,
-                    Err(CacheError::Busy),
-                    "fixture must hold the WAL transition"
-                );
-                holder.execute_batch("ROLLBACK").unwrap();
-            }
-            result
-        },
-    );
+            holder.execute_batch("ROLLBACK").unwrap();
+        }
+        result
+    });
     assert_eq!(result, Ok(()), "a released writer must not leave open busy");
     assert_eq!(attempts, 2, "WAL must be retried after its real Busy");
     let journal: String = connection
@@ -296,11 +293,18 @@ fn wal_retry_never_restarts_the_open_deadline() {
         .unwrap();
     let connection = Connection::open(&path).unwrap();
     let deadline = Deadline::start(Duration::from_millis(50), None);
-    let result = super::retry_wal(&connection, deadline, || super::enable_wal(&connection));
+    let result = super::retry_wal(&connection, deadline, || {
+        super::enable_wal(&connection, deadline)
+    });
     assert_eq!(result, Err(CacheError::Busy));
     assert!(
         deadline.expired(),
         "WAL returned Busy before its shared budget expired"
     );
     holder.execute_batch("ROLLBACK").unwrap();
+    assert_eq!(
+        super::enable_wal(&connection, deadline),
+        Err(CacheError::Busy),
+        "an expired read budget must not begin a journal-mode update"
+    );
 }
