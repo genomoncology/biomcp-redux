@@ -77,7 +77,7 @@
         "--source",
         "mychem"
       ],
-      "exit": 3,
+      "exit": 0,
       "expect": {
         "/status": "partial",
         "/sources/0/source": "mychem",
