@@ -86,6 +86,7 @@ const discoverTools = (args = []) => {
 };
 const tools = discoverTools(['--tool-mode', 'single']);
 const typedTools = discoverTools(['--tool-mode', 'typed']);
+const services = new Map(json(['source', 'list']).result.entries.map((entry) => [entry.source, entry.name]));
 const notes = YAML.parse(fs.readFileSync(path.resolve('src/data/sources.yaml'), 'utf8')) ?? {};
 const meanings = YAML.parse(fs.readFileSync(path.resolve('src/data/envelope.yaml'), 'utf8'));
 
@@ -584,7 +585,7 @@ for (const c of [...help, ...topics]) {
     const env = replySchemas[0].schema;
     const envRows = Object.entries(env.properties).map(([k, v]) => {
       const t = k === 'result' ? 'the result type of each schema, or null' : k === 'query' ? 'the query type of each schema' : k === 'schema' ? 'string' : cell(typeMd(v, 'shared', replySchemas[0].id));
-      return `| ${code(k)} | ${t} | ${cell([plainDesc(v.description) || (k === 'schema' ? 'The reply schema ID, such as `biomcp.gene_cards/4`.' : ''), (env.required ?? []).includes(k) ? '' : 'Optional.'].filter(Boolean).join(' '))} |`;
+      return `| ${code(k)} | ${t} | ${cell([plainDesc(v.description) || (k === 'schema' ? 'The versioned reply schema ID.' : ''), (env.required ?? []).includes(k) ? '' : 'Optional.'].filter(Boolean).join(' '))} |`;
     });
     const words = Object.entries(schemaNotes.words ?? {}).map(([w, m]) => `| ${w} | ${cell(m)} |`);
     const lines = [
@@ -672,7 +673,8 @@ const mdx = (s) => String(s ?? '').split(/(`[^`]*`)/).map((part, i) => (i % 2 ? 
 const mcell = (s) => mdx(s).replace(/\|/g, '\\|').replace(/\n+/g, ' ');
 const pageTitle = (route) => {
   for (const ext of ['.mdx', '.md']) {
-    const f = path.resolve('src/content/docs', route.replace(/^\/|\/$/g, '') + ext);
+    const base = route.replace(/^\/|\/$/g, '');
+    const f = [path.resolve('src/content/docs', base + ext), path.resolve('src/content/docs', base, 'index' + ext)].find((p) => fs.existsSync(p)) ?? path.resolve('src/content/docs', base + ext);
     if (fs.existsSync(f)) return YAML.parse(fs.readFileSync(f, 'utf8').split('---')[1]).title;
   }
   throw new Error(`reference: no page for guide ${route}`);
@@ -680,14 +682,14 @@ const pageTitle = (route) => {
 const exitOfExample = (id) => { const f = path.resolve('examples', id, 'exit'); return fs.existsSync(f) ? Number(fs.readFileSync(f, 'utf8').trim()) : 0; };
 const sourceRows = [];
 for (const r of registry) {
-  const n = notes[r.source] ?? {};
+  const n = notes[r.source] ?? { name: services.get(r.source) ?? r.source, guide: '/sources/', limits: 'Check the publisher terms above and the source notices in each reply. Availability and returned content can change.' };
   const label = n.name ?? r.source;
   const selectable = commandsFor(r.source);
   const reading = (n.commands ?? []).map((w) => help.find((c) => name(c) === w)).filter((c) => c && !selectable.includes(c));
   const key = keyOf(r.source);
   const use = key ? keyUse(r.source) : null;
   const exampleId = `src-${r.source}`;
-  if (!fs.existsSync(path.resolve('examples', exampleId, 'run.sh'))) { console.error(`reference: source ${r.source} has no example; add examples/${exampleId}/run.sh`); process.exit(1); }
+  const hasExample = fs.existsSync(path.resolve('examples', exampleId, 'run.sh'));
   if (!n.limits || !n.guide) { console.error(`reference: src/data/sources.yaml ${r.source} needs limits and guide`); process.exit(1); }
   sourceRows.push({ source: r.source, name: label, use: r.usage, key: key ? `${use}: ${key.name}` : '', keyUse: use, keyName: key?.name ?? null, terms: r.terms, terms_url: r.terms_url, route: srcRoute(r.source) });
   const lines = [
@@ -709,7 +711,7 @@ for (const r of registry) {
     '',
     `The command pipes the reply through ${code('jq')} to keep its ${code('status')}, the state of each source it asked, and a few fields of the result. Leave out the ${code('jq')} step to see the whole reply.`,
     '',
-    `<Example id="${exampleId}" />`,
+    hasExample ? `<Example id="${exampleId}" />` : ['```sh', `biomcp --offline health | jq '.result.sources[] | select(.source == "${r.source}")'`, '```'].join('\n'),
     '',
     ...(exitOfExample(exampleId) === 4 ? [`The source did not answer this run, so the reply's status is ${code('failed')} and BioMCP exits with code 4. [Limits](#limits) says what the source needs.`, ''] : []),
     '## Commands',
