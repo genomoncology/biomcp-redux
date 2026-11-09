@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp key l
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_RegisteredKeys](#reply-registeredkeys). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply-emptyquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_RegisteredKeys](#reply_registeredkeys). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply_emptyquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_RegisteredKeys
 
@@ -26,11 +26,11 @@ Results of human credential registration.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `entries` | list of [Reply_RegisteredKey](#reply-registeredkey) | Redacted credential identities. Optional. |
+| `entries` | list of [Reply_RegisteredKey](#reply_registeredkey) | Redacted credential identities. Optional. |
 
 ### Other types in this reply
 
-3 more types appear only in this reply: [Reply_KeyState](#reply-keystate), [Reply_KeyTier](#reply-keytier), [Reply_RegisteredKey](#reply-registeredkey). Open the list below to read their fields.
+3 more types appear only in this reply: [Reply_KeyState](#reply_keystate), [Reply_KeyTier](#reply_keytier), [Reply_RegisteredKey](#reply_registeredkey). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 3 other types</summary>
@@ -53,13 +53,13 @@ Credential identity and redacted presence.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `config` | [Reply_Text](/reference/schemas/types/#reply-text) | Configuration name. |
-| `environment` | [Reply_Text](/reference/schemas/types/#reply-text) | Environment fallback name. |
-| `header` | [Reply_Text](/reference/schemas/types/#reply-text) | Header accepted by the hosted HTTP transport. |
-| `source` | [Reply_Text](/reference/schemas/types/#reply-text) | Source accepted by key set. |
-| `state` | [Reply_KeyState](#reply-keystate) | Current credential origin. |
-| `tier` | [Reply_KeyTier](#reply-keytier) | Declared server credential fallback policy. |
-| `usage` | [Reply_Use](/reference/schemas/types/#reply-use) | Publisher use label for the whole source. |
+| `config` | [Reply_Text](/reference/schemas/types/#reply_text) | Configuration name. |
+| `environment` | [Reply_Text](/reference/schemas/types/#reply_text) | Environment fallback name. |
+| `header` | [Reply_Text](/reference/schemas/types/#reply_text) | Header accepted by the hosted HTTP transport. |
+| `source` | [Reply_Text](/reference/schemas/types/#reply_text) | Source accepted by key set. |
+| `state` | [Reply_KeyState](#reply_keystate) | Current credential origin. |
+| `tier` | [Reply_KeyTier](#reply_keytier) | Declared server credential fallback policy. |
+| `usage` | [Reply_Use](/reference/schemas/types/#reply_use) | Publisher use label for the whole source. |
 
 </details>
 

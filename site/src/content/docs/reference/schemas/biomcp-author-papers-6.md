@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp autho
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_AuthorPapers](#reply-authorpapers). `query` holds [Reply_AuthorPapersQuery](/reference/schemas/types/#reply-authorpapersquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_AuthorPapers](#reply_authorpapers). `query` holds [Reply_AuthorPapersQuery](/reference/schemas/types/#reply_authorpapersquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_AuthorPapers
 
@@ -26,8 +26,8 @@ Compact native indexed-paper window.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `author` | [Reply_AuthorId](/reference/schemas/types/#reply-authorid) | Requested provider record. |
-| `items` | list of [Reply_AuthorPaperHeader](/reference/schemas/types/#reply-authorpaperheader) | Original source order; no native corpus total is claimed. Optional. |
+| `author` | [Reply_AuthorId](/reference/schemas/types/#reply_authorid) | Requested provider record. |
+| `items` | list of [Reply_AuthorPaperHeader](/reference/schemas/types/#reply_authorpaperheader) | Original source order; no native corpus total is claimed. Optional. |
 
 ## Next
 

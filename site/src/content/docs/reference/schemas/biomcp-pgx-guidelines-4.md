@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get p
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PgxGuidelines](#reply-pgxguidelines). `query` holds [Reply_PgxGet](/reference/schemas/types/#reply-pgxget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PgxGuidelines](#reply_pgxguidelines). `query` holds [Reply_PgxGet](/reference/schemas/types/#reply_pgxget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_PgxGuidelines
 
@@ -26,13 +26,13 @@ Independent source-ordered page of complete native records.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `header` | [Reply_PgxHeader](/reference/schemas/types/#reply-pgxheader) | Source and selected gene. |
-| `items` | list of [Reply_PgxGuidelineReference](#reply-pgxguidelinereference) | Complete native rows without duplicate summaries. Optional. |
-| `page` | [Reply_PgxPageInfo](/reference/schemas/types/#reply-pgxpageinfo) | Meaning and bounds of this collection. |
+| `header` | [Reply_PgxHeader](/reference/schemas/types/#reply_pgxheader) | Source and selected gene. |
+| `items` | list of [Reply_PgxGuidelineReference](#reply_pgxguidelinereference) | Complete native rows without duplicate summaries. Optional. |
+| `page` | [Reply_PgxPageInfo](/reference/schemas/types/#reply_pgxpageinfo) | Meaning and bounds of this collection. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_PgxGuidelineGene](#reply-pgxguidelinegene), [Reply_PgxGuidelineReference](#reply-pgxguidelinereference). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_PgxGuidelineGene](#reply_pgxguidelinegene), [Reply_PgxGuidelineReference](#reply_pgxguidelinereference). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -43,7 +43,7 @@ Source-native PgxGuidelineGene fields; no clinical interpretation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `symbol` | [Reply_GeneSymbol](/reference/schemas/types/#reply-genesymbol) | The source's own `symbol` value, unchanged. |
+| `symbol` | [Reply_GeneSymbol](/reference/schemas/types/#reply_genesymbol) | The source's own `symbol` value, unchanged. |
 | `url` | string or null | The source's own `url` value, unchanged. Optional. |
 
 ### Reply_PgxGuidelineReference
@@ -53,7 +53,7 @@ Source-native PgxGuidelineReference fields; no clinical interpretation.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `drugs` | list of string | The source's own `drugs` value, unchanged. Optional. |
-| `genes` | list of [Reply_PgxGuidelineGene](#reply-pgxguidelinegene) | The source's own `genes` value, unchanged. Optional. |
+| `genes` | list of [Reply_PgxGuidelineGene](#reply_pgxguidelinegene) | The source's own `genes` value, unchanged. Optional. |
 | `guideline_name` | string | The source's own `guideline_name` value, unchanged. |
 | `guideline_url` | string or null | The source's own `guideline_url` value, unchanged. Optional. |
 

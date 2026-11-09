@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiseaseSynonyms](#reply-diseasesynonyms). `query` holds [Reply_DiseaseGet](/reference/schemas/types/#reply-diseaseget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiseaseSynonyms](#reply_diseasesynonyms). `query` holds [Reply_DiseaseGet](/reference/schemas/types/#reply_diseaseget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiseaseSynonyms
 
@@ -26,12 +26,12 @@ One publisher synonym page with scope and language.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component use terms, independent of row provenance. Optional. |
-| `items` | list of [Reply_DiseaseSynonym](#reply-diseasesynonym) | Rows as the source gives them. Totals in `page` count rows, not distinct records. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component use terms, independent of row provenance. Optional. |
+| `items` | list of [Reply_DiseaseSynonym](#reply_diseasesynonym) | Rows as the source gives them. Totals in `page` count rows, not distinct records. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_DiseaseSynonym](#reply-diseasesynonym). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_DiseaseSynonym](#reply_diseasesynonym). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -42,10 +42,10 @@ A publisher synonym with its scope and language.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Publisher record and version. |
-| `language` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source language tag. Optional. |
-| `scope` | [Reply_Curie](/reference/schemas/types/#reply-curie) or null | Publisher scope predicate. Optional. |
-| `value` | [Reply_Text](/reference/schemas/types/#reply-text) | Complete synonym text. |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply_attribution) | Publisher record and version. |
+| `language` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source language tag. Optional. |
+| `scope` | [Reply_Curie](/reference/schemas/types/#reply_curie) or null | Publisher scope predicate. Optional. |
+| `value` | [Reply_Text](/reference/schemas/types/#reply_text) | Complete synonym text. |
 
 </details>
 

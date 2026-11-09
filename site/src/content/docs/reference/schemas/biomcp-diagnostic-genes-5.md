@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiagnosticGenes](#reply-diagnosticgenes). `query` holds [Reply_DiagnosticGet](/reference/schemas/types/#reply-diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiagnosticGenes](#reply_diagnosticgenes). `query` holds [Reply_DiagnosticGet](/reference/schemas/types/#reply_diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiagnosticGenes
 
@@ -26,9 +26,9 @@ Native GTR gene relation rows without variant-coverage inference.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `count_unit` | [Reply_DiagnosticCountUnit](/reference/schemas/types/#reply-diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
+| `count_unit` | [Reply_DiagnosticCountUnit](/reference/schemas/types/#reply_diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
 | `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
-| `items` | list of [Reply_GtrGeneRelation](/reference/schemas/types/#reply-gtrgenerelation) | Complete source-owned rows in native order; envelope totals count native rows. Optional. |
+| `items` | list of [Reply_GtrGeneRelation](/reference/schemas/types/#reply_gtrgenerelation) | Complete source-owned rows in native order; envelope totals count native rows. Optional. |
 
 ## Next
 

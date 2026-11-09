@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp prote
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ProteinIsoforms](#reply-proteinisoforms). `query` holds [Reply_ProteinRelationQuery](/reference/schemas/types/#reply-proteinrelationquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ProteinIsoforms](#reply_proteinisoforms). `query` holds [Reply_ProteinRelationQuery](/reference/schemas/types/#reply_proteinrelationquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_ProteinIsoforms
 
@@ -26,7 +26,7 @@ Alternative products with every stated identifier and explicit direct sequence s
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_ProteinIsoform](/reference/schemas/types/#reply-proteinisoform) | Whole native rows in source order; totals apply only to this collection. Optional. |
+| `items` | list of [Reply_ProteinIsoform](/reference/schemas/types/#reply_proteinisoform) | Whole native rows in source order; totals apply only to this collection. Optional. |
 
 ## Next
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp trial
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_TrialDocumentResult](#reply-trialdocumentresult). `query` holds [Reply_TrialDocumentGet](#reply-trialdocumentget). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_TrialDocumentResult](#reply_trialdocumentresult). `query` holds [Reply_TrialDocumentGet](#reply_trialdocumentget). `query` repeats the request as BioMCP read it.
 
 ### Reply_TrialDocumentResult
 
@@ -26,7 +26,7 @@ Original trial PDF download, never document text.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `file` | [Reply_Section_TrialDocumentSaved](#reply-section-trialdocumentsaved) | Saved receipt, confirmed absence, or a source failure. |
+| `file` | [Reply_Section_TrialDocumentSaved](#reply_section_trialdocumentsaved) | Saved receipt, confirmed absence, or a source failure. |
 
 ### Reply_TrialDocumentGet
 
@@ -34,14 +34,14 @@ Download one exact ClinicalTrials.gov manifest PDF to an explicit caller path; n
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `file` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact filename from the registry manifest; never a URL or inferred path. |
-| `input` | [Reply_NctId](/reference/schemas/types/#reply-nctid) | Exact registry identity. |
+| `file` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact filename from the registry manifest; never a URL or inferred path. |
+| `input` | [Reply_NctId](/reference/schemas/types/#reply_nctid) | Exact registry identity. |
 | `replace` | boolean | Replace an existing file only when explicitly requested. Optional. |
-| `save` | [Reply_Text](/reference/schemas/types/#reply-text) | Caller-owned file or existing folder. |
+| `save` | [Reply_Text](/reference/schemas/types/#reply_text) | Caller-owned file or existing folder. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_Section_TrialDocumentSaved](#reply-section-trialdocumentsaved), [Reply_TrialDocumentSaved](#reply-trialdocumentsaved). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_Section_TrialDocumentSaved](#reply_section_trialdocumentsaved), [Reply_TrialDocumentSaved](#reply_trialdocumentsaved). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -52,10 +52,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_TrialDocumentSaved](#reply-trialdocumentsaved)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_TrialDocumentSaved](#reply_trialdocumentsaved)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_TrialDocumentSaved
@@ -65,9 +65,9 @@ Receipt for exactly the original source bytes written by the caller.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `bytes` | integer (uint64) | Saved byte count. |
-| `document` | [Reply_TrialDocument](/reference/schemas/types/#reply-trialdocument) | Original manifest metadata and publisher URL. |
-| `path` | [Reply_Text](/reference/schemas/types/#reply-text) | Absolute caller-owned path. |
-| `sha256` | [Reply_Text](/reference/schemas/types/#reply-text) | SHA-256 of the complete saved bytes. |
+| `document` | [Reply_TrialDocument](/reference/schemas/types/#reply_trialdocument) | Original manifest metadata and publisher URL. |
+| `path` | [Reply_Text](/reference/schemas/types/#reply_text) | Absolute caller-owned path. |
+| `sha256` | [Reply_Text](/reference/schemas/types/#reply_text) | SHA-256 of the complete saved bytes. |
 
 </details>
 

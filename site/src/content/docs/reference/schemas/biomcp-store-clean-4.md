@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp store
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_StoreClean](#reply-storeclean). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply-emptyquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_StoreClean](#reply_storeclean). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply_emptyquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_StoreClean
 

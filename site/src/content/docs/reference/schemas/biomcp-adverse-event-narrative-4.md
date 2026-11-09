@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get a
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_AdverseEventNarrative](#reply-adverseeventnarrative). `query` holds [Reply_AdverseEventGet](/reference/schemas/types/#reply-adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_AdverseEventNarrative](#reply_adverseeventnarrative). `query` holds [Reply_AdverseEventGet](/reference/schemas/types/#reply_adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_AdverseEventNarrative
 
@@ -26,14 +26,14 @@ A bounded report section; all rows belong to the exact header and snapshot.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component terms. Optional. |
-| `header` | [Reply_AdverseEventHeader](/reference/schemas/types/#reply-adverseeventheader) | Exact source report identity and version. |
-| `narrative` | [Reply_AdverseEventRecords_AdverseEventNarrativeItem](#reply-adverseeventrecords-adverseeventnarrativeitem) | One page of complete native rows. |
-| `snapshot` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Opaque retained source snapshot. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component terms. Optional. |
+| `header` | [Reply_AdverseEventHeader](/reference/schemas/types/#reply_adverseeventheader) | Exact source report identity and version. |
+| `narrative` | [Reply_AdverseEventRecords_AdverseEventNarrativeItem](#reply_adverseeventrecords_adverseeventnarrativeitem) | One page of complete native rows. |
+| `snapshot` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Opaque retained source snapshot. Optional. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_AdverseEventNarrativeItem](#reply-adverseeventnarrativeitem), [Reply_AdverseEventRecords_AdverseEventNarrativeItem](#reply-adverseeventrecords-adverseeventnarrativeitem). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_AdverseEventNarrativeItem](#reply_adverseeventnarrativeitem), [Reply_AdverseEventRecords_AdverseEventNarrativeItem](#reply_adverseeventrecords_adverseeventnarrativeitem). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -57,7 +57,7 @@ One complete-row page tied to the retained report snapshot.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `offset` | integer (uint32) | Native section offset. |
-| `records` | list of [Reply_AdverseEventNarrativeItem](#reply-adverseeventnarrativeitem) | Source ordered whole rows. Optional. |
+| `records` | list of [Reply_AdverseEventNarrativeItem](#reply_adverseeventnarrativeitem) | Source ordered whole rows. Optional. |
 | `total` | integer (uint64) | Complete selected section length, not report or patient count. |
 
 </details>

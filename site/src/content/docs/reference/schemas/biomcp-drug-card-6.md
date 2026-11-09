@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugCard](#reply-drugcard). `query` holds [Reply_DrugGet](/reference/schemas/types/#reply-drugget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugCard](#reply_drugcard). `query` holds [Reply_DrugGet](/reference/schemas/types/#reply_drugget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugCard
 
@@ -26,18 +26,18 @@ Exact source identity and explicit native links; deeper facts require named sect
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `alternate_names` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Source-native alternate names, without local alias expansion. Optional. |
-| `available_sections` | list of [Reply_DrugSection](/reference/schemas/types/#reply-drugsection) | Only disclosures available for this selected source identity. Optional. |
-| `cross_references` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply-drugidentityrelation) | Explicit source cross-references with their native relation and provenance. Optional. |
-| `formulations` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply-drugidentityrelation) | Explicit native formulation links. Optional. |
-| `header` | [Reply_DrugHeader](/reference/schemas/types/#reply-drugheader) | Selected source-native identity. |
-| `next` | list of [Reply_Step](/reference/schemas/types/#reply-step) | Typed actions preserving exact source and identity. Optional. |
-| `official_names` | list of [Reply_Text](/reference/schemas/types/#reply-text) | The alternate names the source types as official: INN, USAN, BAN, JAN or FDA. Optional. |
-| `parents` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply-drugidentityrelation) | Explicit native parent links. Optional. |
-| `products` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply-drugidentityrelation) | Explicit native product links. Optional. |
-| `retrieved` | [Reply_PartialDate](/reference/schemas/types/#reply-partialdate) or null | Actual retrieval date, separate from source publication or update. Optional. |
-| `updated` | [Reply_PartialDate](/reference/schemas/types/#reply-partialdate) or null | Source-stated update date. Optional. |
-| `version` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source record version. Optional. |
+| `alternate_names` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Source-native alternate names, without local alias expansion. Optional. |
+| `available_sections` | list of [Reply_DrugSection](/reference/schemas/types/#reply_drugsection) | Only disclosures available for this selected source identity. Optional. |
+| `cross_references` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply_drugidentityrelation) | Explicit source cross-references with their native relation and provenance. Optional. |
+| `formulations` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply_drugidentityrelation) | Explicit native formulation links. Optional. |
+| `header` | [Reply_DrugHeader](/reference/schemas/types/#reply_drugheader) | Selected source-native identity. |
+| `next` | list of [Reply_Step](/reference/schemas/types/#reply_step) | Typed actions preserving exact source and identity. Optional. |
+| `official_names` | list of [Reply_Text](/reference/schemas/types/#reply_text) | The alternate names the source types as official: INN, USAN, BAN, JAN or FDA. Optional. |
+| `parents` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply_drugidentityrelation) | Explicit native parent links. Optional. |
+| `products` | list of [Reply_DrugIdentityRelation](/reference/schemas/types/#reply_drugidentityrelation) | Explicit native product links. Optional. |
+| `retrieved` | [Reply_PartialDate](/reference/schemas/types/#reply_partialdate) or null | Actual retrieval date, separate from source publication or update. Optional. |
+| `updated` | [Reply_PartialDate](/reference/schemas/types/#reply_partialdate) or null | Source-stated update date. Optional. |
+| `version` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source record version. Optional. |
 
 ## Next
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get p
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PhenotypeSynonyms](#reply-phenotypesynonyms). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply-phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PhenotypeSynonyms](#reply_phenotypesynonyms). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply_phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_PhenotypeSynonyms
 
@@ -26,13 +26,13 @@ Source synonym rows preserving publisher classes.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable publisher component terms. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable publisher component terms. Optional. |
 | `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
-| `items` | list of [Reply_PhenotypeSynonym](#reply-phenotypesynonym) | Native ordered rows; empty remains an empty collection. Optional. |
+| `items` | list of [Reply_PhenotypeSynonym](#reply_phenotypesynonym) | Native ordered rows; empty remains an empty collection. Optional. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_PhenotypeSynonym](#reply-phenotypesynonym), [Reply_PhenotypeSynonymClass](#reply-phenotypesynonymclass). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_PhenotypeSynonym](#reply_phenotypesynonym), [Reply_PhenotypeSynonymClass](#reply_phenotypesynonymclass). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -43,8 +43,8 @@ One native synonym; HPO values remain unclassified.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Publisher provenance. |
-| `relationship` | [Reply_PhenotypeSynonymClass](#reply-phenotypesynonymclass) or null | Native Monarch relationship class; absent for HPO. Optional. |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply_attribution) | Publisher provenance. |
+| `relationship` | [Reply_PhenotypeSynonymClass](#reply_phenotypesynonymclass) or null | Native Monarch relationship class; absent for HPO. Optional. |
 | `value` | string | Whole source text. |
 
 ### Reply_PhenotypeSynonymClass

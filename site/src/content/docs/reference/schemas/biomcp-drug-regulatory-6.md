@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugRegulatory](#reply-drugregulatory). `query` holds [Reply_DrugGet](/reference/schemas/types/#reply-drugget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugRegulatory](#reply_drugregulatory). `query` holds [Reply_DrugGet](/reference/schemas/types/#reply_drugget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugRegulatory
 
@@ -26,13 +26,13 @@ Source-scoped regulator events preserving date roles and original status.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `date_roles` | list of [Reply_DateRoleLabel](#reply-daterolelabel) | The source's own published description of each date role in these records. Optional. |
-| `identity` | [Reply_DrugHeader](/reference/schemas/types/#reply-drugheader) | Selected native identity, checked independently of section facts. |
-| `regulatory` | [Reply_Section_DrugRecords_AuthorizationEvent](#reply-section-drugrecords-authorizationevent) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
+| `date_roles` | list of [Reply_DateRoleLabel](#reply_daterolelabel) | The source's own published description of each date role in these records. Optional. |
+| `identity` | [Reply_DrugHeader](/reference/schemas/types/#reply_drugheader) | Selected native identity, checked independently of section facts. |
+| `regulatory` | [Reply_Section_DrugRecords_AuthorizationEvent](#reply_section_drugrecords_authorizationevent) | Existing typed section state, preserving empty, unavailable and skipped outcomes. |
 
 ### Other types in this reply
 
-3 more types appear only in this reply: [Reply_DateRoleLabel](#reply-daterolelabel), [Reply_DrugRecords_AuthorizationEvent](#reply-drugrecords-authorizationevent), [Reply_Section_DrugRecords_AuthorizationEvent](#reply-section-drugrecords-authorizationevent). Open the list below to read their fields.
+3 more types appear only in this reply: [Reply_DateRoleLabel](#reply_daterolelabel), [Reply_DrugRecords_AuthorizationEvent](#reply_drugrecords_authorizationevent), [Reply_Section_DrugRecords_AuthorizationEvent](#reply_section_drugrecords_authorizationevent). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 3 other types</summary>
@@ -43,9 +43,9 @@ One native date role with the source's own published description of it.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `label` | [Reply_Text](/reference/schemas/types/#reply-text) or null | The source's published words for this date; omitted when the source publishes none. Optional. |
-| `procedure` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native procedure reference the source shows beside this date; omitted when none. Optional. |
-| `role` | [Reply_Text](/reference/schemas/types/#reply-text) | Native date role, as it appears in the records' dates. |
+| `label` | [Reply_Text](/reference/schemas/types/#reply_text) or null | The source's published words for this date; omitted when the source publishes none. Optional. |
+| `procedure` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native procedure reference the source shows beside this date; omitted when none. Optional. |
+| `role` | [Reply_Text](/reference/schemas/types/#reply_text) | Native date role, as it appears in the records' dates. |
 
 ### Reply_DrugRecords_AuthorizationEvent
 
@@ -54,11 +54,11 @@ One bounded native row page, without fabricating an unknown total.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `offset` | integer (uint32) | Source row offset. |
-| `records` | list of [Reply_AuthorizationEvent](/reference/schemas/types/#reply-authorizationevent) | Native source rows in order. Optional. |
-| `retrieved` | [Reply_PartialDate](/reference/schemas/types/#reply-partialdate) or null | Actual retrieval date, never substituted for source revision. Optional. |
+| `records` | list of [Reply_AuthorizationEvent](/reference/schemas/types/#reply_authorizationevent) | Native source rows in order. Optional. |
+| `retrieved` | [Reply_PartialDate](/reference/schemas/types/#reply_partialdate) or null | Actual retrieval date, never substituted for source revision. Optional. |
 | `total` | integer or null | Native total only when supplied. Optional. |
 | `truncated` | boolean or null | Native source truncation indicator. Optional. |
-| `version` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Dataset or [bundle](/local-data/) revision. Optional. |
+| `version` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Dataset or [bundle](/local-data/) revision. Optional. |
 
 ### Reply_Section_DrugRecords_AuthorizationEvent
 
@@ -66,10 +66,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_DrugRecords_AuthorizationEvent](#reply-drugrecords-authorizationevent)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_DrugRecords_AuthorizationEvent](#reply_drugrecords_authorizationevent)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 </details>

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp cell-
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_CellLineAssayCount](#reply-celllineassaycount). `query` holds [Reply_CellLineAssayCountQuery](#reply-celllineassaycountquery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_CellLineAssayCount](#reply_celllineassaycount). `query` holds [Reply_CellLineAssayCountQuery](#reply_celllineassaycountquery). `query` repeats the request as BioMCP read it.
 
 ### Reply_CellLineAssayCount
 
@@ -28,8 +28,8 @@ Native assay total for one source-local cell identity; no activity or sensitivit
 | --- | --- | --- |
 | `assay_count` | integer (uint64) | Native assay page total_count, including a reported zero. |
 | `fetched` | integer or null | Original retrieval seconds; never a source release date. Optional. |
-| `id` | [Reply_ChemblCellId](/reference/schemas/types/#reply-chemblcellid) | Exact requested ChEMBL cell ID. |
-| `release` | [Reply_CellLineRelease](/reference/schemas/types/#reply-celllinerelease) or null | Independent ChEMBL release, distinct from retrieval time. Optional. |
+| `id` | [Reply_ChemblCellId](/reference/schemas/types/#reply_chemblcellid) | Exact requested ChEMBL cell ID. |
+| `release` | [Reply_CellLineRelease](/reference/schemas/types/#reply_celllinerelease) or null | Independent ChEMBL release, distinct from retrieval time. Optional. |
 
 ### Reply_CellLineAssayCountQuery
 
@@ -37,7 +37,7 @@ A separate assay-count request, never implicit in metadata or all.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `id` | [Reply_ChemblCellId](/reference/schemas/types/#reply-chemblcellid) | Exact ChEMBL cell identity returned by metadata. |
+| `id` | [Reply_ChemblCellId](/reference/schemas/types/#reply_chemblcellid) | Exact ChEMBL cell identity returned by metadata. |
 
 ## Next
 

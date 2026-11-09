@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get g
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_GwasLoci](#reply-gwasloci). `query` holds [Reply_GwasGet](/reference/schemas/types/#reply-gwasget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_GwasLoci](#reply_gwasloci). `query` holds [Reply_GwasGet](/reference/schemas/types/#reply_gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_GwasLoci
 
@@ -26,13 +26,13 @@ One bounded locus section for an association.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `association` | [Reply_GwasAssociationId](/reference/schemas/types/#reply-gwasassociationid) | Exact owning association. |
-| `continuation` | [Reply_GwasGet](/reference/schemas/types/#reply-gwasget) | Same-resource relation continuation. Optional. |
-| `items` | list of [Reply_GwasLocus](#reply-gwaslocus) | Native locus rows. Optional. |
+| `association` | [Reply_GwasAssociationId](/reference/schemas/types/#reply_gwasassociationid) | Exact owning association. |
+| `continuation` | [Reply_GwasGet](/reference/schemas/types/#reply_gwasget) | Same-resource relation continuation. Optional. |
+| `items` | list of [Reply_GwasLocus](#reply_gwaslocus) | Native locus rows. Optional. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_GwasLocus](#reply-gwaslocus), [Reply_GwasReportedGene](#reply-gwasreportedgene). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_GwasLocus](#reply_gwaslocus), [Reply_GwasReportedGene](#reply_gwasreportedgene). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -43,10 +43,10 @@ One native locus with independent reported genes and risk-allele text.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `author_reported_genes` | list of [Reply_GwasReportedGene](#reply-gwasreportedgene) | Reported source genes; never inferred from names. Optional. |
-| `description` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Complete source locus description. Optional. |
-| `source_url` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native locus self link. Optional. |
-| `strongest_risk_alleles` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Source strongest-risk-allele strings. Optional. |
+| `author_reported_genes` | list of [Reply_GwasReportedGene](#reply_gwasreportedgene) | Reported source genes; never inferred from names. Optional. |
+| `description` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Complete source locus description. Optional. |
+| `source_url` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native locus self link. Optional. |
+| `strongest_risk_alleles` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Source strongest-risk-allele strings. Optional. |
 
 ### Reply_GwasReportedGene
 
@@ -54,9 +54,9 @@ Source reported gene identity, without a causal-gene interpretation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `ensembl_ids` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Exact source Ensembl identifiers. Optional. |
-| `entrez_ids` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Exact source Entrez identifiers. Optional. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native source gene name. Optional. |
+| `ensembl_ids` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Exact source Ensembl identifiers. Optional. |
+| `entrez_ids` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Exact source Entrez identifiers. Optional. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native source gene name. Optional. |
 
 </details>
 

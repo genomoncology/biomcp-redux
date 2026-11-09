@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sourc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_SwitchableSources](#reply-switchablesources). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply-emptyquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_SwitchableSources](#reply_switchablesources). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply_emptyquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_SwitchableSources
 
@@ -26,12 +26,12 @@ Source names a hosted request may leave out, and the header that carries them.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `entries` | list of [Reply_SwitchableSource](#reply-switchablesource) | Accepted source names in public order. Optional. |
-| `header` | [Reply_Text](/reference/schemas/types/#reply-text) | Comma-separated hosted HTTP request header. |
+| `entries` | list of [Reply_SwitchableSource](#reply_switchablesource) | Accepted source names in public order. Optional. |
+| `header` | [Reply_Text](/reference/schemas/types/#reply_text) | Comma-separated hosted HTTP request header. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_SwitchableSource](#reply-switchablesource). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_SwitchableSource](#reply_switchablesource). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -42,9 +42,9 @@ One source name a hosted request may leave out.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) | Publisher display name. |
-| `source` | [Reply_Source](/reference/schemas/types/#reply-source) | Source name accepted by the hosted header. |
-| `usage` | [Reply_Use](/reference/schemas/types/#reply-use) | Publisher use label for the whole source. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) | Publisher display name. |
+| `source` | [Reply_Source](/reference/schemas/types/#reply_source) | Source name accepted by the hosted header. |
+| `usage` | [Reply_Use](/reference/schemas/types/#reply_use) | Publisher use label for the whole source. |
 
 </details>
 

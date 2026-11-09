@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp artic
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ArticleRecommendations](#reply-articlerecommendations). `query` holds [Reply_ArticleRecommend](#reply-articlerecommend). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ArticleRecommendations](#reply_articlerecommendations). `query` holds [Reply_ArticleRecommend](#reply_articlerecommend). `query` repeats the request as BioMCP read it.
 
 ### Reply_ArticleRecommendations
 
@@ -26,8 +26,8 @@ Source-native recommendation page.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_ArticleItem](/reference/schemas/types/#reply-articleitem) | Papers in provider order, without a local topic filter. Optional. |
-| `notice` | [Reply_EvidenceNotice](/reference/schemas/types/#reply-evidencenotice) or null | Successful zero-result explanation. Optional. |
+| `items` | list of [Reply_ArticleItem](/reference/schemas/types/#reply_articleitem) | Papers in provider order, without a local topic filter. Optional. |
+| `notice` | [Reply_EvidenceNotice](/reference/schemas/types/#reply_evidencenotice) or null | Successful zero-result explanation. Optional. |
 | `scope` | string | Provider's default pool, stated without a clinical relevance claim. |
 
 ### Reply_ArticleRecommend
@@ -37,10 +37,10 @@ Recommendations in the provider's recent-paper pool order.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `limit` | integer (uint32) | Maximum recommendations requested, in native order. Optional. |
-| `negative` | list of [Reply_ArticleInput](/reference/schemas/types/#reply-articleinput) | Up to ten negative paper identities. Optional. |
+| `negative` | list of [Reply_ArticleInput](/reference/schemas/types/#reply_articleinput) | Up to ten negative paper identities. Optional. |
 | `offset` | integer (uint32) | Number of stored recommendations to skip. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Fixed recommendation pool. Optional. |
-| `seeds` | list of [Reply_ArticleInput](/reference/schemas/types/#reply-articleinput) | One to ten positive paper identities. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Fixed recommendation pool. Optional. |
+| `seeds` | list of [Reply_ArticleInput](/reference/schemas/types/#reply_articleinput) | One to ten positive paper identities. |
 
 ## Next
 

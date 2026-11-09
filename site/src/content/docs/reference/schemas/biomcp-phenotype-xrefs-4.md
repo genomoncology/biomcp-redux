@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get p
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PhenotypeXrefs](#reply-phenotypexrefs). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply-phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PhenotypeXrefs](#reply_phenotypexrefs). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply_phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_PhenotypeXrefs
 
@@ -26,13 +26,13 @@ Source reference rows without equivalence promotion.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable publisher component terms. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable publisher component terms. Optional. |
 | `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
-| `items` | list of [Reply_PhenotypeXref](#reply-phenotypexref) | Native ordered rows; empty remains an empty collection. Optional. |
+| `items` | list of [Reply_PhenotypeXref](#reply_phenotypexref) | Native ordered rows; empty remains an empty collection. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_PhenotypeXref](#reply-phenotypexref). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_PhenotypeXref](#reply_phenotypexref). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -43,9 +43,9 @@ One exact native cross reference, without equivalence promotion.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Publisher provenance. |
-| `id` | [Reply_Curie](/reference/schemas/types/#reply-curie) | Exact publisher reference. |
-| `predicate` | [Reply_Curie](/reference/schemas/types/#reply-curie) or null | Native predicate when actually supplied. Optional. |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply_attribution) | Publisher provenance. |
+| `id` | [Reply_Curie](/reference/schemas/types/#reply_curie) | Exact publisher reference. |
+| `predicate` | [Reply_Curie](/reference/schemas/types/#reply_curie) or null | Native predicate when actually supplied. Optional. |
 
 </details>
 

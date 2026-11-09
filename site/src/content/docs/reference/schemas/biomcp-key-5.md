@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp help 
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_KeyHelp](#reply-keyhelp). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply-emptyquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_KeyHelp](#reply_keyhelp). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply_emptyquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_KeyHelp
 
@@ -26,10 +26,10 @@ Configuration names for one keyed source; never includes credential values.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `config` | [Reply_Text](/reference/schemas/types/#reply-text) | Configuration file key path. |
-| `environment` | [Reply_Text](/reference/schemas/types/#reply-text) | Environment variable name. |
-| `guidance` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Optional source-specific key guidance. Optional. |
-| `source` | [Reply_Source](/reference/schemas/types/#reply-source) | Source name. |
+| `config` | [Reply_Text](/reference/schemas/types/#reply_text) | Configuration file key path. |
+| `environment` | [Reply_Text](/reference/schemas/types/#reply_text) | Environment variable name. |
+| `guidance` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Optional source-specific key guidance. Optional. |
+| `source` | [Reply_Source](/reference/schemas/types/#reply_source) | Source name. |
 
 ## Next
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugApprovals](/reference/schemas/types/#reply-drugapprovals), a shared type. `query` holds [Reply_DrugGet](/reference/schemas/types/#reply-drugget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugApprovals](/reference/schemas/types/#reply_drugapprovals), a shared type. `query` holds [Reply_DrugGet](/reference/schemas/types/#reply_drugget), a shared type. `query` repeats the request as BioMCP read it.
 
 Every type this reply uses is shared with other replies, so its fields are on the shared types page.
 

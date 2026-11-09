@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get g
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_GwasPage](#reply-gwaspage). `query` holds [Reply_GwasPageQuery](#reply-gwaspagequery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_GwasPage](#reply_gwaspage). `query` holds [Reply_GwasPageQuery](#reply_gwaspagequery). `query` repeats the request as BioMCP read it.
 
 ### Reply_GwasPage
 
@@ -26,9 +26,9 @@ One native association page, also used for a study associations section.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `continuation` | [Reply_GwasPageQuery](#reply-gwaspagequery) | Same-selector search continuation. Optional. |
-| `items` | list of [Reply_GwasAssociation](/reference/schemas/types/#reply-gwasassociation) | Shared complete association records. Optional. |
-| `page` | [Reply_PageInfo](/reference/schemas/types/#reply-pageinfo) | Native page scope and total. |
+| `continuation` | [Reply_GwasPageQuery](#reply_gwaspagequery) | Same-selector search continuation. Optional. |
+| `items` | list of [Reply_GwasAssociation](/reference/schemas/types/#reply_gwasassociation) | Shared complete association records. Optional. |
+| `page` | [Reply_PageInfo](/reference/schemas/types/#reply_pageinfo) | Native page scope and total. |
 | `qualifying_total` | integer or null | Complete qualifying count, unknown until the threshold walk reaches its end. Optional. |
 
 ### Reply_GwasPageQuery
@@ -37,8 +37,8 @@ Search and study-association pages echo their original checked request.
 
 One of these forms:
 
-- `operation` is `"search"`: Native association search. Fields: `query` ([Reply_GwasSearch](/reference/schemas/types/#reply-gwassearch)).
-- `operation` is `"get"`: Exact study associations relation. Fields: `query` ([Reply_GwasGet](/reference/schemas/types/#reply-gwasget)).
+- `operation` is `"search"`: Native association search. Fields: `query` ([Reply_GwasSearch](/reference/schemas/types/#reply_gwassearch)).
+- `operation` is `"get"`: Exact study associations relation. Fields: `query` ([Reply_GwasGet](/reference/schemas/types/#reply_gwasget)).
 
 ## Next
 

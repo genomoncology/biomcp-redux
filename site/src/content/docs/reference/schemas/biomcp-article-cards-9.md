@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get a
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ArticleCards](#reply-articlecards). `query` holds [Reply_ArticleGet](#reply-articleget). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ArticleCards](#reply_articlecards). `query` holds [Reply_ArticleGet](#reply_articleget). `query` repeats the request as BioMCP read it.
 
 ### Reply_ArticleCards
 
@@ -26,7 +26,7 @@ Cards in caller order.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_ArticleCardItem](#reply-articlecarditem) | Per-input answers. Optional. |
+| `items` | list of [Reply_ArticleCardItem](#reply_articlecarditem) | Per-input answers. Optional. |
 
 ### Reply_ArticleGet
 
@@ -34,12 +34,12 @@ Get one to twenty article inputs in caller order.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `input` | list of [Reply_ArticleInput](/reference/schemas/types/#reply-articleinput) | PubMed, PMC or DOI identifiers in input order. |
-| `section` | list of [Reply_ArticleSectionWord](#reply-articlesectionword) | Requested [section words](/concepts/progressive-disclosure/); trailing words and --section share this field. Optional. |
+| `input` | list of [Reply_ArticleInput](/reference/schemas/types/#reply_articleinput) | PubMed, PMC or DOI identifiers in input order. |
+| `section` | list of [Reply_ArticleSectionWord](#reply_articlesectionword) | Requested [section words](/concepts/progressive-disclosure/); trailing words and --section share this field. Optional. |
 
 ### Other types in this reply
 
-35 more types appear only in this reply: [Reply_AbstractPart](#reply-abstractpart), [Reply_AnnotatedEntity](#reply-annotatedentity), [Reply_AnnotationKind](#reply-annotationkind), [Reply_Article](#reply-article), [Reply_ArticleCardItem](#reply-articlecarditem), [Reply_ArticleMatch](#reply-articlematch), [Reply_ArticleMatchKind](#reply-articlematchkind), [Reply_ArticleResolution](#reply-articleresolution), [Reply_ArticleSection](#reply-articlesection), [Reply_ArticleSectionWord](#reply-articlesectionword), [Reply_ArticleSections](#reply-articlesections), [Reply_Capped_AnnotatedEntity](#reply-capped-annotatedentity), [Reply_Citations](#reply-citations), [Reply_Correction](#reply-correction), [Reply_CorrectionKind](#reply-correctionkind), [Reply_CorrectionRelation](#reply-correctionrelation), [Reply_FigureCaption](#reply-figurecaption), [Reply_FileKind](#reply-filekind), [Reply_FullText](#reply-fulltext), [Reply_Indexing](#reply-indexing), [Reply_MeshHeading](#reply-meshheading), [Reply_MeshQualifier](#reply-meshqualifier), [Reply_PdfLink](#reply-pdflink), [Reply_Section_Capped_AnnotatedEntity](#reply-section-capped-annotatedentity), [Reply_Section_Citations](#reply-section-citations), [Reply_Section_FullText](#reply-section-fulltext), [Reply_Section_Indexing](#reply-section-indexing), [Reply_Section_PdfLink](#reply-section-pdflink), [Reply_Section_Supplements](#reply-section-supplements), [Reply_Section_Tldr](#reply-section-tldr), [Reply_SupplementFile](#reply-supplementfile), [Reply_Supplements](#reply-supplements), [Reply_TextPart](#reply-textpart), [Reply_TextPartKind](#reply-textpartkind), [Reply_Tldr](#reply-tldr). Open the list below to read their fields.
+35 more types appear only in this reply: [Reply_AbstractPart](#reply_abstractpart), [Reply_AnnotatedEntity](#reply_annotatedentity), [Reply_AnnotationKind](#reply_annotationkind), [Reply_Article](#reply_article), [Reply_ArticleCardItem](#reply_articlecarditem), [Reply_ArticleMatch](#reply_articlematch), [Reply_ArticleMatchKind](#reply_articlematchkind), [Reply_ArticleResolution](#reply_articleresolution), [Reply_ArticleSection](#reply_articlesection), [Reply_ArticleSectionWord](#reply_articlesectionword), [Reply_ArticleSections](#reply_articlesections), [Reply_Capped_AnnotatedEntity](#reply_capped_annotatedentity), [Reply_Citations](#reply_citations), [Reply_Correction](#reply_correction), [Reply_CorrectionKind](#reply_correctionkind), [Reply_CorrectionRelation](#reply_correctionrelation), [Reply_FigureCaption](#reply_figurecaption), [Reply_FileKind](#reply_filekind), [Reply_FullText](#reply_fulltext), [Reply_Indexing](#reply_indexing), [Reply_MeshHeading](#reply_meshheading), [Reply_MeshQualifier](#reply_meshqualifier), [Reply_PdfLink](#reply_pdflink), [Reply_Section_Capped_AnnotatedEntity](#reply_section_capped_annotatedentity), [Reply_Section_Citations](#reply_section_citations), [Reply_Section_FullText](#reply_section_fulltext), [Reply_Section_Indexing](#reply_section_indexing), [Reply_Section_PdfLink](#reply_section_pdflink), [Reply_Section_Supplements](#reply_section_supplements), [Reply_Section_Tldr](#reply_section_tldr), [Reply_SupplementFile](#reply_supplementfile), [Reply_Supplements](#reply_supplements), [Reply_TextPart](#reply_textpart), [Reply_TextPartKind](#reply_textpartkind), [Reply_Tldr](#reply_tldr). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 35 other types</summary>
@@ -50,8 +50,8 @@ One source-labelled abstract paragraph.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `label` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source label, when supplied. Optional. |
-| `text` | [Reply_Markdown](/reference/schemas/types/#reply-markdown) | Whole paragraph text. |
+| `label` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source label, when supplied. Optional. |
+| `text` | [Reply_Markdown](/reference/schemas/types/#reply_markdown) | Whole paragraph text. |
 
 ### Reply_AnnotatedEntity
 
@@ -60,12 +60,12 @@ One normalized [entity](/concepts/progressive-disclosure/) with its mention coun
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `count` | integer (uint64) | Number of annotation mentions. |
-| `entrez_id` | [Reply_NcbiGeneId](/reference/schemas/types/#reply-ncbigeneid) or null | Gene identity, including a variant's associated gene. Optional. |
-| `hgvs` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source HGVS expression for a variant. Optional. |
-| `kind` | [Reply_AnnotationKind](#reply-annotationkind) | Source concept type. |
-| `mesh` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source MeSH identity for a disease or chemical. Optional. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source normalized name. Optional. |
-| `rsid` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source reference SNP identity for a variant. Optional. |
+| `entrez_id` | [Reply_NcbiGeneId](/reference/schemas/types/#reply_ncbigeneid) or null | Gene identity, including a variant's associated gene. Optional. |
+| `hgvs` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source HGVS expression for a variant. Optional. |
+| `kind` | [Reply_AnnotationKind](#reply_annotationkind) | Source concept type. |
+| `mesh` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source MeSH identity for a disease or chemical. Optional. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source normalized name. Optional. |
+| `rsid` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source reference SNP identity for a variant. Optional. |
 
 ### Reply_AnnotationKind
 
@@ -79,19 +79,19 @@ Article facts with at least one checked identity.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `abstract_parts` | list of [Reply_AbstractPart](#reply-abstractpart) | Whole abstract, preserving labels and source order. Optional. |
-| `authors` | [Reply_Capped_Text](/reference/schemas/types/#reply-capped-text) | Authors in source order. |
-| `corrections` | list of [Reply_Correction](#reply-correction) | Related correction notices or originals. Optional. |
-| `date` | [Reply_PartialDate](/reference/schemas/types/#reply-partialdate) or null | Publication date at source precision. Optional. |
-| `doi` | [Reply_Doi](/reference/schemas/types/#reply-doi) | DOI assigned to this article. Optional. |
-| `electronic_date` | [Reply_PartialDate](/reference/schemas/types/#reply-partialdate) or null | Electronic publication date when different from the publication date. Optional. |
-| `europepmc_id` | [Reply_EuropePmcId](/reference/schemas/types/#reply-europepmcid) | Europe PMC identity when this card comes from its core record. Optional. |
-| `journal` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Journal name. Optional. |
-| `pmcid` | [Reply_Pmcid](/reference/schemas/types/#reply-pmcid) | PMC identity assigned to this article. Optional. |
-| `pmid` | [Reply_Pmid](/reference/schemas/types/#reply-pmid) | PubMed identity. Optional. |
-| `text_withheld` | [Reply_WithheldArticleText](/reference/schemas/types/#reply-withheldarticletext) or null | Text withheld because the record's terms do not permit this use. Optional. |
-| `title` | [Reply_Text](/reference/schemas/types/#reply-text) | Whole title with inline text preserved. Optional. |
-| `types` | list of [Reply_PublicationType](/reference/schemas/types/#reply-publicationtype) | Every clinically meaningful source publication type. Optional. |
+| `abstract_parts` | list of [Reply_AbstractPart](#reply_abstractpart) | Whole abstract, preserving labels and source order. Optional. |
+| `authors` | [Reply_Capped_Text](/reference/schemas/types/#reply_capped_text) | Authors in source order. |
+| `corrections` | list of [Reply_Correction](#reply_correction) | Related correction notices or originals. Optional. |
+| `date` | [Reply_PartialDate](/reference/schemas/types/#reply_partialdate) or null | Publication date at source precision. Optional. |
+| `doi` | [Reply_Doi](/reference/schemas/types/#reply_doi) | DOI assigned to this article. Optional. |
+| `electronic_date` | [Reply_PartialDate](/reference/schemas/types/#reply_partialdate) or null | Electronic publication date when different from the publication date. Optional. |
+| `europepmc_id` | [Reply_EuropePmcId](/reference/schemas/types/#reply_europepmcid) | Europe PMC identity when this card comes from its core record. Optional. |
+| `journal` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Journal name. Optional. |
+| `pmcid` | [Reply_Pmcid](/reference/schemas/types/#reply_pmcid) | PMC identity assigned to this article. Optional. |
+| `pmid` | [Reply_Pmid](/reference/schemas/types/#reply_pmid) | PubMed identity. Optional. |
+| `text_withheld` | [Reply_WithheldArticleText](/reference/schemas/types/#reply_withheldarticletext) or null | Text withheld because the record's terms do not permit this use. Optional. |
+| `title` | [Reply_Text](/reference/schemas/types/#reply_text) | Whole title with inline text preserved. Optional. |
+| `types` | list of [Reply_PublicationType](/reference/schemas/types/#reply_publicationtype) | Every clinically meaningful source publication type. Optional. |
 
 ### Reply_ArticleCardItem
 
@@ -99,11 +99,11 @@ Answer to one input; shared DOIs may expand to several consecutive items.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `answer` | [Reply_ArticleResolution](#reply-articleresolution) or null | Absent only when a provider failed. Optional. |
-| `input` | [Reply_ArticleInput](/reference/schemas/types/#reply-articleinput) | Original selector. |
-| `more` | list of [Reply_ArticleSection](#reply-articlesection) | Applicable sections omitted by this request. Optional. |
-| `sections` | [Reply_ArticleSections](#reply-articlesections) or null | Requested section states for a resolved card. Optional. |
-| `status` | [Reply_Status](/reference/schemas/types/#reply-status) | This card's outcome. |
+| `answer` | [Reply_ArticleResolution](#reply_articleresolution) or null | Absent only when a provider failed. Optional. |
+| `input` | [Reply_ArticleInput](/reference/schemas/types/#reply_articleinput) | Original selector. |
+| `more` | list of [Reply_ArticleSection](#reply_articlesection) | Applicable sections omitted by this request. Optional. |
+| `sections` | [Reply_ArticleSections](#reply_articlesections) or null | Requested section states for a resolved card. Optional. |
+| `status` | [Reply_Status](/reference/schemas/types/#reply_status) | This card's outcome. |
 
 ### Reply_ArticleMatch
 
@@ -111,7 +111,7 @@ Identity evidence for an article card.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `kind` | [Reply_ArticleMatchKind](#reply-articlematchkind) | Namespace used to resolve the card. |
+| `kind` | [Reply_ArticleMatchKind](#reply_articlematchkind) | Namespace used to resolve the card. |
 
 ### Reply_ArticleMatchKind
 
@@ -125,7 +125,7 @@ Result of resolving an article selector.
 
 One of these forms:
 
-- `resolution` is `"resolved"`: A record whose own identity agrees with the input. Fields: `card` ([Reply_Article](#reply-article)), `fetched` (integer or null), `match` ([Reply_ArticleMatch](#reply-articlematch)).
+- `resolution` is `"resolved"`: A record whose own identity agrees with the input. Fields: `card` ([Reply_Article](#reply_article)), `fetched` (integer or null), `match` ([Reply_ArticleMatch](#reply_articlematch)).
 - `resolution` is `"not-found"`: The source confirmed no matching record.
 
 ### Reply_ArticleSection
@@ -146,13 +146,13 @@ Landed article sections with independent source states.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `annotations` | [Reply_Section_Capped_AnnotatedEntity](#reply-section-capped-annotatedentity) or null | Normalized PubTator3 entities. Optional. |
-| `citations` | [Reply_Section_Citations](#reply-section-citations) or null | Citation counts from NIH iCite. Optional. |
-| `fulltext` | [Reply_Section_FullText](#reply-section-fulltext) or null | Licensed PMC body outline. Optional. |
-| `indexing` | [Reply_Section_Indexing](#reply-section-indexing) or null | Index terms from the card's own EFetch citation. Optional. |
-| `pdf` | [Reply_Section_PdfLink](#reply-section-pdflink) or null | Publisher PDF link; no file is downloaded. Optional. |
-| `supplements` | [Reply_Section_Supplements](#reply-section-supplements) or null | JATS supplementary files confirmed by the bucket record. Optional. |
-| `tldr` | [Reply_Section_Tldr](#reply-section-tldr) or null | Machine-written Semantic Scholar summary. Optional. |
+| `annotations` | [Reply_Section_Capped_AnnotatedEntity](#reply_section_capped_annotatedentity) or null | Normalized PubTator3 entities. Optional. |
+| `citations` | [Reply_Section_Citations](#reply_section_citations) or null | Citation counts from NIH iCite. Optional. |
+| `fulltext` | [Reply_Section_FullText](#reply_section_fulltext) or null | Licensed PMC body outline. Optional. |
+| `indexing` | [Reply_Section_Indexing](#reply_section_indexing) or null | Index terms from the card's own EFetch citation. Optional. |
+| `pdf` | [Reply_Section_PdfLink](#reply_section_pdflink) or null | Publisher PDF link; no file is downloaded. Optional. |
+| `supplements` | [Reply_Section_Supplements](#reply_section_supplements) or null | JATS supplementary files confirmed by the bucket record. Optional. |
+| `tldr` | [Reply_Section_Tldr](#reply_section_tldr) or null | Machine-written Semantic Scholar summary. Optional. |
 
 ### Reply_Capped_AnnotatedEntity
 
@@ -160,7 +160,7 @@ A list cut to a maximum length. `total` counts the items before the cut.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_AnnotatedEntity](#reply-annotatedentity) | The items, in the source's order. Optional. |
+| `items` | list of [Reply_AnnotatedEntity](#reply_annotatedentity) | The items, in the source's order. Optional. |
 | `total` | integer (uint64) | How many distinct items there were before the cut. |
 
 ### Reply_Citations
@@ -171,7 +171,7 @@ Independently reported iCite counts; absent lists are never confirmed zeros.
 | --- | --- | --- |
 | `cited_by` | integer or null | Number of citing PubMed papers. Optional. |
 | `cited_by_clinical` | integer or null | Number of distinct clinical citing papers, when the list was present. Optional. |
-| `rcr` | [Reply_FiniteNumber](/reference/schemas/types/#reply-finitenumber) or null | Relative citation ratio, only when confirmed non-provisional. Optional. |
+| `rcr` | [Reply_FiniteNumber](/reference/schemas/types/#reply_finitenumber) or null | Relative citation ratio, only when confirmed non-provisional. Optional. |
 | `references` | integer or null | Number of distinct references, when the list was present. Optional. |
 
 ### Reply_Correction
@@ -180,9 +180,9 @@ One correction relationship supplied by PubMed.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `kind` | [Reply_CorrectionKind](#reply-correctionkind) | Correction category. |
-| `pmid` | [Reply_Pmid](/reference/schemas/types/#reply-pmid) | Related PMID, when supplied. Optional. |
-| `relation` | [Reply_CorrectionRelation](#reply-correctionrelation) | Whether the related record is a notice or original. |
+| `kind` | [Reply_CorrectionKind](#reply_correctionkind) | Correction category. |
+| `pmid` | [Reply_Pmid](/reference/schemas/types/#reply_pmid) | Related PMID, when supplied. Optional. |
+| `relation` | [Reply_CorrectionRelation](#reply_correctionrelation) | Whether the related record is a notice or original. |
 
 ### Reply_CorrectionKind
 
@@ -202,8 +202,8 @@ Figure text in document order.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `caption` | [Reply_Markdown](/reference/schemas/types/#reply-markdown) | Source caption. |
-| `label` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source label. Optional. |
+| `caption` | [Reply_Markdown](/reference/schemas/types/#reply_markdown) | Source caption. |
+| `label` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source label. Optional. |
 
 ### Reply_FileKind
 
@@ -217,10 +217,10 @@ Bucket license and body outline; processing version is not publication chronolog
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `figures` | list of [Reply_FigureCaption](#reply-figurecaption) | Source figure captions in document order. Optional. |
-| `license` | [Reply_License](/reference/schemas/types/#reply-license) | Selected bucket license. |
+| `figures` | list of [Reply_FigureCaption](#reply_figurecaption) | Source figure captions in document order. Optional. |
+| `license` | [Reply_License](/reference/schemas/types/#reply_license) | Selected bucket license. |
 | `manuscript` | boolean | Whether this selected version is an author manuscript. Optional. |
-| `parts` | list of [Reply_TextPart](#reply-textpart) | Bounded body parts in reading order. Optional. |
+| `parts` | list of [Reply_TextPart](#reply_textpart) | Bounded body parts in reading order. Optional. |
 | `processing_version` | integer (uint32) | Highest numeric processing version. Optional. |
 
 ### Reply_Indexing
@@ -229,10 +229,10 @@ Index terms and author identities supplied by this article's EFetch citation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `affiliations` | [Reply_Capped_Text](/reference/schemas/types/#reply-capped-text) | First ten author affiliations and the complete count. |
-| `keywords` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Author keywords in source order. Optional. |
-| `mesh` | list of [Reply_MeshHeading](#reply-meshheading) | MeSH headings in source order. Optional. |
-| `orcids` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Author ORCID identifiers, as supplied by the source. Optional. |
+| `affiliations` | [Reply_Capped_Text](/reference/schemas/types/#reply_capped_text) | First ten author affiliations and the complete count. |
+| `keywords` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Author keywords in source order. Optional. |
+| `mesh` | list of [Reply_MeshHeading](#reply_meshheading) | MeSH headings in source order. Optional. |
+| `orcids` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Author ORCID identifiers, as supplied by the source. Optional. |
 
 ### Reply_MeshHeading
 
@@ -240,9 +240,9 @@ A MeSH descriptor and its qualifiers retain their independent major-topic flags.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `descriptor` | [Reply_Text](/reference/schemas/types/#reply-text) | Source descriptor. |
+| `descriptor` | [Reply_Text](/reference/schemas/types/#reply_text) | Source descriptor. |
 | `major` | boolean | Descriptor major-topic flag. |
-| `qualifiers` | list of [Reply_MeshQualifier](#reply-meshqualifier) | Source qualifiers. Optional. |
+| `qualifiers` | list of [Reply_MeshQualifier](#reply_meshqualifier) | Source qualifiers. Optional. |
 
 ### Reply_MeshQualifier
 
@@ -251,7 +251,7 @@ A qualifier attached to a MeSH descriptor.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `major` | boolean | Qualifier major-topic flag. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) | Source qualifier. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) | Source qualifier. |
 
 ### Reply_PdfLink
 
@@ -259,9 +259,9 @@ Source-reported PDF link. Reading this section never downloads the file.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `license` | [Reply_License](/reference/schemas/types/#reply-license) | Normalized license; other grants no reuse rights. |
-| `status` | [Reply_OpenAccessStatus](/reference/schemas/types/#reply-openaccessstatus) | Source access status. |
-| `url` | [Reply_Text](/reference/schemas/types/#reply-text) | Source publisher URL. |
+| `license` | [Reply_License](/reference/schemas/types/#reply_license) | Normalized license; other grants no reuse rights. |
+| `status` | [Reply_OpenAccessStatus](/reference/schemas/types/#reply_openaccessstatus) | Source access status. |
+| `url` | [Reply_Text](/reference/schemas/types/#reply_text) | Source publisher URL. |
 
 ### Reply_Section_Capped_AnnotatedEntity
 
@@ -269,10 +269,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Capped_AnnotatedEntity](#reply-capped-annotatedentity)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Capped_AnnotatedEntity](#reply_capped_annotatedentity)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_Section_Citations
@@ -281,10 +281,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Citations](#reply-citations)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Citations](#reply_citations)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_Section_FullText
@@ -293,10 +293,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_FullText](#reply-fulltext)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_FullText](#reply_fulltext)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_Section_Indexing
@@ -305,10 +305,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Indexing](#reply-indexing)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Indexing](#reply_indexing)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_Section_PdfLink
@@ -317,10 +317,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_PdfLink](#reply-pdflink)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_PdfLink](#reply_pdflink)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_Section_Supplements
@@ -329,10 +329,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Supplements](#reply-supplements)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Supplements](#reply_supplements)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_Section_Tldr
@@ -341,10 +341,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Tldr](#reply-tldr)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_Tldr](#reply_tldr)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_SupplementFile
@@ -353,10 +353,10 @@ A JATS supplement confirmed by the same processing record.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `caption` | [Reply_Markdown](/reference/schemas/types/#reply-markdown) or null | JATS caption when present. Optional. |
-| `kind` | [Reply_FileKind](#reply-filekind) | Checked format. |
-| `label` | [Reply_Text](/reference/schemas/types/#reply-text) or null | JATS label when present. Optional. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact source filename. |
+| `caption` | [Reply_Markdown](/reference/schemas/types/#reply_markdown) or null | JATS caption when present. Optional. |
+| `kind` | [Reply_FileKind](#reply_filekind) | Checked format. |
+| `label` | [Reply_Text](/reference/schemas/types/#reply_text) or null | JATS label when present. Optional. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact source filename. |
 
 ### Reply_Supplements
 
@@ -364,8 +364,8 @@ Available supplements with their owning article license.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `files` | list of [Reply_SupplementFile](#reply-supplementfile) | Exact JATS/record intersection. Optional. |
-| `license` | [Reply_License](/reference/schemas/types/#reply-license) | Article license from the record. |
+| `files` | list of [Reply_SupplementFile](#reply_supplementfile) | Exact JATS/record intersection. Optional. |
+| `license` | [Reply_License](/reference/schemas/types/#reply_license) | Article license from the record. |
 
 ### Reply_TextPart
 
@@ -373,9 +373,9 @@ One independently readable bounded part.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `kind` | [Reply_TextPartKind](#reply-textpartkind) | Source structure kind. |
+| `kind` | [Reply_TextPartKind](#reply_textpartkind) | Source structure kind. |
 | `number` | integer (uint32) | One-based reader selector. |
-| `title` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source section title or table label. Optional. |
+| `title` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source section title or table label. Optional. |
 | `tokens` | integer (uint32) | Compact serialized text bytes divided by four, rounded up. |
 
 ### Reply_TextPartKind
@@ -393,8 +393,8 @@ Machine-written source summary with independently reported counts.
 | `cited_by` | integer or null | Total source citation count, when supplied. Optional. |
 | `influential_cited_by` | integer or null | Source influential citation count, when supplied. Optional. |
 | `machine_written` | boolean | Explicitly identifies generated prose. |
-| `model` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source model version. Optional. |
-| `text` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Complete one-sentence source summary. Optional. |
+| `model` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source model version. Optional. |
+| `text` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Complete one-sentence source summary. Optional. |
 
 </details>
 

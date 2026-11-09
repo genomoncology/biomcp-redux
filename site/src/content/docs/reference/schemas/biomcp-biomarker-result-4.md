@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get b
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_BiomarkerResult](#reply-biomarkerresult). `query` holds [Reply_BiomarkerGet](#reply-biomarkerget). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_BiomarkerResult](#reply_biomarkerresult). `query` holds [Reply_BiomarkerGet](#reply_biomarkerget). `query` repeats the request as BioMCP read it.
 
 ### Reply_BiomarkerResult
 
@@ -26,8 +26,8 @@ Exact code result; multiple rows are candidates, never a selected card.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `candidates` | list of [Reply_BiomarkerCard](#reply-biomarkercard) | Every native candidate when several rows matched the code. Optional. |
-| `card` | [Reply_BiomarkerCard](#reply-biomarkercard) or null | The sole native row when exactly one row matched. Optional. |
+| `candidates` | list of [Reply_BiomarkerCard](#reply_biomarkercard) | Every native candidate when several rows matched the code. Optional. |
+| `card` | [Reply_BiomarkerCard](#reply_biomarkercard) or null | The sole native row when exactly one row matched. Optional. |
 
 ### Reply_BiomarkerGet
 
@@ -35,12 +35,12 @@ Search NCI by exact NCIt code. Several native rows return candidates without cho
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `id` | [Reply_NcitId](/reference/schemas/types/#reply-ncitid) | Exact NCIt code, such as C96022. |
-| `source` | [Reply_BiomarkerSource](/reference/schemas/types/#reply-biomarkersource) | NCI is the biomarker concept source. Optional. |
+| `id` | [Reply_NcitId](/reference/schemas/types/#reply_ncitid) | Exact NCIt code, such as C96022. |
+| `source` | [Reply_BiomarkerSource](/reference/schemas/types/#reply_biomarkersource) | NCI is the biomarker concept source. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_BiomarkerCard](#reply-biomarkercard). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_BiomarkerCard](#reply_biomarkercard). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -51,11 +51,11 @@ Native terminology card; source criteria remain uninterpreted.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `ancestor_ids` | list of [Reply_NcitId](/reference/schemas/types/#reply-ncitid) or null | Native ancestor codes. Optional. |
-| `eligibility_criterion` | list of [Reply_Text](/reference/schemas/types/#reply-text) or null | Native eligibility criterion values, exactly as published. Optional. |
-| `header` | [Reply_BiomarkerHeader](/reference/schemas/types/#reply-biomarkerheader) | Native concept identity and count. |
-| `parent_ids` | list of [Reply_NcitId](/reference/schemas/types/#reply-ncitid) or null | Native direct parent codes. Optional. |
-| `synonyms` | list of [Reply_Text](/reference/schemas/types/#reply-text) or null | Native synonym values. Optional. |
+| `ancestor_ids` | list of [Reply_NcitId](/reference/schemas/types/#reply_ncitid) or null | Native ancestor codes. Optional. |
+| `eligibility_criterion` | list of [Reply_Text](/reference/schemas/types/#reply_text) or null | Native eligibility criterion values, exactly as published. Optional. |
+| `header` | [Reply_BiomarkerHeader](/reference/schemas/types/#reply_biomarkerheader) | Native concept identity and count. |
+| `parent_ids` | list of [Reply_NcitId](/reference/schemas/types/#reply_ncitid) or null | Native direct parent codes. Optional. |
+| `synonyms` | list of [Reply_Text](/reference/schemas/types/#reply_text) or null | Native synonym values. Optional. |
 
 </details>
 

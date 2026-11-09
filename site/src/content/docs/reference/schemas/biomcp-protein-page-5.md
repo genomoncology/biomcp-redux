@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ProteinPage](#reply-proteinpage). `query` holds [Reply_ProteinSearch](#reply-proteinsearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ProteinPage](#reply_proteinpage). `query` holds [Reply_ProteinSearch](#reply_proteinsearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_ProteinPage
 
@@ -26,7 +26,7 @@ Source-ordered human reviewed protein headers.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_ProteinHeader](/reference/schemas/types/#reply-proteinheader) | Whole native rows in source order; totals apply only to this collection. Optional. |
+| `items` | list of [Reply_ProteinHeader](/reference/schemas/types/#reply_proteinheader) | Whole native rows in source order; totals apply only to this collection. Optional. |
 
 ### Reply_ProteinSearch
 
@@ -34,11 +34,11 @@ Search five reviewed human UniProt headers by literal text or exact gene. No var
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `gene` | [Reply_GeneSymbol](/reference/schemas/types/#reply-genesymbol) | Exact native gene field, without identifier inference. Optional. |
+| `gene` | [Reply_GeneSymbol](/reference/schemas/types/#reply_genesymbol) | Exact native gene field, without identifier inference. Optional. |
 | `limit` | integer (uint32) | Five rows by default; no more than 25. Optional. |
 | `offset` | integer (uint32) | Source/retained result offset. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact retained collection identity. Optional. |
-| `query` | [Reply_Text](/reference/schemas/types/#reply-text) | Literal text, exclusive with gene. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact retained collection identity. Optional. |
+| `query` | [Reply_Text](/reference/schemas/types/#reply_text) | Literal text, exclusive with gene. Optional. |
 | `reviewed` | boolean | Reviewed human scope stays enabled; unreviewed search is deferred. Optional. |
 
 ## Next

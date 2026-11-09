@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiseaseCard](#reply-diseasecard). `query` holds [Reply_DiseaseGet](/reference/schemas/types/#reply-diseaseget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiseaseCard](#reply_diseasecard). `query` holds [Reply_DiseaseGet](/reference/schemas/types/#reply_diseaseget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiseaseCard
 
@@ -26,17 +26,17 @@ Exact identity and available pages without hidden enrichment.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `alias` | [Reply_DiseaseRelation](/reference/schemas/types/#reply-diseaserelation) or null | Native relation proving a source-accepted alternate identifier. Optional. |
-| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Publisher record and version. |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component terms. Optional. |
-| `concept` | [Reply_DiseaseConcept](/reference/schemas/types/#reply-diseaseconcept) | Native identity and complete primary label. |
-| `consider` | list of [Reply_Curie](/reference/schemas/types/#reply-curie) or null | Publisher alternatives, never an automatic replacement. Optional. |
-| `definition` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Complete source definition when supplied. Optional. |
+| `alias` | [Reply_DiseaseRelation](/reference/schemas/types/#reply_diseaserelation) or null | Native relation proving a source-accepted alternate identifier. Optional. |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply_attribution) | Publisher record and version. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component terms. Optional. |
+| `concept` | [Reply_DiseaseConcept](/reference/schemas/types/#reply_diseaseconcept) | Native identity and complete primary label. |
+| `consider` | list of [Reply_Curie](/reference/schemas/types/#reply_curie) or null | Publisher alternatives, never an automatic replacement. Optional. |
+| `definition` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Complete source definition when supplied. Optional. |
 | `obsolete` | boolean or null | Publisher obsolete flag. Optional. |
-| `replaced_by` | list of [Reply_Curie](/reference/schemas/types/#reply-curie) or null | Publisher explicit replacement identifiers; null preserves no native replacement. Optional. |
-| `requested_id` | [Reply_Curie](/reference/schemas/types/#reply-curie) | Exact requested identifier. |
-| `returned_id` | [Reply_Curie](/reference/schemas/types/#reply-curie) | Actual returned identifier. |
-| `sections` | list of [Reply_DiseaseSection](/reference/schemas/types/#reply-diseasesection) | Available named sections. Optional. |
+| `replaced_by` | list of [Reply_Curie](/reference/schemas/types/#reply_curie) or null | Publisher explicit replacement identifiers; null preserves no native replacement. Optional. |
+| `requested_id` | [Reply_Curie](/reference/schemas/types/#reply_curie) | Exact requested identifier. |
+| `returned_id` | [Reply_Curie](/reference/schemas/types/#reply_curie) | Actual returned identifier. |
+| `sections` | list of [Reply_DiseaseSection](/reference/schemas/types/#reply_diseasesection) | Available named sections. Optional. |
 
 ## Next
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_GenePage](#reply-genepage). `query` holds [Reply_GeneSearch](#reply-genesearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_GenePage](#reply_genepage). `query` holds [Reply_GeneSearch](#reply_genesearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_GenePage
 
@@ -26,7 +26,7 @@ One page of gene headers.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_GeneHeader](/reference/schemas/types/#reply-geneheader) | Headers after ranking and paging. Optional. |
+| `items` | list of [Reply_GeneHeader](/reference/schemas/types/#reply_geneheader) | Headers after ranking and paging. Optional. |
 
 ### Reply_GeneSearch
 
@@ -34,15 +34,15 @@ Search genes by text, cytoband, or their intersection.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `band` | [Reply_Cytoband](#reply-cytoband) | A cytoband prefix. Optional. |
+| `band` | [Reply_Cytoband](#reply_cytoband) | A cytoband prefix. Optional. |
 | `limit` | integer (uint32) | Number of results per page. Optional. |
-| `locus_group` | [Reply_LocusGroup](/reference/schemas/types/#reply-locusgroup) | Optional HGNC locus group intersected with the selector. Optional. |
+| `locus_group` | [Reply_LocusGroup](/reference/schemas/types/#reply_locusgroup) | Optional HGNC locus group intersected with the selector. Optional. |
 | `offset` | integer (uint32) | Number of results to skip. Optional. |
-| `query` | [Reply_Text](/reference/schemas/types/#reply-text) | Words matched against symbols, previous symbols, aliases and names. Optional. |
+| `query` | [Reply_Text](/reference/schemas/types/#reply_text) | Words matched against symbols, previous symbols, aliases and names. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_Cytoband](#reply-cytoband). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_Cytoband](#reply_cytoband). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

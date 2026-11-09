@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugRecallCard](#reply-drugrecallcard). `query` holds [Reply_DrugGet](/reference/schemas/types/#reply-drugget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugRecallCard](#reply_drugrecallcard). `query` holds [Reply_DrugGet](/reference/schemas/types/#reply_drugget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugRecallCard
 
@@ -26,11 +26,11 @@ Native detail fields from the selected recall record.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `code_info` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Published product code information. Optional. |
-| `distribution_pattern` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Published distribution pattern. Optional. |
-| `header` | [Reply_DrugRecallHeader](/reference/schemas/types/#reply-drugrecallheader) | Native recall header. |
-| `reason` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Published reason for recall. Optional. |
-| `voluntary_mandated` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native voluntary or mandated status. Optional. |
+| `code_info` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Published product code information. Optional. |
+| `distribution_pattern` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Published distribution pattern. Optional. |
+| `header` | [Reply_DrugRecallHeader](/reference/schemas/types/#reply_drugrecallheader) | Native recall header. |
+| `reason` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Published reason for recall. Optional. |
+| `voluntary_mandated` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native voluntary or mandated status. Optional. |
 
 ## Next
 

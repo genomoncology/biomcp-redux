@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_VariantPage](#reply-variantpage). `query` holds [Reply_VariantSearch](#reply-variantsearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_VariantPage](#reply_variantpage). `query` holds [Reply_VariantSearch](#reply_variantsearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_VariantPage
 
@@ -26,11 +26,11 @@ One native variant candidate page; its total and offset are in the shared envelo
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `build` | [Reply_Build](/reference/schemas/types/#reply-build) or null | Assembly sent to the source, never inferred from a candidate label. Optional. |
-| `excluded` | [Reply_VariantSearchExclusions](#reply-variantsearchexclusions) or null | Fallback candidates excluded because their reference allele was not confirmed. Optional. |
-| `filter_terms` | [Reply_ComponentTerms](/reference/schemas/types/#reply-componentterms) or null | Independent publisher terms for named ClinVar filters, present only when requested. Optional. |
-| `items` | list of [Reply_VariantHeader](/reference/schemas/types/#reply-variantheader) | Native source order, preserving every candidate including repeated source identities. Optional. |
-| `selector_terms` | [Reply_ComponentTerms](/reference/schemas/types/#reply-componentterms) or null | Independent publisher terms for the declared dbNSFP gene/protein selector. Optional. |
+| `build` | [Reply_Build](/reference/schemas/types/#reply_build) or null | Assembly sent to the source, never inferred from a candidate label. Optional. |
+| `excluded` | [Reply_VariantSearchExclusions](#reply_variantsearchexclusions) or null | Fallback candidates excluded because their reference allele was not confirmed. Optional. |
+| `filter_terms` | [Reply_ComponentTerms](/reference/schemas/types/#reply_componentterms) or null | Independent publisher terms for named ClinVar filters, present only when requested. Optional. |
+| `items` | list of [Reply_VariantHeader](/reference/schemas/types/#reply_variantheader) | Native source order, preserving every candidate including repeated source identities. Optional. |
+| `selector_terms` | [Reply_ComponentTerms](/reference/schemas/types/#reply_componentterms) or null | Independent publisher terms for the declared dbNSFP gene/protein selector. Optional. |
 | `source_query` | string | Exact query sent to the named source, without rewriting raw query text. |
 
 ### Reply_VariantSearch
@@ -39,22 +39,22 @@ Discover source candidates using one declared selector, without interpreting fre
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `build` | [Reply_Build](/reference/schemas/types/#reply-build) | Optional caller assembly sent to MyVariant; regions require it explicitly. Optional. |
-| `coding` | [Reply_CodingChange](#reply-codingchange) | Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Optional. |
-| `condition` | [Reply_Text](/reference/schemas/types/#reply-text) | Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Optional. |
-| `gene` | [Reply_GeneSymbol](/reference/schemas/types/#reply-genesymbol) | Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Optional. |
-| `has` | [Reply_VariantSearchField](#reply-variantsearchfield) | Require the selected component's identifier field. Only source-proven mappings are offered. Optional. |
+| `build` | [Reply_Build](/reference/schemas/types/#reply_build) | Optional caller assembly sent to MyVariant; regions require it explicitly. Optional. |
+| `coding` | [Reply_CodingChange](#reply_codingchange) | Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Optional. |
+| `condition` | [Reply_Text](/reference/schemas/types/#reply_text) | Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Optional. |
+| `gene` | [Reply_GeneSymbol](/reference/schemas/types/#reply_genesymbol) | Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Optional. |
+| `has` | [Reply_VariantSearchField](#reply_variantsearchfield) | Require the selected component's identifier field. Only source-proven mappings are offered. Optional. |
 | `limit` | integer (uint32) | Native candidates per page, default 10, maximum 50; all candidates remain candidates. Optional. |
 | `offset` | integer (uint32) | Native offset within this command's bounded result window; larger native totals remain visible. Optional. |
-| `protein` | [Reply_ProteinQuery](/reference/schemas/types/#reply-proteinquery) | Explicit substitution or synonymous change using checked amino-acid codes. Optional. |
-| `query` | [Reply_MyVariantQuery](#reply-myvariantquery) | Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Optional. |
-| `region` | [Reply_VariantRegion](#reply-variantregion) | Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Optional. |
-| `review_status` | [Reply_Text](/reference/schemas/types/#reply-text) | Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Optional. |
-| `source` | [Reply_VariantSearchSource](#reply-variantsearchsource) | Explicit source language; required for a raw query. Optional. |
+| `protein` | [Reply_ProteinQuery](/reference/schemas/types/#reply_proteinquery) | Explicit substitution or synonymous change using checked amino-acid codes. Optional. |
+| `query` | [Reply_MyVariantQuery](#reply_myvariantquery) | Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Optional. |
+| `region` | [Reply_VariantRegion](#reply_variantregion) | Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Optional. |
+| `review_status` | [Reply_Text](/reference/schemas/types/#reply_text) | Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Optional. |
+| `source` | [Reply_VariantSearchSource](#reply_variantsearchsource) | Explicit source language; required for a raw query. Optional. |
 
 ### Other types in this reply
 
-7 more types appear only in this reply: [Reply_CodingChange](#reply-codingchange), [Reply_MyVariantQuery](#reply-myvariantquery), [Reply_VariantRegion](#reply-variantregion), [Reply_VariantSearchExclusionReason](#reply-variantsearchexclusionreason), [Reply_VariantSearchExclusions](#reply-variantsearchexclusions), [Reply_VariantSearchField](#reply-variantsearchfield), [Reply_VariantSearchSource](#reply-variantsearchsource). Open the list below to read their fields.
+7 more types appear only in this reply: [Reply_CodingChange](#reply_codingchange), [Reply_MyVariantQuery](#reply_myvariantquery), [Reply_VariantRegion](#reply_variantregion), [Reply_VariantSearchExclusionReason](#reply_variantsearchexclusionreason), [Reply_VariantSearchExclusions](#reply_variantsearchexclusions), [Reply_VariantSearchField](#reply_variantsearchfield), [Reply_VariantSearchSource](#reply_variantsearchsource). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 7 other types</summary>
@@ -90,7 +90,7 @@ Count of candidates withheld from a fallback search, with a stable reason.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `count` | integer (uint32) | Native candidate count, independent of pagination's consumed positions. |
-| `reason` | [Reply_VariantSearchExclusionReason](#reply-variantsearchexclusionreason) | Why these candidates could not be admitted. |
+| `reason` | [Reply_VariantSearchExclusionReason](#reply_variantsearchexclusionreason) | Why these candidates could not be admitted. |
 
 ### Reply_VariantSearchField
 

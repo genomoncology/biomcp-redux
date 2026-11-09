@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiseasePage](#reply-diseasepage). `query` holds [Reply_DiseaseSearch](/reference/schemas/types/#reply-diseasesearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiseasePage](#reply_diseasepage). `query` holds [Reply_DiseaseSearch](/reference/schemas/types/#reply_diseasesearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiseasePage
 
@@ -26,12 +26,12 @@ One source-ordered disease candidate page.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component use terms, independent of row provenance. Optional. |
-| `items` | list of [Reply_DiseaseHeader](#reply-diseaseheader) | Rows as the source gives them. Totals in `page` count rows, not distinct records. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component use terms, independent of row provenance. Optional. |
+| `items` | list of [Reply_DiseaseHeader](#reply_diseaseheader) | Rows as the source gives them. Totals in `page` count rows, not distinct records. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_DiseaseHeader](#reply-diseaseheader). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_DiseaseHeader](#reply_diseaseheader). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -42,10 +42,10 @@ One source candidate without a selected identity.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Source record and version. |
-| `concept` | [Reply_DiseaseConcept](/reference/schemas/types/#reply-diseaseconcept) | Native concept and optional exact ID. |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply_attribution) | Source record and version. |
+| `concept` | [Reply_DiseaseConcept](/reference/schemas/types/#reply_diseaseconcept) | Native concept and optional exact ID. |
 | `obsolete` | boolean or null | Publisher obsolete flag when supplied. Optional. |
-| `ontology` | [Reply_DiseaseOntology](/reference/schemas/types/#reply-diseaseontology) | The explicit queried ontology. |
+| `ontology` | [Reply_DiseaseOntology](/reference/schemas/types/#reply_diseaseontology) | The explicit queried ontology. |
 
 </details>
 

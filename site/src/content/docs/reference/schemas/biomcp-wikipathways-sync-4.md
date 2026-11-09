@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync`
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_WikiPathwaysSync](#reply-wikipathwayssync). `query` holds [Reply_SyncQuery](/reference/schemas/types/#reply-syncquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_WikiPathwaysSync](#reply_wikipathwayssync). `query` holds [Reply_SyncQuery](/reference/schemas/types/#reply_syncquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_WikiPathwaysSync
 
@@ -27,12 +27,12 @@ Two independently validated metadata catalogs; no catalog body in stdout.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `downloaded_bytes` | integer (uint64) | Source body bytes received in this synchronization; excludes replay. |
-| `get` | [Reply_WikiPathwaysCatalogReceipt](#reply-wikipathwayscatalogreceipt) | Exact-get metadata catalog receipt. |
-| `search` | [Reply_WikiPathwaysCatalogReceipt](#reply-wikipathwayscatalogreceipt) | Search metadata catalog receipt. |
+| `get` | [Reply_WikiPathwaysCatalogReceipt](#reply_wikipathwayscatalogreceipt) | Exact-get metadata catalog receipt. |
+| `search` | [Reply_WikiPathwaysCatalogReceipt](#reply_wikipathwayscatalogreceipt) | Search metadata catalog receipt. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_WikiPathwaysCatalogReceipt](#reply-wikipathwayscatalogreceipt). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_WikiPathwaysCatalogReceipt](#reply_wikipathwayscatalogreceipt). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -45,8 +45,8 @@ Receipt for one independently validated WikiPathways metadata catalog.
 | --- | --- | --- |
 | `bytes` | integer (uint64) | Bytes in this catalog, not the other catalog or a GPML archive. |
 | `human_rows` | integer (uint64) | Source-stated human rows in this catalog. |
-| `revision` | [Reply_Text](/reference/schemas/types/#reply-text) | This catalog's retained revision. |
-| `sha256` | [Reply_Text](/reference/schemas/types/#reply-text) | Hash of this catalog's retained native bytes. |
+| `revision` | [Reply_Text](/reference/schemas/types/#reply_text) | This catalog's retained revision. |
+| `sha256` | [Reply_Text](/reference/schemas/types/#reply_text) | Hash of this catalog's retained native bytes. |
 | `total_rows` | integer (uint64) | All native rows in this catalog before human filtering. |
 
 </details>

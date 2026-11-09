@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp prote
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ProteinFeatures](#reply-proteinfeatures). `query` holds [Reply_ProteinFeaturesQuery](#reply-proteinfeaturesquery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ProteinFeatures](#reply_proteinfeatures). `query` holds [Reply_ProteinFeaturesQuery](#reply_proteinfeaturesquery). `query` repeats the request as BioMCP read it.
 
 ### Reply_ProteinFeatures
 
@@ -26,7 +26,7 @@ Native UniProt feature rows, preserving exact labels and uncertain bounds.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_ProteinFeature](/reference/schemas/types/#reply-proteinfeature) | Whole native rows in source order; totals apply only to this collection. Optional. |
+| `items` | list of [Reply_ProteinFeature](/reference/schemas/types/#reply_proteinfeature) | Whole native rows in source order; totals apply only to this collection. Optional. |
 
 ### Reply_ProteinFeaturesQuery
 
@@ -34,12 +34,12 @@ Page five native UniProt features by exact type and displayed residue. No varian
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `accession` | [Reply_UniProtIsoform](/reference/schemas/types/#reply-uniprotisoform) | Exact source protein sequence identity. |
+| `accession` | [Reply_UniProtIsoform](/reference/schemas/types/#reply_uniprotisoform) | Exact source protein sequence identity. |
 | `limit` | integer (uint32) | Five rows by default, at most 25. Optional. |
 | `offset` | integer (uint32) | Native or retained page offset. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
 | `position` | integer (uint32) | Native one-based residue; zero fails during deserialization. Optional. |
-| `type` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact UniProt native label, without an alias map. Optional. |
+| `type` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact UniProt native label, without an alias map. Optional. |
 
 ## Next
 

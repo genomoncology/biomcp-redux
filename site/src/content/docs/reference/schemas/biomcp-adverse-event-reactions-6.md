@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get a
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_AdverseEventReactions](#reply-adverseeventreactions). `query` holds [Reply_AdverseEventGet](/reference/schemas/types/#reply-adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_AdverseEventReactions](#reply_adverseeventreactions). `query` holds [Reply_AdverseEventGet](/reference/schemas/types/#reply_adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_AdverseEventReactions
 
@@ -26,14 +26,14 @@ A bounded report section; all rows belong to the exact header and snapshot.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component terms. Optional. |
-| `header` | [Reply_AdverseEventHeader](/reference/schemas/types/#reply-adverseeventheader) | Exact source report identity and version. |
-| `reactions` | [Reply_AdverseEventRecords_AdverseEventReaction](#reply-adverseeventrecords-adverseeventreaction) | One page of complete native rows. |
-| `snapshot` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Opaque retained source snapshot. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component terms. Optional. |
+| `header` | [Reply_AdverseEventHeader](/reference/schemas/types/#reply_adverseeventheader) | Exact source report identity and version. |
+| `reactions` | [Reply_AdverseEventRecords_AdverseEventReaction](#reply_adverseeventrecords_adverseeventreaction) | One page of complete native rows. |
+| `snapshot` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Opaque retained source snapshot. Optional. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_AdverseEventReaction](#reply-adverseeventreaction), [Reply_AdverseEventRecords_AdverseEventReaction](#reply-adverseeventrecords-adverseeventreaction). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_AdverseEventReaction](#reply_adverseeventreaction), [Reply_AdverseEventRecords_AdverseEventReaction](#reply_adverseeventrecords_adverseeventreaction). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -47,7 +47,7 @@ Independent native reaction row without drug attribution.
 | `index` | integer (uint32) | Absolute native reaction index. |
 | `outcome` | string or null | Native outcome string; present empty values remain present. Optional. |
 | `outcome_label` | string or null | Published word for the outcome code, when the code is on openFDA's list. Optional. |
-| `term` | [Reply_Concept](/reference/schemas/types/#reply-concept) or null | Source term label without invented CURIE. Optional. |
+| `term` | [Reply_Concept](/reference/schemas/types/#reply_concept) or null | Source term label without invented CURIE. Optional. |
 | `vocabulary_version` | string or null | Native vocabulary_version string; present empty values remain present. Optional. |
 
 ### Reply_AdverseEventRecords_AdverseEventReaction
@@ -57,7 +57,7 @@ One complete-row page tied to the retained report snapshot.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `offset` | integer (uint32) | Native section offset. |
-| `records` | list of [Reply_AdverseEventReaction](#reply-adverseeventreaction) | Source ordered whole rows. Optional. |
+| `records` | list of [Reply_AdverseEventReaction](#reply_adverseeventreaction) | Source ordered whole rows. Optional. |
 | `total` | integer (uint64) | Complete selected section length, not report or patient count. |
 
 </details>

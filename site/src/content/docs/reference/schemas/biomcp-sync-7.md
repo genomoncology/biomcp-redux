@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp sync`
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_SyncResult](#reply-syncresult). `query` holds [Reply_SyncQuery](/reference/schemas/types/#reply-syncquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_SyncResult](#reply_syncresult). `query` holds [Reply_SyncQuery](/reference/schemas/types/#reply_syncquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_SyncResult
 
@@ -34,7 +34,7 @@ Published [bundle](/local-data/) metadata after synchronization.
 | `last_modified` | string or null | Native publisher Last-Modified when supplied. Optional. |
 | `native_rows` | integer or null | Native catalog rows examined before identity admission. Optional. |
 | `rows` | integer (uint64) | Imported rows. |
-| `snapshot` | [Reply_StudySnapshot](/reference/schemas/types/#reply-studysnapshot) or null | Catalog content revision and acquisition time, separate from source headers. Optional. |
+| `snapshot` | [Reply_StudySnapshot](/reference/schemas/types/#reply_studysnapshot) or null | Catalog content revision and acquisition time, separate from source headers. Optional. |
 
 ## Next
 

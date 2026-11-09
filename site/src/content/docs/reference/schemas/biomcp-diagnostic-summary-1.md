@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiagnosticSummary](#reply-diagnosticsummary). `query` holds [Reply_DiagnosticGet](/reference/schemas/types/#reply-diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiagnosticSummary](#reply_diagnosticsummary). `query` holds [Reply_DiagnosticGet](/reference/schemas/types/#reply_diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiagnosticSummary
 
@@ -26,7 +26,7 @@ FDA-published SSED text for one PMA base application.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `document` | [Reply_PdfText](/reference/schemas/types/#reply-pdftext) | Mechanical document text with explicit extraction state. |
+| `document` | [Reply_PdfText](/reference/schemas/types/#reply_pdftext) | Mechanical document text with explicit extraction state. |
 
 ## Next
 

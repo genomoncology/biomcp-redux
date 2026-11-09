@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiagnosticRegulatory](#reply-diagnosticregulatory). `query` holds [Reply_DiagnosticGet](/reference/schemas/types/#reply-diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiagnosticRegulatory](#reply_diagnosticregulatory). `query` holds [Reply_DiagnosticGet](/reference/schemas/types/#reply_diagnosticget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiagnosticRegulatory
 
@@ -26,13 +26,13 @@ Exact selected submission regulatory text fragments.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `count_unit` | [Reply_DiagnosticCountUnit](/reference/schemas/types/#reply-diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
+| `count_unit` | [Reply_DiagnosticCountUnit](/reference/schemas/types/#reply_diagnosticcountunit) or null | Exact meaning of the envelope total; supplied by the owning source command. Optional. |
 | `distinct_id_total` | integer or null | Distinct complete native IDs across the selected relation collection. Optional. |
-| `items` | list of [Reply_DiagnosticRegulatoryFragment](#reply-diagnosticregulatoryfragment) | Complete source-owned rows in native order; envelope totals count native rows. Optional. |
+| `items` | list of [Reply_DiagnosticRegulatoryFragment](#reply_diagnosticregulatoryfragment) | Complete source-owned rows in native order; envelope totals count native rows. Optional. |
 
 ### Other types in this reply
 
-3 more types appear only in this reply: [Reply_DiagnosticPmaRegulatory](#reply-diagnosticpmaregulatory), [Reply_DiagnosticRegulatoryField](#reply-diagnosticregulatoryfield), [Reply_DiagnosticRegulatoryFragment](#reply-diagnosticregulatoryfragment). Open the list below to read their fields.
+3 more types appear only in this reply: [Reply_DiagnosticPmaRegulatory](#reply_diagnosticpmaregulatory), [Reply_DiagnosticRegulatoryField](#reply_diagnosticregulatoryfield), [Reply_DiagnosticRegulatoryFragment](#reply_diagnosticregulatoryfragment). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 3 other types</summary>
@@ -63,10 +63,10 @@ One bounded regulatory fragment from the exact selected native submission.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `field` | [Reply_DiagnosticRegulatoryField](#reply-diagnosticregulatoryfield) | Native text field being continued. |
-| `metadata` | [Reply_DiagnosticPmaRegulatory](#reply-diagnosticpmaregulatory) | Native metadata for this exact record, without a duplicated whole statement. |
+| `field` | [Reply_DiagnosticRegulatoryField](#reply_diagnosticregulatoryfield) | Native text field being continued. |
+| `metadata` | [Reply_DiagnosticPmaRegulatory](#reply_diagnosticpmaregulatory) | Native metadata for this exact record, without a duplicated whole statement. |
 | `offset` | integer (uint32) | Fragment offset, independent of characters and supplement rows. |
-| `submission` | [Reply_DiagnosticPmaHeader](/reference/schemas/types/#reply-diagnosticpmaheader) | Exact selected native record and its dated regulatory metadata. |
+| `submission` | [Reply_DiagnosticPmaHeader](/reference/schemas/types/#reply_diagnosticpmaheader) | Exact selected native record and its dated regulatory metadata. |
 | `text` | string | Complete unmodified text fragment; omitted when the source statement is absent. Optional. |
 | `total` | integer (uint32) | Total mechanical fragments. |
 

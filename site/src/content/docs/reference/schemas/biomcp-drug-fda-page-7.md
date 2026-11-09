@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugFdaPage](#reply-drugfdapage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply-drugsearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugFdaPage](#reply_drugfdapage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply_drugsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugFdaPage
 
@@ -26,13 +26,13 @@ A source-owned application page preserving complete product context and source o
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_DrugFdaCandidate](#reply-drugfdacandidate) | Native applications and products; a phrase match never establishes equivalence. Optional. |
-| `source_updated` | [Reply_SourceUpdated](/reference/schemas/types/#reply-sourceupdated) or null | Native dataset last_updated date, independent of event dates and retrieval. Optional. |
+| `items` | list of [Reply_DrugFdaCandidate](#reply_drugfdacandidate) | Native applications and products; a phrase match never establishes equivalence. Optional. |
+| `source_updated` | [Reply_SourceUpdated](/reference/schemas/types/#reply_sourceupdated) or null | Native dataset last_updated date, independent of event dates and retrieval. Optional. |
 | `total` | integer (uint64) | Native application total, independent of product count. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_DrugFdaCandidate](#reply-drugfdacandidate). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_DrugFdaCandidate](#reply_drugfdacandidate). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>
@@ -43,10 +43,10 @@ One candidate application and its independent source-listed products.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `id` | [Reply_DrugId](/reference/schemas/types/#reply-drugid) | Exact application identifier, shared with the retained application identity. |
-| `identity` | [Reply_DrugHeader](/reference/schemas/types/#reply-drugheader) | Exact native application identity; no product has been selected. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact brand wording shared by every product; omitted for zero or differing brands. Optional. |
-| `products` | list of [Reply_DrugFdaProduct](/reference/schemas/types/#reply-drugfdaproduct) | Complete native product candidates within this application. Optional. |
+| `id` | [Reply_DrugId](/reference/schemas/types/#reply_drugid) | Exact application identifier, shared with the retained application identity. |
+| `identity` | [Reply_DrugHeader](/reference/schemas/types/#reply_drugheader) | Exact native application identity; no product has been selected. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact brand wording shared by every product; omitted for zero or differing brands. Optional. |
+| `products` | list of [Reply_DrugFdaProduct](/reference/schemas/types/#reply_drugfdaproduct) | Complete native product candidates within this application. Optional. |
 
 </details>
 

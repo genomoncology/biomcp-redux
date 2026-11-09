@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp prote
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ProteinSequenceResult](/reference/schemas/types/#reply-proteinsequenceresult), a shared type. `query` holds [Reply_ProteinSequenceQuery](#reply-proteinsequencequery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ProteinSequenceResult](/reference/schemas/types/#reply_proteinsequenceresult), a shared type. `query` holds [Reply_ProteinSequenceQuery](#reply_proteinsequencequery). `query` repeats the request as BioMCP read it.
 
 ### Reply_ProteinSequenceQuery
 
@@ -26,7 +26,7 @@ Read one complete native sequence for an exact source accession. No variant effe
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `isoform` | [Reply_UniProtIsoform](/reference/schemas/types/#reply-uniprotisoform) | Exact isoform or base accession; no canonical suffix is synthesized. |
+| `isoform` | [Reply_UniProtIsoform](/reference/schemas/types/#reply_uniprotisoform) | Exact isoform or base accession; no canonical suffix is synthesized. |
 
 ## Next
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp help`
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_Help](#reply-help). `query` holds [Reply_HelpQuery](#reply-helpquery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_Help](#reply_help). `query` holds [Reply_HelpQuery](#reply_helpquery). `query` repeats the request as BioMCP read it.
 
 ### Reply_Help
 
@@ -26,7 +26,7 @@ Generated command reference from the shipped query schemas and cases.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `commands` | list of [Reply_HelpCommand](#reply-helpcommand) | Commands available at this help path. Optional. |
+| `commands` | list of [Reply_HelpCommand](#reply_helpcommand) | Commands available at this help path. Optional. |
 
 ### Reply_HelpQuery
 
@@ -38,7 +38,7 @@ Requested help path, with the root represented by an empty object.
 
 ### Other types in this reply
 
-3 more types appear only in this reply: [Reply_HelpArgument](#reply-helpargument), [Reply_HelpCommand](#reply-helpcommand), [Reply_HelpWord](#reply-helpword). Open the list below to read their fields.
+3 more types appear only in this reply: [Reply_HelpArgument](#reply_helpargument), [Reply_HelpCommand](#reply_helpcommand), [Reply_HelpWord](#reply_helpword). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 3 other types</summary>
@@ -66,13 +66,13 @@ One command and its generated arguments.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `arguments` | list of [Reply_HelpArgument](#reply-helpargument) | Positional arguments and flags. Optional. |
+| `arguments` | list of [Reply_HelpArgument](#reply_helpargument) | Positional arguments and flags. Optional. |
 | `command` | list of string | Command words after the executable name. Optional. |
 | `description` | string | Query type documentation. |
 | `examples` | list of list of string | Verbatim case run steps, without replay configuration. Optional. |
 | `reply_schemas` | list of string | Canonical reply contracts; empty for commands with no schema reply. Optional. |
 | `section_rule` | string or null | How to disambiguate [section words](/concepts/progressive-disclosure/) from inputs. Optional. |
-| `sections` | list of [Reply_HelpWord](#reply-helpword) | Accepted section words and their documentation. Optional. |
+| `sections` | list of [Reply_HelpWord](#reply_helpword) | Accepted section words and their documentation. Optional. |
 
 ### Reply_HelpWord
 

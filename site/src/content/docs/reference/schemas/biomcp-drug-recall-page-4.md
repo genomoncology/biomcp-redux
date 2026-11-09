@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugRecallPage](#reply-drugrecallpage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply-drugsearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugRecallPage](#reply_drugrecallpage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply_drugsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugRecallPage
 
@@ -26,13 +26,13 @@ A bounded page; totals count recall records.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `count_unit` | [Reply_DrugRecallCountUnit](#reply-drugrecallcountunit) | Native count unit; no event deduplication or patient count. |
-| `items` | list of [Reply_DrugRecallHeader](/reference/schemas/types/#reply-drugrecallheader) | Native source order, without event deduplication. Optional. |
+| `count_unit` | [Reply_DrugRecallCountUnit](#reply_drugrecallcountunit) | Native count unit; no event deduplication or patient count. |
+| `items` | list of [Reply_DrugRecallHeader](/reference/schemas/types/#reply_drugrecallheader) | Native source order, without event deduplication. Optional. |
 | `total` | integer (uint64) | Number of native recall records. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_DrugRecallCountUnit](#reply-drugrecallcountunit). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_DrugRecallCountUnit](#reply_drugrecallcountunit). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

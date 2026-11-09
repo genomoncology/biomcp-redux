@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp varia
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_VariantRecurrence](#reply-variantrecurrence). `query` holds [Reply_VariantRecurrenceQuery](#reply-variantrecurrencequery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_VariantRecurrence](#reply_variantrecurrence). `query` holds [Reply_VariantRecurrenceQuery](#reply_variantrecurrencequery). `query` repeats the request as BioMCP read it.
 
 ### Reply_VariantRecurrence
 
@@ -27,15 +27,15 @@ Exact-allele observations confined to one explicitly bounded source page.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `all_pages_read` | boolean | True only when this invocation read the whole gene query from its first page. |
-| `entrez_gene_id` | [Reply_NcbiGeneId](/reference/schemas/types/#reply-ncbigeneid) or null | HGNC-resolved gene query bound. Optional. |
+| `entrez_gene_id` | [Reply_NcbiGeneId](/reference/schemas/types/#reply_ncbigeneid) or null | HGNC-resolved gene query bound. Optional. |
 | `examined_rows` | integer (uint32) | Number of source mutation rows examined on this page. |
-| `identity` | [Reply_Variant](/reference/schemas/types/#reply-variant) or null | Source-qualified resolved identity; omitted when resolution failed. Optional. |
-| `matching_granularity` | [Reply_RecurrenceGranularity](#reply-recurrencegranularity) | Genomic allele equality only, never a protein, residue or gene match. Optional. |
+| `identity` | [Reply_Variant](/reference/schemas/types/#reply_variant) or null | Source-qualified resolved identity; omitted when resolution failed. Optional. |
+| `matching_granularity` | [Reply_RecurrenceGranularity](#reply_recurrencegranularity) | Genomic allele equality only, never a protein, residue or gene match. Optional. |
 | `more` | boolean | Source has further rows or cannot yet establish its end. |
 | `observed_sample_count` | integer or null | Distinct exact-matched samples on this source page only; absent on failure. Optional. |
 | `selected_sample_count` | integer or null | Sample-list size as stated by that source; never an assayed denominator. Optional. |
-| `study` | [Reply_RecurrenceStudy](#reply-recurrencestudy) or null | Study title, citation and description kept as the source states them. Optional. |
-| `terms` | [Reply_RecurrenceTerms](#reply-recurrenceterms) | Study-specific reuse restrictions require verification even for public data. |
+| `study` | [Reply_RecurrenceStudy](#reply_recurrencestudy) or null | Study title, citation and description kept as the source states them. Optional. |
+| `terms` | [Reply_RecurrenceTerms](#reply_recurrenceterms) | Study-specific reuse restrictions require verification even for public data. |
 
 ### Reply_VariantRecurrenceQuery
 
@@ -43,19 +43,19 @@ Observe exact-allele samples within one caller-selected source page.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `build` | [Reply_Build](/reference/schemas/types/#reply-build) or null | Identity lookup assembly; omitted uses the shared GRCh38 default. Optional. |
-| `gene` | [Reply_GeneSymbol](/reference/schemas/types/#reply-genesymbol) | HGNC symbol resolved to the source's Entrez gene identifier. |
-| `input` | [Reply_RecurrenceInput](#reply-recurrenceinput) | Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable). |
+| `build` | [Reply_Build](/reference/schemas/types/#reply_build) or null | Identity lookup assembly; omitted uses the shared GRCh38 default. Optional. |
+| `gene` | [Reply_GeneSymbol](/reference/schemas/types/#reply_genesymbol) | HGNC symbol resolved to the source's Entrez gene identifier. |
+| `input` | [Reply_RecurrenceInput](#reply_recurrenceinput) | Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable). |
 | `limit` | integer (uint32) | Source mutation rows per page, including excluded alleles. Optional. |
 | `page` | integer (uint32) | Zero-based native source page. Optional. |
-| `profile` | [Reply_Text](/reference/schemas/types/#reply-text) | Explicit mutation molecular profile. |
-| `sample_set` | [Reply_Text](/reference/schemas/types/#reply-text) | Explicit sample list; selected size is never an allele denominator. |
-| `source` | [Reply_RecurrenceSource](#reply-recurrencesource) | Explicit cohort source. |
-| `study` | [Reply_Text](/reference/schemas/types/#reply-text) | Explicit study; there is no default cohort. |
+| `profile` | [Reply_Text](/reference/schemas/types/#reply_text) | Explicit mutation molecular profile. |
+| `sample_set` | [Reply_Text](/reference/schemas/types/#reply_text) | Explicit sample list; selected size is never an allele denominator. |
+| `source` | [Reply_RecurrenceSource](#reply_recurrencesource) | Explicit cohort source. |
+| `study` | [Reply_Text](/reference/schemas/types/#reply_text) | Explicit study; there is no default cohort. |
 
 ### Other types in this reply
 
-5 more types appear only in this reply: [Reply_RecurrenceGranularity](#reply-recurrencegranularity), [Reply_RecurrenceInput](#reply-recurrenceinput), [Reply_RecurrenceSource](#reply-recurrencesource), [Reply_RecurrenceStudy](#reply-recurrencestudy), [Reply_RecurrenceTerms](#reply-recurrenceterms). Open the list below to read their fields.
+5 more types appear only in this reply: [Reply_RecurrenceGranularity](#reply_recurrencegranularity), [Reply_RecurrenceInput](#reply_recurrenceinput), [Reply_RecurrenceSource](#reply_recurrencesource), [Reply_RecurrenceStudy](#reply_recurrencestudy), [Reply_RecurrenceTerms](#reply_recurrenceterms). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 5 other types</summary>
@@ -84,9 +84,9 @@ Source-native descriptive metadata, without treating access groups as licenses.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `citation` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source publication citation. Optional. |
-| `description` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Complete source description, including any literal reuse notice. Optional. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Source study title. Optional. |
+| `citation` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source publication citation. Optional. |
+| `description` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Complete source description, including any literal reuse notice. Optional. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Source study title. Optional. |
 
 ### Reply_RecurrenceTerms
 

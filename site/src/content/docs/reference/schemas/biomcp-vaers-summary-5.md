@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_VaersSummary](#reply-vaerssummary). `query` holds [Reply_AdverseEventSearch](/reference/schemas/types/#reply-adverseeventsearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_VaersSummary](#reply_vaerssummary). `query` holds [Reply_AdverseEventSearch](/reference/schemas/types/#reply_adverseeventsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_VaersSummary
 
@@ -27,20 +27,20 @@ Bounded page of one independent native vaccine summary table.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `dataset` | map of string | Native dataset attributes including processed-through vintage. |
-| `footer` | [Reply_VaersRow](#reply-vaersrow) | Whole native footer cells, never a sum calculated by this program. |
+| `footer` | [Reply_VaersRow](#reply_vaersrow) | Whole native footer cells, never a sum calculated by this program. |
 | `grouping` | map of string | Native grouping attributes. |
 | `interpretation` | string | Reviewed interpretation boundary. |
 | `measure_metadata` | list of map of string | Response-specific measure metadata without denominator inference. Optional. |
 | `measures` | list of map of string | Source measure definitions, including original names and codes. Optional. |
-| `notices` | list of [Reply_VaersNotice](#reply-vaersnotice) | Applied native messages, evaluated caveats and footnotes. Optional. |
+| `notices` | list of [Reply_VaersNotice](#reply_vaersnotice) | Applied native messages, evaluated caveats and footnotes. Optional. |
 | `report_total` | string | Native report-total message, separate from the footer aggregation. |
-| `rows` | list of [Reply_VaersRow](#reply-vaersrow) | Native row order with local paging. Optional. |
-| `scope` | [Reply_VaersScope](#reply-vaersscope) | Native fixed State / Territory selection. |
+| `rows` | list of [Reply_VaersRow](#reply_vaersrow) | Native row order with local paging. Optional. |
+| `scope` | [Reply_VaersScope](#reply_vaersscope) | Native fixed State / Territory selection. |
 | `vaccine` | map of string | Native selected vaccine attributes. |
 
 ### Other types in this reply
 
-3 more types appear only in this reply: [Reply_VaersNotice](#reply-vaersnotice), [Reply_VaersRow](#reply-vaersrow), [Reply_VaersScope](#reply-vaersscope). Open the list below to read their fields.
+3 more types appear only in this reply: [Reply_VaersNotice](#reply_vaersnotice), [Reply_VaersRow](#reply_vaersrow), [Reply_VaersScope](#reply_vaersscope). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 3 other types</summary>

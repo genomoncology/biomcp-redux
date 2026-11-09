@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_AuthorPage](#reply-authorpage). `query` holds [Reply_AuthorSearch](#reply-authorsearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_AuthorPage](#reply_authorpage). `query` holds [Reply_AuthorSearch](#reply_authorsearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_AuthorPage
 
@@ -26,8 +26,8 @@ Native author candidates in provider order; search total counts only this query.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_AuthorHeader](/reference/schemas/types/#reply-authorheader) | Source candidates; no deduplication by display name. Optional. |
-| `literature` | [Reply_AuthorLiterature](#reply-authorliterature) or null | Citation-scoped authors and papers; names never establish a person identity. Optional. |
+| `items` | list of [Reply_AuthorHeader](/reference/schemas/types/#reply_authorheader) | Source candidates; no deduplication by display name. Optional. |
+| `literature` | [Reply_AuthorLiterature](#reply_authorliterature) or null | Citation-scoped authors and papers; names never establish a person identity. Optional. |
 | `matching_records` | integer or null | Native matching-record total, if supplied. Optional. |
 
 ### Reply_AuthorSearch
@@ -38,13 +38,13 @@ Literal author name query and native window; positional text maps to query.
 | --- | --- | --- |
 | `limit` | integer (uint32) | Bounded source page size. Optional. |
 | `offset` | integer (uint32) | Native offset. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Retained page identity. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Retained page identity. Optional. |
 | `query` | string | Literal query from the positional argument. |
-| `source` | [Reply_AuthorSearchSource](#reply-authorsearchsource) | Source; auto uses PubMed if Semantic Scholar is off. PubMed accepts names or topics and returns unresolved names on papers. Optional. |
+| `source` | [Reply_AuthorSearchSource](#reply_authorsearchsource) | Source; auto uses PubMed if Semantic Scholar is off. PubMed accepts names or topics and returns unresolved names on papers. Optional. |
 
 ### Other types in this reply
 
-3 more types appear only in this reply: [Reply_AuthorLiterature](#reply-authorliterature), [Reply_AuthorPublication](#reply-authorpublication), [Reply_AuthorSearchSource](#reply-authorsearchsource). Open the list below to read their fields.
+3 more types appear only in this reply: [Reply_AuthorLiterature](#reply_authorliterature), [Reply_AuthorPublication](#reply_authorpublication), [Reply_AuthorSearchSource](#reply_authorsearchsource). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 3 other types</summary>
@@ -55,8 +55,8 @@ Open citation evidence without inferred researcher identities or metrics.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `identity_resolution` | [Reply_Text](/reference/schemas/types/#reply-text) | Names remain separate assertions on each paper, even when spelling matches. |
-| `papers` | list of [Reply_AuthorPublication](#reply-authorpublication) | Observed citation records, in source order. |
+| `identity_resolution` | [Reply_Text](/reference/schemas/types/#reply_text) | Names remain separate assertions on each paper, even when spelling matches. |
+| `papers` | list of [Reply_AuthorPublication](#reply_authorpublication) | Observed citation records, in source order. |
 
 ### Reply_AuthorPublication
 
@@ -64,9 +64,9 @@ One paper and the author names asserted by its citation source.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `authors` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Received author names in source order, bounded on long lists, without linking equal names. |
+| `authors` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Received author names in source order, bounded on long lists, without linking equal names. |
 | `authors_omitted` | integer or null | Names left out of `authors`; absent when every received name is shown. Optional. |
-| `paper` | [Reply_ArticleHeader](/reference/schemas/types/#reply-articleheader) | Citation identity and metadata. |
+| `paper` | [Reply_ArticleHeader](/reference/schemas/types/#reply_articleheader) | Citation identity and metadata. |
 
 ### Reply_AuthorSearchSource
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp varia
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_VariantPopulationResult](#reply-variantpopulationresult). `query` holds [Reply_VariantPopulationQueryEcho](#reply-variantpopulationqueryecho). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_VariantPopulationResult](#reply_variantpopulationresult). `query` holds [Reply_VariantPopulationQueryEcho](#reply_variantpopulationqueryecho). `query` repeats the request as BioMCP read it.
 
 ### Reply_VariantPopulationResult
 
@@ -26,9 +26,9 @@ Population summary and one explicitly requested ancestry-detail page.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `candidates` | list of [Reply_VariantHeader](/reference/schemas/types/#reply-variantheader) | Source allele candidates when this input does not identify one joinable allele. Optional. |
-| `groups` | list of [Reply_GnomadCounts](/reference/schemas/types/#reply-gnomadcounts) | Selected native groups, qualified by sequencing subset. Optional. |
-| `population` | [Reply_Section_VariantPopulation](/reference/schemas/types/#reply-section-variantpopulation) | Source population state; missing datasets stay absent within its summary. |
+| `candidates` | list of [Reply_VariantHeader](/reference/schemas/types/#reply_variantheader) | Source allele candidates when this input does not identify one joinable allele. Optional. |
+| `groups` | list of [Reply_GnomadCounts](/reference/schemas/types/#reply_gnomadcounts) | Selected native groups, qualified by sequencing subset. Optional. |
+| `population` | [Reply_Section_VariantPopulation](/reference/schemas/types/#reply_section_variantpopulation) | Source population state; missing datasets stay absent within its summary. |
 
 ### Reply_VariantPopulationQueryEcho
 
@@ -36,12 +36,12 @@ Reply selectors with the resolver that actually answered, omitted when no named 
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `build` | [Reply_Build](/reference/schemas/types/#reply-build) or null | Explicit source assembly when required by identity input. Optional. |
+| `build` | [Reply_Build](/reference/schemas/types/#reply_build) or null | Explicit source assembly when required by identity input. Optional. |
 | `detail` | boolean | Read source ancestry groups, preserving overlapping groups individually. Optional. |
-| `input` | [Reply_VariantLookupInput](/reference/schemas/types/#reply-variantlookupinput) | Exact published allele identity; ambiguous candidates must first be selected. |
+| `input` | [Reply_VariantLookupInput](/reference/schemas/types/#reply_variantlookupinput) | Exact published allele identity; ambiguous candidates must first be selected. |
 | `limit` | integer (uint32) | Maximum rows per page. Optional. |
 | `offset` | integer (uint32) | Native rows to skip. Optional. |
-| `resolver` | [Reply_VariantResolver](/reference/schemas/types/#reply-variantresolver) | Resolver for reference-qualified input. Optional. |
+| `resolver` | [Reply_VariantResolver](/reference/schemas/types/#reply_variantresolver) | Resolver for reference-qualified input. Optional. |
 
 ## Next
 

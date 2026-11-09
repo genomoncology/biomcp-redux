@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp varia
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_VariantAssertions](/reference/schemas/types/#reply-variantassertions), a shared type. `query` holds [Reply_VariantAssertionsGet](/reference/schemas/types/#reply-variantassertionsget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_VariantAssertions](/reference/schemas/types/#reply_variantassertions), a shared type. `query` holds [Reply_VariantAssertionsGet](/reference/schemas/types/#reply_variantassertionsget), a shared type. `query` repeats the request as BioMCP read it.
 
 Every type this reply uses is shared with other replies, so its fields are on the shared types page.
 

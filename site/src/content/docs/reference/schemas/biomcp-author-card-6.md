@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get a
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_AuthorCards](#reply-authorcards). `query` holds [Reply_AuthorGet](#reply-authorget). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_AuthorCards](#reply_authorcards). `query` holds [Reply_AuthorGet](#reply_authorget). `query` repeats the request as BioMCP read it.
 
 ### Reply_AuthorCards
 
@@ -26,7 +26,7 @@ Exact source cards in input order; outer source outcomes retain failures.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_AuthorCardItem](#reply-authorcarditem) | Exact returned source cards, with no cross-source links. Optional. |
+| `items` | list of [Reply_AuthorCardItem](#reply_authorcarditem) | Exact returned source cards, with no cross-source links. Optional. |
 
 ### Reply_AuthorGet
 
@@ -34,11 +34,11 @@ Exact qualified records in caller order, with no name reconciliation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `ids` | list of [Reply_AuthorId](/reference/schemas/types/#reply-authorid) | One or more exact qualified IDs. |
+| `ids` | list of [Reply_AuthorId](/reference/schemas/types/#reply_authorid) | One or more exact qualified IDs. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_AuthorCard](#reply-authorcard), [Reply_AuthorCardItem](#reply-authorcarditem). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_AuthorCard](#reply_authorcard), [Reply_AuthorCardItem](#reply_authorcarditem). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -49,8 +49,8 @@ Exact source author metadata without identity reconciliation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `header` | [Reply_AuthorHeader](/reference/schemas/types/#reply-authorheader) | Exact source candidate. |
-| `url` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Provider record link. Optional. |
+| `header` | [Reply_AuthorHeader](/reference/schemas/types/#reply_authorheader) | Exact source candidate. |
+| `url` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Provider record link. Optional. |
 
 ### Reply_AuthorCardItem
 
@@ -58,9 +58,9 @@ One exact input and its independent outcome.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `card` | [Reply_AuthorCard](#reply-authorcard) or null | Exact checked source card when available. Optional. |
-| `input` | [Reply_AuthorId](/reference/schemas/types/#reply-authorid) | Requested qualified provider identity. |
-| `status` | [Reply_Status](/reference/schemas/types/#reply-status) | This exact input's outcome. |
+| `card` | [Reply_AuthorCard](#reply_authorcard) or null | Exact checked source card when available. Optional. |
+| `input` | [Reply_AuthorId](/reference/schemas/types/#reply_authorid) | Requested qualified provider identity. |
+| `status` | [Reply_Status](/reference/schemas/types/#reply_status) | This exact input's outcome. |
 
 </details>
 

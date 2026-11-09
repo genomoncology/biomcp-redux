@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp artic
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ArticleSupplementResult](#reply-articlesupplementresult). `query` holds [Reply_ArticleSupplement](#reply-articlesupplement). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ArticleSupplementResult](#reply_articlesupplementresult). `query` holds [Reply_ArticleSupplement](#reply_articlesupplement). `query` repeats the request as BioMCP read it.
 
 ### Reply_ArticleSupplementResult
 
@@ -26,8 +26,8 @@ One supplement reader answer.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `content` | [Reply_Section_SupplementContent](#reply-section-supplementcontent) | Independently licensed supplement content. |
-| `pmcid` | [Reply_Pmcid](/reference/schemas/types/#reply-pmcid) or null | Resolved PMC identity. Optional. |
+| `content` | [Reply_Section_SupplementContent](#reply_section_supplementcontent) | Independently licensed supplement content. |
+| `pmcid` | [Reply_Pmcid](/reference/schemas/types/#reply_pmcid) or null | Resolved PMC identity. Optional. |
 
 ### Reply_ArticleSupplement
 
@@ -35,19 +35,19 @@ Read a checked supplement file or page its original rows.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `file` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact file name from the supplements section. |
-| `find` | [Reply_Text](/reference/schemas/types/#reply-text) | Text to find, matched as typed, ignoring case. Optional. |
-| `input` | [Reply_ArticleInput](/reference/schemas/types/#reply-articleinput) | PubMed or PMC identity. |
+| `file` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact file name from the supplements section. |
+| `find` | [Reply_Text](/reference/schemas/types/#reply_text) | Text to find, matched as typed, ignoring case. Optional. |
+| `input` | [Reply_ArticleInput](/reference/schemas/types/#reply_articleinput) | PubMed or PMC identity. |
 | `offset` | integer (uint32) | Matching-row or text-fragment offset. Optional. |
 | `replace` | boolean | Replace an existing destination only when explicitly requested with save. Optional. |
-| `rows` | [Reply_SheetRows](#reply-sheetrows) | Inclusive original row range. Optional. |
-| `save` | [Reply_Text](/reference/schemas/types/#reply-text) | Save the whole original document to an explicit file or existing folder. Example: --save article-output. Optional. |
-| `sheet` | [Reply_Text](/reference/schemas/types/#reply-text) | Sheet name for row selection. Optional. |
-| `variant` | [Reply_Text](/reference/schemas/types/#reply-text) | Explicit protein substitution. Optional. |
+| `rows` | [Reply_SheetRows](#reply_sheetrows) | Inclusive original row range. Optional. |
+| `save` | [Reply_Text](/reference/schemas/types/#reply_text) | Save the whole original document to an explicit file or existing folder. Example: --save article-output. Optional. |
+| `sheet` | [Reply_Text](/reference/schemas/types/#reply_text) | Sheet name for row selection. Optional. |
+| `variant` | [Reply_Text](/reference/schemas/types/#reply_text) | Explicit protein substitution. Optional. |
 
 ### Other types in this reply
 
-7 more types appear only in this reply: [Reply_CellFragment](#reply-cellfragment), [Reply_FirstSheetRow](#reply-firstsheetrow), [Reply_Section_SupplementContent](#reply-section-supplementcontent), [Reply_SheetInfo](#reply-sheetinfo), [Reply_SheetRow](#reply-sheetrow), [Reply_SheetRows](#reply-sheetrows), [Reply_SupplementContent](#reply-supplementcontent). Open the list below to read their fields.
+7 more types appear only in this reply: [Reply_CellFragment](#reply_cellfragment), [Reply_FirstSheetRow](#reply_firstsheetrow), [Reply_Section_SupplementContent](#reply_section_supplementcontent), [Reply_SheetInfo](#reply_sheetinfo), [Reply_SheetRow](#reply_sheetrow), [Reply_SheetRows](#reply_sheetrows), [Reply_SupplementContent](#reply_supplementcontent). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 7 other types</summary>
@@ -78,10 +78,10 @@ One section of a record. `state` says whether the source returned data (`data`),
 
 One of these forms:
 
-- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_SupplementContent](#reply-supplementcontent)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply-sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
-- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply-reason)), `source` ([Reply_Source](/reference/schemas/types/#reply-source)).
+- `state` is `"data"`: The source returned data for the section. Fields: `data` ([Reply_SupplementContent](#reply_supplementcontent)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"empty"`: The source answered, with no data for this section. Fields: `record` ([Reply_SourceRecord](/reference/schemas/types/#reply_sourcerecord) or null), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"unavailable"`: The source failed to answer. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
+- `state` is `"skipped"`: Your settings turned the source off, or a key it needs is missing, so BioMCP did not ask it. Fields: `reason` ([Reply_Reason](/reference/schemas/types/#reply_reason)), `source` ([Reply_Source](/reference/schemas/types/#reply_source)).
 - `state` is `"not-applicable"`: The section does not apply to this record.
 
 ### Reply_SheetInfo
@@ -90,7 +90,7 @@ Source sheet with its maximum original row number.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) | Sheet name. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) | Sheet name. |
 | `rows` | integer (uint32) | Last original row number, preserving gaps. |
 
 ### Reply_SheetRow
@@ -100,10 +100,10 @@ One original sparse row with its numbered first source row.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `cells` | list of string | This row's cells, including empty cells before populated columns. Optional. |
-| `first_row` | [Reply_FirstSheetRow](#reply-firstsheetrow) | First original row, including empty cells; never inferred column headings. |
-| `fragment` | [Reply_CellFragment](#reply-cellfragment) or null | Sparse source cell fragment when the complete row exceeds the output bound. Optional. |
+| `first_row` | [Reply_FirstSheetRow](#reply_firstsheetrow) | First original row, including empty cells; never inferred column headings. |
+| `fragment` | [Reply_CellFragment](#reply_cellfragment) or null | Sparse source cell fragment when the complete row exceeds the output bound. Optional. |
 | `row` | integer (uint32) | Original one-based row number. |
-| `sheet` | [Reply_Text](/reference/schemas/types/#reply-text) | Original sheet name. |
+| `sheet` | [Reply_Text](/reference/schemas/types/#reply_text) | Original sheet name. |
 
 ### Reply_SheetRows
 
@@ -118,14 +118,14 @@ Downloaded bounded file contents or an unsupported format's original URL.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `forms` | list of string or null | Explicit variant spellings searched. Optional. |
-| `license` | [Reply_License](/reference/schemas/types/#reply-license) | Article license. |
-| `reason` | [Reply_Reason](/reference/schemas/types/#reply-reason) or null | Typed unsupported reason. Optional. |
-| `rows` | list of [Reply_SheetRow](#reply-sheetrow) or null | Selected original rows. Optional. |
-| `saved` | [Reply_ArticleSaved](/reference/schemas/types/#reply-articlesaved) or null | Explicit original-byte save receipt. Optional. |
+| `license` | [Reply_License](/reference/schemas/types/#reply_license) | Article license. |
+| `reason` | [Reply_Reason](/reference/schemas/types/#reply_reason) or null | Typed unsupported reason. Optional. |
+| `rows` | list of [Reply_SheetRow](#reply_sheetrow) or null | Selected original rows. Optional. |
+| `saved` | [Reply_ArticleSaved](/reference/schemas/types/#reply_articlesaved) or null | Explicit original-byte save receipt. Optional. |
 | `search_message` | string or null | Explicit absence of matching text from the returned search page. Optional. |
-| `sha256` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Hash of the original downloaded bytes; absent when no download occurred. Optional. |
-| `sheets` | list of [Reply_SheetInfo](#reply-sheetinfo) or null | Original sheet dimensions. Optional. |
-| `url` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Unsupported file URL, returned without downloading it. Optional. |
+| `sha256` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Hash of the original downloaded bytes; absent when no download occurred. Optional. |
+| `sheets` | list of [Reply_SheetInfo](#reply_sheetinfo) or null | Original sheet dimensions. Optional. |
+| `url` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Unsupported file URL, returned without downloading it. Optional. |
 
 </details>
 

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp schem
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_SchemaCatalog](#reply-schemacatalog). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply-emptyquery), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_SchemaCatalog](#reply_schemacatalog). `query` holds [Reply_EmptyQuery](/reference/schemas/types/#reply_emptyquery), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_SchemaCatalog
 
@@ -26,11 +26,11 @@ Discoverable contracts shipped with this executable. JSON reply readers ignore u
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `schemas` | list of [Reply_SchemaEntry](#reply-schemaentry) | Every artifact in canonical identity order. Optional. |
+| `schemas` | list of [Reply_SchemaEntry](#reply_schemaentry) | Every artifact in canonical identity order. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_SchemaEntry](#reply-schemaentry). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_SchemaEntry](#reply_schemaentry). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

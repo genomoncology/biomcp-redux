@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp prote
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ProteinDomains](/reference/schemas/types/#reply-proteindomains), a shared type. `query` holds [Reply_ProteinDomainsQuery](#reply-proteindomainsquery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ProteinDomains](/reference/schemas/types/#reply_proteindomains), a shared type. `query` holds [Reply_ProteinDomainsQuery](#reply_proteindomainsquery). `query` repeats the request as BioMCP read it.
 
 ### Reply_ProteinDomainsQuery
 
@@ -26,11 +26,11 @@ Page five native InterPro matches with original types and fragments. No structur
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `accession` | [Reply_UniProtIsoform](/reference/schemas/types/#reply-uniprotisoform) | Exact source protein sequence identity. |
+| `accession` | [Reply_UniProtIsoform](/reference/schemas/types/#reply_uniprotisoform) | Exact source protein sequence identity. |
 | `limit` | integer (uint32) | Five rows by default, at most 25. Optional. |
 | `offset` | integer (uint32) | Native or retained page offset. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
-| `type` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact native InterPro type, not a normalized domain label. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | The ID of a stored list, from an earlier reply, so later pages read the same data. Optional. |
+| `type` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact native InterPro type, not a normalized domain label. Optional. |
 
 ## Next
 

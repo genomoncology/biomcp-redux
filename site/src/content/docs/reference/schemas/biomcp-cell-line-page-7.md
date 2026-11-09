@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_CellLinePage](/reference/schemas/types/#reply-celllinepage), a shared type. `query` holds [Reply_CellLineSearch](#reply-celllinesearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_CellLinePage](/reference/schemas/types/#reply_celllinepage), a shared type. `query` holds [Reply_CellLineSearch](#reply_celllinesearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_CellLineSearch
 
@@ -28,7 +28,7 @@ One literal cell line search, with native order and no total claim.
 | --- | --- | --- |
 | `limit` | integer (uint32) | Native page size. Optional. |
 | `offset` | integer (uint32) | Native start offset. Optional. |
-| `query` | [Reply_Text](/reference/schemas/types/#reply-text) | Literal source query from the positional argument. |
+| `query` | [Reply_Text](/reference/schemas/types/#reply_text) | Literal source query from the positional argument. |
 
 ## Next
 

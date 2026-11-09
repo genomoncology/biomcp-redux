@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp pathw
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PathwayGenes](/reference/schemas/types/#reply-pathwaygenes), a shared type. `query` holds [Reply_PathwayGenesQuery](#reply-pathwaygenesquery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PathwayGenes](/reference/schemas/types/#reply_pathwaygenes), a shared type. `query` holds [Reply_PathwayGenesQuery](#reply_pathwaygenesquery). `query` repeats the request as BioMCP read it.
 
 ### Reply_PathwayGenesQuery
 
@@ -26,15 +26,15 @@ Read Reactome exact references or WikiPathways GeneProduct data nodes. The detai
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `details` | [Reply_Details](#reply-details) | Adds each reference's Reactome `PhysicalEntity` contexts, with their source text whole. Optional. |
+| `details` | [Reply_Details](#reply_details) | Adds each reference's Reactome `PhysicalEntity` contexts, with their source text whole. Optional. |
 | `id` | string | Checked source-owned human pathway identity. |
 | `limit` | integer (uint32) | Five complete relation rows by default, at most fifty. Optional. |
 | `offset` | integer (uint32) | Offset within the retained selected relation. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Immutable relation snapshot. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Immutable relation snapshot. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_Details](#reply-details). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_Details](#reply_details). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

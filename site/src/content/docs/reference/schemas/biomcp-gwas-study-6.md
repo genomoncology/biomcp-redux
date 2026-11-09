@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get g
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_GwasStudy](#reply-gwasstudy). `query` holds [Reply_GwasGet](/reference/schemas/types/#reply-gwasget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_GwasStudy](#reply_gwasstudy). `query` holds [Reply_GwasGet](/reference/schemas/types/#reply_gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_GwasStudy
 
@@ -26,25 +26,25 @@ Native study card; independent source descriptions are never reconciled.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `array_manufacturers` | list of [Reply_Text](/reference/schemas/types/#reply-text) or null | Native array manufacturer labels. Optional. |
-| `discovery_ancestries` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Native discovery ancestry summaries. Optional. |
-| `genotyping_technologies` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Source technologies. Optional. |
+| `array_manufacturers` | list of [Reply_Text](/reference/schemas/types/#reply_text) or null | Native array manufacturer labels. Optional. |
+| `discovery_ancestries` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Native discovery ancestry summaries. Optional. |
+| `genotyping_technologies` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Source technologies. Optional. |
 | `gxe` | boolean or null | Native gene-environment interaction flag. Optional. |
 | `gxg` | boolean or null | Native gene-gene interaction flag. Optional. |
-| `id` | [Reply_GwasStudyId](/reference/schemas/types/#reply-gwasstudyid) | Exact accession. |
+| `id` | [Reply_GwasStudyId](/reference/schemas/types/#reply_gwasstudyid) | Exact accession. |
 | `imputed` | boolean or null | Native imputation flag. Optional. |
-| `initial_sample_description` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Whole discovery sample prose. Optional. |
-| `license_url` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native terms link without an inferred reuse grant. Optional. |
-| `ontology_traits` | list of [Reply_GwasTrait](/reference/schemas/types/#reply-gwastrait) | Every native mapped ontology label and ID. Optional. |
-| `platforms` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native platform description. Optional. |
+| `initial_sample_description` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Whole discovery sample prose. Optional. |
+| `license_url` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native terms link without an inferred reuse grant. Optional. |
+| `ontology_traits` | list of [Reply_GwasTrait](/reference/schemas/types/#reply_gwastrait) | Every native mapped ontology label and ID. Optional. |
+| `platforms` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native platform description. Optional. |
 | `pooled` | boolean or null | Native pooled study flag. Optional. |
-| `publication` | [Reply_Pmid](/reference/schemas/types/#reply-pmid) or null | Source publication identity. Optional. |
-| `replication_ancestries` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Native replication ancestry summaries. Optional. |
-| `replication_sample_description` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Whole replication sample prose. Optional. |
-| `reported_traits` | list of [Reply_Text](/reference/schemas/types/#reply-text) | Native reported disease traits. Optional. |
+| `publication` | [Reply_Pmid](/reference/schemas/types/#reply_pmid) or null | Source publication identity. Optional. |
+| `replication_ancestries` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Native replication ancestry summaries. Optional. |
+| `replication_sample_description` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Whole replication sample prose. Optional. |
+| `reported_traits` | list of [Reply_Text](/reference/schemas/types/#reply_text) | Native reported disease traits. Optional. |
 | `snp_count` | integer or null | Source SNP count; missing differs from zero. Optional. |
 | `summary_statistics_available` | boolean or null | Source availability flag; grants no download or reuse permission. Optional. |
-| `summary_statistics_url` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Native summary statistics link; not a local download. Optional. |
+| `summary_statistics_url` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Native summary statistics link; not a local download. Optional. |
 | `user_requested` | boolean or null | Native user-requested study flag. Optional. |
 
 ## Next

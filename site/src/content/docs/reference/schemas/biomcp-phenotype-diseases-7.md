@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get p
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PhenotypeDiseases](#reply-phenotypediseases). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply-phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PhenotypeDiseases](#reply_phenotypediseases). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply_phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_PhenotypeDiseases
 
@@ -26,10 +26,10 @@ Direct source disease association rows without clinical inference.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable publisher component terms. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable publisher component terms. Optional. |
 | `direct` | boolean | Publisher direct graph scope; this supplies no causal assertion. |
 | `fetched` | integer or null | Original source retrieval time, distinct from dataset release. Optional. |
-| `items` | list of [Reply_DiseaseAssociationItem](/reference/schemas/types/#reply-diseaseassociationitem) | Native association rows in source order, without deduplication. Optional. |
+| `items` | list of [Reply_DiseaseAssociationItem](/reference/schemas/types/#reply_diseaseassociationitem) | Native association rows in source order, without deduplication. Optional. |
 
 ## Next
 

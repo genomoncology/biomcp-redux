@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp artic
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_ArticleEdgePage](#reply-articleedgepage). `query` holds [Reply_ArticleEdges](#reply-articleedges). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_ArticleEdgePage](#reply_articleedgepage). `query` holds [Reply_ArticleEdges](#reply_articleedges). `query` repeats the request as BioMCP read it.
 
 ### Reply_ArticleEdgePage
 
@@ -26,7 +26,7 @@ A page of citing or referenced papers in citation order.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_ArticleItem](/reference/schemas/types/#reply-articleitem) | Papers in the fixed edge pool. Optional. |
+| `items` | list of [Reply_ArticleItem](/reference/schemas/types/#reply_articleitem) | Papers in the fixed edge pool. Optional. |
 
 ### Reply_ArticleEdges
 
@@ -36,13 +36,13 @@ Page the citing or referenced PubMed papers of one checked PMID.
 | --- | --- | --- |
 | `limit` | integer (uint32) | Maximum papers on one page. Optional. |
 | `offset` | integer (uint32) | Number of pool items to skip. Optional. |
-| `pmid` | [Reply_ArticleInput](/reference/schemas/types/#reply-articleinput) | PMID, PMC or DOI; iCite accepts only a PMID. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Fixed snapshot from an earlier page. Optional. |
-| `source` | [Reply_EdgeSource](#reply-edgesource) | Graph provider; iCite remains the default. Optional. |
+| `pmid` | [Reply_ArticleInput](/reference/schemas/types/#reply_articleinput) | PMID, PMC or DOI; iCite accepts only a PMID. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Fixed snapshot from an earlier page. Optional. |
+| `source` | [Reply_EdgeSource](#reply_edgesource) | Graph provider; iCite remains the default. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_EdgeSource](#reply-edgesource). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_EdgeSource](#reply_edgesource). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_BiomarkerPage](#reply-biomarkerpage). `query` holds [Reply_BiomarkerSearch](#reply-biomarkersearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_BiomarkerPage](#reply_biomarkerpage). `query` holds [Reply_BiomarkerSearch](#reply_biomarkersearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_BiomarkerPage
 
@@ -26,7 +26,7 @@ Local page of a complete bounded source observation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_BiomarkerHeader](/reference/schemas/types/#reply-biomarkerheader) | Native biomarker headers in source order. Optional. |
+| `items` | list of [Reply_BiomarkerHeader](/reference/schemas/types/#reply_biomarkerheader) | Native biomarker headers in source order. Optional. |
 
 ### Reply_BiomarkerSearch
 
@@ -35,10 +35,10 @@ Find NCI biomarker concepts by name or synonym. The public tier returns codes, n
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `limit` | integer (uint32) | Maximum headers per local page. Optional. |
-| `name` | [Reply_Text](/reference/schemas/types/#reply-text) | Native partial name or synonym search. Optional. |
+| `name` | [Reply_Text](/reference/schemas/types/#reply_text) | Native partial name or synonym search. Optional. |
 | `offset` | integer (uint32) | Offset within the complete retained observation. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Snapshot identity retained by continuation commands. Optional. |
-| `source` | [Reply_BiomarkerSource](/reference/schemas/types/#reply-biomarkersource) | Explicit keyed NCI source. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Snapshot identity retained by continuation commands. Optional. |
+| `source` | [Reply_BiomarkerSource](/reference/schemas/types/#reply_biomarkersource) | Explicit keyed NCI source. |
 
 ## Next
 

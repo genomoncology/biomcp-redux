@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugWhoPage](#reply-drugwhopage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply-drugsearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugWhoPage](#reply_drugwhopage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply_drugsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugWhoPage
 
@@ -26,7 +26,7 @@ Source-ordered WHO matches; prequalification does not establish US/EU authorizat
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_DrugWhoRow](/reference/schemas/types/#reply-drugwhorow) | Bounded native rows in export order. Optional. |
+| `items` | list of [Reply_DrugWhoRow](/reference/schemas/types/#reply_drugwhorow) | Bounded native rows in export order. Optional. |
 | `total` | integer (uint64) | Matching rows in the complete local snapshot. |
 
 ## Next

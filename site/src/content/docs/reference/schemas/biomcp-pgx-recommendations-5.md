@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get p
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PgxRecommendations](#reply-pgxrecommendations). `query` holds [Reply_PgxGet](/reference/schemas/types/#reply-pgxget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PgxRecommendations](#reply_pgxrecommendations). `query` holds [Reply_PgxGet](/reference/schemas/types/#reply_pgxget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_PgxRecommendations
 
@@ -26,12 +26,12 @@ Independent recommendation contracts preserve native table and view shapes.
 
 One of these forms:
 
-- `representation` is `"view"`: Gene-keyed recommendation_view with native names and no inferred drug ID. Fields: `header` ([Reply_PgxHeader](/reference/schemas/types/#reply-pgxheader)), `items` (list of [Reply_PgxRecommendation](#reply-pgxrecommendation)), `page` ([Reply_PgxPageInfo](/reference/schemas/types/#reply-pgxpageinfo)).
-- `representation` is `"table"`: Exact drug selector uses the distinct native recommendation table. Fields: `header` ([Reply_PgxHeader](/reference/schemas/types/#reply-pgxheader)), `items` (list of [Reply_PgxDrugRecommendation](#reply-pgxdrugrecommendation)), `page` ([Reply_PgxPageInfo](/reference/schemas/types/#reply-pgxpageinfo)).
+- `representation` is `"view"`: Gene-keyed recommendation_view with native names and no inferred drug ID. Fields: `header` ([Reply_PgxHeader](/reference/schemas/types/#reply_pgxheader)), `items` (list of [Reply_PgxRecommendation](#reply_pgxrecommendation)), `page` ([Reply_PgxPageInfo](/reference/schemas/types/#reply_pgxpageinfo)).
+- `representation` is `"table"`: Exact drug selector uses the distinct native recommendation table. Fields: `header` ([Reply_PgxHeader](/reference/schemas/types/#reply_pgxheader)), `items` (list of [Reply_PgxDrugRecommendation](#reply_pgxdrugrecommendation)), `page` ([Reply_PgxPageInfo](/reference/schemas/types/#reply_pgxpageinfo)).
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_PgxDrugRecommendation](#reply-pgxdrugrecommendation), [Reply_PgxRecommendation](#reply-pgxrecommendation). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_PgxDrugRecommendation](#reply_pgxdrugrecommendation), [Reply_PgxRecommendation](#reply_pgxrecommendation). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -48,10 +48,10 @@ Source-native PgxDrugRecommendation fields; no clinical interpretation.
 | `classification` | string or null | The source's own `classification` value, unchanged. Optional. |
 | `comments` | string or null | The source's own `comments` value, unchanged. Optional. |
 | `dosinginformation` | boolean or null | The source's own `dosinginformation` value, unchanged. Optional. |
-| `drugid` | [Reply_Curie](/reference/schemas/types/#reply-curie) | The source's own `drugid` value, unchanged. |
+| `drugid` | [Reply_Curie](/reference/schemas/types/#reply_curie) | The source's own `drugid` value, unchanged. |
 | `drugrecommendation` | string or null | The source's own `drugrecommendation` value, unchanged. Optional. |
-| `guidelineid` | [Reply_Identifier_int64](/reference/schemas/types/#reply-identifier-int64) or null | The source's own `guidelineid` value, unchanged. Optional. |
-| `id` | [Reply_Identifier_int64](/reference/schemas/types/#reply-identifier-int64) | The source's own `id` value, unchanged. |
+| `guidelineid` | [Reply_Identifier_int64](/reference/schemas/types/#reply_identifier_int64) or null | The source's own `guidelineid` value, unchanged. Optional. |
+| `id` | [Reply_Identifier_int64](/reference/schemas/types/#reply_identifier_int64) | The source's own `id` value, unchanged. |
 | `implications` | object or null | The source's own `implications` value, unchanged. Optional. |
 | `lookupkey` | object | The source's own `lookupkey` value, unchanged. |
 | `otherprescribingguidance` | boolean or null | The source's own `otherprescribingguidance` value, unchanged. Optional. |
@@ -76,7 +76,7 @@ Source-native PgxRecommendation fields; no clinical interpretation.
 | `lookupkey` | object | The source's own `lookupkey` value, unchanged. |
 | `phenotypes` | object or null | The source's own `phenotypes` value, unchanged. Optional. |
 | `population` | string or null | The source's own `population` value, unchanged. Optional. |
-| `recommendationid` | [Reply_Identifier_int64](/reference/schemas/types/#reply-identifier-int64) | The source's own `recommendationid` value, unchanged. |
+| `recommendationid` | [Reply_Identifier_int64](/reference/schemas/types/#reply_identifier_int64) | The source's own `recommendationid` value, unchanged. |
 
 </details>
 

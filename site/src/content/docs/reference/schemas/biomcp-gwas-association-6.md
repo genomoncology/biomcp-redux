@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get g
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_GwasAssociationCard](#reply-gwasassociationcard). `query` holds [Reply_GwasGet](/reference/schemas/types/#reply-gwasget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_GwasAssociationCard](#reply_gwasassociationcard). `query` holds [Reply_GwasGet](/reference/schemas/types/#reply_gwasget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_GwasAssociationCard
 
@@ -26,7 +26,7 @@ Exact association card; no second association representation.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `association` | [Reply_GwasAssociation](/reference/schemas/types/#reply-gwasassociation) | The shared source association record. |
+| `association` | [Reply_GwasAssociation](/reference/schemas/types/#reply_gwasassociation) | The shared source association record. |
 
 ## Next
 

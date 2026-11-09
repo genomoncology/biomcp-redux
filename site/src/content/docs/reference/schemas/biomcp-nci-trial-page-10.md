@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_NciTrialPage](#reply-ncitrialpage). `query` holds [Reply_TrialSearch](/reference/schemas/types/#reply-trialsearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_NciTrialPage](#reply_ncitrialpage). `query` holds [Reply_TrialSearch](/reference/schemas/types/#reply_trialsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_NciTrialPage
 
@@ -27,13 +27,13 @@ NCI search page in native order with native count.
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `attribution` | string | Publisher attribution. |
-| `condition_resolution` | [Reply_TrialConditionResolution](/reference/schemas/types/#reply-trialconditionresolution) or null | Exact condition identity and source-provided mapping, absent for literal text. Optional. |
-| `items` | list of [Reply_NciTrial](/reference/schemas/types/#reply-ncitrial) | Source rows, never merged with another provider. Optional. |
-| `request` | list of [Reply_TrialParameter](#reply-trialparameter) | Exact source parameters, excluding credentials. Optional. |
+| `condition_resolution` | [Reply_TrialConditionResolution](/reference/schemas/types/#reply_trialconditionresolution) or null | Exact condition identity and source-provided mapping, absent for literal text. Optional. |
+| `items` | list of [Reply_NciTrial](/reference/schemas/types/#reply_ncitrial) | Source rows, never merged with another provider. Optional. |
+| `request` | list of [Reply_TrialParameter](#reply_trialparameter) | Exact source parameters, excluding credentials. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_TrialParameter](#reply-trialparameter). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_TrialParameter](#reply_trialparameter). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

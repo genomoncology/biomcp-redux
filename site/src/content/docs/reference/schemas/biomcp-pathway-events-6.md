@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp pathw
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PathwayEvents](/reference/schemas/types/#reply-pathwayevents), a shared type. `query` holds [Reply_PathwayEventsQuery](#reply-pathwayeventsquery). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PathwayEvents](/reference/schemas/types/#reply_pathwayevents), a shared type. `query` holds [Reply_PathwayEventsQuery](#reply_pathwayeventsquery). `query` repeats the request as BioMCP read it.
 
 ### Reply_PathwayEventsQuery
 
@@ -29,7 +29,7 @@ Read Reactome event objects and unresolved native integer references in source o
 | `id` | string | Checked source-owned human pathway identity. |
 | `limit` | integer (uint32) | Five complete relation rows by default, at most fifty. Optional. |
 | `offset` | integer (uint32) | Offset within the retained selected relation. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Immutable relation snapshot. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Immutable relation snapshot. Optional. |
 
 ## Next
 

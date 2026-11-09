@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get a
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_AdverseEventFaersCard](#reply-adverseeventfaerscard). `query` holds [Reply_AdverseEventGet](/reference/schemas/types/#reply-adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_AdverseEventFaersCard](#reply_adverseeventfaerscard). `query` holds [Reply_AdverseEventGet](/reference/schemas/types/#reply_adverseeventget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_AdverseEventFaersCard
 
@@ -26,26 +26,26 @@ FAERS card with native report-level facts and independent collection lengths.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `available_sections` | list of [Reply_AdverseEventSection](/reference/schemas/types/#reply-adverseeventsection) | Named sections available in this report. Optional. |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component terms. Optional. |
+| `available_sections` | list of [Reply_AdverseEventSection](/reference/schemas/types/#reply_adverseeventsection) | Named sections available in this report. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component terms. Optional. |
 | `drug_count` | integer (uint32) | Actual drug-array length, never count bucket. |
 | `first_received_format` | string or null | Native first_received_format string; present empty values remain present. Optional. |
-| `header` | [Reply_AdverseEventHeader](/reference/schemas/types/#reply-adverseeventheader) | Exact selected report identity. |
+| `header` | [Reply_AdverseEventHeader](/reference/schemas/types/#reply_adverseeventheader) | Exact selected report identity. |
 | `latest_received` | string or null | Native latest_received string; present empty values remain present. Optional. |
 | `latest_received_format` | string or null | Native latest_received_format string; present empty values remain present. Optional. |
-| `patient` | [Reply_AdverseEventPatient](#reply-adverseeventpatient) or null | Fixed native patient strings. Optional. |
+| `patient` | [Reply_AdverseEventPatient](#reply_adverseeventpatient) or null | Fixed native patient strings. Optional. |
 | `reaction_count` | integer (uint32) | Actual reaction-array length, never causal pairs. |
-| `report_url` | [Reply_Text](/reference/schemas/types/#reply-text) | Exact successful source request URL, never guessed. |
-| `reporter` | [Reply_AdverseEventReporter](#reply-adverseeventreporter) or null | Optional reporter facts. Optional. |
-| `seriousness` | [Reply_FaersSeriousness](#reply-faersseriousness) or null | Independent source report flags. Optional. |
-| `snapshot` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Opaque checked retained-report snapshot identity. Optional. |
-| `source_url` | [Reply_Text](/reference/schemas/types/#reply-text) | Publisher overview, never a next step. |
+| `report_url` | [Reply_Text](/reference/schemas/types/#reply_text) | Exact successful source request URL, never guessed. |
+| `reporter` | [Reply_AdverseEventReporter](#reply_adverseeventreporter) or null | Optional reporter facts. Optional. |
+| `seriousness` | [Reply_FaersSeriousness](#reply_faersseriousness) or null | Independent source report flags. Optional. |
+| `snapshot` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Opaque checked retained-report snapshot identity. Optional. |
+| `source_url` | [Reply_Text](/reference/schemas/types/#reply_text) | Publisher overview, never a next step. |
 | `transmitted` | string or null | Native transmitted string; present empty values remain present. Optional. |
 | `transmitted_format` | string or null | Native transmitted_format string; present empty values remain present. Optional. |
 
 ### Other types in this reply
 
-5 more types appear only in this reply: [Reply_AdverseEventPatient](#reply-adverseeventpatient), [Reply_AdverseEventReporter](#reply-adverseeventreporter), [Reply_FaersAgeUnit](#reply-faersageunit), [Reply_FaersSeriousness](#reply-faersseriousness), [Reply_WithUnit_FiniteNumber_FaersAgeUnit](#reply-withunit-finitenumber-faersageunit). Open the list below to read their fields.
+5 more types appear only in this reply: [Reply_AdverseEventPatient](#reply_adverseeventpatient), [Reply_AdverseEventReporter](#reply_adverseeventreporter), [Reply_FaersAgeUnit](#reply_faersageunit), [Reply_FaersSeriousness](#reply_faersseriousness), [Reply_WithUnit_FiniteNumber_FaersAgeUnit](#reply_withunit_finitenumber_faersageunit). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 5 other types</summary>
@@ -56,7 +56,7 @@ Native patient facts with the published word beside the sex code.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `age` | [Reply_WithUnit_FiniteNumber_FaersAgeUnit](#reply-withunit-finitenumber-faersageunit) or null | Native numeric age with the exact publisher unit code, when stated. Optional. |
+| `age` | [Reply_WithUnit_FiniteNumber_FaersAgeUnit](#reply_withunit_finitenumber_faersageunit) or null | Native numeric age with the exact publisher unit code, when stated. Optional. |
 | `sex` | string or null | Native sex string, including a present empty value. Optional. |
 | `sex_label` | string or null | Published word for the sex code, when the code is on openFDA's list. Optional. |
 | `weight` | string or null | Native weight string, including a present empty value. Optional. |
@@ -96,8 +96,8 @@ A source number with its explicitly stated unit; missing units stay absent.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `unit` | [Reply_FaersAgeUnit](#reply-faersageunit) or null | Publisher unit or code, without conversion or inference. Optional. |
-| `value` | [Reply_FiniteNumber](/reference/schemas/types/#reply-finitenumber) | Unchanged numeric source value. |
+| `unit` | [Reply_FaersAgeUnit](#reply_faersageunit) or null | Publisher unit or code, without conversion or inference. Optional. |
+| `value` | [Reply_FiniteNumber](/reference/schemas/types/#reply_finitenumber) | Unchanged numeric source value. |
 
 </details>
 

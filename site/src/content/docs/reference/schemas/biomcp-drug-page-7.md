@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DrugPage](#reply-drugpage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply-drugsearch), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DrugPage](#reply_drugpage). `query` holds [Reply_DrugSearch](/reference/schemas/types/#reply_drugsearch), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DrugPage
 
@@ -26,7 +26,7 @@ A single source candidate page in native order, without selecting the first hit.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_DrugHeader](/reference/schemas/types/#reply-drugheader) | Native candidates, preserving their separate identity levels. Optional. |
+| `items` | list of [Reply_DrugHeader](/reference/schemas/types/#reply_drugheader) | Native candidates, preserving their separate identity levels. Optional. |
 | `total` | integer or null | Native total when supplied; absent remains unknown. Optional. |
 
 ## Next

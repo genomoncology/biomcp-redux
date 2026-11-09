@@ -22,7 +22,7 @@ A field marked Optional can be missing from a reply. Every other field is always
 
 ### Other types in this reply
 
-5 more types appear only in this reply: [Reply_ErrorCode](#reply-errorcode), [Reply_ErrorDetail](#reply-errordetail), [Reply_ErrorMessage](#reply-errormessage), [Reply_ErrorSchema](#reply-errorschema), [Reply_ErrorStatus](#reply-errorstatus). Open the list below to read their fields.
+5 more types appear only in this reply: [Reply_ErrorCode](#reply_errorcode), [Reply_ErrorDetail](#reply_errordetail), [Reply_ErrorMessage](#reply_errormessage), [Reply_ErrorSchema](#reply_errorschema), [Reply_ErrorStatus](#reply_errorstatus). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 5 other types</summary>
@@ -37,13 +37,13 @@ Values: `usage.schema`, `usage.arguments`, `usage.mcp_unavailable`, `usage.unkno
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `code` | [Reply_ErrorCode](#reply-errorcode) |  |
+| `code` | [Reply_ErrorCode](#reply_errorcode) |  |
 | `count` | integer or null | Optional. |
-| `message` | [Reply_ErrorMessage](#reply-errormessage) |  |
+| `message` | [Reply_ErrorMessage](#reply_errormessage) |  |
 | `option` | string or null | Optional. |
-| `source` | [Reply_Source](/reference/schemas/types/#reply-source) or null | Optional. |
-| `url` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Optional. |
-| `valid_values` | list of [Reply_Text](/reference/schemas/types/#reply-text) or null | Optional. |
+| `source` | [Reply_Source](/reference/schemas/types/#reply_source) or null | Optional. |
+| `url` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Optional. |
+| `valid_values` | list of [Reply_Text](/reference/schemas/types/#reply_text) or null | Optional. |
 
 ### Reply_ErrorMessage
 

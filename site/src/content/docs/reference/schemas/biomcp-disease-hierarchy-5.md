@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get d
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_DiseaseHierarchy](#reply-diseasehierarchy). `query` holds [Reply_DiseaseGet](/reference/schemas/types/#reply-diseaseget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_DiseaseHierarchy](#reply_diseasehierarchy). `query` holds [Reply_DiseaseGet](/reference/schemas/types/#reply_diseaseget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_DiseaseHierarchy
 
@@ -26,8 +26,8 @@ Native parent relations with both endpoints.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable component use terms, independent of row provenance. Optional. |
-| `items` | list of [Reply_DiseaseRelation](/reference/schemas/types/#reply-diseaserelation) | Rows as the source gives them. Totals in `page` count rows, not distinct records. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable component use terms, independent of row provenance. Optional. |
+| `items` | list of [Reply_DiseaseRelation](/reference/schemas/types/#reply_diseaserelation) | Rows as the source gives them. Totals in `page` count rows, not distinct records. Optional. |
 
 ## Next
 

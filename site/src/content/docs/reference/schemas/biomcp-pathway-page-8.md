@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PathwayPage](#reply-pathwaypage). `query` holds [Reply_PathwaySearch](#reply-pathwaysearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PathwayPage](#reply_pathwaypage). `query` holds [Reply_PathwaySearch](#reply_pathwaysearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_PathwayPage
 
@@ -26,8 +26,8 @@ Source-ordered header page; class admission never changes the native total.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_PathwayHeader](/reference/schemas/types/#reply-pathwayheader) | Whole admitted pathway headers in native order. Optional. |
-| `page` | [Reply_PathwayPageInfo](/reference/schemas/types/#reply-pathwaypageinfo) | Native position and total provenance. |
+| `items` | list of [Reply_PathwayHeader](/reference/schemas/types/#reply_pathwayheader) | Whole admitted pathway headers in native order. Optional. |
+| `page` | [Reply_PathwayPageInfo](/reference/schemas/types/#reply_pathwaypageinfo) | Native position and total provenance. |
 
 ### Reply_PathwaySearch
 
@@ -36,17 +36,17 @@ Search Reactome (default) or WikiPathways human pathways. Membership names a sou
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `fresh` | boolean | Request a new retained observation. Optional. |
-| `gene` | [Reply_GeneInput](/reference/schemas/types/#reply-geneinput) | Human gene input for exact resolution and UniProt mapping; Reactome only. Optional. |
+| `gene` | [Reply_GeneInput](/reference/schemas/types/#reply_geneinput) | Human gene input for exact resolution and UniProt mapping; Reactome only. Optional. |
 | `limit` | integer (uint32) | Five rows by default, one to fifty. Reactome rows equals this limit without refill. Optional. |
 | `offset` | integer (uint32) | Native Reactome Start row or retained WikiPathways catalog offset. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) | Retained snapshot identity for deterministic continuation. Optional. |
-| `query` | [Reply_Text](/reference/schemas/types/#reply-text) | Literal source query; exclusive with gene and top-level discovery. Optional. |
-| `source` | list of [Reply_PathwaySource](#reply-pathwaysource) | Sources in caller order; repeated sources take turns without title joins. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) | Retained snapshot identity for deterministic continuation. Optional. |
+| `query` | [Reply_Text](/reference/schemas/types/#reply_text) | Literal source query; exclusive with gene and top-level discovery. Optional. |
+| `source` | list of [Reply_PathwaySource](#reply_pathwaysource) | Sources in caller order; repeated sources take turns without title joins. Optional. |
 | `top_level` | boolean | Native human Reactome top-level discovery, exclusive with text and gene. Optional. |
 
 ### Other types in this reply
 
-One more type appear only in this reply: [Reply_PathwaySource](#reply-pathwaysource). Open the list below to read their fields.
+One more type appear only in this reply: [Reply_PathwaySource](#reply_pathwaysource). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 1 other type</summary>

@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get p
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_PhenotypeHierarchy](#reply-phenotypehierarchy). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply-phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
+`result` holds [Reply_PhenotypeHierarchy](#reply_phenotypehierarchy). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply_phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
 
 ### Reply_PhenotypeHierarchy
 
@@ -26,13 +26,13 @@ Direct source hierarchy links without graph traversal.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable publisher component terms. Optional. |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply_componentlabel) | Applicable publisher component terms. Optional. |
 | `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
-| `items` | list of [Reply_PhenotypeHierarchyLink](#reply-phenotypehierarchylink) | Native ordered rows; empty remains an empty collection. Optional. |
+| `items` | list of [Reply_PhenotypeHierarchyLink](#reply_phenotypehierarchylink) | Native ordered rows; empty remains an empty collection. Optional. |
 
 ### Other types in this reply
 
-2 more types appear only in this reply: [Reply_PhenotypeHierarchyLink](#reply-phenotypehierarchylink), [Reply_PhenotypeHierarchyRelation](#reply-phenotypehierarchyrelation). Open the list below to read their fields.
+2 more types appear only in this reply: [Reply_PhenotypeHierarchyLink](#reply_phenotypehierarchylink), [Reply_PhenotypeHierarchyRelation](#reply_phenotypehierarchyrelation). Open the list below to read their fields.
 
 <details>
 <summary>Fields of the 2 other types</summary>
@@ -43,10 +43,10 @@ One native direct hierarchy link, without traversal or inferred equivalence.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Publisher provenance. |
-| `id` | [Reply_Curie](/reference/schemas/types/#reply-curie) | Exact related term identifier; native parents can be outside HP. |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply_attribution) | Publisher provenance. |
+| `id` | [Reply_Curie](/reference/schemas/types/#reply_curie) | Exact related term identifier; native parents can be outside HP. |
 | `label` | string or null | Whole related term label. Optional. |
-| `relation` | [Reply_PhenotypeHierarchyRelation](#reply-phenotypehierarchyrelation) | Original source relation, such as super_classes or sub_classes. |
+| `relation` | [Reply_PhenotypeHierarchyRelation](#reply_phenotypehierarchyrelation) | Original source relation, such as super_classes or sub_classes. |
 
 ### Reply_PhenotypeHierarchyRelation
 

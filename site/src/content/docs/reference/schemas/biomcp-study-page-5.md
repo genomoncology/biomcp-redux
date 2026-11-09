@@ -18,7 +18,7 @@ BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp searc
 
 A field marked Optional can be missing from a reply. Every other field is always there.
 
-`result` holds [Reply_StudyPage](#reply-studypage). `query` holds [Reply_StudySearch](#reply-studysearch). `query` repeats the request as BioMCP read it.
+`result` holds [Reply_StudyPage](#reply_studypage). `query` holds [Reply_StudySearch](#reply_studysearch). `query` repeats the request as BioMCP read it.
 
 ### Reply_StudyPage
 
@@ -26,9 +26,9 @@ Source-ordered checked study headers from one retained catalog.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `items` | list of [Reply_StudyHeader](/reference/schemas/types/#reply-studyheader) | Whole source headers, without expanded descriptions. Optional. |
-| `page` | [Reply_PageInfo](/reference/schemas/types/#reply-pageinfo) | Snapshot-scoped matching counts and offset. |
-| `snapshot` | [Reply_StudySnapshot](/reference/schemas/types/#reply-studysnapshot) | Catalog acquisition provenance. |
+| `items` | list of [Reply_StudyHeader](/reference/schemas/types/#reply_studyheader) | Whole source headers, without expanded descriptions. Optional. |
+| `page` | [Reply_PageInfo](/reference/schemas/types/#reply_pageinfo) | Snapshot-scoped matching counts and offset. |
+| `snapshot` | [Reply_StudySnapshot](/reference/schemas/types/#reply_studysnapshot) | Catalog acquisition provenance. |
 
 ### Reply_StudySearch
 
@@ -36,11 +36,11 @@ Literal stored metadata search; text is never parsed as a query language. No fre
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `cancer_type` | [Reply_CbioportalCancerTypeId](/reference/schemas/types/#reply-cbioportalcancertypeid) | Exact cBioPortal cancer-type code; no OncoTree conversion. Optional. |
+| `cancer_type` | [Reply_CbioportalCancerTypeId](/reference/schemas/types/#reply_cbioportalcancertypeid) | Exact cBioPortal cancer-type code; no OncoTree conversion. Optional. |
 | `limit` | integer (uint32) | Maximum headers per page. Optional. |
 | `offset` | integer (uint32) | Zero-based offset in the checked snapshot. Optional. |
-| `pool` | [Reply_Text](/reference/schemas/types/#reply-text) or null | Opaque continuation retaining the catalog revision and selectors. Optional. |
-| `text` | [Reply_Text](/reference/schemas/types/#reply-text) | Literal study ID, name or description text, without synonyms or typo repair. Optional. |
+| `pool` | [Reply_Text](/reference/schemas/types/#reply_text) or null | Opaque continuation retaining the catalog revision and selectors. Optional. |
+| `text` | [Reply_Text](/reference/schemas/types/#reply_text) | Literal study ID, name or description text, without synonyms or typo repair. Optional. |
 
 ## Next
 
