@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: Fixes for BioMCP 1.0 errors and failed sources, by exact error text, including usage.arguments, usage.schema, usage.retired, local.failure, no_key, deadline_exceeded, offline and syncing.
+description: Fixes for BioMCP 1.0 errors and failed sources, by exact error text, including usage.arguments, usage.schema, usage.retired, local.failure, no-key, deadline-exceeded, offline and syncing.
 goal: The reader matches the error or source reason they see to its cause and fix, and confirms the fix.
 reader: A BioMCP user or agent whose command failed or returned less than expected
 kind: how-to
@@ -25,13 +25,17 @@ This page covers BioMCP <Fact k="version" />. Find the text you see in a heading
 
 <span id="localfailure-local-configuration-cache-or-recording-failed"></span><span id="no_proxy-holds-an-ipv6-address-or-a-cidr-range"></span>A reply with `error.code` `local.failure` and exit code 5, including a `NO_PROXY` entry BioMCP cannot read: see [fix local.failure errors](/troubleshooting/local-failure/).
 
-## A source shows skipped with reason no_key
+<span id="a-source-shows-skipped-with-reason-no_key"></span>
+
+## A source shows skipped with reason no-key
 
 **Cause.** The source needs your key: OncoKB, or NCI for `--source nci`. AlphaGenome also needs a key, but no command in this release sends it a request, so it never reports `no-key`.
 
 **Fix.** `biomcp key set oncokb` or `biomcp key set nci`. The reply's `next` list includes `help key SOURCE`. See [keys and configuration](/getting-started/api-keys/#set-a-key).
 
-## A source shows failed with reason deadline_exceeded or rate_limited
+<span id="a-source-shows-failed-with-reason-deadline_exceeded-or-rate_limited"></span>
+
+## A source shows failed with reason deadline-exceeded or rate-limited
 
 **Cause.** The source took too long or limited your request rate. Broad searches, such as a GWAS Catalog search by gene, can exceed the deadline. Keyless Semantic Scholar shares a public rate limit.
 

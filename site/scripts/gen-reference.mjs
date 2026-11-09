@@ -175,7 +175,7 @@ const schemaSlug = (id) => id.replace(/[^A-Za-z0-9]+/g, '-').toLowerCase();
 const schemaRoute = (id) => `/reference/schemas/${schemaSlug(id)}/`;
 const TYPES_ROUTE = '/reference/schemas/types/';
 const refName = (r) => r.split('/').pop();
-const anchor = (n) => n.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const anchor = (n) => n.toLowerCase().replace(/[^a-z0-9_]+/g, '-');
 // The schema text's own field and type descriptions, with a plain gloss where src/data/schema-notes.yaml has one.
 const schemaNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/schema-notes.yaml'), 'utf8')) ?? {};
 const GLOSS = schemaNotes.glosses ?? {};
