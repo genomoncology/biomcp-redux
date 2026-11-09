@@ -1,0 +1,37 @@
+# 0776 — Load benchmark uses the current HGNC fixture
+
+Status: OPEN.
+
+Milestone: 5
+
+## Outcome
+
+`make hosted-http-load` publishes at least 44,000 HGNC rows into an isolated cache before measuring, then measures 300 real HTTP calls and health checks while eight actual bundle publications run against that shared cache. Missing work still fails, and the existing budgets stay unchanged.
+
+## Why
+
+Final qualification j36135 completed its separate stress run but the load benchmark failed because its fixture published only 175 rows. The test must measure large shared-cache writes before it can qualify the hosted service.
+
+## Proof
+
+- Proof: j36135 is the failing old-code witness: 175 initial rows, 300 calls, eight reported syncs, no failed calls, and health responses all 200. The existing `make hosted-http-load` must pass after the setup fix, report at least 44,000 initial rows, retain 300 calls and eight syncs, and verify that the HGNC publication receipt changes across each sync. Run the previously skipped `make hosted-surface-check` after the load passes. Do not repeat the already completed stress suite.
+
+## Starts from
+
+- Starts from: `crates/biomcp/src/mcp/http/load_benchmark.rs`, the current `tests/replies/gene/main/hgnc` captures, `biomcp-fetch`'s strict TSV parser and replay publication path. The approved capture has 171 valid rows and a 53-column header; the withdrawn capture has five valid rows.
+
+## Keeps
+
+- Keeps: application behavior, strict TSV rejection, the 44,000-row threshold, 300-call workload, eight syncs, health checks, connection bounds and time budgets. Fetch's default replay cache is already isolated; no ambient-cache defect is claimed.
+
+## Defers
+
+- Defers: nothing within this benchmark fix. AWS deployment and publication remain outside this ticket.
+
+## Changes
+
+- Changes: the existing ignored benchmark's fixture mutation and writer setup. Trim only CR/LF so trailing tab cells survive. Use fresh replay Fetch importers sharing one explicit isolated ReplayCache, because one Fetch imports each replay bundle only once. Observe the existing `bundle_content` HGNC receipt through read-only cache access so cached metadata cannot masquerade as another publication. Require the initial large publication before starting measurements and retain all missing-work checks.
+
+## Cause
+
+`trim_end()` removed the last approved row's empty final TSV cell. Its template consequently had 52 columns instead of 53, so the parser rejected that original row and all 44,000 synthetic rows. The 170 surviving approved rows plus five withdrawn rows explain the observed 175 exactly. This is the only matching TSV-template helper in the scoped load/test setup. Separately, reusing the same Fetch let the later replay syncs return memoized bundle information instead of publishing again; the fresh writers and receipt check correct the benchmark without changing runtime code.
