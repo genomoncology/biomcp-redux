@@ -61,9 +61,9 @@ function json(args, input, env) {
 const normalized = (c) => ({ command: [], ...c, arguments: (c.arguments ?? []).map((a) => ({ choices: [], aliases: [], ...a })), sections: c.sections ?? [], examples: c.examples ?? [] });
 const grammar = fs.readFileSync(path.resolve('../docs/reference/commands.md'), 'utf8');
 const commandPaths = [...grammar.matchAll(/^## biomcp (.+)$/gm)].map((m) => m[1].split(' '));
-const help = JSON.parse(fs.readFileSync(path.resolve('src/data/help.json'), 'utf8')).commands.map(normalized).filter((c) => c.command.length);
+const help = [...new Map(JSON.parse(fs.readFileSync(path.resolve('src/data/help.json'), 'utf8')).commands.map(normalized).filter((c) => c.command.length).map((c) => [c.command.join(' '), c])).values()];
 const TOPICS = [['network', 'proxy'], ['network', 'ca_bundle']];
-const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0]));
+const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0])).filter((c) => !help.some((h) => h.command.join(' ') === c.command.join(' ')));
 const registry = json(['--offline', 'health']).result.sources.map(({ source, use: usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
 const registeredKeys = json(['key', 'list']).result.entries;
 const keys = registeredKeys.map((entry) => {
@@ -156,7 +156,11 @@ const canonical = new Set(registry.map((r) => r.source));
 
 // Reply schemas: every schema ID that `biomcp version --verbose` lists whose root is a reply envelope.
 const schemaIds = (run(['version', '--verbose']).match(/^Schemas: (.*)$/m)?.[1] ?? '').split(', ').filter(Boolean);
-const replySchemas = schemaIds.map((id) => ({ id, schema: json(['schema', id]) })).filter((x) => x.schema.properties?.schema?.const === x.id);
+const replySchemas = schemaIds.map((id) => ({ id, schema: json(['schema', id]) })).filter(({ id, schema }) => {
+  const identity = schema.properties?.schema;
+  const def = identity?.$ref?.startsWith('#/$defs/') ? schema.$defs?.[identity.$ref.split('/').pop()] : identity;
+  return def?.const === id || (def?.enum?.length === 1 && def.enum[0] === id);
+});
 // The CLI declares each command's canonical reply schemas; no source requests are needed.
 const schemaOf = new Map([...help, ...topics].map((c) => [name(c), c.reply_schemas ?? []]));
 // ---------- reply schemas: where each type is defined ----------
@@ -394,7 +398,7 @@ function sketch(reply, { width = 80, maxLines = 40 } = {}) {
 const schemaReplies = {};
 // The commands that return each reply schema, found by scripts/map-schemas.mjs against the live sources.
 const schemaCalls = {};
-const noCommand = schemaNotes.no_command ?? {};
+const noCommand = { ...(schemaNotes.no_command ?? {}), 'biomcp.error/4': 'Invalid commands and local failures return this error reply.' };
 
 // ---------- one page per command ----------
 const usage = (c) => {
@@ -538,7 +542,7 @@ for (const c of [...help, ...topics]) {
     const cmdList = cmds.map((x) => `[${code(shownCommand(x))}](${route(x.c)})`);
     const lines = [
       fm({ title, description: `The JSON reply ${site.product} ${site.version} prints for ${main ? shownCommand(main) : `no command (${readable(id)})`}: the fields of schema ${id}.`, goal: `Parse the ${id} reply: see what each field means.`, reader: 'A developer or agent parsing BioMCP JSON', sidebar: { label: id } }),
-      `${site.product} ${site.version} prints one JSON object, the reply, for each command. ${main ? `${cmdList.length > 1 ? `${cmdList.slice(0, -1).join(', ')} and ${cmdList.at(-1)} reply` : `${cmdList[0]} replies`} with ${code('schema')} set to ${code(id)}.` : `The reply schema ${code(id)} is in the program, but no command returns it as a whole reply.`} Read this page when your code parses that reply: it shows the fields this schema defines. [Shared types](${TYPES_ROUTE}) defines the rest.`,
+      `${site.product} ${site.version} prints one JSON object, the reply, for each command. ${main ? `${cmdList.length > 1 ? `${cmdList.slice(0, -1).join(', ')} and ${cmdList.at(-1)} reply` : `${cmdList[0]} replies`} with ${code('schema')} set to ${code(id)}.` : id.startsWith('biomcp.error/') ? `Any command may return ${code(id)} when its arguments or local processing fail.` : `The reply schema ${code(id)} is in the program, but no command returns it as a whole reply.`} Read this page when your code parses that reply: it shows the fields this schema defines. [Shared types](${TYPES_ROUTE}) defines the rest.`,
       '',
     ];
     if (!main) lines.push(note, '');
@@ -895,7 +899,7 @@ write('index.md', [
   '- [Command map from 0.9](/reference/upgrade-map/): what happened to each 0.9 command.',
   `- [MCP tools](/reference/mcp-server/): the ${tools.length} tools the server offers.`,
   '',
-  `Run ${code('biomcp help')} for the same command data as JSON, or ${code('biomcp help get gene')} for one command. ${code('biomcp schema ID')} prints a reply's JSON schema, such as ${code('biomcp schema ' + replySchemas.find(({ id }) => id.startsWith('biomcp.gene-cards/')).id)}.`,
+  `Run ${code('biomcp help')} to discover commands, or ${code('biomcp help get gene')} for one command. ${code('biomcp schema ID')} prints a reply's JSON schema, such as ${code('biomcp schema ' + replySchemas.find(({ id }) => id.startsWith('biomcp.gene-cards/')).id)}.`,
   '',
 ].join('\n'));
 
