@@ -121,6 +121,8 @@ function run(id) {
 // Problems a run's output shows whatever was saved before.
 function outputProblems(id, r) {
   const p = [];
+  const expectedExit = Number((file(id, 'exit') ?? '0').trim());
+  if (r.exit !== expectedExit) p.push(`exit ${r.exit}, expected ${expectedExit}; review the command and its documented outcome before refreshing this example`);
   if (r.timedOut) p.push(`timed out after ${(product.exampleTimeoutMs ?? 120000) / 1000} s`);
   if (r.out.includes('jq: error')) p.push('output holds "jq: error"');
   // A page never shows the build machine's paths: the program's folder, the sandbox or the repository.
