@@ -1,21 +1,29 @@
 {
-  "schema": "biomcp.trial_page/5",
+  "schema": "biomcp.trial-page/14",
   "status": "complete",
   "query": {
-    "condition": "melanoma",
-    "count_only": false,
-    "has_results": false,
+    "condition": [
+      "melanoma"
+    ],
+    "offset": 0,
     "limit": 2
   },
   "sources": [
     {
       "source": "ctgov",
-      "use": "restricted",
+      "use": "attribution",
       "terms": "ClinicalTrials.gov attribution and source processi…",
       "terms_url": "https://clinicaltrials.gov/about-site/terms-conditions",
       "state": "ok",
-      "count": 3781,
-      "fetched": 2
+      "count": 3783,
+      "retrieved_count": 2,
+      "notices": [
+        {
+          "kind": "request-guidance",
+          "data_date": "2026-11-09T10:00:05Z",
+          "message": "Publisher dataset date: 2026-11-09T10:00:05Z. This is distinct from retrieval and record event dates."
+        }
+      ]
     }
   ],
   "next": [
@@ -29,7 +37,9 @@
         "--limit",
         "2",
         "--next-page",
-        "ZVNj7o2Elu8o3lpzTd6s47mtmpOQJJxmZvmp"
+        "ZVNj7o2Elu8o3lpyBYqp6rLumpOQJJxubfOn0A",
+        "--offset",
+        "2"
       ]
     }
   ]

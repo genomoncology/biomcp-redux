@@ -1,5 +1,5 @@
 {
-  "schema": "biomcp.gene_page/3",
+  "schema": "biomcp.gene-page/8",
   "status": "complete",
   "symbol": "BRAF"
 }
