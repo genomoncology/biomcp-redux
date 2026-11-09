@@ -15,7 +15,9 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
     db.execute("UPDATE bundle SET fresh_until=0", []).unwrap();
     let (call, cancellation) = fetch.cancellable().unwrap();
     let leg = call.leg(bundle.spec, call.deadline(Duration::from_secs(30)));
-    let rows = leg.rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF")).unwrap();
+    let rows = leg
+        .rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF"))
+        .unwrap();
     assert_eq!(rows.len(), 1);
     assert!(leg.finish().stale);
     let held = server.next();
@@ -32,12 +34,23 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
     // regression reaps its worker instead of leaving a detached download.
     held.respond(400, "", "cancelled fixture");
     owner.join().unwrap();
-    assert!(result.is_ok(), "owner waited for the held upstream: {result:?}");
-    assert!(server.requests.try_recv().is_err(), "shutdown retried the download");
+    assert!(
+        result.is_ok(),
+        "owner waited for the held upstream: {result:?}"
+    );
+    assert!(
+        server.requests.try_recv().is_err(),
+        "shutdown retried the download"
+    );
     let offline = cached(&path).offline();
     let leg = offline.leg(bundle.spec, offline.deadline(Duration::from_secs(30)));
-    let retained = leg.rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF")).unwrap();
+    let retained = leg
+        .rows(&bundle, Find::Exact(KeyKind::Symbol, "BRAF"))
+        .unwrap();
     assert_eq!(retained.len(), 1);
     assert_eq!(retained[0].name, rows[0].name);
-    assert!(leg.finish().stale, "shutdown published an incomplete refresh");
+    assert!(
+        leg.finish().stale,
+        "shutdown published an incomplete refresh"
+    );
 }
