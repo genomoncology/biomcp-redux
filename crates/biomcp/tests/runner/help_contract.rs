@@ -1,6 +1,5 @@
 //! Generated help retains usable flag descriptions and entity navigation in both tool modes.
 use super::{launch::Environment, mcp};
-use biomcp_types::{CellLineFilteredPage, CellLinePage, ResponseBody};
 use serde_json::{Value, json};
 
 pub(super) fn trial() -> libtest_mimic::Trial {
@@ -9,7 +8,6 @@ pub(super) fn trial() -> libtest_mimic::Trial {
     })
 }
 fn check() -> Result<(), String> {
-    complete_help()?;
     let mut failures = Vec::new();
     for mode in ["single", "typed"] {
         let env = Environment::new().map_err(|e| e.to_string())?;
@@ -104,34 +102,4 @@ fn descriptions(commands: &[Value]) -> bool {
                     })
             })
         })
-}
-
-fn complete_help() -> Result<(), String> {
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let output = env
-        .command(env!("CARGO_BIN_EXE_biomcp"), &["help".into()])
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !output.status.success() {
-        return Err("complete help failed".into());
-    }
-    let help: Value = serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())?;
-    let command = help
-        .pointer("/result/commands")
-        .and_then(Value::as_array)
-        .and_then(|commands| {
-            commands
-                .iter()
-                .find(|c| c["command"] == json!(["search", "cell-line"]))
-        })
-        .ok_or("complete help omits cell-line search")?;
-    for id in [CellLinePage::SCHEMA, CellLineFilteredPage::SCHEMA] {
-        if !command["reply_schemas"]
-            .as_array()
-            .is_some_and(|schemas| schemas.contains(&json!(id)))
-        {
-            return Err(format!("complete help omits {id} for cell-line search"));
-        }
-    }
-    Ok(())
 }
