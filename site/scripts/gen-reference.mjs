@@ -393,9 +393,8 @@ function sketch(reply, { width = 80, maxLines = 40 } = {}) {
 // Historical live replies predate this generator refresh; do not present them as current examples.
 const schemaReplies = {};
 // The commands that return each reply schema, found by scripts/map-schemas.mjs against the live sources.
-const SCHEMA_CALLS = path.resolve('src/data/schema-calls.json');
 const schemaCalls = {};
-const noCommand = { ...(schemaNotes.no_command ?? {}), 'biomcp.error/4': 'Invalid commands and local failures return this error reply.' };
+const noCommand = schemaNotes.no_command ?? {};
 
 // ---------- one page per command ----------
 const usage = (c) => {
@@ -523,7 +522,7 @@ for (const c of [...help, ...topics]) {
     const by = returnedBy(id);
     const calls = schemaCalls[id] ?? [];
     const note = noCommand[id];
-    if (!by.length && !calls.length && !note) { console.error(`reference: no command returns ${id}; run npm run schema-calls, or explain why in src/data/schema-notes.yaml no_command`); process.exit(1); }
+    if (!by.length && !calls.length && !note) { console.error(`reference: no command returns ${id}; check complete help and schema registration before publishing`); process.exit(1); }
     if (note && (by.length || calls.length)) { console.error(`reference: ${id} has a command now; remove it from src/data/schema-notes.yaml no_command`); process.exit(1); }
     // The commands, each once: the live calls first, then the help examples' commands.
     const cmds = [];
