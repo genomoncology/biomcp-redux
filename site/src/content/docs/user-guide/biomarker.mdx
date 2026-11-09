@@ -1,0 +1,33 @@
+---
+title: Biomarker concepts
+description: Search NCI biomarker concepts by name or synonym and read a concept by its code with BioMCP.
+goal: Find the commands and source needed to look up an NCI biomarker concept.
+reader: A BioMCP user or agent looking up biomarker concepts
+kind: reference
+verified: 2026-11-09
+sidebar:
+  label: biomarker
+---
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" /> searches biomarker concepts in [NCI](/sources/nci/) by name or synonym and reads a concept by its NCIt code. The source requires your own NCI key; [keys and configuration](/getting-started/api-keys/) explains how to set it.
+
+## Commands
+
+<CommandTable entity="biomarker" />
+
+## Example
+
+```sh
+biomcp search biomarker --source nci --name PD-L1
+biomcp get biomarker C96022 --source nci
+```
+
+## MCP calls
+
+In typed mode, the `trial` tool offers `biomarker_search` and `biomarker_get`. Each call takes an object named after the action. The [MCP tools reference](/reference/mcp-server/#typed-entity-tools) lists the actions.
+
+## Next
+
+[Find trials](/how-to/find-trials/) shows the trial commands. [Entities](/reference/entities/) lists every kind of record BioMCP reads.

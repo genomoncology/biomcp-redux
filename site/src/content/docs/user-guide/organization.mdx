@@ -1,0 +1,33 @@
+---
+title: Clinical research organizations
+description: Search NCI research organizations by name, location or organization family with BioMCP.
+goal: Find the command and filters for NCI research organization records.
+reader: A BioMCP user or agent looking up research organizations
+kind: reference
+verified: 2026-11-09
+sidebar:
+  label: organization
+---
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" /> searches clinical research organizations in [NCI](/sources/nci/). Filter by name, city, state, country, postal code, organization family or distance from a location. The source requires your own NCI key; [keys and configuration](/getting-started/api-keys/) explains how to set it.
+
+## Commands
+
+<CommandTable entity="organization" />
+
+## Example
+
+```sh
+biomcp search organization --source nci --name Dana-Farber --limit 5
+biomcp search organization --source nci --city Boston --state MA --limit 5
+```
+
+## MCP calls
+
+In typed mode, the `trial` tool offers the `organization_search` action. The [MCP tools reference](/reference/mcp-server/#typed-entity-tools) lists the actions.
+
+## Next
+
+[Find trials](/how-to/find-trials/) shows how to search trial records. [Entities](/reference/entities/) lists every kind of record BioMCP reads.
