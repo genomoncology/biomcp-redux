@@ -59,13 +59,21 @@ function json(args, input, env) {
 
 // ---------- inputs ----------
 const normalized = (c) => ({ command: [], arguments: [], sections: [], examples: [], ...c });
-const help = json(['help']).result.commands.map(normalized).filter((c) => c.command.length);
-// Help topics that `biomcp help` does not list but replies name in `next`, such as `help network proxy`.
+const grammar = fs.readFileSync(path.resolve('../docs/reference/commands.md'), 'utf8');
+const commandPaths = [...grammar.matchAll(/^## biomcp (.+)$/gm)].map((m) => m[1].split(' '));
+const help = commandPaths.flatMap((words) => {
+  const page = json(['help', ...words]);
+  return (page.result.commands ?? []).filter((c) => (c.command ?? []).join(' ') === words.join(' ')).map(normalized);
+});
 const TOPICS = [['network', 'proxy'], ['network', 'ca_bundle']];
 const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0]));
 const registry = json(['--offline', 'health']).result.sources.map(({ source, use: usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
-const keyCommands = help.filter((c) => c.command[0] === 'help' && c.command[1] === 'key' && c.command.length === 3);
-const keys = keyCommands.map((c) => ({ name: c.command[2], ...json(['help', 'key', c.command[2]]).result }));
+const registeredKeys = json(['key', 'list']).result.entries;
+const keys = registeredKeys.map((entry) => {
+  const reply = json(['help', 'key', entry.source]);
+  help.push(normalized({ command: ['help', 'key', entry.source], description: 'Show credential registration and environment fallback names.', reply_schemas: [reply.schema] }));
+  return { name: entry.source, ...reply.result };
+});
 const discoverTools = (args = []) => {
   const msgs = [
     { jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'site-reference', version: '1' } } },
@@ -81,8 +89,7 @@ const typedTools = discoverTools(['--tool-mode', 'typed']);
 const notes = YAML.parse(fs.readFileSync(path.resolve('src/data/sources.yaml'), 'utf8')) ?? {};
 const meanings = YAML.parse(fs.readFileSync(path.resolve('src/data/envelope.yaml'), 'utf8'));
 
-const grammar = fs.readFileSync(path.resolve('../docs/reference/commands.md'), 'utf8');
-const rootBlock = grammar.split('\n## biomcp author')[0];
+const rootBlock = grammar.split(/\n## biomcp /)[0];
 const globalOptions = [...rootBlock.matchAll(/^ {6}(--[a-z-]+)(?: <([a-z-]+)>)?\n(?: {10}(.*)\n)?/gm)]
   .map(([, name, value, extra]) => ({ name, value: value ?? null, choices: (extra ?? '').match(/\[possible values: ([^\]]+)\]/)?.[1] ?? null }))
   .filter((o) => !HARNESS.includes(o.name));
