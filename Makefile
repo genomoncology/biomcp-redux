@@ -200,11 +200,13 @@ hosted-surface-check:
 
 .PHONY: site-build site-reference
 site-build: plain-cli-build
+	python3 release/toolchain.py check
 	cargo test --locked -p biomcp --bin biomcp grammar::reference::reference_matches_grammar $(TEST_THREADS)
 	test "$$(node --version)" = "v$$(python3 release/toolchain.py get node)"
 	cd site && npm ci && npm run test:installer && npm run build
 
 site-reference: plain-cli-build docs-generate
+	python3 release/toolchain.py check
 	test "$$(node --version)" = "v$$(python3 release/toolchain.py get node)"
 	cd site && npm ci && npm run reference
 	@if [ -n "$(SITE_REFRESH_ARCHIVE)" ]; then COPYFILE_DISABLE=1 tar -czf "$(SITE_REFRESH_ARCHIVE)" site/src/content/docs/reference site/src/content/docs/sources site/src/data; fi

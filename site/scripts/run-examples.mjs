@@ -78,6 +78,10 @@ if (process.env.SITE_EXAMPLE_CONFIG) {
 const settingsPath = path.join(dirs.config, product.exampleConfig);
 fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
 const settings = fs.existsSync(settingsPath) ? JSON.parse(fs.readFileSync(settingsPath, 'utf8')) : {};
+const exactConfig = path.join(sandbox, 'exact-config');
+const exactSettingsPath = path.join(exactConfig, product.exampleConfig);
+fs.mkdirSync(path.dirname(exactSettingsPath), { recursive: true });
+fs.writeFileSync(exactSettingsPath, JSON.stringify(settings));
 fs.writeFileSync(settingsPath, JSON.stringify({ ...settings, disable_sources: ['noncommercial', 'licensed'] }));
 
 const env = {
@@ -110,7 +114,7 @@ function run(id) {
   return new Promise((resolve) => {
     const cwd = path.join(root, id);
     // detached: the example gets its own process group, so a timeout kills every process it started.
-    const child = spawn('bash', ['-c', 'exec bash -o pipefail run.sh 2>&1'], { cwd, env, detached: true, stdio: ['ignore', 'pipe', 'inherit'] });
+    const child = spawn('bash', ['-c', 'exec bash -o pipefail run.sh 2>&1'], { cwd, env: file(id, 'exact') !== null ? { ...env, XDG_CONFIG_HOME: exactConfig } : env, detached: true, stdio: ['ignore', 'pipe', 'inherit'] });
     let out = '';
     let timedOut = false;
     child.stdout.on('data', (b) => (out += b));
