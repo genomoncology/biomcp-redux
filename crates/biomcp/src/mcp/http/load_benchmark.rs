@@ -26,6 +26,7 @@ const WINDOW: Duration = Duration::from_secs(5 * 60);
 const ADMITTED: usize = crate::config::DEFAULT_HTTP_CAPACITY * 2 + 1;
 
 type Sample = (f64, bool, Result<(), String>);
+type LoadService = (TcpListener, Arc<Service>, Vec<biomcp_fetch::Fetch>);
 struct Measurements {
     samples: Vec<Sample>,
     syncs: Vec<Result<u64, String>>,
@@ -74,9 +75,7 @@ fn hosted_http_sync_load() -> Result<(), Box<dyn std::error::Error>> {
     report(&measurements, initial_rows, control.started)?;
     Ok(())
 }
-fn load_service(
-    directory: &Path,
-) -> Result<(TcpListener, Arc<Service>, Vec<biomcp_fetch::Fetch>), Box<dyn std::error::Error>> {
+fn load_service(directory: &Path) -> Result<LoadService, Box<dyn std::error::Error>> {
     let records = directory.join("records");
     fixtures(
         &Path::new(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/main"),
