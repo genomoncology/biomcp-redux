@@ -1,7 +1,8 @@
 //! Health honors the public caller and source budgets, without wall-clock sleeps.
 #![expect(
     clippy::unwrap_used,
-    reason = "Isolated synthetic publisher and replay setup must be valid"
+    clippy::disallowed_methods,
+    reason = "This public health fixture owns isolated synthetic recording I/O and must have valid setup"
 )]
 use biomcp_adapters::registry;
 use biomcp_fetch::{Fetch, FetchConfig, Mode};
