@@ -111,7 +111,9 @@ fn health_budget() -> Result<(), String> {
             || observed.get("reason").and_then(Value::as_str) != reason
             || observed.get("latency_ms") != Some(&json!(latency))
         {
-            return Err(format!("health ignored {seconds}s command timeout: {observed}"));
+            return Err(format!(
+                "health ignored {seconds}s command timeout: {observed}"
+            ));
         }
     }
     Ok(())
