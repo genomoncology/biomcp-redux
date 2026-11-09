@@ -4,6 +4,8 @@ Status: OPEN.
 
 Milestone: 6
 
+Depends on: 0294
+
 ## Outcome
 
 A reader with a smaller response limit skips a valid cached reply that exceeds its limit without deleting it. A later reader with a sufficient limit can still use that entry.
