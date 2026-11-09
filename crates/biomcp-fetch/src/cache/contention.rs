@@ -259,8 +259,13 @@ fn wal_retries_an_observed_busy_after_the_writer_releases() {
         Deadline::start(Duration::from_secs(15), None),
         || {
             attempts += 1;
-            // Force SQLite's immediate-refusal path independently of its version.
-            connection.busy_timeout(Duration::ZERO).unwrap();
+            let timeout: i64 = connection
+                .query_row("PRAGMA busy_timeout", [], |row| row.get(0))
+                .unwrap();
+            assert!(
+                timeout > 0,
+                "the production busy handler must remain enabled"
+            );
             let result = super::enable_wal(&connection);
             if attempts == 1 {
                 assert_eq!(
@@ -291,10 +296,7 @@ fn wal_retry_never_restarts_the_open_deadline() {
         .unwrap();
     let connection = Connection::open(&path).unwrap();
     let deadline = Deadline::start(Duration::from_millis(50), None);
-    let result = super::retry_wal(&connection, deadline, || {
-        connection.busy_timeout(Duration::ZERO).unwrap();
-        super::enable_wal(&connection)
-    });
+    let result = super::retry_wal(&connection, deadline, || super::enable_wal(&connection));
     assert_eq!(result, Err(CacheError::Busy));
     assert!(
         deadline.expired(),
