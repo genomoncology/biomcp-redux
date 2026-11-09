@@ -25,4 +25,5 @@ After Ian approves, the public BioMCP main gains one merge commit whose parents 
 ## Evidence
 
 - [Release preparation, 2026-11-09](../records/2026-11-09-release-preparation.md) records the read-only account findings, reviewable changes and final-candidate scratch rehearsal commands. It records no publication approval or AWS validation result.
+- Final-candidate append rehearsal: j36159 passed against merge `d0ca20de511d1b807eb69a7eedc9fbfb7f7da1ca`, ordered parents current public main `561d3fe06d9dff5485f13a82a4108371f6fdfe88` and selected candidate `2d2dbda17ca29202bd332152ab604408cb9b5b14`, with candidate tree `dc21594efab5d386f2afca23821bfa108c90633a`. The linked record names the retained raw evidence and receiver-verified manifest. This proves the scratch append and full-history scan, not publication or account readiness.
 - The earlier accepted append rehearsal is j30538 at superseded candidate `c9bd901d50a506e53d168b189315d34a2c940cef`, against then-public main `57834215deb17d7772694b8bba5ad7b7093dd48e`. Its retained evidence remains intact; it does not qualify the new candidate or current public main.
