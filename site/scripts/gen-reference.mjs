@@ -31,7 +31,9 @@ const srcRoute = (s) => `/sources/${srcSlug(s)}/`;
 
 // SITE_EXAMPLE_CONFIG, the machine's config file for the examples, applies here too: the help and
 // health replies need no network, but a proxy setting changes whether BioMCP starts at all.
-const baseEnv = { ...process.env, NO_COLOR: '1' };
+const isolated = fs.mkdtempSync(path.join(os.tmpdir(), 'biomcp-reference-'));
+process.on('exit', () => fs.rmSync(isolated, { recursive: true, force: true }));
+const baseEnv = { ...Object.fromEntries(Object.entries(process.env).filter(([k]) => !/(_API_KEY|_TOKEN|_SECRET|_PASSWORD)$/.test(k))), NO_COLOR: '1', HOME: isolated, XDG_CONFIG_HOME: path.join(isolated, 'config'), XDG_CACHE_HOME: path.join(isolated, 'cache'), XDG_DATA_HOME: path.join(isolated, 'data') };
 if (process.env.SITE_EXAMPLE_CONFIG) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'biomcp-reference-'));
   fs.mkdirSync(path.join(dir, path.dirname(product.exampleConfig)), { recursive: true });
@@ -56,10 +58,11 @@ function json(args, input, env) {
 }
 
 // ---------- inputs ----------
-const help = json(['help']).result.commands;
+const normalized = (c) => ({ arguments: [], sections: [], examples: [], ...c });
+const help = json(['help']).result.commands.map(normalized);
 // Help topics that `biomcp help` does not list but replies name in `next`, such as `help network proxy`.
 const TOPICS = [['network', 'proxy'], ['network', 'ca_bundle']];
-const topics = TOPICS.map((t) => json(['help', ...t]).result.commands[0]);
+const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0]));
 const registry = json(['--offline', 'health']).result.sources.map(({ source, usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
 const keyCommands = help.filter((c) => c.command[0] === 'help' && c.command[1] === 'key' && c.command.length === 3);
 const keys = keyCommands.map((c) => ({ name: c.command[2], ...json(['help', 'key', c.command[2]]).result }));
@@ -73,7 +76,7 @@ const discoverTools = (args = []) => {
   const reply = out.split('\n').filter(Boolean).map((l) => JSON.parse(l)).find((m) => m.id === 2);
   return reply.result.tools;
 };
-const tools = discoverTools();
+const tools = discoverTools(['--tool-mode', 'single']);
 const typedTools = discoverTools(['--tool-mode', 'typed']);
 const notes = YAML.parse(fs.readFileSync(path.resolve('src/data/sources.yaml'), 'utf8')) ?? {};
 const meanings = YAML.parse(fs.readFileSync(path.resolve('src/data/envelope.yaml'), 'utf8'));
@@ -149,34 +152,8 @@ const canonical = new Set(registry.map((r) => r.source));
 // Reply schemas: every schema ID that `biomcp version --verbose` lists whose root is a reply envelope.
 const schemaIds = (run(['version', '--verbose']).match(/^Schemas: (.*)$/m)?.[1] ?? '').split(', ').filter(Boolean);
 const replySchemas = schemaIds.map((id) => ({ id, schema: json(['schema', id]) })).filter((x) => x.schema.properties?.schema?.const === x.id);
-// Which reply schema each command returns: run its help examples, plus a fixed call for commands
-// without examples, with --offline in an empty cache and home, so no request leaves the machine.
-const schemaOf = (() => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'biomcp-schemas-'));
-  process.on('exit', () => fs.rmSync(tmp, { recursive: true, force: true }));
-  const env = { ...Object.fromEntries(Object.entries(baseEnv).filter(([k]) => !/(_API_KEY|_TOKEN|_SECRET|_PASSWORD)$/.test(k))), HOME: tmp, XDG_CACHE_HOME: path.join(tmp, 'cache'), XDG_DATA_HOME: path.join(tmp, 'data') };
-  if (!process.env.SITE_EXAMPLE_CONFIG) env.XDG_CONFIG_HOME = path.join(tmp, 'config');
-  // Commands that start a server, write files outside the cache or change keys never run here.
-  const SKIP = ['serve', 'skill', 'key set', 'key remove', 'mcp-config', 'version', 'schema'];
-  const CALLS = { help: [['help']], health: [['health']], 'key list': [['key', 'list']], 'store clean': [['store', 'clean']], sync: [['sync', 'hgnc']] };
-  const known = new Set(replySchemas.map((x) => x.id));
-  const map = new Map();
-  for (const c of [...help, ...topics]) {
-    const n = name(c);
-    if (SKIP.some((w) => n === w || n.startsWith(w + ' '))) continue;
-    const calls = c.examples?.length ? c.examples : CALLS[n] ?? (c.command[0] === 'help' ? [c.command] : []);
-    const seen = [];
-    for (const e of calls) {
-      const out = spawnSync(bin, ['--offline', ...e], { env, encoding: 'utf8', timeout: 60000 }).stdout;
-      let id = null;
-      try { id = JSON.parse(out).schema; } catch {}
-      if (known.has(id) && !id.startsWith('biomcp.error/') && !seen.includes(id)) seen.push(id);
-    }
-    map.set(n, seen);
-  }
-  return map;
-})();
-
+// The CLI declares each command's canonical reply schemas; no source requests are needed.
+const schemaOf = new Map([...help, ...topics].map((c) => [name(c), c.reply_schemas ?? []]));
 // ---------- reply schemas: where each type is defined ----------
 // Every reply shares the envelope and many types. A type that more than one reply schema uses is
 // defined once, on the shared types page; a type only one schema uses is defined on that schema's
@@ -408,11 +385,12 @@ function sketch(reply, { width = 80, maxLines = 40 } = {}) {
   const lines = render(1, 3);
   return [...lines.slice(0, maxLines), '…'].join('\n');
 }
-const schemaReplies = (() => { const f = path.resolve('src/data/schema-replies.json'); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : {}; })();
+// Historical live replies predate this generator refresh; do not present them as current examples.
+const schemaReplies = {};
 // The commands that return each reply schema, found by scripts/map-schemas.mjs against the live sources.
 const SCHEMA_CALLS = path.resolve('src/data/schema-calls.json');
-const schemaCalls = fs.existsSync(SCHEMA_CALLS) ? JSON.parse(fs.readFileSync(SCHEMA_CALLS, 'utf8')) : {};
-const noCommand = schemaNotes.no_command ?? {};
+const schemaCalls = {};
+const noCommand = { ...(schemaNotes.no_command ?? {}), 'biomcp.error/4': 'Invalid commands and local failures return this error reply.' };
 
 // ---------- one page per command ----------
 const usage = (c) => {
@@ -555,8 +533,8 @@ for (const c of [...help, ...topics]) {
     const ex = schemaReplies[id];
     const cmdList = cmds.map((x) => `[${code(shownCommand(x))}](${route(x.c)})`);
     const lines = [
-      fm({ title, description: `The JSON reply ${site.product} ${site.version} prints for ${main ? shownCommand(main) : `no command (${readable(id)})`}: a real example and the fields of schema ${id}.`, goal: `Parse the ${id} reply: see a real example and what each field means.`, reader: 'A developer or agent parsing BioMCP JSON', sidebar: { label: id } }),
-      `${site.product} ${site.version} prints one JSON object, the reply, for each command. ${main ? `${cmdList.length > 1 ? `${cmdList.slice(0, -1).join(', ')} and ${cmdList.at(-1)} reply` : `${cmdList[0]} replies`} with ${code('schema')} set to ${code(id)}.` : `The reply schema ${code(id)} is in the program, but no command returns it as a whole reply.`} Read this page when your code parses that reply: it shows a real one, then the fields only this schema has. [Shared types](${TYPES_ROUTE}) defines the rest.`,
+      fm({ title, description: `The JSON reply ${site.product} ${site.version} prints for ${main ? shownCommand(main) : `no command (${readable(id)})`}: the fields of schema ${id}.`, goal: `Parse the ${id} reply: see what each field means.`, reader: 'A developer or agent parsing BioMCP JSON', sidebar: { label: id } }),
+      `${site.product} ${site.version} prints one JSON object, the reply, for each command. ${main ? `${cmdList.length > 1 ? `${cmdList.slice(0, -1).join(', ')} and ${cmdList.at(-1)} reply` : `${cmdList[0]} replies`} with ${code('schema')} set to ${code(id)}.` : `The reply schema ${code(id)} is in the program, but no command returns it as a whole reply.`} Read this page when your code parses that reply: it shows the fields this schema defines. [Shared types](${TYPES_ROUTE}) defines the rest.`,
       '',
     ];
     if (!main) lines.push(note, '');
@@ -641,7 +619,7 @@ for (const c of [...help, ...topics]) {
 
   const lines = [
     fm({ title: 'Reply schemas', description: `Every reply schema in ${site.product} ${site.version}, with the commands that return it.`, goal: 'Find the JSON schema of a BioMCP reply and the commands that return it.', reader: 'A developer or agent parsing BioMCP JSON' }),
-    `${site.product} ${site.version} prints one JSON object, the reply, for each command. Its ${code('schema')} field names the reply schema, such as ${code(replySchemas.find(({ id }) => id.startsWith('biomcp.gene-cards/')).id)}, so code that parses replies can pick the right fields. Each schema below has a page with a real reply and its fields. The fields every reply shares are on [reply envelope and shared types](${TYPES_ROUTE}). ${code('biomcp schema ID')} prints one schema as JSON Schema.`,
+    `${site.product} ${site.version} prints one JSON object, the reply, for each command. Its ${code('schema')} field names the reply schema, such as ${code(replySchemas.find(({ id }) => id.startsWith('biomcp.gene-cards/')).id)}, so code that parses replies can pick the right fields. Each schema below has a page with its fields. The fields every reply shares are on [reply envelope and shared types](${TYPES_ROUTE}). ${code('biomcp schema ID')} prints one schema as JSON Schema.`,
     '',
     '| Schema | Returned by |',
     '| --- | --- |',
