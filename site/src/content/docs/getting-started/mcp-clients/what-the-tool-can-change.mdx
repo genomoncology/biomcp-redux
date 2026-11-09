@@ -24,7 +24,7 @@ Over HTTP, the server refuses `sync`, `store clean`, `--fresh` and file saves. T
 
 <Example id="mcp-writes" />
 
-A refused call returns status `usage` with error code `usage.arguments`. The `search` and `fetch` tools only read; the [MCP tools reference](/reference/mcp-server/) shows their `readOnlyHint` annotations.
+A refused call returns status `usage` with error code `usage.mcp_unavailable`. The `search` and `fetch` tools only read; the [MCP tools reference](/reference/mcp-server/) shows their `readOnlyHint` annotations.
 
 ## Next
 

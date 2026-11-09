@@ -35,11 +35,11 @@ The documentation site, built with Astro and Starlight. It builds to `site/dist/
   - `exact` marks an example whose output reads no live source: help, keys, usage errors, offline health, skill and MCP configuration output. The build compares its output and exit byte for byte with the saved run, so a program change that alters it fails the build until the example is rerun and its page reviewed. Mark every such example.
 - `src/data/site.json` holds each fact that appears on more than one page, such as the version and the install lines. Pages read it with `<Fact k="..." />` and `<InstallLine />`. Prose never types the version.
 - `questions/` holds the question list. `npm run answers` writes one answers page per entry marked `answers_page: true`. An answers page is verified on the day its example last ran.
-- `scripts/gen-reference.mjs` writes the reference pages and the source pages from the program's help. `src/data/command-notes.yaml` gives each command a plain one-sentence description, and `src/data/schema-notes.yaml` gives plain glosses for jargon in schema descriptions; the help text stays quoted on each command page, and the jargon is a product fix. Fix a wrong reference sentence in the help text, never in the page. A page's `verified` date changes when its text changes.
-- `npm run schema-calls` (`scripts/map-schemas.mjs`) runs the help examples and every command in `examples/`, each `get` once per section, against the live sources, and writes `src/data/schema-calls.json`: the calls that return each reply schema. The reference generator names those calls on each schema page and fails when a reply schema has no call, unless `src/data/schema-notes.yaml` says why no command returns it. Rerun it with `SITE_EXAMPLE_CONFIG` set when the program's commands, sections or schemas change. It also writes `src/data/schema-replies.json`, one real reply per schema, which each schema page shows as its example reply; `npm run schema-calls -- --replies` reruns only the recorded calls to refresh them. Types that more than one reply uses are defined once, on `/reference/schemas/types/`.
+- `scripts/gen-reference.mjs` writes the reference pages and the source pages from detailed command help, schemas and the registry. `src/data/command-notes.yaml` gives each command a plain one-sentence description, and `src/data/schema-notes.yaml` gives plain glosses for jargon in schema descriptions; the help text stays quoted on each command page, and the jargon is a product fix. Fix a wrong reference sentence in the help text, never in the page. A page's `verified` date changes when its text changes.
+- The reference generator reads canonical reply schemas from each detailed command's `reply_schemas`. It makes no biomedical source calls. Historical live schema captures are omitted from the release tree.
 - `scripts/pages.mjs` writes each page's Markdown twin and `llms-full.txt` text. It renders every component outside code; the shared ones are there, and this site's own (`TerminalHero`, `InstallLine`, `EnvelopeTable`, `SourceTable`, `CommandTable`, `KeyTable`) are in `src/lib/markdown-components.mjs`. A component without a Markdown form fails the build, and the check fails on a raw component tag in a twin or `llms-full.txt`.
 - `WRITING.md` holds the word list's reasons and the rules a check can't see. `src/data/words.json` holds the words the build rejects.
-- `public/social-card.png` is the link-preview card of every page. After a brand change, run `NODE_PATH=$(npm root -g) npm run social-card` (it needs Playwright with Chromium) and commit the PNG.
+- `public/social-card.png` is the checked-in link-preview card of every page. Regenerate it only through an approved isolated browser runner after a brand change.
 
 ## How the examples run
 
@@ -68,31 +68,9 @@ Examples that run `biomcp sync`, and every example another one `needs`, run one 
 - an old address in `src/data/old-addresses.txt`, or the `.md` twin of an old page address, no longer resolves, or a redirect in `src/data/redirects.json` lands on anything but a built page;
 - `robots.txt`, `sitemap.xml`, `version.json`, the social card, or a page's `og:image` is missing.
 
-## Landing checks
+## Visual checks
 
-`npm run landing` checks each built page as a reader who lands on it from search or an agent link and has read nothing else. Run it after `npm run build`. It loads every page of `dist/` in Chromium at 1280 and 390 px wide, reads the Markdown twins and the page sources, and needs Playwright with Chromium (`npm root -g` is searched when the site's packages lack it).
-
-It writes `landing-report.json` and `landing-shots/`, both ignored by git, and prints a summary. The report lists each page's route, source file, kind, family, and whether a generator writes it and which one. Each violation names its rule, the offending text, a suggested fix and its cause: the page, an example, a generator, a shared template in `src/components/` or `src/lib/`, or data a generator reads. A violation caused by a generator, template or example is fixed there once, never on one page. `landing-shots/` holds one page per family at 1280 and 390 px, light and dark, for a reviewer.
-
-| Rule | Flags |
-|---|---|
-| L1 code-line-length | a line of a rendered code or output block longer than 80 characters |
-| L2 one-line-json | an output line that is a JSON object or array longer than 80 characters |
-| L3 first-paragraph-context | a first paragraph that does not name the product, or opens with a caveat from `words.json` `landing.caveatStarts` |
-| L4 maintainer-text | a phrase from `words.json` `landing.maintainerPhrases` in the title, description, body or Markdown twin, outside code |
-| L5 page-length | over 1,500 words outside code, or over 4,000 px tall at 1280 px |
-| L6 near-duplicate | over 60% of a page's word 5-shingles also on one other page; pairs are grouped into families |
-| L7 title-is-id | a title that is a bare identifier, such as `local.cancelled error` |
-| L8 undefined-jargon | the first use of a term in `src/data/glossary.json` neither linked to its page nor defined |
-| L9 overflow-390 | a page that scrolls sideways at 390 px, or a code block that scrolls inside its box |
-
-The header of `scripts/check-landing.mjs` gives each rule's exact test. `product.config.mjs` `landing.generators` names the generator of each generated page, and `landing.limits` may change a limit. `src/data/landing-allow.json` lists justified exceptions, each with a rule, a route or glob, an optional `match` substring and a reason.
-
-- `npm run landing -- --strict` exits 1 on any violation the allowlist does not cover.
-- `npm run landing -- --worklist FILE` writes the violations grouped by the file where each fix goes.
-- `npm run landing -- --pages REGEX` checks only the matching routes, with no duplicate check and no screenshots.
-
-`npm run build` runs the static content, links, reference and installer checks. Browser layout checks run separately using an approved isolated browser runner.
+The normal build checks content, generated reference, links, examples and the exact installer. Browser layout and screenshot checks run separately in an approved isolated browser runner; they are not prerequisites for routine site builds. The checked-in social card is retained.
 
 ## Publishing
 
