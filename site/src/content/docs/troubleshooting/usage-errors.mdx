@@ -1,6 +1,6 @@
 ---
 title: Fix BioMCP usage errors
-description: "Causes and fixes for BioMCP 1.0 usage errors by exact error text: usage.arguments, usage.schema and usage.retired, with exit code 2."
+description: "Causes and fixes for BioMCP 1.0 usage errors: usage.arguments, usage.unknown_command and usage.retired, with exit code 2."
 goal: The reader matches a usage error to its cause, fixes the command and confirms the fix.
 reader: A BioMCP user or agent whose command stopped with an error reply
 kind: how-to
@@ -9,39 +9,39 @@ verified: 2026-10-27
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. A usage error means BioMCP refused the command before it asked any source: the reply has `schema` `biomcp.error/1`, `status` `usage`, an `error.code` and exit code 2. Find the code you see in a heading below; each entry gives the cause, the fix and how to confirm it.
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. A usage error means BioMCP refused the command before it asked any source: the reply identifies its [error schema](/reference/schemas/biomcp-error-4/), has `status` `usage`, an `error.code` and exit code 2. Find the code you see in a heading below; each entry gives the cause, the fix and how to confirm it.
 
-## usage.arguments: expected a supported command with checked arguments
+<span id="usagearguments-expected-a-supported-command-with-checked-arguments"></span>
+
+## usage.arguments: a missing or invalid argument
 
 <Example id="qs-usage-error" />
 
-**Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. A dropped 0.9 command whose first word still exists, such as `search all`, returns this error too. Exit code 2. The message does not say which.
+**Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. Exit code 2. When available, `error.option` identifies the argument and `error.valid_values` lists accepted values or forms.
 
 **Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before [section words](/concepts/progressive-disclosure/) and that `--source` names a source the command lists.
 
 **Confirm.** The command returns a reply with a `status` other than `usage`.
 
-## usage.schema: expected schema &lt;known artifact id&gt;
+<span id="usageschema-expected-schema-known-artifact-id"></span><span id="an-unknown-or-dropped-command"></span>
 
-This error has two causes: a first word that is not a command, and a request for help with `--help`, `-h` or no command at all.
-
-### An unknown or dropped command
+## usage.unknown_command: an unknown or dropped command
 
 <Example id="ts-unknown-command" />
 
-**Cause.** The first word is not a BioMCP command. This is the error for a misspelled command, such as `serach`, and for 0.9 commands that 1.0 dropped, such as `discover` and `list`. A dropped command under an existing first word, such as `search all`, returns `usage.arguments` instead. Exit code 2.
+**Cause.** A word does not identify a supported command, such as a misspelling or a command dropped since 0.9. This can happen at the root or under an existing command, such as `search all`. Exit code 2. The reply's `next` list suggests help for the relevant command.
 
 **Fix.** Run `biomcp help` for the command list. [Upgrading from 0.9](/upgrade-from-0-9/) maps old commands to new ones.
 
 **Confirm.** The corrected command returns a reply with a `status` other than `usage`.
 
-### biomcp, biomcp --help or biomcp -h
+<span id="biomcp-biomcp---help-or-biomcp--h"></span>
+
+## Show help
 
 <Example id="ts-help" />
 
-**Cause.** BioMCP <Fact k="version" /> has no `--help` or `-h` option, and `biomcp` with no command prints no help. Each returns `usage.schema` with exit code 2. `biomcp get gene --help` returns `usage.arguments`.
-
-**Fix.** Use the `help` command. `biomcp help` prints every command as JSON, and `biomcp help get gene` prints one command, as the last line above shows. The [command reference](/reference/commands/) has the same content as pages.
+`biomcp`, `biomcp --help` and `biomcp -h` return help with status `complete` and exit code 0. `biomcp help` lists the command groups, and `biomcp help get gene` describes one command. The [command reference](/reference/commands/) has the complete generated reference.
 
 **Confirm.** `biomcp help get gene` returns status `complete`.
 

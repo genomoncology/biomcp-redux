@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: Fixes for BioMCP 1.0 errors and failed sources, by exact error text, including usage.arguments, usage.schema, usage.retired, local.failure, no-key, deadline-exceeded, offline and syncing.
+description: Fixes for BioMCP 1.0 errors and failed sources, including usage.arguments, usage.unknown_command, usage.retired, local.failure, no-key, deadline-exceeded, offline and syncing.
 goal: The reader matches the error or source reason they see to its cause and fix, and confirms the fix.
 reader: A BioMCP user or agent whose command failed or returned less than expected
 kind: how-to
@@ -9,7 +9,7 @@ verified: 2026-10-27
 import Example from '../../components/Example.astro';
 import Fact from '../../components/Fact.astro';
 
-This page covers BioMCP <Fact k="version" />. Find the text you see in a heading below. Each entry gives the cause, the fix and how to confirm it; error replies have their own pages. An error reply has `schema` `biomcp.error/1` and an `error.code`; a source problem shows in `sources[].state` and `sources[].reason`. [Exit codes](/reference/error-codes/) and the [reply envelope](/reference/envelope/) list every value.
+This page covers BioMCP <Fact k="version" />. Find the text you see in a heading below. Each entry gives the cause, the fix and how to confirm it; error replies have their own pages. An error reply identifies its [error schema](/reference/schemas/biomcp-error-4/) in `schema` and its cause in `error.code`; a source problem shows in `sources[].state` and `sources[].reason`. [Exit codes](/reference/error-codes/) and the [reply envelope](/reference/envelope/) list every value.
 
 ## command not found: biomcp
 
@@ -21,7 +21,7 @@ This page covers BioMCP <Fact k="version" />. Find the text you see in a heading
 
 ## Error replies
 
-<span id="usagearguments-expected-a-supported-command-with-checked-arguments"></span><span id="usageschema-expected-schema-known-artifact-id"></span><span id="an-unknown-or-dropped-command"></span><span id="biomcp-biomcp---help-or-biomcp--h"></span><span id="usageretired-retired-use-"></span>A reply with `status` `usage` and exit code 2, such as `usage.arguments`, `usage.schema` or `usage.retired`: see [fix BioMCP usage errors](/troubleshooting/usage-errors/).
+<span id="usagearguments-expected-a-supported-command-with-checked-arguments"></span><span id="usageschema-expected-schema-known-artifact-id"></span><span id="an-unknown-or-dropped-command"></span><span id="biomcp-biomcp---help-or-biomcp--h"></span><span id="usageretired-retired-use-"></span>A reply with `status` `usage` and exit code 2, such as `usage.arguments`, `usage.unknown_command` or `usage.retired`: see [fix BioMCP usage errors](/troubleshooting/usage-errors/).
 
 <span id="localfailure-local-configuration-cache-or-recording-failed"></span><span id="no_proxy-holds-an-ipv6-address-or-a-cidr-range"></span>A reply with `error.code` `local.failure` and exit code 5, including a `NO_PROXY` entry BioMCP cannot read: see [fix local.failure errors](/troubleshooting/local-failure/).
 

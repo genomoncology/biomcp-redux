@@ -17,7 +17,7 @@ This exchange starts the server over stdio, initializes it and calls the `biomcp
 
 <Example id="mcp-call" />
 
-The tool returns the same JSON reply, with the same [envelope](/results/), as the command line: here a `biomcp.gene_page/3` reply with status `complete`. MCP replies are always JSON; `--format md` has no effect there.
+The tool returns the same JSON reply, with the same [envelope](/results/), as the command line: here a gene search reply with status `complete`. Its `schema` field names the current [reply schema](/reference/schemas/). MCP replies are always JSON; `--format md` has no effect there.
 
 ## If the client shows no tools
 
