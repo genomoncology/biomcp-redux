@@ -469,7 +469,7 @@ fn ordinary_reply_write_prunes_expired_rows_and_retains_fresh_rows() {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs() as i64;
-    for (key, days) in [(3, 29), (4, 31)] {
+    for (key, days) in [(3_u8, 29), (4, 31)] {
         cx.execute(
             "INSERT INTO reply(key,source,url,status,body,fetched_at,fresh_until) VALUES \
             (?1,'pubmed','https://example.test/expired',200,x'7b7d',0,?2)",
