@@ -21,7 +21,7 @@ The receiver-verified evidence is on Yellow:
 
 - `data/biomcp-redux-evidence/0640/b3809eb1baa6/`: `j36350-receipt.json` binds the bounded mutation results; `j36356-cold-receipt.json` binds the cold outputs.
 - `data/biomcp-redux-evidence/0293/b3809eb1baa6/run-42680531044/`: `receiver-manifest.json` binds the actual API records, raw logs, downloaded artifact ZIPs and extracted payloads; `provenance-helper-receiver-manifest.json` binds signature and local-channel records. `download-receipt.json` records every skipped production step.
-- The full suite, schema comparison and load evidence remain under `data/biomcp-redux-evidence/0640/42a79b1bbdc9/`, with their original identities. The only production-to-release difference in 0778 was Fetch integration tests, mutation selection and its tests, and the ticket. Runtime, Cargo pins, platform producers, installed cases, fixtures and workflow bytes were unchanged. The ending mutation baseline exercised both CLI cases and the revised Fetch cache tests.
+- The full suite, schema comparison and load evidence remain under `data/biomcp-redux-evidence/0640/42a79b1bbdc9/`, with their original identities. 0778 changed only Fetch integration tests, mutation selection and its tests, and the ticket. Runtime, Cargo pins, platform producers, installed cases, fixtures and workflow bytes were unchanged. The ending mutation baseline exercised both CLI cases and the revised Fetch cache tests.
 
 | Section | Actual result and scope |
 | --- | --- |
@@ -36,9 +36,11 @@ The receiver-verified evidence is on Yellow:
 | Staged Homebrew, wheels and installer bytes | Both native staged Homebrew jobs and the staged-payload job passed. The latter ran strict wheel metadata validation and compared the staged installer bytes. |
 | Pinned 0.9 installer and real Claude plugin | `j36486` passed on native macOS ARM64 using the ending archive and binary. The pinned old installer downloaded only from the helper's local server. Claude installed the staged plugin in an isolated HOME and executed its MCP help launch without invoking a model or a source API. |
 
-## Remaining evidence before acceptance
+## Installed cleanup and documentation validation
 
-`j36488` is preparing matching native macOS runners and running the existing isolated installed cleanup helper. Its actual result and source/runner binding must be added before acceptance. The document now describes the helper's supported native Linux/macOS hosts: the success/failure temporary-root and sentinel assertions run on both, while supplemental Linux `/proc` observations are not exercised on macOS.
+`j36488` passed the existing installed cleanup helper on native macOS ARM64. It installed the genuine ending wheel (binary SHA-256 `b577062c27545d2501d38658f3acab96195c2646654a4edcd89c7129a2d513ad`) and used matching product, runner and tooling source `b3809eb1baa6d1e470efaf6499d8be0ba600f511`. It ran 740 cases and asserted successful and failed temporary-root removal and preservation of the job-owned sentinel. `result.json` records exit 0 and no observation errors. `binding.json` binds actual runner hashes, fixtures and helper sources; `cleanup-helper-receiver-manifest.json` records receiver verification of the raw helper output and retained native macOS runners.
+
+The host row now describes actual portable Linux/macOS behavior. `scripts/installed_smoke_section.py:21-37` treats missing Linux `/proc` entries as no supplementary process observations; `release/test_smoke.py:142-157` makes the success/failure cleanup and sentinel assertions. macOS does not claim Linux process observation. No Linux rebuild was needed to execute these portable assertions.
 
 The qualification document's documentation check is `j36499`; retain its terminal result before acceptance.
 
