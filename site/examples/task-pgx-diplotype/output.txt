@@ -1,6 +1,0 @@
-{
-  "diplotype": "*2/*2",
-  "function1": "No function",
-  "function2": "No function",
-  "generesult": "Poor Metabolizer"
-}

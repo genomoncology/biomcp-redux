@@ -71,8 +71,14 @@ if (process.env.SITE_EXAMPLE_CONFIG) {
   }
   const to = path.join(dirs.config, product.exampleConfig);
   fs.mkdirSync(path.dirname(to), { recursive: true });
-  fs.copyFileSync(path.resolve(process.env.SITE_EXAMPLE_CONFIG), to);
+  const supplied = JSON.parse(fs.readFileSync(path.resolve(process.env.SITE_EXAMPLE_CONFIG), 'utf8'));
+  fs.writeFileSync(to, JSON.stringify(Object.fromEntries(['proxy', 'ca_bundle'].filter((key) => supplied[key] !== undefined).map((key) => [key, supplied[key]]))));
 }
+
+const settingsPath = path.join(dirs.config, product.exampleConfig);
+fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+const settings = fs.existsSync(settingsPath) ? JSON.parse(fs.readFileSync(settingsPath, 'utf8')) : {};
+fs.writeFileSync(settingsPath, JSON.stringify({ ...settings, disable_sources: ['noncommercial', 'licensed'] }));
 
 const env = {
   PATH: `${bin}:${process.env.PATH}`,

@@ -37,7 +37,8 @@ const baseEnv = { ...Object.fromEntries(Object.entries(process.env).filter(([k])
 if (process.env.SITE_EXAMPLE_CONFIG) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'biomcp-reference-'));
   fs.mkdirSync(path.join(dir, path.dirname(product.exampleConfig)), { recursive: true });
-  fs.copyFileSync(path.resolve(process.env.SITE_EXAMPLE_CONFIG), path.join(dir, product.exampleConfig));
+  const supplied = JSON.parse(fs.readFileSync(path.resolve(process.env.SITE_EXAMPLE_CONFIG), 'utf8'));
+  fs.writeFileSync(path.join(dir, product.exampleConfig), JSON.stringify(Object.fromEntries(['proxy', 'ca_bundle'].filter((key) => supplied[key] !== undefined).map((key) => [key, supplied[key]]))));
   baseEnv.XDG_CONFIG_HOME = dir;
   process.on('exit', () => fs.rmSync(dir, { recursive: true, force: true }));
 }
@@ -64,7 +65,9 @@ const commandPaths = [...grammar.matchAll(/^## biomcp (.+)$/gm)].map((m) => m[1]
 const help = [...new Map(JSON.parse(fs.readFileSync(path.resolve('src/data/help.json'), 'utf8')).commands.map(normalized).filter((c) => c.command.length).map((c) => [c.command.join(' '), c])).values()];
 const TOPICS = [['network', 'proxy'], ['network', 'ca_bundle']];
 const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0])).filter((c) => !help.some((h) => h.command.join(' ') === c.command.join(' ')));
-const registry = json(['--offline', 'health']).result.sources.map(({ source, use: usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
+const health = json(['--offline', 'health']).result;
+const disableGroups = new Set(health.disable_groups.map((group) => group.group));
+const registry = health.sources.map(({ source, use: usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
 const registeredKeys = json(['key', 'list']).result.entries;
 const keys = registeredKeys.map((entry) => {
   const reply = json(['help', 'key', entry.source]);
@@ -722,7 +725,7 @@ for (const r of registry) {
   if (reading.length) lines.push(`These commands read ${mdx(label)} as part of their reply. They do not take ${code('--source ' + r.source)}:`, '', ...table(reading), '');
   if (!selectable.length && !reading.length) lines.push(`No command takes ${code('--source ' + r.source)}. The example above shows the command that reads it.`, '');
   lines.push('## Limits', '', mdx(n.limits), '',
-    '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. The group ${code(r.usage)} switches off every source in that use group. See [keys and configuration](/getting-started/api-keys/).`, '',
+    '## Turn it off', '', `Leave this source out of one command with ${code('--disable-sources ' + r.source)}, or add ${code(JSON.stringify(r.source))} to ${code('disable_sources')} in ${code('config.json')}. ${disableGroups.has(r.usage) ? `The group ${code(r.usage)} also excludes sources and fields with that category.` : 'Use the source name to exclude it; this terms category is not a disable group.'} See [keys and configuration](/getting-started/api-keys/).`, '',
     '## Next', '', `The task guide for ${mdx(label)} is [${mdx(pageTitle(n.guide))}](${n.guide}). [Data sources](/sources/) lists every source.`, '',
     );
   files.set(path.join(SOURCES_OUT, `${srcSlug(r.source)}.mdx`), linkTerms(lines.join('\n')).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
