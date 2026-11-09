@@ -7,7 +7,7 @@ The documentation site, built with Astro and Starlight. It builds to `site/dist/
 - The Node version and site packages pinned in `release/toolchain.json`, and npm.
 - The Rust toolchain from `rust-toolchain.toml`, to build the program.
 - `bash`, `jq` and `curl`. Most examples pipe through `jq`; the server examples call `curl`.
-- Network to the public sources the examples read, and to the hosts of the bundles they synchronize. Every build starts from an empty cache.
+- The explicit live-example refresh needs network access to its permitted public sources and bundle hosts. Routine builds rerun metadata-only examples in an empty cache and render saved permitted outputs.
 - On a network that needs a proxy or a private certificate authority, a BioMCP config file for the examples (see `SITE_EXAMPLE_CONFIG` below).
 
 ## Build
