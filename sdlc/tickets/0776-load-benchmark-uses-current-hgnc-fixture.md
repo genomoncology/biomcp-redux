@@ -35,3 +35,8 @@ Final qualification j36135 completed its separate stress run but the load benchm
 ## Cause
 
 `trim_end()` removed the last approved row's empty final TSV cell. Its template consequently had 52 columns instead of 53, so the parser rejected that original row and all 44,000 synthetic rows. The 170 surviving approved rows plus five withdrawn rows explain the observed 175 exactly. This is the only matching TSV-template helper in the scoped load/test setup. Separately, reusing the same Fetch let the later replay syncs return memoized bundle information instead of publishing again; the fresh writers and receipt check correct the benchmark without changing runtime code.
+
+## Evidence
+
+- Old-code job j36135: the stress section passed 62/62 checks, with 613 run receipts and no nonzero exit. The job then failed only at the 175-row load benchmark; the later hosted-surface goal did not run.
+- Fixed load benchmark j36220 passed at `0e521b39a3ac61f8772d88aace9d9bf5ac478abe`: 44,176 initial rows, 300 successful calls, eight receipt-verified publications, no sync failures, and all 204 health samples HTTP 200. All calls occurred during publication; this run supplies no between-publication call-speed comparison. Health had 140 samples during writes and 64 between them. The observed 26.1-second measurement is a report, not a timing assertion.

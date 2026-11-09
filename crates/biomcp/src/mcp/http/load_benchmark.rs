@@ -159,7 +159,7 @@ fn sync_worker(
         control.syncing.store(true, Ordering::Release);
         results.push(publish(service, writer).map_err(|error| error.to_string()));
         control.syncing.store(false, Ordering::Release);
-        // Leave quiet gaps, so the same run measures calls with and without a write.
+        // Leave quiet gaps so health sampling also covers periods between writes.
         std::thread::sleep(SYNC_GAP);
     }
     results
