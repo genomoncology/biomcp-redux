@@ -28,6 +28,10 @@ Installed cold check j36136 reproduced the journal-mode failure previously fixed
 
 - Changes: WAL retry boundary and its existing private contention tests; one bounded root-cause record.
 
+## Evidence
+
+- Evidence: `records/2026-11-09-cache-wal-retry-regression.md` records the repeated cause and the retained installed witness.
+
 ## Defers
 
 - Defers: nothing.

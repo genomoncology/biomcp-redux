@@ -372,12 +372,23 @@ fn retry_wal(
     mut operation: impl FnMut() -> Result<(), CacheError>,
 ) -> Result<(), CacheError> {
     let started = std::time::Instant::now();
-    sql_deadline(connection, deadline)?;
-    let result = operation();
-    if result == Err(CacheError::Busy) {
-        crate::observe::record_open_failure("wal", 0, started);
+    let mut attempts = 0_u32;
+    loop {
+        let result = sql_deadline(connection, deadline).and_then(|()| {
+            attempts = attempts.saturating_add(1);
+            operation()
+        });
+        match result {
+            Err(CacheError::Busy) if !deadline.expired() => {
+                std::thread::park_timeout(Duration::from_millis(1).min(deadline.remaining()));
+            }
+            Err(CacheError::Busy) => {
+                crate::observe::record_open_failure("wal", attempts.saturating_sub(1), started);
+                return Err(CacheError::Busy);
+            }
+            result => return result,
+        }
     }
-    result
 }
 
 fn enable_wal(connection: &Connection) -> Result<(), CacheError> {
