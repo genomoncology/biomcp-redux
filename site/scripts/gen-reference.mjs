@@ -58,7 +58,7 @@ function json(args, input, env) {
 }
 
 // ---------- inputs ----------
-const normalized = (c) => ({ command: [], arguments: [], sections: [], examples: [], ...c });
+const normalized = (c) => ({ command: [], ...c, arguments: (c.arguments ?? []).map((a) => ({ choices: [], aliases: [], ...a })), sections: c.sections ?? [], examples: c.examples ?? [] });
 const grammar = fs.readFileSync(path.resolve('../docs/reference/commands.md'), 'utf8');
 const commandPaths = [...grammar.matchAll(/^## biomcp (.+)$/gm)].map((m) => m[1].split(' '));
 const help = commandPaths.flatMap((words) => {
