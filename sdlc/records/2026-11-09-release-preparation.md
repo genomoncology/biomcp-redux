@@ -16,11 +16,11 @@ Evidence: [evaluation recommendations](../planning/eval-recommendations-2026-11-
 
 ## Account preflight
 
-Read-only GitHub queries on 2026-11-09 found:
+Account checks and approved setup on 2026-11-09:
 
 After Ian [approved the prepared environment](../decisions/2026-11-09-approve-publication-environment.md), the operator created `release-publication` and its sole `v*` tag policy. Independent GET requests verified custom policies enabled, protected-branch-only mode disabled, one tag rule, no required reviewers and no wait timer. No secret, deployment or release action was part of this setup. Other publisher access remains unverified.
 
-The GitHub environment list, secret names, Pages settings, public main and tag absence were checked again when preparing selected core `42a79b1bbdc95108447d19369b7cd69f35f8adef`. Those observations below were unchanged. No account setting was changed, and the unverified PyPI, GHCR and MCP Registry access requirements remain unverified.
+The GitHub environment list, secret names, Pages settings, public main and tag absence were unchanged during the earlier `42a79b1bb` preparation. The table includes the later approved environment setup. A subsequent read-only check confirmed public `v1.0.0` still absent and PyPI latest `0.9.3`, with no `1.0.0` release. These version checks do not verify publishing permissions; PyPI, GHCR and MCP Registry access requirements remain unverified.
 
 | Setting | Observed | Reviewable action before the tag |
 | --- | --- | --- |
