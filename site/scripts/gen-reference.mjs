@@ -58,12 +58,12 @@ function json(args, input, env) {
 }
 
 // ---------- inputs ----------
-const normalized = (c) => ({ arguments: [], sections: [], examples: [], ...c });
-const help = json(['help']).result.commands.map(normalized);
+const normalized = (c) => ({ command: [], arguments: [], sections: [], examples: [], ...c });
+const help = json(['help']).result.commands.map(normalized).filter((c) => c.command.length);
 // Help topics that `biomcp help` does not list but replies name in `next`, such as `help network proxy`.
 const TOPICS = [['network', 'proxy'], ['network', 'ca_bundle']];
 const topics = TOPICS.map((t) => normalized(json(['help', ...t]).result.commands[0]));
-const registry = json(['--offline', 'health']).result.sources.map(({ source, usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
+const registry = json(['--offline', 'health']).result.sources.map(({ source, use: usage, terms, terms_url }) => ({ source, usage, terms, terms_url }));
 const keyCommands = help.filter((c) => c.command[0] === 'help' && c.command[1] === 'key' && c.command.length === 3);
 const keys = keyCommands.map((c) => ({ name: c.command[2], ...json(['help', 'key', c.command[2]]).result }));
 const discoverTools = (args = []) => {
