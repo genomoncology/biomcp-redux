@@ -237,8 +237,18 @@ fn unusable_success_replies_keep_distinct_failure_reasons() {
     for (content_type, body, limit, expected) in [
         ("text/html", "<html>error</html>", 100, Reason::BadReply),
         ("application/json", "{broken", 100, Reason::BadReply),
-        ("application/json", r#"{"ERROR":"failed"}"#, 100, Reason::BadReply),
-        ("application/problem+json", r#"{"answer":"too large"}"#, 5, Reason::TooLarge),
+        (
+            "application/json",
+            r#"{"ERROR":"failed"}"#,
+            100,
+            Reason::BadReply,
+        ),
+        (
+            "application/problem+json",
+            r#"{"answer":"too large"}"#,
+            5,
+            Reason::TooLarge,
+        ),
     ] {
         let stub = Stub::new(200, content_type, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
@@ -311,7 +321,14 @@ fn octet_stream_requires_endpoint_permission_and_keeps_decode_and_body_limits() 
             .map(|received| received.value);
         assert_eq!(result.is_ok(), accepted);
         if let Err(biomcp_fetch::RequestError::Source(error)) = result {
-            assert_eq!(error.reason, if limit == 5 { Reason::TooLarge } else { Reason::BadReply });
+            assert_eq!(
+                error.reason,
+                if limit == 5 {
+                    Reason::TooLarge
+                } else {
+                    Reason::BadReply
+                }
+            );
         }
     }
 }
@@ -557,7 +574,10 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
     )
     .unwrap();
     let error = leg
-        .probe(&spec.get("/probe").bytes(3), biomcp_fetch::Input::Params(&[]))
+        .probe(
+            &spec.get("/probe").bytes(3),
+            biomcp_fetch::Input::Params(&[]),
+        )
         .unwrap_err();
     assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::TooLarge));
     assert_eq!(stub.finish().len(), 3);
