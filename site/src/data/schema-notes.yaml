@@ -55,7 +55,7 @@ glosses:
   "Purpose of an available next command.": "What a next command does."
   "One source's outcome, without provider text.": "What happened when BioMCP asked one source."
   "Asked source.": "The source BioMCP asked."
-  "Reviewed source use category; publisher terms remain authoritative.": "The source's use group: `open`, `attribution`, `noncommercial` or `restricted`. The publisher's terms decide what you may do with the data."
+  "Reviewed source use category; publisher terms remain authoritative.": "The source's use group: `open`, `attribution`, `noncommercial`, `licensed` or `per-record`. The publisher's terms decide what you may do with the data."
   "Retained state.": "What happened: `ok`, `stale`, `syncing`, `failed` or `skipped`."
   "Failure or stale-fallback reason.": "Why the source failed, or why BioMCP answered with older stored data."
   "Exact provider search term.": "The search term BioMCP sent to the source."

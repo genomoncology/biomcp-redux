@@ -32,6 +32,7 @@ import { jsonValues } from '../src/lib/json-values.mjs';
 
 const args = process.argv.slice(2);
 const check = args.includes('--check');
+const exactOnly = args.includes('--exact-only');
 const only = args.filter((a) => !a.startsWith('--'));
 const root = path.resolve('examples');
 const runs = path.resolve('.example-runs');
@@ -41,7 +42,7 @@ if (!fs.existsSync(path.join(bin, product.binary))) {
   console.error(`missing ${path.join(bin, product.binary)}: build the product first (cargo build --release)`);
   process.exit(1);
 }
-const ids = fs.readdirSync(root).filter((d) => fs.existsSync(path.join(root, d, 'run.sh')) && (!only.length || only.includes(d))).sort();
+const ids = fs.readdirSync(root).filter((d) => fs.existsSync(path.join(root, d, 'run.sh')) && (!only.length || only.includes(d)) && (!exactOnly || fs.existsSync(path.join(root, d, 'exact')))).sort();
 const file = (id, f) => (fs.existsSync(path.join(root, id, f)) ? fs.readFileSync(path.join(root, id, f), 'utf8') : null);
 const list = (text) => (text ?? '').split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
 

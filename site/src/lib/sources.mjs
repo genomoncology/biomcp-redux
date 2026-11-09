@@ -2,7 +2,7 @@
 // from the program's registry, its key help and src/data/sources.yaml.
 import rows from '../data/sources.json' with { type: 'json' };
 
-export const GROUPS = ['open', 'attribution', 'noncommercial', 'restricted'];
+export const GROUPS = [...new Set(rows.map((r) => r.use))];
 export const sourceRows = () => rows;
 export const groupCounts = () => GROUPS.map((g) => ({ group: g, count: rows.filter((r) => r.use === g).length }));
 const keyText = (r) => (r.keyName ? `${r.keyUse.split(';')[0]}: \`${r.keyName}\`` : 'none');

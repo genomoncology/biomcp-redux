@@ -21,6 +21,12 @@ def manifest():
 
 def check():
     pins = manifest()
+    site = ROOT / 'site' / 'package.json'
+    if site.exists():
+        packages = json.loads(site.read_text())['dependencies']
+        locked = json.loads(site.with_name('package-lock.json').read_text())['packages']['']['dependencies']
+        if packages != pins['site-packages'] or locked != packages:
+            raise ValueError('site package versions differ from release/toolchain.json')
     for name, image in pins['images'].items():
         if not re.fullmatch(r'[^\s@]+@sha256:[0-9a-f]{64}', image):
             raise ValueError('toolchain.json image requires a sha256 digest: ' + name)

@@ -25,7 +25,8 @@ The registry defines five groups. Its schema calls each group a "reviewed source
 | `open` | "Public-domain or unrestricted source data." | Mostly CC0 and US government public-domain data. Several sources carry conditions; see [open sources with conditions](#open-sources-with-conditions). |
 | `attribution` | "Attribution is required." | Sources that require credit. Some add terms, such as ChEMBL's share-alike license. |
 | `noncommercial` | "Commercial use requires separate permission." | Sources whose terms reserve commercial use. |
-| `licensed` | A separate license is required. | Sources that require a separate license. Check the publisher's terms before reuse. |
+| `licensed` | A separate license is required. | Check the publisher's terms before reuse. |
+| `per-record` | Terms vary by source record. | Check the license on each returned record. |
 
 The sources fall into the groups like this:
 
@@ -33,7 +34,7 @@ The sources fall into the groups like this:
 
 Public API access grants no extra reuse rights, and many sources carry records with their own licenses, such as an article's license in PMC.
 
-#Sources marked `per-record` carry terms that vary by record; inspect the record's license before reuse.
+Sources marked `per-record` carry terms that vary by record; inspect the record's license before reuse.
 
 ## Open sources with conditions
 

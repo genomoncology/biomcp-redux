@@ -49,7 +49,7 @@ The examples of one build share a fresh environment: a temporary `HOME`, `XDG_CA
 
 Examples that run `biomcp sync`, and every example another one `needs`, run one at a time before the rest start, so no read races a bundle download. Keyless requests to some sources are rate limited, so a failed example runs up to twice more after a pause. An example that runs longer than its limit is stopped with every process it started.
 
-`npm run build` reruns every example and writes the fresh output to `.example-runs/`, which git ignores. It fails when an exit code differs from the saved run, when the shape of the replies changes (the schema and status of each reply, or the keys of each JSON object), or when the output of an `exact` example differs at all. It also stops when `src/data/site.json` `version` differs from the version that `biomcp version --verbose` prints.
+`npm run build` reruns deterministic examples marked `exact`; refresh live examples with `npm run examples`. The check writes fresh output and writes the fresh output to `.example-runs/`, which git ignores. It fails when an exit code differs from the saved run, when the shape of the replies changes (the schema and status of each reply, or the keys of each JSON object), or when the output of an `exact` example differs at all. It also stops when `src/data/site.json` `version` differs from the version that `biomcp version --verbose` prints.
 
 ## Checks
 

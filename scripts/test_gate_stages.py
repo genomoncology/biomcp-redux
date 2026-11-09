@@ -74,7 +74,7 @@ class GateStages(unittest.TestCase):
             self.assertIn('gate stage=pre-job', result.stdout)
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
-        landing = ['rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases']
+        landing = ['rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases', 'site-build']
         full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
                 'tensor-proto-check', 'library-tests', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
@@ -85,7 +85,7 @@ class GateStages(unittest.TestCase):
             make.chmod(0o755)
             env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']}
             for arguments, stages, failing in (([], landing, 'none'), ([], landing, 'cases'),
-                                               ([], landing, 'secrets'), ([], landing, 'pre-job'),
+                                               ([], landing, 'secrets'), ([], landing, 'pre-job'), ([], landing, 'site-build'),
                                                (['--full'], full, 'none')):
                 with self.subTest(arguments=arguments, failing=failing):
                     result = subprocess.run([sys.executable, 'scripts/landing_gate.py', *arguments],
