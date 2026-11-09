@@ -1,6 +1,14 @@
 # Plan: parity and release
 
-This plan covers milestone 5. Every 1.0 entity slice has landed, so this milestone proves that 1.0 keeps what 0.9 users rely on, makes 1.0 safe to run as a long-lived server, documents it, builds every release artifact, and ends, after a blind comparison with 0.9.3 and Ian's approval, with the history append to the public repository, the 1.0 tag and publication. It names stages and the tickets that own them.
+This plan covers milestone 5. This milestone proves that 1.0 keeps what 0.9 users rely on, makes 1.0 safe to run as a long-lived server, documents it, builds every release artifact, and ends, after AWS validation, the source review and Ian's approval, with the history append to the public repository, the 1.0 tag and publication. It names stages and the tickets that own them. The blind comparison belongs to evals and is no longer a release dependency.
+
+## Current finish order
+
+Ian approved implementation with AWS first on 2026-11-09 (`decisions/2026-11-09-finish-1-0-with-aws-first.md`). Finish core qualification and prepare hosting in parallel; publication follows AWS validation and the source review. Builds for this work may stay on M5 or Yellow.
+
+Review and batch the remaining fixes, finish the bounded timing-failure diagnosis, and qualify the selected landed main on every promised platform. Refresh the docs site before the cut while preparing the hosting handoff, the public-history merge rehearsal and the reviewable publishing-account changes. Reuse passing sections whose inputs still apply, and rerun a failed section after its owning fix.
+
+After AWS validation and the source review, present the completed release packet to Ian. Once approved, push `v1.0.0` on the prepared two-parent history merge first. Fast-forward public main only after the tag workflow's publication, public installs and promotion pass, then land the refreshed site in the same release session. No public release, hosting deployment or account change is performed by the preparation steps. Ticket and lane status remain in pm.
 
 ## Why this order
 
@@ -71,8 +79,8 @@ Robustness and public-text fixes come first, because the parity run, the docs an
 - Ian approves BioData's public repository and its v1.0.0 tag, which 0459 pins (asked through Jarvis on 2026-11-01).
 - Ian approves the publication credentials and settings 0533 lists. The release workflow has no manual approval pause (0554).
 - Ian approves the public append, the 1.0 tag and publication.
-- Append this repository's history to the public repository with one merge commit, keeping old tags and releases (0294).
-- Tag v1.0.0 on that public merge commit, let the release workflow qualify the tag, and have the release operators publish from that run (0294). The installer and Homebrew download from the public repository's release, so the append and tag come before publication.
+- Prepare the two-parent history merge, keeping old tags and releases (0294). Push only `v1.0.0` on that merge after approval, and let the release workflow qualify, publish, check public installs and promote from that tag.
+- Fast-forward public main to the merge only after publication passes (W31, `records/2026-11-06-pre-release-review.md`), then land the refreshed docs site in the release session (0401). The installer and Homebrew download from the public repository's tagged release.
 
 ## After 1.0
 
