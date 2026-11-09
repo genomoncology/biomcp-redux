@@ -32,7 +32,7 @@ The retained, receiver-verified packet is Yellow `data/biomcp-redux-evidence/029
 - `download-receipt.json` binds all nine downloaded native/staged/report artifact ZIPs to their API IDs, byte counts and SHA-256 digests, and lists skipped production steps.
 - `native-reports-verified.json` binds each native wheel and staged wheel to its release record and installed results.
 - `subject-inventory-verified.json`, `provenance-bundles.jsonl`, `provenance-verified/` and `provenance-verification-receipt.json` retain all 26 actual signature checks.
-- `receiver-manifest.json` and `provenance-helper-receiver-manifest.json` record receiver hash verification. Local-channel helper evidence is shared with 0640.
+- `receiver-manifest.json`, `provenance-helper-receiver-manifest.json`, `cleanup-helper-receiver-manifest.json` and `docs-check-receiver-manifest.json` record receiver hash verification. Local-channel helper evidence is shared with 0640.
 
 The workflow uploads `dist`; it does not archive every test-runner executable. The logs and native bootstrap records retain actual runner source identities, and the installed housekeeping checks require the executable's source to match its runner. The local installed cleanup helper additionally records hashes of its actual retained native macOS runners. No native runner-binary archival claim is made for the hosted jobs.
 
@@ -40,7 +40,7 @@ The previous `42a79b1bbdc9` run remains an explicitly earlier full-pipeline proo
 
 ## Acceptance boundary
 
-All production authentication, uploads, public-channel install checks and promotion steps were skipped. Six channel jobs, five post-publication jobs and the promotion job reached their no-op rehearsal boundaries; their success does not prove public service acceptance. Nothing was published and no latest pointer moved. The preflight ticket retains the separate local sections; fresh evidence review and its remaining helper result are required before closure.
+All production authentication, uploads, public-channel install checks and promotion steps were skipped. Six channel jobs, five post-publication jobs and the promotion job reached their no-op rehearsal boundaries; their success does not prove public service acceptance. Nothing was published and no latest pointer moved. The preflight ticket retains the separate local sections. Its pinned old installer and real Claude plugin checks passed in `j36486`; native macOS installed cleanup passed in `j36488`; and documentation validation passed in `j36499`. Fresh evidence review remains required before closure.
 
 ## Publish commands unproved until the tag
 
