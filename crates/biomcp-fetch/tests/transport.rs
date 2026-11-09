@@ -233,12 +233,12 @@ fn http_failures_preserve_status_and_optional_404_is_absent() {
 }
 
 #[test]
-fn unusable_success_replies_are_bad_reply() {
-    for (content_type, body, limit) in [
-        ("text/html", "<html>error</html>", 100),
-        ("application/json", "{broken", 100),
-        ("application/json", r#"{"ERROR":"failed"}"#, 100),
-        ("application/problem+json", r#"{"answer":"too large"}"#, 5),
+fn unusable_success_replies_keep_distinct_failure_reasons() {
+    for (content_type, body, limit, expected) in [
+        ("text/html", "<html>error</html>", 100, Reason::BadReply),
+        ("application/json", "{broken", 100, Reason::BadReply),
+        ("application/json", r#"{"ERROR":"failed"}"#, 100, Reason::BadReply),
+        ("application/problem+json", r#"{"answer":"too large"}"#, 5, Reason::TooLarge),
     ] {
         let stub = Stub::new(200, content_type, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
@@ -258,7 +258,7 @@ fn unusable_success_replies_are_bad_reply() {
         let biomcp_fetch::RequestError::Source(error) = error else {
             panic!("expected provider failure: {error}");
         };
-        assert_eq!((error.reason, error.status), (Reason::BadReply, Some(200)));
+        assert_eq!((error.reason, error.status), (expected, Some(200)));
     }
 }
 
@@ -311,7 +311,7 @@ fn octet_stream_requires_endpoint_permission_and_keeps_decode_and_body_limits() 
             .map(|received| received.value);
         assert_eq!(result.is_ok(), accepted);
         if let Err(biomcp_fetch::RequestError::Source(error)) = result {
-            assert_eq!(error.reason, Reason::BadReply);
+            assert_eq!(error.reason, if limit == 5 { Reason::TooLarge } else { Reason::BadReply });
         }
     }
 }
@@ -556,7 +556,11 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
         biomcp_fetch::Input::json(&[], &serde_json::json!({"query":"health"})),
     )
     .unwrap();
-    assert_eq!(stub.finish().len(), 2);
+    let error = leg
+        .probe(&spec.get("/probe").bytes(3), biomcp_fetch::Input::Params(&[]))
+        .unwrap_err();
+    assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::TooLarge));
+    assert_eq!(stub.finish().len(), 3);
     let stub = Stub::new(200, "application/json", "sensitive", None);
     let spec = stub.spec(
         KeyUse::Required(credential(KeyPlace::Bearer)),
