@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: protein complexes
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp protein complexes` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the Complex Portal complexes that hold one protein, five at a time. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Page five source isoforms, exact-participant complexes or PDB links. Source identities stay separate. No structure, interaction or clinical meaning is inferred; no bioinformatics tool runs.
+> List protein complexes containing a protein. Sources: complex-portal.
 
 ## Usage
 
@@ -26,9 +26,9 @@ biomcp protein complexes [OPTIONS] <accession>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--limit` | integer | no | min 1, max 25 |  | Five rows by default, at most 25. |
-| `--offset` | integer | no | min 0 |  | Native or retained page offset. |
-| `--pool` | string | no |  |  | The ID of a stored list, from an earlier reply, so later pages read the same data. |
+| `--limit` | integer | no | min 1, max 25 |  | Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply. |
+| `--pool` | string | no |  |  | Retained collection identity. Value form: string. Example: --pool &lt;pool&gt; (syntax; replace the placeholder with your retained value). Command sources: complex-portal; source restrictions in the field description apply. |
 | `accession` (position 1) | string | yes |  |  | Exact source protein sequence identity. |
 
 ## Examples
@@ -45,7 +45,7 @@ biomcp protein complexes P00533 --limit 1
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.protein_complexes/2`](/reference/schemas/biomcp-protein-complexes-2/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.protein-complexes/5`](/reference/schemas/biomcp-protein-complexes-5/), whose page lists its fields.
 
 ## Next
 

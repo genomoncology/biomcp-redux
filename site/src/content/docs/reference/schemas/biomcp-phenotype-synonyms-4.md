@@ -1,0 +1,65 @@
+---
+title: Reply of biomcp get phenotype (biomcp.phenotype-synonyms/4)
+description: "The JSON reply BioMCP 1.0.0 prints for biomcp get phenotype: the
+  fields of schema biomcp.phenotype-synonyms/4."
+goal: "Parse the biomcp.phenotype-synonyms/4 reply: see what each field means."
+reader: A developer or agent parsing BioMCP JSON
+sidebar:
+  label: biomcp.phenotype-synonyms/4
+kind: reference
+verified: 2026-11-09
+---
+
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. [`biomcp get phenotype`](/reference/commands/get-phenotype/) and [`biomcp get`](/reference/commands/get/) reply with `schema` set to `biomcp.phenotype-synonyms/4`. Read this page when your code parses that reply: it shows the fields this schema defines. [Shared types](/reference/schemas/types/) defines the rest.
+
+`biomcp schema biomcp.phenotype-synonyms/4` prints the full JSON Schema.
+
+## Fields
+
+A field marked Optional can be missing from a reply. Every other field is always there.
+
+`result` holds [Reply_PhenotypeSynonyms](#reply-phenotypesynonyms). `query` holds [Reply_PhenotypeGet](/reference/schemas/types/#reply-phenotypeget), a shared type. `query` repeats the request as BioMCP read it.
+
+### Reply_PhenotypeSynonyms
+
+Source synonym rows preserving publisher classes.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `components` | list of [Reply_ComponentLabel](/reference/schemas/types/#reply-componentlabel) | Applicable publisher component terms. Optional. |
+| `fetched` | integer or null | Original source retrieval seconds, distinct from ontology release. Optional. |
+| `items` | list of [Reply_PhenotypeSynonym](#reply-phenotypesynonym) | Native ordered rows; empty remains an empty collection. Optional. |
+
+### Other types in this reply
+
+2 more types appear only in this reply: [Reply_PhenotypeSynonym](#reply-phenotypesynonym), [Reply_PhenotypeSynonymClass](#reply-phenotypesynonymclass). Open the list below to read their fields.
+
+<details>
+<summary>Fields of the 2 other types</summary>
+
+### Reply_PhenotypeSynonym
+
+One native synonym; HPO values remain unclassified.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `attribution` | [Reply_Attribution](/reference/schemas/types/#reply-attribution) | Publisher provenance. |
+| `relationship` | [Reply_PhenotypeSynonymClass](#reply-phenotypesynonymclass) or null | Native Monarch relationship class; absent for HPO. Optional. |
+| `value` | string | Whole source text. |
+
+### Reply_PhenotypeSynonymClass
+
+Publisher synonym relationship class.
+
+| Value | Meaning |
+| --- | --- |
+| `exact` | Native exact synonym. |
+| `broad` | Native broad synonym. |
+| `narrow` | Native narrow synonym. |
+| `related` | Native related synonym. |
+
+</details>
+
+## Next
+
+[`biomcp get phenotype`](/reference/commands/get-phenotype/) gives the command's arguments; [reply schemas](/reference/schemas/) lists every reply.

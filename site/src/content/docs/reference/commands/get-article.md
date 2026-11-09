@@ -8,14 +8,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get article
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp get article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
-> Get one to twenty article inputs in caller order.
+> Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
 
 ## Usage
 
@@ -27,7 +27,7 @@ biomcp get article [OPTIONS] <input...>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--section` | array | no |  | `annotations`, `fulltext`, `supplements`, `tldr`, `citations`, `indexing`, `pdf`, `all` | Requested section words; trailing words and --section share this field. |
+| `--section` | array | no |  | `annotations`, `fulltext`, `supplements`, `tldr`, `citations`, `indexing`, `pdf`, `all` | Requested section words; trailing words and --section share; help get article Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply. |
 | `input` (position 1) | array | yes | min 1, max 20 |  | PubMed, PMC or DOI identifiers in input order. |
 
 ## Sections
@@ -57,9 +57,17 @@ biomcp get article 33123537
 biomcp get article PPR1295425 fulltext
 ```
 
+```sh
+biomcp get article PPR1295425 all --disable-sources semantic-scholar
+```
+
+```sh
+biomcp get article 33123537 --section annotations --section annotations
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.article_cards/3`](/reference/schemas/biomcp-article-cards-3/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.article-cards/9`](/reference/schemas/biomcp-article-cards-9/), whose page lists its fields.
 
 ## Next
 

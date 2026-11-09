@@ -8,14 +8,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get gene
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp get gene` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
-> Get one to twenty human gene inputs in their original order.
+> Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 
 ## Usage
 
@@ -27,7 +27,7 @@ biomcp get gene [OPTIONS] <input...>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--section` | array | no |  | `protein`, `civic`, `clingen`, `constraint`, `expression`, `pathways`, `oncokb`, `all` | Requested section words, preserving caller order and repetitions. Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs. |
+| `--section` | array | no |  | `protein`, `civic`, `clingen`, `gencc`, `constraint`, `expression`, `pathways`, `oncokb`, `all` | Requested section words, preserving caller order and repetitions; help get gene Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply. |
 | `input` (position 1) | array | yes | min 1, max 20 |  | Gene symbols or checked identifiers, in input order. |
 
 ## Sections
@@ -40,6 +40,7 @@ Trailing section words select sections. Use --section WORD to keep inputs that e
 | `protein` | Reviewed human proteins. |
 | `civic` | CIViC gene curation. |
 | `clingen` | ClinGen validity and dosage. |
+| `gencc` | GenCC submitter assessments. |
 | `constraint` | Population constraint metrics. |
 | `expression` | Human Protein Atlas expression. |
 | `pathways` | Human Reactome pathways. |
@@ -60,7 +61,7 @@ biomcp get gene BRAF
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.gene-cards/13`](/reference/schemas/biomcp-gene-cards-13/), whose page lists its fields.
 
 ## Next
 

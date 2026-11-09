@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: skill
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-`biomcp skill` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows the agent guide and worked examples built into BioMCP. This page lists its usage.
+`biomcp skill` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows the agent guide and worked examples built into BioMCP. This page lists its examples.
 
 The program's help describes it:
 
@@ -20,6 +20,14 @@ The program's help describes it:
 
 ```text
 biomcp skill
+```
+
+## Examples
+
+The program's help gives this example.
+
+```sh
+biomcp skill list
 ```
 
 ## Next

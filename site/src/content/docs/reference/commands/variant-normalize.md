@@ -8,14 +8,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: variant normalize
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp variant normalize` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Send unchanged reference-qualified notation to explicitly named services.
+> Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
 
 ## Usage
 
@@ -27,11 +27,11 @@ biomcp variant normalize [OPTIONS]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--build` | value | no |  |  | Caller assembly; required when VariantValidator is selected. |
-| `--hgvs` | string | yes |  |  | Unchanged reference-qualified HGVS; no local molecular parse. |
-| `--limit` | integer | no | min 1, max 50 |  | Source mapping rows per service, with typed continuation for remaining rows. |
-| `--offset` | integer | no | min 0 |  | Source mapping rows to skip per service. |
-| `--source` | string | yes |  | `car`, `mutalyzer`, `variantvalidator`, `all` | Explicit service; all preserves independent results without consensus. |
+| `--build` | string | no |  | `GRCh37`, `GRCh38` | Caller assembly; required when VariantValidator is; help variant normalize Caller assembly; required when VariantValidator is selected. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply. |
+| `--hgvs` | string | yes |  |  | Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR. Checked for reference and syntax only; no full HGVS parser. Value form: string. Example: --hgvs 'NM_004333.4:c.1799T&gt;A'. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 50 |  | Source mapping rows per service, with typed continuation for remaining rows. Value form: integer. Example: --limit 10. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source mapping rows to skip per service. Value form: integer. Example: --offset 0. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply. |
+| `--source` | string | yes |  | `car`, `mutalyzer`, `variantvalidator`, `all` | Explicit service; all preserves independent results; help variant normalize Explicit service; all preserves independent results without consensus. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source mutalyzer. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply. |
 
 ## Sources
 
@@ -52,7 +52,7 @@ biomcp variant normalize --source variantvalidator \
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.variant_normalization/3`](/reference/schemas/biomcp-variant-normalization-3/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.variant-normalization/8`](/reference/schemas/biomcp-variant-normalization-8/), whose page lists its fields.
 
 ## Next
 

@@ -8,9 +8,9 @@
   "license": "MIT",
   "python": "3.9",
   "counts": {
-    "entities": 16,
-    "sources": 57,
-    "commands": 86,
+    "entities": 18,
+    "sources": 60,
+    "commands": 232,
     "mcp_tools": 3,
     "use_cases": 17,
     "keys": 7,

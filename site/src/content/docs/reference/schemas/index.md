@@ -4,132 +4,145 @@ description: Every reply schema in BioMCP 1.0.0, with the commands that return i
 goal: Find the JSON schema of a BioMCP reply and the commands that return it.
 reader: A developer or agent parsing BioMCP JSON
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
-BioMCP 1.0.0 prints one JSON object, the reply, for each command. Its `schema` field names the reply schema, such as `biomcp.gene_cards/4`, so code that parses replies can pick the right fields. Each schema below has a page with a real reply and its fields. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/). `biomcp schema ID` prints one schema as JSON Schema.
+BioMCP 1.0.0 prints one JSON object, the reply, for each command. Its `schema` field names the reply schema, such as `biomcp.gene-cards/13`, so code that parses replies can pick the right fields. Each schema below has a page with its fields. The fields every reply shares are on [reply envelope and shared types](/reference/schemas/types/). `biomcp schema ID` prints one schema as JSON Schema.
 
 | Schema | Returned by |
 | --- | --- |
-| [`biomcp.adverse_event_devices/1`](/reference/schemas/biomcp-adverse-event-devices-1/) | [`get adverse-event devices`](/reference/commands/get-adverse-event/) |
-| [`biomcp.adverse_event_drugs/1`](/reference/schemas/biomcp-adverse-event-drugs-1/) | [`get adverse-event drugs`](/reference/commands/get-adverse-event/) |
-| [`biomcp.adverse_event_faers_card/1`](/reference/schemas/biomcp-adverse-event-faers-card-1/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get adverse-event drugs`](/reference/commands/get-adverse-event/) |
-| [`biomcp.adverse_event_identifiers/1`](/reference/schemas/biomcp-adverse-event-identifiers-1/) |  |
-| [`biomcp.adverse_event_maude_card/1`](/reference/schemas/biomcp-adverse-event-maude-card-1/) | [`get adverse-event`](/reference/commands/get-adverse-event/) |
-| [`biomcp.adverse_event_narrative/1`](/reference/schemas/biomcp-adverse-event-narrative-1/) | [`get adverse-event narrative`](/reference/commands/get-adverse-event/) |
-| [`biomcp.adverse_event_page/2`](/reference/schemas/biomcp-adverse-event-page-2/) | [`search adverse-event`](/reference/commands/search-adverse-event/) |
-| [`biomcp.adverse_event_reactions/1`](/reference/schemas/biomcp-adverse-event-reactions-1/) | [`get adverse-event reactions`](/reference/commands/get-adverse-event/) |
-| [`biomcp.article_cards/3`](/reference/schemas/biomcp-article-cards-3/) | [`get article`](/reference/commands/get-article/), [`get article indexing`](/reference/commands/get-article/) |
-| [`biomcp.article_edges/4`](/reference/schemas/biomcp-article-edges-4/) | [`article references`](/reference/commands/article-references/), [`article citations`](/reference/commands/article-citations/) |
-| [`biomcp.article_evidence/2`](/reference/schemas/biomcp-article-evidence-2/) | [`article citation-evidence`](/reference/commands/article-citation-evidence/) |
-| [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/) | [`search article`](/reference/commands/search-article/) |
-| [`biomcp.article_pdf/2`](/reference/schemas/biomcp-article-pdf-2/) | [`article pdf`](/reference/commands/article-pdf/) |
-| [`biomcp.article_recommendations/3`](/reference/schemas/biomcp-article-recommendations-3/) | [`article recommendations`](/reference/commands/article-recommendations/) |
-| [`biomcp.article_supplement/3`](/reference/schemas/biomcp-article-supplement-3/) | [`article supplement`](/reference/commands/article-supplement/) |
-| [`biomcp.article_text/3`](/reference/schemas/biomcp-article-text-3/) | [`article text`](/reference/commands/article-text/) |
-| [`biomcp.author_card/3`](/reference/schemas/biomcp-author-card-3/) | [`get author`](/reference/commands/get-author/) |
-| [`biomcp.author_page/2`](/reference/schemas/biomcp-author-page-2/) | [`search author`](/reference/commands/search-author/) |
-| [`biomcp.author_paper_details/1`](/reference/schemas/biomcp-author-paper-details-1/) | [`author papers`](/reference/commands/author-papers/) |
-| [`biomcp.author_papers/1`](/reference/schemas/biomcp-author-papers-1/) | [`author papers`](/reference/commands/author-papers/) |
-| [`biomcp.cell_line_assay_count/2`](/reference/schemas/biomcp-cell-line-assay-count-2/) | [`cell-line assay-count`](/reference/commands/cell-line-assay-count/) |
-| [`biomcp.cell_line_card/3`](/reference/schemas/biomcp-cell-line-card-3/) | [`get cell-line`](/reference/commands/get-cell-line/) |
-| [`biomcp.cell_line_chembl/2`](/reference/schemas/biomcp-cell-line-chembl-2/) | [`get cell-line chembl`](/reference/commands/get-cell-line/) |
-| [`biomcp.cell_line_identity/1`](/reference/schemas/biomcp-cell-line-identity-1/) | [`get cell-line identity`](/reference/commands/get-cell-line/) |
-| [`biomcp.cell_line_names/1`](/reference/schemas/biomcp-cell-line-names-1/) | [`get cell-line names`](/reference/commands/get-cell-line/) |
-| [`biomcp.cell_line_page/2`](/reference/schemas/biomcp-cell-line-page-2/) | [`search cell-line`](/reference/commands/search-cell-line/) |
-| [`biomcp.cell_line_variants/2`](/reference/schemas/biomcp-cell-line-variants-2/) | [`get cell-line variants`](/reference/commands/get-cell-line/) |
-| [`biomcp.cell_line_xrefs/1`](/reference/schemas/biomcp-cell-line-xrefs-1/) | [`get cell-line xrefs`](/reference/commands/get-cell-line/) |
-| [`biomcp.diagnostic_card/1`](/reference/schemas/biomcp-diagnostic-card-1/) | [`get diagnostic`](/reference/commands/get-diagnostic/) |
-| [`biomcp.diagnostic_companion/1`](/reference/schemas/biomcp-diagnostic-companion-1/) | [`search diagnostic`](/reference/commands/search-diagnostic/) |
-| [`biomcp.diagnostic_conditions/2`](/reference/schemas/biomcp-diagnostic-conditions-2/) | [`get diagnostic conditions`](/reference/commands/get-diagnostic/) |
-| [`biomcp.diagnostic_genes/2`](/reference/schemas/biomcp-diagnostic-genes-2/) | [`get diagnostic genes`](/reference/commands/get-diagnostic/) |
-| [`biomcp.diagnostic_methods/2`](/reference/schemas/biomcp-diagnostic-methods-2/) | [`get diagnostic methods`](/reference/commands/get-diagnostic/) |
-| [`biomcp.diagnostic_page/2`](/reference/schemas/biomcp-diagnostic-page-2/) | [`search diagnostic`](/reference/commands/search-diagnostic/) |
-| [`biomcp.diagnostic_regulatory/1`](/reference/schemas/biomcp-diagnostic-regulatory-1/) | [`get diagnostic regulatory`](/reference/commands/get-diagnostic/) |
-| [`biomcp.diagnostic_supplements/1`](/reference/schemas/biomcp-diagnostic-supplements-1/) | [`get diagnostic supplements`](/reference/commands/get-diagnostic/) |
-| [`biomcp.disease_card/2`](/reference/schemas/biomcp-disease-card-2/) | [`get disease`](/reference/commands/get-disease/) |
-| [`biomcp.disease_genes/5`](/reference/schemas/biomcp-disease-genes-5/) | [`get disease genes`](/reference/commands/get-disease/) |
-| [`biomcp.disease_hierarchy/2`](/reference/schemas/biomcp-disease-hierarchy-2/) | [`get disease hierarchy`](/reference/commands/get-disease/) |
-| [`biomcp.disease_incidence/3`](/reference/schemas/biomcp-disease-incidence-3/) | [`get disease incidence`](/reference/commands/get-disease/), [`get disease`](/reference/commands/get-disease/) |
-| [`biomcp.disease_page/1`](/reference/schemas/biomcp-disease-page-1/) | [`search disease`](/reference/commands/search-disease/) |
-| [`biomcp.disease_phenotypes/5`](/reference/schemas/biomcp-disease-phenotypes-5/) | [`get disease phenotypes`](/reference/commands/get-disease/) |
-| [`biomcp.disease_sites/2`](/reference/schemas/biomcp-disease-sites-2/) | [`search disease`](/reference/commands/search-disease/) |
-| [`biomcp.disease_survival/3`](/reference/schemas/biomcp-disease-survival-3/) | [`get disease survival`](/reference/commands/get-disease/), [`get disease`](/reference/commands/get-disease/) |
-| [`biomcp.disease_synonyms/2`](/reference/schemas/biomcp-disease-synonyms-2/) | [`get disease synonyms`](/reference/commands/get-disease/) |
-| [`biomcp.disease_xrefs/2`](/reference/schemas/biomcp-disease-xrefs-2/) | [`get disease xrefs`](/reference/commands/get-disease/) |
-| [`biomcp.drug_approvals/3`](/reference/schemas/biomcp-drug-approvals-3/) | [`get drug approvals`](/reference/commands/get-drug/) |
-| [`biomcp.drug_card/2`](/reference/schemas/biomcp-drug-card-2/) | [`get drug`](/reference/commands/get-drug/) |
-| [`biomcp.drug_civic/4`](/reference/schemas/biomcp-drug-civic-4/) | [`get drug civic`](/reference/commands/get-drug/) |
-| [`biomcp.drug_fda_page/1`](/reference/schemas/biomcp-drug-fda-page-1/) | [`search drug`](/reference/commands/search-drug/) |
-| [`biomcp.drug_indications/3`](/reference/schemas/biomcp-drug-indications-3/) | [`get drug indications`](/reference/commands/get-drug/) |
-| [`biomcp.drug_interactions/3`](/reference/schemas/biomcp-drug-interactions-3/) | [`get drug interactions`](/reference/commands/get-drug/) |
-| [`biomcp.drug_label/3`](/reference/schemas/biomcp-drug-label-3/) | [`get drug label`](/reference/commands/get-drug/) |
-| [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/) | [`search drug`](/reference/commands/search-drug/) |
-| [`biomcp.drug_regulatory/2`](/reference/schemas/biomcp-drug-regulatory-2/) | [`get drug regulatory`](/reference/commands/get-drug/), [`get drug`](/reference/commands/get-drug/) |
-| [`biomcp.drug_targets/3`](/reference/schemas/biomcp-drug-targets-3/) | [`get drug targets`](/reference/commands/get-drug/) |
-| [`biomcp.drug_who_card/1`](/reference/schemas/biomcp-drug-who-card-1/) | [`get drug`](/reference/commands/get-drug/) |
-| [`biomcp.drug_who_page/1`](/reference/schemas/biomcp-drug-who-page-1/) | [`search drug`](/reference/commands/search-drug/) |
-| [`biomcp.drug_xrefs/1`](/reference/schemas/biomcp-drug-xrefs-1/) | [`get drug xrefs`](/reference/commands/get-drug/) |
-| [`biomcp.gene_cards/4`](/reference/schemas/biomcp-gene-cards-4/) | [`get gene constraint`](/reference/commands/get-gene/), [`get gene`](/reference/commands/get-gene/) |
-| [`biomcp.gene_page/3`](/reference/schemas/biomcp-gene-page-3/) | [`search gene`](/reference/commands/search-gene/) |
-| [`biomcp.gwas_ancestries/1`](/reference/schemas/biomcp-gwas-ancestries-1/) | [`get gwas ancestries`](/reference/commands/get-gwas/) |
-| [`biomcp.gwas_association/1`](/reference/schemas/biomcp-gwas-association-1/) | [`get gwas`](/reference/commands/get-gwas/) |
-| [`biomcp.gwas_loci/1`](/reference/schemas/biomcp-gwas-loci-1/) | [`get gwas loci`](/reference/commands/get-gwas/) |
-| [`biomcp.gwas_page/3`](/reference/schemas/biomcp-gwas-page-3/) | [`search gwas`](/reference/commands/search-gwas/), [`get gwas associations`](/reference/commands/get-gwas/) |
-| [`biomcp.gwas_study/1`](/reference/schemas/biomcp-gwas-study-1/) | [`get gwas`](/reference/commands/get-gwas/) |
-| [`biomcp.health/2`](/reference/schemas/biomcp-health-2/) | [`health`](/reference/commands/health/) |
-| [`biomcp.help/2`](/reference/schemas/biomcp-help-2/) | [`help`](/reference/commands/help/), [`help network proxy`](/reference/commands/help-network-proxy/), [`help network ca_bundle`](/reference/commands/help-network-ca_bundle/) |
-| [`biomcp.key/2`](/reference/schemas/biomcp-key-2/) | [`help key oncokb`](/reference/commands/help-key-oncokb/), [`help key ncbi`](/reference/commands/help-key-ncbi/), [`help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/), [`help key orcid`](/reference/commands/help-key-orcid/), [`help key alphagenome`](/reference/commands/help-key-alphagenome/), [`help key nci`](/reference/commands/help-key-nci/), [`help key openfda`](/reference/commands/help-key-openfda/) |
-| [`biomcp.nci_trial_cards/2`](/reference/schemas/biomcp-nci-trial-cards-2/) | [`get trial`](/reference/commands/get-trial/) |
-| [`biomcp.nci_trial_page/3`](/reference/schemas/biomcp-nci-trial-page-3/) | [`search trial`](/reference/commands/search-trial/) |
-| [`biomcp.orcid_works/2`](/reference/schemas/biomcp-orcid-works-2/) | [`author papers`](/reference/commands/author-papers/) |
-| [`biomcp.pathway_card/5`](/reference/schemas/biomcp-pathway-card-5/) | [`get pathway summary`](/reference/commands/get-pathway/), [`get pathway`](/reference/commands/get-pathway/) |
-| [`biomcp.pathway_events/2`](/reference/schemas/biomcp-pathway-events-2/) | [`pathway events`](/reference/commands/pathway-events/) |
-| [`biomcp.pathway_genes/4`](/reference/schemas/biomcp-pathway-genes-4/) | [`pathway genes`](/reference/commands/pathway-genes/) |
-| [`biomcp.pathway_page/3`](/reference/schemas/biomcp-pathway-page-3/) | [`search pathway`](/reference/commands/search-pathway/) |
-| [`biomcp.pgx_annotation/1`](/reference/schemas/biomcp-pgx-annotation-1/) | [`get pgx`](/reference/commands/get-pgx/) |
-| [`biomcp.pgx_annotations/1`](/reference/schemas/biomcp-pgx-annotations-1/) | [`get pgx annotations`](/reference/commands/get-pgx/) |
-| [`biomcp.pgx_card/1`](/reference/schemas/biomcp-pgx-card-1/) | [`get pgx`](/reference/commands/get-pgx/) |
-| [`biomcp.pgx_diplotype/1`](/reference/schemas/biomcp-pgx-diplotype-1/) | [`get pgx diplotype`](/reference/commands/get-pgx/), [`get pgx`](/reference/commands/get-pgx/) |
-| [`biomcp.pgx_guidelines/1`](/reference/schemas/biomcp-pgx-guidelines-1/) | [`get pgx guidelines`](/reference/commands/get-pgx/) |
-| [`biomcp.pgx_page/2`](/reference/schemas/biomcp-pgx-page-2/) | [`search pgx`](/reference/commands/search-pgx/) |
-| [`biomcp.pgx_recommendations/1`](/reference/schemas/biomcp-pgx-recommendations-1/) | [`get pgx recommendations`](/reference/commands/get-pgx/) |
-| [`biomcp.phenotype-card/1`](/reference/schemas/biomcp-phenotype-card-1/) | [`get phenotype`](/reference/commands/get-phenotype/) |
-| [`biomcp.phenotype-diseases/3`](/reference/schemas/biomcp-phenotype-diseases-3/) | [`get phenotype diseases`](/reference/commands/get-phenotype/) |
-| [`biomcp.phenotype-genes/3`](/reference/schemas/biomcp-phenotype-genes-3/) | [`get phenotype genes`](/reference/commands/get-phenotype/) |
-| [`biomcp.phenotype-hierarchy/1`](/reference/schemas/biomcp-phenotype-hierarchy-1/) | [`get phenotype hierarchy`](/reference/commands/get-phenotype/) |
-| [`biomcp.phenotype-search/1`](/reference/schemas/biomcp-phenotype-search-1/) | [`search phenotype`](/reference/commands/search-phenotype/) |
-| [`biomcp.phenotype-synonyms/1`](/reference/schemas/biomcp-phenotype-synonyms-1/) | [`get phenotype synonyms`](/reference/commands/get-phenotype/) |
-| [`biomcp.phenotype-xrefs/1`](/reference/schemas/biomcp-phenotype-xrefs-1/) | [`get phenotype xrefs`](/reference/commands/get-phenotype/) |
-| [`biomcp.protein_card/3`](/reference/schemas/biomcp-protein-card-3/) | [`get protein`](/reference/commands/get-protein/) |
-| [`biomcp.protein_complex_members/1`](/reference/schemas/biomcp-protein-complex-members-1/) | [`protein complex-members`](/reference/commands/protein-complex-members/) |
-| [`biomcp.protein_complexes/2`](/reference/schemas/biomcp-protein-complexes-2/) | [`protein complexes`](/reference/commands/protein-complexes/) |
-| [`biomcp.protein_domains/2`](/reference/schemas/biomcp-protein-domains-2/) | [`protein domains`](/reference/commands/protein-domains/) |
-| [`biomcp.protein_features/1`](/reference/schemas/biomcp-protein-features-1/) | [`protein features`](/reference/commands/protein-features/) |
-| [`biomcp.protein_function/2`](/reference/schemas/biomcp-protein-function-2/) |  |
-| [`biomcp.protein_isoforms/1`](/reference/schemas/biomcp-protein-isoforms-1/) | [`protein isoforms`](/reference/commands/protein-isoforms/) |
-| [`biomcp.protein_page/1`](/reference/schemas/biomcp-protein-page-1/) | [`search protein`](/reference/commands/search-protein/) |
-| [`biomcp.protein_sequence/1`](/reference/schemas/biomcp-protein-sequence-1/) | [`protein sequence`](/reference/commands/protein-sequence/) |
-| [`biomcp.protein_structures/1`](/reference/schemas/biomcp-protein-structures-1/) | [`protein structures`](/reference/commands/protein-structures/) |
-| [`biomcp.registered-keys/2`](/reference/schemas/biomcp-registered-keys-2/) | [`key list`](/reference/commands/key-list/) |
-| [`biomcp.store-clean/1`](/reference/schemas/biomcp-store-clean-1/) | [`store clean`](/reference/commands/store-clean/) |
-| [`biomcp.study_card/2`](/reference/schemas/biomcp-study-card-2/) | [`get study`](/reference/commands/get-study/) |
-| [`biomcp.study_files/1`](/reference/schemas/biomcp-study-files-1/) | [`get study files`](/reference/commands/get-study/) |
-| [`biomcp.study_page/1`](/reference/schemas/biomcp-study-page-1/) | [`search study`](/reference/commands/search-study/) |
-| [`biomcp.study_profiles/1`](/reference/schemas/biomcp-study-profiles-1/) | [`get study profiles`](/reference/commands/get-study/) |
-| [`biomcp.study_sample_lists/1`](/reference/schemas/biomcp-study-sample-lists-1/) | [`get study sample-lists`](/reference/commands/get-study/) |
-| [`biomcp.sync/4`](/reference/schemas/biomcp-sync-4/) | [`sync`](/reference/commands/sync/), [`sync cbioportal-studies`](/reference/commands/sync-cbioportal-studies/), [`sync ema`](/reference/commands/sync-ema/), [`sync ddinter`](/reference/commands/sync-ddinter/), [`sync who-pq`](/reference/commands/sync-who-pq/), [`sync gtr`](/reference/commands/sync-gtr/), [`sync who-ivd`](/reference/commands/sync-who-ivd/), [`sync fda-cdx`](/reference/commands/sync-fda-cdx/) |
-| [`biomcp.trial_cards/2`](/reference/schemas/biomcp-trial-cards-2/) | [`get trial eligibility`](/reference/commands/get-trial/), [`get trial`](/reference/commands/get-trial/) |
-| [`biomcp.trial_document/2`](/reference/schemas/biomcp-trial-document-2/) | [`trial document`](/reference/commands/trial-document/) |
-| [`biomcp.trial_page/5`](/reference/schemas/biomcp-trial-page-5/) | [`search trial`](/reference/commands/search-trial/) |
-| [`biomcp.vaers_summary/1`](/reference/schemas/biomcp-vaers-summary-1/) | [`search adverse-event`](/reference/commands/search-adverse-event/) |
-| [`biomcp.variant_assertions/3`](/reference/schemas/biomcp-variant-assertions-3/) | [`variant assertions`](/reference/commands/variant-assertions/) |
-| [`biomcp.variant_card/5`](/reference/schemas/biomcp-variant-card-5/) | [`get variant`](/reference/commands/get-variant/), [`get variant civic`](/reference/commands/get-variant/) |
-| [`biomcp.variant_normalization/3`](/reference/schemas/biomcp-variant-normalization-3/) | [`variant normalize`](/reference/commands/variant-normalize/) |
-| [`biomcp.variant_page/6`](/reference/schemas/biomcp-variant-page-6/) | [`search variant`](/reference/commands/search-variant/) |
-| [`biomcp.variant_population/4`](/reference/schemas/biomcp-variant-population-4/) | [`variant population`](/reference/commands/variant-population/) |
-| [`biomcp.variant_recurrence/4`](/reference/schemas/biomcp-variant-recurrence-4/) | [`variant recurrence`](/reference/commands/variant-recurrence/) |
-| [`biomcp.wikipathways_sync/1`](/reference/schemas/biomcp-wikipathways-sync-1/) | [`sync wikipathways`](/reference/commands/sync-wikipathways/) |
+| [`biomcp.adverse-event-devices/4`](/reference/schemas/biomcp-adverse-event-devices-4/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.adverse-event-drugs/4`](/reference/schemas/biomcp-adverse-event-drugs-4/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.adverse-event-faers-card/5`](/reference/schemas/biomcp-adverse-event-faers-card-5/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.adverse-event-identifiers/4`](/reference/schemas/biomcp-adverse-event-identifiers-4/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.adverse-event-maude-card/4`](/reference/schemas/biomcp-adverse-event-maude-card-4/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.adverse-event-narrative/4`](/reference/schemas/biomcp-adverse-event-narrative-4/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.adverse-event-page/6`](/reference/schemas/biomcp-adverse-event-page-6/) | [`search adverse-event`](/reference/commands/search-adverse-event/), [`search`](/reference/commands/search/) |
+| [`biomcp.adverse-event-reactions/6`](/reference/schemas/biomcp-adverse-event-reactions-6/) | [`get adverse-event`](/reference/commands/get-adverse-event/), [`get`](/reference/commands/get/) |
+| [`biomcp.article-cards/9`](/reference/schemas/biomcp-article-cards-9/) | [`get article`](/reference/commands/get-article/), [`article text`](/reference/commands/article-text/), [`get`](/reference/commands/get/), [`article`](/reference/commands/article/) |
+| [`biomcp.article-edges/10`](/reference/schemas/biomcp-article-edges-10/) | [`article citations`](/reference/commands/article-citations/), [`article references`](/reference/commands/article-references/), [`article`](/reference/commands/article/) |
+| [`biomcp.article-evidence/6`](/reference/schemas/biomcp-article-evidence-6/) | [`article citation-evidence`](/reference/commands/article-citation-evidence/), [`article`](/reference/commands/article/) |
+| [`biomcp.article-page/9`](/reference/schemas/biomcp-article-page-9/) | [`search article`](/reference/commands/search-article/), [`search`](/reference/commands/search/) |
+| [`biomcp.article-pdf/6`](/reference/schemas/biomcp-article-pdf-6/) | [`article pdf`](/reference/commands/article-pdf/), [`article`](/reference/commands/article/) |
+| [`biomcp.article-recommendations/9`](/reference/schemas/biomcp-article-recommendations-9/) | [`article recommendations`](/reference/commands/article-recommendations/), [`article`](/reference/commands/article/) |
+| [`biomcp.article-supplement/7`](/reference/schemas/biomcp-article-supplement-7/) | [`article supplement`](/reference/commands/article-supplement/), [`article`](/reference/commands/article/) |
+| [`biomcp.article-text/7`](/reference/schemas/biomcp-article-text-7/) | [`article text`](/reference/commands/article-text/), [`article`](/reference/commands/article/) |
+| [`biomcp.author-card/6`](/reference/schemas/biomcp-author-card-6/) | [`get author`](/reference/commands/get-author/), [`get`](/reference/commands/get/) |
+| [`biomcp.author-page/5`](/reference/schemas/biomcp-author-page-5/) | [`search author`](/reference/commands/search-author/), [`search`](/reference/commands/search/) |
+| [`biomcp.author-paper-details/6`](/reference/schemas/biomcp-author-paper-details-6/) | [`author papers`](/reference/commands/author-papers/), [`author`](/reference/commands/author/) |
+| [`biomcp.author-papers/6`](/reference/schemas/biomcp-author-papers-6/) | [`author papers`](/reference/commands/author-papers/), [`author`](/reference/commands/author/) |
+| [`biomcp.biomarker-page/4`](/reference/schemas/biomcp-biomarker-page-4/) | [`search biomarker`](/reference/commands/search-biomarker/), [`search`](/reference/commands/search/) |
+| [`biomcp.biomarker-result/4`](/reference/schemas/biomcp-biomarker-result-4/) | [`get biomarker`](/reference/commands/get-biomarker/), [`get`](/reference/commands/get/) |
+| [`biomcp.cell-line-assay-count/6`](/reference/schemas/biomcp-cell-line-assay-count-6/) | [`cell-line assay-count`](/reference/commands/cell-line-assay-count/), [`cell-line`](/reference/commands/cell-line/) |
+| [`biomcp.cell-line-card/8`](/reference/schemas/biomcp-cell-line-card-8/) | [`get cell-line`](/reference/commands/get-cell-line/), [`get`](/reference/commands/get/) |
+| [`biomcp.cell-line-chembl/7`](/reference/schemas/biomcp-cell-line-chembl-7/) | [`get cell-line`](/reference/commands/get-cell-line/), [`get`](/reference/commands/get/) |
+| [`biomcp.cell-line-filtered-page/1`](/reference/schemas/biomcp-cell-line-filtered-page-1/) | [`search cell-line`](/reference/commands/search-cell-line/), [`search`](/reference/commands/search/) |
+| [`biomcp.cell-line-identity/6`](/reference/schemas/biomcp-cell-line-identity-6/) | [`get cell-line`](/reference/commands/get-cell-line/), [`get`](/reference/commands/get/) |
+| [`biomcp.cell-line-names/5`](/reference/schemas/biomcp-cell-line-names-5/) | [`get cell-line`](/reference/commands/get-cell-line/), [`get`](/reference/commands/get/) |
+| [`biomcp.cell-line-page/7`](/reference/schemas/biomcp-cell-line-page-7/) | [`search cell-line`](/reference/commands/search-cell-line/), [`search`](/reference/commands/search/) |
+| [`biomcp.cell-line-variants/7`](/reference/schemas/biomcp-cell-line-variants-7/) | [`get cell-line`](/reference/commands/get-cell-line/), [`get`](/reference/commands/get/) |
+| [`biomcp.cell-line-xrefs/6`](/reference/schemas/biomcp-cell-line-xrefs-6/) | [`get cell-line`](/reference/commands/get-cell-line/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-card/4`](/reference/schemas/biomcp-diagnostic-card-4/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-companion/4`](/reference/schemas/biomcp-diagnostic-companion-4/) | [`search diagnostic`](/reference/commands/search-diagnostic/), [`search`](/reference/commands/search/) |
+| [`biomcp.diagnostic-conditions/5`](/reference/schemas/biomcp-diagnostic-conditions-5/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-genes/5`](/reference/schemas/biomcp-diagnostic-genes-5/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-methods/4`](/reference/schemas/biomcp-diagnostic-methods-4/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-page/5`](/reference/schemas/biomcp-diagnostic-page-5/) | [`search diagnostic`](/reference/commands/search-diagnostic/), [`search`](/reference/commands/search/) |
+| [`biomcp.diagnostic-regulatory/3`](/reference/schemas/biomcp-diagnostic-regulatory-3/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-summary/1`](/reference/schemas/biomcp-diagnostic-summary-1/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.diagnostic-supplements/3`](/reference/schemas/biomcp-diagnostic-supplements-3/) | [`get diagnostic`](/reference/commands/get-diagnostic/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-card/6`](/reference/schemas/biomcp-disease-card-6/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-genes/9`](/reference/schemas/biomcp-disease-genes-9/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-hierarchy/5`](/reference/schemas/biomcp-disease-hierarchy-5/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-incidence/7`](/reference/schemas/biomcp-disease-incidence-7/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-page/5`](/reference/schemas/biomcp-disease-page-5/) | [`search disease`](/reference/commands/search-disease/), [`get disease`](/reference/commands/get-disease/), [`search`](/reference/commands/search/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-phenotypes/9`](/reference/schemas/biomcp-disease-phenotypes-9/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-sites/6`](/reference/schemas/biomcp-disease-sites-6/) | [`search disease`](/reference/commands/search-disease/), [`get disease`](/reference/commands/get-disease/), [`search`](/reference/commands/search/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-survival/7`](/reference/schemas/biomcp-disease-survival-7/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-synonyms/5`](/reference/schemas/biomcp-disease-synonyms-5/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.disease-xrefs/5`](/reference/schemas/biomcp-disease-xrefs-5/) | [`get disease`](/reference/commands/get-disease/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-approvals/8`](/reference/schemas/biomcp-drug-approvals-8/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-card/6`](/reference/schemas/biomcp-drug-card-6/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-civic/11`](/reference/schemas/biomcp-drug-civic-11/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-fda-page/7`](/reference/schemas/biomcp-drug-fda-page-7/) | [`search drug`](/reference/commands/search-drug/), [`search`](/reference/commands/search/) |
+| [`biomcp.drug-indications/8`](/reference/schemas/biomcp-drug-indications-8/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-interactions/8`](/reference/schemas/biomcp-drug-interactions-8/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-label/7`](/reference/schemas/biomcp-drug-label-7/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-page/7`](/reference/schemas/biomcp-drug-page-7/) | [`search drug`](/reference/commands/search-drug/), [`search`](/reference/commands/search/) |
+| [`biomcp.drug-recall-card/3`](/reference/schemas/biomcp-drug-recall-card-3/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-recall-page/4`](/reference/schemas/biomcp-drug-recall-page-4/) | [`search drug`](/reference/commands/search-drug/), [`search`](/reference/commands/search/) |
+| [`biomcp.drug-regulatory/6`](/reference/schemas/biomcp-drug-regulatory-6/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-targets/8`](/reference/schemas/biomcp-drug-targets-8/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-who-card/3`](/reference/schemas/biomcp-drug-who-card-3/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.drug-who-page/5`](/reference/schemas/biomcp-drug-who-page-5/) | [`search drug`](/reference/commands/search-drug/), [`search`](/reference/commands/search/) |
+| [`biomcp.drug-xrefs/5`](/reference/schemas/biomcp-drug-xrefs-5/) | [`get drug`](/reference/commands/get-drug/), [`get`](/reference/commands/get/) |
+| [`biomcp.error/4`](/reference/schemas/biomcp-error-4/) |  |
+| [`biomcp.gene-cards/13`](/reference/schemas/biomcp-gene-cards-13/) | [`get gene`](/reference/commands/get-gene/), [`get`](/reference/commands/get/) |
+| [`biomcp.gene-page/8`](/reference/schemas/biomcp-gene-page-8/) | [`search gene`](/reference/commands/search-gene/), [`search`](/reference/commands/search/) |
+| [`biomcp.gwas-ancestries/5`](/reference/schemas/biomcp-gwas-ancestries-5/) | [`get gwas`](/reference/commands/get-gwas/), [`get`](/reference/commands/get/) |
+| [`biomcp.gwas-association/6`](/reference/schemas/biomcp-gwas-association-6/) | [`get gwas`](/reference/commands/get-gwas/), [`get`](/reference/commands/get/) |
+| [`biomcp.gwas-loci/4`](/reference/schemas/biomcp-gwas-loci-4/) | [`get gwas`](/reference/commands/get-gwas/), [`get`](/reference/commands/get/) |
+| [`biomcp.gwas-page/8`](/reference/schemas/biomcp-gwas-page-8/) | [`get gwas`](/reference/commands/get-gwas/), [`search gwas`](/reference/commands/search-gwas/), [`search`](/reference/commands/search/), [`get`](/reference/commands/get/) |
+| [`biomcp.gwas-study-page/1`](/reference/schemas/biomcp-gwas-study-page-1/) | [`search gwas`](/reference/commands/search-gwas/), [`search`](/reference/commands/search/) |
+| [`biomcp.gwas-study/6`](/reference/schemas/biomcp-gwas-study-6/) | [`get gwas`](/reference/commands/get-gwas/), [`get`](/reference/commands/get/) |
+| [`biomcp.health/6`](/reference/schemas/biomcp-health-6/) | [`health`](/reference/commands/health/) |
+| [`biomcp.help/6`](/reference/schemas/biomcp-help-6/) | [`help`](/reference/commands/help/), [`help exit`](/reference/commands/help-exit/), [`help search`](/reference/commands/help-search/), [`help search biomarker`](/reference/commands/help-search-biomarker/), [`help search author`](/reference/commands/help-search-author/), [`help search organization`](/reference/commands/help-search-organization/), [`help search cell-line`](/reference/commands/help-search-cell-line/), [`help search gwas`](/reference/commands/help-search-gwas/), [`help search protein`](/reference/commands/help-search-protein/), [`help search phenotype`](/reference/commands/help-search-phenotype/), [`help search pathway`](/reference/commands/help-search-pathway/), [`help search study`](/reference/commands/help-search-study/), [`help search pgx`](/reference/commands/help-search-pgx/), [`help search diagnostic`](/reference/commands/help-search-diagnostic/), [`help search adverse-event`](/reference/commands/help-search-adverse-event/), [`help search disease`](/reference/commands/help-search-disease/), [`help search drug`](/reference/commands/help-search-drug/), [`help search gene`](/reference/commands/help-search-gene/), [`help search article`](/reference/commands/help-search-article/), [`help search trial`](/reference/commands/help-search-trial/), [`help search variant`](/reference/commands/help-search-variant/), [`help get`](/reference/commands/help-get/), [`help get biomarker`](/reference/commands/help-get-biomarker/), [`help get author`](/reference/commands/help-get-author/), [`help get cell-line`](/reference/commands/help-get-cell-line/), [`help get gwas`](/reference/commands/help-get-gwas/), [`help get protein`](/reference/commands/help-get-protein/), [`help get phenotype`](/reference/commands/help-get-phenotype/), [`help get pathway`](/reference/commands/help-get-pathway/), [`help get study`](/reference/commands/help-get-study/), [`help get pgx`](/reference/commands/help-get-pgx/), [`help get diagnostic`](/reference/commands/help-get-diagnostic/), [`help get adverse-event`](/reference/commands/help-get-adverse-event/), [`help get disease`](/reference/commands/help-get-disease/), [`help get drug`](/reference/commands/help-get-drug/), [`help get gene`](/reference/commands/help-get-gene/), [`help get article`](/reference/commands/help-get-article/), [`help get trial`](/reference/commands/help-get-trial/), [`help get variant`](/reference/commands/help-get-variant/), [`help get clingen`](/reference/commands/help-get-clingen/), [`help author`](/reference/commands/help-author/), [`help author papers`](/reference/commands/help-author-papers/), [`help cell-line`](/reference/commands/help-cell-line/), [`help cell-line assay-count`](/reference/commands/help-cell-line-assay-count/), [`help protein`](/reference/commands/help-protein/), [`help protein features`](/reference/commands/help-protein-features/), [`help protein isoforms`](/reference/commands/help-protein-isoforms/), [`help protein domains`](/reference/commands/help-protein-domains/), [`help protein complexes`](/reference/commands/help-protein-complexes/), [`help protein complex-members`](/reference/commands/help-protein-complex-members/), [`help protein structures`](/reference/commands/help-protein-structures/), [`help protein sequence`](/reference/commands/help-protein-sequence/), [`help pathway`](/reference/commands/help-pathway/), [`help pathway genes`](/reference/commands/help-pathway-genes/), [`help pathway events`](/reference/commands/help-pathway-events/), [`help article`](/reference/commands/help-article/), [`help article supplement`](/reference/commands/help-article-supplement/), [`help article pdf`](/reference/commands/help-article-pdf/), [`help article text`](/reference/commands/help-article-text/), [`help article citations`](/reference/commands/help-article-citations/), [`help article references`](/reference/commands/help-article-references/), [`help article citation-evidence`](/reference/commands/help-article-citation-evidence/), [`help article recommendations`](/reference/commands/help-article-recommendations/), [`help trial`](/reference/commands/help-trial/), [`help trial document`](/reference/commands/help-trial-document/), [`help variant`](/reference/commands/help-variant/), [`help variant assertions`](/reference/commands/help-variant-assertions/), [`help variant population`](/reference/commands/help-variant-population/), [`help variant recurrence`](/reference/commands/help-variant-recurrence/), [`help variant normalize`](/reference/commands/help-variant-normalize/), [`help sync`](/reference/commands/help-sync/), [`help sync hgnc`](/reference/commands/help-sync-hgnc/), [`help sync clingen`](/reference/commands/help-sync-clingen/), [`help sync gencc`](/reference/commands/help-sync-gencc/), [`help sync wikipathways`](/reference/commands/help-sync-wikipathways/), [`help sync cbioportal-studies`](/reference/commands/help-sync-cbioportal-studies/), [`help sync ema`](/reference/commands/help-sync-ema/), [`help sync ddinter`](/reference/commands/help-sync-ddinter/), [`help sync who-pq`](/reference/commands/help-sync-who-pq/), [`help sync gtr`](/reference/commands/help-sync-gtr/), [`help sync who-ivd`](/reference/commands/help-sync-who-ivd/), [`help sync fda-cdx`](/reference/commands/help-sync-fda-cdx/), [`help skill`](/reference/commands/help-skill/), [`help skill list`](/reference/commands/help-skill-list/), [`help skill render`](/reference/commands/help-skill-render/), [`help skill status`](/reference/commands/help-skill-status/), [`help skill install`](/reference/commands/help-skill-install/), [`help source`](/reference/commands/help-source/), [`help source list`](/reference/commands/help-source-list/), [`help version`](/reference/commands/help-version/), [`help mcp-config`](/reference/commands/help-mcp-config/), [`help health`](/reference/commands/help-health/), [`help store`](/reference/commands/help-store/), [`help store clean`](/reference/commands/help-store-clean/), [`help serve`](/reference/commands/help-serve/), [`help schema`](/reference/commands/help-schema/), [`help biomarker`](/reference/commands/help-biomarker/), [`help papers`](/reference/commands/help-papers/), [`help organization`](/reference/commands/help-organization/), [`help assay-count`](/reference/commands/help-assay-count/), [`help gwas`](/reference/commands/help-gwas/), [`help features`](/reference/commands/help-features/), [`help isoforms`](/reference/commands/help-isoforms/), [`help domains`](/reference/commands/help-domains/), [`help complexes`](/reference/commands/help-complexes/), [`help complex-members`](/reference/commands/help-complex-members/), [`help structures`](/reference/commands/help-structures/), [`help sequence`](/reference/commands/help-sequence/), [`help phenotype`](/reference/commands/help-phenotype/), [`help genes`](/reference/commands/help-genes/), [`help events`](/reference/commands/help-events/), [`help study`](/reference/commands/help-study/), [`help pgx`](/reference/commands/help-pgx/), [`help diagnostic`](/reference/commands/help-diagnostic/), [`help adverse-event`](/reference/commands/help-adverse-event/), [`help disease`](/reference/commands/help-disease/), [`help drug`](/reference/commands/help-drug/), [`help gene`](/reference/commands/help-gene/), [`help supplement`](/reference/commands/help-supplement/), [`help pdf`](/reference/commands/help-pdf/), [`help text`](/reference/commands/help-text/), [`help citations`](/reference/commands/help-citations/), [`help references`](/reference/commands/help-references/), [`help citation-evidence`](/reference/commands/help-citation-evidence/), [`help recommendations`](/reference/commands/help-recommendations/), [`help document`](/reference/commands/help-document/), [`help assertions`](/reference/commands/help-assertions/), [`help population`](/reference/commands/help-population/), [`help recurrence`](/reference/commands/help-recurrence/), [`help normalize`](/reference/commands/help-normalize/), [`help help`](/reference/commands/help-help/), [`help network`](/reference/commands/help-network/), [`help sources`](/reference/commands/help-sources/), [`help config`](/reference/commands/help-config/), [`help relations`](/reference/commands/help-relations/), [`help network proxy`](/reference/commands/help-network-proxy/), [`help network ca_bundle`](/reference/commands/help-network-ca_bundle/) |
+| [`biomcp.key/5`](/reference/schemas/biomcp-key-5/) | [`help key`](/reference/commands/help-key/), [`help key list`](/reference/commands/help-key-list/), [`help key set`](/reference/commands/help-key-set/), [`help key remove`](/reference/commands/help-key-remove/), [`help key ncbi`](/reference/commands/help-key-ncbi/), [`help key semantic-scholar`](/reference/commands/help-key-semantic-scholar/), [`help key orcid`](/reference/commands/help-key-orcid/), [`help key oncokb`](/reference/commands/help-key-oncokb/), [`help key alphagenome`](/reference/commands/help-key-alphagenome/), [`help key nci`](/reference/commands/help-key-nci/), [`help key openfda`](/reference/commands/help-key-openfda/) |
+| [`biomcp.nci-trial-cards/8`](/reference/schemas/biomcp-nci-trial-cards-8/) | [`get trial`](/reference/commands/get-trial/), [`get`](/reference/commands/get/) |
+| [`biomcp.nci-trial-page/10`](/reference/schemas/biomcp-nci-trial-page-10/) | [`search trial`](/reference/commands/search-trial/), [`search`](/reference/commands/search/) |
+| [`biomcp.orcid-works/8`](/reference/schemas/biomcp-orcid-works-8/) | [`author papers`](/reference/commands/author-papers/), [`author`](/reference/commands/author/) |
+| [`biomcp.organization-page/4`](/reference/schemas/biomcp-organization-page-4/) | [`search organization`](/reference/commands/search-organization/), [`search`](/reference/commands/search/) |
+| [`biomcp.pathway-card/10`](/reference/schemas/biomcp-pathway-card-10/) | [`get pathway`](/reference/commands/get-pathway/), [`get`](/reference/commands/get/) |
+| [`biomcp.pathway-events/6`](/reference/schemas/biomcp-pathway-events-6/) | [`pathway events`](/reference/commands/pathway-events/), [`pathway`](/reference/commands/pathway/) |
+| [`biomcp.pathway-genes/9`](/reference/schemas/biomcp-pathway-genes-9/) | [`pathway genes`](/reference/commands/pathway-genes/), [`pathway`](/reference/commands/pathway/) |
+| [`biomcp.pathway-page/8`](/reference/schemas/biomcp-pathway-page-8/) | [`search pathway`](/reference/commands/search-pathway/), [`search`](/reference/commands/search/) |
+| [`biomcp.pgx-annotation/5`](/reference/schemas/biomcp-pgx-annotation-5/) | [`get pgx`](/reference/commands/get-pgx/), [`get`](/reference/commands/get/) |
+| [`biomcp.pgx-annotations/5`](/reference/schemas/biomcp-pgx-annotations-5/) | [`get pgx`](/reference/commands/get-pgx/), [`get`](/reference/commands/get/) |
+| [`biomcp.pgx-card/4`](/reference/schemas/biomcp-pgx-card-4/) | [`get pgx`](/reference/commands/get-pgx/), [`get`](/reference/commands/get/) |
+| [`biomcp.pgx-diplotype/4`](/reference/schemas/biomcp-pgx-diplotype-4/) | [`get pgx`](/reference/commands/get-pgx/), [`get`](/reference/commands/get/) |
+| [`biomcp.pgx-guidelines/4`](/reference/schemas/biomcp-pgx-guidelines-4/) | [`get pgx`](/reference/commands/get-pgx/), [`get`](/reference/commands/get/) |
+| [`biomcp.pgx-page/6`](/reference/schemas/biomcp-pgx-page-6/) | [`search pgx`](/reference/commands/search-pgx/), [`search`](/reference/commands/search/) |
+| [`biomcp.pgx-recommendations/5`](/reference/schemas/biomcp-pgx-recommendations-5/) | [`get pgx`](/reference/commands/get-pgx/), [`get`](/reference/commands/get/) |
+| [`biomcp.phenotype-card/5`](/reference/schemas/biomcp-phenotype-card-5/) | [`get phenotype`](/reference/commands/get-phenotype/), [`get`](/reference/commands/get/) |
+| [`biomcp.phenotype-diseases/7`](/reference/schemas/biomcp-phenotype-diseases-7/) | [`get phenotype`](/reference/commands/get-phenotype/), [`get`](/reference/commands/get/) |
+| [`biomcp.phenotype-genes/7`](/reference/schemas/biomcp-phenotype-genes-7/) | [`get phenotype`](/reference/commands/get-phenotype/), [`get`](/reference/commands/get/) |
+| [`biomcp.phenotype-hierarchy/5`](/reference/schemas/biomcp-phenotype-hierarchy-5/) | [`get phenotype`](/reference/commands/get-phenotype/), [`get`](/reference/commands/get/) |
+| [`biomcp.phenotype-search/5`](/reference/schemas/biomcp-phenotype-search-5/) | [`search phenotype`](/reference/commands/search-phenotype/), [`search`](/reference/commands/search/) |
+| [`biomcp.phenotype-synonyms/4`](/reference/schemas/biomcp-phenotype-synonyms-4/) | [`get phenotype`](/reference/commands/get-phenotype/), [`get`](/reference/commands/get/) |
+| [`biomcp.phenotype-xrefs/4`](/reference/schemas/biomcp-phenotype-xrefs-4/) | [`get phenotype`](/reference/commands/get-phenotype/), [`get`](/reference/commands/get/) |
+| [`biomcp.protein-card/10`](/reference/schemas/biomcp-protein-card-10/) | [`get protein`](/reference/commands/get-protein/), [`get`](/reference/commands/get/) |
+| [`biomcp.protein-complex-members/4`](/reference/schemas/biomcp-protein-complex-members-4/) | [`protein complex-members`](/reference/commands/protein-complex-members/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.protein-complexes/5`](/reference/schemas/biomcp-protein-complexes-5/) | [`protein complexes`](/reference/commands/protein-complexes/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.protein-domains/7`](/reference/schemas/biomcp-protein-domains-7/) | [`protein domains`](/reference/commands/protein-domains/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.protein-features/4`](/reference/schemas/biomcp-protein-features-4/) | [`protein features`](/reference/commands/protein-features/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.protein-function/4`](/reference/schemas/biomcp-protein-function-4/) | [`get protein`](/reference/commands/get-protein/), [`get`](/reference/commands/get/) |
+| [`biomcp.protein-isoforms/4`](/reference/schemas/biomcp-protein-isoforms-4/) | [`protein isoforms`](/reference/commands/protein-isoforms/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.protein-page/5`](/reference/schemas/biomcp-protein-page-5/) | [`search protein`](/reference/commands/search-protein/), [`search`](/reference/commands/search/) |
+| [`biomcp.protein-sequence/4`](/reference/schemas/biomcp-protein-sequence-4/) | [`protein sequence`](/reference/commands/protein-sequence/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.protein-structures/5`](/reference/schemas/biomcp-protein-structures-5/) | [`protein structures`](/reference/commands/protein-structures/), [`protein`](/reference/commands/protein/) |
+| [`biomcp.registered-keys/5`](/reference/schemas/biomcp-registered-keys-5/) | [`key list`](/reference/commands/key-list/), [`key set`](/reference/commands/key-set/), [`key remove`](/reference/commands/key-remove/), [`key`](/reference/commands/key/) |
+| [`biomcp.schema-catalog/4`](/reference/schemas/biomcp-schema-catalog-4/) | [`schema`](/reference/commands/schema/) |
+| [`biomcp.store-clean/4`](/reference/schemas/biomcp-store-clean-4/) | [`store clean`](/reference/commands/store-clean/), [`store`](/reference/commands/store/) |
+| [`biomcp.study-card/7`](/reference/schemas/biomcp-study-card-7/) | [`get study`](/reference/commands/get-study/), [`get`](/reference/commands/get/) |
+| [`biomcp.study-files/3`](/reference/schemas/biomcp-study-files-3/) | [`get study`](/reference/commands/get-study/), [`get`](/reference/commands/get/) |
+| [`biomcp.study-mutations/1`](/reference/schemas/biomcp-study-mutations-1/) | [`get study`](/reference/commands/get-study/), [`get`](/reference/commands/get/) |
+| [`biomcp.study-page/5`](/reference/schemas/biomcp-study-page-5/) | [`search study`](/reference/commands/search-study/), [`search`](/reference/commands/search/) |
+| [`biomcp.study-profiles/4`](/reference/schemas/biomcp-study-profiles-4/) | [`get study`](/reference/commands/get-study/), [`get`](/reference/commands/get/) |
+| [`biomcp.study-sample-lists/4`](/reference/schemas/biomcp-study-sample-lists-4/) | [`get study`](/reference/commands/get-study/), [`get`](/reference/commands/get/) |
+| [`biomcp.study-samples/1`](/reference/schemas/biomcp-study-samples-1/) | [`get study`](/reference/commands/get-study/), [`get`](/reference/commands/get/) |
+| [`biomcp.switchable-sources/1`](/reference/schemas/biomcp-switchable-sources-1/) | [`source`](/reference/commands/source/), [`source list`](/reference/commands/source-list/) |
+| [`biomcp.sync/7`](/reference/schemas/biomcp-sync-7/) | [`sync`](/reference/commands/sync/) |
+| [`biomcp.trial-cards/9`](/reference/schemas/biomcp-trial-cards-9/) | [`get trial`](/reference/commands/get-trial/), [`get`](/reference/commands/get/) |
+| [`biomcp.trial-document/7`](/reference/schemas/biomcp-trial-document-7/) | [`trial document`](/reference/commands/trial-document/), [`trial`](/reference/commands/trial/) |
+| [`biomcp.trial-page/14`](/reference/schemas/biomcp-trial-page-14/) | [`search trial`](/reference/commands/search-trial/), [`search`](/reference/commands/search/) |
+| [`biomcp.vaers-summary/5`](/reference/schemas/biomcp-vaers-summary-5/) | [`search adverse-event`](/reference/commands/search-adverse-event/), [`search`](/reference/commands/search/) |
+| [`biomcp.variant-assertions/8`](/reference/schemas/biomcp-variant-assertions-8/) | [`variant assertions`](/reference/commands/variant-assertions/), [`variant`](/reference/commands/variant/) |
+| [`biomcp.variant-card/15`](/reference/schemas/biomcp-variant-card-15/) | [`get variant`](/reference/commands/get-variant/), [`get`](/reference/commands/get/) |
+| [`biomcp.variant-normalization/8`](/reference/schemas/biomcp-variant-normalization-8/) | [`variant normalize`](/reference/commands/variant-normalize/), [`variant`](/reference/commands/variant/) |
+| [`biomcp.variant-page/16`](/reference/schemas/biomcp-variant-page-16/) | [`search variant`](/reference/commands/search-variant/), [`search`](/reference/commands/search/) |
+| [`biomcp.variant-population/13`](/reference/schemas/biomcp-variant-population-13/) | [`variant population`](/reference/commands/variant-population/), [`variant`](/reference/commands/variant/) |
+| [`biomcp.variant-recurrence/11`](/reference/schemas/biomcp-variant-recurrence-11/) | [`variant recurrence`](/reference/commands/variant-recurrence/), [`variant`](/reference/commands/variant/) |
+| [`biomcp.wikipathways-sync/4`](/reference/schemas/biomcp-wikipathways-sync-4/) | [`sync`](/reference/commands/sync/) |
 
 ## Next
 

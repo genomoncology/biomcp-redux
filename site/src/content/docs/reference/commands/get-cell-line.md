@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: get cell-line
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp get cell-line` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reads one cell line by its ID, and optionally one named section such as its variants. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
-> One exact identity and an optional bounded named section. An assay count is not an activity or sensitivity count. No treatment response is inferred; no bioinformatics tool runs.
+> Get cell line details and cross-references. Sources: cellosaurus.
 
 ## Usage
 
@@ -26,10 +26,10 @@ biomcp get cell-line [OPTIONS] <id> [section]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--section-limit` | integer | no | min 1, max 25 |  | Explicit row limit for each requested collection; native variation defaults to three. |
-| `--section-offset` | integer | no | min 0 |  | Offset within each independently requested collection. |
+| `--section-limit` | integer | no | min 1, max 25 |  | Explicit row limit for each requested collection; source variation defaults to three. Value form: integer. Example: --section-limit 25. Command sources: cellosaurus; source restrictions in the field description apply. |
+| `--section-offset` | integer | no | min 0 |  | Offset within each independently requested collection. Value form: integer. Example: --section-offset 1. Command sources: cellosaurus; source restrictions in the field description apply. |
 | `id` (position 1) | string | yes |  |  | One exact primary accession or qualified source ID. |
-| `section` (position 2) | string | no |  | `names`, `identity`, `xrefs`, `variants`, `chembl`, `all` | Omit for the default card; all returns bounded first pages without an assay count. |
+| `section` (position 2) | string | no |  | `names`, `identity`, `xrefs`, `variants`, `chembl`, `all` | Omit for the default card; all returns bounded first pages; help get cell-line Listed choices accept any letter case; replies use their listed spelling. |
 
 ## Sections
 
@@ -37,10 +37,10 @@ Omit for the default card; all returns bounded first pages without an assay coun
 
 | Section | Description |
 | --- | --- |
-| `names` | Native display names. |
+| `names` | Source display names. |
 | `identity` | Independent species, diseases and qualified warnings. |
 | `xrefs` | Complete source cross-reference rows. |
-| `variants` | Complete native variation rows. |
+| `variants` | Complete source variation rows. |
 | `chembl` | Exact accession-linked ChEMBL cell metadata. |
 | `all` | Bounded first page of every named section. |
 
@@ -56,9 +56,17 @@ biomcp get cell-line CVCL_2119
 biomcp get cell-line CVCL_0004
 ```
 
+```sh
+biomcp get cell-line CVCL_0004 xrefs --section-limit 25
+```
+
+```sh
+biomcp get cell-line CVCL_0004 names --section-limit 2 --section-offset 1
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.cell_line_card/3`](/reference/schemas/biomcp-cell-line-card-3/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is one of [`biomcp.cell-line-card/8`](/reference/schemas/biomcp-cell-line-card-8/), [`biomcp.cell-line-chembl/7`](/reference/schemas/biomcp-cell-line-chembl-7/), [`biomcp.cell-line-identity/6`](/reference/schemas/biomcp-cell-line-identity-6/), [`biomcp.cell-line-names/5`](/reference/schemas/biomcp-cell-line-names-5/), [`biomcp.cell-line-variants/7`](/reference/schemas/biomcp-cell-line-variants-7/), [`biomcp.cell-line-xrefs/6`](/reference/schemas/biomcp-cell-line-xrefs-6/), whose page lists its fields.
 
 ## Next
 

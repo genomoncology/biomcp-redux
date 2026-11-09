@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search phenotype
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp search phenotype` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds Human Phenotype Ontology (HP) terms by text in HPO or Monarch. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+> Search human phenotypes in HPO. Sources: hpo, monarch.
 
 ## Usage
 
@@ -26,10 +26,10 @@ biomcp search phenotype [OPTIONS] <text>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--limit` | integer | no | min 1, max 50 |  | Maximum native headers, default five. |
-| `--offset` | integer | no | min 0 |  | Native source row offset. |
-| `--source` | string | no |  | `hpo`, `monarch` | Monarch only; HPO search is unsupported. |
-| `text` (position 1) | string | yes |  |  | Unchanged literal term search text. |
+| `--limit` | integer | no | min 1, max 50 |  | Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source source row offset. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply. |
+| `--source` | string | no |  | `hpo`, `monarch` | Monarch only; HPO search is unsupported; help search phenotype Monarch only; HPO search is unsupported. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply. |
+| `text` (position 1) | string | yes |  |  | Unchanged exact term search text. |
 
 ## Sources
 
@@ -47,9 +47,13 @@ biomcp search phenotype synthetic
 biomcp search phenotype synthetic --limit 1
 ```
 
+```sh
+biomcp search phenotype headache --source monarch
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.phenotype-search/1`](/reference/schemas/biomcp-phenotype-search-1/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.phenotype-search/5`](/reference/schemas/biomcp-phenotype-search-5/), whose page lists its fields.
 
 ## Next
 

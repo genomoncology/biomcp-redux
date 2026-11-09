@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: key list
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-`biomcp key list` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the keys BioMCP supports and where each one is set, without showing values. This page lists its reply.
+`biomcp key list` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the keys BioMCP supports and where each one is set, without showing values. This page lists its examples and reply.
 
 The program's help describes it:
 
-> List supported credential names and their origin without values.
+> List source credentials and their origins without showing values.
 
 ## Usage
 
@@ -22,9 +22,17 @@ The program's help describes it:
 biomcp key list
 ```
 
+## Examples
+
+The program's help gives this example.
+
+```sh
+biomcp key list
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.registered-keys/2`](/reference/schemas/biomcp-registered-keys-2/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.registered-keys/5`](/reference/schemas/biomcp-registered-keys-5/), whose page lists its fields.
 
 ## Next
 

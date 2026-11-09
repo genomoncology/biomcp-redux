@@ -5,14 +5,14 @@ description: "Every BioMCP 0.9 command and what BioMCP 1.0.0 does with it:
 goal: Find what happened to one 0.9 command or option in BioMCP 1.0.
 reader: A BioMCP 0.9 user moving scripts or agents to 1.0
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or renamed, 38 dropped by ruling, 5 deferred by ruling. [Upgrading from 0.9](/upgrade-from-0-9/) explains the main changes.
+This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 69 ported or renamed, 37 dropped by ruling, 4 deferred by ruling. [Upgrading from 0.9](/upgrade-from-0-9/) explains the main changes.
 
 | 0.9 command | Outcome in 1.0 | Dropped options | Deferred options |
 | --- | --- | --- | --- |
-| `search adverse-event` | Ported or renamed | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification`, `--manufacturer`, `--product-code` | — |
+| `search adverse-event` | Ported or renamed | `--drug`, `--outcome`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--classification` | — |
 | `get adverse-event` | Ported or renamed | — | — |
 | `drug adverse-events` | Dropped by ruling | `--reaction`, `--outcome`, `--serious`, `--date-from`, `--date-to`, `--suspect-only`, `--sex`, `--age-min`, `--age-max`, `--reporter`, `--count`, `--type`, `--limit`, `--offset` | — |
 | `search article` | Ported or renamed | `--ranking-mode`, `--weight-semantic`, `--weight-lexical`, `--weight-citations`, `--weight-position`, `--max-per-source`, `--session`, `--debug-plan`, `--full` | — |
@@ -27,10 +27,10 @@ This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or 
 | `article recommendations` | Ported or renamed | — | — |
 | `variant articles` | Ported or renamed | `--input`, `--debug-plan`, `--verify-identity`, `--confirmed-only`, `--strategy` | — |
 | `disease articles` | Ported or renamed | — | — |
-| `search author` | Ported or renamed | — | — |
+| `search author` | Ported or renamed | `--query` | — |
 | `get author` | Ported or renamed | — | — |
 | `author papers` | Ported or renamed | — | — |
-| `search cell-line` | Ported or renamed | — | — |
+| `search cell-line` | Ported or renamed | `--query` | — |
 | `get cell-line` | Ported or renamed | — | — |
 | `cell-line drug-response` | Deferred by ruling | — | `--dataset`, `--limit`, `--offset` |
 | `cache clean` | Ported or renamed | `--dry-run`, `--max-age`, `--max-size` | — |
@@ -47,7 +47,7 @@ This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or 
 | `chart violin` | Dropped by ruling | — | — |
 | `chart waterfall` | Dropped by ruling | — | — |
 | `discover` | Dropped by ruling | `--full`, `--limit`, `--offset`, `--search` | — |
-| `gencc sync` | Deferred by ruling | — | — |
+| `gencc sync` | Ported or renamed | — | — |
 | `serve-http` | Ported or renamed | `--unsafe-allow-any-host` | — |
 | `skill install` | Ported or renamed | — | — |
 | `skill list` | Ported or renamed | — | — |
@@ -60,7 +60,7 @@ This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or 
 | `cache stats` | Dropped by ruling | — | — |
 | `health` | Ported or renamed | `--api`, `--apis-only`, `--fail-on-error` | — |
 | `mcp tools` | Dropped by ruling | — | — |
-| `mcp-config` | Ported or renamed | — | — |
+| `mcp-config` | Ported or renamed | `--absolute-path` | — |
 | `version` | Ported or renamed | — | — |
 | `update` | Dropped by ruling | `--check` | — |
 | `uninstall` | Dropped by ruling | — | — |
@@ -96,7 +96,7 @@ This map lists 110 BioMCP 0.9 commands and their outcome in 1.0.0: 67 ported or 
 | `enrich` | Dropped by ruling | `--limit` | — |
 | `search pgx` | Ported or renamed | `--drug`, `--evidence` | `--pgx-testing` |
 | `get pgx` | Ported or renamed | `--full` | — |
-| `search phenotype` | Dropped by ruling | `--limit`, `--offset` | — |
+| `search phenotype` | Ported or renamed | `--limit`, `--offset` | — |
 | `search protein` | Ported or renamed | `--all-species` | `--include-unreviewed`, `--disease`, `--existence` |
 | `get protein` | Ported or renamed | — | — |
 | `protein structures` | Ported or renamed | — | — |

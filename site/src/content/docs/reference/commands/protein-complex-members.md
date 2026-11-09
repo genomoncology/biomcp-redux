@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: protein complex-members
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp protein complex-members` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the members of one Complex Portal complex that holds the protein, five at a time. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Page five native participants of an exact Complex Portal complex containing the anchor. No interaction or clinical meaning is inferred; no bioinformatics tool runs.
+> List the members of a protein complex. Sources: complex-portal.
 
 ## Usage
 
@@ -26,10 +26,10 @@ biomcp protein complex-members [OPTIONS] <accession>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--complex` | string | yes |  |  | Exact complex whose native participants contain the anchor. |
-| `--limit` | integer | no | min 1, max 25 |  | Five rows by default, at most 25. |
-| `--offset` | integer | no | min 0 |  | Native or retained page offset. |
-| `--pool` | string | no |  |  | The ID of a stored list, from an earlier reply, so later pages read the same data. |
+| `--complex` | string | yes |  |  | Exact complex whose source participants contain the anchor. Value form: string. Example: --complex CPX-715. Command sources: complex-portal; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 25 |  | Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply. |
+| `--pool` | string | no |  |  | Retained collection identity. Value form: string. Example: --pool &lt;pool&gt; (syntax; replace the placeholder with your retained value). Command sources: complex-portal; source restrictions in the field description apply. |
 | `accession` (position 1) | string | yes |  |  | Exact source protein sequence identity. |
 
 ## Examples
@@ -46,7 +46,7 @@ biomcp protein complex-members P00533 --complex CPX-715 --limit 1
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.protein_complex_members/1`](/reference/schemas/biomcp-protein-complex-members-1/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.protein-complex-members/4`](/reference/schemas/biomcp-protein-complex-members-4/), whose page lists its fields.
 
 ## Next
 

@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: skill install
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-`biomcp skill install` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It installs the agent guide into a folder. This page lists its arguments.
+`biomcp skill install` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It installs the agent guide into a folder. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -26,8 +26,16 @@ biomcp skill install [OPTIONS]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--force` | boolean | no |  |  | Repair managed files; retain unrelated files. |
-| `directory` | string | yes |  |  |  |
+| `--force` | boolean | no |  |  | Repair managed files; retain unrelated files. Value form: boolean. Example: --force. Local command option; independent of source selection. |
+| `directory` | string | yes |  |  | Directory to inspect or install BioMCP guidance. |
+
+## Examples
+
+The program's help gives this example.
+
+```sh
+biomcp skill install biomcp-guidance
+```
 
 ## Next
 

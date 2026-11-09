@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: mcp-config
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-`biomcp mcp-config` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the configuration an MCP client needs to start BioMCP. This page lists its arguments.
+`biomcp mcp-config` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the configuration an MCP client needs to start BioMCP. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -26,8 +26,15 @@ biomcp mcp-config [OPTIONS]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--absolute-path` | boolean | no |  |  | Retained compatibility flag; executable paths are always absolute. |
-| `--client` | string | no |  | `mcp-servers`, `json`, `claude-desktop`, `claude-code`, `cursor`, `cline`, `servers`, `vscode`, `codex` | Choose a JSON client or the codex shell registration command; default mcp-servers. |
+| `--client` | string | no |  | `mcp-servers`, `json`, `claude-desktop`, `claude-code`, `cursor`, `cline`, `servers`, `vscode`, `codex` | Choose a JSON client or the codex shell registration command; default mcp-servers. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --client mcp-servers. Local command option; independent of source selection. |
+
+## Examples
+
+The program's help gives this example.
+
+```sh
+biomcp mcp-config
+```
 
 ## Next
 

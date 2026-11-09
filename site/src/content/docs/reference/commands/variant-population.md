@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: variant population
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp variant population` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists gnomAD population frequency details for one variant. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Read a bounded ancestry-detail page from the exact source-given GRCh38 allele.
+> Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
 
 ## Usage
 
@@ -26,11 +26,11 @@ biomcp variant population [OPTIONS] <input>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--build` | value | no |  |  | Explicit source assembly when required by identity input. |
-| `--detail` | boolean | no |  |  | Read source ancestry groups, preserving overlapping groups individually. |
-| `--limit` | integer | no | min 1, max 50 |  | Maximum rows per page. |
-| `--offset` | integer | no | min 0 |  | Native rows to skip. |
-| `--resolver` | string | no |  | `car`, `mutalyzer`, `variantvalidator` | Resolver for reference-qualified input. |
+| `--build` | string | no |  | `GRCh37`, `GRCh38` | Explicit source assembly when required by identity; help variant population Explicit source assembly when required by identity input. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply. |
+| `--detail` | boolean | no |  |  | Read source ancestry groups, preserving overlapping groups individually. Value form: boolean. Example: --detail. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 50 |  | Maximum rows per page. Value form: integer. Example: --limit 3. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source rows to skip. Value form: integer. Example: --offset 10. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply. |
+| `--resolver` | string | no |  | `car`, `mutalyzer`, `variantvalidator` | Resolver for reference-qualified input; help variant population Resolver for reference-qualified input. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply. |
 | `input` (position 1) | string | yes |  |  | Exact published allele identity; ambiguous candidates must first be selected. |
 
 ## Examples
@@ -45,9 +45,21 @@ biomcp variant population CA123643 --detail
 biomcp variant population CA123643 --detail --offset 10
 ```
 
+```sh
+biomcp variant population 1-11796321-G-A --detail --limit 3
+```
+
+```sh
+biomcp variant population 7-140753336-A-T --resolver variantvalidator
+```
+
+```sh
+biomcp variant population CA123643 --resolver variantvalidator --build GRCh38
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.variant_population/4`](/reference/schemas/biomcp-variant-population-4/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.variant-population/13`](/reference/schemas/biomcp-variant-population-13/), whose page lists its fields.
 
 ## Next
 

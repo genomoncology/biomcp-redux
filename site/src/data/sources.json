@@ -13,12 +13,12 @@
   {
     "source": "cpic",
     "name": "CPIC",
-    "use": "noncommercial",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "ClinPGx data use policy; noncommercial access restriction; captured policy was a JavaScript shell",
-    "terms_url": "https://www.clinpgx.org/page/dataUsagePolicy",
+    "terms": "CPIC data use policy",
+    "terms_url": "https://cpicpgx.org/about/terms-of-use/",
     "route": "/sources/cpic/"
   },
   {
@@ -57,7 +57,7 @@
   {
     "source": "who-pq",
     "name": "WHO prequalified finished products",
-    "use": "restricted",
+    "use": "noncommercial",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -99,9 +99,20 @@
     "route": "/sources/fda-510k/"
   },
   {
+    "source": "fda-device-recall",
+    "name": "FDA medical device recall",
+    "use": "open",
+    "key": "",
+    "keyUse": null,
+    "keyName": null,
+    "terms": "openFDA terms and license; third-party exceptions",
+    "terms_url": "https://open.fda.gov/terms/",
+    "route": "/sources/fda-device-recall/"
+  },
+  {
     "source": "gwas",
     "name": "GWAS Catalog",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -112,7 +123,7 @@
   {
     "source": "myvariant",
     "name": "MyVariant.info",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -123,40 +134,40 @@
   {
     "source": "car",
     "name": "ClinGen Allele Registry",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "ClinGen Allele Registry service terms; output rights require review",
-    "terms_url": "https://clinicalgenome.org/about/terms-of-use/",
+    "terms": "ClinGen curated content: CC0 1.0",
+    "terms_url": "https://clinicalgenome.org/docs/terms-of-use/",
     "route": "/sources/clingen-allele-registry/"
   },
   {
     "source": "mutalyzer",
     "name": "Mutalyzer",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "Mutalyzer service output terms require review",
+    "terms": "Citation requested; commercial use of results not addressed",
     "terms_url": "https://mutalyzer.nl/",
     "route": "/sources/mutalyzer/"
   },
   {
     "source": "variantvalidator",
     "name": "VariantValidator",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "VariantValidator service output terms require review",
+    "terms": "Citation requested; commercial use of results not addressed",
     "terms_url": "https://variantvalidator.org/help/about/",
     "route": "/sources/variantvalidator/"
   },
   {
     "source": "ctgov",
     "name": "ClinicalTrials.gov",
-    "use": "restricted",
+    "use": "attribution",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -178,7 +189,7 @@
   {
     "source": "mygene",
     "name": "MyGene.info",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -189,7 +200,7 @@
   {
     "source": "oncokb",
     "name": "OncoKB",
-    "use": "restricted",
+    "use": "licensed",
     "key": "Required: oncokb",
     "keyUse": "Required",
     "keyName": "oncokb",
@@ -200,7 +211,7 @@
   {
     "source": "alphagenome",
     "name": "AlphaGenome",
-    "use": "restricted",
+    "use": "licensed",
     "key": "Required: alphagenome",
     "keyUse": "Required",
     "keyName": "alphagenome",
@@ -288,18 +299,18 @@
   {
     "source": "hotspots",
     "name": "Cancer Hotspots",
-    "use": "restricted",
+    "use": "attribution",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "Publisher-specific terms; data reuse unverified",
+    "terms": "ODbL: attribution and share-alike",
     "terms_url": "https://www.cancerhotspots.org/",
     "route": "/sources/hotspots/"
   },
   {
     "source": "clinvar",
     "name": "ClinVar",
-    "use": "restricted",
+    "use": "open",
     "key": "Optional; raises the rate limit: ncbi",
     "keyUse": "Optional; raises the rate limit",
     "keyName": "ncbi",
@@ -310,12 +321,12 @@
   {
     "source": "erepo",
     "name": "ClinGen Evidence Repository",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "ClinGen sharing policy; record rights unverified",
-    "terms_url": "https://clinicalgenome.org/about/terms-of-use/",
+    "terms": "ClinGen curated content: CC0 1.0",
+    "terms_url": "https://clinicalgenome.org/docs/terms-of-use/",
     "route": "/sources/clingen-erepo/"
   },
   {
@@ -328,6 +339,17 @@
     "terms": "CC0 1.0",
     "terms_url": "https://clinicalgenome.org/docs/terms-of-use/",
     "route": "/sources/clingen/"
+  },
+  {
+    "source": "gencc",
+    "name": "GenCC",
+    "use": "open",
+    "key": "",
+    "keyUse": null,
+    "keyName": null,
+    "terms": "CC0 1.0",
+    "terms_url": "https://thegencc.org/download",
+    "route": "/sources/gencc/"
   },
   {
     "source": "hpa",
@@ -343,7 +365,7 @@
   {
     "source": "pubmed",
     "name": "PubMed",
-    "use": "restricted",
+    "use": "open",
     "key": "Optional; raises the rate limit: ncbi",
     "keyUse": "Optional; raises the rate limit",
     "keyName": "ncbi",
@@ -354,7 +376,7 @@
   {
     "source": "europepmc",
     "name": "Europe PMC",
-    "use": "restricted",
+    "use": "per-record",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -376,7 +398,7 @@
   {
     "source": "litsense",
     "name": "LitSense2",
-    "use": "restricted",
+    "use": "per-record",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -387,7 +409,7 @@
   {
     "source": "pubtator",
     "name": "PubTator3",
-    "use": "restricted",
+    "use": "open",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -398,7 +420,7 @@
   {
     "source": "pmc-oa",
     "name": "PMC Open Access",
-    "use": "restricted",
+    "use": "per-record",
     "key": "",
     "keyUse": null,
     "keyName": null,
@@ -442,7 +464,7 @@
   {
     "source": "nci",
     "name": "NCI Clinical Trials Search",
-    "use": "restricted",
+    "use": "open",
     "key": "Required: nci",
     "keyUse": "Required",
     "keyName": "nci",
@@ -453,11 +475,11 @@
   {
     "source": "cbioportal",
     "name": "cBioPortal",
-    "use": "restricted",
+    "use": "attribution",
     "key": "",
     "keyUse": null,
     "keyName": null,
-    "terms": "cBioPortal study-specific terms unverified; commercial restrictions may apply",
+    "terms": "ODbL with attribution; individual studies may restrict commercial use",
     "terms_url": "https://docs.cbioportal.org/user-guide/faq/",
     "route": "/sources/cbioportal/"
   },
@@ -515,6 +537,17 @@
     "terms": "openFDA terms; original label rights retained",
     "terms_url": "https://open.fda.gov/terms/",
     "route": "/sources/drugsfda/"
+  },
+  {
+    "source": "fda-drug-recall",
+    "name": "FDA drug recall",
+    "use": "open",
+    "key": "",
+    "keyUse": null,
+    "keyName": null,
+    "terms": "openFDA terms and license; third-party exceptions",
+    "terms_url": "https://open.fda.gov/terms/",
+    "route": "/sources/fda-drug-recall/"
   },
   {
     "source": "ema",
@@ -596,7 +629,7 @@
   {
     "source": "faers",
     "name": "FDA Adverse Event Reporting System",
-    "use": "open",
+    "use": "attribution",
     "key": "Optional; raises the rate limit: openfda",
     "keyUse": "Optional; raises the rate limit",
     "keyName": "openfda",
@@ -607,7 +640,7 @@
   {
     "source": "maude",
     "name": "FDA MAUDE",
-    "use": "open",
+    "use": "attribution",
     "key": "Optional; raises the rate limit: openfda",
     "keyUse": "Optional; raises the rate limit",
     "keyName": "openfda",
@@ -618,7 +651,7 @@
   {
     "source": "vaers",
     "name": "VAERS through CDC WONDER",
-    "use": "restricted",
+    "use": "attribution",
     "key": "",
     "keyUse": null,
     "keyName": null,

@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search gene
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp search gene` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds human genes by text, by cytoband, or both. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Search genes by text, cytoband, or their intersection.
+> Search human genes by name or identifier. Sources: hgnc.
 
 ## Usage
 
@@ -26,10 +26,10 @@ biomcp search gene [OPTIONS] [query]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--band` | string | no |  |  | A cytoband prefix. |
-| `--limit` | integer | no | min 1, max 50 |  | Number of results per page. |
-| `--locus-group` | string | no |  | `protein_coding`, `non_coding_rna`, `pseudogene`, `phenotype`, `other` | Optional HGNC locus group intersected with the selector. |
-| `--offset` | integer | no | min 0 |  | Number of results to skip. |
+| `--band` | string | no |  |  | A cytoband prefix. Value form: string. Example: --band 9p21.3. Command sources: hgnc; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 50 |  | Number of results per page. Value form: integer. Example: --limit 50. Command sources: hgnc; source restrictions in the field description apply. |
+| `--locus-group` | string | no |  | `protein_coding`, `non_coding_rna`, `pseudogene`, `phenotype`, `other` | Optional HGNC locus group intersected with the selector; help search gene Optional HGNC locus group intersected with the selector. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --locus-group pseudogene. Command sources: hgnc; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Number of results to skip. Value form: integer. Example: --offset 24. Command sources: hgnc; source restrictions in the field description apply. |
 | `query` (position 1) | string | no |  |  | Words matched against symbols, previous symbols, aliases and names. |
 
 ## Examples
@@ -44,9 +44,22 @@ biomcp search gene KRAS
 biomcp search gene p16
 ```
 
+```sh
+biomcp search gene --band 9p21.3
+```
+
+```sh
+biomcp search gene --band 9p21.3 --limit 50
+```
+
+```sh
+biomcp search gene --band 9p21.3 --locus-group pseudogene --limit 2 \
+  --offset 24
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.gene_page/3`](/reference/schemas/biomcp-gene-page-3/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.gene-page/8`](/reference/schemas/biomcp-gene-page-8/), whose page lists its fields.
 
 ## Next
 

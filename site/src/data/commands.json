@@ -1,12 +1,31 @@
 [
   {
+    "command": "search biomarker",
+    "entity": "biomarker",
+    "route": "/reference/commands/search-biomarker/",
+    "description": "Search NCI biomarker concepts by name or synonym.",
+    "schemas": [
+      "biomcp.biomarker-page/4"
+    ]
+  },
+  {
+    "command": "get biomarker",
+    "entity": "biomarker",
+    "route": "/reference/commands/get-biomarker/",
+    "description": "Get NCI biomarker concepts by code.",
+    "schemas": [
+      "biomcp.biomarker-result/4"
+    ]
+  },
+  {
     "command": "author papers",
     "entity": "author",
     "route": "/reference/commands/author-papers/",
     "description": "Lists the papers of one author record from Semantic Scholar or ORCID, a page at a time.",
     "schemas": [
-      "biomcp.author_papers/1",
-      "biomcp.author_paper_details/1"
+      "biomcp.author-paper-details/6",
+      "biomcp.author-papers/6",
+      "biomcp.orcid-works/8"
     ]
   },
   {
@@ -15,7 +34,16 @@
     "route": "/reference/commands/search-author/",
     "description": "Finds author records by name in Semantic Scholar.",
     "schemas": [
-      "biomcp.author_page/2"
+      "biomcp.author-page/5"
+    ]
+  },
+  {
+    "command": "search organization",
+    "entity": "organization",
+    "route": "/reference/commands/search-organization/",
+    "description": "Search clinical research organizations.",
+    "schemas": [
+      "biomcp.organization-page/4"
     ]
   },
   {
@@ -24,7 +52,7 @@
     "route": "/reference/commands/get-author/",
     "description": "Reads author records by their Semantic Scholar or ORCID ID, in the order you give.",
     "schemas": [
-      "biomcp.author_card/3"
+      "biomcp.author-card/6"
     ]
   },
   {
@@ -33,7 +61,7 @@
     "route": "/reference/commands/cell-line-assay-count/",
     "description": "Counts the ChEMBL assays recorded for one cell line.",
     "schemas": [
-      "biomcp.cell_line_assay_count/2"
+      "biomcp.cell-line-assay-count/6"
     ]
   },
   {
@@ -42,7 +70,8 @@
     "route": "/reference/commands/search-cell-line/",
     "description": "Finds cell lines by name in Cellosaurus.",
     "schemas": [
-      "biomcp.cell_line_page/2"
+      "biomcp.cell-line-filtered-page/1",
+      "biomcp.cell-line-page/7"
     ]
   },
   {
@@ -51,7 +80,12 @@
     "route": "/reference/commands/get-cell-line/",
     "description": "Reads one cell line by its ID, and optionally one named section such as its variants.",
     "schemas": [
-      "biomcp.cell_line_card/3"
+      "biomcp.cell-line-card/8",
+      "biomcp.cell-line-chembl/7",
+      "biomcp.cell-line-identity/6",
+      "biomcp.cell-line-names/5",
+      "biomcp.cell-line-variants/7",
+      "biomcp.cell-line-xrefs/6"
     ]
   },
   {
@@ -60,8 +94,11 @@
     "route": "/reference/commands/get-gwas/",
     "description": "Reads one GWAS Catalog association or study, and optionally its loci, associations or ancestries.",
     "schemas": [
-      "biomcp.gwas_association/1",
-      "biomcp.gwas_study/1"
+      "biomcp.gwas-ancestries/5",
+      "biomcp.gwas-association/6",
+      "biomcp.gwas-loci/4",
+      "biomcp.gwas-page/8",
+      "biomcp.gwas-study/6"
     ]
   },
   {
@@ -70,7 +107,8 @@
     "route": "/reference/commands/search-gwas/",
     "description": "Finds GWAS Catalog associations by trait, gene, variant, study or PubMed ID, smallest p-value first.",
     "schemas": [
-      "biomcp.gwas_page/3"
+      "biomcp.gwas-page/8",
+      "biomcp.gwas-study-page/1"
     ]
   },
   {
@@ -79,7 +117,7 @@
     "route": "/reference/commands/protein-features/",
     "description": "Lists UniProt features of one protein, five at a time, filtered by type or residue.",
     "schemas": [
-      "biomcp.protein_features/1"
+      "biomcp.protein-features/4"
     ]
   },
   {
@@ -88,7 +126,7 @@
     "route": "/reference/commands/protein-isoforms/",
     "description": "Lists the isoforms of one protein, five at a time.",
     "schemas": [
-      "biomcp.protein_isoforms/1"
+      "biomcp.protein-isoforms/4"
     ]
   },
   {
@@ -97,7 +135,7 @@
     "route": "/reference/commands/protein-domains/",
     "description": "Lists the InterPro domains of one protein, five at a time.",
     "schemas": [
-      "biomcp.protein_domains/2"
+      "biomcp.protein-domains/7"
     ]
   },
   {
@@ -106,7 +144,7 @@
     "route": "/reference/commands/protein-complexes/",
     "description": "Lists the Complex Portal complexes that hold one protein, five at a time.",
     "schemas": [
-      "biomcp.protein_complexes/2"
+      "biomcp.protein-complexes/5"
     ]
   },
   {
@@ -115,7 +153,7 @@
     "route": "/reference/commands/protein-complex-members/",
     "description": "Lists the members of one Complex Portal complex that holds the protein, five at a time.",
     "schemas": [
-      "biomcp.protein_complex_members/1"
+      "biomcp.protein-complex-members/4"
     ]
   },
   {
@@ -124,7 +162,7 @@
     "route": "/reference/commands/protein-structures/",
     "description": "Lists the PDB structures of one protein, five at a time.",
     "schemas": [
-      "biomcp.protein_structures/1"
+      "biomcp.protein-structures/5"
     ]
   },
   {
@@ -133,7 +171,7 @@
     "route": "/reference/commands/protein-sequence/",
     "description": "Prints the whole amino-acid sequence of one UniProt protein or isoform.",
     "schemas": [
-      "biomcp.protein_sequence/1"
+      "biomcp.protein-sequence/4"
     ]
   },
   {
@@ -142,7 +180,7 @@
     "route": "/reference/commands/search-protein/",
     "description": "Finds reviewed human UniProt proteins by text or by gene, five at a time.",
     "schemas": [
-      "biomcp.protein_page/1"
+      "biomcp.protein-page/5"
     ]
   },
   {
@@ -151,7 +189,8 @@
     "route": "/reference/commands/get-protein/",
     "description": "Reads UniProt protein records by accession, and optionally sections such as domains or sequence.",
     "schemas": [
-      "biomcp.protein_card/3"
+      "biomcp.protein-card/10",
+      "biomcp.protein-function/4"
     ]
   },
   {
@@ -160,7 +199,7 @@
     "route": "/reference/commands/search-phenotype/",
     "description": "Finds Human Phenotype Ontology (HP) terms by text in HPO or Monarch.",
     "schemas": [
-      "biomcp.phenotype-search/1"
+      "biomcp.phenotype-search/5"
     ]
   },
   {
@@ -169,7 +208,12 @@
     "route": "/reference/commands/get-phenotype/",
     "description": "Reads one HP term from HPO or Monarch, and optionally its synonyms, links, related diseases or genes.",
     "schemas": [
-      "biomcp.phenotype-card/1"
+      "biomcp.phenotype-card/5",
+      "biomcp.phenotype-diseases/7",
+      "biomcp.phenotype-genes/7",
+      "biomcp.phenotype-hierarchy/5",
+      "biomcp.phenotype-synonyms/4",
+      "biomcp.phenotype-xrefs/4"
     ]
   },
   {
@@ -178,7 +222,7 @@
     "route": "/reference/commands/search-pathway/",
     "description": "Finds human pathways in Reactome, the default, or WikiPathways.",
     "schemas": [
-      "biomcp.pathway_page/3"
+      "biomcp.pathway-page/8"
     ]
   },
   {
@@ -187,7 +231,7 @@
     "route": "/reference/commands/get-pathway/",
     "description": "Reads one Reactome or WikiPathways pathway, and optionally its summary, genes or events.",
     "schemas": [
-      "biomcp.pathway_card/5"
+      "biomcp.pathway-card/10"
     ]
   },
   {
@@ -196,7 +240,7 @@
     "route": "/reference/commands/pathway-genes/",
     "description": "Lists the genes and gene products of one pathway.",
     "schemas": [
-      "biomcp.pathway_genes/4"
+      "biomcp.pathway-genes/9"
     ]
   },
   {
@@ -205,7 +249,7 @@
     "route": "/reference/commands/pathway-events/",
     "description": "Lists the events, such as reactions, of one Reactome pathway.",
     "schemas": [
-      "biomcp.pathway_events/2"
+      "biomcp.pathway-events/6"
     ]
   },
   {
@@ -214,7 +258,7 @@
     "route": "/reference/commands/search-study/",
     "description": "Finds cBioPortal studies by text in a downloaded copy of the study list.",
     "schemas": [
-      "biomcp.study_page/1"
+      "biomcp.study-page/5"
     ]
   },
   {
@@ -223,7 +267,12 @@
     "route": "/reference/commands/get-study/",
     "description": "Reads one cBioPortal study, and optionally its profiles, sample lists or files.",
     "schemas": [
-      "biomcp.study_card/2"
+      "biomcp.study-card/7",
+      "biomcp.study-files/3",
+      "biomcp.study-mutations/1",
+      "biomcp.study-profiles/4",
+      "biomcp.study-sample-lists/4",
+      "biomcp.study-samples/1"
     ]
   },
   {
@@ -232,7 +281,7 @@
     "route": "/reference/commands/search-pgx/",
     "description": "Finds CPIC gene-drug pairs for a gene.",
     "schemas": [
-      "biomcp.pgx_page/2"
+      "biomcp.pgx-page/6"
     ]
   },
   {
@@ -241,8 +290,12 @@
     "route": "/reference/commands/get-pgx/",
     "description": "Reads pharmacogenomic records from CPIC or ClinPGx, such as guidelines, recommendations or annotations.",
     "schemas": [
-      "biomcp.pgx_card/1",
-      "biomcp.pgx_diplotype/1"
+      "biomcp.pgx-annotation/5",
+      "biomcp.pgx-annotations/5",
+      "biomcp.pgx-card/4",
+      "biomcp.pgx-diplotype/4",
+      "biomcp.pgx-guidelines/4",
+      "biomcp.pgx-recommendations/5"
     ]
   },
   {
@@ -251,7 +304,8 @@
     "route": "/reference/commands/search-diagnostic/",
     "description": "Finds diagnostic tests in one source, such as GTR, the FDA companion diagnostic list or WHO's prequalified tests.",
     "schemas": [
-      "biomcp.diagnostic_page/2"
+      "biomcp.diagnostic-companion/4",
+      "biomcp.diagnostic-page/5"
     ]
   },
   {
@@ -260,7 +314,13 @@
     "route": "/reference/commands/get-diagnostic/",
     "description": "Reads one diagnostic test record, and optionally one section such as its genes or conditions.",
     "schemas": [
-      "biomcp.diagnostic_card/1"
+      "biomcp.diagnostic-card/4",
+      "biomcp.diagnostic-conditions/5",
+      "biomcp.diagnostic-genes/5",
+      "biomcp.diagnostic-methods/4",
+      "biomcp.diagnostic-regulatory/3",
+      "biomcp.diagnostic-summary/1",
+      "biomcp.diagnostic-supplements/3"
     ]
   },
   {
@@ -269,7 +329,8 @@
     "route": "/reference/commands/search-adverse-event/",
     "description": "Finds adverse event reports in FAERS, VAERS or MAUDE, five at a time.",
     "schemas": [
-      "biomcp.adverse_event_page/2"
+      "biomcp.adverse-event-page/6",
+      "biomcp.vaers-summary/5"
     ]
   },
   {
@@ -278,7 +339,13 @@
     "route": "/reference/commands/get-adverse-event/",
     "description": "Reads one adverse event report by its ID, and optionally one section such as its drugs or reactions.",
     "schemas": [
-      "biomcp.adverse_event_faers_card/1"
+      "biomcp.adverse-event-devices/4",
+      "biomcp.adverse-event-drugs/4",
+      "biomcp.adverse-event-faers-card/5",
+      "biomcp.adverse-event-identifiers/4",
+      "biomcp.adverse-event-maude-card/4",
+      "biomcp.adverse-event-narrative/4",
+      "biomcp.adverse-event-reactions/6"
     ]
   },
   {
@@ -287,7 +354,8 @@
     "route": "/reference/commands/search-disease/",
     "description": "Finds disease concepts by text, or lists SEER cancer sites.",
     "schemas": [
-      "biomcp.disease_sites/2"
+      "biomcp.disease-page/5",
+      "biomcp.disease-sites/6"
     ]
   },
   {
@@ -296,8 +364,16 @@
     "route": "/reference/commands/get-disease/",
     "description": "Reads one disease concept or SEER cancer site, and optionally a section such as its genes or incidence.",
     "schemas": [
-      "biomcp.disease_incidence/3",
-      "biomcp.disease_survival/3"
+      "biomcp.disease-card/6",
+      "biomcp.disease-genes/9",
+      "biomcp.disease-hierarchy/5",
+      "biomcp.disease-incidence/7",
+      "biomcp.disease-page/5",
+      "biomcp.disease-phenotypes/9",
+      "biomcp.disease-sites/6",
+      "biomcp.disease-survival/7",
+      "biomcp.disease-synonyms/5",
+      "biomcp.disease-xrefs/5"
     ]
   },
   {
@@ -306,7 +382,10 @@
     "route": "/reference/commands/search-drug/",
     "description": "Finds drugs by name in one source.",
     "schemas": [
-      "biomcp.drug_page/3"
+      "biomcp.drug-fda-page/7",
+      "biomcp.drug-page/7",
+      "biomcp.drug-recall-page/4",
+      "biomcp.drug-who-page/5"
     ]
   },
   {
@@ -315,8 +394,17 @@
     "route": "/reference/commands/get-drug/",
     "description": "Reads one drug record by its ID in one source, and optionally a section such as its label or approvals.",
     "schemas": [
-      "biomcp.drug_card/2",
-      "biomcp.drug_regulatory/2"
+      "biomcp.drug-approvals/8",
+      "biomcp.drug-card/6",
+      "biomcp.drug-civic/11",
+      "biomcp.drug-indications/8",
+      "biomcp.drug-interactions/8",
+      "biomcp.drug-label/7",
+      "biomcp.drug-recall-card/3",
+      "biomcp.drug-regulatory/6",
+      "biomcp.drug-targets/8",
+      "biomcp.drug-who-card/3",
+      "biomcp.drug-xrefs/5"
     ]
   },
   {
@@ -325,7 +413,7 @@
     "route": "/reference/commands/get-gene/",
     "description": "Reads one to twenty human genes, in the order you give, and optionally sections such as constraint or expression.",
     "schemas": [
-      "biomcp.gene_cards/4"
+      "biomcp.gene-cards/13"
     ]
   },
   {
@@ -334,7 +422,7 @@
     "route": "/reference/commands/search-gene/",
     "description": "Finds human genes by text, by cytoband, or both.",
     "schemas": [
-      "biomcp.gene_page/3"
+      "biomcp.gene-page/8"
     ]
   },
   {
@@ -343,7 +431,7 @@
     "route": "/reference/commands/search-article/",
     "description": "Finds articles by text, gene, disease, drug, variant, author, journal or date.",
     "schemas": [
-      "biomcp.article_page/3"
+      "biomcp.article-page/9"
     ]
   },
   {
@@ -352,7 +440,7 @@
     "route": "/reference/commands/get-article/",
     "description": "Reads one to twenty articles by PMID, PMCID or DOI, and optionally sections such as the full text.",
     "schemas": [
-      "biomcp.article_cards/3"
+      "biomcp.article-cards/9"
     ]
   },
   {
@@ -361,7 +449,7 @@
     "route": "/reference/commands/article-supplement/",
     "description": "Reads one supplementary file of an article, or the rows of it that match a search, or saves the file.",
     "schemas": [
-      "biomcp.article_supplement/3"
+      "biomcp.article-supplement/7"
     ]
   },
   {
@@ -370,7 +458,7 @@
     "route": "/reference/commands/article-pdf/",
     "description": "Downloads an article's PDF from its publisher to a file you name.",
     "schemas": [
-      "biomcp.article_pdf/2"
+      "biomcp.article-pdf/6"
     ]
   },
   {
@@ -379,7 +467,8 @@
     "route": "/reference/commands/article-text/",
     "description": "Reads one part of an article's full text, finds matching passages, or saves the text as Markdown.",
     "schemas": [
-      "biomcp.article_text/3"
+      "biomcp.article-cards/9",
+      "biomcp.article-text/7"
     ]
   },
   {
@@ -388,7 +477,7 @@
     "route": "/reference/commands/article-citations/",
     "description": "Lists the papers that cite one PubMed article, a page at a time.",
     "schemas": [
-      "biomcp.article_edges/4"
+      "biomcp.article-edges/10"
     ]
   },
   {
@@ -397,7 +486,7 @@
     "route": "/reference/commands/article-references/",
     "description": "Lists the papers one PubMed article cites, a page at a time.",
     "schemas": [
-      "biomcp.article_edges/4"
+      "biomcp.article-edges/10"
     ]
   },
   {
@@ -406,7 +495,7 @@
     "route": "/reference/commands/article-citation-evidence/",
     "description": "Shows where and how one article cites another, with the citing passage when the full text is open.",
     "schemas": [
-      "biomcp.article_evidence/2"
+      "biomcp.article-evidence/6"
     ]
   },
   {
@@ -415,7 +504,7 @@
     "route": "/reference/commands/article-recommendations/",
     "description": "Lists papers that Semantic Scholar recommends from one or more seed papers.",
     "schemas": [
-      "biomcp.article_recommendations/3"
+      "biomcp.article-recommendations/9"
     ]
   },
   {
@@ -424,7 +513,8 @@
     "route": "/reference/commands/search-trial/",
     "description": "Finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more.",
     "schemas": [
-      "biomcp.trial_page/5"
+      "biomcp.nci-trial-page/10",
+      "biomcp.trial-page/14"
     ]
   },
   {
@@ -433,7 +523,8 @@
     "route": "/reference/commands/get-trial/",
     "description": "Reads clinical trials by NCT ID, and optionally sections such as eligibility or locations.",
     "schemas": [
-      "biomcp.trial_cards/2"
+      "biomcp.nci-trial-cards/8",
+      "biomcp.trial-cards/9"
     ]
   },
   {
@@ -442,7 +533,7 @@
     "route": "/reference/commands/trial-document/",
     "description": "Downloads one document a trial posted on ClinicalTrials.gov, such as its protocol PDF, to a file you name.",
     "schemas": [
-      "biomcp.trial_document/2"
+      "biomcp.trial-document/7"
     ]
   },
   {
@@ -451,7 +542,7 @@
     "route": "/reference/commands/variant-assertions/",
     "description": "Lists the assertions one source, such as ClinVar, makes about a variant, a page at a time.",
     "schemas": [
-      "biomcp.variant_assertions/3"
+      "biomcp.variant-assertions/8"
     ]
   },
   {
@@ -460,7 +551,7 @@
     "route": "/reference/commands/get-variant/",
     "description": "Reads a variant by rsID, ClinVar ID, ClinGen allele ID or HGVS, and optionally sections such as ClinVar or population.",
     "schemas": [
-      "biomcp.variant_card/5"
+      "biomcp.variant-card/15"
     ]
   },
   {
@@ -469,7 +560,7 @@
     "route": "/reference/commands/variant-population/",
     "description": "Lists gnomAD population frequency details for one variant.",
     "schemas": [
-      "biomcp.variant_population/4"
+      "biomcp.variant-population/13"
     ]
   },
   {
@@ -478,7 +569,7 @@
     "route": "/reference/commands/search-variant/",
     "description": "Finds variants by gene, protein change, region or another single selector.",
     "schemas": [
-      "biomcp.variant_page/6"
+      "biomcp.variant-page/16"
     ]
   },
   {
@@ -487,7 +578,7 @@
     "route": "/reference/commands/variant-recurrence/",
     "description": "Counts the samples that carry one variant in one cBioPortal study.",
     "schemas": [
-      "biomcp.variant_recurrence/4"
+      "biomcp.variant-recurrence/11"
     ]
   },
   {
@@ -496,7 +587,7 @@
     "route": "/reference/commands/variant-normalize/",
     "description": "Sends an HGVS variant name to the ClinGen Allele Registry, Mutalyzer or VariantValidator to check and normalize it.",
     "schemas": [
-      "biomcp.variant_normalization/3"
+      "biomcp.variant-normalization/8"
     ]
   },
   {
@@ -535,6 +626,24 @@
     "schemas": []
   },
   {
+    "command": "source",
+    "entity": "source",
+    "route": "/reference/commands/source/",
+    "description": "List source names as JSON.",
+    "schemas": [
+      "biomcp.switchable-sources/1"
+    ]
+  },
+  {
+    "command": "source list",
+    "entity": "source",
+    "route": "/reference/commands/source-list/",
+    "description": "List the source names a hosted request may leave out.",
+    "schemas": [
+      "biomcp.switchable-sources/1"
+    ]
+  },
+  {
     "command": "version",
     "entity": "version",
     "route": "/reference/commands/version/",
@@ -554,7 +663,7 @@
     "route": "/reference/commands/store-clean/",
     "description": "Removes expired replies and stored searches from the local cache.",
     "schemas": [
-      "biomcp.store-clean/1"
+      "biomcp.store-clean/4"
     ]
   },
   {
@@ -563,7 +672,7 @@
     "route": "/reference/commands/health/",
     "description": "Lists every source with its terms and checks that each one answers.",
     "schemas": [
-      "biomcp.health/2"
+      "biomcp.health/6"
     ]
   },
   {
@@ -572,15 +681,9 @@
     "route": "/reference/commands/sync/",
     "description": "Downloads a source's bundle, a local copy that commands read.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.sync/7",
+      "biomcp.wikipathways-sync/4"
     ]
-  },
-  {
-    "command": "schema",
-    "entity": "schema",
-    "route": "/reference/commands/schema/",
-    "description": "Prints one reply schema as JSON Schema.",
-    "schemas": []
   },
   {
     "command": "help",
@@ -588,7 +691,7 @@
     "route": "/reference/commands/help/",
     "description": "Prints the help for every command, or for one, as JSON.",
     "schemas": [
-      "biomcp.help/2"
+      "biomcp.help/6"
     ]
   },
   {
@@ -597,7 +700,7 @@
     "route": "/reference/commands/key-list/",
     "description": "Lists the keys BioMCP supports and where each one is set, without showing values.",
     "schemas": [
-      "biomcp.registered-keys/2"
+      "biomcp.registered-keys/5"
     ]
   },
   {
@@ -605,14 +708,18 @@
     "entity": "key",
     "route": "/reference/commands/key-set/",
     "description": "Stores a key for one source, read from a hidden prompt or standard input.",
-    "schemas": []
+    "schemas": [
+      "biomcp.registered-keys/5"
+    ]
   },
   {
     "command": "key remove",
     "entity": "key",
     "route": "/reference/commands/key-remove/",
     "description": "Removes a stored key.",
-    "schemas": []
+    "schemas": [
+      "biomcp.registered-keys/5"
+    ]
   },
   {
     "command": "serve",
@@ -622,75 +729,1470 @@
     "schemas": []
   },
   {
-    "command": "sync wikipathways",
-    "entity": "sync",
-    "route": "/reference/commands/sync-wikipathways/",
-    "description": "Downloads the WikiPathways bundle that pathway searches read.",
+    "command": "help exit",
+    "entity": "help",
+    "route": "/reference/commands/help-exit/",
+    "description": "Process exit codes:\n0: complete or partial reply\n1: no matching record\n2: invalid command or arguments\n3: expired result pool\n4: source request failed\n5: local configuration, storage or output failed\nError codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.too_broad, usage.unsupported_filter.",
     "schemas": [
-      "biomcp.wikipathways_sync/1"
+      "biomcp.help/6"
     ]
   },
   {
-    "command": "sync cbioportal-studies",
-    "entity": "sync",
-    "route": "/reference/commands/sync-cbioportal-studies/",
-    "description": "Downloads the cBioPortal study list bundle that study commands read.",
+    "command": "search",
+    "entity": "housekeeping",
+    "route": "/reference/commands/search/",
+    "description": "Search source records by entity and checked filters.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.adverse-event-page/6",
+      "biomcp.article-page/9",
+      "biomcp.author-page/5",
+      "biomcp.biomarker-page/4",
+      "biomcp.cell-line-filtered-page/1",
+      "biomcp.cell-line-page/7",
+      "biomcp.diagnostic-companion/4",
+      "biomcp.diagnostic-page/5",
+      "biomcp.disease-page/5",
+      "biomcp.disease-sites/6",
+      "biomcp.drug-fda-page/7",
+      "biomcp.drug-page/7",
+      "biomcp.drug-recall-page/4",
+      "biomcp.drug-who-page/5",
+      "biomcp.gene-page/8",
+      "biomcp.gwas-page/8",
+      "biomcp.gwas-study-page/1",
+      "biomcp.nci-trial-page/10",
+      "biomcp.organization-page/4",
+      "biomcp.pathway-page/8",
+      "biomcp.pgx-page/6",
+      "biomcp.phenotype-search/5",
+      "biomcp.protein-page/5",
+      "biomcp.study-page/5",
+      "biomcp.trial-page/14",
+      "biomcp.vaers-summary/5",
+      "biomcp.variant-page/16"
     ]
   },
   {
-    "command": "sync ema",
-    "entity": "sync",
-    "route": "/reference/commands/sync-ema/",
-    "description": "Downloads the European Medicines Agency bundle that EMA drug commands read.",
+    "command": "get",
+    "entity": "housekeeping",
+    "route": "/reference/commands/get/",
+    "description": "Retrieve one entity and its source sections.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.adverse-event-devices/4",
+      "biomcp.adverse-event-drugs/4",
+      "biomcp.adverse-event-faers-card/5",
+      "biomcp.adverse-event-identifiers/4",
+      "biomcp.adverse-event-maude-card/4",
+      "biomcp.adverse-event-narrative/4",
+      "biomcp.adverse-event-reactions/6",
+      "biomcp.article-cards/9",
+      "biomcp.author-card/6",
+      "biomcp.biomarker-result/4",
+      "biomcp.cell-line-card/8",
+      "biomcp.cell-line-chembl/7",
+      "biomcp.cell-line-identity/6",
+      "biomcp.cell-line-names/5",
+      "biomcp.cell-line-variants/7",
+      "biomcp.cell-line-xrefs/6",
+      "biomcp.diagnostic-card/4",
+      "biomcp.diagnostic-conditions/5",
+      "biomcp.diagnostic-genes/5",
+      "biomcp.diagnostic-methods/4",
+      "biomcp.diagnostic-regulatory/3",
+      "biomcp.diagnostic-summary/1",
+      "biomcp.diagnostic-supplements/3",
+      "biomcp.disease-card/6",
+      "biomcp.disease-genes/9",
+      "biomcp.disease-hierarchy/5",
+      "biomcp.disease-incidence/7",
+      "biomcp.disease-page/5",
+      "biomcp.disease-phenotypes/9",
+      "biomcp.disease-sites/6",
+      "biomcp.disease-survival/7",
+      "biomcp.disease-synonyms/5",
+      "biomcp.disease-xrefs/5",
+      "biomcp.drug-approvals/8",
+      "biomcp.drug-card/6",
+      "biomcp.drug-civic/11",
+      "biomcp.drug-indications/8",
+      "biomcp.drug-interactions/8",
+      "biomcp.drug-label/7",
+      "biomcp.drug-recall-card/3",
+      "biomcp.drug-regulatory/6",
+      "biomcp.drug-targets/8",
+      "biomcp.drug-who-card/3",
+      "biomcp.drug-xrefs/5",
+      "biomcp.gene-cards/13",
+      "biomcp.gwas-ancestries/5",
+      "biomcp.gwas-association/6",
+      "biomcp.gwas-loci/4",
+      "biomcp.gwas-page/8",
+      "biomcp.gwas-study/6",
+      "biomcp.nci-trial-cards/8",
+      "biomcp.pathway-card/10",
+      "biomcp.pgx-annotation/5",
+      "biomcp.pgx-annotations/5",
+      "biomcp.pgx-card/4",
+      "biomcp.pgx-diplotype/4",
+      "biomcp.pgx-guidelines/4",
+      "biomcp.pgx-recommendations/5",
+      "biomcp.phenotype-card/5",
+      "biomcp.phenotype-diseases/7",
+      "biomcp.phenotype-genes/7",
+      "biomcp.phenotype-hierarchy/5",
+      "biomcp.phenotype-synonyms/4",
+      "biomcp.phenotype-xrefs/4",
+      "biomcp.protein-card/10",
+      "biomcp.protein-function/4",
+      "biomcp.study-card/7",
+      "biomcp.study-files/3",
+      "biomcp.study-mutations/1",
+      "biomcp.study-profiles/4",
+      "biomcp.study-sample-lists/4",
+      "biomcp.study-samples/1",
+      "biomcp.trial-cards/9",
+      "biomcp.variant-card/15"
     ]
   },
   {
-    "command": "sync ddinter",
-    "entity": "sync",
-    "route": "/reference/commands/sync-ddinter/",
-    "description": "Downloads the DDInter drug interaction bundle.",
+    "command": "author",
+    "entity": "author",
+    "route": "/reference/commands/author/",
+    "description": "Read papers attributed to a source author record.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.author-paper-details/6",
+      "biomcp.author-papers/6",
+      "biomcp.orcid-works/8"
     ]
   },
   {
-    "command": "sync who-pq",
-    "entity": "sync",
-    "route": "/reference/commands/sync-who-pq/",
-    "description": "Downloads the WHO prequalified medicines bundle.",
+    "command": "cell-line",
+    "entity": "cell-line",
+    "route": "/reference/commands/cell-line/",
+    "description": "Read source cell line assay counts.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.cell-line-assay-count/6"
     ]
   },
   {
-    "command": "sync gtr",
-    "entity": "sync",
-    "route": "/reference/commands/sync-gtr/",
-    "description": "Downloads the Genetic Testing Registry bundle that diagnostic commands read.",
+    "command": "protein",
+    "entity": "protein",
+    "route": "/reference/commands/protein/",
+    "description": "Read protein sequences, features and source relationships.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.protein-complex-members/4",
+      "biomcp.protein-complexes/5",
+      "biomcp.protein-domains/7",
+      "biomcp.protein-features/4",
+      "biomcp.protein-isoforms/4",
+      "biomcp.protein-sequence/4",
+      "biomcp.protein-structures/5"
     ]
   },
   {
-    "command": "sync who-ivd",
-    "entity": "sync",
-    "route": "/reference/commands/sync-who-ivd/",
-    "description": "Downloads the WHO prequalified diagnostics bundle.",
+    "command": "pathway",
+    "entity": "pathway",
+    "route": "/reference/commands/pathway/",
+    "description": "Read pathway genes and source events.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.pathway-events/6",
+      "biomcp.pathway-genes/9"
     ]
   },
   {
-    "command": "sync fda-cdx",
-    "entity": "sync",
-    "route": "/reference/commands/sync-fda-cdx/",
-    "description": "Downloads the FDA companion diagnostics bundle.",
+    "command": "article",
+    "entity": "article",
+    "route": "/reference/commands/article/",
+    "description": "Read article text, references, citations and files.",
     "schemas": [
-      "biomcp.sync/4"
+      "biomcp.article-cards/9",
+      "biomcp.article-edges/10",
+      "biomcp.article-evidence/6",
+      "biomcp.article-pdf/6",
+      "biomcp.article-recommendations/9",
+      "biomcp.article-supplement/7",
+      "biomcp.article-text/7"
+    ]
+  },
+  {
+    "command": "trial",
+    "entity": "trial",
+    "route": "/reference/commands/trial/",
+    "description": "Read trial groups and public documents.",
+    "schemas": [
+      "biomcp.trial-document/7"
+    ]
+  },
+  {
+    "command": "variant",
+    "entity": "variant",
+    "route": "/reference/commands/variant/",
+    "description": "Read source variant assertions, populations and recurrence.",
+    "schemas": [
+      "biomcp.variant-assertions/8",
+      "biomcp.variant-normalization/8",
+      "biomcp.variant-population/13",
+      "biomcp.variant-recurrence/11"
+    ]
+  },
+  {
+    "command": "store",
+    "entity": "store",
+    "route": "/reference/commands/store/",
+    "description": "Manage local cached replies and snapshots.",
+    "schemas": [
+      "biomcp.store-clean/4"
+    ]
+  },
+  {
+    "command": "key",
+    "entity": "key",
+    "route": "/reference/commands/key/",
+    "description": "Register and manage source credentials without showing values.",
+    "schemas": [
+      "biomcp.registered-keys/5"
+    ]
+  },
+  {
+    "command": "schema",
+    "entity": "schema",
+    "route": "/reference/commands/schema/",
+    "description": "Prints one reply schema as JSON Schema.",
+    "schemas": [
+      "biomcp.schema-catalog/4"
+    ]
+  },
+  {
+    "command": "help search",
+    "entity": "help",
+    "route": "/reference/commands/help-search/",
+    "description": "Search source records by entity and checked filters.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search biomarker",
+    "entity": "help",
+    "route": "/reference/commands/help-search-biomarker/",
+    "description": "Describe help search biomarker.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search author",
+    "entity": "help",
+    "route": "/reference/commands/help-search-author/",
+    "description": "Read papers attributed to a source author record.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search organization",
+    "entity": "help",
+    "route": "/reference/commands/help-search-organization/",
+    "description": "Describe help search organization.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search cell-line",
+    "entity": "help",
+    "route": "/reference/commands/help-search-cell-line/",
+    "description": "Read source cell line assay counts.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search gwas",
+    "entity": "help",
+    "route": "/reference/commands/help-search-gwas/",
+    "description": "Describe help search gwas.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search protein",
+    "entity": "help",
+    "route": "/reference/commands/help-search-protein/",
+    "description": "Read protein sequences, features and source relationships.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search phenotype",
+    "entity": "help",
+    "route": "/reference/commands/help-search-phenotype/",
+    "description": "Describe help search phenotype.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search pathway",
+    "entity": "help",
+    "route": "/reference/commands/help-search-pathway/",
+    "description": "Read pathway genes and source events.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search study",
+    "entity": "help",
+    "route": "/reference/commands/help-search-study/",
+    "description": "Describe help search study.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search pgx",
+    "entity": "help",
+    "route": "/reference/commands/help-search-pgx/",
+    "description": "Describe help search pgx.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search diagnostic",
+    "entity": "help",
+    "route": "/reference/commands/help-search-diagnostic/",
+    "description": "Describe help search diagnostic.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search adverse-event",
+    "entity": "help",
+    "route": "/reference/commands/help-search-adverse-event/",
+    "description": "Describe help search adverse-event.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search disease",
+    "entity": "help",
+    "route": "/reference/commands/help-search-disease/",
+    "description": "Describe help search disease.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search drug",
+    "entity": "help",
+    "route": "/reference/commands/help-search-drug/",
+    "description": "Describe help search drug.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search gene",
+    "entity": "help",
+    "route": "/reference/commands/help-search-gene/",
+    "description": "Describe help search gene.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search article",
+    "entity": "help",
+    "route": "/reference/commands/help-search-article/",
+    "description": "Read article text, references, citations and files.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search trial",
+    "entity": "help",
+    "route": "/reference/commands/help-search-trial/",
+    "description": "Read trial groups and public documents.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help search variant",
+    "entity": "help",
+    "route": "/reference/commands/help-search-variant/",
+    "description": "Read source variant assertions, populations and recurrence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get",
+    "entity": "help",
+    "route": "/reference/commands/help-get/",
+    "description": "Retrieve one entity and its source sections.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get biomarker",
+    "entity": "help",
+    "route": "/reference/commands/help-get-biomarker/",
+    "description": "Describe help get biomarker.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get author",
+    "entity": "help",
+    "route": "/reference/commands/help-get-author/",
+    "description": "Read papers attributed to a source author record.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get cell-line",
+    "entity": "help",
+    "route": "/reference/commands/help-get-cell-line/",
+    "description": "Read source cell line assay counts.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get gwas",
+    "entity": "help",
+    "route": "/reference/commands/help-get-gwas/",
+    "description": "Describe help get gwas.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get protein",
+    "entity": "help",
+    "route": "/reference/commands/help-get-protein/",
+    "description": "Read protein sequences, features and source relationships.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get phenotype",
+    "entity": "help",
+    "route": "/reference/commands/help-get-phenotype/",
+    "description": "Describe help get phenotype.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get pathway",
+    "entity": "help",
+    "route": "/reference/commands/help-get-pathway/",
+    "description": "Read pathway genes and source events.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get study",
+    "entity": "help",
+    "route": "/reference/commands/help-get-study/",
+    "description": "Describe help get study.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get pgx",
+    "entity": "help",
+    "route": "/reference/commands/help-get-pgx/",
+    "description": "Describe help get pgx.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get diagnostic",
+    "entity": "help",
+    "route": "/reference/commands/help-get-diagnostic/",
+    "description": "Describe help get diagnostic.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get adverse-event",
+    "entity": "help",
+    "route": "/reference/commands/help-get-adverse-event/",
+    "description": "Describe help get adverse-event.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get disease",
+    "entity": "help",
+    "route": "/reference/commands/help-get-disease/",
+    "description": "Describe help get disease.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get drug",
+    "entity": "help",
+    "route": "/reference/commands/help-get-drug/",
+    "description": "Describe help get drug.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get gene",
+    "entity": "help",
+    "route": "/reference/commands/help-get-gene/",
+    "description": "Describe help get gene.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get article",
+    "entity": "help",
+    "route": "/reference/commands/help-get-article/",
+    "description": "Read article text, references, citations and files.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get trial",
+    "entity": "help",
+    "route": "/reference/commands/help-get-trial/",
+    "description": "Read trial groups and public documents.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get variant",
+    "entity": "help",
+    "route": "/reference/commands/help-get-variant/",
+    "description": "Read source variant assertions, populations and recurrence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help get clingen",
+    "entity": "help",
+    "route": "/reference/commands/help-get-clingen/",
+    "description": "Describe help get clingen.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help author",
+    "entity": "help",
+    "route": "/reference/commands/help-author/",
+    "description": "Read papers attributed to a source author record.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help author papers",
+    "entity": "help",
+    "route": "/reference/commands/help-author-papers/",
+    "description": "Describe help author papers.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help cell-line",
+    "entity": "help",
+    "route": "/reference/commands/help-cell-line/",
+    "description": "Read source cell line assay counts.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help cell-line assay-count",
+    "entity": "help",
+    "route": "/reference/commands/help-cell-line-assay-count/",
+    "description": "Describe help cell-line assay-count.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein",
+    "entity": "help",
+    "route": "/reference/commands/help-protein/",
+    "description": "Read protein sequences, features and source relationships.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein features",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-features/",
+    "description": "Describe help protein features.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein isoforms",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-isoforms/",
+    "description": "Describe help protein isoforms.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein domains",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-domains/",
+    "description": "Describe help protein domains.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein complexes",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-complexes/",
+    "description": "Describe help protein complexes.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein complex-members",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-complex-members/",
+    "description": "Describe help protein complex-members.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein structures",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-structures/",
+    "description": "Describe help protein structures.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help protein sequence",
+    "entity": "help",
+    "route": "/reference/commands/help-protein-sequence/",
+    "description": "Describe help protein sequence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help pathway",
+    "entity": "help",
+    "route": "/reference/commands/help-pathway/",
+    "description": "Read pathway genes and source events.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help pathway genes",
+    "entity": "help",
+    "route": "/reference/commands/help-pathway-genes/",
+    "description": "Describe help pathway genes.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help pathway events",
+    "entity": "help",
+    "route": "/reference/commands/help-pathway-events/",
+    "description": "Describe help pathway events.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article",
+    "entity": "help",
+    "route": "/reference/commands/help-article/",
+    "description": "Read article text, references, citations and files.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article supplement",
+    "entity": "help",
+    "route": "/reference/commands/help-article-supplement/",
+    "description": "Describe help article supplement.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article pdf",
+    "entity": "help",
+    "route": "/reference/commands/help-article-pdf/",
+    "description": "Describe help article pdf.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article text",
+    "entity": "help",
+    "route": "/reference/commands/help-article-text/",
+    "description": "Describe help article text.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article citations",
+    "entity": "help",
+    "route": "/reference/commands/help-article-citations/",
+    "description": "Describe help article citations.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article references",
+    "entity": "help",
+    "route": "/reference/commands/help-article-references/",
+    "description": "Describe help article references.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article citation-evidence",
+    "entity": "help",
+    "route": "/reference/commands/help-article-citation-evidence/",
+    "description": "Describe help article citation-evidence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help article recommendations",
+    "entity": "help",
+    "route": "/reference/commands/help-article-recommendations/",
+    "description": "Describe help article recommendations.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help trial",
+    "entity": "help",
+    "route": "/reference/commands/help-trial/",
+    "description": "Read trial groups and public documents.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help trial document",
+    "entity": "help",
+    "route": "/reference/commands/help-trial-document/",
+    "description": "Describe help trial document.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help variant",
+    "entity": "help",
+    "route": "/reference/commands/help-variant/",
+    "description": "Read source variant assertions, populations and recurrence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help variant assertions",
+    "entity": "help",
+    "route": "/reference/commands/help-variant-assertions/",
+    "description": "Describe help variant assertions.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help variant population",
+    "entity": "help",
+    "route": "/reference/commands/help-variant-population/",
+    "description": "Describe help variant population.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help variant recurrence",
+    "entity": "help",
+    "route": "/reference/commands/help-variant-recurrence/",
+    "description": "Describe help variant recurrence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help variant normalize",
+    "entity": "help",
+    "route": "/reference/commands/help-variant-normalize/",
+    "description": "Describe help variant normalize.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync",
+    "entity": "help",
+    "route": "/reference/commands/help-sync/",
+    "description": "Synchronize a local source bundle.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync hgnc",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-hgnc/",
+    "description": "Describe help sync hgnc.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync clingen",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-clingen/",
+    "description": "Describe help sync clingen.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync gencc",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-gencc/",
+    "description": "Describe help sync gencc.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync wikipathways",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-wikipathways/",
+    "description": "Describe help sync wikipathways.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync cbioportal-studies",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-cbioportal-studies/",
+    "description": "Describe help sync cbioportal-studies.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync ema",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-ema/",
+    "description": "Describe help sync ema.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync ddinter",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-ddinter/",
+    "description": "Describe help sync ddinter.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync who-pq",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-who-pq/",
+    "description": "Describe help sync who-pq.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync gtr",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-gtr/",
+    "description": "Describe help sync gtr.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync who-ivd",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-who-ivd/",
+    "description": "Describe help sync who-ivd.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sync fda-cdx",
+    "entity": "help",
+    "route": "/reference/commands/help-sync-fda-cdx/",
+    "description": "Describe help sync fda-cdx.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help skill",
+    "entity": "help",
+    "route": "/reference/commands/help-skill/",
+    "description": "Describe help skill.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help skill list",
+    "entity": "help",
+    "route": "/reference/commands/help-skill-list/",
+    "description": "List supported discovery topics.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help skill render",
+    "entity": "help",
+    "route": "/reference/commands/help-skill-render/",
+    "description": "Describe help skill render.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help skill status",
+    "entity": "help",
+    "route": "/reference/commands/help-skill-status/",
+    "description": "Describe help skill status.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help skill install",
+    "entity": "help",
+    "route": "/reference/commands/help-skill-install/",
+    "description": "Describe help skill install.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help source",
+    "entity": "help",
+    "route": "/reference/commands/help-source/",
+    "description": "Describe help source.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help source list",
+    "entity": "help",
+    "route": "/reference/commands/help-source-list/",
+    "description": "List supported discovery topics.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help version",
+    "entity": "help",
+    "route": "/reference/commands/help-version/",
+    "description": "Describe help version.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help mcp-config",
+    "entity": "help",
+    "route": "/reference/commands/help-mcp-config/",
+    "description": "Describe help mcp-config.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help health",
+    "entity": "help",
+    "route": "/reference/commands/help-health/",
+    "description": "Report source terms and bounded reachability.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help store",
+    "entity": "help",
+    "route": "/reference/commands/help-store/",
+    "description": "Manage local cached replies and snapshots.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help store clean",
+    "entity": "help",
+    "route": "/reference/commands/help-store-clean/",
+    "description": "Describe help store clean.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help key",
+    "entity": "help",
+    "route": "/reference/commands/help-key/",
+    "description": "Register and manage source credentials without showing values.",
+    "schemas": [
+      "biomcp.key/5"
+    ]
+  },
+  {
+    "command": "help key list",
+    "entity": "help",
+    "route": "/reference/commands/help-key-list/",
+    "description": "List supported discovery topics.",
+    "schemas": [
+      "biomcp.key/5"
+    ]
+  },
+  {
+    "command": "help key set",
+    "entity": "help",
+    "route": "/reference/commands/help-key-set/",
+    "description": "Describe help key set.",
+    "schemas": [
+      "biomcp.key/5"
+    ]
+  },
+  {
+    "command": "help key remove",
+    "entity": "help",
+    "route": "/reference/commands/help-key-remove/",
+    "description": "Describe help key remove.",
+    "schemas": [
+      "biomcp.key/5"
+    ]
+  },
+  {
+    "command": "help serve",
+    "entity": "help",
+    "route": "/reference/commands/help-serve/",
+    "description": "Serve MCP over standard input or HTTP.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help schema",
+    "entity": "help",
+    "route": "/reference/commands/help-schema/",
+    "description": "Describe help schema.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help biomarker",
+    "entity": "help",
+    "route": "/reference/commands/help-biomarker/",
+    "description": "Describe help biomarker.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help papers",
+    "entity": "help",
+    "route": "/reference/commands/help-papers/",
+    "description": "Describe help papers.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help organization",
+    "entity": "help",
+    "route": "/reference/commands/help-organization/",
+    "description": "Describe help organization.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help assay-count",
+    "entity": "help",
+    "route": "/reference/commands/help-assay-count/",
+    "description": "Describe help assay-count.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help gwas",
+    "entity": "help",
+    "route": "/reference/commands/help-gwas/",
+    "description": "Describe help gwas.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help features",
+    "entity": "help",
+    "route": "/reference/commands/help-features/",
+    "description": "Describe help features.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help isoforms",
+    "entity": "help",
+    "route": "/reference/commands/help-isoforms/",
+    "description": "Describe help isoforms.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help domains",
+    "entity": "help",
+    "route": "/reference/commands/help-domains/",
+    "description": "Describe help domains.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help complexes",
+    "entity": "help",
+    "route": "/reference/commands/help-complexes/",
+    "description": "Describe help complexes.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help complex-members",
+    "entity": "help",
+    "route": "/reference/commands/help-complex-members/",
+    "description": "Describe help complex-members.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help structures",
+    "entity": "help",
+    "route": "/reference/commands/help-structures/",
+    "description": "Describe help structures.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sequence",
+    "entity": "help",
+    "route": "/reference/commands/help-sequence/",
+    "description": "Describe help sequence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help phenotype",
+    "entity": "help",
+    "route": "/reference/commands/help-phenotype/",
+    "description": "Describe help phenotype.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help genes",
+    "entity": "help",
+    "route": "/reference/commands/help-genes/",
+    "description": "Describe help genes.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help events",
+    "entity": "help",
+    "route": "/reference/commands/help-events/",
+    "description": "Describe help events.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help study",
+    "entity": "help",
+    "route": "/reference/commands/help-study/",
+    "description": "Describe help study.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help pgx",
+    "entity": "help",
+    "route": "/reference/commands/help-pgx/",
+    "description": "Describe help pgx.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help diagnostic",
+    "entity": "help",
+    "route": "/reference/commands/help-diagnostic/",
+    "description": "Describe help diagnostic.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help adverse-event",
+    "entity": "help",
+    "route": "/reference/commands/help-adverse-event/",
+    "description": "Describe help adverse-event.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help disease",
+    "entity": "help",
+    "route": "/reference/commands/help-disease/",
+    "description": "Describe help disease.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help drug",
+    "entity": "help",
+    "route": "/reference/commands/help-drug/",
+    "description": "Describe help drug.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help gene",
+    "entity": "help",
+    "route": "/reference/commands/help-gene/",
+    "description": "Describe help gene.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help supplement",
+    "entity": "help",
+    "route": "/reference/commands/help-supplement/",
+    "description": "Describe help supplement.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help pdf",
+    "entity": "help",
+    "route": "/reference/commands/help-pdf/",
+    "description": "Describe help pdf.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help text",
+    "entity": "help",
+    "route": "/reference/commands/help-text/",
+    "description": "Describe help text.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help citations",
+    "entity": "help",
+    "route": "/reference/commands/help-citations/",
+    "description": "Describe help citations.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help references",
+    "entity": "help",
+    "route": "/reference/commands/help-references/",
+    "description": "Describe help references.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help citation-evidence",
+    "entity": "help",
+    "route": "/reference/commands/help-citation-evidence/",
+    "description": "Describe help citation-evidence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help recommendations",
+    "entity": "help",
+    "route": "/reference/commands/help-recommendations/",
+    "description": "Describe help recommendations.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help document",
+    "entity": "help",
+    "route": "/reference/commands/help-document/",
+    "description": "Describe help document.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help assertions",
+    "entity": "help",
+    "route": "/reference/commands/help-assertions/",
+    "description": "Describe help assertions.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help population",
+    "entity": "help",
+    "route": "/reference/commands/help-population/",
+    "description": "Describe help population.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help recurrence",
+    "entity": "help",
+    "route": "/reference/commands/help-recurrence/",
+    "description": "Describe help recurrence.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help normalize",
+    "entity": "help",
+    "route": "/reference/commands/help-normalize/",
+    "description": "Describe help normalize.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help help",
+    "entity": "help",
+    "route": "/reference/commands/help-help/",
+    "description": "Describe commands and their arguments.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help network",
+    "entity": "help",
+    "route": "/reference/commands/help-network/",
+    "description": "Describe help network.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help sources",
+    "entity": "help",
+    "route": "/reference/commands/help-sources/",
+    "description": "Describe help sources.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help config",
+    "entity": "help",
+    "route": "/reference/commands/help-config/",
+    "description": "Describe help config.",
+    "schemas": [
+      "biomcp.help/6"
+    ]
+  },
+  {
+    "command": "help relations",
+    "entity": "help",
+    "route": "/reference/commands/help-relations/",
+    "description": "Follow source relationships through a named get section or a search filter.",
+    "schemas": [
+      "biomcp.help/6"
     ]
   },
   {
@@ -699,7 +2201,7 @@
     "route": "/reference/commands/help-key-ncbi/",
     "description": "Shows how to set the NCBI key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   },
   {
@@ -708,7 +2210,7 @@
     "route": "/reference/commands/help-key-semantic-scholar/",
     "description": "Shows how to set the Semantic Scholar key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   },
   {
@@ -717,7 +2219,7 @@
     "route": "/reference/commands/help-key-orcid/",
     "description": "Shows how to set the ORCID key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   },
   {
@@ -726,7 +2228,7 @@
     "route": "/reference/commands/help-key-oncokb/",
     "description": "Shows how to set the OncoKB key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   },
   {
@@ -735,7 +2237,7 @@
     "route": "/reference/commands/help-key-alphagenome/",
     "description": "Shows how to set the AlphaGenome key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   },
   {
@@ -744,7 +2246,7 @@
     "route": "/reference/commands/help-key-nci/",
     "description": "Shows how to set the NCI key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   },
   {
@@ -753,7 +2255,7 @@
     "route": "/reference/commands/help-key-openfda/",
     "description": "Shows how to set the openFDA key: the key name and its environment variable.",
     "schemas": [
-      "biomcp.key/2"
+      "biomcp.key/5"
     ]
   }
 ]

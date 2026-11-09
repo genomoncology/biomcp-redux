@@ -7,15 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search protein
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp search protein` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds reviewed human UniProt proteins by text or by gene, five at a time. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Search five reviewed human UniProt headers by literal text or exact gene.
-> No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
+> Search reviewed human proteins in UniProt. Sources: uniprot.
 
 ## Usage
 
@@ -27,12 +26,12 @@ biomcp search protein [OPTIONS] [query]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--gene` | string | no |  |  | Exact native gene field, without identifier inference. |
-| `--limit` | integer | no | min 1, max 25 |  | Five rows by default; no more than 25. |
-| `--offset` | integer | no | min 0 |  | Source/retained result offset. |
-| `--pool` | string | no |  |  | Exact retained collection identity. |
-| `--reviewed` | boolean | no |  |  | Reviewed human scope stays enabled; unreviewed search is deferred. |
-| `query` (position 1) | string | no |  |  | Literal text, exclusive with gene. |
+| `--gene` | string | no |  |  | Exact source gene field, without identifier inference. Value form: string. Example: --gene BRAF. Command sources: uniprot; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 25 |  | Five rows by default; no more than 25. Value form: integer. Example: --limit 25. Command sources: uniprot; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source/retained result offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply. |
+| `--pool` | string | no |  |  | Exact retained collection identity. Value form: string. Example: --pool &lt;pool&gt; (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply. |
+| `--reviewed` | boolean | no |  |  | Reviewed human scope stays enabled; unreviewed search is deferred. Value form: boolean. Example: --reviewed. Command sources: uniprot; source restrictions in the field description apply. |
+| `query` (position 1) | string | no |  |  | Exact text, exclusive with gene. |
 
 ## Examples
 
@@ -46,9 +45,17 @@ biomcp search protein --gene BRAF
 biomcp search protein EGFR
 ```
 
+```sh
+biomcp search protein --gene EGFR --reviewed
+```
+
+```sh
+biomcp search protein EGFR --limit 25
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.protein_page/1`](/reference/schemas/biomcp-protein-page-1/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.protein-page/5`](/reference/schemas/biomcp-protein-page-5/), whose page lists its fields.
 
 ## Next
 

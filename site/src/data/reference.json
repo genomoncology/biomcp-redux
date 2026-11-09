@@ -87,10 +87,12 @@
       }
     ]
   },
-  "commands": 86,
-  "entities": 16,
+  "commands": 232,
+  "entities": 18,
   "entity_names": [
+    "biomarker",
     "author",
+    "organization",
     "cell-line",
     "gwas",
     "protein",
@@ -107,7 +109,7 @@
     "trial",
     "variant"
   ],
-  "sources": 57,
+  "sources": 60,
   "tools": 3,
   "keys": [
     {

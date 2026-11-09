@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search pgx
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp search pgx` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds CPIC gene-drug pairs for a gene. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
+> Search pharmacogenomic gene and drug pairs. Sources: cpic.
 
 ## Usage
 
@@ -26,11 +26,11 @@ biomcp search pgx [OPTIONS]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--cpic-level` | value | no |  |  | Literal native level, including compound levels such as B/C. |
-| `--gene` | string | yes |  |  | Explicit source gene symbol. |
-| `--limit` | integer | no | min 1, max 50 |  | Rows per native page. |
-| `--offset` | integer | no | min 0 |  | Native source offset. |
-| `--source` | string | yes |  | `cpic` | Required CPIC source; ClinPGx is not supported for search. |
+| `--cpic-level` | string | no |  |  | Exact source level, including compound levels such as B/C. Value form: string. Example: --cpic-level B/C. Command sources: cpic; source restrictions in the field description apply. |
+| `--gene` | string | yes |  |  | Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: cpic; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 50 |  | Rows per source page. Value form: integer. Example: --limit 1. Command sources: cpic; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source source offset. Value form: integer. Example: --offset 0. Command sources: cpic; source restrictions in the field description apply. |
+| `--source` | string | yes |  | `cpic` | Required CPIC source; ClinPGx is not supported for search; help search pgx Required CPIC source; ClinPGx is not supported for search. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cpic. Command sources: cpic; source restrictions in the field description apply. |
 
 ## Sources
 
@@ -50,7 +50,7 @@ biomcp search pgx --gene DPYD --source cpic --limit 1 --cpic-level B/C
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.pgx_page/2`](/reference/schemas/biomcp-pgx-page-2/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.pgx-page/6`](/reference/schemas/biomcp-pgx-page-6/), whose page lists its fields.
 
 ## Next
 

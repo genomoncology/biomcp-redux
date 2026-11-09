@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: author papers
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp author papers` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the papers of one author record from Semantic Scholar or ORCID, a page at a time. A [section word](/concepts/progressive-disclosure/) after the identifier adds one more part of the record to the reply. This page lists its arguments, sections, examples and reply.
 
 The program's help describes it:
 
-> One exact provider record's publication window. ORCID sends its whole public works list in one reply and pages groups locally. Author IDs identify provider records, not resolved people. Counts cover that provider record. Missing metadata is unavailable. Topic-wide author ranking and cross-provider merging are unavailable. Semantic Scholar and ORCID are noncommercial; commercial users disable both with --disable-sources noncommercial or config disable_sources. Optional keys: biomcp key set semantic-scholar or S2_API_KEY; biomcp key set orcid or ORCID_ACCESS_TOKEN. IDs use semantic-scholar:ID (alias semanticscholar:ID) or orcid:ID. Search supports --source semantic-scholar (alias semanticscholar), --query/-q and --limit/-l; papers supports --limit/-l and Semantic Scholar details/--full.
+> List an author's research papers. Sources: orcid, semantic-scholar.
 
 ## Usage
 
@@ -26,12 +26,12 @@ biomcp author papers [OPTIONS] <id> [section]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--full` | boolean | no |  |  | Legacy alias for details; normalized on construction. |
-| `--limit` | integer | no | min 1, max 25 |  | Bounded row count. |
-| `--offset` | integer | no | min 0 |  | Native or retained collection offset. |
-| `--pool` | string | no |  |  | The ID of a stored list, from an earlier reply, so later pages read the same data. |
-| `id` (position 1) | string | yes |  |  | Exact qualified provider record. |
-| `section` (position 2) | string | no |  | `details` | Detailed disclosure when requested. |
+| `--full` | boolean | no |  |  | Legacy alias for details; normalized on construction. Value form: boolean. Example: --full. Command sources: orcid, semantic-scholar; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 25 |  | Bounded row count. Value form: integer. Example: --limit 5. Command sources: orcid, semantic-scholar; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source or retained collection offset. Value form: integer. Example: --offset 0. Command sources: orcid, semantic-scholar; source restrictions in the field description apply. |
+| `--pool` | string | no |  |  | Retained collection identity. Value form: string. Example: --pool &lt;pool&gt; (syntax; replace the placeholder with your retained value). Command sources: orcid, semantic-scholar; source restrictions in the field description apply. |
+| `id` (position 1) | string | yes |  |  | Exact qualified source record. |
+| `section` (position 2) | string | no |  | `details` | Detailed disclosure when requested; help author papers Listed choices accept any letter case; replies use their listed spelling. |
 
 ## Sections
 
@@ -39,7 +39,7 @@ Detailed disclosure when requested.
 
 | Section | Description |
 | --- | --- |
-| `details` | Native detailed metadata for the same paper window. |
+| `details` | Source detailed metadata for the same paper window. |
 
 ## Examples
 
@@ -53,9 +53,13 @@ biomcp author papers semantic-scholar:123
 biomcp author papers semantic-scholar:123 details
 ```
 
+```sh
+biomcp author papers semantic-scholar:123 --full
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is one of [`biomcp.author_papers/1`](/reference/schemas/biomcp-author-papers-1/), [`biomcp.author_paper_details/1`](/reference/schemas/biomcp-author-paper-details-1/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is one of [`biomcp.author-paper-details/6`](/reference/schemas/biomcp-author-paper-details-6/), [`biomcp.author-papers/6`](/reference/schemas/biomcp-author-papers-6/), [`biomcp.orcid-works/8`](/reference/schemas/biomcp-orcid-works-8/), whose page lists its fields.
 
 ## Next
 

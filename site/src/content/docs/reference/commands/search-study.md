@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search study
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp search study` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds cBioPortal studies by text in a downloaded copy of the study list. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
+> Search cancer genomics studies in cBioPortal. Sources: cbioportal.
 
 ## Usage
 
@@ -26,11 +26,11 @@ biomcp search study [OPTIONS] [text]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--cancer-type` | string | no |  |  | Exact cBioPortal cancer-type code; no OncoTree conversion. |
-| `--limit` | integer | no | min 1, max 50 |  | Maximum headers per page. |
-| `--offset` | integer | no | min 0 |  | Zero-based offset in the checked snapshot. |
-| `--pool` | value | no |  |  | Opaque continuation retaining the catalog revision and selectors. |
-| `text` (position 1) | string | no |  |  | Literal study ID, name or description text, without synonyms or typo repair. |
+| `--cancer-type` | string | no |  |  | Exact cBioPortal cancer-type code; no OncoTree conversion. Value form: string. Example: --cancer-type mixed. Command sources: cbioportal; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 50 |  | Maximum headers per page. Value form: integer. Example: --limit 1. Command sources: cbioportal; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Zero-based offset in the checked snapshot. Value form: integer. Example: --offset 0. Command sources: cbioportal; source restrictions in the field description apply. |
+| `--pool` | string | no |  |  | Opaque continuation retaining the catalog revision and selectors. Value form: string. Example: --pool &lt;pool&gt; (syntax; replace the placeholder with your retained value). Command sources: cbioportal; source restrictions in the field description apply. |
+| `text` (position 1) | string | no |  |  | Exact study ID, name or description text, without synonyms or typo repair. |
 
 ## Examples
 
@@ -46,7 +46,7 @@ biomcp search study --cancer-type mixed --limit 1
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.study_page/1`](/reference/schemas/biomcp-study-page-1/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.study-page/5`](/reference/schemas/biomcp-study-page-5/), whose page lists its fields.
 
 ## Next
 

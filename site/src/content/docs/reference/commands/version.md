@@ -8,10 +8,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: version
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-`biomcp version` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the version; --verbose adds the commit it was built from, the schema IDs and the paths BioMCP uses. This page lists its arguments.
+`biomcp version` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It prints the version; --verbose adds the commit it was built from, the schema IDs and the paths BioMCP uses. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -27,7 +27,15 @@ biomcp version [OPTIONS]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--verbose` | boolean | no |  |  | Include commit, target, schema versions, config and cache paths. |
+| `--verbose` | boolean | no |  |  | Include commit, target, schema versions, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection. |
+
+## Examples
+
+The program's help gives this example.
+
+```sh
+biomcp version
+```
 
 ## Next
 

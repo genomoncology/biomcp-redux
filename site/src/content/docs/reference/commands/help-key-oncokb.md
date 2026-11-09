@@ -7,7 +7,7 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: help key oncokb
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
 `biomcp help key oncokb` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows how to set the OncoKB key: the key name and its environment variable. This page lists its reply.
@@ -37,7 +37,7 @@ biomcp help key oncokb
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.key/2`](/reference/schemas/biomcp-key-2/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.key/5`](/reference/schemas/biomcp-key-5/), whose page lists its fields.
 
 ## Next
 

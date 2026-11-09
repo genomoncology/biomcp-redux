@@ -579,6 +579,7 @@
       ],
       "description": "Search cell lines by name or identifier. Sources: cellosaurus.",
       "reply_schemas": [
+        "biomcp.cell-line-filtered-page/1",
         "biomcp.cell-line-page/7"
       ],
       "arguments": [
@@ -7555,6 +7556,7 @@
         "biomcp.article-page/9",
         "biomcp.author-page/5",
         "biomcp.biomarker-page/4",
+        "biomcp.cell-line-filtered-page/1",
         "biomcp.cell-line-page/7",
         "biomcp.diagnostic-companion/4",
         "biomcp.diagnostic-page/5",

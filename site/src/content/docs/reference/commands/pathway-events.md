@@ -7,14 +7,14 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: pathway events
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp pathway events` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It lists the events, such as reactions, of one Reactome pathway. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Read Reactome event objects and unresolved native integer references in source order. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
+> List events within a biological pathway. Sources: reactome.
 
 ## Usage
 
@@ -26,9 +26,9 @@ biomcp pathway events [OPTIONS] <id>
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--limit` | integer | no | min 1, max 50 |  | Five complete relation rows by default, at most fifty. |
-| `--offset` | integer | no | min 0 |  | Offset within the retained selected relation. |
-| `--pool` | string | no |  |  | Immutable relation snapshot. |
+| `--limit` | integer | no | min 1, max 50 |  | Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 50. Command sources: reactome; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome; source restrictions in the field description apply. |
+| `--pool` | string | no |  |  | Immutable relation snapshot. Value form: string. Example: --pool &lt;pool&gt; (syntax; replace the placeholder with your retained value). Command sources: reactome; source restrictions in the field description apply. |
 | `id` (position 1) | string | yes |  |  | Checked source-owned human pathway identity. |
 
 ## Examples
@@ -45,7 +45,7 @@ biomcp pathway events R-HSA-5673001 --limit 50
 
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.pathway_events/2`](/reference/schemas/biomcp-pathway-events-2/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is [`biomcp.pathway-events/6`](/reference/schemas/biomcp-pathway-events-6/), whose page lists its fields.
 
 ## Next
 

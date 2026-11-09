@@ -7,34 +7,43 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search drug
 kind: reference
-verified: 2026-10-28
+verified: 2026-11-09
 ---
 
 `biomcp search drug` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds drugs by name in one source. This page lists its arguments, examples and reply.
 
 The program's help describes it:
 
-> Literal single-source candidate discovery, without an implicit identity selection.
+> Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 ## Usage
 
 ```text
-biomcp search drug [OPTIONS] <query>
+biomcp search drug [OPTIONS] [query]
 ```
 
 ## Arguments
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `--limit` | integer | no | min 1, max 50 |  | Native candidate rows per page. |
-| `--name-selector` | string | no |  | `preferred`, `synonym` | Explicit ChEMBL native name selector; omitted means preferred name. |
-| `--offset` | integer | no | min 0 |  | Native rows to skip. |
-| `--source` | string | no |  | `who-pq`, `mychem`, `chembl`, `opentargets`, `civic`, `openfda-label`, `drugsfda`, `ema`, `ddinter` | Exactly one source; default MyChem never fans out. |
-| `query` (position 1) | string | yes |  |  | Literal source name selector, unchanged by the consumer. |
+| `--classification` | string | no |  | `Class I`, `Class II`, `Class III` | Source FDA classification; drug recalls only; help search drug Source FDA classification; drug recalls only. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--firm` | string | no |  |  | Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--indication` | string | no |  |  | Exact label indication; openFDA labels only. Search the source Indications and Usage field without disease synonym expansion. An optional name query further narrows the same source search. Value form: string. Example: --indication melanoma. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--initiated-from` | string | no |  |  | Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--initiated-to` | string | no |  |  | Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--limit` | integer | no | min 1, max 50 |  | Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--name-selector` | string | no |  | `preferred`, `synonym` | Explicit ChEMBL source name selector; omitted means preferred; help search drug Explicit ChEMBL source name selector; omitted means preferred name. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--offset` | integer | no | min 0 |  | Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--prequalified-from` | string | no |  |  | Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--prequalified-to` | string | no |  |  | Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--reason` | string | no |  |  | Phrase in the published recall reason; drug recalls only. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--source` | string | no |  | `who-pq`, `fda-drug-recall`, `mychem`, `chembl`, `opentargets`, `civic`, `openfda-label`, `drugsfda`, `ema`, `ddinter` | Selected source; help search drug Selected source. After an empty name lookup, existing sources may supply aliases. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `--status` | string | no |  |  | Exact source recall status; drug recalls only. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply. |
+| `query` (position 1) | string | no |  |  | Name phrase; optional with supported source filters. FDA drug recalls, WHO date ranges and label indication searches allow no name. Drugs@FDA searches brands and ingredients, exact names before word matches. openFDA labels search exact then word brand/generic names, then label text (including indications) when no names match; source matches need not be exact names. Harmonized recall names match but never become display names. |
 
 ## Sources
 
-`--source` picks the source to ask: [who-pq](/sources/who-prequalification/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
+`--source` picks the source to ask: [who-pq](/sources/who-prequalification/), [fda-drug-recall](/sources/fda-drug-recall/), [mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [ddinter](/sources/ddinter/).
 
 ## Examples
 
@@ -48,9 +57,37 @@ biomcp search drug Tibsovo --source ema --limit 1
 biomcp search drug Tibsovo --source ema --limit 1 --offset 1 --fresh
 ```
 
+```sh
+biomcp search drug --indication melanoma --source openfda-label --limit 1
+```
+
+```sh
+biomcp search drug --source fda-drug-recall --firm Apotex --limit 1
+```
+
+```sh
+biomcp search drug --source fda-drug-recall --status Ongoing \
+  --classification 'Class II' --limit 1
+```
+
+```sh
+biomcp search drug --source fda-drug-recall \
+  --reason 'Lack of Sterility Assurance' --limit 1
+```
+
+```sh
+biomcp search drug --source fda-drug-recall --initiated-from 2024-01-01 \
+  --initiated-to 2024-12-31 --limit 1
+```
+
+```sh
+biomcp search drug --source who-pq --prequalified-from 2020 \
+  --prequalified-to 2020 --limit 50 --offset 0
+```
+
 ## Reply
 
-The reply is one JSON object. Its schema is [`biomcp.drug_page/3`](/reference/schemas/biomcp-drug-page-3/), whose page shows a real reply and its fields.
+The reply is one JSON object. Its schema is one of [`biomcp.drug-fda-page/7`](/reference/schemas/biomcp-drug-fda-page-7/), [`biomcp.drug-page/7`](/reference/schemas/biomcp-drug-page-7/), [`biomcp.drug-recall-page/4`](/reference/schemas/biomcp-drug-recall-page-4/), [`biomcp.drug-who-page/5`](/reference/schemas/biomcp-drug-who-page-5/), whose page lists its fields.
 
 ## Next
 

@@ -7,10 +7,10 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: skill status
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-09
 ---
 
-`biomcp skill status` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reports whether the guide installed in a folder is missing, changed, out of date or current. This page lists its arguments.
+`biomcp skill status` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It reports whether the guide installed in a folder is missing, changed, out of date or current. This page lists its arguments and examples.
 
 The program's help describes it:
 
@@ -26,7 +26,15 @@ biomcp skill status [OPTIONS]
 
 | Argument | Type | Required | Limits | Choices | Description |
 | --- | --- | --- | --- | --- | --- |
-| `directory` | string | yes |  |  |  |
+| `directory` | string | yes |  |  | Directory to inspect or install BioMCP guidance. |
+
+## Examples
+
+The program's help gives this example.
+
+```sh
+biomcp skill status biomcp-guidance
+```
 
 ## Next
 
