@@ -18,12 +18,14 @@ Evidence: [evaluation recommendations](../planning/eval-recommendations-2026-11-
 
 Read-only GitHub queries on 2026-11-09 found:
 
+After Ian [approved the prepared environment](../decisions/2026-11-09-approve-publication-environment.md), the operator created `release-publication` and its sole `v*` tag policy. Independent GET requests verified custom policies enabled, protected-branch-only mode disabled, one tag rule, no required reviewers and no wait timer. No secret, deployment or release action was part of this setup. Other publisher access remains unverified.
+
 The GitHub environment list, secret names, Pages settings, public main and tag absence were checked again when preparing selected core `42a79b1bbdc95108447d19369b7cd69f35f8adef`. Those observations below were unchanged. No account setting was changed, and the unverified PyPI, GHCR and MCP Registry access requirements remain unverified.
 
 | Setting | Observed | Reviewable action before the tag |
 | --- | --- | --- |
 | Public repository | `genomoncology/biomcp`, main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`; no `v1.0.0` ref | Recheck main and release-tag absence immediately before preparing the final merge and pushing the tag. |
-| `release-publication` | Absent. Existing environments are `biomcp-release-signing`, `github-pages`, `production`, `pypi`, `release`. | Create `release-publication`, no reviewers or wait timer, admitting release tags `v*`. Keep publication automatic after the approved tag. |
+| `release-publication` | Created after Ian's November 9 approval; readback verified only `v*` tags, no reviewers and no wait timer. | Setup complete. Preserve this policy; release publication still follows its separate approval. |
 | PyPI Trusted Publisher | Not readable through the GitHub API; not verified. | Administrator verifies or adds project `biomcp-cli`, GitHub owner `genomoncology`, repository `biomcp`, workflow `release.yml`, environment `release-publication`. No PyPI token is needed. |
 | GHCR package | Metadata query refused: the current GitHub credential lacks `read:packages`; not verified. | Administrator verifies that public package `ghcr.io/genomoncology/biomcp` is linked to `genomoncology/biomcp` and its workflow token may write the package and attestations. Grant Actions access if missing. |
 | Homebrew | `HOMEBREW_TAP_TOKEN` exists as a repository secret; its value and permissions were not read. | Administrator verifies Contents read/write access only to `genomoncology/homebrew-biomcp` and permission to update `main`, then supplies the environment secret required by the operator instructions. |
