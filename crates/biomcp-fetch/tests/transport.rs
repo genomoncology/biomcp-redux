@@ -234,21 +234,12 @@ fn http_failures_preserve_status_and_optional_404_is_absent() {
 
 #[test]
 fn unusable_success_replies_keep_distinct_failure_reasons() {
+    use Reason::{BadReply, TooLarge};
     for (content_type, body, limit, expected) in [
-        ("text/html", "<html>error</html>", 100, Reason::BadReply),
-        ("application/json", "{broken", 100, Reason::BadReply),
-        (
-            "application/json",
-            r#"{"ERROR":"failed"}"#,
-            100,
-            Reason::BadReply,
-        ),
-        (
-            "application/problem+json",
-            r#"{"answer":"too large"}"#,
-            5,
-            Reason::TooLarge,
-        ),
+        ("text/html", "<html>error</html>", 100, BadReply),
+        ("application/json", "{broken", 100, BadReply),
+        ("application/json", r#"{"ERROR":"failed"}"#, 100, BadReply),
+        ("application/problem+json", "{}", 1, TooLarge),
     ] {
         let stub = Stub::new(200, content_type, body, None);
         let spec = stub.spec(KeyUse::None, Duration::from_secs(10));
@@ -574,10 +565,7 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
     )
     .unwrap();
     let error = leg
-        .probe(
-            &spec.get("/probe").bytes(3),
-            biomcp_fetch::Input::Params(&[]),
-        )
+        .probe(&spec.get("/probe").bytes(3), Input::Params(&[]))
         .unwrap_err();
     assert!(matches!(error, biomcp_fetch::RequestError::Source(e) if e.reason == Reason::TooLarge));
     assert_eq!(stub.finish().len(), 3);
