@@ -72,6 +72,14 @@ git -C "$S/repo" bundle verify "$S/append-history.bundle"
 
 If public refs move, refresh the scratch clone and repeat only the ancestry-dependent checks against the new public main. Retain selected commit, public main, merge, ordered parents, tree, old refs, scanner job result and bundle with the ticket. A fresh reviewer accepts the final packet before approval is requested.
 
+## Selected candidate and retained history merge
+
+The coordinator selected landed main `2d2dbda17ca29202bd332152ab604408cb9b5b14`, tree `dc21594efab5d386f2afca23821bfa108c90633a`. The scratch rehearsal used actual public main `561d3fe06d9dff5485f13a82a4108371f6fdfe88` as first parent and that selected candidate as second parent. The resulting unpushed merge is `d0ca20de511d1b807eb69a7eedc9fbfb7f7da1ca`, with the selected candidate's exact tree. The clone is nonshallow, all original public refs remain unchanged, all 77 old tags remain, and `v0.9.3` still resolves to `5641de7d7b79b53872f8599dbb4dba22e611dcaf`.
+
+The retained bundle is 107,888,176 bytes, SHA-256 `1ce4d3318a19cac295bc91d40bf936cd5c65122127ef1784c22a6dafd338575a`. The receiver verified that hash and restored the same merge, ordered parents, tree and old refs on Yellow. Its retained packet is `data/biomcp-redux-evidence/0294/candidate-2d2dbda17ca2-public-append-d0ca20de-j36148` on Yellow. The preflight binds the selected scanner, toolchain manifest and unchanged 181-row ledger by hash.
+
+The complete-history scan uses job j36148 at the selected candidate, with Python 3.13 first on PATH, including nested commands. Yellow reports Python 3.13.17 and Git 2.51.0. The job scans `--single-worktree --all HEAD`; it does not scan only recent commits or change the ledger. Queued M5 job j36139 and initial Yellow launcher j36147 were cancelled before execution when moving the scan to an available-host queue and choosing Bash for Linux's pipefail support. The final packet must include j36148's actual result and a postflight comparison of canonical public refs before a reviewer accepts it.
+
 ## Approved release order
 
 Once AWS validation, the source review, account readiness and the final candidate's qualification are complete, give Ian the reviewable merge, tag, account changes, channel limitations and docs-site result. After his release approval, push only `v1.0.0` on the prepared merge. The ordinary tag workflow qualifies, stages, screens, signs, publishes, checks public installs and promotes latest without an approval pause. Advance public main to the merge only after that workflow passes, then land the refreshed site in the same release session. Preserve old heads, tags, releases and history; no force push.
