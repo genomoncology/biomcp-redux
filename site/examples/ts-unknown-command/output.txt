@@ -1,18 +1,36 @@
 {
-  "schema": "biomcp.error/1",
+  "schema": "biomcp.error/4",
   "status": "usage",
   "error": {
-    "code": "usage.schema",
-    "message": "expected schema <known artifact id>"
-  }
+    "code": "usage.unknown_command",
+    "message": "unknown command; use the suggested help command"
+  },
+  "next": [
+    {
+      "kind": "configure",
+      "args": [
+        "help",
+        "search"
+      ]
+    }
+  ]
 }
 exit code 2
 {
-  "schema": "biomcp.error/1",
+  "schema": "biomcp.error/4",
   "status": "usage",
   "error": {
-    "code": "usage.schema",
-    "message": "expected schema <known artifact id>"
-  }
+    "code": "usage.unknown_command",
+    "message": "unknown command; use the suggested help command"
+  },
+  "next": [
+    {
+      "kind": "configure",
+      "args": [
+        "help",
+        "store"
+      ]
+    }
+  ]
 }
 exit code 2

@@ -1,12 +1,9 @@
 {
-  "status": "local",
-  "error": {
-    "code": "local.failure",
-    "message": "local configuration, cache or recording failed"
-  }
+  "status": "complete",
+  "error": null
 }
-exit code 5
+exit code 0
 {
   "status": "complete",
-  "sources": 57
+  "sources": 60
 }

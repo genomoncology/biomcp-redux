@@ -1,7 +1,7 @@
 {
-  "schema": "biomcp.key/2",
+  "schema": "biomcp.key/5",
   "status": "complete",
-  "query": null,
+  "query": {},
   "result": {
     "guidance": "biomcp key set oncokb",
     "source": "oncokb",

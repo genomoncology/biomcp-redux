@@ -1,9 +1,19 @@
 {
-  "schema": "biomcp.error/1",
+  "schema": "biomcp.error/4",
   "status": "usage",
   "error": {
-    "code": "usage.arguments",
-    "message": "expected a supported command with checked arguments"
-  }
+    "code": "usage.unknown_command",
+    "message": "unknown command; use the suggested help command"
+  },
+  "next": [
+    {
+      "kind": "configure",
+      "args": [
+        "help",
+        "search",
+        "pgx"
+      ]
+    }
+  ]
 }
 exit code 2

@@ -1,19 +1,19 @@
 # BioMCP Worked Examples
 
-01-treatment-lookup: Read a source drug record
-02-symptom-phenotype: Read a phenotype record
-03-gene-disease-orientation: Read a gene identity
-04-article-follow-up: Read an article card
-05-variant-pathogenicity: Inspect source variant assertions
-06-drug-regulatory: Read a regulatory source record
-07-gene-function-localization: Read a source gene card
-08-mechanism-pathway: Read a source pathway card
-09-trial-recruitment: Search registry trials
-10-pharmacogene-cumulative: Read a native pharmacogenomics record
-11-disease-locus-mapping: Inspect source disease listings
-12-cellular-process-regulation: Inspect a human pathway record
-13-mutation-catalog: Search source variant candidates
-14-syndrome-disambiguation: Read phenotype source identity
-15-negative-evidence: Inspect source outcomes
-16-normalize-to-codes: Inspect explicit variant identity
-17-exact-variant-literature: Read literature after inspecting variant identity
+01-treatment-lookup: Find published evidence for a treatment question
+02-symptom-phenotype: Look up a stated symptom term
+03-gene-disease-orientation: Read gene–disease source assessments
+04-article-follow-up: Follow an article through its sources
+05-variant-pathogenicity: Inspect native variant assertions
+06-drug-regulatory: Read an exact regulatory medicine record
+07-gene-function-localization: Inspect protein features after gene resolution
+08-mechanism-pathway: Read an identified pathway record
+09-trial-recruitment: Screen registry records in explicit stages
+10-pharmacogene-cumulative: Read separate pharmacogenomics tables
+11-disease-locus-mapping: Find genes in a stated cytoband
+12-cellular-process-regulation: Inspect pathway membership and events
+13-mutation-catalog: Inspect candidates at an explicit genomic position
+14-syndrome-disambiguation: Resolve an ambiguous gene name before disease review
+15-negative-evidence: Distinguish empty from unavailable source sections
+16-normalize-to-codes: Keep normalization services independent
+17-exact-variant-literature: Search literature with an explicit variant term

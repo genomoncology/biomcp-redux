@@ -1,7 +1,8 @@
 {
-  "schema": "biomcp.error/1",
+  "schema": "biomcp.error/4",
   "status": "local",
   "error": {
+    "option": "formatt",
     "code": "local.failure",
     "message": "local configuration, cache or recording failed"
   }

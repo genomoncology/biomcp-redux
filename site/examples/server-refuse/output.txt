@@ -1,1 +1,2 @@
+{"schema":"biomcp.error/4","status":"usage","error":{"option":"--allow-host","code":"usage.arguments","message":"expected a supported command with checked arguments"}}
 exit code 2

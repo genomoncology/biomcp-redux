@@ -1,17 +1,15 @@
-**query:** null
-
 ## Result
 
 ### Entries
 
-| Config | Environment | Source | State |
-| --- | --- | --- | --- |
-| keys.ncbi\_api\_key | NCBI\_API\_KEY | ncbi | none |
-| keys.semantic\_scholar\_api\_key | S2\_API\_KEY | semantic-scholar | none |
-| keys.orcid\_access\_token | ORCID\_ACCESS\_TOKEN | orcid | none |
-| keys.oncokb\_api\_key | ONCOKB\_TOKEN | oncokb | none |
-| keys.alphagenome\_api\_key | ALPHAGENOME\_API\_KEY | alphagenome | none |
-| keys.nci\_api\_key | NCI\_API\_KEY | nci | none |
-| keys.openfda\_api\_key | OPENFDA\_API\_KEY | openfda | none |
+| Config | Environment | Header | Source | State | Tier | Usage |
+| --- | --- | --- | --- | --- | --- | --- |
+| keys&#46;ncbi\_api\_key | NCBI\_API\_KEY | x-biomcp-key-ncbi-api-key | ncbi | none | fallback | open |
+| keys&#46;semantic\_scholar\_api\_key | S2\_API\_KEY | x-biomcp-key-semantic-scholar-api-key | semantic-scholar | none | fallback | noncommercial |
+| keys&#46;orcid\_access\_token | ORCID\_ACCESS\_TOKEN | x-biomcp-key-orcid-access-token | orcid | none | fallback | noncommercial |
+| keys&#46;oncokb\_api\_key | ONCOKB\_TOKEN | x-biomcp-key-oncokb-api-key | oncokb | none | no-fallback | licensed |
+| keys&#46;alphagenome\_api\_key | ALPHAGENOME\_API\_KEY | x-biomcp-key-alphagenome-api-key | alphagenome | none | no-fallback | licensed |
+| keys&#46;nci\_api\_key | NCI\_API\_KEY | x-biomcp-key-nci-api-key | nci | none | fallback | open |
+| keys&#46;openfda\_api\_key | OPENFDA\_API\_KEY | x-biomcp-key-openfda-api-key | openfda | none | fallback | open |
 
 **status:** complete

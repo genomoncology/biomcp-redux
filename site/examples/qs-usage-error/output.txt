@@ -1,8 +1,22 @@
 {
-  "schema": "biomcp.error/1",
+  "schema": "biomcp.error/4",
   "status": "usage",
   "error": {
+    "option": "input",
+    "valid_values": [
+      "An input classified before source resolution; aliases remain free text."
+    ],
     "code": "usage.arguments",
-    "message": "expected a supported command with checked arguments"
-  }
+    "message": "option is missing or invalid; choose an accepted value or form and use the suggested help command"
+  },
+  "next": [
+    {
+      "kind": "configure",
+      "args": [
+        "help",
+        "get",
+        "gene"
+      ]
+    }
+  ]
 }
