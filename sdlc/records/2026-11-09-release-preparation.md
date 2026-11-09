@@ -4,7 +4,7 @@ This is preparation for ticket 0294, not approval to publish or change an accoun
 
 ## Source and evaluation assessment before AWS validation
 
-A read-only review of the existing evaluation reports did not establish a still-unfixed source-related product defect on core `42a79b1bb`. This prepares the source decision; it does not substitute for final deployed-service validation.
+A read-only review of the existing evaluation reports did not establish a still-unfixed source-related product defect on core `42a79b1bb`. The ending core `b3809eb1baa6d1e470efaf6499d8be0ba600f511` differs from that core only in cache tests, release mutation tooling, its tests and the owning ticket, so this preliminary assessment carries forward for the unchanged product source coverage. This prepares the source decision; it does not substitute for final deployed-service validation.
 
 The November 4 recommendations and gap recheck describe older binaries. Their accepted drug-name, coordinate, approval-ordering, filter, posted-results, label, population and device findings map to completed fixes in the current plan. The [November 6 life-sciences report](2026-11-06-life-sciences-test.md) used deployed core `1bb97e64`; its mapped repairs still need confirmation on the final hosted image. DailyMed-only labels were deliberately withdrawn in [0612](../tickets/0612-dailymed-labels.md), rather than left as an unfinished source defect.
 
@@ -12,7 +12,7 @@ The [additional-source list](../planning/sources-to-add.md) remains a candidate 
 
 After AWS validation, the PM recommendation is to release with current coverage and order additional sources as subsequent work, unless the final hosted results demonstrate a specific missing capability that Ian chooses to hold 1.0 for. That decision must use the actual remaining question, rights and cost. The earlier ranking of regulatory-event coverage and drug-name normalization is dated evidence, not a new must-ship requirement. The old benchmark runs also do not establish token savings for the final 17-tool interface.
 
-Evidence: `sdlc/planning/eval-recommendations-2026-11-04.md`, `sdlc/planning/eval-gap-recheck-2026-11-04.md`, and the preserved reports `repos/biomed-agent-bench/docs/513/climb/recommendations.md` and `repos/biomed-agent-bench/evals/reference/513/climb/gaps-on-main.md`. No new evaluations, provider calls or source fetches were run for this assessment.
+Evidence: [evaluation recommendations](../planning/eval-recommendations-2026-11-04.md), [gap recheck](../planning/eval-gap-recheck-2026-11-04.md), the [life-sciences report](2026-11-06-life-sciences-test.md) and the [candidate source list](../planning/sources-to-add.md). No new evaluations, provider calls or source fetches were run for this assessment, and no additional source work is authorized by it.
 
 ## Account preflight
 
@@ -88,6 +88,16 @@ If public refs move, refresh the scratch clone and repeat only the ancestry-depe
 
 ## Current selected candidate and history merge
 
+The ending core is `b3809eb1baa6d1e470efaf6499d8be0ba600f511`, tree `4baf7bddd9487d5adba82589c45351bef36fa2b2`. The fresh canonical public clone selected main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`; the new unpushed two-parent merge is `8d03d93e7d73408a35ba9e63e2ef4e19d544c330`, with public main first and the ending core second, and exactly the ending tree. The clone is nonshallow, all original public refs and 77 old tags remain intact, and the unchanged 181-row ledger still hashes to `131bb9fa20e87846127943f72dea5b5f6132e86dfdd47849ad06a3a184c4b32c`.
+
+Ancestry-dependent full-history scanning is tracked by j36352 against that exact ending core, using its pinned scanner/toolchain and Python 3.13 first on PATH. Its actual terminal result and canonical-ref postflight must be added before this ending packet is treated as passing. Source-code, native-build and full-gate checks were not repeated by this preparation.
+
+The ending bundle is 108,046,108 bytes, SHA-256 `a6bf69f317eaa8ad988ce6ebec84ec658e80e03c936041ffa30f43a497fd47fa`. It preserves both histories and the original refs. The bundle and preflight are retained on Yellow at `data/biomcp-redux-evidence/0294/candidate-b3809eb1baa6-public-append-8d03d93e-j36352`; the receiver verified the bundle hash, restored the same merge/tree/ordered parents, and compared all original refs. The restored read-only reviewer repository is `/tmp/biomcp-0294-ending-b3809eb1.ugWdTg6l/repo` on Yellow. The raw terminal scan result and postflight still belong in this ending packet; no prior packet supplies them. The earlier 42a and 2d2 packets below remain historical; their passing scans do not qualify this ending ancestry.
+
+The source assessment supports current coverage subject to final AWS validation and Ian's source decision. This packet introduces no additional source work and grants no public-tag, account, deployment or publication approval. The approved tag-first order remains: publish and verify from the approved merge tag, then fast-forward public main after success.
+
+## Historical 42a candidate and history merge
+
 The coordinator selected landed core `42a79b1bbdc95108447d19369b7cd69f35f8adef`, tree `6caf63ae9a8ccf80bd5bd440f25da2d61d6f9e9d`, after the runtime zlib and owned-cache WAL retry fixes. A fresh scratch clone of the canonical public repository still selected main `561d3fe06d9dff5485f13a82a4108371f6fdfe88`. The new unpushed merge is `8ca286662dcda20ba132cc50c0e0263e5b188b47`, with public main first and this selected core second, and exactly the selected tree. The clone is nonshallow; all 77 old tags and original public refs are preserved. The selected source's 181-row ledger still hashes to `131bb9fa20e87846127943f72dea5b5f6132e86dfdd47849ad06a3a184c4b32c`, with no classification changes.
 
 Complete-history job j36297 passed on M5 at this exact core, exit 0, scanning 16,646 commits through `--single-worktree --all HEAD` with no `since` restriction. It reported no secret findings and the same seven informational opaque-history coverage notices retained in the raw log. The executed scanner, ledger and new-core toolchain manifest hashes matched the preflight source bindings. Python 3.13 was first on PATH, including nested commands; the host reported Python 3.13.17, Git 2.54.0 and pinned Gitleaks 8.30.1, with its pinned archive hash verified. Canonical public heads and tags remained identical before and after the scan, and all old local refs and tags stayed intact. One tracked scan ran; no queue moves or ledger edits were needed.
@@ -96,7 +106,7 @@ The new packet is retained on Yellow at `data/biomcp-redux-evidence/0294/candida
 
 This source selection does not establish AWS validation, the source review, publishing-account readiness or Ian's approval of a public tag. The same owning session drives core and hosting under the recorded instruction; the approval and validation requirements stay in place.
 
-## Historical candidate and retained history merge
+## Historical 2d2 candidate and retained history merge
 
 The coordinator selected landed main `2d2dbda17ca29202bd332152ab604408cb9b5b14`, tree `dc21594efab5d386f2afca23821bfa108c90633a`. The scratch rehearsal used actual public main `561d3fe06d9dff5485f13a82a4108371f6fdfe88` as first parent and that selected candidate as second parent. The resulting unpushed merge is `d0ca20de511d1b807eb69a7eedc9fbfb7f7da1ca`, with the selected candidate's exact tree. The clone is nonshallow, all original public refs remain unchanged, all 77 old tags remain, and `v0.9.3` still resolves to `5641de7d7b79b53872f8599dbb4dba22e611dcaf`.
 

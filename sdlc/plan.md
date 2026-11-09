@@ -8,6 +8,8 @@ Ian approved implementation with AWS first on 2026-11-09 (`decisions/2026-11-09-
 
 Qualify the selected landed main on every promised platform, using `records/2026-11-09-release-preparation.md` for the current source and history-merge identities. Refresh the docs site before the cut while preparing hosting, the public-history merge rehearsal and the reviewable publishing-account changes. Reuse passing sections whose inputs still apply, and rerun a failed section after its owning fix. Earlier candidate packets remain historical evidence when the selected source changes.
 
+Use the preliminary source assessment in the same preparation record for the source decision after final AWS validation. It supports the current coverage and introduces no additional source work; it does not treat older evaluation binaries as proof of the final hosted service.
+
 After AWS validation and the source review, present the completed release packet to Ian. Once approved, push `v1.0.0` on the prepared two-parent history merge first. Fast-forward public main only after the tag workflow's publication, public installs and promotion pass, then land the refreshed site in the same release session. No public release, hosting deployment or account change is performed by the preparation steps. Ticket and lane status remain in pm.
 
 ## Why this order
