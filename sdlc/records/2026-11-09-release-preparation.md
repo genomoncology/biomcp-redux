@@ -2,6 +2,18 @@
 
 This is preparation for ticket 0294, not approval to publish or change an account. Publication follows AWS validation of the finished 1.0 code and the source review, as `decisions/2026-11-09-finish-1-0-with-aws-first.md` records. The selected candidate and its complete merged ancestry must be qualified before the final approval request.
 
+## Source and evaluation assessment before AWS validation
+
+A read-only review of the existing evaluation reports did not establish a still-unfixed source-related product defect on core `42a79b1bb`. This prepares the source decision; it does not substitute for final deployed-service validation.
+
+The November 4 recommendations and gap recheck describe older binaries. Their accepted drug-name, coordinate, approval-ordering, filter, posted-results, label, population and device findings map to completed fixes in the current plan. The [November 6 life-sciences report](2026-11-06-life-sciences-test.md) used deployed core `1bb97e64`; its mapped repairs still need confirmation on the final hosted image. DailyMed-only labels were deliberately withdrawn in [0612](../tickets/0612-dailymed-labels.md), rather than left as an unfinished source defect.
+
+The [additional-source list](../planning/sources-to-add.md) remains a candidate list. Posted trial results, drug-name expansion and open-source author search already address parts of the earlier motivation for AACT, name services and OpenAlex. Regulatory-event coverage, patents/exclusivity, deeper cell-line data and broader author/institution coverage are possible additional capabilities; an absent capability alone does not demonstrate that an existing command is wrong.
+
+After AWS validation, the PM recommendation is to release with current coverage and order additional sources as subsequent work, unless the final hosted results demonstrate a specific missing capability that Ian chooses to hold 1.0 for. That decision must use the actual remaining question, rights and cost. The earlier ranking of regulatory-event coverage and drug-name normalization is dated evidence, not a new must-ship requirement. The old benchmark runs also do not establish token savings for the final 17-tool interface.
+
+Evidence: `sdlc/planning/eval-recommendations-2026-11-04.md`, `sdlc/planning/eval-gap-recheck-2026-11-04.md`, and the preserved reports `repos/biomed-agent-bench/docs/513/climb/recommendations.md` and `repos/biomed-agent-bench/evals/reference/513/climb/gaps-on-main.md`. No new evaluations, provider calls or source fetches were run for this assessment.
+
 ## Account preflight
 
 Read-only GitHub queries on 2026-11-09 found:
