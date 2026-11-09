@@ -13,7 +13,8 @@
     "commands": 86,
     "mcp_tools": 3,
     "use_cases": 17,
-    "keys": 7
+    "keys": 7,
+    "typed_mcp_tools": 17
   },
   "mcp_tools": "a `biomcp` tool that takes the same commands as the shell, plus `search` and `fetch`",
   "install": {

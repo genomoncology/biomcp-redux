@@ -13,7 +13,7 @@ BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`, so an AI 
 
 ## Entity tools
 
-Use `biomcp serve --tool-mode typed` to expose 17 tools: one per entity, plus `biomcp`, `help`, `search` and `fetch`. An entity tool takes an `action` and an object named for that action. For example, call `gene` with `{"action":"get","get":{"input":["BRAF"]}}`. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The default `single` mode keeps the CLI-argument tool and research tools. [Tool reference](/reference/mcp-server/) lists both modes.
+Use `biomcp serve --tool-mode typed` to expose <Fact k="counts.typed_mcp_tools" /> tools: one per entity, plus `biomcp`, `help`, `search` and `fetch`. An entity tool takes an `action` and an object named for that action. For example, call `gene` with `{"action":"get","get":{"input":["BRAF"]}}`. Set `"mcp_tool_mode": "typed"` in configuration for the same behavior. The default `single` mode keeps the CLI-argument tool and research tools. [Tool reference](/reference/mcp-server/) lists both modes.
 
 ## Requirements
 

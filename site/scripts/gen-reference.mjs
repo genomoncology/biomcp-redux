@@ -911,7 +911,7 @@ const facts = { envelope: envelopeFacts, commands: help.length, entities: entiti
 files.set(path.resolve('src/data/reference.json'), JSON.stringify(facts, null, 2) + '\n');
 
 // ---------- the counts in site.json must match the build ----------
-for (const [k, v] of Object.entries({ entities: entities.length, sources: registry.length, commands: help.length, mcp_tools: tools.length, keys: keys.length })) {
+for (const [k, v] of Object.entries({ entities: entities.length, sources: registry.length, commands: help.length, mcp_tools: tools.length, typed_mcp_tools: typedTools.length, keys: keys.length })) {
   if (!check) site.counts[k] = v;
   if (site.counts?.[k] !== v) { console.error(`reference: site.json counts.${k} is ${site.counts?.[k]}, the build has ${v}`); process.exit(1); }
 }
