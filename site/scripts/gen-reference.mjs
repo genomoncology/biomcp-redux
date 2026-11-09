@@ -142,8 +142,8 @@ function linkTerms(text) {
 }
 const write = (rel, text) => files.set(path.join(OUT, rel), linkTerms(text).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n');
 const firstSentence = (s) => (s.split(/(?<=\.)\s/)[0] ?? s).trim();
-const ENTITY_OF = (c) => (['search', 'get'].includes(c.command[0]) ? c.command[1] : c.command[0]);
-const entities = [...new Set(help.filter((c) => ['search', 'get'].includes(c.command[0])).map((c) => c.command[1]))];
+const ENTITY_OF = (c) => (['search', 'get'].includes(c.command[0]) ? c.command[1] ?? 'housekeeping' : c.command[0]);
+const entities = [...new Set(help.filter((c) => c.command.length > 1 && ['search', 'get'].includes(c.command[0])).map((c) => c.command[1]))];
 // Plain one-sentence descriptions of each command, in src/data/command-notes.yaml.
 const commandNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/command-notes.yaml'), 'utf8'))?.plain ?? {};
 const plainOf = (c) => {
@@ -472,7 +472,7 @@ for (const c of [...help, ...topics]) {
       `[Keys and configuration](/getting-started/api-keys/) shows how to set it.`, '');
   }
   if (replies.length) {
-    lines.push('## Reply', '', `The reply is one JSON object. ${replies.length > 1 ? 'Its schema is one of' : 'Its schema is'} ${replies.map((id) => `[${code(id)}](${schemaRoute(id)})`).join(', ')}, whose page shows a real reply and its fields.`, '');
+    lines.push('## Reply', '', `The reply is one JSON object. ${replies.length > 1 ? 'Its schema is one of' : 'Its schema is'} ${replies.map((id) => `[${code(id)}](${schemaRoute(id)})`).join(', ')}, whose page lists its fields.`, '');
   }
   const e = ENTITY_OF(c);
   lines.push('## Next', '', entities.includes(e) ? `The [${e} guide](/user-guide/${e}/) shows every ${e} command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.` : TASK_GUIDE(c) ?? `The [commands index](/reference/commands/) lists every command.`);

@@ -59,7 +59,7 @@ export function exampleMarkdown(id, lines) {
 }
 
 // The files of the example folder that make the build run it, not the files the example reads.
-const HARNESS = /^(run\.sh|show\..+|output\.txt|exit|ran|unverified|needs|expect-status|exact|build-only)$/;
+const HARNESS = /^(run\.sh|show\..+|output\.txt|exit|ran|unverified|needs|expect-status|expect-exit|exact|build-only)$/;
 
 // examples/<id>/build-only lists files that point the build at the packages staged from this
 // commit, one `FILE: reason` per line. A reader writes those files differently, with the
