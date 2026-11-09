@@ -71,3 +71,6 @@ pub(crate) fn local_replies(command: &[String]) -> Vec<String> {
     };
     vec![id.into()]
 }
+
+#[cfg(test)]
+mod tests;
