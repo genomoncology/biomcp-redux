@@ -1,0 +1,74 @@
+---
+title: "Daraxonrasib, part 2: papers, trials and reports"
+description: A dated tutorial, part 2 of 2, that follows daraxonrasib through BioMCP 1.0 article, trial and adverse event sources to its trial reports, registered trials, eligibility text and FAERS reports.
+goal: The reader follows one newly approved drug through BioMCP's article, trial and adverse event sources, and knows which source answered each step and where each answer stops.
+reader: A researcher or agent builder who wants the public records for a new drug in one session
+kind: tutorial
+verified: 2026-10-27
+date: 2026-10-27
+author: Ian Maurer
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+Daraxonrasib is a RAS(ON) inhibitor from Revolution Medicines, and it reached the FDA this year. This tutorial follows it through BioMCP <Fact k="version" />, a command line tool and MCP server for biomedical data from public sources. [Part 1](/blog/daraxonrasib-six-commands/) found its identifiers, its FDA application NDA220910 and its RASONQUE label. This part finds its trial reports, its registered trials, the eligibility text of one trial, and the adverse event count. Each step names the source that answered.
+
+This page collects records. It does not say who should take the drug, and it reads no one's case.
+
+## Before you start
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches PubMed, ClinicalTrials.gov and openFDA. No key is needed.
+- `jq`, to trim each reply to the fields shown.
+
+## 4. Find the papers
+
+`--drug` searches PubMed by drug name. `--type randomized` keeps randomized trial reports:
+
+<Example id="blog-dara-articles" />
+
+The first search mixes the discovery paper with later studies, and its rows change as PubMed adds papers. The filtered search finds the randomized trial report in the New England Journal of Medicine, and `get article` returns its DOI and publication date. [Read an article's full text](/how-to/find-articles/read-full-text/) shows how to read it when an article is open access.
+
+## 5. List the registered trials
+
+`--intervention` searches ClinicalTrials.gov interventions:
+
+<Example id="blog-dara-trials" lines={9} />
+
+ClinicalTrials.gov returns 15 studies that list daraxonrasib, from first-in-human combinations to phase 3 trials and an expanded access program. The status column is the registry's. A combination study run by another sponsor appears here because it lists daraxonrasib as an intervention; read each record before you count it.
+
+## 6. Read one trial's eligibility text
+
+NCT06625320 is the phase 3 study in previously treated pancreatic cancer, and its status is `ACTIVE_NOT_RECRUITING`. The `eligibility` section returns the registry's criteria unchanged. This filter keeps the lines that mention RAS:
+
+<Example id="blog-dara-eligibility" />
+
+The criteria define RAS mutations by codon: G12, G13 or Q61 in KRAS, NRAS or HRAS. That definition is the trial's, written for its own enrollment. BioMCP does not match a person to a trial; the whole record governs enrollment, and [Find clinical trials by condition, gene or variant](/how-to/find-trials/#make-a-screen-complete) lists what a complete screen needs.
+
+## 7. Count adverse event reports
+
+FAERS holds spontaneous reports to the FDA. Search it under both names:
+
+<Example id="blog-dara-faers" />
+
+Both searches are `absent`, so the script exits with code 1. FAERS answered (`state` `ok`) and returned no report under either name. A new drug can have reports that FAERS has not yet published, so zero here is not a safety finding. [Search adverse event reports](/drugs-and-safety/adverse-events/) explains what report counts can and cannot show.
+
+## What you have
+
+The seven steps of both parts gave you, each from its source:
+
+| Step | Source | Record |
+| --- | --- | --- |
+| Identity | MyChem.info | InChIKey and contributing databases |
+| Application | Drugs@FDA | NDA220910, original approval 2026-08-26 |
+| Label | openFDA | set ID and the indications heading |
+| Papers | PubMed | the randomized trial report, PMID 42223072 |
+| Trials | ClinicalTrials.gov | 15 registered studies |
+| Eligibility | ClinicalTrials.gov | the RAS definition of NCT06625320 |
+| Reports | FAERS | no reports under either name |
+
+## Try one change
+
+Run step 5 with `--status RECRUITING` to keep the studies that enroll now, then compare the count with the 15 above.
+
+Next, follow a variant instead of a drug in [KRAS G12C source records in six BioMCP commands](/blog/kras-g12c-treatment-landscape/).

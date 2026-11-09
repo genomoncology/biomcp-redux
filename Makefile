@@ -197,3 +197,11 @@ hosted-http-load:
 .PHONY: hosted-surface-check
 hosted-surface-check:
 	python3 scripts/trials.py --installed mcp-hosted/served-surface-and-source-policy mcp-parity/typed-hosted-catalog
+
+.PHONY: site-build site-reference
+site-build: plain-cli-build
+	cd site && npm ci && npm run test:installer && npm run build
+
+site-reference: plain-cli-build
+	cd site && npm ci && npm run reference
+	@if [ -n "$(SITE_REFRESH_ARCHIVE)" ]; then tar -czf "$(SITE_REFRESH_ARCHIVE)" site/src/content/docs/reference site/src/content/docs/sources site/src/data/reference.json; fi

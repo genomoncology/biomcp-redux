@@ -1,0 +1,13 @@
+---
+// The home page's terminal: one real command and the output saved from its run in the build.
+import { Code } from '@astrojs/starlight/components';
+import { readExample, trimOutput } from '../lib/examples.mjs';
+interface Props { id: string; lines?: number; caption?: string }
+const { id, lines, caption } = Astro.props;
+const ex = readExample(id);
+---
+<figure class="bm-terminal" data-example={id}>
+  <Code code={ex.show} lang={ex.lang} frame="terminal" title="Terminal" />
+  <Code code={trimOutput(ex.output, lines)} lang="text" frame="none" />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

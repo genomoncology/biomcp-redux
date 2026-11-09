@@ -1,0 +1,52 @@
+---
+title: "Follow a new drug across sources: daraxonrasib, part 1"
+description: A dated tutorial, part 1 of 2, that follows daraxonrasib through BioMCP 1.0 drug sources, from its identity to its FDA application and label.
+goal: The reader follows one newly approved drug through BioMCP's drug sources to its identifiers, FDA application and label, and knows which source answered each step and where each answer stops.
+reader: A researcher or agent builder who wants the public records for a new drug in one session
+kind: tutorial
+verified: 2026-10-27
+date: 2026-10-27
+author: Ian Maurer
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+Daraxonrasib is a RAS(ON) inhibitor from Revolution Medicines, and it reached the FDA this year. This tutorial follows it through BioMCP <Fact k="version" />, a command line tool and MCP server for biomedical data from public sources, in seven steps over two parts. This part, steps 1 to 3, gives its identifiers, its FDA application and its label. [Part 2](/blog/daraxonrasib-trials-and-reports/) finds its papers, trials, one trial's eligibility text and the adverse event count. Each step names the source that answered.
+
+This page collects records. It does not say who should take the drug, and it reads no one's case.
+
+## Before you start
+
+- BioMCP installed; see [install](/getting-started/installation/).
+- A network that reaches MyChem.info, Drugs@FDA and openFDA. No key is needed.
+- `jq`, to trim each reply to the fields shown.
+
+## 1. Find the drug's identity
+
+The default drug source is MyChem.info, which merges several databases:
+
+<Example id="blog-dara-identity" />
+
+The `sources` list names every database that contributed. The `id` is MyChem.info's key, an InChIKey. It is not an FDA identifier, so the next step asks the FDA source directly.
+
+## 2. Read the FDA application
+
+`--source drugsfda` searches Drugs@FDA. The application number leads to its approval history:
+
+<Example id="blog-dara-fda" />
+
+Drugs@FDA lists application NDA220910 for RASONQUE tablets, with an original approval (`AP`, `ORIG`) dated 2026-08-26 under priority review. The submission class and the orphan code are Drugs@FDA's own fields. The [FDA approval date answer](/answers/fda-approval-date/) shows the same steps for vemurafenib.
+
+**Checkpoint.** The approvals row has status `AP`. A different row means the source changed since this run.
+
+## 3. Read the label
+
+The openFDA label source knows the drug by its brand name:
+
+<Example id="blog-dara-label" />
+
+The search for `daraxonrasib` is `absent`, and the search for `RASONQUE` finds the label. Each source matches names its own way, so an empty reply describes one source and one spelling. The last lines are the label's own first sentence under its indications heading, wrapped at 80 characters by `fold`, as openFDA serves it. BioMCP returns label text unchanged and does not summarize it.
+
+## Continue in part 2
+
+<span id="4-find-the-papers"></span><span id="5-list-the-registered-trials"></span><span id="6-read-one-trials-eligibility-text"></span><span id="7-count-adverse-event-reports"></span><span id="what-you-have"></span><span id="try-one-change"></span>[Daraxonrasib, part 2: papers, trials and reports](/blog/daraxonrasib-trials-and-reports/) runs steps 4 to 7: PubMed papers, ClinicalTrials.gov studies, one trial's eligibility text and FAERS reports. It ends with a table of what each source gave.

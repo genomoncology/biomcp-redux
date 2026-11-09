@@ -1,0 +1,45 @@
+---
+title: Add BioMCP to Claude Code
+description: Add BioMCP 1.0 to Claude Code with the BioMCP plugin, which also installs the BioMCP skill, or register the MCP server with claude mcp add or a project .mcp.json file.
+goal: The reader adds BioMCP to Claude Code by the plugin or by hand, and confirms a tool call works.
+reader: A developer or researcher who uses Claude Code and has BioMCP installed
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import InstallLine from '../../../../components/InstallLine.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. Claude Code can reach it two ways: the BioMCP plugin, which starts your installed `biomcp serve` and adds the BioMCP skill, or an MCP server entry you add yourself.
+
+## Requirements
+
+- Claude Code.
+- BioMCP installed. See [install](/getting-started/installation/). The plugin starts the executable on your `PATH`; it does not install it.
+
+## Install the plugin
+
+In Claude Code, add the marketplace, then install the plugin:
+
+<InstallLine k="install.plugin" />
+<InstallLine k="install.plugin_install" />
+
+The plugin registers the MCP server and installs the skill, which teaches Claude the command grammar and <Fact k="counts.use_cases" /> worked examples.
+
+## Or add the server by hand
+
+`claude mcp add biomcp -- PATH serve` registers the server, where `PATH` is the `command` path that `biomcp mcp-config` prints. That command is a fragment; this page shows no output for it. The [Claude Code MCP documentation](https://code.claude.com/docs/en/mcp) covers its scopes.
+
+For a server that every user of one project gets, put the `mcpServers` entry in `.mcp.json` at the project root:
+
+<Example id="mcp-config" />
+
+The output above shows `/home/you/.local/bin/biomcp`; yours names your own path.
+
+## Verify
+
+Ask Claude Code to "use biomcp to get gene BRAF". It sends the command's words as the `args` array of the `biomcp` tool, and the tool returns the BRAF gene card. [Check that the server answers](/getting-started/mcp-clients/check-connection/) runs the same call from a shell.
+
+## Next
+
+Read [what the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/), or see [the BioMCP skill](/getting-started/mcp-clients/agent-skill/) for agents that run `biomcp` in a shell.

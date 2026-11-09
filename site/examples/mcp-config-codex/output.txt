@@ -1,0 +1,1 @@
+codex mcp add biomcp -- /home/you/.local/bin/biomcp serve

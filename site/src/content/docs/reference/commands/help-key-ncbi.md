@@ -1,0 +1,44 @@
+---
+title: biomcp help key ncbi
+description: "The BioMCP 1.0.0 command biomcp help key ncbi: Shows how to set
+  the NCBI key: the key name and its environment variable."
+goal: Look up the arguments, sections and examples of biomcp help key ncbi.
+reader: A BioMCP user or agent checking one command
+sidebar:
+  label: help key ncbi
+kind: reference
+verified: 2026-10-27
+---
+
+`biomcp help key ncbi` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It shows how to set the NCBI key: the key name and its environment variable. This page lists its reply.
+
+The program's help describes it:
+
+> Show credential registration and environment fallback names.
+
+## Usage
+
+```text
+biomcp help key ncbi
+```
+
+## The key
+
+`biomcp help key ncbi` reports these settings for the ncbi key:
+
+| Setting | Value |
+| --- | --- |
+| Set it with | `biomcp key set ncbi` |
+| Source it unlocks | [pubmed](/sources/pubmed/) |
+| Field in config.json | `keys.ncbi_api_key` |
+| Environment variable | `NCBI_API_KEY` |
+
+[Keys and configuration](/getting-started/api-keys/) shows how to set it.
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.key/2`](/reference/schemas/biomcp-key-2/), whose page shows a real reply and its fields.
+
+## Next
+
+[Keys and configuration](/getting-started/api-keys/) sets keys, a proxy and a certificate [bundle](/local-data/). The [commands index](/reference/commands/) lists every command.

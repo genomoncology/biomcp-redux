@@ -1,0 +1,35 @@
+---
+title: "Disease entity"
+description: "The disease entity in BioMCP 1.0: its commands, sections, sources and one example with melanoma (MONDO:0005105)."
+goal: The reader finds the commands, sections and sources for the disease entity and runs one example.
+reader: A BioMCP user or agent working with disease records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: disease
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `disease`. A disease term from MONDO, DOID or NCIt, or a SEER cancer site. Search resolves words to ontology terms. Get reads one exact identifier.
+
+## Commands
+
+<CommandTable entity="disease" />
+
+## Sections of get disease
+
+`synonyms`, `xrefs`, `hierarchy`, `genes`, `phenotypes`, `incidence`, `survival`. The [get disease reference](/reference/commands/get-disease/) describes each one.
+
+## Sources
+
+[ols](/sources/ols/), [mydisease](/sources/mydisease/), [monarch](/sources/monarch-initiative/), [seer](/sources/seer/).
+
+## Example
+
+<Example id="disease-get" />
+
+## Next
+
+[Diseases and phenotypes](/diseases-and-phenotypes/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

@@ -1,0 +1,11 @@
+bundle	status	rows	source file MB
+hgnc	complete	50582	17.2
+clingen	complete	5435	1.5
+wikipathways	complete	2218	3.6
+ema	complete	2754	6.8
+ddinter	complete	222383	13.1
+who-pq	complete	658	0.1
+who-ivd	complete	435	0.1
+gtr	complete	738369	60.4
+fda-cdx	complete	241	0.2
+store folder: 855M

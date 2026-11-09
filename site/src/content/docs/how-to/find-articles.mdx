@@ -1,0 +1,74 @@
+---
+title: Search and read biomedical literature
+description: Use BioMCP 1.0 to search PubMed, Europe PMC and other sources for articles about a gene, variant, drug or disease, and read one article's card.
+goal: The reader finds articles for a gene and variant in a chosen source, reads one article's card, and knows where to read its full text, supplements and citations.
+reader: A researcher or agent builder who needs papers about a gene, variant, drug or disease
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> searches articles in PubMed, Europe PMC, LitVar2, Semantic Scholar, LitSense2 and PubTator3, and reads open-access full text and supplements from PMC. This page finds papers about BRAF V600E and reads one open-access review's card; the pages it links read the review's text, supplements and citations.
+
+## Requirements
+
+- BioMCP installed. No key is needed. An NCBI key raises PubMed's rate limit and a Semantic Scholar key raises that source's limit; see [keys and configuration](/getting-started/api-keys/).
+
+## 1. Search by gene and variant
+
+`--gene`, `--variant`, `--drug` and `--disease` send words to the source's matching fields. PubMed is the default source.
+
+<Example id="lit-search" />
+
+Add `--since 2024`, `--type review` or `--open-access` to narrow the search. `--sort date` and `--sort citations` change the order; citation order adds iCite calls. Plain words without a flag search the source's default fields: `biomcp search article "BRAF V600E"`.
+
+## 2. Choose another source
+
+`--source` takes one or more sources in order, separated by commas. Each keeps its own ranking; BioMCP removes duplicates and shows every source's rank.
+
+| Source | Use it for |
+| --- | --- |
+| `pubmed` | Keyword search with MeSH mapping. The default. |
+| `europepmc` | Words in open full text and preprints. |
+| `litvar` | Publications for an exact variant. Needs `--variant`, and a protein change needs `--gene`. |
+| `semantic-scholar` | Broad discovery. A shared keyless pool can return `rate_limited`. |
+| `litsense` | Sentences that resemble your text. Resemblance is not a match. |
+| `pubtator` | Genes, diseases, chemicals and variants as PubTator3 annotates them, including in full text. |
+
+The [search article reference](/reference/commands/search-article/) lists every filter.
+
+## 3. Read one article
+
+`biomcp get article` takes a PMID, a PMCID or a DOI. This review of AKT1 E17K is open access in PMC:
+
+<Example id="lit-get" />
+
+The card holds the title, authors, journal, dates, abstract and publication types. Sections add more: `fulltext`, `supplements`, `annotations` (PubTator3 gene, disease, chemical and variant mentions), `citations` (iCite counts), `tldr` (a Semantic Scholar summary), `indexing` (MeSH terms) and `pdf` (the publisher PDF link).
+
+## Go further with one article
+
+| Task | Page |
+| --- | --- |
+| <span id="4-read-the-full-text"></span><span id="5-find-words-in-the-text"></span>Read an open-access article's full text, part by part, and find words in it | [Read an article's full text](/how-to/find-articles/read-full-text/) |
+| <span id="6-search-a-supplement"></span>List an article's supplementary files and find a variant in a spreadsheet | [Search an article's supplements](/how-to/find-articles/supplements/) |
+| <span id="7-follow-citations"></span>List the papers that cite an article, or that it cites | [Follow an article's citations](/how-to/find-articles/citations/) |
+| <span id="save-text-a-supplement-or-a-pdf"></span>Write the text, a supplement or the PDF to a file | [Save an article's text, supplement or PDF](/how-to/find-articles/save-files/) |
+
+## Verify
+
+You succeeded when the search returns PMIDs and `get article` returns a card with a PMID, a PMCID and a DOI.
+
+## Limits
+
+A search returns what the source returned for those words. An empty search is not proof that no paper exists; see [results](/results/#empty-is-not-absence). BioMCP does not summarize papers or judge evidence quality. Each article keeps its own license, and BioMCP grants no reuse rights.
+
+## Related
+
+- [Article guide](/user-guide/article/) and [author guide](/user-guide/author/)
+- Reference: [search article](/reference/commands/search-article/), [get article](/reference/commands/get-article/), [article text](/reference/commands/article-text/), [article supplement](/reference/commands/article-supplement/)
+- Sources: [PubMed](/sources/pubmed/), [Europe PMC](/sources/europepmc/), [PMC Open Access](/sources/pmc-oa/), [iCite](/sources/icite/)
+
+## Next
+
+[Find clinical trials by condition, gene or variant](/how-to/find-trials/) searches trials for the same variant.

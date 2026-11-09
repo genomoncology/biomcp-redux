@@ -1,0 +1,52 @@
+---
+title: Keys and configuration
+description: Set, list and remove BioMCP 1.0 source keys with biomcp key set, see where config.json lives, and find each key's environment variable.
+goal: The reader finds the configuration file, sets or removes a source key, and knows which sources need a key.
+reader: A BioMCP user with a key for a source, a commercial user, or anyone on a company network
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import KeyTable from '../../../components/KeyTable.astro';
+
+BioMCP <Fact k="version" /> reads one JSON configuration file and the environment. This page sets a source key; [write config.json](/getting-started/api-keys/config-file/) covers the other settings. None of it is needed for a first run.
+
+## Where the configuration lives
+
+| Platform | File |
+| --- | --- |
+| Linux and macOS | `$XDG_CONFIG_HOME/biomcp/config.json`, or `~/.config/biomcp/config.json` when `XDG_CONFIG_HOME` is unset |
+| Windows | `%APPDATA%/biomcp/config.json` |
+
+`--config PATH` reads another file for one command. `biomcp version --verbose` prints the file BioMCP uses.
+
+## Set a key
+
+BioMCP accepts <Fact k="counts.keys" /> keys. List them and their state:
+
+<Example id="key-list" />
+
+`biomcp key set SOURCE` asks for the key at a prompt that hides your typing, or reads one line from standard input. It stores the key in `config.json` and keeps it out of your shell history. `key list` reports names and states, never values. This run uses a throwaway file and a placeholder value:
+
+<Example id="key-set-demo" />
+
+BioMCP also writes an empty `.config.lock` file beside a configuration file it changes; the run removes both. The stored key is plain text in `config.json`. BioMCP writes the file readable by your user only (`-rw-------`); protect it like any other secret. The state is `stored` for a key in the file, `environment` for a key in its environment variable, and `none` otherwise. `biomcp key remove SOURCE` deletes a stored key. Setting a key that is already stored needs `--replace`.
+
+`biomcp help key SOURCE` names the configuration field and the environment variable:
+
+<Example id="help-key" />
+
+Every key, its environment variable and the sources that take it:
+
+<KeyTable />
+
+A source marked Required sends no request without its key and reports `skipped` with reason `no_key`. No command in this release sends a request to AlphaGenome, so its key changes no output. Get each key from its publisher under the publisher's terms.
+
+## Other settings
+
+<span id="settings-in-configjson"></span><span id="company-networks"></span><span id="check-the-file"></span>`config.json` also sets the output format, disabled sources, a proxy and extra certificate roots. [Write config.json](/getting-started/api-keys/config-file/) lists every setting, configures a company network, and shows what happens to a misspelled setting.
+
+## Next
+
+Download local bundles and work offline in [local data](/local-data/).

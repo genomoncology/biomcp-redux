@@ -1,0 +1,7 @@
+---
+// An install line from src/data/site.json, as a copyable command.
+import { Code } from '@astrojs/starlight/components';
+import { fact } from '../lib/facts.mjs';
+const { k = 'install.script' } = Astro.props;
+---
+<Code code={fact(k)} lang="sh" frame="terminal" />

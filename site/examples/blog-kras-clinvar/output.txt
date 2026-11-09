@@ -1,0 +1,3 @@
+germline	Likely pathogenic
+somatic_clinical_impact	Tier I - Strong
+oncogenicity	Oncogenic

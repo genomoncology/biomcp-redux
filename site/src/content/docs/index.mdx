@@ -1,0 +1,57 @@
+---
+title: BioMCP
+description: BioMCP is a command line tool and MCP server that searches and fetches biomedical records from public sources, for people and their agents.
+goal: Show what BioMCP does with one real command, list its capabilities, and send the reader to install and the quickstart.
+reader: A researcher, developer or agent builder who heard of BioMCP and wants to know if it fits their work
+kind: index
+verified: 2026-10-27
+template: splash
+hero:
+  title: BioMCP
+  tagline: Search and fetch biomedical records from public sources, in the shell or through your agent.
+  actions:
+    - text: Quickstart
+      link: /getting-started/first-query/
+      icon: right-arrow
+    - text: Install
+      link: /getting-started/installation/
+      variant: secondary
+    - text: Connect an agent
+      link: /getting-started/mcp-clients/
+      variant: minimal
+---
+import TerminalHero from '../../components/TerminalHero.astro';
+import InstallLine from '../../components/InstallLine.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is one program with two faces. In the shell it is the `biomcp` command. In an agent it is an MCP server with <Fact k="counts.mcp_tools" /> tools: <Fact k="mcp_tools" />. It reaches genes, variants, trials, articles, drugs, diseases and <Fact k="counts.entities" /> [entities](/reference/entities/) in all, across <Fact k="counts.sources" /> public sources, and it says which source answered.
+
+Each command sends its words and identifiers over the network to the public sources it names. Do not put names, record numbers or other identifying patient data in a query.
+
+<TerminalHero id="home-trials" caption="A live ClinicalTrials.gov search, run when this site was built." />
+
+## What it reaches
+
+Each row is one capability guide. The entities are the nouns of the command line.
+
+| Capability | Entities | First command |
+| --- | --- | --- |
+| [Search and read biomedical literature](/how-to/find-articles/) | article, author | `biomcp search article --gene BRAF --variant V600E` |
+| [Find clinical trials by condition, gene or variant](/how-to/find-trials/) | trial | `biomcp search trial --condition melanoma` |
+| [Look up a variant](/how-to/annotate-variants/) | variant | `biomcp search variant --gene BRAF --protein V600E` |
+| [Genes and proteins](/genes-and-proteins/) | gene, protein, pathway | `biomcp get gene BRAF` |
+| [Drugs and safety](/drugs-and-safety/) | drug, adverse-event, pgx, diagnostic | `biomcp search drug vemurafenib` |
+| [Diseases and phenotypes](/diseases-and-phenotypes/) | disease, phenotype, gwas | `biomcp search disease melanoma` |
+| [Studies and cell lines](/studies-and-cell-lines/) | study, cell-line | `biomcp get cell-line CVCL_0132` |
+
+Every reply names its sources, their terms and whether each one answered. BioMCP retrieves records. It does not rank treatments, judge eligibility or make clinical decisions.
+
+## Install
+
+<InstallLine />
+
+Other channels, including PyPI, Homebrew, a container and a desktop extension, are on the [install page](/getting-started/installation/).
+
+## Read next
+
+Start with the [quickstart](/getting-started/first-query/). It takes a few minutes and ends with a search, a record and one section. Agents and their builders can go to [connect an agent](/getting-started/mcp-clients/). Short answers to single questions are in [answers](/answers/), worked examples are in [use cases](/how-to/guide-workflows/), and the generated [reference](/reference/) lists every command. Ian Maurer writes the [blog](/blog/) and longer [articles](/articles/); [changes](/changes/) has the release notes.

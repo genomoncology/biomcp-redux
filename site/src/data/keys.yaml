@@ -1,0 +1,6 @@
+# What an optional key does, by key name, for the Key row of each source page.
+# A key is required when the source reports no_key without it; gen-reference.mjs checks that.
+ncbi: { optional: "Optional; raises the rate limit" }
+semantic-scholar: { optional: "Optional; raises the rate limit" }
+openfda: { optional: "Optional; raises the rate limit" }
+orcid: { optional: "Optional" }

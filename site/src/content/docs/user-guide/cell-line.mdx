@@ -1,0 +1,35 @@
+---
+title: "Cell line entity"
+description: "The cell-line entity in BioMCP 1.0: its commands, sections, sources and one example with A-375 (CVCL_0132)."
+goal: The reader finds the commands, sections and sources for the cell-line entity and runs one example.
+reader: A BioMCP user or agent working with cell-line records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: cell-line
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `cell-line`. A cell line from Cellosaurus, with its ChEMBL record and assay count. An assay count is not a sensitivity measure.
+
+## Commands
+
+<CommandTable entity="cell-line" />
+
+## Sections of get cell-line
+
+`names`, `identity`, `xrefs`, `variants`, `chembl`, `all`. The [get cell-line reference](/reference/commands/get-cell-line/) describes each one.
+
+## Sources
+
+[cellosaurus](/sources/cellosaurus/), [chembl](/sources/chembl/).
+
+## Example
+
+<Example id="cellline-get" />
+
+## Next
+
+[Studies and cell lines](/studies-and-cell-lines/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

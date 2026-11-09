@@ -1,0 +1,23 @@
+{
+  "total": 16,
+  "first": [
+    {
+      "kind": "ORIG",
+      "submission_number": "1",
+      "status": "AP",
+      "date": "2011-08-17"
+    },
+    {
+      "kind": "SUPPL",
+      "submission_number": "3",
+      "status": "AP",
+      "date": "2013-07-03"
+    },
+    {
+      "kind": "SUPPL",
+      "submission_number": "2",
+      "status": "AP",
+      "date": "2013-07-03"
+    }
+  ]
+}

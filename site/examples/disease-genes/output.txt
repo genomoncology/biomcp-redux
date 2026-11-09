@@ -1,0 +1,3 @@
+BAP1	gene_associated_with_condition	familial melanoma	orphanet
+MITF	gene_associated_with_condition	familial melanoma	orphanet
+ACD	gene_associated_with_condition	familial melanoma	orphanet

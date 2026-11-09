@@ -1,0 +1,37 @@
+---
+title: "Diagnostic entity"
+description: "The diagnostic entity in BioMCP 1.0: its commands, sections, sources and one example with BRAF companion diagnostics."
+goal: The reader finds the commands, sections and sources for the diagnostic entity and runs one example.
+reader: A BioMCP user or agent working with diagnostic records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: diagnostic
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `diagnostic`. A genetic test or diagnostic device from GTR, WHO prequalified diagnostics, the FDA companion diagnostics list, or an FDA PMA or 510(k) record. Choose the source with `--source`. A listing is not an authorization, and a companion row is not a treatment recommendation.
+
+## Commands
+
+<CommandTable entity="diagnostic" />
+
+## Sections of get diagnostic
+
+`genes`, `conditions`, `methods`, `regulatory`, `supplements`. The [get diagnostic reference](/reference/commands/get-diagnostic/) describes each one.
+
+## Sources
+
+[gtr](/sources/gtr/), [who-ivd](/sources/who-ivd/), [fda-cdx](/sources/fda-cdx/), [fda-pma](/sources/fda-pma/), [fda-510k](/sources/fda-510k/).
+
+`gtr`, `who-ivd` and `fda-cdx` read local bundles. Run `biomcp sync gtr`, `biomcp sync who-ivd` or `biomcp sync fda-cdx` once before the first search; before the sync the source's state is `syncing` and the exit code is 4. The example's first line syncs `fda-cdx`. [Local data](/local-data/) lists the bundle sizes.
+
+## Example
+
+<Example id="diagnostic-cdx" />
+
+## Next
+
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

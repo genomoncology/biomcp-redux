@@ -1,0 +1,43 @@
+---
+title: Add BioMCP to Claude Desktop
+description: Add BioMCP 1.0 to Claude Desktop as an MCP server by editing claude_desktop_config.json, or install the BioMCP desktop extension on macOS or Windows.
+goal: The reader adds BioMCP to Claude Desktop and sees its tools in a chat.
+reader: A researcher or developer who uses Claude Desktop and has BioMCP installed, or wants the desktop extension
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. Claude Desktop starts it as a local MCP server from an entry in `claude_desktop_config.json`, or from the BioMCP desktop extension. Either way, Claude can then call BioMCP's <Fact k="counts.mcp_tools" /> tools in a chat.
+
+## Requirements
+
+- Claude Desktop on macOS or Windows.
+- BioMCP installed for the configuration file route. See [install](/getting-started/installation/). The desktop extension carries its own executable.
+
+## Add the server to the configuration file
+
+1. Print the entry. `biomcp mcp-config` writes the absolute path of your installed executable:
+
+   <Example id="mcp-config" />
+
+   The output above shows `/home/you/.local/bin/biomcp`; yours names your own path.
+
+2. Open the configuration file. In Claude Desktop, choose Settings, Developer, Edit Config. The file is `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS and `%APPDATA%\Claude\claude_desktop_config.json` on Windows, as the [MCP quickstart](https://modelcontextprotocol.io/quickstart/user) says.
+
+3. Merge the `biomcp` entry into the file's `mcpServers` object. Keep any servers already there.
+
+4. Quit and reopen Claude Desktop.
+
+## Or install the desktop extension
+
+The `.mcpb` desktop extension includes the executable for macOS (x86_64 or arm64) or Windows (x86_64) and starts it with `serve`. Open the downloaded `.mcpb` file with Claude Desktop to install it. The extension declares the same <Fact k="counts.mcp_tools" /> tools. There is no Linux `.mcpb`.
+
+## Verify
+
+Ask Claude to "use biomcp to get gene BRAF". Claude sends the command's words as the `args` array of the `biomcp` tool, and the tool returns the BRAF gene card. [Check that the server answers](/getting-started/mcp-clients/check-connection/) runs the same tool call from a shell when the chat shows no tools.
+
+## Next
+
+Read [what the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/) on your machine, or go back to [connect an agent](/getting-started/mcp-clients/) for other clients.

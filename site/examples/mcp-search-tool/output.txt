@@ -1,0 +1,8 @@
+{
+  "id": "gene HGNC:1097",
+  "title": "B-Raf proto-oncogene, serine/threonine kinase"
+}
+{
+  "id": "gene HGNC:43877",
+  "title": "BRAF-activated non-protein coding RNA"
+}

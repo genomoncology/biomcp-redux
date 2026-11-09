@@ -1,0 +1,37 @@
+{
+  "about": "Read by scripts/check-landing.mjs (rule L8). Each term's first use on a page must link to its page or be defined there. pattern is a case-insensitive regular expression for the term's forms; it defaults to the term with an optional s. Only terms a newcomer would not know are listed, each in the sense BioMCP gives it: everyday words such as source, status and section stay out, and a word with a BioMCP sense is matched only in that phrasing.",
+  "terms": {
+    "envelope": {
+      "page": [
+        "/reference/schemas/types/",
+        "/results/",
+        "/reference/envelope/"
+      ]
+    },
+    "bundle": {
+      "page": "/local-data/"
+    },
+    "entity": {
+      "page": [
+        "/concepts/progressive-disclosure/",
+        "/reference/entities/"
+      ],
+      "pattern": "\\bentit(y|ies)\\b"
+    },
+    "section word": {
+      "page": "/concepts/progressive-disclosure/",
+      "pattern": "\\bsection words?\\b"
+    },
+    "relation command": {
+      "page": "/concepts/progressive-disclosure/",
+      "pattern": "\\brelation commands?\\b"
+    },
+    "next list": {
+      "page": [
+        "/concepts/progressive-disclosure/",
+        "/results/"
+      ],
+      "pattern": "\\bnext list\\b"
+    }
+  }
+}

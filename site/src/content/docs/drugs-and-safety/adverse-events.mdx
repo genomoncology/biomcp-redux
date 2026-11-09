@@ -1,0 +1,42 @@
+---
+title: Search adverse event reports
+description: Use BioMCP 1.0 to search FDA FAERS drug reports, MAUDE device reports and VAERS vaccine summaries, and filter FAERS reports by reaction, seriousness and date.
+goal: The reader searches adverse event reports for a drug, knows the filters and the three report sources, and knows what a report count cannot show.
+reader: A researcher, pharmacovigilance analyst or agent builder who needs adverse event reports
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. `biomcp search adverse-event` searches reports of adverse events. FAERS, the FDA Adverse Event Reporting System, is the default source; MAUDE holds device reports and VAERS vaccine reports. The example drug is vemurafenib.
+
+## Requirements
+
+- BioMCP installed. No key is needed. An openFDA key raises openFDA's rate limit for FAERS and MAUDE; see [keys and configuration](/getting-started/api-keys/).
+
+## 1. Search FAERS
+
+The columns are the source, the report ID, the report's seriousness flag (`1` serious, `2` not serious) and the date FDA first received it:
+
+<Example id="ae-search" />
+
+`--reaction`, `--serious death`, `--serious hospitalization`, `--received-from` and `--received-to` filter the reports. `get adverse-event ID` reads one report with sections such as `drugs` and `reactions`. [Find FDA adverse event reports for a drug](/how-to/faers-reports/) counts reports under each filter.
+
+## 2. Choose another source
+
+| Source | Option | Reports |
+| --- | --- | --- |
+| FAERS | the default | drug reports to the FDA |
+| MAUDE | `--source maude` | medical device reports to the FDA |
+| VAERS | `--source vaers` | CDC WONDER summaries for `MMR`, `COVID19` or one exact influenza code |
+
+`search adverse-event influenza --source vaers` lists the influenza codes. No VAERS reply appears on this site: CDC WONDER has returned `bad_reply` for MMR and `deadline_exceeded` for COVID19, and the [VAERS source page](/sources/vaers/) shows the command to try.
+
+## Limits
+
+A report count is a count of reports. It does not show that a drug caused an event, and it cannot measure risk, incidence or compare drugs.
+
+## Next
+
+[Find FDA adverse event reports for a drug](/how-to/faers-reports/) counts FAERS reports under each filter.

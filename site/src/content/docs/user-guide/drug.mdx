@@ -1,0 +1,37 @@
+---
+title: "Drug entity"
+description: "The drug entity in BioMCP 1.0: its commands, sections, sources and one example with vemurafenib."
+goal: The reader finds the commands, sections and sources for the drug entity and runs one example.
+reader: A BioMCP user or agent working with drug records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: drug
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `drug`. A drug as one source records it. Each source has its own identifier, so `get drug` takes `--source`. Identity cards never expand into sections on their own. Ask for each section by name.
+
+## Commands
+
+<CommandTable entity="drug" />
+
+## Sections of get drug
+
+`xrefs`, `targets`, `indications`, `civic`, `label`, `approvals`, `regulatory`, `interactions`. The [get drug reference](/reference/commands/get-drug/) describes each one.
+
+## Sources
+
+[mychem](/sources/mychem/), [chembl](/sources/chembl/), [opentargets](/sources/opentargets/), [civic](/sources/civic/), [openfda-label](/sources/openfda/), [drugsfda](/sources/drugsfda/), [ema](/sources/ema/), [who-pq](/sources/who-prequalification/), [ddinter](/sources/ddinter/).
+
+`ema`, `who-pq` and `ddinter` read local bundles. Run `biomcp sync ema`, `biomcp sync who-pq` or `biomcp sync ddinter` once before the first read; before the sync the source's state is `syncing` and the exit code is 4. [Local data](/local-data/) lists the bundle sizes.
+
+## Example
+
+<Example id="drug-targets" />
+
+## Next
+
+[Drugs and safety](/drugs-and-safety/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

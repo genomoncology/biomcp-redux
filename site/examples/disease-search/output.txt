@@ -1,0 +1,3 @@
+MONDO:0005105	melanoma
+MONDO:0005012	cutaneous melanoma
+MONDO:0001192	esophageal melanoma

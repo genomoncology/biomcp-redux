@@ -1,0 +1,49 @@
+---
+title: Read an article's full text
+description: Use BioMCP 1.0 to read the outline of an open-access PMC article, read one part as Markdown, and find the passages that contain a word.
+goal: The reader lists an open-access article's parts, reads one part, and finds the passages that mention a variant.
+reader: A researcher or agent builder who has a PMID or PMCID and needs the article's text
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. It reads the full text of open-access articles from PMC (PubMed Central Open Access): `get article ID fulltext` lists an article's parts, `article text` reads them, and `article text --find` returns the passages that contain your words. The example is an open-access review of AKT1 E17K, PMID 33123537 (PMC7573235).
+
+## Requirements
+
+- BioMCP installed. No key is needed.
+- An article with a PMCID in PMC Open Access. [Search and read biomedical literature](/how-to/find-articles/) finds one.
+
+## 1. List the parts
+
+The `fulltext` section returns the outline of a licensed PMC article. It reports the license and one row per part:
+
+<Example id="lit-fulltext" lines={10} />
+
+The rest of the outline lists the remaining parts the same way.
+
+## 2. Read one part
+
+`biomcp article text PMC7573235 --part 3` reads part 3 as Markdown. Full text comes only from PMC. An article without a PMCID returns its card with the fulltext section in state `not_applicable`, as `biomcp get article 12068308 fulltext` shows.
+
+## 3. Find words in the text
+
+`--find` returns the passages that contain your words, with the part each sits in:
+
+<Example id="lit-text-find" lines={12} />
+
+The reply pages 12 hits at a time; its `next` command reads the rest.
+
+## Verify
+
+The fulltext section reports `source: pmc-oa` with a license, and `--find` returns hits with part numbers.
+
+## Limits
+
+Only PMC Open Access articles have full text here. Each article keeps its own license, and BioMCP grants no reuse rights.
+
+## Next
+
+[Search an article's supplements](/how-to/find-articles/supplements/) reads the files that come with an article, and [save an article's text, supplement or PDF](/how-to/find-articles/save-files/) writes the text to a file.

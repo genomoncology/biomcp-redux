@@ -63,5 +63,11 @@
     }
   },
   "cosign": "v3.1.4",
-  "twine": "7.0.0"
+  "twine": "7.0.0",
+  "node": "22.23.4",
+  "site-packages": {
+    "@astrojs/starlight": "0.42.6",
+    "astro": "7.3.8",
+    "yaml": "2.9.1"
+  }
 }

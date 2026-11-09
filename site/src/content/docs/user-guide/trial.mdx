@@ -1,0 +1,35 @@
+---
+title: "Trial entity"
+description: "The trial entity in BioMCP 1.0: its commands, sections, sources and one example with NCT06887088."
+goal: The reader finds the commands, sections and sources for the trial entity and runs one example.
+reader: A BioMCP user or agent working with trial records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: trial
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `trial`. A registered clinical trial, read by NCT identifier from ClinicalTrials.gov, or from NCI with your key. BioMCP searches registry text. It makes no eligibility judgment.
+
+## Commands
+
+<CommandTable entity="trial" />
+
+## Sections of get trial
+
+`eligibility`, `outcomes`, `arms`, `locations`, `contacts`, `references`, `documents`, `all`, `diseases`, `summary`. The [get trial reference](/reference/commands/get-trial/) describes each one.
+
+## Sources
+
+[ctgov](/sources/clinicaltrials-gov/), [nci](/sources/nci/), [mydisease](/sources/mydisease/).
+
+## Example
+
+<Example id="trial-get" />
+
+## Next
+
+[Find clinical trials by condition, gene or variant](/how-to/find-trials/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

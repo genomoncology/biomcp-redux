@@ -1,0 +1,45 @@
+---
+title: Connect an agent
+description: Choose how to add BioMCP 1.0 to an AI client or agent, with one page each for Claude Desktop, Claude Code, Cursor, VS Code, Codex, ChatGPT-style clients and shell agents.
+goal: The reader picks the page for their client or agent, and knows the steps every client shares.
+reader: A developer or researcher who uses an AI agent or desktop assistant and has BioMCP installed
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> runs as an MCP server with `biomcp serve`, so an AI client can call BioMCP commands as tools. Every client needs the same two things: the path of the installed `biomcp` executable and the word `serve`. Pick your client below; each page adds the server and confirms one tool call.
+
+## Requirements
+
+- BioMCP installed. See [install](/getting-started/installation/).
+- An MCP client that starts stdio servers, or an agent that runs shell commands.
+
+## Print the client configuration
+
+`biomcp mcp-config` prints the configuration with the absolute path of the installed executable. Your output names your own path:
+
+<Example id="mcp-config" />
+
+## Choose your client
+
+| Client | Page | What you add |
+| --- | --- | --- |
+| Claude Desktop | <span id="install-the-desktop-extension"></span>[Claude Desktop](/getting-started/mcp-clients/claude-desktop/) | the `mcpServers` entry, or the desktop extension |
+| Claude Code | <span id="install-the-claude-code-plugin"></span>[Claude Code](/getting-started/mcp-clients/claude-code/) | the BioMCP plugin, or `claude mcp add` |
+| Cursor, Cline and other `mcpServers` clients | [Cursor](/getting-started/mcp-clients/cursor/) | the `mcpServers` entry |
+| VS Code | [VS Code](/getting-started/mcp-clients/vs-code/) | the `servers` entry |
+| Codex | [Codex](/getting-started/mcp-clients/codex/) | one `codex mcp add` command |
+| ChatGPT and other research clients | <span id="use-search-and-fetch-from-chatgpt-style-clients"></span>[search and fetch tools](/getting-started/mcp-clients/chatgpt/) | a remote URL to the HTTP server |
+| An agent that runs shell commands | <span id="give-a-shell-agent-the-skill"></span>[the BioMCP skill](/getting-started/mcp-clients/agent-skill/) | the skill files, no server |
+
+<span id="check-the-server-answers"></span><span id="if-the-client-shows-no-tools"></span>After you add the server, [check that the server answers](/getting-started/mcp-clients/check-connection/). That page also covers a client that shows no tools.
+
+<span id="what-the-tool-can-change"></span>The `biomcp` tool is not read-only over stdio: it can download [bundles](/local-data/), local copies of sources, and clean the store. [What the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/) lists each command and what HTTP refuses.
+
+<span id="run-the-server-over-http"></span>Clients that connect over HTTP use `biomcp serve --http`; [run as a server](/getting-started/remote-http/) covers addresses, allowed hosts and the health check.
+
+## Next
+
+Pick your client from the table above. Then learn the command grammar the `biomcp` tool takes in [how BioMCP works](/concepts/progressive-disclosure/).

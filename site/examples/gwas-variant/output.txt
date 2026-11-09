@@ -1,0 +1,3 @@
+GCST90492734	Type 2 diabetes	rs7903146-T	3e-1315
+GCST010555	Type 2 diabetes	rs7903146-C	3e-695
+GCST90444202	Type 2 diabetes	rs7903146-C	6e-526

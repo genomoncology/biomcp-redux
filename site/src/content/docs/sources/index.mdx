@@ -1,0 +1,76 @@
+---
+title: Data sources and their terms
+description: The public sources BioMCP 1.0 reads, how it groups them by reuse terms (open, attribution, noncommercial, restricted), how to check them with biomcp health, and how to turn sources off.
+goal: The reader knows where BioMCP's data comes from, what each use group means, how to check source reachability, and how to turn off noncommercial and restricted sources.
+reader: A researcher, developer or compliance reviewer deciding which BioMCP sources to use
+kind: explanation
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import SourceTable from '../../../components/SourceTable.astro';
+
+Where does BioMCP <Fact k="version" /> get its data, and may you reuse it? BioMCP reads <Fact k="counts.sources" /> public sources. It stores none of their data on a server of its own. Each reply names the sources it asked and their terms. The [table below](#every-source) lists every source with its use group, key and terms, and links to its page.
+
+## The short answer
+
+Every source is on by default. Each source belongs to one use group. A use group is a reviewed label for the source's terms; it grants no rights. You are responsible for the licenses your use needs: read each source's terms, which the [table below](#every-source) links. If you use BioMCP commercially, turn off the `noncommercial` and `restricted` groups, then read the terms of the sources that remain. The publisher's terms are authoritative.
+
+## Use groups
+
+The registry defines four groups. Its schema calls each group a "reviewed source-use category, without inferring rights in individual records".
+
+| Group | The registry's definition | What the group holds |
+| --- | --- | --- |
+| `open` | "Public-domain or unrestricted source data." | Mostly CC0 and US government public-domain data. Several sources carry conditions; see [open sources with conditions](#open-sources-with-conditions). |
+| `attribution` | "Attribution is required." | Sources that require credit. Some add terms, such as ChEMBL's share-alike license. |
+| `noncommercial` | "Commercial use requires separate permission." | Sources whose terms reserve commercial use. |
+| `restricted` | "Source-specific or mixed rights require checking the publisher's terms." | Restricted: sources with source-specific, record-specific or unreviewed rights. Check the publisher's terms before any reuse. |
+
+The sources fall into the groups like this:
+
+<SourceTable field="groups" />
+
+Public API access grants no extra reuse rights, and many sources carry records with their own licenses, such as an article's license in PMC.
+
+### Open sources with conditions
+
+The `open` group's definition does not hold for every source in it. Cellosaurus is CC BY 4.0 and asks for a citation. The FDA and openFDA sources keep third-party rights and the original rights in labels. GTR keeps submitter and third-party rights. SEER has its own website terms. [Data sources](/reference/data-sources/) gives each source's terms as the registry records them.
+
+## Turn sources off
+
+`--disable-sources` takes source names and group names, separated by commas. With both groups off, the gene card keeps HGNC and skips MyGene.info and OncoKB:
+
+<Example id="disable-sources" />
+
+For a lasting setting, put the list in `config.json`:
+
+```json
+{"disable_sources": ["noncommercial", "restricted"]}
+```
+
+The command option and the configuration combine. A disabled source sends no request, and its data cannot come back through the cache. [Keys and configuration](/getting-started/api-keys/) shows where `config.json` lives.
+
+## Check reachability
+
+`biomcp health` sends at most one request to each source and reports its state. This sample keeps five rows:
+
+<Example id="health-sample" />
+
+`skipped` with `no_key` means the source needs a key you have not set. `biomcp --offline health` lists the registry with its terms and sends no request.
+
+## Sources that need a key
+
+OncoKB, NCI and AlphaGenome need your own key. No command in this release sends a request to AlphaGenome, so its key changes no output. NCBI, Semantic Scholar and openFDA work without a key at a public rate limit, and a key raises it. ORCID takes an optional token. BioMCP never buys a license or a key for you, and a source that needs your account sends nothing without it. [Keys and configuration](/getting-started/api-keys/#set-a-key) shows how to set one.
+
+## Sources that read local bundles
+
+HGNC, ClinGen, WikiPathways, cBioPortal studies, EMA, DDInter, WHO finished products, WHO diagnostics, GTR and the FDA companion diagnostics list come as downloadable bundles. [Local data](/local-data/) explains them.
+
+## Every source
+
+[Data sources](/reference/data-sources/) lists all <Fact k="counts.sources" /> sources with their use group, key and terms. Each row links to the source's page, which shows a built example, the commands that reach the source, and its limits.
+
+## Read next
+
+Set keys and the configuration file in [keys and configuration](/getting-started/api-keys/).

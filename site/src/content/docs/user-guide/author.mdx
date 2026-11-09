@@ -1,0 +1,35 @@
+---
+title: "Author entity"
+description: "The author entity in BioMCP 1.0: its commands, sections, sources and one example with Louis Williams."
+goal: The reader finds the commands, sections and sources for the author entity and runs one example.
+reader: A BioMCP user or agent working with author records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: author
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `author`. An author record from Semantic Scholar or ORCID, and its papers. Author IDs identify source records, not resolved people. Both sources are in the noncommercial use group.
+
+## Commands
+
+<CommandTable entity="author" />
+
+## Sections of get author
+
+none. The [get author reference](/reference/commands/get-author/) describes each one.
+
+## Sources
+
+[semantic-scholar](/sources/semantic-scholar/), [orcid](/sources/orcid/).
+
+## Example
+
+<Example id="author-search" />
+
+## Next
+
+[Search and read biomedical literature](/how-to/find-articles/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

@@ -1,0 +1,80 @@
+---
+title: Run BioMCP as an HTTP server
+description: Serve BioMCP 1.0 over streamable HTTP with biomcp serve --http, choose the address, allow host names, check /health, and put it behind a reverse proxy.
+goal: The reader starts the HTTP MCP server on the right address, checks it, and knows what HTTP clients can and cannot do.
+reader: A developer or administrator serving BioMCP to MCP clients over a network
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> serves MCP over stdio with `biomcp serve` and over HTTP with `biomcp serve --http`. Desktop clients start the stdio server themselves; see [connect an agent](/getting-started/mcp-clients/). This page covers HTTP.
+
+## Requirements
+
+- BioMCP installed on the machine that will serve.
+- A trusted network. The server does not authenticate callers.
+
+## 1. Start the server
+
+`biomcp serve --http` listens on `127.0.0.1:8080` by default. Give an address after `--http` to choose another. The MCP endpoint is `/mcp`.
+
+```sh
+biomcp serve --http 127.0.0.1:8080
+```
+
+The server prints the address it listens on as one JSON line. The example below starts a server on a free port, initializes an MCP session over HTTP, lists the tools with two `MCP-Protocol-Version` headers, and then sends a request with a browser `Origin` header:
+
+<Example id="server-mcp-http" />
+
+The server answers `initialize` with protocol version 2025-11-25. Every later request must carry the `MCP-Protocol-Version` header with a version the server supports: 2026-07-28 or 2025-11-25. Any other version gets JSON-RPC error -32022, and the error names the supported versions. The server refuses requests from browser origins with HTTP 403.
+
+## 2. Check health
+
+`GET /health` checks the local server and its store. It sends no request to the data sources.
+
+<Example id="server-health" />
+
+## 3. Listen beyond loopback
+
+A non-loopback address needs at least one allowed host name, given with `--allow-host HOST` (repeat it for several) or `http.allowed_hosts` in `config.json`:
+
+```sh
+biomcp serve --http 0.0.0.0:8080 --allow-host biomcp.internal.example
+```
+
+Without one, the server refuses to start with exit code 2:
+
+<Example id="server-refuse" />
+
+It prints no message; the exit code is the only sign. The allowed-host list checks the `Host` header. It is not authentication.
+
+The `Host` header must match a name on the list exactly. A server that allows only `localhost` refuses a request addressed to `127.0.0.1` with HTTP 403:
+
+<Example id="server-allow-host" />
+
+## 4. Put it behind a reverse proxy
+
+Run the server on loopback and let your reverse proxy handle TLS and authentication. Forward `/mcp` and `/health` to the server's address. Set `--allow-host` to the public host name the proxy forwards in the `Host` header. Keep the proxy from adding a browser `Origin` header.
+
+## What HTTP clients cannot do
+
+The HTTP server refuses `sync`, `store clean`, `--fresh` and file saves such as `article text --save`. Run those on the server machine's command line. Stdio clients can save new files but cannot replace existing ones.
+
+## Run the container as a server
+
+```sh
+docker run --rm -p 8080:8080 ghcr.io/genomoncology/biomcp \
+  serve --http 0.0.0.0:8080 --allow-host localhost
+```
+
+This command is a fragment with no output shown. It needs Docker and the published image. Pass source keys with `-e`, such as `-e NCBI_API_KEY`.
+
+## Verify
+
+For the container above, `curl http://localhost:8080/health` returns `"store":true` and the version. The container allows only the host name `localhost`, so `curl http://127.0.0.1:8080/health` gets HTTP 403. For a server on its default address, `curl http://127.0.0.1:8080/health` works, as in step 2.
+
+## Next
+
+When something fails, go to [troubleshooting](/troubleshooting/).

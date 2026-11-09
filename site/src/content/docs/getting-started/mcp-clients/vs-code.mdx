@@ -1,0 +1,39 @@
+---
+title: Add BioMCP to VS Code
+description: Add BioMCP 1.0 to VS Code as an MCP server in the workspace's .vscode/mcp.json, using the servers shape that biomcp mcp-config --client vscode prints.
+goal: The reader adds BioMCP to a VS Code workspace and confirms a tool call works.
+reader: A developer who uses VS Code with an AI chat that calls MCP tools, and has BioMCP installed
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. VS Code reads MCP servers from `.vscode/mcp.json` in the workspace, under a top-level `servers` key rather than the `mcpServers` key other clients use.
+
+## Requirements
+
+- BioMCP installed. See [install](/getting-started/installation/).
+- VS Code with a chat that calls MCP tools.
+
+## Print the entry
+
+`--client vscode` (alias `servers`) prints the `servers` shape:
+
+<Example id="mcp-config-vscode" />
+
+The output above shows `/home/you/.local/bin/biomcp`; yours names your own path.
+
+## Add it to the workspace
+
+1. Create or open `.vscode/mcp.json` in the workspace.
+2. Merge the `biomcp` entry into its `servers` object.
+3. Start the server from VS Code, as the [VS Code MCP documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) describes.
+
+## Verify
+
+Ask the chat to "use biomcp to get gene BRAF". [Check that the server answers](/getting-started/mcp-clients/check-connection/) makes the same call from a shell.
+
+## Next
+
+Read [what the MCP tool can change](/getting-started/mcp-clients/what-the-tool-can-change/), or return to [connect an agent](/getting-started/mcp-clients/).

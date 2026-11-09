@@ -1,0 +1,14 @@
+{
+  "status": "complete",
+  "result": {
+    "rows": 241,
+    "bytes": 178564
+  },
+  "sources": [
+    {
+      "source": "fda-cdx",
+      "use": "open",
+      "state": "ok"
+    }
+  ]
+}

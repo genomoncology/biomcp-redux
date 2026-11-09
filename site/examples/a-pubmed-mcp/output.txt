@@ -1,0 +1,12 @@
+{
+  "pmid": "37683526",
+  "title": "KRAS G12C in advanced NSCLC: Prevalence, co-mutations, a…"
+}
+{
+  "pmid": "33703985",
+  "title": "KRAS G12C inhibition and innate immune targeting."
+}
+{
+  "pmid": "34471232",
+  "title": "The KRAS-G12C inhibitor: activity and resistance."
+}

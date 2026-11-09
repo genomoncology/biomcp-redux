@@ -1,0 +1,71 @@
+---
+title: biomcp search article
+description: "The BioMCP 1.0.0 command biomcp search article: Finds articles by
+  text, gene, disease, drug, variant, author, journal or date."
+goal: Look up the arguments, sections and examples of biomcp search article.
+reader: A BioMCP user or agent checking one command
+sidebar:
+  label: search article
+kind: reference
+verified: 2026-10-28
+---
+
+`biomcp search article` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds articles by text, gene, disease, drug, variant, author, journal or date. This page lists its arguments, examples and reply.
+
+The program's help describes it:
+
+> Checked search selectors and pool cursor.
+
+## Usage
+
+```text
+biomcp search article [OPTIONS] [text]
+```
+
+## Arguments
+
+| Argument | Type | Required | Limits | Choices | Description |
+| --- | --- | --- | --- | --- | --- |
+| `--author` | string | no |  |  | Author words sent to PubMed's author field. |
+| `--disease` | string | no |  |  | Disease words. |
+| `--drug` | string | no |  |  | Drug words. |
+| `--exclude-retracted` | boolean | no |  |  | Include retracted papers by default, or exclude them using a native filter. |
+| `--gene` | string | no |  |  | Gene input; PubMed resolves it through HGNC. |
+| `--include-retracted` | boolean | no |  |  | Include retracted papers by default, or exclude them using a native filter. |
+| `--journal` | string | no |  |  | Journal words sent to PubMed's journal field. |
+| `--limit` | integer | no | min 1, max 50 |  | Maximum page length. |
+| `--no-preprints` | boolean | no |  |  | Exclude preprints using the source's native filter. |
+| `--offset` | integer | no | min 0 |  | Number of pool items to skip. |
+| `--open-access` | boolean | no |  |  | Require the source's native open-access filter; Semantic Scholar means a public PDF. |
+| `--pool` | string | no |  |  | Stable snapshot from an earlier response. |
+| `--since` | string | no |  |  | Inclusive lower publication-date bound at the stated precision; PubMed matches either electronic or print date. |
+| `--sort` | string | no |  | `rank`, `date`, `citations` | rank (default): native provider order; several sources take turns; native search cost. date: native search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it. citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs. All sources support citations. |
+| `--source` | array | no | min 1 | `pubmed`, `europepmc`, `litvar`, `semantic-scholar`, `litsense`, `pubtator` | Sources to search in caller order, comma separated. Default: pubmed. Several sources take turns, remove duplicates and show every native rank. pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices. europepmc: words in open full text and preprints; incidental mentions are possible. litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates. semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit. litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible. pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. |
+| `--type` | string | no |  | `trial`, `randomized`, `review`, `systematic_review`, `meta_analysis`, `guideline`, `case_report` | Publication-type filter. |
+| `--until` | string | no |  |  | Inclusive upper publication-date bound at the stated precision; PubMed matches either electronic or print date. |
+| `--variant` | string | no |  |  | Variant words. |
+| `text` (position 1) | string | no |  |  | Words sent to each named source in its default fields. |
+
+## Sources
+
+`--source` picks the source to ask: [pubmed](/sources/pubmed/), [europepmc](/sources/europepmc/), [litvar](/sources/litvar/), [semantic-scholar](/sources/semantic-scholar/), [litsense](/sources/litsense/), [pubtator](/sources/pubtator/).
+
+## Examples
+
+The program's help gives these examples.
+
+```sh
+biomcp search article 'AKT1 E17K'
+```
+
+```sh
+biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5
+```
+
+## Reply
+
+The reply is one JSON object. Its schema is [`biomcp.article_page/3`](/reference/schemas/biomcp-article-page-3/), whose page shows a real reply and its fields.
+
+## Next
+
+The [article guide](/user-guide/article/) shows every article command at work. [Exit codes](/reference/error-codes/) gives what each exit code means, and [global options](/reference/global-options/) the options every command takes.

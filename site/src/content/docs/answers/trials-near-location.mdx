@@ -1,0 +1,45 @@
+---
+title: How do I find clinical trials near a location?
+description: Add `--lat`, `--lon` and `--distance` with units to `biomcp search
+  trial`. This BioMCP 1.0 run finds recruiting melanoma trials with a site
+  within 50 miles of New York City.
+goal: "Answer: How do I find clinical trials near a location?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Add `--lat`, `--lon` and `--distance` with units to `biomcp search trial`. This BioMCP 1.0 run finds recruiting melanoma trials with a site within 50 miles of New York City.
+
+## Command
+
+<Example id="a-trials-near" />
+
+Write each of the three options with an equals sign, as in `--lon=-74.0060`. Without it, a negative longitude such as `-74.0060` reads as an option, and the command stops with `usage.arguments`.
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `nct_id` | `NCT04752826` | The trial's ClinicalTrials.gov identifier. `biomcp get trial NCT locations` lists its sites. |
+| `title` | `BI-1808 as a Single Agent and With Pemb…` | The registered title, cut to 56 characters by the `cut` filter. |
+
+## Why it works
+
+ClinicalTrials.gov filters by the distance from the point to each trial site. `--distance` needs explicit units, `mi` or `km`. The search returns whole trials; `biomcp get trial NCT locations` lists each site with its own status.
+
+## Limits
+
+A trial matches when any of its sites is in range; that site may not be recruiting. `--facility` cannot combine with a radius. Distances are the registry's calculation from site coordinates.
+
+## Read next
+
+- [Find clinical trials by condition, gene or variant](/how-to/find-trials/)
+- [biomcp search trial](/reference/commands/search-trial/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

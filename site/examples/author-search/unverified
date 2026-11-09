@@ -1,0 +1,1 @@
+Semantic Scholar shares one public rate limit among callers without a key, so this search can return rate_limited. A Semantic Scholar key raises the limit: biomcp key set semantic-scholar.

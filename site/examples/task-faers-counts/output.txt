@@ -1,0 +1,6 @@
+filter	reports
+none	11976
+--serious death	2075
+--serious hospitalization	3404
+--reaction pyrexia	743
+--received-from 2025-01-01 --received-to 2025-12-31	199

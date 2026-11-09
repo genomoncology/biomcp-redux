@@ -1,0 +1,37 @@
+---
+title: Fix local.failure errors
+description: "Causes and fixes for the BioMCP 1.0 local.failure error, exit code 5: a misspelled config.json setting, a NO_PROXY entry BioMCP cannot read, an unwritable cache or a closed pipe."
+goal: The reader finds which local step failed, fixes it and confirms with an offline health check.
+reader: A BioMCP user or agent whose command stopped with an error reply
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. `local.failure` means a step on your own machine failed, not a source: the reply has `error.code` `local.failure` and exit code 5. This page lists the causes in the order to check them.
+
+## local.failure: local configuration, cache or recording failed
+
+**Cause.** A local step failed before or after the source calls. Exit code 5. Check, in order:
+
+1. `config.json` has a misspelled or unknown setting. [Write config.json](/getting-started/api-keys/config-file/#check-the-file) shows the error.
+2. `NO_PROXY` holds an entry BioMCP cannot read, such as an IPv6 address (`::1`) or a CIDR range (`10.0.0.0/8`). This happens with or without a proxy in the environment, and it fails every command, including offline ones. [The NO_PROXY entry](#no_proxy-holds-an-ipv6-address-or-a-cidr-range) below shows the fix.
+3. The cache folder is not writable, or the disk is full.
+4. The output could not be written, for example when a pipe closes early. BioMCP prints `biomcp: output failed` on standard error.
+
+**Confirm.** `biomcp --offline health` returns status `complete`. It reads the configuration, sets up the network settings and sends no request.
+
+### NO_PROXY holds an IPv6 address or a CIDR range
+
+Cloud and company machines often set `NO_PROXY` to entries such as `::1`, `::` or `10.0.0.0/8`. BioMCP reads exact hosts and IP addresses, `.domain`, `*.domain`, optional ports and `*` ([`help network proxy`](/reference/commands/help-network-proxy/)). Both commands below read an empty configuration file, so `proxy` is not set there. The first fails; the second runs with a `NO_PROXY` that holds only a host name:
+
+<Example id="ts-no-proxy" />
+
+**Fix.** Either run BioMCP with `NO_PROXY` reduced to entries it reads, for example `NO_PROXY=localhost biomcp ...`, or set `proxy` in `config.json`. An explicit `proxy` takes the place of the environment's proxy settings, including `NO_PROXY`. See [company networks](/getting-started/api-keys/config-file/#company-networks).
+
+**Confirm.** `biomcp --offline health` returns status `complete`.
+
+## Next
+
+[Troubleshooting](/troubleshooting/) covers failed sources and usage errors.

@@ -1,0 +1,3 @@
+germline	Conflicting classifica…	criteria provided, con…	2026-03-11
+somatic_clinical_impact	Tier I - Strong	criteria provided, mul…	2025-11-05
+oncogenicity	Oncogenic	criteria provided, sin…	2025-03-04

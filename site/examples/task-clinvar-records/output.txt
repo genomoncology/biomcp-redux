@@ -1,0 +1,6 @@
+total: 88
+this page: rcv 40, scv 7, vcv 3
+SCV000061601	germline	Pathogenic	2009-05-29
+SCV000035247	germline	Pathogenic	2014-09-04
+SCV000035248	germline	Pathogenic	2014-09-04
+SCV000035249	germline	Pathogenic	2014-09-04

@@ -1,0 +1,5 @@
+outcome: resolved
+@id	http://reg.genome.network/allele/CA123643
+genomicAlleles.GRCh38.hgvs	NC_000007.14:g.140753336A>T
+genomicAlleles.GRCh38.hgvs	CM000669.2:g.140753336A>T
+genomicAlleles.GRCh37.hgvs	NC_000007.13:g.140453136A>T

@@ -1,0 +1,12 @@
+{
+  "nct_id": "NCT04752826",
+  "title": "BI-1808 as a Single Agent and With Pembrolizumab (KEYTRU…"
+}
+{
+  "nct_id": "NCT06743126",
+  "title": "SUPRAME-ACTengine® IMA203 vs. Investigator's Choice of T…"
+}
+{
+  "nct_id": "NCT04913285",
+  "title": "A Study to Evaluate KIN-2787 in Participants With BRAF a…"
+}

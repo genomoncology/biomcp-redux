@@ -1,0 +1,13 @@
+**query:** null
+
+## Result
+
+**config:** keys.alphagenome\_api\_key
+
+**environment:** ALPHAGENOME\_API\_KEY
+
+**guidance:** biomcp key set alphagenome
+
+**source:** alphagenome
+
+**status:** complete

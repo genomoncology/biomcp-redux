@@ -1,0 +1,17 @@
+---
+// Every key BioMCP accepts, from `key list`, with the sources that take it. See src/lib/keys.mjs.
+import { keyRows } from '../lib/keys.mjs';
+---
+<table>
+  <thead><tr><th>Key name</th><th>Environment variable</th><th>Sources</th><th>Needed?</th></tr></thead>
+  <tbody>
+    {keyRows().map((r) => (
+      <tr>
+        <td><code>{r.name}</code></td>
+        <td><code>{r.environment}</code></td>
+        <td>{r.sources.map((s, i) => <>{i ? ', ' : ''}<a href={s.route}><code>{s.source}</code></a></>)}</td>
+        <td>{r.use}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>

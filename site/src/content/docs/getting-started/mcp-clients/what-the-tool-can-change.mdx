@@ -1,0 +1,31 @@
+---
+title: What the BioMCP MCP tool can change
+description: Which BioMCP 1.0 commands change local state when an agent calls the biomcp MCP tool over stdio, and which ones the server refuses over HTTP and over both.
+goal: The reader knows which local changes an agent can make through the biomcp tool, and which calls the server refuses.
+reader: A developer or administrator deciding whether to give an agent the BioMCP MCP server
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. Over stdio, its `biomcp` tool runs the same commands as your shell, with your cache and your configuration, so it is not read-only. Over HTTP, the server refuses every command that changes local state. Over both, it refuses the `key` commands.
+
+## Commands that change local state
+
+- `sync` downloads a [bundle](/local-data/), a local copy of a source, into the store.
+- `store clean` removes expired local state and older cache files.
+- `--fresh` sends a request again in place of a cached reply.
+- Saving commands, such as `article text --save`, write new files. They never replace an existing file over MCP.
+
+## See the refusals
+
+Over HTTP, the server refuses `sync`, `store clean`, `--fresh` and file saves. The `key` commands are refused over both, so an agent cannot read, set or remove your keys. This exchange calls `store clean`, `sync hgnc` and `key list` over stdio, then over HTTP:
+
+<Example id="mcp-writes" />
+
+A refused call returns status `usage` with error code `usage.arguments`. The `search` and `fetch` tools only read; the [MCP tools reference](/reference/mcp-server/) shows their `readOnlyHint` annotations.
+
+## Next
+
+[Run as a server](/getting-started/remote-http/) starts the HTTP server that refuses these commands.

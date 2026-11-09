@@ -1,0 +1,2 @@
+{"query":"variant KRAS G12C","count":53}
+{"query":"gene KRAS","count":103}

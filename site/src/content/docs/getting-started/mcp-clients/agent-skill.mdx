@@ -1,0 +1,36 @@
+---
+title: Give a shell agent the BioMCP skill
+description: Install the BioMCP 1.0 skill into an agent's skills folder so an agent that runs shell commands can use the biomcp command without an MCP server.
+goal: The reader installs the BioMCP skill for a shell agent, checks it is current, and lists its worked examples.
+reader: A developer whose agent runs shell commands, such as Claude Code or another coding agent
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../../components/Example.astro';
+import Fact from '../../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. An agent that runs shell commands can call the `biomcp` command directly, with no MCP server. The BioMCP skill teaches it the command grammar and <Fact k="counts.use_cases" /> worked examples.
+
+## Requirements
+
+- BioMCP installed on the machine where the agent runs shell commands. See [install](/getting-started/installation/).
+
+## Install the skill
+
+`biomcp skill install DIR` writes the skill under `DIR/skills/biomcp`:
+
+<Example id="skill-install" />
+
+Point the directory at your agent's skills folder, such as `~/.claude`. Existing files stay unchanged unless you add `--force`.
+
+## Check and read it
+
+`biomcp skill status DIR` reports whether the installed copy matches this executable, so rerun `skill install` after you upgrade BioMCP. `biomcp skill render` prints the guide, and `biomcp skill list` lists the worked examples:
+
+<Example id="skill-list" lines={8} />
+
+The list continues with the rest of the worked examples.
+
+## Next
+
+[Run worked examples from the BioMCP skill](/how-to/guide-workflows/) runs the commands each worked example starts with.

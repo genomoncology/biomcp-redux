@@ -1,0 +1,2 @@
+mychem	GPXBXXGIAQBQNI-UHFFFAOYSA-N	Vemurafenib	Small molecule
+mychem	C3192263

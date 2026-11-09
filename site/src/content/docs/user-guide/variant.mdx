@@ -1,0 +1,35 @@
+---
+title: "Variant entity"
+description: "The variant entity in BioMCP 1.0: its commands, sections, sources and one example with BRAF V600E."
+goal: The reader finds the commands, sections and sources for the variant entity and runs one example.
+reader: A BioMCP user or agent working with variant records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: variant
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `variant`. A genomic variant, read by rsID, ClinGen allele ID, ClinVar Variation ID or reference-qualified HGVS. A variant search returns source candidates with their shared identifiers. No candidate becomes a chosen allele.
+
+## Commands
+
+<CommandTable entity="variant" />
+
+## Sections of get variant
+
+`clinvar`, `erepo`, `population`, `gwas`, `civic`, `oncokb`, `hotspots`, `predict`, `conservation`, `cosmic`, `all`. The [get variant reference](/reference/commands/get-variant/) describes each one.
+
+## Sources
+
+[myvariant](/sources/myvariant/), [car](/sources/clingen-allele-registry/), [clinvar](/sources/clinvar/), [erepo](/sources/clingen-erepo/), [civic](/sources/civic/), [gnomad](/sources/gnomad/), [gwas](/sources/gwas/), [hotspots](/sources/hotspots/), [oncokb](/sources/oncokb/), [mutalyzer](/sources/mutalyzer/), [variantvalidator](/sources/variantvalidator/), [cbioportal](/sources/cbioportal/).
+
+## Example
+
+<Example id="variant-search" />
+
+## Next
+
+[Look up a variant](/how-to/annotate-variants/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

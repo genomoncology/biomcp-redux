@@ -5,7 +5,7 @@ import time
 
 # Rights, audit and secrets take seconds and need no build, so they stop a bad
 # change before the compile in pre-job.
-LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases')
+LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases', 'site-build')
 FULL = ('audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
         'tensor-proto-check', 'library-tests', 'coverage')
 

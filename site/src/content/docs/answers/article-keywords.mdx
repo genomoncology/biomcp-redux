@@ -1,0 +1,45 @@
+---
+title: How do I get the keywords and MeSH terms of an article?
+description: "Request the `indexing` section: `biomcp get article PMID
+  indexing`. It returns PubMed's MeSH headings, the author keywords and the
+  author affiliations. This BioMCP 1.0 run shows the keywords of PMID 33123537;
+  its MeSH list is empty in PubMed."
+goal: "Answer: How do I get the keywords and MeSH terms of an article?"
+reader: Someone who searched for this question
+kind: answer
+verified: 2026-10-27
+sidebar:
+  hidden: true
+pagefind: true
+---
+
+import Example from '../../../components/Example.astro';
+
+BioMCP 1.0.0 is a command-line tool and MCP server that reads biomedical data sources. Request the `indexing` section: `biomcp get article PMID indexing`. It returns PubMed's MeSH headings, the author keywords and the author affiliations. This BioMCP 1.0 run shows the keywords of PMID 33123537; its MeSH list is empty in PubMed.
+
+## Command
+
+<Example id="a-keywords" />
+
+## Reading the output
+
+| Field | In this run | Meaning |
+| --- | --- | --- |
+| `source` | `pubmed` | The source: `pubmed`. |
+| `keywords` | `["AKT1","E17K","cancer","mutation","pro…` | The author keywords PubMed lists, spelled as the authors wrote them. |
+| `mesh` | `[]` | The MeSH headings PubMed indexed. Empty means PubMed has not indexed this article with MeSH yet. |
+
+## Why it works
+
+The indexing section reads the PubMed citation record. Keywords come from the authors, and MeSH headings come from NLM indexers, so each list is reported separately.
+
+## Limits
+
+New articles often have no MeSH headings yet, and some have no author keywords. An empty list is what PubMed holds today. BioMCP adds no terms of its own.
+
+## Read next
+
+- [Search and read biomedical literature](/how-to/find-articles/)
+- [biomcp get article](/reference/commands/get-article/)
+
+Verified on 2026-10-27 with BioMCP 1.0.0.

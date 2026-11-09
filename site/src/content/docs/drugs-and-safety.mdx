@@ -1,0 +1,67 @@
+---
+title: Look up drugs, labels, safety reports and pharmacogenomics
+description: Use BioMCP 1.0 to find a drug in MyChem.info, ChEMBL, Drugs@FDA, EMA and other sources, read its targets and FDA approval record, and reach its label, interactions, safety reports, CPIC guidelines and companion diagnostics.
+goal: The reader finds a drug's identity in a chosen source, reads its targets and approval record, and picks the page for its label, interactions, adverse event reports, pharmacogenomic guidelines or companion diagnostics.
+reader: A researcher, pharmacist or agent builder looking up a drug's source records
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> has four [entities](/reference/entities/) for drugs and their safety: `drug`, `adverse-event`, `pgx` and `diagnostic`. Each source has its own identifiers, so you search one source, take its identifier, and read that source's record. This page follows vemurafenib, a BRAF inhibitor, through its identity, targets and FDA approval record, and links a page for each further task.
+
+## Requirements
+
+- BioMCP installed. No key is needed. An openFDA key raises openFDA's rate limit.
+- EMA and WHO read local [bundles](/local-data/). Run `biomcp sync ema` or `biomcp sync who-pq` before step 1 searches those sources. Before the sync the reply is `failed`, the source's state is `syncing`, the exit code is 4, and `next` names the sync.
+
+## 1. Search a drug
+
+MyChem.info is the default drug source:
+
+<Example id="drug-search" />
+
+`--source` picks another: `chembl`, `opentargets`, `civic`, `drugsfda`, `openfda-label`, `ema`, `who-pq` or `ddinter`. A name that works in one source can fail in another. openFDA labels match brand names, for example.
+
+## 2. Read targets
+
+ChEMBL returns the target and mechanism it records:
+
+<Example id="drug-targets" />
+
+## 3. Read the FDA approval record
+
+Drugs@FDA returns the application and its products:
+
+<Example id="drug-fda" />
+
+`biomcp get drug NDA202429 approvals --source drugsfda` lists the application and product history.
+
+## Go further with one drug
+
+| Task | Page |
+| --- | --- |
+| <span id="4-read-one-label-heading"></span>Read an FDA label heading by heading | [Read a drug's FDA label](/drugs-and-safety/labels/) |
+| <span id="5-list-interaction-partners"></span>List a drug's interaction partners from DDInter | [List a drug's interaction partners](/drugs-and-safety/interactions/) |
+| <span id="6-search-adverse-event-reports"></span>Search FAERS, MAUDE or VAERS reports | [Search adverse event reports](/drugs-and-safety/adverse-events/) |
+| <span id="7-read-pharmacogenomic-guidelines"></span>Read CPIC guidelines and ClinPGx annotations for a gene | [Find CPIC guidelines and gene-drug pairs for a gene](/how-to/pgx-guidelines/) |
+| <span id="8-find-companion-diagnostics"></span>Find FDA companion diagnostics and device records | [Find FDA companion diagnostics for a biomarker](/how-to/companion-diagnostics/) |
+
+## Verify
+
+Each step returns status `complete` with its source in state `ok`. Drugs@FDA lists application NDA202429.
+
+## Limits
+
+A report count is a count of reports. It does not show that a drug caused an event, and it cannot measure risk, incidence or compare drugs. A label, a guideline or a companion diagnostic row is the source's text, not a treatment recommendation. BioMCP calculates no dose, phenotype or activity score.
+
+## Related
+
+- Entities: [drug](/user-guide/drug/), [adverse-event](/user-guide/adverse-event/), [pgx](/user-guide/pgx/), [diagnostic](/user-guide/diagnostic/)
+- Reference: [search drug](/reference/commands/search-drug/), [get drug](/reference/commands/get-drug/), [search adverse-event](/reference/commands/search-adverse-event/), [get pgx](/reference/commands/get-pgx/), [search diagnostic](/reference/commands/search-diagnostic/)
+- Sources: [ChEMBL](/sources/chembl/), [Drugs@FDA](/sources/drugsfda/), [openFDA labels](/sources/openfda/), [DDInter](/sources/ddinter/), [FAERS](/sources/faers/), [CPIC](/sources/cpic/), [FDA companion diagnostics](/sources/fda-cdx/)
+
+## Next
+
+Look up the disease in [diseases and phenotypes](/diseases-and-phenotypes/).

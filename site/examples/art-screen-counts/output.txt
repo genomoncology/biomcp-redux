@@ -1,0 +1,5 @@
+4	--variant 'BRAF V600E'
+10	--variant 'V600'
+28	--gene BRAF
+98	--criteria 'BRAF'
+486	(condition and status only)

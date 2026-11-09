@@ -1,0 +1,33 @@
+---
+title: List a drug's interaction partners
+description: Use BioMCP 1.0 to list a drug's interaction partners and DDInter's interaction level from a local DDInter bundle, and page through the rest.
+goal: The reader synchronizes DDInter, lists a drug's interaction partners with their levels, and pages through them.
+reader: A researcher, pharmacist or agent builder who needs DDInter's interaction records for a drug
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. It reads drug-drug interactions from DDInter, a local [bundle](/local-data/), with the `interactions` section of `get drug --source ddinter`. The example is vemurafenib, DDInter's `DDInter1925`.
+
+## Requirements
+
+- BioMCP installed. No key is needed.
+- The DDInter bundle: run `biomcp sync ddinter` once. Before the sync the reply is `failed`, the source's state is `syncing`, the exit code is 4, and `next` names the sync. [Local data](/local-data/#bundle-sizes) shows its size.
+
+## List the partners
+
+DDInter returns partners and its interaction level, five rows per page by default. This run asks for three:
+
+<Example id="drug-interactions" />
+
+`total` is DDInter's count for this drug. `--section-limit` and `--section-offset` page the rest.
+
+## Limits
+
+The level is DDInter's own rating of each pair. BioMCP returns it as DDInter publishes it and does not judge whether an interaction matters for anyone.
+
+## Next
+
+[Search adverse event reports](/drugs-and-safety/adverse-events/) reads FAERS, MAUDE and VAERS.

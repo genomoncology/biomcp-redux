@@ -1,0 +1,35 @@
+---
+title: "Phenotype entity"
+description: "The phenotype entity in BioMCP 1.0: its commands, sections, sources and one example with seizure (HP:0001250)."
+goal: The reader finds the commands, sections and sources for the phenotype entity and runs one example.
+reader: A BioMCP user or agent working with phenotype records
+kind: reference
+verified: 2026-10-27
+sidebar:
+  label: phenotype
+---
+import Example from '../../../components/Example.astro';
+import Fact from '../../../components/Fact.astro';
+import CommandTable from '../../../components/CommandTable.astro';
+
+BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical data, groups its commands by [entity](/reference/entities/), the kind of record they read. This page covers `phenotype`. A Human Phenotype Ontology term, with its disease and gene associations from the Monarch Initiative. Terms are terminology. Associations are the publisher's assertions, not diagnoses.
+
+## Commands
+
+<CommandTable entity="phenotype" />
+
+## Sections of get phenotype
+
+`synonyms`, `xrefs`, `hierarchy`, `diseases`, `genes`. The [get phenotype reference](/reference/commands/get-phenotype/) describes each one.
+
+## Sources
+
+[hpo](/sources/hpo/), [monarch](/sources/monarch-initiative/).
+
+## Example
+
+<Example id="phenotype-search" />
+
+## Next
+
+[Diseases and phenotypes](/diseases-and-phenotypes/) walks through these commands with more examples. All <Fact k="counts.entities" /> entities are listed in the [entities reference](/reference/entities/).

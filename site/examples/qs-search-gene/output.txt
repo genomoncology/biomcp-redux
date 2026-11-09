@@ -1,0 +1,41 @@
+## Next
+
+**disambiguate:**
+
+```sh
+biomcp get gene HGNC:1097
+```
+
+## Page
+
+**offset:** 0
+
+**returned:** 3
+
+**total:** 3
+
+## Query
+
+**limit:** 3
+
+**offset:** 0
+
+**query:** BRAF
+
+## Result
+
+### Items
+
+| Symbol | Name | Hgnc id | Location | Status | Locus group | Kind | Text |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| BRAF | B-Raf proto-oncogene, serine/threonine kinase | HGNC:1097 | 7q34 | approved | protein\_coding | symbol | BRAF |
+| BANCR | BRAF-activated non-protein coding RNA | HGNC:43877 |  | approved | non\_coding\_rna |  |  |
+| BRAFP1 | BRAF pseudogene 1 | HGNC:18615 | Xq13.3 | approved | pseudogene |  |  |
+
+## Sources
+
+| Source | State | Terms | Terms url | Use |
+| --- | --- | --- | --- | --- |
+| hgnc | ok | CC0 1.0 | https://www.genenames.org/about/license/ | open |
+
+**status:** complete

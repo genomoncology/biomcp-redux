@@ -1,0 +1,5 @@
+{
+  "label": "BRAF V600E",
+  "membership": "exact",
+  "record": "https://civicdb.org/molecular-profiles/12"
+}

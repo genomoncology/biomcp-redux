@@ -1,0 +1,2 @@
+1 of 1 rows
+ST2	85	AXIN2	c.733C>T	p.Pro245Ser

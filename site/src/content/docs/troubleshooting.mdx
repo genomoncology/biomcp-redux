@@ -1,0 +1,84 @@
+---
+title: Troubleshooting
+description: Fixes for BioMCP 1.0 errors and failed sources, by exact error text, including usage.arguments, usage.schema, usage.retired, local.failure, no_key, deadline_exceeded, offline and syncing.
+goal: The reader matches the error or source reason they see to its cause and fix, and confirms the fix.
+reader: A BioMCP user or agent whose command failed or returned less than expected
+kind: how-to
+verified: 2026-10-27
+---
+import Example from '../../components/Example.astro';
+import Fact from '../../components/Fact.astro';
+
+This page covers BioMCP <Fact k="version" />. Find the text you see in a heading below. Each entry gives the cause, the fix and how to confirm it; error replies have their own pages. An error reply has `schema` `biomcp.error/1` and an `error.code`; a source problem shows in `sources[].state` and `sources[].reason`. [Exit codes](/reference/error-codes/) and the [reply envelope](/reference/envelope/) list every value.
+
+## command not found: biomcp
+
+**Cause.** The folder that holds `biomcp` is not on your `PATH`. The installer script uses `~/.local/bin`.
+
+**Fix.** Add `export PATH="$HOME/.local/bin:$PATH"` to your shell profile and open a new shell. For the PyPI package, `uv tool update-shell` adds uv's tool folder.
+
+**Confirm.** `biomcp version` prints the version.
+
+## Error replies
+
+<span id="usagearguments-expected-a-supported-command-with-checked-arguments"></span><span id="usageschema-expected-schema-known-artifact-id"></span><span id="an-unknown-or-dropped-command"></span><span id="biomcp-biomcp---help-or-biomcp--h"></span><span id="usageretired-retired-use-"></span>A reply with `status` `usage` and exit code 2, such as `usage.arguments`, `usage.schema` or `usage.retired`: see [fix BioMCP usage errors](/troubleshooting/usage-errors/).
+
+<span id="localfailure-local-configuration-cache-or-recording-failed"></span><span id="no_proxy-holds-an-ipv6-address-or-a-cidr-range"></span>A reply with `error.code` `local.failure` and exit code 5, including a `NO_PROXY` entry BioMCP cannot read: see [fix local.failure errors](/troubleshooting/local-failure/).
+
+## A source shows skipped with reason no_key
+
+**Cause.** The source needs your key: OncoKB, or NCI for `--source nci`. AlphaGenome also needs a key, but no command in this release sends it a request, so it never reports `no_key`.
+
+**Fix.** `biomcp key set oncokb` or `biomcp key set nci`. The reply's `next` list includes `help key SOURCE`. See [keys and configuration](/getting-started/api-keys/#set-a-key).
+
+## A source shows failed with reason deadline_exceeded or rate_limited
+
+**Cause.** The source took too long or limited your request rate. Broad searches, such as a GWAS Catalog search by gene, can exceed the deadline. Keyless Semantic Scholar shares a public rate limit.
+
+**Fix.** Narrow the query, wait and retry, or set the source's optional key. The rest of the reply is still usable; its status is `partial` or `failed`.
+
+## A source shows failed with reason tls or proxy
+
+**Cause.** A company network intercepts TLS or needs a proxy.
+
+**Fix.** Set `ca_bundle` to your network's root certificate and `proxy` to its proxy in `config.json`. See [company networks](/getting-started/api-keys/config-file/#company-networks).
+
+## A source shows failed with reason rejected
+
+**Cause.** The source or a network rule refused the request. A firewall that allows only some hosts produces this.
+
+**Fix.** Check that the machine can reach the source's host. `biomcp health` shows which sources answer.
+
+## A source shows failed with reason offline
+
+**Cause.** You ran with `--offline` and nothing local could answer.
+
+**Fix.** Run once without `--offline`, or synchronize the source's bundle. See [local data](/local-data/#2-work-offline).
+
+## A source shows syncing, or a reply asks for biomcp sync
+
+**Cause.** The command needs a local bundle that is missing, or another process is synchronizing it.
+
+**Fix.** Run the `sync` command from the reply's `next` list, for example `biomcp sync ddinter`. If another process holds the bundle, wait and retry.
+
+## Exit code 3: the pool expired
+
+**Cause.** You followed a page command after its pool expired.
+
+**Fix.** Run the restart command in the error's `next` list, then page again.
+
+## A search returns no rows
+
+**Cause.** The source returned nothing for that text and those filters. Text is sent as you wrote it.
+
+**Fix.** Try fewer filters, another spelling, or another `--source`. An empty result is not absence; see [results](/results/#empty-is-not-absence).
+
+## The HTTP server refuses a command
+
+**Cause.** HTTP refuses `sync`, `store clean`, `--fresh` and file saves.
+
+**Fix.** Run them on the server's command line. See [run as a server](/getting-started/remote-http/#what-http-clients-cannot-do).
+
+## Next
+
+Coming from 0.9? Read [upgrading from 0.9](/upgrade-from-0-9/).

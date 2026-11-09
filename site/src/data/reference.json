@@ -1,0 +1,149 @@
+{
+  "envelope": {
+    "status": [
+      {
+        "value": "complete",
+        "meaning": "Every source the command needed answered.",
+        "exit": 0
+      },
+      {
+        "value": "partial",
+        "meaning": "Some sources answered and others failed, or a value a source sent failed its check (`problems`). Read `sources`.",
+        "exit": 0
+      },
+      {
+        "value": "absent",
+        "meaning": "The sources answered and found no record for the input.",
+        "exit": 1
+      },
+      {
+        "value": "failed",
+        "meaning": "No source the command needed answered. Each one failed or was skipped.",
+        "exit": 4
+      }
+    ],
+    "state": [
+      {
+        "value": "ok",
+        "meaning": "The source answered."
+      },
+      {
+        "value": "stale",
+        "meaning": "The source answered from an older local copy."
+      },
+      {
+        "value": "syncing",
+        "meaning": "The source reads a local copy that is still downloading. The reply's `next` list names the `sync` command."
+      },
+      {
+        "value": "failed",
+        "meaning": "BioMCP asked the source and it did not answer. The `reason` says why."
+      },
+      {
+        "value": "skipped",
+        "meaning": "BioMCP did not ask the source, because of your settings or a missing key. The `reason` says why."
+      }
+    ],
+    "kind": [
+      {
+        "value": "restart",
+        "meaning": "Runs the query again to make a new pool or snapshot, for example after one expired."
+      },
+      {
+        "value": "section",
+        "meaning": "Fetches sections this card left out."
+      },
+      {
+        "value": "sort",
+        "meaning": "Reads the same search in another order the source supports."
+      },
+      {
+        "value": "page",
+        "meaning": "Reads another page."
+      },
+      {
+        "value": "fresh",
+        "meaning": "Runs the command again without the cached reply."
+      },
+      {
+        "value": "disambiguate",
+        "meaning": "Picks one record when a name matched several."
+      },
+      {
+        "value": "pivot",
+        "meaning": "Follows an exact link to a record of another kind, such as from a variant to its gene."
+      },
+      {
+        "value": "sync",
+        "meaning": "Downloads a missing or stale local copy of a source."
+      },
+      {
+        "value": "key",
+        "meaning": "Explains how to set a source key."
+      },
+      {
+        "value": "configure",
+        "meaning": "Explains a network setting that needs attention, such as the proxy."
+      }
+    ]
+  },
+  "commands": 86,
+  "entities": 16,
+  "entity_names": [
+    "author",
+    "cell-line",
+    "gwas",
+    "protein",
+    "phenotype",
+    "pathway",
+    "study",
+    "pgx",
+    "diagnostic",
+    "adverse-event",
+    "disease",
+    "drug",
+    "gene",
+    "article",
+    "trial",
+    "variant"
+  ],
+  "sources": 57,
+  "tools": 3,
+  "keys": [
+    {
+      "source": "ncbi",
+      "environment": "NCBI_API_KEY",
+      "config": "keys.ncbi_api_key"
+    },
+    {
+      "source": "semantic-scholar",
+      "environment": "S2_API_KEY",
+      "config": "keys.semantic_scholar_api_key"
+    },
+    {
+      "source": "orcid",
+      "environment": "ORCID_ACCESS_TOKEN",
+      "config": "keys.orcid_access_token"
+    },
+    {
+      "source": "oncokb",
+      "environment": "ONCOKB_TOKEN",
+      "config": "keys.oncokb_api_key"
+    },
+    {
+      "source": "alphagenome",
+      "environment": "ALPHAGENOME_API_KEY",
+      "config": "keys.alphagenome_api_key"
+    },
+    {
+      "source": "nci",
+      "environment": "NCI_API_KEY",
+      "config": "keys.nci_api_key"
+    },
+    {
+      "source": "openfda",
+      "environment": "OPENFDA_API_KEY",
+      "config": "keys.openfda_api_key"
+    }
+  ]
+}

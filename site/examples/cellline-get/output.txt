@@ -1,0 +1,5 @@
+CVCL_0132	A-375	Cancer cell line
+get cell-line CVCL_0132 names
+get cell-line CVCL_0132 variants
+get cell-line CVCL_0132 xrefs
+get cell-line CVCL_0132 chembl
