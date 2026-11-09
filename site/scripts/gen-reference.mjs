@@ -1,5 +1,5 @@
 // Writes the reference pages under src/content/docs/reference/ from the built program:
-//   biomcp help                  every command, argument, section and example (biomcp.help/2)
+//   biomcp help                  every command, argument, section and example (the versioned help contract)
 //   biomcp --offline health      the source registry: names, use groups and terms (no requests)
 //   biomcp help key SOURCE       each credential's configuration key and environment variable
 //   biomcp serve (tools/list)    the MCP tools and their input schemas
@@ -655,7 +655,7 @@ for (const c of [...help, ...topics]) {
 const KEY_VARS = keys.map((k) => k.environment);
 const requiredKey = (() => {
   const env = Object.fromEntries(Object.entries(baseEnv).filter(([k]) => !KEY_VARS.includes(k)));
-  return new Set(json(['--offline', 'health'], undefined, env).result.sources.filter((x) => x.reason === 'no_key').map((x) => x.source));
+  return new Set(json(['--offline', 'health'], undefined, env).result.sources.filter((x) => x.reason === 'no-key').map((x) => x.source));
 })();
 const keyNotes = YAML.parse(fs.readFileSync(path.resolve('src/data/keys.yaml'), 'utf8'));
 const keyOf = (s) => keys.find((k) => k.source === s || k.name === s || k.name === notes[s]?.key);
@@ -791,9 +791,10 @@ const envelopeFacts = {};
 {
   const defs = Object.fromEntries(replySchemas.flatMap(({ schema }) => Object.entries(schema.$defs ?? {}).map(([name, def]) => [name.replace(/^Reply_/, ''), def])));
   for (const [name, def] of Object.entries(defs)) {
+    if (def['x-extensible-enum']) defs[name] = { ...def, enum: def['x-extensible-enum'] };
     if (!def.enum && (def.anyOf || def.oneOf)) defs[name] = { ...def, enum: (def.anyOf ?? def.oneOf).flatMap((part) => part.enum ?? (part.const !== undefined ? [part.const] : [])) };
   }
-  const HIDE = ['replay_miss'];
+  const HIDE = ['replay-miss'];
   const table = (d, head) => {
     const xs = d['x-enum-descriptions'] ?? [];
     return [`| ${head} | Meaning |`, '| --- | --- |', ...d.enum.map((v, i) => [v, (xs[i] ?? '').trim()]).filter(([v]) => !HIDE.includes(v)).map(([v, m]) => `| ${code(v)} | ${cell(m)} |`)].join('\n');
@@ -889,7 +890,7 @@ write('index.md', [
   '- [Command map from 0.9](/reference/upgrade-map/): what happened to each 0.9 command.',
   `- [MCP tools](/reference/mcp-server/): the ${tools.length} tools the server offers.`,
   '',
-  `Run ${code('biomcp help')} for the same command data as JSON, or ${code('biomcp help get gene')} for one command. ${code('biomcp schema ID')} prints a reply's JSON schema, such as ${code('biomcp schema biomcp.gene_cards/4')}.`,
+  `Run ${code('biomcp help')} for the same command data as JSON, or ${code('biomcp help get gene')} for one command. ${code('biomcp schema ID')} prints a reply's JSON schema, such as ${code('biomcp schema ' + replySchemas.find(({ id }) => id.startsWith('biomcp.gene-cards/')).id)}.`,
   '',
 ].join('\n'));
 
