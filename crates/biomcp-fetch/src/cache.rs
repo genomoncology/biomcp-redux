@@ -119,9 +119,7 @@ impl Cache {
         })?;
         step("initialize", &mut connection, deadline, Self::initialize)?;
         // Ownership is validated before changing the file's journal mode.
-        step("wal", &mut connection, deadline, |connection| {
-            enable_wal(connection)
-        })?;
+        retry_wal(&connection, deadline, || enable_wal(&connection))?;
         Ok(Self(
             Mutex::new(connection),
             path.with_extension("parts"),
@@ -362,6 +360,22 @@ fn step(
     let result = operation(connection);
     if result == Err(CacheError::Busy) {
         crate::observe::record_open_failure(name, 0, started);
+    }
+    result
+}
+
+// WAL upgrades may return Busy without invoking SQLite's busy handler.
+// Only this idempotent operation may be repeated, under the shared open deadline.
+fn retry_wal(
+    connection: &Connection,
+    deadline: Deadline<'_>,
+    mut operation: impl FnMut() -> Result<(), CacheError>,
+) -> Result<(), CacheError> {
+    let started = std::time::Instant::now();
+    sql_deadline(connection, deadline)?;
+    let result = operation();
+    if result == Err(CacheError::Busy) {
+        crate::observe::record_open_failure("wal", 0, started);
     }
     result
 }

@@ -227,3 +227,64 @@ fn first_open_refuses_busy_when_the_setup_lock_outlasts_the_deadline() {
     drop(holder);
     assert!(Cache::open_with_owners(&path, &[]).is_ok());
 }
+
+// The installed first-open witness exercises this boundary through Fetch::open.
+// Here a real writer fixes the first failure state without a release timer.
+#[test]
+fn wal_retries_an_observed_busy_after_the_writer_releases() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let holder = Connection::open(&path).unwrap();
+    holder
+        .execute_batch("CREATE TABLE held(value); BEGIN IMMEDIATE")
+        .unwrap();
+    let connection = Connection::open(&path).unwrap();
+    let mut attempts = 0;
+    let result = super::retry_wal(
+        &connection,
+        Deadline::start(Duration::from_secs(15), None),
+        || {
+            attempts += 1;
+            // Force SQLite's immediate-refusal path independently of its version.
+            connection.busy_timeout(Duration::ZERO).unwrap();
+            let result = super::enable_wal(&connection);
+            if attempts == 1 {
+                assert_eq!(
+                    result,
+                    Err(CacheError::Busy),
+                    "fixture must hold the WAL transition"
+                );
+                holder.execute_batch("ROLLBACK").unwrap();
+            }
+            result
+        },
+    );
+    assert_eq!(result, Ok(()), "a released writer must not leave open busy");
+    assert_eq!(attempts, 2, "WAL must be retried after its real Busy");
+    let journal: String = connection
+        .pragma_query_value(None, "journal_mode", |row| row.get(0))
+        .unwrap();
+    assert_eq!(journal, "wal");
+}
+
+#[test]
+fn wal_retry_never_restarts_the_open_deadline() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("cache.sqlite");
+    let holder = Connection::open(&path).unwrap();
+    holder
+        .execute_batch("CREATE TABLE held(value); BEGIN IMMEDIATE")
+        .unwrap();
+    let connection = Connection::open(&path).unwrap();
+    let deadline = Deadline::start(Duration::from_millis(50), None);
+    let result = super::retry_wal(&connection, deadline, || {
+        connection.busy_timeout(Duration::ZERO).unwrap();
+        super::enable_wal(&connection)
+    });
+    assert_eq!(result, Err(CacheError::Busy));
+    assert!(
+        deadline.expired(),
+        "WAL returned Busy before its shared budget expired"
+    );
+    holder.execute_batch("ROLLBACK").unwrap();
+}
