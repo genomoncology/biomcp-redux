@@ -30,7 +30,7 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
     let result = completion.recv_timeout(Duration::from_secs(30));
     // Release the fixture even on the old implementation, so the failed
     // regression reaps its worker instead of leaving a detached download.
-    drop(held);
+    held.respond(400, "", "cancelled fixture");
     owner.join().unwrap();
     assert!(result.is_ok(), "owner waited for the held upstream: {result:?}");
     assert!(server.requests.try_recv().is_err(), "shutdown retried the download");
