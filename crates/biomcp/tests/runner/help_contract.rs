@@ -119,7 +119,11 @@ fn complete_help() -> Result<(), String> {
     let command = help
         .pointer("/result/commands")
         .and_then(Value::as_array)
-        .and_then(|commands| commands.iter().find(|c| c["command"] == json!(["search", "cell-line"])))
+        .and_then(|commands| {
+            commands
+                .iter()
+                .find(|c| c["command"] == json!(["search", "cell-line"]))
+        })
         .ok_or("complete help omits cell-line search")?;
     for id in [CellLinePage::SCHEMA, CellLineFilteredPage::SCHEMA] {
         if !command["reply_schemas"]
