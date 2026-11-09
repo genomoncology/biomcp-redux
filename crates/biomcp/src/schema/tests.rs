@@ -3,7 +3,8 @@ use biomcp_types::{CellLineFilteredPage, CellLinePage, ResponseBody};
 
 #[test]
 fn filtered_cell_line_search_discovery_keeps_both_reply_forms() {
-    let help = crate::help::reference(&crate::grammar::root()).expect("complete help");
+    let root = crate::grammar::root().expect("command grammar");
+    let help = crate::help::reference(&root).expect("complete help");
     let command = help
         .commands
         .iter()
