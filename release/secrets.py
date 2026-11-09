@@ -31,19 +31,24 @@ SCANNER = manifest()["gitleaks"]
 VERSION = SCANNER["version"]
 ARCHIVES = {tuple(key.split("/")): value for key, value in SCANNER["archives"].items()}
 
+DOWNLOAD_ATTEMPTS = 3
+DOWNLOAD_TIMEOUT_SECONDS = 120
+DOWNLOAD_RETRY_SECONDS = 5
+DOWNLOAD_BUDGET_SECONDS = (DOWNLOAD_ATTEMPTS * DOWNLOAD_TIMEOUT_SECONDS
+                           + DOWNLOAD_RETRY_SECONDS * sum(range(DOWNLOAD_ATTEMPTS)))
 
 
-def download(url, attempts=3):
+def download(url):
     # A fresh hosted runner fetches the pinned scanner once. Retry only transport
     # and HTTP failures; the caller still checks the digest of what arrives.
-    for attempt in range(attempts):
+    for attempt in range(DOWNLOAD_ATTEMPTS):
         try:
-            with urllib.request.urlopen(url, timeout=120) as response:
+            with urllib.request.urlopen(url, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
                 return response.read()
         except (OSError, http.client.HTTPException):
-            if attempt + 1 == attempts:
+            if attempt + 1 == DOWNLOAD_ATTEMPTS:
                 raise
-            time.sleep(5 * (attempt + 1))
+            time.sleep(DOWNLOAD_RETRY_SECONDS * (attempt + 1))
 
 
 def scanner(cache, scratch):

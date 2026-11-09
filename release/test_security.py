@@ -23,7 +23,8 @@ from unittest.mock import patch
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-SCREENING_TIMEOUT_SECONDS = 180
+# A cold scanner download may exhaust its retries before the scan itself starts.
+SCREENING_TIMEOUT_SECONDS = secret_scan.DOWNLOAD_BUDGET_SECONDS + 180
 
 
 def synthetic_credential(seed, length, prefix=""):
