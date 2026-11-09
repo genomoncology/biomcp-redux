@@ -42,7 +42,7 @@ The receiver-verified evidence is on Yellow:
 
 The host row now describes actual portable Linux/macOS behavior. `scripts/installed_smoke_section.py:21-37` treats missing Linux `/proc` entries as no supplementary process observations; `release/test_smoke.py:142-157` makes the success/failure cleanup and sentinel assertions. macOS does not claim Linux process observation. No Linux rebuild was needed to execute these portable assertions.
 
-The qualification document's documentation check is `j36499`; retain its terminal result before acceptance.
+`j36499` passed `make docs-check` at documentation revision `4287502a64a02be9f091185d0d87a92bc7f77aa5`. Its qualification document is byte-identical to this branch; subsequent changes only record ticket evidence. The packet's `docs-check-receiver-manifest.json` binds the actual command, result and full log.
 
 ## Boundaries
 
