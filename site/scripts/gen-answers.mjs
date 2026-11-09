@@ -4,9 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
 import site from '../src/data/site.json' with { type: 'json' };
-import { ranOn } from '../src/lib/verified.mjs';
 import { pages } from './pages.mjs';
-import { exampleWithFiles, inputFiles } from '../src/lib/examples.mjs';
+import { exampleWithFiles, inputFiles, readExample } from '../src/lib/examples.mjs';
 
 const qdir = path.resolve('questions');
 const out = path.resolve('src/content/docs/answers');
@@ -25,7 +24,11 @@ fs.rmSync(out, { recursive: true, force: true });
 fs.mkdirSync(out, { recursive: true });
 
 // An answer is verified on the day its example last ran (examples/<id>/ran), not on a typed date.
-for (const q of answered) q.verified = (q.steps ?? [q]).map((st) => ranOn(st.example)).sort().at(-1);
+for (const q of answered) {
+  const examples = (q.steps ?? [q]).map((st) => readExample(st.example));
+  q.hasVerifiedOutput = examples.every((ex) => !ex.unverified && ex.ran);
+  q.verified = examples.map((ex) => ex.ran).filter(Boolean).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
+}
 const lastRun = answered.map((q) => q.verified).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
 // Link text is the target page's own title, so a link never names a page differently from the page.
 const titles = new Map(pages().filter((p) => !p.route.startsWith('/answers/')).map((p) => [p.route, p.data.title]));
@@ -61,6 +64,7 @@ const findKey = (v, key) => {
 const valueIn = (ids, field) => {
   const key = field.split('.').pop().replace(/\[\]$/, '');
   for (const id of ids) {
+    if (!fs.existsSync(path.resolve('examples', id, 'output.txt'))) continue;
     const out = fs.readFileSync(path.resolve('examples', id, 'output.txt'), 'utf8');
     for (const d of jsonDocs(out)) { const v = findKey(d, key); if (v !== undefined) return typeof v === 'string' ? v : JSON.stringify(v); }
     const esc = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -77,6 +81,7 @@ for (const q of answered) {
   if (!q.example && !q.steps) throw new Error(`questions/${q.area}.yaml: ${q.id} lacks example or steps`);
   const explainFrom = stepsOf(q).map((st) => st.example).reverse();
   const rows = Object.entries(q.explain).map(([field, meaning]) => {
+    if (!q.hasVerifiedOutput) return `| \`${field}\` | ${String(meaning).trim().replace(/\|/g, '\\|').replace(/\n+/g, ' ')} |`;
     const v = valueIn(explainFrom, field);
     if (v === null) throw new Error(`questions/${q.area}.yaml: ${q.id} explains ${field}, which the output of ${explainFrom.join(', ')} does not show`);
     return `| \`${field}\` | \`${shortValue(v).replace(/`/g, "'").replace(/\|/g, '\\|')}\` | ${String(meaning).trim().replace(/\|/g, '\\|').replace(/\n+/g, ' ')} |`;
@@ -95,8 +100,8 @@ for (const q of answered) {
     ...(q.note ? [q.note.trim(), ''] : []),
     '## Reading the output',
     '',
-    '| Field | In this run | Meaning |',
-    '| --- | --- | --- |',
+    q.hasVerifiedOutput ? '| Field | In this run | Meaning |' : '| Field | Meaning |',
+    q.hasVerifiedOutput ? '| --- | --- | --- |' : '| --- | --- |',
     ...rows,
     '',
     '## Why it works',
@@ -112,7 +117,7 @@ for (const q of answered) {
     `- [${titleOf(q, 'page')}](${q.page})`,
     `- [${titleOf(q, 'reference')}](${q.reference})`,
     '',
-    `Verified on ${q.verified} with ${site.product} ${site.version}.`,
+    q.hasVerifiedOutput ? `Verified on ${q.verified} with ${site.product} ${site.version}.` : 'Source output is omitted where its reuse terms differ from this site’s license. The command is shown without a reproduced result.',
     '',
   ].join('\n');
   fs.writeFileSync(
