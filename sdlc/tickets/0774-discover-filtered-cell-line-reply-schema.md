@@ -1,6 +1,7 @@
 # 0774 — Discover filtered cell-line reply schema
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a707db4d568aa335a9f7a2346c10ced24e19a420
 
 Milestone: 5
 
