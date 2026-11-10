@@ -98,13 +98,17 @@ fn offline_rechecks_fresh_stale_negative_expired_and_corrupt_entries_without_htt
             .is_none()
     );
     let fresh_negative = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
-    assert!(matches!(fresh_negative.call(&ep, Input::Params(&[]), Read::<Answer>::json()),
-        Err(RequestError::Source(e)) if e.reason == Reason::NotFound));
+    assert!(
+        matches!(fresh_negative.call(&ep, Input::Params(&[]), Read::<Answer>::json()),
+        Err(RequestError::Source(e)) if e.reason == Reason::NotFound)
+    );
     assert!(fresh_negative.finish().data_notices.is_empty());
     expire(&cache);
     let expired_negative = offline.leg(spec, offline.deadline(Duration::from_secs(10)));
-    assert!(matches!(expired_negative.call(&ep, Input::Params(&[]), Read::<Answer>::json()),
-        Err(RequestError::Source(e)) if e.reason == Reason::Offline));
+    assert!(
+        matches!(expired_negative.call(&ep, Input::Params(&[]), Read::<Answer>::json()),
+        Err(RequestError::Source(e)) if e.reason == Reason::Offline)
+    );
     assert!(matches!(expired_negative.finish().data_notices.as_slice(),
         [biomcp_types::SourceNotice::RequestGuidance { message, data_date: None, retry_after_seconds: None }]
         if message.as_ref() == "A previously cached not-found result has expired; current absence is unknown."));

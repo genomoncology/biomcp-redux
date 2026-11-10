@@ -248,7 +248,8 @@ fn every_cached_read_obeys_current_reply_type_body_limit_and_sql_contract() {
     let offline = Fetch::open(FetchConfig {
         mode: Mode::Offline,
         ..config(&path)
-    }).unwrap();
+    })
+    .unwrap();
     let cached = offline
         .leg(spec, offline.deadline(Duration::from_secs(10)))
         .call(&endpoint, Input::Params(&[]), Read::<Strict>::json())

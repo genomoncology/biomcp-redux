@@ -202,7 +202,9 @@ impl Leg<'_> {
                         message: "A previously cached not-found result has expired; current absence is unknown.".into(),
                         retry_after_seconds: None,
                     };
-                    let mut report = self.report.lock()
+                    let mut report = self
+                        .report
+                        .lock()
                         .unwrap_or_else(std::sync::PoisonError::into_inner);
                     if !report.data_notices.contains(&notice) {
                         report.data_notices.push(notice);
@@ -257,7 +259,11 @@ impl Leg<'_> {
                     ),
                 );
             }
-            return Ok(Some(if fresh { Checked::Absent } else { Checked::ExpiredAbsent }));
+            return Ok(Some(if fresh {
+                Checked::Absent
+            } else {
+                Checked::ExpiredAbsent
+            }));
         }
         let reply = (entry.content_type.as_deref() == Some(codec.name())
             && codec.validate(&entry.body).is_ok())
