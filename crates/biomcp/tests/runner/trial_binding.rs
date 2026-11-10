@@ -101,6 +101,9 @@ fn cross_store(broad: bool) -> Result<(), String> {
             &["--hosted".into()],
         )
     };
+    if !broad && start(Some("invalid")).is_ok() {
+        return Err("a malformed configured cursor key started a hosted task".into());
+    }
     let key = URL_SAFE_NO_PAD.encode([1; 32]);
     let mut first = start(Some(&key))?;
     let mut other = start(Some(&key))?;
@@ -198,6 +201,11 @@ fn hosted_refusals(
             .collect(),
         replace(next, "--next-page", &tampered)?,
         replace(next, "--next-page", "native-two")?,
+        replace(
+            next,
+            "--next-page",
+            &format!("biomcp:ctgov-page:v2:{}", "A".repeat(12_000)),
+        )?,
     ] {
         let words: Vec<_> = altered.iter().map(String::as_str).collect();
         hosted_refusal(server, &words, "", calls)?;

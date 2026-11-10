@@ -14,6 +14,12 @@ const MAX_ENVELOPE_CHARS: usize =
 /// Dedicated process key for portable hosted trial continuations.
 pub struct TrialCursorKey(aead::LessSafeKey);
 
+impl std::fmt::Debug for TrialCursorKey {
+    fn fmt(&self, output: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        output.write_str("TrialCursorKey(***)")
+    }
+}
+
 impl TrialCursorKey {
     /// Read a canonical URL-safe unpadded encoding of a 32-byte key.
     pub fn from_encoded(encoded: &str) -> Option<Self> {
