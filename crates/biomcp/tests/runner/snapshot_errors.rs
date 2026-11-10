@@ -130,6 +130,11 @@ fn legacy_drug_pool(expanded: bool) -> Check {
     // over the request and current slot of a real expanded search.
     let current = pool_id(&command(&env, &args, &globals, 0)?)?;
     let db = rusqlite::Connection::open(env.root().join("case-cache/replay.sqlite"))?;
+    let current_key: Vec<u8> = db.query_row(
+        "SELECT request_key FROM pool_current WHERE pool=?1",
+        [&current],
+        |r| r.get(0),
+    )?;
     if db.execute(
         "UPDATE pool SET request_key=(SELECT request_key FROM pool WHERE id=?2) WHERE id=?1",
         rusqlite::params![id, current],
@@ -156,8 +161,8 @@ fn legacy_drug_pool(expanded: bool) -> Check {
             rusqlite::params![id, current],
         )?;
         db.execute(
-            "UPDATE pool_current SET request_key=?1 WHERE pool=?2",
-            rusqlite::params![key.as_slice(), id],
+            "UPDATE pool_current SET request_key=?1 WHERE request_key=?2",
+            rusqlite::params![key.as_slice(), current_key],
         )?;
     }
     drop(db);

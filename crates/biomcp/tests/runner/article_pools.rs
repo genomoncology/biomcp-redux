@@ -378,7 +378,13 @@ fn incomplete_names(entity: &str, mode: &str) -> Result<(), String> {
         }
         Ok(())
     })?;
-    let command = ["search", entity, "Canonical therapy", "--limit", "1"];
+    let command = [
+        "search",
+        entity,
+        "Canonical therapy",
+        "--limit",
+        if entity == "trial" { "10" } else { "1" },
+    ];
     let first = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
     if mode == "fallback" {
         if first.pointer("/page/total") != Some(&json!(3))
