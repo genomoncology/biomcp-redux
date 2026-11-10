@@ -34,6 +34,13 @@ def main():
     if unexpected:
         raise ValueError('Unmutated production differs from selected product: ' + repr(unexpected))
     print('Unmutated production equivalence: PASS', flush=True)
+    for command in [
+        ['cargo', 'fmt', '--all', '--', '--check'],
+        ['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'tools', '--', '-D', 'warnings'],
+        ['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'ratchets'],
+    ]:
+        subprocess.run(command, cwd=ROOT, check=True)
+    print('Unmutated formatting, tools lint and ratchets: PASS', flush=True)
     for relative, before, replacement, trials in CASES:
         path = ROOT / relative
         original = path.read_text()
