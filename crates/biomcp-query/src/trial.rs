@@ -105,7 +105,7 @@ fn search_source<'a>(
         outcome.problems.extend(version.problems);
         if let ReplyData::TrialPage {
             body: Some(body), ..
-        } = outcome.body
+        } = &mut outcome.body
         {
             body.source_updated = version.value.map(Into::into);
         }

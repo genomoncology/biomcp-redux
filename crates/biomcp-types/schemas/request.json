@@ -4623,7 +4623,7 @@
         },
         "next_page": {
           "$ref": "#/$defs/Text",
-          "description": "Page token.\nOpaque registry continuation; keep filters unchanged."
+          "description": "Page token.\nFollow the returned continuation unchanged. ClinicalTrials.gov tokens are bound to the retained store, caller, search selectors and native position; unbound tokens require a fresh first-page search."
         },
         "offset": {
           "default": 0,
