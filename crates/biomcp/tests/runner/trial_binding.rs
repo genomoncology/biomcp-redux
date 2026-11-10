@@ -106,14 +106,7 @@ fn check(meta: bool, broad: bool) -> Result<(), String> {
     .into();
     let first = call(&env, &args, meta, false)?;
     let next = super::action(&first, "page")?;
-    let token = next
-        .windows(2)
-        .find(|pair| pair.first().is_some_and(|s| s == "--next-page"))
-        .and_then(|pair| pair.get(1))
-        .ok_or("missing token")?;
-    if !token.starts_with("biomcp:ctgov-page:v1:")
-        || first.pointer("/page/returned") != Some(&json!(1))
-    {
+    if first.pointer("/page/returned") != Some(&json!(1)) {
         return Err(format!("first page lacks bound native position: {first}"));
     }
     for changed in [
@@ -121,6 +114,7 @@ fn check(meta: bool, broad: bool) -> Result<(), String> {
         replace(&next, "--phase", "2")?,
         replace(&next, "--sponsor", "Other")?,
         replace(&next, "--next-page", "native-two")?,
+        replace(&next, "--next-page", "biomcp:ctgov-names:v1:native-two")?,
         replace(
             &next,
             "--next-page",
@@ -132,6 +126,8 @@ fn check(meta: bool, broad: bool) -> Result<(), String> {
     let mut excluded = next.clone();
     excluded.extend(["--disable-sources".into(), "ctgov".into()]);
     refused(&env, &excluded, meta, &calls)?;
+    let restart = refused(&env, &replace(&next, "--offset", "40")?, meta, &calls)?;
+    call(&env, &restart, meta, false)?;
     let second = call(&env, &next, meta, false)?;
     if second.pointer("/page/offset") != Some(&json!(2))
         || second.pointer("/page/returned") != Some(&json!(2))
@@ -169,7 +165,7 @@ fn refused(
     args: &[String],
     meta: bool,
     calls: &AtomicUsize,
-) -> Result<(), String> {
+) -> Result<Vec<String>, String> {
     let before = calls.load(Ordering::SeqCst);
     let reply = call(env, args, meta, true)?;
     if calls.load(Ordering::SeqCst) != before
@@ -191,5 +187,5 @@ fn refused(
     {
         return Err(format!("invalid fresh recovery: {fresh:?}"));
     }
-    Ok(())
+    Ok(fresh)
 }
