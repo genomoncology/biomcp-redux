@@ -109,7 +109,7 @@ fn record(offset: u32, selector: &str) -> Value {
     };
     json!({"id":id,"set_id":id,"version":if offset==0 {"7"} else {"38"},
         "effective_time":if offset==0 {"20210615"} else {"20260424"},
-        "openfda":{"brand_name":["Brand name"],"generic_name":["Typed drug"],"spl_set_id":[id]},
+        "openfda":{"brand_name":["Brand name"],"generic_name":[if offset==0 {"Typed drug"} else {"Other ingredient"}],"spl_set_id":[id]},
         "indications_and_usage":["Synthetic indication."]})
 }
 fn args(expand: bool) -> Vec<String> {

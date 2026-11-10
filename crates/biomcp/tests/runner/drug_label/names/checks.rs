@@ -26,6 +26,7 @@ pub(super) fn complete() -> Check {
     if selector(&first)? != selector(&second)?
         || second.pointer("/page/offset") != Some(&json!(1))
         || first.pointer("/result/items/0/id") == second.pointer("/result/items/0/id")
+        || second.pointer("/result/items/0/matched_name").is_some()
         || second
             .get("next")
             .and_then(Value::as_array)
