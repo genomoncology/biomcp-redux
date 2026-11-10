@@ -84,7 +84,7 @@ fn setup(refused: bool) -> Result<(Environment, Stub), String> {
         |_| "application/json",
         move |request| {
             let body = if request.contains("/data/query/R-HSA-123") {
-                json!({"stId":"R-HSA-123","displayName":"Synthetic pathway",
+                json!({"stId":"R-HSA-123","stIdVersion":"R-HSA-123.1","displayName":"Synthetic pathway",
                     "speciesName":"Homo sapiens","schemaClass":"Pathway"})
             } else if request.contains("/data/pathway/R-HSA-123/containedEvents") {
                 let mut rows = vec![event(124, "R-HSA-124"), event(125, "R-HSA-125")];
