@@ -387,11 +387,20 @@ fn incomplete_names(entity: &str, mode: &str) -> Result<(), String> {
             return Err(format!("complete fallback did not expand names: {first}"));
         }
     } else {
-        let notice = first["sources"].as_array().into_iter().flatten()
+        let notice = first["sources"]
+            .as_array()
+            .into_iter()
+            .flatten()
             .flat_map(|source| source["notices"].as_array().into_iter().flatten())
-            .find(|notice| notice["message"].as_str().is_some_and(|m| m.contains("did not finish")));
+            .find(|notice| {
+                notice["message"]
+                    .as_str()
+                    .is_some_and(|m| m.contains("did not finish"))
+            });
         if notice.and_then(|n| n.get("names")) != Some(&json!(["Canonical therapy"])) {
-            return Err(format!("incomplete lookup expanded or hid uncertainty: {first}"));
+            return Err(format!(
+                "incomplete lookup expanded or hid uncertainty: {first}"
+            ));
         }
         if entity == "article" {
             let next = invoke(&env, cached(&command, &cache, Some(&replay)), 0)?;
