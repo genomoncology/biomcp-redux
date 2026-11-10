@@ -69,7 +69,7 @@ fn lookup(mode: u8) -> Value {
         5 => "Brand \"quoted\" \\name".into(),
         _ => "Brand name".into(),
     };
-    let row = |id: &str| json!({"_id":id,"drugcentral":{"name":"Typed drug","synonyms":["Typed drug",alias]}});
+    let row = |id: &str| json!({"_id":id,"drugcentral":{"synonyms":["Typed drug",alias]}});
     let hits = if mode == 2 {
         vec![
             row("KTUFNOKKBVMGRW-UHFFFAOYSA-N"),
@@ -272,10 +272,12 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     *tampered.get_mut(index + 1).ok_or("snapshot value")? = "synthetic-missing".into();
     let reply = invoke(env, tampered, 3)?;
     super::action(&reply, "restart")?;
-    let mut disabled = next.clone();
-    disabled.extend(["--disable-sources".into(), "mychem".into()]);
-    let reply = invoke(env, disabled, 3)?;
-    super::action(&reply, "restart")?;
+    for source in ["mychem", "drugcentral"] {
+        let mut disabled = next.clone();
+        disabled.extend(["--disable-sources".into(), source.into()]);
+        let reply = invoke(env, disabled, 3)?;
+        super::action(&reply, "restart")?;
+    }
     let mut literal = args(false);
     literal.extend([
         "--name-snapshot".into(),
