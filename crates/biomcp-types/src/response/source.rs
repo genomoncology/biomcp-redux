@@ -106,7 +106,7 @@ impl std::ops::Deref for SourceOutcome {
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum SourceNotice {
-    /// Source-stated names used in an explicitly expanded search.
+    /// Source-stated spellings actually searched.
     DrugNameSearch {
         /// Whole caller-supplied name.
         input: crate::Text,
