@@ -2,7 +2,9 @@
 use crate::{Ctx, Outcome, drug::search_names, source_snapshot, status};
 use biodata::Text;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{AdverseEventSearch, Paged, ReplyData, Request, ReplyBody, Source, SourceNotice, StepKind};
+use biomcp_types::{
+    AdverseEventSearch, Paged, ReplyBody, ReplyData, Request, Source, SourceNotice, StepKind,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -19,7 +21,10 @@ pub(super) fn search<'a>(
     query: &AdverseEventSearch,
     deadline: &mut Deadline<'a>,
 ) -> Outcome {
-    let mut out = status::empty(biomcp_types::AdverseEventPage::into_reply(query.clone(), None));
+    let mut out = status::empty(biomcp_types::AdverseEventPage::into_reply(
+        query.clone(),
+        None,
+    ));
     let result = prepare(cx, query, deadline, &mut out);
     match result {
         Ok(Some((saved, sent))) => match query.with_literal_drugs(saved.names.clone()) {
@@ -59,9 +64,12 @@ fn prepare<'a>(
     }
     let mut saved = resolve(cx, query, deadline);
     restrict_notices(&mut saved);
-    let admitted: Vec<_> = saved.sources.iter()
+    let admitted: Vec<_> = saved
+        .sources
+        .iter()
         .filter(|source| source.state != biomcp_types::SourceState::Skipped)
-        .cloned().collect();
+        .cloned()
+        .collect();
     let token = crate::publish::keep(
         source_snapshot::write(cx, &key, &saved, &admitted, *deadline),
         out,

@@ -13,8 +13,14 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
             "adverse-event-search/explicit-aliases-and-frozen-pages",
             complete as fn() -> Check,
         ),
-        ("adverse-event-search/alias-resolution-uncertainty", uncertainty),
-        ("adverse-event-search/alias-caller-controls-and-bounds", controls),
+        (
+            "adverse-event-search/alias-resolution-uncertainty",
+            uncertainty,
+        ),
+        (
+            "adverse-event-search/alias-caller-controls-and-bounds",
+            controls,
+        ),
     ]
     .into_iter()
     .map(|(name, check)| super::transcript::trial(name, move || check().map_err(Into::into)))
@@ -296,12 +302,24 @@ fn verify_native(requests: &[(String, String)], expression: &str) -> Check {
     let mut matching = 0;
     for (_, request) in requests {
         let target = request.split_whitespace().nth(1).ok_or("request target")?;
-        if !target.starts_with("/drug/event.json?") { continue; }
-        let url = url::Url::parse(&format!("https://synthetic.test{target}")).map_err(|e| e.to_string())?;
-        let sent = url.query_pairs().find(|(key, _)| key == "search").ok_or("search expression")?.1;
-        if sent == expression { matching += 1; }
-        else if sent.contains("Brand name") { return Err("native alias expression lost a supplied filter".into()); }
+        if !target.starts_with("/drug/event.json?") {
+            continue;
+        }
+        let url = url::Url::parse(&format!("https://synthetic.test{target}"))
+            .map_err(|e| e.to_string())?;
+        let sent = url
+            .query_pairs()
+            .find(|(key, _)| key == "search")
+            .ok_or("search expression")?
+            .1;
+        if sent == expression {
+            matching += 1;
+        } else if sent.contains("Brand name") {
+            return Err("native alias expression lost a supplied filter".into());
+        }
     }
-    if matching < 3 { return Err("reports, next page and counts did not share one native expression".into()); }
+    if matching < 3 {
+        return Err("reports, next page and counts did not share one native expression".into());
+    }
     Ok(())
 }
