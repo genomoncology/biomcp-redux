@@ -79,10 +79,15 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             } else {
                 1
             };
+            let identity = if selector.contains("a454cd24-0c6d-46e8-b1e4-197388606175") {
+                1
+            } else {
+                offset
+            };
             let rows = if offset >= total {
                 vec![]
             } else {
-                vec![record(offset)]
+                vec![record(identity)]
             };
             Ok(json!({"meta":{"results":{"skip":offset,"limit":limit,"total":total}},"results":rows}).to_string())
         },

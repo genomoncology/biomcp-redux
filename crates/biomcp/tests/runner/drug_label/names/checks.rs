@@ -35,8 +35,9 @@ pub(super) fn complete() -> Check {
             "native identity or exhausted page changed {second}"
         ));
     }
+    identities(&env, &first, &second)?;
     snapshots(&env, &first)?;
-    stub.finish()?;
+    native(&stub.finish()?, selector(&first)?)?;
     Ok(())
 }
 fn snapshots(env: &Environment, first: &Value) -> Check {
@@ -170,6 +171,72 @@ fn typed(env: &Environment) -> Check {
         .ok_or_else(|| format!("no typed label result: {replies:?}"))?;
     if value.pointer("/page/total") != Some(&json!(2)) || !selector(value)?.contains("Brand name") {
         return Err(format!("typed expansion differs: {value}"));
+    }
+    Ok(())
+}
+
+fn identities(env: &Environment, first: &Value, second: &Value) -> Check {
+    for (value, id, version, date) in [
+        (
+            first,
+            "095a08ac-cf0e-497e-a682-ddef38d6b29c",
+            "7",
+            "2021-06-15",
+        ),
+        (
+            second,
+            "a454cd24-0c6d-46e8-b1e4-197388606175",
+            "38",
+            "2026-04-24",
+        ),
+    ] {
+        if value.pointer("/result/items/0/id") != Some(&json!(id))
+            || value.pointer("/result/items/0/version") != Some(&json!(version))
+        {
+            return Err(format!("native SPL identity or version changed: {value}"));
+        }
+        let get = crate::runner::action(value, "disambiguate")?;
+        if get.get(2).map(String::as_str) != Some(id)
+            || get.iter().any(|s| s == "--expand-drug-names")
+        {
+            return Err(format!("SPL read was expanded: {get:?}"));
+        }
+        let card = invoke(env, get, 0)?;
+        if card.pointer("/result/updated") != Some(&json!(date))
+            || card.pointer("/result/header/version") != Some(&json!(version))
+        {
+            return Err(format!("SPL revisions were conflated: {card}"));
+        }
+    }
+    Ok(())
+}
+fn native(requests: &[(String, String)], expected: &str) -> Check {
+    let mut union_pages = 0;
+    for (_, request) in requests {
+        let target = request.split_whitespace().nth(1).ok_or("native request")?;
+        if !target.starts_with("/drug/label.json?") {
+            continue;
+        }
+        let url = url::Url::parse(&format!("https://synthetic.test{target}"))
+            .map_err(|e| e.to_string())?;
+        let selector = url
+            .query_pairs()
+            .find(|(key, _)| key == "search")
+            .ok_or("native selector")?
+            .1;
+        if selector.starts_with("((") {
+            union_pages += 1;
+            if selector != expected {
+                return Err(format!(
+                    "native alias union or literal indication changed: {selector}"
+                ));
+            }
+        }
+    }
+    if union_pages != 2 {
+        return Err(format!(
+            "expected initial and following native union pages; got {union_pages}"
+        ));
     }
     Ok(())
 }
