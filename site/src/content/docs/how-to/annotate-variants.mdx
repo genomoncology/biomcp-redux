@@ -70,7 +70,7 @@ Each row keeps ClinVar's own domain, classification and record. The full reply a
 | `cosmic` | MyVariant.info | Historical COSMIC fragments |
 | `oncokb` | OncoKB | Annotation for a tumor type and build, with your key |
 
-`variant recurrence ID --source cbioportal --gene GENE --study ID --profile ID --sample-set ID` counts samples with the variant in one cBioPortal study.
+`variant recurrence ID --source cbioportal --gene GENE --study ID --profile ID --sample-set ID` counts samples with the variant in one cBioPortal study. BioMCP verifies that the sample list belongs to the requested study before fetching mutations. An unknown, malformed or mismatched list yields no recurrence count. A verified list can still have an unknown total sample count.
 
 ## Verify
 

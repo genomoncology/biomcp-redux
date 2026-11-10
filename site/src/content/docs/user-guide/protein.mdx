@@ -4,7 +4,7 @@ description: "The protein entity in BioMCP 1.0: its commands, sections, sources 
 goal: The reader finds the commands, sections and sources for the protein entity and runs one example.
 reader: A BioMCP user or agent working with protein records
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-10
 sidebar:
   label: protein
 ---
@@ -21,6 +21,8 @@ BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical
 ## Sections of get protein
 
 `features`, `domains`, `isoforms`, `complexes`, `structures`, `function`, `sequence`, `all`. The [get protein reference](/reference/commands/get-protein/) describes each one.
+
+Exact feature and domain spans use zero-based, half-open coordinates `[start, end)`: the start is included and the end is excluded. For example, source residues 10 through 20 appear as `[9, 20)`. The `source_coordinates` field describes the original one-based inclusive convention. The `--position` selector also takes a one-based residue number. CLI Markdown and MCP text explain the convention when a reply contains spans.
 
 ## Sources
 

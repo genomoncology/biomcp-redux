@@ -4,7 +4,7 @@ description: Use BioMCP 1.0 to find a drug's openFDA label by brand name, list t
 goal: The reader finds a drug's openFDA label, lists its headings and reads the text of one heading.
 reader: A researcher, pharmacist or agent builder who needs the text of an FDA drug label
 kind: how-to
-verified: 2026-10-27
+verified: 2026-11-10
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
@@ -21,7 +21,7 @@ Search openFDA labels by brand name, then read the label card. Its `next` list n
 
 <Example id="drug-label" />
 
-The first line is the label's set ID, its name and the identity level `spl_set`. openFDA labels match brand names, so a search for the ingredient can return nothing.
+The first line is the label's set ID, its name and the identity level `spl_set`. The default search tries exact brand and generic fields first. To include a bounded set of source-stated aliases, add `--expand-drug-names`, for example `biomcp search drug apixaban --source openfda-label --expand-drug-names`. The reply lists the names searched and any lookup uncertainty. Follow the returned page commands unchanged to keep the same names and matching tier. An `--indication` phrase stays literal.
 
 ## 2. Read one heading
 

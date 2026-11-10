@@ -4,7 +4,7 @@ description: "The trial entity in BioMCP 1.0: its commands, sections, sources an
 goal: The reader finds the commands, sections and sources for the trial entity and runs one example.
 reader: A BioMCP user or agent working with trial records
 kind: reference
-verified: 2026-10-27
+verified: 2026-11-10
 sidebar:
   label: trial
 ---
@@ -17,6 +17,8 @@ BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical
 ## Commands
 
 <CommandTable entity="trial" />
+
+For ClinicalTrials.gov search pages, follow the returned `next` command unchanged. BioMCP checks `--next-page` and `--offset` against the retained search filters and the number of registry rows read. If a continuation cannot be verified or the registry rejects it, use the suggested first-page restart. See [usage errors](/troubleshooting/usage-errors/#usagearguments-a-missing-or-invalid-argument).
 
 ## Sections of get trial
 

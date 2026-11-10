@@ -4,7 +4,7 @@ description: Count and list FAERS adverse event reports for a drug with BioMCP 1
 goal: The reader counts a drug's FAERS reports with and without filters, lists report IDs, and opens one report's sections, knowing what a report count can and cannot show.
 reader: A researcher, pharmacovigilance analyst or agent builder who needs FDA adverse event report data for a drug
 kind: how-to
-verified: 2026-10-27
+verified: 2026-11-10
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
@@ -24,7 +24,7 @@ Each search returns a page of report headers and the total in `page.total`. `--l
 
 <Example id="task-faers-counts" />
 
-The first row counts every report that names vemurafenib. Each filter narrows that set:
+The first row shows the native total for the literal vemurafenib search. Each filter narrows that set:
 
 | Filter | What it matches |
 | --- | --- |
@@ -32,7 +32,7 @@ The first row counts every report that names vemurafenib. Each filter narrows th
 | `--reaction TERM` | A MedDRA reaction term, matched as a phrase |
 | `--received-from DATE --received-to DATE` | The date the FDA first received the report, inclusive, `YYYY-MM-DD` |
 
-The search text is matched as written, against the drug names in each report. A brand name, such as `Zelboraf`, can return a different count; search each name you need.
+FAERS searches drug names as written by default. Pass `--drug` once per spelling to search several literal names together. Add `--expand-drug-names` to include a bounded set of source-stated aliases, for example `biomcp search adverse-event --source faers --drug vemurafenib --expand-drug-names --limit 1`. The reply lists the spellings searched and any lookup uncertainty. The count is the native total for their union. Follow the returned page commands unchanged to keep the same alias selection.
 
 ## 2. List report IDs
 

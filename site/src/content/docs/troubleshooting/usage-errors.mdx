@@ -21,7 +21,7 @@ BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical
 
 **Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before [section words](/concepts/progressive-disclosure/) and that `--source` names a source the command lists.
 
-When following a trial page, a generic `usage.arguments` reply can mean ClinicalTrials.gov rejected the continuation request. Rerun the original first-page search with `--fresh`, removing `--next-page` and `--offset` while keeping its source, filters, configuration and source exclusions unchanged. Then follow the new reply's page command. The generic error alone does not establish that a cursor expired.
+When `error.option` is `--next-page` for a ClinicalTrials.gov search, BioMCP either could not verify the continuation against its saved position and filters, or the registry rejected the request. In the CLI or stdio MCP, run the suggested `next` command to refresh the first page with the same search filters. Follow the new reply's page command unchanged.
 
 **Confirm.** The command returns a reply with a `status` other than `usage`.
 
