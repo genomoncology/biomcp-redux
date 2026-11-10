@@ -16,7 +16,7 @@ from release.artifacts import cargo
 
 SELECTOR_HINT = ("; use --target cases for YAML cases and routine Rust CLI/MCP trials "
                  "(including protocol and pool trials); --cases DIRECTORY selects a YAML root. "
-                 "--target tools --proofs lists a separate tooling-proof catalog. "
+                 "--target tools --proofs selects a separate tooling-proof catalog. "
                  "Copy exact names from the selected runner's --list")
 
 
