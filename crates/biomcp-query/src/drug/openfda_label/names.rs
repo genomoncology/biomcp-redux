@@ -81,9 +81,16 @@ pub(super) fn missing(query: &DrugSearch, out: &mut Outcome) {
 pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome) {
     let Some(saved) = saved else { return };
     if let Some(source) = out.sources.first_mut() {
-        source.term = saved
-            .tier
-            .and_then(|tier| query.label_name_selector(&saved.names, tier.exact()).ok());
+        source.term = match saved.tier {
+            Some(tier) => match query.label_name_selector(&saved.names, tier.exact()) {
+                Ok(selector) => Some(selector),
+                Err(_) => {
+                    out.local = Some(biomcp_fetch::CacheError::Snapshot.into());
+                    None
+                }
+            },
+            None => None,
+        };
         if let Some(input) = query.query() {
             source.notices.push(SourceNotice::DrugNameSearch {
                 input: input.clone(), names: saved.names.clone().into(),
