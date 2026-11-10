@@ -82,7 +82,7 @@ def reason(result, searching):
     except ValueError:
         reply = None
     if not isinstance(reply, dict):
-        return 'exit {}: {}'.format(result.returncode, result.stderr or result.stdout)
+        return 'exit {}: malformed reply'.format(result.returncode)
     failed = [row['source'] + ': ' + row.get('reason', 'failed') for row in reply.get('sources', [])
               if row.get('state') == 'failed']
     if failed:
@@ -134,12 +134,18 @@ def attempt_record(args, attempt, started, result=None, failure=None):
         if isinstance(reply, dict):
             if isinstance(reply.get('status'), str):
                 row['status'] = reply['status'][:128]
+                row['truncated'] |= len(reply['status']) > 128
             error = reply.get('error')
             if isinstance(error, dict) and isinstance(error.get('code'), str):
                 row['error_code'] = error['code'][:128]
+                row['truncated'] |= len(error['code']) > 128
             sources = reply.get('sources', [])
             if isinstance(sources, list):
-                row['truncated'] = len(sources) > 64
+                row['truncated'] |= len(sources) > 64
+                row['truncated'] |= any(
+                    isinstance(source, dict) and any(
+                        isinstance(source.get(key), str) and len(source[key]) > 128
+                        for key in ('source', 'state', 'reason')) for source in sources[:64])
                 row['sources'] = [source_diagnostic(source) for source in sources[:64]
                                   if isinstance(source, dict)]
     if failure:

@@ -109,7 +109,7 @@ class LiveCheck(unittest.TestCase):
             "FAIL biomcp search article 'AKT1 E17K': pubmed: proxy",
             'FAIL biomcp search trial --condition melanoma --limit 1: no results',
             'FAIL biomcp get trial NCT04303780: expected a supported command',
-            'FAIL biomcp search cell-line MOLM13: exit 101: crash detail',
+            'FAIL biomcp search cell-line MOLM13: exit 101: malformed reply',
         ])
 
     def test_a_search_with_no_top_level_page_and_no_items_fails(self):
@@ -177,7 +177,8 @@ class LiveCheck(unittest.TestCase):
                 self.assertLessEqual(len(line.encode('utf-8')), 8192)
 
     def test_malformed_and_timeout_attempts_keep_only_fixed_diagnostics(self):
-        result, _ = self.run_check({'MOLM13': [101, 'not-json-body-sentinel']})
+        result, _ = self.run_check({'MOLM13': [0, 'not-json-body-sentinel']})
+        self.assertNotIn('not-json-body-sentinel', result.stdout)
         attempts = self.attempts(result, ['search', 'cell-line', 'MOLM13'])
         self.assertEqual(len(attempts), 2)
         for row in attempts:
