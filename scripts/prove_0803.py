@@ -1,4 +1,4 @@
-"""One-off scoped witnesses for the six meaningful 0803 survivors; do not land."""
+"""One-off scoped witnesses for the eight meaningful 0803 survivors; do not land."""
 from pathlib import Path
 import subprocess
 import sys
@@ -31,6 +31,14 @@ CASES = [
      '!self.dropped && crate::source_snapshot::sources_whole(&self.sources)',
      'true', [('protein-search/refused-membership-is-explicit-only',
                'incomplete protein search pool became the implicit default')]),
+    ('crates/biomcp-query/src/protein/source_relations/saved.rs',
+     'match self {\n            Self::Domains(_, _, _, dropped) => !dropped,\n            Self::Complexes(collection) => collection.refusals == biomcp_adapters::Refusal::None,\n            Self::Members(Some(complex)) => complex.refusals == biomcp_adapters::Refusal::None,\n            Self::Members(None) => true,\n        }',
+     'true', [('protein-domains-complexes/refused-fragment-is-explicit-only',
+               'incomplete domain pool became the implicit default')]),
+    ('crates/biomcp-query/src/protein/source_relations/saved.rs',
+     'match self {\n            Self::Domains(_, _, _, dropped) => !dropped,\n            Self::Complexes(collection) => collection.refusals == biomcp_adapters::Refusal::None,\n            Self::Members(Some(complex)) => complex.refusals == biomcp_adapters::Refusal::None,\n            Self::Members(None) => true,\n        }',
+     'false', [('protein-domains-complexes/native-types-and-fragments',
+               'healthy domain window was rebuilt')]),
 ]
 
 
@@ -54,8 +62,10 @@ def main():
         'pathway-reactome/healthy-events-reuse-pool',
         'pathway-reactome/refused-events-are-explicit-only',
         'protein-search/refused-membership-is-explicit-only',
+        'protein-domains-complexes/native-types-and-fragments',
+        'protein-domains-complexes/refused-fragment-is-explicit-only',
     ], cwd=ROOT, check=True)
-    print('All seven unmutated public-command checks: PASS', flush=True)
+    print('All nine unmutated public-command checks: PASS', flush=True)
     for command in [
         ['cargo', 'fmt', '--all', '--', '--check'],
         ['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'cases', '--test', 'tools', '--', '-D', 'warnings'],
@@ -81,7 +91,7 @@ def main():
                 print('CONFIRMED RED:', trial, flush=True)
         finally:
             path.write_text(original)
-    print('All six scoped replacements killed by seven public-command checks', flush=True)
+    print('All eight scoped replacements killed by nine public-command checks', flush=True)
 
 
 if __name__ == '__main__':
