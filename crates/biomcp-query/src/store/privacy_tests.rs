@@ -75,14 +75,6 @@ fn stored_licensed_owners_admit_same_key_and_refuse_other_or_missing_keys() -> C
             same
         );
         assert_eq!(current.find(KEY, None)?.is_some(), same);
-        for selected in [None, Some(window.info.id.as_str())] {
-            assert_eq!(
-                current
-                    .find_source_pool(KEY, selected, |_| false)?
-                    .is_some(),
-                same
-            );
-        }
         assert_eq!(current.page(pool.info.id.as_str(), 0, 10).is_ok(), same);
         assert_eq!(
             current
@@ -320,6 +312,28 @@ fn query_connections_keep_virtual_sqlite_waits_zero_and_live_waits_bounded() -> 
 }
 
 // Stale handles stand in for delayed concurrent writers at the transaction boundary.
+#[test]
+fn source_windows_admit_only_the_recorded_owner_and_enabled_source() -> Check {
+    let directory = tempfile::tempdir()?;
+    let path = directory.path().join("cache.sqlite");
+    let fetch = caller(&path, Some("synthetic-owner-a"), true)?;
+    let window = store(&fetch)?.publish_source_pool(KEY, PAYLOAD, 1, &[source(true)], false)?;
+    for key in [Some("synthetic-owner-a"), Some("synthetic-owner-b"), None] {
+        let fetch = caller(&path, key, true)?;
+        let current = store(&fetch)?;
+        for selected in [None, Some(window.info.id.as_str())] {
+            assert_eq!(
+                current
+                    .find_source_pool(KEY, selected, |_| false)?
+                    .is_some(),
+                key == Some("synthetic-owner-a")
+            );
+            assert!(current.find_source_pool(KEY, selected, |_| true)?.is_none());
+        }
+    }
+    Ok(())
+}
+
 #[test]
 fn source_defaults_follow_only_the_retained_complete_observation() -> Check {
     let directory = tempfile::tempdir()?;
