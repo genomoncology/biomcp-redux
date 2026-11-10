@@ -2,6 +2,7 @@ use super::DrugSource;
 use crate::QueryInvalid;
 use biodata::Text;
 use serde::{Deserialize, Serialize};
+mod names;
 
 fn default_source() -> DrugSource {
     DrugSource::Mychem
@@ -36,6 +37,12 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
+    /// openFDA labels only: explicitly search bounded source-stated drug aliases; literal is the default.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    expand_drug_names: bool,
+    /// Retained label alias/tier selection; follow the returned command with unchanged filters.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    name_snapshot: Option<Text>,
     /// Literal label indication; openFDA labels only.
     /// Search the native Indications and Usage field without disease synonym expansion.
     /// An optional name query further narrows the same source search.
@@ -154,7 +161,9 @@ impl TryFrom<SearchFields> for DrugSearch {
             fields.initiated_from,
             fields.initiated_to,
         )?;
-        Ok(Self(fields))
+        let query = Self(fields);
+        names::validate(&query)?;
+        Ok(query)
     }
 }
 impl DrugSearch {
@@ -189,6 +198,8 @@ impl DrugSearch {
     pub fn named(query: Text, source: DrugSource, limit: u32) -> Result<Self, QueryInvalid> {
         SearchFields {
             query: Some(query),
+            expand_drug_names: false,
+            name_snapshot: None,
             indication: None,
             source,
             limit,
@@ -272,5 +283,8 @@ impl crate::Paged for DrugSearch {
     type Offset = u32;
     fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
+    }
+    fn clear_page_context(&mut self) {
+        self.0.name_snapshot = None;
     }
 }
