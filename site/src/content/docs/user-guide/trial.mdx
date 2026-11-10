@@ -18,7 +18,9 @@ BioMCP <Fact k="version" />, the command-line tool and MCP server for biomedical
 
 <CommandTable entity="trial" />
 
-For ClinicalTrials.gov search pages, follow the returned `next` command unchanged. BioMCP checks `--next-page` and `--offset` against the retained search filters and the number of registry rows read. If a continuation cannot be verified or the registry rejects it, use the suggested first-page restart. See [usage errors](/troubleshooting/usage-errors/#usagearguments-expected-a-supported-command-with-checked-arguments).
+For ClinicalTrials.gov search pages, follow the returned `next` command unchanged. BioMCP checks `--next-page` and `--offset` against the retained search filters and the number of registry rows read. Local continuations require the original store. A hosted deployment can verify them across tasks with a shared continuation key. See [hosted paging setup](/getting-started/remote-http/#clinicaltrialsgov-paging-across-hosted-tasks).
+
+If a continuation cannot be verified or the registry rejects it, run the suggested first-page restart in the CLI or local stdio MCP. On a hosted server, submit the original first-page search again. See [usage errors](/troubleshooting/usage-errors/#usagearguments-expected-a-supported-command-with-checked-arguments).
 
 ## Sections of get trial
 

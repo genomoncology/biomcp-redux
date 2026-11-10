@@ -4,7 +4,7 @@ description: Serve BioMCP 1.0 over streamable HTTP with biomcp serve --http, cho
 goal: The reader starts the HTTP MCP server on the right address, checks it, and knows what HTTP clients can and cannot do.
 reader: A developer or administrator serving BioMCP to MCP clients over a network
 kind: how-to
-verified: 2026-10-27
+verified: 2026-11-10
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
@@ -57,6 +57,12 @@ The `Host` header must match a name on the list exactly. A server that allows on
 ## 4. Put it behind a reverse proxy
 
 Run the server on loopback and let your reverse proxy handle TLS and authentication. Forward `/mcp` and `/health` to the server's address. Set `--allow-host` to the public host name the proxy forwards in the `Host` header. Keep the proxy from adding a browser `Origin` header.
+
+### ClinicalTrials.gov paging across hosted tasks
+
+For a multi-task `--hosted` deployment, give every core process the same `BIOMCP_TRIAL_CONTINUATION_KEY` through private deployment configuration. The setting takes 32 random bytes encoded as URL-safe Base64 without padding. With it, each task can verify a continuation created by another task and apply the current source and credential policy. Without it, each continuation requires its original store, as it does in the ordinary CLI.
+
+The portable binding lasts up to one day. The registry can reject its cursor sooner. If a continuation fails after key rotation, a change of store, or a registry rejection, submit the original search again from the first page.
 
 ## What HTTP clients cannot do
 
