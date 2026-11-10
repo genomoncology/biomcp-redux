@@ -1,10 +1,10 @@
 //! A rejected registry cursor offers an explicit uncached first-page request.
+use super::portable_continuation as portable;
 use crate::{Action, Ctx, Outcome, next::Step, source_snapshot};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     ReplyData, Request, Source, SourceOutcome, SourceState, StepKind, TrialSearch, UsageError,
 };
-mod portable;
 
 const PREFIX: &str = "biomcp:ctgov-page:v1:";
 // Earlier rows could lose dependencies when reissued, so their scope cannot be established.

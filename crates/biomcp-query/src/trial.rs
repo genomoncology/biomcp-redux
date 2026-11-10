@@ -7,6 +7,7 @@ mod drug_names;
 mod gene_notice;
 pub(crate) mod get;
 mod nci;
+mod portable_continuation;
 use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{ctgov, hgnc};
