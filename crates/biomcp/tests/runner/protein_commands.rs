@@ -28,7 +28,11 @@ fn refused_pool() -> Result<(), String> {
         || first
             .get("problems")
             .and_then(Value::as_array)
-            .is_none_or(|p| p.is_empty())
+            .is_none_or(|problems| {
+                problems
+                    .iter()
+                    .all(|p| p.get("field") != Some(&serde_json::json!("identity")))
+            })
     {
         return Err(format!(
             "refused UniProt identity lost its partial/source-Ok page: {first}"
