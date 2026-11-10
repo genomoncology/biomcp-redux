@@ -20,8 +20,8 @@ tool_only! { mod disease_mydisease; }
 tool_only! { mod disease_ols; }
 tool_only! { mod disease_seer; }
 mod execution;
-mod faers_search;
 mod faers_names;
+mod faers_search;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;

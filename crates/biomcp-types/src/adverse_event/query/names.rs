@@ -32,9 +32,10 @@ impl AdverseEventSearch {
     /// Check the escaped whole native query after replacing only drug spellings.
     pub fn with_literal_drugs(&self, names: Vec<Text>) -> Result<Self, QueryInvalid> {
         let mut fields = self.0.clone();
-        fields.drug = names.into_iter().filter(|name| {
-            fields.text.as_ref().is_none_or(|text| text != name)
-        }).collect();
+        fields.drug = names
+            .into_iter()
+            .filter(|name| fields.text.as_ref().is_none_or(|text| text != name))
+            .collect();
         fields.expand_drug_names = false;
         fields.name_snapshot = None;
         Self::try_from(fields)
