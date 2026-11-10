@@ -71,7 +71,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetPgxAnnotation(query) => crate::pgx::annotation(cx, query),
         Request::SearchDiagnostic(q) => crate::diagnostic::search(cx, q),
         Request::GetDiagnostic(q) => crate::diagnostic::get(cx, q),
-        Request::SearchAdverseEvent(query) => crate::adverse_event::search(cx, query),
+        Request::SearchAdverseEvent(query) => crate::adverse_event::search_command(cx, query),
         Request::GetAdverseEvent(q) if q.source() == biomcp_types::AdverseEventSource::Maude => {
             crate::adverse_event_maude::get(cx, q)
         }
@@ -89,7 +89,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::GetVariant(query) => crate::variant::get(cx, query),
         Request::TrialDocument(query) => crate::trial::document::download(cx, query, false).out,
         Request::GetTrial(query) => crate::trial::get::get(cx, query),
-        Request::SearchTrial(query) => crate::trial::search(cx, query),
+        Request::SearchTrial(query) => crate::trial::search_bound(cx, query),
         Request::ArticlePdf(query) => crate::article::pdf::download(cx, query, false).out,
         Request::ArticleEvidence(query) => crate::article::evidence::run(cx, query),
         Request::ArticleRecommend(query) => crate::article::recommend::run(cx, query),

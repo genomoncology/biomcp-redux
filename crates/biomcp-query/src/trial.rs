@@ -1,6 +1,7 @@
 //! Trial discovery delegates filters, totals and ranking to the named registry.
 use biomcp_types::ReplyBody;
 mod condition;
+mod continuation;
 pub mod document;
 mod drug_names;
 mod gene_notice;
@@ -14,23 +15,44 @@ use biomcp_types::{
     ReplyData, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch,
 };
 /// Execute a checked native search without locally screening returned studies.
-pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
+pub(crate) fn search_bound(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {
         return nci::search(cx, query);
     }
     let mut outcome = empty(query);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let Some(condition) = condition::resolve(cx, query, &mut outcome, &mut deadline) else {
-        command.finish(deadline.remaining());
+    match continuation::restore(cx, query, deadline) {
+        Ok(Some(saved)) => {
+            outcome = search(cx, &saved, outcome, &mut deadline);
+            if let Err(error) = continuation::retain(cx, &mut outcome, deadline) {
+                outcome.local = status::local(error);
+                status::item(&mut outcome, false, true, false);
+            }
+        }
+        Ok(None) => continuation::unavailable(query, &mut outcome),
+        Err(error) => {
+            outcome.local = status::local(error);
+            status::item(&mut outcome, false, true, false);
+        }
+    }
+    command.finish(deadline.remaining());
+    outcome
+}
+fn search<'a>(
+    cx: &Ctx<'a>,
+    query: &TrialSearch,
+    mut outcome: Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) -> Outcome {
+    let Some(condition) = condition::resolve(cx, query, &mut outcome, deadline) else {
         return outcome;
     };
-    let Some(gene) = gene(cx, query, &mut outcome, &mut deadline) else {
-        command.finish(deadline.remaining());
+    let Some(gene) = gene(cx, query, &mut outcome, deadline) else {
         return outcome;
     };
-    let expanded = drug_names::expand(cx, query, &mut outcome, &mut deadline);
-    let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
+    let expanded = drug_names::expand(cx, query, &mut outcome, deadline);
+    let leg = cx.fetch.leg(&ctgov::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let conditions = condition
         .as_ref()
@@ -42,7 +64,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if typed_only {
         (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
     }
-    let rejected = name_notice.is_none() && request_rejected(result.as_ref().err());
+    let rejected = request_rejected(result.as_ref().err());
+    let generic_rejected = name_notice.is_none() && rejected;
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
@@ -53,7 +76,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         .or(version.as_ref().err())
         .copied()
         .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
-    deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
     if typed_only {
@@ -81,12 +104,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
             body.source_updated = version.value.map(Into::into);
         }
     }
-    if rejected {
+    if rejected && query.next_page().is_some() {
+        continuation::rejected(query, &mut outcome);
+    } else if generic_rejected {
         outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
-    command.finish(deadline.remaining());
     outcome
 }
 /// The found, identity-failed and unavailable states, counting earlier source outcomes.

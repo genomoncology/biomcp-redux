@@ -20,6 +20,7 @@ tool_only! { mod disease_mydisease; }
 tool_only! { mod disease_ols; }
 tool_only! { mod disease_seer; }
 mod execution;
+mod faers_names;
 mod faers_search;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
@@ -100,6 +101,7 @@ mod phenotype;
 mod process;
 pub(super) mod proof;
 mod protein_budgets;
+mod protein_coordinates;
 mod protein_domains;
 mod protein_sections;
 mod protocol;
@@ -120,6 +122,8 @@ mod store_clean;
 mod store_coexistence;
 mod study_catalog;
 mod transcript;
+mod trial_binding;
+mod trial_continuation;
 mod trial_gene;
 mod trial_get;
 mod trial_results;
@@ -273,6 +277,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
     trials.extend(trial_gene::trials());
+    trials.extend(trial_continuation::trials());
     trials.extend(cache_contention::trials());
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
@@ -339,7 +344,9 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
 fn retained_source_trials() -> Vec<Trial> {
     let mut trials = snapshot_errors::trials();
+    trials.extend(trial_binding::trials());
     trials.extend(author_pools::trials());
+    trials.extend(faers_names::trials());
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials

@@ -58,6 +58,7 @@ fn restart(request: &Request) -> Request {
         Request::PathwayEvents(q) => Request::PathwayEvents(q.restart()),
         Request::GetAdverseEvent(q) => Request::GetAdverseEvent(q.restart()),
         Request::SearchAdverseEvent(q) => Request::SearchAdverseEvent(q.restart()),
+        Request::SearchDrug(q) => Request::SearchDrug(q.restart()),
         Request::GetPhenotype(q) => Request::GetPhenotype(q.restart()),
         Request::GetPgx(q) => Request::GetPgx(q.restart()),
         Request::GetGwasStudy(q) => Request::GetGwasStudy(biomcp_types::GwasStudyGet {
@@ -65,6 +66,7 @@ fn restart(request: &Request) -> Request {
             ..q.clone()
         }),
         Request::GetTrial(q) => Request::GetTrial(q.identity()),
+        Request::SearchTrial(q) => Request::SearchTrial(q.first_page()),
         Request::ProteinFeatures(q) => Request::ProteinFeatures(q.restart()),
         Request::ProteinIsoforms(q) => Request::ProteinIsoforms(q.restart()),
         Request::ProteinStructures(q) => Request::ProteinStructures(q.restart()),

@@ -74,6 +74,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     let (help, tools) = metadata()?;
     let mut counts = tally::Inventory::new(&help, &tools)?;
     counts.runner(housekeeping_contract::OFFLINE_PROVENANCE.1);
+    counts.runner(synthetic_contracts::LABEL_NAMES.1);
     counts.runner(synthetic_contracts::GWAS_POOL.1);
     counts.runner(synthetic_contracts::GWAS_ANCESTRY.1);
     counts.runner(synthetic_contracts::GWAS_ASSOCIATIONS.1);
@@ -126,6 +127,7 @@ pub(super) fn required_surface_has_asserted_calls() -> Check {
     counts.runner(synthetic_contracts::VALIDATOR_RESOLVER.1);
     counts.runner(synthetic_contracts::VAERS_TABLES.1);
     counts.runner(synthetic_contracts::FAERS_REACTION.1);
+    counts.runner(synthetic_contracts::FAERS_NAMES.1);
     counts.runner(synthetic_contracts::NORMALIZATION_PAGES.1);
     counts.runner(synthetic_contracts::CLINVAR_ASSERTION.1);
     counts.runner(synthetic_contracts::CLINVAR_PAGES.1);

@@ -156,6 +156,15 @@ pub(crate) const FAERS_REACTION: (&str, &[&str]) = (
     &["option search adverse-event --reaction"],
 );
 
+// Explicit aliases and their retained continuation are checked through synthetic source replies.
+pub(crate) const FAERS_NAMES: (&str, &[&str]) = (
+    "adverse-event-search/explicit-aliases-and-frozen-pages",
+    &[
+        "option search adverse-event --expand-drug-names",
+        "option search adverse-event --name-snapshot",
+    ],
+);
+
 // Mutalyzer terms require review; these three source-shaped mappings are synthetic.
 pub(crate) const NORMALIZATION_PAGES: (&str, &[&str]) = (
     "variant-normalization/native-mapping-walk-is-warm",
@@ -196,4 +205,13 @@ pub(crate) const POPULATION_SELECTORS: (&str, &[&str]) = (
 pub(crate) const HOTSPOTS: (&str, &[&str]) = (
     "variant-hotspots/hotspots-retains-native-transcript-and-counts",
     &["section get variant hotspots"],
+);
+
+// Controlled drug-name evidence and authored SPL label metadata; no publisher prose.
+pub(crate) const LABEL_NAMES: (&str, &[&str]) = (
+    "drug-label/explicit-alias-native-union",
+    &[
+        "option search drug --expand-drug-names",
+        "option search drug --name-snapshot",
+    ],
 );

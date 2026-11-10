@@ -1090,8 +1090,11 @@ Options:
           FAERS drug names; OR.
           FAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 
-      --limit <limit>
-          Native report headers, counted FAERS reaction terms or VAERS rows; default five.
+      --expand-drug-names[=<expand_drug_names>]
+          FAERS only: explicitly search bounded source-stated aliases; literal search remains the default.
+
+          [default: false]
+          [possible values: true, false]
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -1099,9 +1102,15 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --limit <limit>
+          Native report headers, counted FAERS reaction terms or VAERS rows; default five.
+
       --manufacturer <manufacturer>
           MAUDE manufacturer.
           MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
+
+      --name-snapshot <name_snapshot>
+          Retained FAERS name resolution; follow the returned command without changing filters.
 
       --offset <offset>
           Native report row offset; reaction counts require zero. VAERS needs its snapshot.
@@ -1110,29 +1119,29 @@ Options:
           MAUDE product problem.
           MAUDE phrase on native product_problems.
 
-      --product-code <product_code>...
-          MAUDE product codes; OR.
-          MAUDE exact native device.device_report_product_code; repeated codes join with OR.
-
-      --reaction <reaction>
-          FAERS MedDRA phrase.
-          FAERS MedDRA term phrase match, not exact equality.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --received-from <received_from>
-          First date, YYYY-MM[-DD].
-          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+      --product-code <product_code>...
+          MAUDE product codes; OR.
+          MAUDE exact native device.device_report_product_code; repeated codes join with OR.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --reaction <reaction>
+          FAERS MedDRA phrase.
+          FAERS MedDRA term phrase match, not exact equality.
+
+      --received-from <received_from>
+          First date, YYYY-MM[-DD].
+          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
 
       --received-to <received_to>
           Last date, YYYY-MM[-DD].
@@ -1162,9 +1171,11 @@ Use reactions for source count buckets across matching reports. Counts are not r
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
 FAERS exact drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--expand-drug-names`: FAERS only: explicitly search bounded source-stated aliases; exact search remains the default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--name-snapshot`: Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--offset`: Source report row offset; reaction counts require zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1273,7 +1284,7 @@ Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
-          Name phrase; optional with supported source filters.
+          Drug name phrase.
           FDA drug recalls, WHO date ranges and label indication searches allow no name.
           Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
@@ -1294,19 +1305,27 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --firm <firm>
-          Literal published recalling firm phrase; drug recalls only.
+      --expand-drug-names[=<expand_drug_names>]
+          Expand openFDA label aliases.
+          Uses bounded source-stated names. Literal search is the default.
 
-      --indication <indication>
-          Literal label indication; openFDA labels only.
-          Search the native Indications and Usage field without disease synonym expansion.
-          An optional name query further narrows the same source search.
+          [default: false]
+          [possible values: true, false]
+
+      --firm <firm>
+          Recall firm phrase.
+          Matches the published firm literally.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --indication <indication>
+          Literal label indication; openFDA labels only.
+          Search the native Indications and Usage field without disease synonym expansion.
+          An optional name query further narrows the same source search.
 
       --initiated-from <initiated_from>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
@@ -1318,11 +1337,13 @@ Options:
           Native candidate rows per page.
 
       --name-selector <name_selector>
-          Explicit ChEMBL native name selector; omitted means preferred; help search drug
-          Explicit ChEMBL native name selector; omitted means preferred name.
+          ChEMBL name selector; help search drug
+          ChEMBL name selector.
+          Omit to search the preferred name.
 
-      --offset <offset>
-          Native rows to skip.
+      --name-snapshot <name_snapshot>
+          Label alias page token.
+          Follow the returned command with unchanged filters to retain aliases and matching tier.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1330,20 +1351,25 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --prequalified-from <prequalified_from>
-          Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
 
+      --offset <offset>
+          Native rows to skip.
+
+      --prequalified-from <prequalified_from>
+          WHO PQ start date, inclusive.
+          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+
       --prequalified-to <prequalified_to>
-          Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+          WHO PQ end date, inclusive.
+          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
 
       --reason <reason>
-          Phrase in the published recall reason; drug recalls only.
+          Recall reason phrase.
 
       --source <source>
           Selected source; help search drug
@@ -1352,7 +1378,7 @@ Options:
           After an empty name lookup, existing sources may supply aliases.
 
       --status <status>
-          Literal native recall status; drug recalls only.
+          Literal recall status.
 
 ```
 
@@ -1361,32 +1387,40 @@ Search drugs and medicines by name or source label indication. Sources: chembl, 
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--firm`: Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--expand-drug-names`: Expand openFDA label aliases.
+Uses bounded source-stated names. Exact search is the default. Value form: boolean. Example: --expand-drug-names. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--firm`: Recall firm phrase.
+Matches the published firm literally. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--indication`: Exact label indication; openFDA labels only.
 Search the source Indications and Usage field without disease synonym expansion.
 An optional name query further narrows the same source search. Value form: string. Example: --indication melanoma. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--limit`: Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--name-selector`: Explicit ChEMBL source name selector; omitted means preferred; help search drug
-Explicit ChEMBL source name selector; omitted means preferred name.
+- `--name-selector`: ChEMBL name selector; help search drug
+ChEMBL name selector.
+Omit to search the preferred name.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--name-snapshot`: Label alias page token.
+Follow the returned command with unchanged filters to retain aliases and matching tier. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `query`: Name phrase; optional with supported source filters.
+- `--prequalified-from`: WHO PQ start date, inclusive.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--prequalified-to`: WHO PQ end date, inclusive.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `query`: Drug name phrase.
 FDA drug recalls, WHO date ranges and label indication searches allow no name.
 Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
-- `--reason`: Phrase in the published recall reason; drug recalls only. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--reason`: Recall reason phrase. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Selected source; help search drug
 Selected source.
 
 After an empty name lookup, existing sources may supply aliases.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--status`: Exact source recall status; drug recalls only. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--status`: Exact recall status. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 
 ## biomcp search gene
 
