@@ -5,7 +5,10 @@ use std::fs;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     [
-        ("author-search/healthy-window-reuses-pool", healthy as fn() -> Result<(), String>),
+        (
+            "author-search/healthy-window-reuses-pool",
+            healthy as fn() -> Result<(), String>,
+        ),
         ("author-search/refused-window-is-explicit-only", refused),
         ("author-search/refused-extension-retires-default", extension),
     ]
@@ -25,11 +28,16 @@ fn setup(mixed_first: bool) -> Result<(Environment, Stub), String> {
             let later = request.contains("offset=2");
             let offset = if later { 2 } else { 0 };
             let id = if later { "903" } else { "901" };
-            let other = if later || mixed_first { "invalid" } else { "902" };
+            let other = if later || mixed_first {
+                "invalid"
+            } else {
+                "902"
+            };
             Ok(json!({"offset":offset,"next":offset+2,"total":6,"data":[
                 {"authorId":id,"name":"Synthetic first author"},
                 {"authorId":other,"name":"Synthetic second author"}
-            ]}).to_string())
+            ]})
+            .to_string())
         },
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -43,8 +51,15 @@ fn setup(mixed_first: bool) -> Result<(Environment, Stub), String> {
 
 fn search(env: &Environment, pool: Option<&str>, offset: &str, exit: i32) -> Result<Value, String> {
     let mut args = vec![
-        "search", "author", "Synthetic pool author", "--source", "semantic-scholar", "--limit", "2",
-        "--offset", offset,
+        "search",
+        "author",
+        "Synthetic pool author",
+        "--source",
+        "semantic-scholar",
+        "--limit",
+        "2",
+        "--offset",
+        offset,
     ];
     if let Some(pool) = pool {
         args.extend(["--pool", pool]);
@@ -53,7 +68,9 @@ fn search(env: &Environment, pool: Option<&str>, offset: &str, exit: i32) -> Res
 }
 
 fn pool(value: &Value) -> Result<&str, String> {
-    value.pointer("/page/pool/id").and_then(Value::as_str)
+    value
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
         .ok_or_else(|| format!("author window lost pool identity: {value}"))
 }
 
@@ -62,7 +79,9 @@ fn same(first: &Value, repeated: &Value) -> Result<(), String> {
         || first.pointer("/result/items") != repeated.pointer("/result/items")
         || first.pointer("/status") != repeated.pointer("/status")
     {
-        return Err(format!("retained author window changed: {first}; {repeated}"));
+        return Err(format!(
+            "retained author window changed: {first}; {repeated}"
+        ));
     }
     Ok(())
 }
@@ -70,10 +89,19 @@ fn same(first: &Value, repeated: &Value) -> Result<(), String> {
 fn partial(value: &Value, id: &str) -> Result<(), String> {
     if value.pointer("/status") != Some(&json!("partial"))
         || value.pointer("/result/items/0/id") != Some(&json!(id))
-        || value.pointer("/result/items").and_then(Value::as_array).map(Vec::len) != Some(1)
-        || !value.get("problems").and_then(Value::as_array).is_some_and(|p| !p.is_empty())
+        || value
+            .pointer("/result/items")
+            .and_then(Value::as_array)
+            .map(Vec::len)
+            != Some(1)
+        || !value
+            .get("problems")
+            .and_then(Value::as_array)
+            .is_some_and(|p| !p.is_empty())
     {
-        return Err(format!("refused native identity lost its partial page: {value}"));
+        return Err(format!(
+            "refused native identity lost its partial page: {value}"
+        ));
     }
     Ok(())
 }
@@ -104,7 +132,9 @@ fn refused() -> Result<(), String> {
     let repeated = search(&env, None, "0", 3)?;
     partial(&repeated, "semantic-scholar:901")?;
     if pool(&first)? == pool(&repeated)? {
-        return Err(format!("incomplete author pool became the implicit default: {repeated}"));
+        return Err(format!(
+            "incomplete author pool became the implicit default: {repeated}"
+        ));
     }
     // Reconstruction may legitimately read the same HTTP cache; identity proves it is a new pool.
     same(&first, &search(&env, Some(pool(&first)?), "0", 3)?)?;
@@ -119,7 +149,9 @@ fn extension() -> Result<(), String> {
     let extended = invoke(&env, next, 3)?;
     partial(&extended, "semantic-scholar:903")?;
     if pool(&first)? != pool(&extended)? {
-        return Err(format!("native extension replaced its explicit observation: {extended}"));
+        return Err(format!(
+            "native extension replaced its explicit observation: {extended}"
+        ));
     }
     same(&extended, &search(&env, Some(pool(&extended)?), "2", 3)?)?;
     same(&first, &search(&env, Some(pool(&first)?), "0", 0)?)?;
@@ -127,7 +159,9 @@ fn extension() -> Result<(), String> {
     if pool(&first)? == pool(&rebuilt)?
         || first.pointer("/result/items") != rebuilt.pointer("/result/items")
     {
-        return Err(format!("refused extension remained the implicit default: {rebuilt}"));
+        return Err(format!(
+            "refused extension remained the implicit default: {rebuilt}"
+        ));
     }
     same(&rebuilt, &search(&env, None, "0", 0)?)?;
     same(&extended, &search(&env, Some(pool(&extended)?), "2", 3)?)?;
