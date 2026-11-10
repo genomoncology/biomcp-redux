@@ -6,7 +6,7 @@ use super::{
 };
 use libtest_mimic::Trial;
 use serde_json::{Value, json};
-use std::fs;
+use std::{fs, sync::mpsc, time::Duration};
 
 // 2026-01-01T00:00:00Z, so the stated date never follows the calendar.
 const RETRIEVED: i64 = 1_767_225_600;
@@ -22,10 +22,29 @@ fn read() -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let replay = super::launch::fixtures().join("replies/gene/gencc");
     let body = native_body(&replay, "hgnc")?;
+    let (admitted, admission) = mpsc::channel();
+    let (release, released) = mpsc::channel();
+    let mut foreground = None;
+    let mut refresh = false;
     let stub = Stub::for_sources(
         &["storage.googleapis.com"],
         |_| "text/tab-separated-values",
-        move |_| Ok(body.clone()),
+        move |request| {
+            let line = request.lines().next().ok_or("missing HGNC request")?;
+            if let Some(expected) = &foreground {
+                if refresh || line != expected {
+                    return Err(format!("unexpected HGNC refresh: {line}"));
+                }
+                refresh = true;
+                admitted.send(()).map_err(|e| e.to_string())?;
+                released
+                    .recv_timeout(Duration::from_secs(60))
+                    .map_err(|e| e.to_string())?;
+            } else {
+                foreground = Some(line.to_owned());
+            }
+            Ok(body.clone())
+        },
     )?;
     stub.retain(env.shared_root());
     let ca = env.root().join("ca.pem");
@@ -57,9 +76,13 @@ fn read() -> Result<(), String> {
             Some(message) if message.contains("Local copy retrieved 2026-01-01,") => Ok(()),
             _ => Err(format!("hosted reply did not state the copy date: {reply}")),
         });
+    let admitted = admission
+        .recv_timeout(Duration::from_secs(15))
+        .map_err(|e| format!("owned refresh was not admitted: {e}"));
     let stopped = server.finish();
+    let released = release.send(()).map_err(|e| e.to_string());
     let fixture = stub.finish().map(|_| ());
-    result.and(stopped).and(fixture)
+    result.and(admitted).and(stopped).and(released).and(fixture)
 }
 
 fn args(words: &[&str]) -> Vec<String> {
