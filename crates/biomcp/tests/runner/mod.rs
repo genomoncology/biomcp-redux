@@ -8,6 +8,7 @@ mod local_files;
 tool_only! { mod protein_commands; }
 tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
+mod author_pools;
 mod article_lean;
 mod article_pools;
 mod article_save;
@@ -300,6 +301,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(trial_results::trials());
     trials.push(trial_sites::trial());
     trials.extend(snapshot_errors::trials());
+    trials.extend(author_pools::trials());
     trials.extend(cache_errors::trials());
     trials.extend(variant_assertion_wire::trials());
     trials.extend(evidence::trials());
