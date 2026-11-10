@@ -1,5 +1,11 @@
 //! Preserve native SPL membership, order and offset paging.
-use super::*;
+use super::{SOURCE, page};
+use crate::{Ctx, Outcome};
+use biomcp_adapters::openfda_label as source;
+use biomcp_fetch::RequestError;
+use biomcp_types::{
+    DrugGet, DrugPage, DrugSearch, DrugSource, Paged, ReplyBody, Request, StepKind,
+};
 pub(super) fn apply(
     cx: &Ctx<'_>,
     query: &DrugSearch,
@@ -19,12 +25,12 @@ pub(super) fn apply(
     for item in &items {
         if let Some(get) = crate::next::checked(
             DrugGet::new(item.id.clone(), DrugSource::OpenfdaLabel),
-            biomcp_types::Source::OpenfdaLabel,
+            SOURCE,
             &mut out.problems,
         ) {
             out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                &[biomcp_types::Source::OpenfdaLabel],
+                &[SOURCE],
                 Request::GetDrug(get),
                 cx.fresh,
             ));
@@ -33,7 +39,7 @@ pub(super) fn apply(
     if let Some(offset) = next_offset {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
-            &[biomcp_types::Source::OpenfdaLabel],
+            &[SOURCE],
             Request::SearchDrug(query.at_offset(offset)),
             cx.fresh,
         ));

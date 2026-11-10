@@ -1,6 +1,9 @@
 //! Reuse complete source-stated names, then apply the whole native selector bound.
-use super::*;
-use crate::drug::search_names;
+use super::Saved;
+use crate::{Ctx, drug::search_names, status};
+use biodata::Text;
+use biomcp_fetch::Deadline;
+use biomcp_types::{DrugSearch, ReplyData, SourceNotice};
 pub(super) fn resolve<'a>(cx: &Ctx<'a>, query: &DrugSearch, deadline: &mut Deadline<'a>) -> Saved {
     let mut out = status::empty(ReplyData::PoolError { mismatch: false });
     let mut names: Vec<Text> = query.query().cloned().into_iter().collect();

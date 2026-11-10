@@ -2,7 +2,6 @@
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
-use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request, Section,

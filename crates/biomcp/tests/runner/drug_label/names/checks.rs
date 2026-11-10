@@ -1,4 +1,4 @@
-use super::*;
+use super::{Check, Environment, Value, args, invoke, json, selector, setup};
 pub(super) fn complete() -> Check {
     let (env, stub) = setup(0, json!({}))?;
     let literal = invoke(&env, args(false), 0)?;
