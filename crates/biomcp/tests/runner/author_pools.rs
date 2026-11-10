@@ -126,10 +126,10 @@ fn healthy() -> Result<(), String> {
 
 fn refused() -> Result<(), String> {
     let (env, stub) = setup(true)?;
-    let first = search(&env, None, "0", 3)?;
+    let first = search(&env, None, "0", 0)?;
     partial(&first, "semantic-scholar:901")?;
-    same(&first, &search(&env, Some(pool(&first)?), "0", 3)?)?;
-    let repeated = search(&env, None, "0", 3)?;
+    same(&first, &search(&env, Some(pool(&first)?), "0", 0)?)?;
+    let repeated = search(&env, None, "0", 0)?;
     partial(&repeated, "semantic-scholar:901")?;
     if pool(&first)? == pool(&repeated)? {
         return Err(format!(
@@ -137,7 +137,7 @@ fn refused() -> Result<(), String> {
         ));
     }
     // Reconstruction may legitimately read the same HTTP cache; identity proves it is a new pool.
-    same(&first, &search(&env, Some(pool(&first)?), "0", 3)?)?;
+    same(&first, &search(&env, Some(pool(&first)?), "0", 0)?)?;
     stub.finish()?;
     Ok(())
 }
@@ -146,14 +146,14 @@ fn extension() -> Result<(), String> {
     let (env, stub) = setup(false)?;
     let first = search(&env, None, "0", 0)?;
     let next = super::action(&first, "page")?;
-    let extended = invoke(&env, next, 3)?;
+    let extended = invoke(&env, next, 0)?;
     partial(&extended, "semantic-scholar:903")?;
     if pool(&first)? != pool(&extended)? {
         return Err(format!(
             "native extension replaced its explicit observation: {extended}"
         ));
     }
-    same(&extended, &search(&env, Some(pool(&extended)?), "2", 3)?)?;
+    same(&extended, &search(&env, Some(pool(&extended)?), "2", 0)?)?;
     same(&first, &search(&env, Some(pool(&first)?), "0", 0)?)?;
     let rebuilt = search(&env, None, "0", 0)?;
     if pool(&first)? == pool(&rebuilt)?
@@ -164,7 +164,7 @@ fn extension() -> Result<(), String> {
         ));
     }
     same(&rebuilt, &search(&env, None, "0", 0)?)?;
-    same(&extended, &search(&env, Some(pool(&extended)?), "2", 3)?)?;
+    same(&extended, &search(&env, Some(pool(&extended)?), "2", 0)?)?;
     if stub.finish()?.len() != 2 {
         return Err("author windows unexpectedly fetched beyond the emitted continuation".into());
     }
