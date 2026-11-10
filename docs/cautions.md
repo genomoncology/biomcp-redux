@@ -125,7 +125,7 @@ Each section returns five rows by default; `--section-limit` and `--section-offs
 
 ## GWAS thresholds
 
-The walk stops at the first above-threshold row or the source end and then states the qualifying total. The source total remains separate. Thresholds use scientific notation and must be positive; no sort option is available.
+The walk stops at the first above-threshold row or the source end. It reports an exact qualifying total only after that boundary is reached with comparable p-values for every needed association, no refused members and complete source evidence. Otherwise the reply is partial and the exact qualifying total remains unknown. The source total remains separate. Thresholds use scientific notation and must be positive; no sort option is available.
 
 ## GWAS records
 
