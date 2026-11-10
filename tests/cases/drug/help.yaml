@@ -19,7 +19,9 @@
             "--source",
             "--limit",
             "--offset",
-            "--name-selector"
+            "--name-selector",
+            "--expand-drug-names",
+            "--name-snapshot"
           ]
         }
       },

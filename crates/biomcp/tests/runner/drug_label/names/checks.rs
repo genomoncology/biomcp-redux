@@ -21,6 +21,7 @@ pub(super) fn complete() -> Check {
             ));
         }
     }
+    typed(&env)?;
     let second = invoke(&env, crate::runner::action(&first, "page")?, 0)?;
     if selector(&first)? != selector(&second)?
         || second.pointer("/page/offset") != Some(&json!(1))
@@ -130,6 +131,37 @@ pub(super) fn tier() -> Check {
         != 1
     {
         return Err("continuation re-resolved names".into());
+    }
+    Ok(())
+}
+
+fn typed(env: &Environment) -> Check {
+    let path = env.root().join("config/biomcp/config.json");
+    let mut config: Value =
+        serde_json::from_slice(&std::fs::read(path).map_err(|e| e.to_string())?)
+            .map_err(|e| e.to_string())?;
+    config["mcp_tool_mode"] = json!("typed");
+    env.config(&config).map_err(|e| e.to_string())?;
+    let replies = crate::runner::mcp::exchange_with_globals(
+        env,
+        &[crate::runner::mcp::request(
+            json!(1),
+            "tools/call",
+            json!({
+                "name":"drug", "arguments":{"action":"search", "search":{
+                    "query":"Typed drug", "source":"openfda-label", "limit":1,
+                    "expand_drug_names":true, "indication":"Synthetic indication"
+                }}
+            }),
+        )],
+        &[],
+    )?;
+    let value = replies
+        .first()
+        .and_then(|value| value.pointer("/result/structuredContent"))
+        .ok_or_else(|| format!("no typed label result: {replies:?}"))?;
+    if value.pointer("/page/total") != Some(&json!(2)) || !selector(value)?.contains("Brand name") {
+        return Err(format!("typed expansion differs: {value}"));
     }
     Ok(())
 }
