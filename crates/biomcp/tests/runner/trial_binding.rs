@@ -17,10 +17,16 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
                 move || check(meta, broad).map_err(Into::into),
             )
         })
-        .chain([super::transcript::trial(
-            "trial-search/hosted-continuation-crosses-independent-stores",
-            || cross_store().map_err(Into::into),
-        )])
+        .chain([false, true].map(|broad| {
+            super::transcript::trial(
+                if broad {
+                    "trial-search/hosted-broader-continuation-crosses-independent-stores"
+                } else {
+                    "trial-search/hosted-continuation-crosses-independent-stores"
+                },
+                move || cross_store(broad).map_err(Into::into),
+            )
+        }))
         .collect()
 }
 
@@ -80,22 +86,24 @@ fn setup(broad: bool) -> Result<(Environment, Stub, mpsc::Receiver<String>), Str
     Ok((env, stub, calls))
 }
 
-fn cross_store() -> Result<(), String> {
-    let (stub, calls) = registry(false)?;
+fn cross_store(broad: bool) -> Result<(), String> {
+    use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+    let (stub, calls) = registry(broad)?;
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let config = config(&stub, &assets)?;
-    let start = || {
+    let start = |key: Option<&str>| {
         Server::configured_globals(
             "127.0.0.1:0",
             Some(config.clone()),
             None,
-            None,
+            key.map(|value| ("BIOMCP_TRIAL_CONTINUATION_KEY", value)),
             None,
             &["--hosted".into()],
         )
     };
-    let mut first = start()?;
-    let mut other = start()?;
+    let key = URL_SAFE_NO_PAD.encode([1; 32]);
+    let mut first = start(Some(&key))?;
+    let mut other = start(Some(&key))?;
     stub.retain(first.environment().shared_root());
     stub.retain(other.environment().shared_root());
     if first.environment().root() == other.environment().root() {
@@ -112,41 +120,114 @@ fn cross_store() -> Result<(), String> {
             "2",
             "--exact-term",
         ],
+        "",
     )?;
     let next = super::action(&initial, "page")?;
+    let token = next
+        .windows(2)
+        .find(|pair| pair.first().is_some_and(|option| option == "--next-page"))
+        .and_then(|pair| pair.get(1))
+        .filter(|token| token.starts_with("biomcp:ctgov-page:v2:"))
+        .ok_or("hosted query did not issue a portable cursor")?;
     let words: Vec<_> = next.iter().map(String::as_str).collect();
-    let initial_calls = calls.try_iter().count();
-    let same = hosted_call(&first, &words)?;
-    let native = calls
-        .try_iter()
-        .filter(|request| request.contains("pageToken=native-two"))
-        .count();
-    if initial_calls == 0 || native != 1 || same.pointer("/page/offset") != Some(&json!(2)) {
-        return Err(format!(
-            "same-task control failed, initial={initial_calls} continued={native}: {same}"
-        ));
+    for _ in calls.try_iter() {}
+    let native = followed_cursor(&first, &words, &calls)?;
+    if followed_cursor(&other, &words, &calls)? != native {
+        return Err("independent task changed the native cursor or selectors".into());
     }
     first.stop()?;
-    let followed = hosted_call(&other, &words)?;
-    let cross_calls: Vec<_> = calls.try_iter().collect();
+    let mut replacement = start(Some(&key))?;
+    if followed_cursor(&replacement, &words, &calls)? != native {
+        return Err("replacement task changed the native cursor or selectors".into());
+    }
+    hosted_refusals(&other, &next, token, &calls)?;
+    let wrong_key = URL_SAFE_NO_PAD.encode([2; 32]);
+    let mut wrong = start(Some(&wrong_key))?;
+    hosted_refusal(&wrong, &words, "", &calls)?;
+    wrong.stop()?;
+    replacement.stop()?;
     other.stop()?;
     stub.finish()?;
-    if followed.pointer("/page/offset") != Some(&json!(2))
-        || cross_calls
-            .iter()
-            .filter(|request| request.contains("pageToken=native-two"))
-            .count()
-            != 1
+    Ok(())
+}
+
+fn followed_cursor(
+    server: &Server,
+    words: &[&str],
+    calls: &mpsc::Receiver<String>,
+) -> Result<String, String> {
+    let reply = hosted_call(server, words, "")?;
+    let requests: Vec<_> = calls
+        .try_iter()
+        .filter(|request| request.contains("pageToken=native-two"))
+        .collect();
+    if requests.len() != 1
+        || reply.pointer("/page/offset") != Some(&json!(2))
+        || reply.pointer("/page/returned") != Some(&json!(2))
     {
         return Err(format!(
-            "cross-task continuation failed, initial={initial_calls} same-task-cursor={native} cross-task-requests={}: {followed}",
-            cross_calls.len()
+            "expected one native continuation at consumed offset two, observed {}: {reply}",
+            requests.len()
+        ));
+    }
+    requests
+        .into_iter()
+        .next()
+        .ok_or_else(|| "missing native continuation".into())
+}
+
+fn hosted_refusals(
+    server: &Server,
+    next: &[String],
+    token: &str,
+    calls: &mpsc::Receiver<String>,
+) -> Result<(), String> {
+    let mut tampered = token.to_owned();
+    let index = "biomcp:ctgov-page:v2:".len();
+    let first = tampered
+        .get(index..index + 1)
+        .ok_or("missing encoded cursor")?;
+    let replacement = if first == "A" { "B" } else { "A" };
+    tampered.replace_range(index..index + 1, replacement);
+    for altered in [
+        replace(next, "--offset", "40")?,
+        replace(next, "--sponsor", "Other")?,
+        next.iter()
+            .cloned()
+            .chain(["--exact-condition".into()])
+            .collect(),
+        replace(next, "--next-page", &tampered)?,
+        replace(next, "--next-page", "native-two")?,
+    ] {
+        let words: Vec<_> = altered.iter().map(String::as_str).collect();
+        hosted_refusal(server, &words, "", calls)?;
+    }
+    let words: Vec<_> = next.iter().map(String::as_str).collect();
+    hosted_refusal(server, &words, "x-biomcp-exclude-sources: ctgov\r\n", calls)
+}
+
+fn hosted_refusal(
+    server: &Server,
+    words: &[&str],
+    headers: &str,
+    calls: &mpsc::Receiver<String>,
+) -> Result<(), String> {
+    let reply = hosted_call(server, words, headers)?;
+    if calls.try_iter().next().is_some()
+        || reply.pointer("/error/option") != Some(&json!("--next-page"))
+        || !reply
+            .pointer("/error/message")
+            .and_then(Value::as_str)
+            .is_some_and(|message| message.starts_with("this trial continuation cannot verify"))
+    {
+        return Err(format!(
+            "hosted cursor refusal lost local admission: {reply}"
         ));
     }
     Ok(())
 }
 
-fn hosted_call(server: &Server, args: &[&str]) -> Result<Value, String> {
+fn hosted_call(server: &Server, args: &[&str], extra: &str) -> Result<Value, String> {
     let frame = mcp::request(
         json!(1),
         "tools/call",
@@ -156,7 +237,7 @@ fn hosted_call(server: &Server, args: &[&str]) -> Result<Value, String> {
         "POST",
         "/mcp",
         &frame.to_string(),
-        "x-biomcp-use: restricted\r\n",
+        &format!("x-biomcp-use: restricted\r\n{extra}"),
     )?;
     if status != 200 {
         return Err(format!("hosted HTTP status {status}: {reply}"));

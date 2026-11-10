@@ -2,6 +2,7 @@
 use crate::{Action, Ctx, Outcome, next::Step, source_snapshot};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{ReplyData, Request, Source, StepKind, TrialSearch, UsageError};
+mod portable;
 
 const PREFIX: &str = "biomcp:ctgov-page:v1:";
 const NAMESPACE: &str = "ctgov-continuation/1";
@@ -15,6 +16,9 @@ pub(super) fn restore(
     let Some(token) = query.next_page() else {
         return Ok(Some(query.clone()));
     };
+    if let Some(envelope) = token.as_str().strip_prefix(portable::PREFIX) {
+        return portable::restore(cx, query, envelope);
+    }
     let Some(id) = token.as_str().strip_prefix(PREFIX) else {
         return Ok(None);
     };
@@ -42,18 +46,30 @@ pub(super) fn retain(
                 ..
             } = &mut step.1
         {
-            let key = source_snapshot::key(NAMESPACE, &query.first_page())?;
-            let saved = source_snapshot::write(cx, &key, query, &sources, deadline);
+            let saved = retain_token(cx, query, &sources, deadline);
             let Some(id) = crate::publish::keep(saved, out)? else {
                 continue;
             };
-            let token = biodata::Text::new(&format!("{PREFIX}{id}"))
-                .map_err(|_| biomcp_fetch::CacheError::Encoding)?;
-            *query = query.at_page(token, query.offset());
+            *query = query.at_page(id, query.offset());
         }
         out.next.push(step);
     }
     Ok(())
+}
+
+fn retain_token(
+    cx: &Ctx<'_>,
+    query: &TrialSearch,
+    sources: &[biomcp_types::SourceOutcome],
+    deadline: Deadline<'_>,
+) -> Result<biodata::Text, RequestError> {
+    if let Some(key) = cx.fetch.trial_cursor_key() {
+        return portable::retain(cx, key, query, sources);
+    }
+    let key = source_snapshot::key(NAMESPACE, &query.first_page())?;
+    let id = source_snapshot::write(cx, &key, query, sources, deadline)?;
+    Ok(biodata::Text::new(&format!("{PREFIX}{id}"))
+        .map_err(|_| biomcp_fetch::CacheError::Encoding)?)
 }
 
 pub(super) fn unavailable(query: &TrialSearch, out: &mut Outcome) {

@@ -3,6 +3,8 @@ use super::{CacheError, Store, db};
 use biodata::Text;
 use biomcp_types::{Source, SourceOutcome};
 use rusqlite::{OptionalExtension, params};
+
+pub(crate) const SNAPSHOT_VALIDITY_SECONDS: i64 = 86400;
 impl Store<'_> {
     /// Read source dependencies before any saved protocol content.
     pub(crate) fn source_snapshot(
@@ -56,7 +58,7 @@ impl Store<'_> {
             tx.execute(
                 "INSERT INTO trial_snapshot(id,request_key,expires,payload,outcomes) VALUES (?1,?2,?3,?4,?5) ON \
                 CONFLICT(id) DO UPDATE SET expires=excluded.expires",
-                params![id, key, Self::now().saturating_add(86400), payload, outcomes],
+                params![id, key, Self::now().saturating_add(SNAPSHOT_VALIDITY_SECONDS), payload, outcomes],
             )
             .map_err(|error| db(error))?;
             Text::new(&id).map_err(|_| CacheError::Limit)
