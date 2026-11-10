@@ -3063,6 +3063,13 @@
           "required": false
         },
         {
+          "name": "--expand-drug-names",
+          "default": "false",
+          "description": "FAERS only: explicitly search bounded source-stated aliases; exact search remains the default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.",
+          "value_type": "boolean",
+          "required": false
+        },
+        {
           "name": "--limit",
           "default": "5",
           "description": "Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.",
@@ -3074,6 +3081,12 @@
         {
           "name": "--manufacturer",
           "description": "MAUDE manufacturer.\nMAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.",
+          "value_type": "string",
+          "required": false
+        },
+        {
+          "name": "--name-snapshot",
+          "description": "Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         },
@@ -3756,8 +3769,15 @@
           ]
         },
         {
+          "name": "--expand-drug-names",
+          "default": "false",
+          "description": "Expand openFDA label aliases.\nUses bounded source-stated names. Exact search is the default. Value form: boolean. Example: --expand-drug-names. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "value_type": "boolean",
+          "required": false
+        },
+        {
           "name": "--firm",
-          "description": "Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "description": "Recall firm phrase.\nMatches the published firm literally. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         },
@@ -3790,13 +3810,19 @@
         },
         {
           "name": "--name-selector",
-          "description": "Explicit ChEMBL source name selector; omitted means preferred; help search drug\nExplicit ChEMBL source name selector; omitted means preferred name.\nListed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "description": "ChEMBL name selector; help search drug\nChEMBL name selector.\nOmit to search the preferred name.\nListed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false,
           "choices": [
             "preferred",
             "synonym"
           ]
+        },
+        {
+          "name": "--name-snapshot",
+          "description": "Label alias page token.\nFollow the returned command with unchanged filters to retain aliases and matching tier. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "value_type": "string",
+          "required": false
         },
         {
           "name": "--offset",
@@ -3808,26 +3834,26 @@
         },
         {
           "name": "--prequalified-from",
-          "description": "Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "description": "WHO PQ start date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         },
         {
           "name": "--prequalified-to",
-          "description": "Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         },
         {
           "name": "query",
-          "description": "Name phrase; optional with supported source filters.\nFDA drug recalls, WHO date ranges and label indication searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+          "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges and label indication searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
           "value_type": "string",
           "required": false,
           "position": 0
         },
         {
           "name": "--reason",
-          "description": "Phrase in the published recall reason; drug recalls only. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "description": "Recall reason phrase. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         },
@@ -3852,7 +3878,7 @@
         },
         {
           "name": "--status",
-          "description": "Exact source recall status; drug recalls only. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
+          "description": "Exact recall status. Value form: string. Example: --status Ongoing. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         }
@@ -5727,7 +5753,7 @@
         },
         {
           "name": "--next-page",
-          "description": "Page token.\nOpaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page <next-page> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.",
+          "description": "Page token.\nClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string. Example: --next-page <next-page> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.",
           "value_type": "string",
           "required": false
         },

@@ -7,7 +7,7 @@ reader: A developer or agent parsing BioMCP JSON
 sidebar:
   label: Shared types
 kind: reference
-verified: 2026-11-09
+verified: 2026-11-10
 ---
 
 BioMCP 1.0.0 prints one JSON object, the reply, for each command. Every reply has the same outer fields, the **[envelope](/reference/schemas/types/)**: `schema`, `status`, `query`, `result`, `sources` and `next`. This page defines those fields and every type that more than one reply uses. Each [reply schema](/reference/schemas/) page shows a real reply and the types only that reply has.
@@ -105,8 +105,10 @@ Search five report headers by default. MAUDE accepts device text or a manufactur
 | --- | --- | --- |
 | `aggregate` | [Reply_AdverseEventAggregate](#reply_adverseeventaggregate) or null | FAERS reaction counts. Use reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero. Optional. |
 | `drug` | list of [Reply_Text](#reply_text) | FAERS drug names; OR. FAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Optional. |
+| `expand_drug_names` | boolean | FAERS only: explicitly search bounded source-stated aliases; literal search remains the default. Optional. |
 | `limit` | integer (uint32) | Native report headers, counted FAERS reaction terms or VAERS rows; default five. Optional. |
 | `manufacturer` | [Reply_Text](#reply_text) or null | MAUDE manufacturer. MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Optional. |
+| `name_snapshot` | [Reply_Text](#reply_text) or null | Retained FAERS name resolution; follow the returned command without changing filters. Optional. |
 | `offset` | integer (uint32) | Native report row offset; reaction counts require zero. VAERS needs its snapshot. Optional. |
 | `problem` | [Reply_Text](#reply_text) or null | MAUDE product problem. MAUDE phrase on native product_problems. Optional. |
 | `product_code` | list of [Reply_Text](#reply_text) | MAUDE product codes; OR. MAUDE exact native device.device_report_product_code; repeated codes join with OR. Optional. |
@@ -1839,19 +1841,21 @@ Search one drug source. FDA drug recalls accept a name or native firm, classific
 | Field | Type | Meaning |
 | --- | --- | --- |
 | `classification` | [Reply_DrugRecallClassification](#reply_drugrecallclassification) or null | Native FDA classification; drug recalls only. Optional. |
-| `firm` | [Reply_Text](#reply_text) or null | Literal published recalling firm phrase; drug recalls only. Optional. |
+| `expand_drug_names` | boolean | Expand openFDA label aliases. Uses bounded source-stated names. Literal search is the default. Optional. |
+| `firm` | [Reply_Text](#reply_text) or null | Recall firm phrase. Matches the published firm literally. Optional. |
 | `indication` | [Reply_Text](#reply_text) | Literal label indication; openFDA labels only. Search the native Indications and Usage field without disease synonym expansion. An optional name query further narrows the same source search. Optional. |
 | `initiated_from` | [Reply_PartialDate](#reply_partialdate) or null | Inclusive initiation day, YYYY-MM-DD; drug recalls only. Optional. |
 | `initiated_to` | [Reply_PartialDate](#reply_partialdate) or null | Inclusive initiation day, YYYY-MM-DD; drug recalls only. Optional. |
 | `limit` | integer (uint32) | Native candidate rows per page. Optional. |
-| `name_selector` | [Reply_DrugNameSelector](#reply_drugnameselector) | Explicit ChEMBL native name selector; omitted means preferred name. Optional. |
+| `name_selector` | [Reply_DrugNameSelector](#reply_drugnameselector) | ChEMBL name selector. Omit to search the preferred name. Optional. |
+| `name_snapshot` | [Reply_Text](#reply_text) or null | Label alias page token. Follow the returned command with unchanged filters to retain aliases and matching tier. Optional. |
 | `offset` | integer (uint32) | Native rows to skip. Optional. |
-| `prequalified_from` | [Reply_PartialDate](#reply_partialdate) or null | Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Optional. |
-| `prequalified_to` | [Reply_PartialDate](#reply_partialdate) or null | Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Optional. |
-| `query` | [Reply_Text](#reply_text) | Name phrase; optional with supported source filters. FDA drug recalls, WHO date ranges and label indication searches allow no name. Drugs@FDA searches brands and ingredients, exact names before word matches. openFDA labels search exact then word brand/generic names, then label text (including indications) when no names match; source matches need not be exact names. Harmonized recall names match but never become display names. Optional. |
-| `reason` | [Reply_Text](#reply_text) or null | Phrase in the published recall reason; drug recalls only. Optional. |
+| `prequalified_from` | [Reply_PartialDate](#reply_partialdate) or null | WHO PQ start date, inclusive. Accepts YYYY, YYYY-MM or YYYY-MM-DD. Optional. |
+| `prequalified_to` | [Reply_PartialDate](#reply_partialdate) or null | WHO PQ end date, inclusive. Accepts YYYY, YYYY-MM or YYYY-MM-DD. Optional. |
+| `query` | [Reply_Text](#reply_text) | Drug name phrase. FDA drug recalls, WHO date ranges and label indication searches allow no name. Drugs@FDA searches brands and ingredients, exact names before word matches. openFDA labels search exact then word brand/generic names, then label text (including indications) when no names match; source matches need not be exact names. Harmonized recall names match but never become display names. Optional. |
+| `reason` | [Reply_Text](#reply_text) or null | Recall reason phrase. Optional. |
 | `source` | [Reply_DrugSource](#reply_drugsource) | Selected source. After an empty name lookup, existing sources may supply aliases. Optional. |
-| `status` | [Reply_Text](#reply_text) or null | Literal native recall status; drug recalls only. Optional. |
+| `status` | [Reply_Text](#reply_text) or null | Literal recall status. Optional. |
 
 ### Reply_DrugSection
 
@@ -3645,7 +3649,7 @@ A source notice or request recovery step.
 
 One of these forms:
 
-- `kind` is `"drug-name-search"`: Source-stated names used in a trial or article search. Fields: `input` ([Reply_Text](#reply_text)), `message` (string), `names` (list of [Reply_Text](#reply_text)).
+- `kind` is `"drug-name-search"`: Source-stated spellings actually searched. Fields: `input` ([Reply_Text](#reply_text)), `message` (string), `names` (list of [Reply_Text](#reply_text)).
 - `kind` is `"request-guidance"`: Local request limits, source observations and recovery guidance. Fields: `data_date` (string or null), `message` (string), `retry_after_seconds` (integer or null).
 - `kind` is `"condition-word-mismatch"`: Registered conditions lack the literal words requested in a condition search. Fields: `message` (string).
 - `kind` is `"cache-problem"`: A checked provider answer survived a local cache failure. Fields: `reason` ([Reply_CacheProblem](#reply_cacheproblem)).
@@ -4190,7 +4194,7 @@ Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matche
 | `lat` | [Reply_Text](#reply_text) | Latitude degrees. ClinicalTrials.gov only: radius center latitude in degrees. Optional. |
 | `limit` | integer (uint32) | Page size. Headers per page; NCI applies its own lower publisher limit. Optional. |
 | `lon` | [Reply_Text](#reply_text) | Longitude degrees. ClinicalTrials.gov only: radius center longitude in degrees. Optional. |
-| `next_page` | [Reply_Text](#reply_text) | Page token. Opaque registry continuation; keep filters unchanged. Optional. |
+| `next_page` | [Reply_Text](#reply_text) | Page token. ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Optional. |
 | `offset` | integer (uint32) | Page offset. Zero-based offset of the first row in this continuation page. Optional. |
 | `phase` | [Reply_TrialPhaseFilter](#reply_trialphasefilter) | Native phase. Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Optional. |
 | `query` | [Reply_Text](#reply_text) | Trial text. General registry discovery text. Optional. |

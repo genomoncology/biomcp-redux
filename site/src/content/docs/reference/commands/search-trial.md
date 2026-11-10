@@ -8,7 +8,7 @@ reader: A BioMCP user or agent checking one command
 sidebar:
   label: search trial
 kind: reference
-verified: 2026-11-09
+verified: 2026-11-10
 ---
 
 `biomcp search trial` is a command of BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data sources. It finds clinical trials in ClinicalTrials.gov, the default, or NCI, by condition, drug, gene, location and more. This page lists its arguments, examples and reply.
@@ -47,7 +47,7 @@ biomcp search trial [OPTIONS] [query]
 | `--lat` | string | no |  |  | Latitude degrees. ClinicalTrials.gov only: radius center latitude in degrees. Value form: string. Example: --lat 42.3601. Command sources: ctgov, nci; source restrictions in the field description apply. |
 | `--limit` | integer | no | min 1, max 100 |  | Page size. Headers per page; NCI applies its own lower publisher limit. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply. |
 | `--lon` | string | no |  |  | Longitude degrees. ClinicalTrials.gov only: radius center longitude in degrees. Value form: string. Example: --lon -71.0589. Command sources: ctgov, nci; source restrictions in the field description apply. |
-| `--next-page` | string | no |  |  | Page token. Opaque registry continuation; keep filters unchanged. Value form: string. Example: --next-page &lt;next-page&gt; (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply. |
+| `--next-page` | string | no |  |  | Page token. ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string. Example: --next-page &lt;next-page&gt; (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply. |
 | `--offset` | integer | no | min 0 |  | Page offset. Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply. |
 | `--phase` | string | no |  | `early-1`, `1`, `2`, `3`, `4`, `not-applicable`, `1/2`, `2/3`, `NA`, `0`, `I`, `I_II`, `II`, `II_III`, `III`, `IV` | Source phase; help search trial Source phase. Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --phase 3. Command sources: ctgov, nci; source restrictions in the field description apply. |
 | `--sex` | string | no |  | `ALL`, `FEMALE`, `MALE` | ClinicalTrials.gov only: registry sex facet; help search trial ClinicalTrials.gov only: registry sex facet. Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply. |
