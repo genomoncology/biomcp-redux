@@ -8,7 +8,6 @@ import tempfile
 
 from nightly_live_check import PASSED_ENVIRONMENT, check
 
-SOURCE = 'yellow:workspace/data/biomcp-redux-evidence/0785-0798/core-batch-20261110/gate-j36792-artifact/biomcp'
 EXPECTED = '0fa14f7fc0aba554d9b2b759b482732a8d476eae555a6ff66d495dfccf966fa8'
 PROOFS = ['mcp-parity/typed-cli-bridge', 'mcp-parity/reply-forms',
           'mcp-parity/typed-followups', 'mcp-hosted/use/header-boundary',
@@ -27,7 +26,7 @@ def run(command):
 def main():
     os.environ['RUSTUP_TOOLCHAIN'] = '1.95.0'
     binary = Path(tempfile.gettempdir()) / 'biomcp-ending-0788'
-    subprocess.run(['scp', '-q', SOURCE, str(binary)], check=True)
+    subprocess.run(['scp', '-q', sys.argv[1], str(binary)], check=True)
     actual = hashlib.file_digest(binary.open('rb'), 'sha256').hexdigest()
     print('PRODUCT 972c98e98f483d52a7cbd76996a6db422282dd5d sha256', actual, flush=True)
     if actual != EXPECTED:
