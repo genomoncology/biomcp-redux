@@ -121,12 +121,12 @@ fn check(meta: bool, broad: bool) -> Result<(), String> {
             &format!("biomcp:ctgov-page:v1:{}", "0".repeat(64)),
         )?,
     ] {
-        refused(&env, &changed, meta, &calls)?;
+        refused(&env, &changed, meta, &calls, true)?;
     }
     let mut excluded = next.clone();
     excluded.extend(["--disable-sources".into(), "ctgov".into()]);
-    refused(&env, &excluded, meta, &calls)?;
-    let restart = refused(&env, &replace(&next, "--offset", "40")?, meta, &calls)?;
+    refused(&env, &excluded, meta, &calls, false)?;
+    let restart = refused(&env, &replace(&next, "--offset", "40")?, meta, &calls, true)?;
     call(&env, &restart, meta, false)?;
     let second = call(&env, &next, meta, false)?;
     if second.pointer("/page/offset") != Some(&json!(2))
@@ -165,6 +165,7 @@ fn refused(
     args: &[String],
     meta: bool,
     calls: &AtomicUsize,
+    restart_allowed: bool,
 ) -> Result<Vec<String>, String> {
     let before = calls.load(Ordering::SeqCst);
     let reply = call(env, args, meta, true)?;
@@ -178,6 +179,14 @@ fn refused(
         return Err(format!(
             "unbound cursor reached registry or lost guidance: {reply}"
         ));
+    }
+    if !restart_allowed {
+        if reply.get("next").is_some() {
+            return Err(format!(
+                "disabled source kept an executable next step: {reply}"
+            ));
+        }
+        return Ok(Vec::new());
     }
     let fresh = super::action(&reply, "configure")?;
     if !fresh.iter().any(|word| word == "--fresh")
