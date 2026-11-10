@@ -94,10 +94,10 @@ fn partial(value: &Value, id: &str) -> Result<(), String> {
             .and_then(Value::as_array)
             .map(Vec::len)
             != Some(1)
-        || !value
+        || value
             .get("problems")
             .and_then(Value::as_array)
-            .is_some_and(|p| !p.is_empty())
+            .is_none_or(|p| p.is_empty())
     {
         return Err(format!(
             "refused native identity lost its partial page: {value}"
