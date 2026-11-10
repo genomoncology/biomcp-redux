@@ -4,7 +4,11 @@ Status: OPEN.
 
 Milestone: 5
 
-Depends on: 0780, 0781, 0782, 0784, 0787
+Depends on: 0794
+Depends on: 0795
+Depends on: 0796
+Depends on: 0785
+Depends on: 0786
 
 ## Outcome
 
@@ -12,18 +16,19 @@ One immutable landed source containing the final correctness fixes qualifies for
 
 ## Why
 
-The November 9 runtime fixes follow the completed b380 preflight, so its artifacts cannot qualify the new source.
+The November 10 review adds accepted runtime fixes after the earlier qualified sources. Select the ending source after those fixes settle; earlier artifacts retain their identities and cannot qualify changed runtime inputs.
 
 ## Proof
 
-- Run the existing full suite/schema check, cold Linux matrix and one bounded mutation run. Use fresh baseline/cost evidence for the widened three-package/eight-target matrix. One genuine 20-mutant measurement run may also supply the bounded proof: require completed selected mutants, caught mutants present and zero survivors/timeouts/errors regardless of the calibration collector exit. Report unrun inventory; do not repeat the same first twenty in an automatic second campaign.
+- Run the existing full suite/schema check, cold Linux matrix and one bounded mutation sample with fresh baseline/cost evidence for the widened three-package/eight-target matrix. Retain the complete j36572 result and its failed final assertion: 20 completed, 11 caught, 2 unviable, 7 survivors, no timeouts/errors and 1,251 unrun. Independent review requires 0789 to catch three worker-ownership/single-flight mutations. The two freshness recheck variants and two output-only variants are explicitly classified nonblocking; none is called equivalent. Preserve those findings rather than replacing the failed report or adding exclusions merely for a zero score.
+- Preserve the completed historical three-survivor follow-up under its actual test-driver revision and demonstrated production equivalence to source 0ad. That equivalence covers those historical test-only edits, not the new runtime fixes. For the newly settled source, select mutation coverage from its changed behavior using the existing bounded mechanism; repeat only proof whose inputs or claim changed. Existing artifacts and failures keep their genuine identities.
 - Run one ordinary rehearsal on an approved non-release ref. Retain actual native/installed/staged results and platform counts, complete artifact ZIPs/API digests, subject inventory and independently verified provenance. Authentication, publication and public installs skipped in rehearsal remain explicitly unproved.
 - Use genuine ending Mac artifacts and matching runners for the existing installed cleanup, pinned 0.9 installer and real Claude plugin helpers. Prepare missing runners once; private homes, no model calls.
 - Retain commands, hosts, producer/tooling revisions, exits and raw receipts on Yellow with receiver hash verification. Label emulated AMD64 cold execution separately from native workflow proof.
 
 ## Starts from
 
-- `release/qualification.md` and existing release helpers after the six-ticket correctness/docs/tooling batch. Select the landed source once in pm progress before product runs. Packaging, base images, toolchain and Cargo inputs are unchanged; actual new build identities still need qualification.
+- `release/qualification.md` and existing release helpers after the accepted remaining-issue fixes. Select the landed source in pm progress before product runs. Inventory changed production, packaging, schema and test inputs before deciding what to repeat; do not assume earlier artifact equivalence survives runtime edits.
 
 ## Keeps
 
