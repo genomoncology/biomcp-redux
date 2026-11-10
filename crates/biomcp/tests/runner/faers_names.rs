@@ -139,7 +139,7 @@ fn controls() -> Check {
     snapshots(&env, &first)?;
     let mut changed = super::action(&first, "page")?;
     changed.extend(["--reaction".into(),"Changed filter".into()]);
-    let refused = invoke(&env, changed, 2)?;
+    let refused = invoke(&env, changed, 3)?;
     if refused.to_string().contains("Brand name") { return Err("snapshot escaped its selectors".into()); }
     stub.finish()?;
     bounds()?;
@@ -173,11 +173,11 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     invoke(env, missing, 2)?;
     let mut tampered = next.clone();
     *tampered.get_mut(index+1).ok_or("snapshot value")? = "synthetic-missing".into();
-    let reply = invoke(env, tampered, 2)?;
+    let reply = invoke(env, tampered, 3)?;
     super::action(&reply, "restart")?;
     let mut disabled = next.clone();
     disabled.extend(["--disable-sources".into(), "mychem".into()]);
-    let reply = invoke(env, disabled, 2)?;
+    let reply = invoke(env, disabled, 3)?;
     super::action(&reply, "restart")?;
     let mut literal = args(false);
     literal.extend(["--name-snapshot".into(),first.pointer("/query/name_snapshot").and_then(Value::as_str).ok_or("token")?.into()]);
