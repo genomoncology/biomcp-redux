@@ -7,7 +7,7 @@ type Check = Result<(), String>;
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     [
         (
-            "adverse-event-search/explicit-aliases-and-frozen-pages",
+            crate::runner::required_contract::FAERS_NAMES.0,
             complete as fn() -> Check,
         ),
         (
