@@ -7,6 +7,15 @@ case "${1:-focused}" in
     python3 scripts/refresh_help_cases.py target/debug/biomcp
     git diff --binary > "${2:?persistent patch destination}"
     ;;
+  catalog)
+    make schema-generate docs-generate
+    git diff --binary > "${2:?persistent patch destination}"
+    git add -u
+    git write-tree
+    python3 scripts/trials.py mcp-parity/typed-hosted-catalog mcp-parity/compact-typed-schemas \
+      drug-label/explicit-alias-native-union --case-file drug/help.yaml
+    cargo fmt --all -- --check
+    ;;
   focused)
     python3 scripts/trials.py drug-label/explicit-alias-native-union drug-label/alias-uncertainty-and-controls drug-label/alias-frozen-word-tier --case-file drug/help.yaml
     cargo fmt --all -- --check

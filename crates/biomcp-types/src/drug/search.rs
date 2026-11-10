@@ -22,7 +22,7 @@ pub struct DrugSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Name phrase; optional with supported source filters.
+    /// Drug name phrase.
     /// FDA drug recalls, WHO date ranges and label indication searches allow no name.
     /// Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
@@ -36,10 +36,12 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
-    /// openFDA labels only: explicitly search bounded source-stated drug aliases; literal is the default.
+    /// Expand openFDA label aliases.
+    /// Uses bounded source-stated names. Literal search is the default.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
-    /// Retained label alias/tier selection; follow the returned command with unchanged filters.
+    /// Label alias page token.
+    /// Follow the returned command with unchanged filters to retain aliases and matching tier.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     /// Literal label indication; openFDA labels only.
@@ -53,7 +55,8 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
-    /// Literal published recalling firm phrase; drug recalls only.
+    /// Recall firm phrase.
+    /// Matches the published firm literally.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     firm: Option<Text>,
@@ -61,11 +64,11 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     classification: Option<super::DrugRecallClassification>,
-    /// Literal native recall status; drug recalls only.
+    /// Literal recall status.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     status: Option<Text>,
-    /// Phrase in the published recall reason; drug recalls only.
+    /// Recall reason phrase.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     reason: Option<Text>,
@@ -78,11 +81,13 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     initiated_to: Option<biodata::PartialDate>,
 
-    /// Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+    /// WHO PQ start date, inclusive.
+    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_from: Option<biodata::PartialDate>,
-    /// Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
+    /// WHO PQ end date, inclusive.
+    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_to: Option<biodata::PartialDate>,
@@ -92,7 +97,8 @@ struct SearchFields {
     /// After an empty name lookup, existing sources may supply aliases.
     #[serde(default = "default_source")]
     source: DrugSource,
-    /// Explicit ChEMBL native name selector; omitted means preferred name.
+    /// ChEMBL name selector.
+    /// Omit to search the preferred name.
     #[serde(
         default,
         deserialize_with = "selected_name",
