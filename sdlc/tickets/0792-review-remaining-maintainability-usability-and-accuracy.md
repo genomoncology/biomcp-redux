@@ -31,3 +31,10 @@ Ian asked on November 10 to prioritize finding remaining maintainability, usabil
 ## Changes
 
 - Changes: `sdlc/records/2026-11-10-product-review.md`, `sdlc/planning/remaining-issues-playbook.md`, `sdlc/plan.md`, `sdlc/planning/build-plan.md`, `sdlc/decisions/2026-11-10-prioritize-remaining-product-issues.md`, `sdlc/tickets/`.
+
+## Evidence
+
+- [Findings and source evidence](../records/2026-11-10-product-review.md), [test playbook](../planning/remaining-issues-playbook.md), and [implementation order](../planning/build-plan.md). Fresh source weighing and combined ticket design review were completed; corrections cover legacy pools, concurrency, configuration readers, failure diagnostics and the docs checker.
+- Core fix tickets 0793–0798, existing cache tickets 0785–0786, and hosting signing-key ticket 0091 carry the accepted work. The release-order and planning-record corrections are included here.
+- M5 artifact probe j36638 establishes seven CLI invocations and sequenced stdio help/error behavior. Original nightly failure j36636 and Yellow setup failure j36637 remain separate. The findings record names the receiver-verified Yellow packet and precise limits.
+- Review changes are confined to planning, tickets, decisions and records. PM lint and document file-link checks validate the handoff; no product gate is needed for these inert edits.
