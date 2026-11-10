@@ -1,0 +1,210 @@
+"""Nonpublishing channel probes; execute only in the reviewed public manual workflow."""
+import base64
+import hashlib
+import json
+import os
+from pathlib import Path
+import posixpath
+import re
+import signal
+import subprocess
+import sys
+import tempfile
+import urllib.error
+import urllib.parse
+import urllib.request
+
+REPOSITORY = 'genomoncology/biomcp'
+TAP = 'https://github.com/genomoncology/homebrew-biomcp.git'
+TAP_API = 'https://api.github.com/repos/genomoncology/homebrew-biomcp'
+UPLOAD = 'https://ghcr.io/v2/' + REPOSITORY + '/blobs/uploads/'
+TOKEN = 'https://ghcr.io/token?service=ghcr.io&scope=repository%3Agenomoncology%2Fbiomcp%3Apull%2Cpush'
+
+
+class Refused(Exception):
+    """Only fixed, nonsecret reason codes cross the report boundary."""
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def cancellation(value):
+    if not isinstance(value, str) or any(ord(c) < 33 or ord(c) > 126 for c in value):
+        raise Refused('untrusted_upload_location')
+    url = urllib.parse.urljoin('https://ghcr.io', value)
+    parsed = urllib.parse.urlsplit(url)
+    decoded = urllib.parse.unquote(parsed.path)
+    prefix = '/v2/' + REPOSITORY + '/blobs/uploads/'
+    if (parsed.scheme != 'https' or parsed.netloc != 'ghcr.io' or parsed.fragment
+            or not decoded.startswith(prefix) or not decoded[len(prefix):]
+            or posixpath.normpath(decoded) != decoded or '%' in decoded or '\\' in decoded
+            or any(ord(c) < 33 or ord(c) > 126 for c in decoded)):
+        raise Refused('untrusted_upload_location')
+    return url  # Preserve opaque query parameters; never log the URL or decode bearer claims.
+
+
+def request(method, url, authorization, parse=False):
+    allowed = ((method == 'GET' and url in (TAP_API, TOKEN))
+               or (method == 'POST' and url == UPLOAD)
+               or (method == 'DELETE' and cancellation(url) == url))
+    if not allowed:
+        raise Refused('request_scope')
+    req = urllib.request.Request(url, data=b'' if method in ('POST', 'DELETE') else None,
+                                 method=method, headers={'Authorization': authorization,
+                                                         'User-Agent': 'biomcp-credential-probe'})
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    try:
+        response = opener.open(req, timeout=10)
+    except urllib.error.HTTPError as error:
+        response = error
+    with response:
+        status, headers = response.code, response.headers
+        payload = None
+        if parse and status == 200:
+            raw = response.read(65537)
+            if len(raw) > 65536:
+                raise Refused('response_limit')
+            try:
+                payload = json.loads(raw)
+            except (ValueError, UnicodeError):
+                raise Refused('response_json') from None
+        return status, headers, payload
+
+
+def basic(actor, token):
+    return 'Basic ' + base64.b64encode((actor + ':' + token).encode()).decode('ascii')
+
+
+def ghcr(result, token, actor):
+    status, _, payload = request('GET', TOKEN, basic(actor, token), parse=True)
+    result['token_status'] = status
+    if status != 200 or not isinstance(payload, dict):
+        raise Refused('registry_authentication')
+    bearer = payload.get('token') or payload.get('access_token')
+    if not isinstance(bearer, str) or not bearer or '\r' in bearer or '\n' in bearer:
+        raise Refused('registry_token_shape')
+    auth = 'Bearer ' + bearer
+    location = None
+    result['cleanup'] = 'not_started'
+    try:
+        # Empty initiation only: no digest/mount/from, PATCH, PUT, image or payload bytes.
+        result['cleanup'] = 'unknown_if_transport_fails'
+        status, headers, _ = request('POST', UPLOAD, auth)
+        result['initiation_status'] = status
+        result['cleanup'] = 'location_unavailable'
+        if headers.get('Location') is not None:
+            location = cancellation(headers['Location'])
+        if status != 202 or location is None:
+            raise Refused('registry_initiation')
+        result['initiation_accepted'] = True
+    finally:
+        if location is not None:
+            result['cleanup'] = 'failed'
+            status, _, _ = request('DELETE', location, auth)
+            result['cancellation_status'] = status
+            result['cleanup'] = 'confirmed' if status == 204 else 'already_absent' if status == 404 else 'failed'
+    result['ok'] = result.get('initiation_accepted', False) and result['cleanup'] == 'confirmed'
+    result['limit'] = 'empty_upload_admission_only_not_manifest_or_attestation_publication'
+
+
+def git(args, root, env, data=None):
+    completed = subprocess.run(['git', '-C', str(root), *args], env=env, input=data,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=25, check=False)
+    if completed.returncode:
+        raise Refused('git_command_failed')
+    return completed.stdout.decode('ascii')
+
+
+def homebrew(result, token):
+    status, _, payload = request('GET', TAP_API, 'Bearer ' + token, parse=True)
+    result['repository_status'] = status
+    if status != 200 or not isinstance(payload, dict) or payload.get('full_name') != 'genomoncology/homebrew-biomcp':
+        raise Refused('tap_authentication')
+    with tempfile.TemporaryDirectory(prefix='biomcp-tap-probe-') as temporary:
+        root = Path(temporary)
+        (root / 'hooks').mkdir()
+        # No credential files, user config, rewrites, hooks, tracing, prompts or redirects.
+        env = {'PATH': os.environ['PATH'], 'HOME': temporary, 'LC_ALL': 'C',
+               'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': os.devnull,
+               'GIT_TERMINAL_PROMPT': '0', 'GIT_ASKPASS': '/bin/false'}
+        settings = [('credential.helper', ''), ('http.followRedirects', 'false'),
+                    ('http.' + TAP + '.extraheader', 'Authorization: ' + basic('x-access-token', token)),
+                    ('core.hooksPath', str(root / 'hooks')), ('init.templateDir', ''),
+                    ('protocol.allow', 'never'), ('protocol.https.allow', 'always')]
+        env['GIT_CONFIG_COUNT'] = str(len(settings))
+        for index, (key, value) in enumerate(settings):
+            env['GIT_CONFIG_KEY_' + str(index)] = key
+            env['GIT_CONFIG_VALUE_' + str(index)] = value
+        git(['init', '--bare', '.'], root, env)
+        before = git(['ls-remote', '--refs', TAP], root, env)
+        git(['fetch', '--no-tags', '--depth=1', TAP, 'refs/heads/main'], root, env)
+        parent = git(['rev-parse', 'FETCH_HEAD'], root, env).strip()
+        tree = git(['rev-parse', 'FETCH_HEAD^{tree}'], root, env).strip()
+        if not all(re.fullmatch('[0-9a-f]{40}', value) for value in (parent, tree)):
+            raise Refused('tap_identity')
+        child = git(['-c', 'user.name=Credential probe', '-c', 'user.email=probe@invalid',
+                     'commit-tree', tree, '-p', parent], root, env, b'Local dry-run probe only\n').strip()
+        if not re.fullmatch('[0-9a-f]{40}', child):
+            raise Refused('tap_identity')
+        try:
+            git(['push', '--dry-run', '--porcelain', TAP, child + ':refs/heads/main'], root, env)
+            result['push_negotiation'] = 'accepted'
+        finally:
+            after = git(['ls-remote', '--refs', TAP], root, env)
+            result['remote_refs_unchanged'] = sorted(before.splitlines()) == sorted(after.splitlines())
+        result['ok'] = result['remote_refs_unchanged']
+    result['limit'] = 'dry_run_receive_pack_negotiation_not_branch_policy_or_hook_acceptance'
+
+
+def context(env):
+    ref = env.get('GITHUB_REF', '')
+    sha = env.get('GITHUB_SHA', '')
+    if (env.get('GITHUB_ACTIONS') != 'true' or env.get('GITHUB_REPOSITORY') != REPOSITORY
+            or env.get('GITHUB_EVENT_NAME') != 'workflow_dispatch'
+            or not re.fullmatch('refs/heads/credential-probe-0807-[0-9a-f]{12}', ref)
+            or not re.fullmatch('[0-9a-f]{40}', sha)
+            or not re.fullmatch('[0-9]+', env.get('GITHUB_RUN_ID', ''))
+            or env.get('GITHUB_WORKFLOW_REF') != REPOSITORY + '/.github/workflows/release.yml@' + ref):
+        raise Refused('workflow_identity')
+    return {'repository': REPOSITORY, 'ref': ref, 'revision': sha, 'run_id': env['GITHUB_RUN_ID']}
+
+
+def main(args=None):
+    args = sys.argv[1:] if args is None else args
+    if args not in (['homebrew'], ['ghcr']):
+        return 2
+    channel = args[0]
+    result = {'channel': channel, 'ok': False}
+    def interrupted(_number, _frame):
+        raise Refused('interrupted')
+    handlers = {number: signal.signal(number, interrupted) for number in (signal.SIGTERM, signal.SIGINT)}
+    try:
+        result.update(context(os.environ))
+        result['helper_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+        name = 'HOMEBREW_TAP_TOKEN' if channel == 'homebrew' else 'GHCR_PROBE_TOKEN'
+        token = os.environ.get(name)
+        if not token or '\r' in token or '\n' in token:
+            raise Refused('missing_credential')
+        if channel == 'homebrew':
+            homebrew(result, token)
+        else:
+            ghcr(result, token, os.environ.get('GITHUB_ACTOR', ''))
+    except Refused as error:
+        result['ok'] = False
+        result['error'] = error.args[0]
+    except Exception:
+        result['ok'] = False
+        result['error'] = 'transport_or_local_failure'  # Never stringify subprocess/HTTP exceptions.
+    finally:
+        for number, handler in handlers.items():
+            signal.signal(number, handler)
+    text = json.dumps(result, sort_keys=True) + '\n'
+    Path('credential-probe-' + channel + '.json').write_text(text)
+    print(text, end='')
+    return 0 if result['ok'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
