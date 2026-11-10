@@ -22,6 +22,21 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut outcome = empty(query);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
+    let restored = continuation::restore(cx, query, deadline);
+    let query = match &restored {
+        Ok(Some(query)) => query,
+        Ok(None) => {
+            continuation::unavailable(query, &mut outcome);
+            command.finish(deadline.remaining());
+            return outcome;
+        }
+        Err(error) => {
+            outcome.local = status::local(*error);
+            status::item(&mut outcome, false, true, false);
+            command.finish(deadline.remaining());
+            return outcome;
+        }
+    };
     let Some(condition) = condition::resolve(cx, query, &mut outcome, &mut deadline) else {
         command.finish(deadline.remaining());
         return outcome;
@@ -90,6 +105,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
+    if let Err(error) = continuation::retain(cx, &mut outcome, deadline) {
+        outcome.local = status::local(error);
+        status::item(&mut outcome, false, true, false);
+    }
     command.finish(deadline.remaining());
     outcome
 }

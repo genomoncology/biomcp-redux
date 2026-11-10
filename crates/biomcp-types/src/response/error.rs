@@ -97,6 +97,8 @@ singleton! {
             first-page command, then follow its next command",
         TrialContinuationRejected => "ClinicalTrials.gov rejected this continuation request; run the suggested fresh \
             first-page search, then follow its next command",
+        TrialContinuationUnavailable => "this trial continuation cannot verify its position and search selectors; run the \
+            suggested fresh first-page search, then follow its next command",
         FaersOffset => "FAERS supports --offset up to 25000; narrow the filters to retrieve more reports",
         FaersDrugNames => "pass --drug once per literal name to search several names with OR; OR inside one --drug value \
             is not supported",
@@ -377,6 +379,11 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.source = Some(crate::Source::ClinicalTrialsGov);
                 out.error.option = Some("--next-page".into());
                 out.error.message = ErrorMessage::TrialContinuationRejected;
+            }
+            UsageError::TrialContinuationUnavailable => {
+                out.error.source = Some(crate::Source::ClinicalTrialsGov);
+                out.error.option = Some("--next-page".into());
+                out.error.message = ErrorMessage::TrialContinuationUnavailable;
             }
             UsageError::ArticlePartRange { input, last } => out.article_part_range(input, last),
             UsageError::UnsupportedTrialFilter { source, option } => {

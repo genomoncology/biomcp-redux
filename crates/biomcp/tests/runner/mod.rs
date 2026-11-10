@@ -120,6 +120,7 @@ mod store_clean;
 mod store_coexistence;
 mod study_catalog;
 mod transcript;
+mod trial_binding;
 mod trial_continuation;
 mod trial_gene;
 mod trial_get;
@@ -275,6 +276,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(research::trials());
     trials.extend(trial_gene::trials());
     trials.extend(trial_continuation::trials());
+    trials.extend(trial_binding::trials());
     trials.extend(cache_contention::trials());
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
