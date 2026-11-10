@@ -1,10 +1,7 @@
 //! Explicit FAERS aliases retain native counts and frozen, caller-authorized membership.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use serde_json::{Value, json};
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
+use std::sync::mpsc;
 type Check = Result<(), String>;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
@@ -27,15 +24,14 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     .collect()
 }
 
-fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub, Arc<AtomicBool>), String> {
-    let no_lookup = Arc::new(AtomicBool::new(false));
-    let stopped = no_lookup.clone();
+fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub, mpsc::Sender<()>), String> {
+    let (no_lookup, stopped) = mpsc::channel();
     let stub = Stub::for_sources(
         &["mychem.info", "api.fda.gov"],
         |_| "application/json",
         move |request| {
             if request.contains("/v1/query?") {
-                if stopped.load(Ordering::SeqCst) {
+                if stopped.try_recv().is_ok() {
                     return Err("a frozen continuation repeated name resolution".into());
                 }
                 return Ok(lookup(mode).to_string());
@@ -143,7 +139,7 @@ fn complete() -> Check {
             "aggregate did not use the same native OR: {counted}"
         ));
     }
-    no_lookup.store(true, Ordering::SeqCst);
+    no_lookup.send(()).map_err(|e| e.to_string())?;
     let mut next = super::action(&first, "page")?;
     next.push("--fresh".into());
     let second = invoke(&env, next.clone(), 0)?;
