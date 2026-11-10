@@ -207,7 +207,8 @@ pub(crate) const HOTSPOTS: (&str, &[&str]) = (
     &["section get variant hotspots"],
 );
 
-pub const LABEL_NAMES: (&str, &[&str]) = (
+// Controlled drug-name evidence and authored SPL label metadata; no publisher prose.
+pub(crate) const LABEL_NAMES: (&str, &[&str]) = (
     "drug-label/explicit-alias-native-union",
     &[
         "option search drug --expand-drug-names",
