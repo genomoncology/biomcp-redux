@@ -22,8 +22,9 @@ enum Checked<T> {
         Option<crate::ContentRange>,
         Option<crate::Pagination>,
     ),
-    Absent,
-    ExpiredAbsent,
+    Absent {
+        fresh: bool,
+    },
 }
 
 impl Leg<'_> {
@@ -79,10 +80,10 @@ impl Leg<'_> {
                 Some(Checked::Positive(reply, false, fetched, range, pagination)) => {
                     stale = Some((reply, fetched, range, pagination))
                 }
-                Some(Checked::Absent) => {
+                Some(Checked::Absent { fresh: true }) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
-                Some(Checked::ExpiredAbsent) | None => {}
+                Some(Checked::Absent { fresh: false }) | None => {}
             }
         }
         match live() {
@@ -193,10 +194,10 @@ impl Leg<'_> {
                     }
                     return Ok((reply, fetched, range, pagination));
                 }
-                Some(Checked::Absent) => {
+                Some(Checked::Absent { fresh: true }) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
-                Some(Checked::ExpiredAbsent) => {
+                Some(Checked::Absent { fresh: false }) => {
                     let notice = biomcp_types::SourceNotice::RequestGuidance {
                         data_date: None,
                         message: "A previously cached not-found result has expired; current absence is unknown.".into(),
@@ -259,11 +260,7 @@ impl Leg<'_> {
                     ),
                 );
             }
-            return Ok(Some(if fresh {
-                Checked::Absent
-            } else {
-                Checked::ExpiredAbsent
-            }));
+            return Ok(Some(Checked::Absent { fresh }));
         }
         let reply = (entry.content_type.as_deref() == Some(codec.name())
             && codec.validate(&entry.body).is_ok())
