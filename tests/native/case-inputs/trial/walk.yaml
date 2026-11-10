@@ -51,7 +51,7 @@
       "expect": {
         "/error/option": "--next-page",
         "/error/source": "ctgov",
-        "/next/*/args": {
+        "/next/0/args": {
           "includes": "--fresh"
         }
       },
