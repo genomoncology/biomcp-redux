@@ -1,4 +1,4 @@
-"""One-off scoped witnesses for the three meaningful 0803 survivors; do not land."""
+"""One-off scoped witnesses for the five meaningful 0803 survivors; do not land."""
 from pathlib import Path
 import subprocess
 import sys
@@ -20,6 +20,13 @@ CASES = [
          ('author-search/refused-window-is-explicit-only', 'incomplete author pool became the implicit default'),
          ('author-search/refused-extension-retires-default', 'refused extension remained the implicit default'),
      ]),
+    ('crates/biomcp-query/src/pathway/relation.rs',
+     '!self.dropped && crate::source_snapshot::sources_whole(&self.sources)',
+     'true', [('pathway-reactome/refused-events-are-explicit-only',
+               'incomplete pathway pool became the implicit default')]),
+    ('crates/biomcp-query/src/pathway/relation.rs',
+     '!self.dropped && crate::source_snapshot::sources_whole(&self.sources)',
+     'false', [('pathway-reactome/healthy-events-reuse-pool', 'healthy pathway window was rebuilt')]),
 ]
 
 
@@ -59,7 +66,7 @@ def main():
                 print('CONFIRMED RED:', trial, flush=True)
         finally:
             path.write_text(original)
-    print('All three scoped replacements killed by four public-command checks', flush=True)
+    print('All five scoped replacements killed by six public-command checks', flush=True)
 
 
 if __name__ == '__main__':
