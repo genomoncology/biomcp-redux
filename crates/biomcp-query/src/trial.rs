@@ -24,8 +24,8 @@ pub(crate) fn search_bound(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut deadline = command.deadline();
     match continuation::restore(cx, query, deadline) {
         Ok(Some(saved)) => {
-            outcome = search(cx, &saved, outcome, &mut deadline);
-            if let Err(error) = continuation::retain(cx, &mut outcome, deadline) {
+            outcome = search(cx, &saved.query, outcome, &mut deadline);
+            if let Err(error) = continuation::retain(cx, saved, &mut outcome, deadline) {
                 outcome.local = status::local(error);
                 status::item(&mut outcome, false, true, false);
             }

@@ -5,12 +5,14 @@ use crate::{
 };
 use biodata::Text;
 use biomcp_fetch::{CacheError, RequestError, TrialCursorKey};
-use biomcp_types::{Source, SourceOutcome, TrialSearch};
+use biomcp_types::{Source, TrialSearch};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 pub(super) const PREFIX: &str = "biomcp:ctgov-page:v2:";
 const NAMESPACE: &str = "ctgov-continuation/2";
+
+type Restored = (TrialSearch, Vec<Source>);
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -26,15 +28,14 @@ pub(super) fn retain(
     cx: &Ctx<'_>,
     key: &TrialCursorKey,
     query: &TrialSearch,
-    sources: &[SourceOutcome],
+    sources: &[Source],
 ) -> Result<Text, RequestError> {
     let native = query.next_page().ok_or(CacheError::Encoding)?.clone();
-    let sources: Vec<_> = sources.iter().map(|outcome| outcome.source).collect();
-    let scope = snapshot_scope(cx.fetch.cache_access()?, &sources)?;
+    let scope = snapshot_scope(cx.fetch.cache_access()?, sources)?;
     let payload = serde_json::to_vec(&Cursor {
         native,
         expires: Store::now().saturating_add(SNAPSHOT_VALIDITY_SECONDS),
-        sources,
+        sources: sources.to_vec(),
         scope,
     })
     .map_err(|_| CacheError::Encoding)?;
@@ -46,7 +47,7 @@ pub(super) fn restore(
     cx: &Ctx<'_>,
     query: &TrialSearch,
     envelope: &str,
-) -> Result<Option<TrialSearch>, RequestError> {
+) -> Result<Option<Restored>, RequestError> {
     let Some(key) = cx.fetch.trial_cursor_key() else {
         return Ok(None);
     };
@@ -67,7 +68,10 @@ pub(super) fn restore(
     {
         return Ok(None);
     }
-    Ok(Some(query.at_page(cursor.native, query.offset())))
+    Ok(Some((
+        query.at_page(cursor.native, query.offset()),
+        cursor.sources,
+    )))
 }
 
 // Authenticate the public selectors without putting a second copy in the token.
