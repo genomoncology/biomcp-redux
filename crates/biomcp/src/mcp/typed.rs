@@ -89,6 +89,11 @@ pub(super) fn tool_result(
             result.insert("content".into(), json!([{"type":"text","text":text}]));
         }
     }
+    if let Some(value) = completed.outcome.value().ok()
+        && let Some(result) = reply.get_mut("result")
+    {
+        crate::view::protein::append_mcp(result, value);
+    }
     reply
 }
 
