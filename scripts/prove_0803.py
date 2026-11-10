@@ -36,7 +36,7 @@ def main():
     print('Unmutated production equivalence: PASS', flush=True)
     for command in [
         ['cargo', 'fmt', '--all', '--', '--check'],
-        ['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'tools', '--', '-D', 'warnings'],
+        ['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'cases', '--test', 'tools', '--', '-D', 'warnings'],
         ['cargo', 'test', '--locked', '-p', 'biomcp', '--test', 'ratchets'],
     ]:
         subprocess.run(command, cwd=ROOT, check=True)
@@ -51,7 +51,7 @@ def main():
             print(f'REPLACEMENT {relative}: {before!r} -> {replacement}', flush=True)
             for trial, witness in trials:
                 result = subprocess.run(
-                    [sys.executable, 'scripts/trials.py', '--target', 'tools', '--proofs', trial],
+                    [sys.executable, 'scripts/trials.py', '--target', 'cases', trial],
                     cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
                 print(result.stdout, end='', flush=True)
                 if result.returncode == 0 or witness not in result.stdout:
