@@ -12,7 +12,7 @@ use biomcp_types::{
     StepKind,
 };
 /// Search report headers through the declared source and its reviewed component admission.
-pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
+pub(crate) fn search_command(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     if query.source() == biomcp_types::AdverseEventSource::Vaers {
         return vaers::search(cx, query);
     }
@@ -24,13 +24,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     {
         names::search(cx, query, &mut deadline)
     } else {
-        native(cx, query, query, deadline)
+        search(cx, query, query, deadline)
     };
     command.finish(deadline.remaining());
     out
 }
 
-fn native<'a>(
+fn search<'a>(
     cx: &Ctx<'a>,
     query: &AdverseEventSearch,
     navigation_query: &AdverseEventSearch,

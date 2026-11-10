@@ -1218,7 +1218,7 @@
     },
     {
       "path": "crates/biomcp-query/src/adverse_event.rs",
-      "site": "native: and_then ( status : : local ) , } , ) ; if let Ok ( page ) = reply { let returned = page . items .",
+      "site": "search: and_then ( status : : local ) , } , ) ; if let Ok ( page ) = reply { let returned = page . items .",
       "maximum": 1,
       "class": "migrated",
       "owner": "adverse_event.rs",
@@ -1226,7 +1226,7 @@
     },
     {
       "path": "crates/biomcp-query/src/adverse_event.rs",
-      "site": "native: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "site": "search: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
       "maximum": 1,
       "class": "legitimate_absence",
       "owner": "adverse_event.rs",

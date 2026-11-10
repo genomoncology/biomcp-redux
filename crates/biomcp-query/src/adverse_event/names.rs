@@ -29,7 +29,7 @@ pub(super) fn search<'a>(
     match result {
         Ok(Some((saved, sent))) => match query.with_literal_drugs(saved.names.clone()) {
             Ok(native) => {
-                let mut result = super::native(cx, &native, &sent, *deadline);
+                let mut result = super::search(cx, &native, &sent, *deadline);
                 result.sources.extend(saved.sources);
                 result.problems.extend(saved.problems);
                 disclose(query, &saved.names, saved.omitted, &mut result);
