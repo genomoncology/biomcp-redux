@@ -311,7 +311,6 @@ fn query_connections_keep_virtual_sqlite_waits_zero_and_live_waits_bounded() -> 
     Ok(())
 }
 
-// Stale handles stand in for delayed concurrent writers at the transaction boundary.
 #[test]
 fn source_windows_admit_only_the_recorded_owner_and_enabled_source() -> Check {
     let directory = tempfile::tempdir()?;
@@ -334,6 +333,7 @@ fn source_windows_admit_only_the_recorded_owner_and_enabled_source() -> Check {
     Ok(())
 }
 
+// Stale handles stand in for delayed concurrent writers at the transaction boundary.
 #[test]
 fn source_defaults_follow_only_the_retained_complete_observation() -> Check {
     let directory = tempfile::tempdir()?;
