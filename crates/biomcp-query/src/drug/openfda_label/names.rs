@@ -19,7 +19,6 @@ pub(super) fn prepare<'a>(
     cx: &Ctx<'a>,
     query: &DrugSearch,
     deadline: &mut Deadline<'a>,
-    out: &mut Outcome,
 ) -> Result<Option<Saved>, RequestError> {
     if let Some(token) = query.name_snapshot() {
         let key = source_snapshot::key("label-drug-names", &query.restart())?;
@@ -28,7 +27,6 @@ pub(super) fn prepare<'a>(
             saved.tier.is_some() && query.label_name_selector(&saved.names, true).is_ok()
         }));
     }
-    let _ = out;
     Ok(Some(resolve::resolve(cx, query, deadline)))
 }
 pub(super) fn search(
@@ -53,12 +51,13 @@ pub(super) fn retain(
         return query.clone();
     };
     let result = source_snapshot::key("label-drug-names", &query.restart()).and_then(|key| {
-        let admitted: Vec<_> = saved
+        let mut admitted: Vec<_> = saved
             .sources
             .iter()
             .filter(|source| source.state != biomcp_types::SourceState::Skipped)
             .cloned()
             .collect();
+        admitted.extend(out.sources.iter().cloned());
         source_snapshot::write(cx, &key, saved, &admitted, deadline)
     });
     match crate::publish::keep(result, out) {
