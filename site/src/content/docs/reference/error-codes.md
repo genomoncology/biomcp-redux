@@ -14,7 +14,7 @@ BioMCP 1.0.0, the command-line tool and MCP server that reads biomedical data so
 | --- | --- | --- |
 | 0 | Success | The command finished with status `complete` or `partial`. Read the source outcomes: a partial result names the sources that failed or were skipped. |
 | 1 | Absent | The command finished and the sources returned no matching record. Status `absent`. This is the answer for that source, query and filters, not proof that the thing does not exist. |
-| 2 | Usage | The arguments were wrong, a selector is retired, or a pool cursor does not match its search. The error names a code such as `usage.arguments` and often the replacement command. Nothing was sent to a source. |
+| 2 | Usage | The arguments were wrong, a selector is retired, or a pool cursor does not match its search. A rejected ClinicalTrials.gov continuation request can also return this code. The error names a code such as `usage.arguments` and often the replacement command. |
 | 3 | Expired | A retained pool or snapshot expired. The reply carries the command that restarts the search. |
 | 4 | Failed | No source the command needed answered: each failed or was skipped. Status `failed`. Each source outcome names its reason, such as `deadline_exceeded` or `rejected`. |
 | 5 | Local | A local step failed: the configuration file, the cache, a saved file or writing the output. The error code is `local.failure`. |

@@ -4,12 +4,12 @@ description: "Causes and fixes for BioMCP 1.0 usage errors: usage.arguments, usa
 goal: The reader matches a usage error to its cause, fixes the command and confirms the fix.
 reader: A BioMCP user or agent whose command stopped with an error reply
 kind: how-to
-verified: 2026-10-27
+verified: 2026-11-10
 ---
 import Example from '../../../components/Example.astro';
 import Fact from '../../../components/Fact.astro';
 
-BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. A usage error means BioMCP refused the command before it asked any source: the reply identifies its [error schema](/reference/schemas/biomcp-error-4/), has `status` `usage`, an `error.code` and exit code 2. Find the code you see in a heading below; each entry gives the cause, the fix and how to confirm it.
+BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical data from public sources. A usage error usually identifies a command or argument problem. ClinicalTrials.gov can also reject a continuation request and produce this status after a source request. The reply identifies its [error schema](/reference/schemas/biomcp-error-4/), has `status` `usage`, an `error.code` and exit code 2. Find the code you see in a heading below; each entry gives the cause, the fix and how to confirm it.
 
 <span id="usagearguments-expected-a-supported-command-with-checked-arguments"></span>
 
@@ -20,6 +20,8 @@ BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical
 **Cause.** A required argument is missing, a value is outside its choices or limits, or an option does not belong to this command. Exit code 2. When available, `error.option` identifies the argument and `error.valid_values` lists accepted values or forms.
 
 **Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before [section words](/concepts/progressive-disclosure/) and that `--source` names a source the command lists.
+
+When following a trial page, a generic `usage.arguments` reply can mean ClinicalTrials.gov rejected the continuation request. Rerun the original first-page search with `--fresh`, removing `--next-page` and `--offset` while keeping its source, filters, configuration and source exclusions unchanged. Then follow the new reply's page command. The generic error alone does not establish that a cursor expired.
 
 **Confirm.** The command returns a reply with a `status` other than `usage`.
 
