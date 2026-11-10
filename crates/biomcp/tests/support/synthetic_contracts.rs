@@ -197,3 +197,11 @@ pub(crate) const HOTSPOTS: (&str, &[&str]) = (
     "variant-hotspots/hotspots-retains-native-transcript-and-counts",
     &["section get variant hotspots"],
 );
+
+pub const LABEL_NAMES: (&str, &[&str]) = (
+    "drug-label/explicit-alias-native-union",
+    &[
+        "option search drug --expand-drug-names",
+        "option search drug --name-snapshot",
+    ],
+);

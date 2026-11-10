@@ -6,19 +6,24 @@ use biomcp_types::DrugSearch;
 use serde::{Deserialize, Serialize};
 
 /// Native label-name matching, distinct from unfielded label-text discovery.
+/// Native matching tier retained with an expanded name union.
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 pub enum NameTier {
+    /// Harmonized exact brand and generic names.
     Exact,
+    /// Harmonized word-matching brand and generic names.
     Words,
 }
 impl NameTier {
     /// Native exact-value versus analyzed-word name fields.
+    /// Whether this retained tier uses exact fields.
     pub fn exact(self) -> bool {
         matches!(self, Self::Exact)
     }
 }
 
 /// Search all accepted spellings in one native expression; never combine per-name totals.
+/// Search one bounded name union, selecting a tier only on its initial page.
 pub fn search_expanded(
     leg: &Leg<'_>,
     query: &DrugSearch,

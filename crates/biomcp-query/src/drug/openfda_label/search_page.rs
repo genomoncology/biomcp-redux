@@ -44,3 +44,16 @@ pub(super) fn apply(
     })
     .with_query(query.clone());
 }
+
+pub(super) fn headers(
+    rows: &[source::Record],
+    query: &DrugSearch,
+) -> Result<Vec<biomcp_types::DrugHeader>, RequestError> {
+    rows.iter()
+        .map(|record| {
+            let mut header = record.header()?;
+            header.matched_name = query.query().and_then(|name| record.name_match(name));
+            Ok(header)
+        })
+        .collect()
+}
