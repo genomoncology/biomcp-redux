@@ -97,7 +97,21 @@ fn partial(value: &Value, id: &str) -> Result<(), String> {
         || value
             .get("problems")
             .and_then(Value::as_array)
-            .is_none_or(|p| p.is_empty())
+            .is_none_or(|problems| {
+                problems.iter().all(|problem| {
+                    problem.get("field") != Some(&json!("author_id"))
+                        || problem.get("source") != Some(&json!("semantic-scholar"))
+                })
+            })
+        || value
+            .get("sources")
+            .and_then(Value::as_array)
+            .is_none_or(|sources| {
+                sources.is_empty()
+                    || sources
+                        .iter()
+                        .any(|source| source.get("state") != Some(&json!("ok")))
+            })
     {
         return Err(format!(
             "refused native identity lost its partial page: {value}"
