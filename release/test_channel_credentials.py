@@ -58,6 +58,13 @@ class Probe(unittest.TestCase):
         self.assertEqual(calls, [('GET', probe.TOKEN), ('POST', probe.UPLOAD), ('DELETE', LOCATION)])
         self.assertIn('not_manifest', report['limit'])
 
+    def test_path_relative_location_resolves_against_the_initiating_request(self):
+        calls, request = self.replies(location='opaque-upload?state=opaque%2Fvalue&other=kept')
+        code, report = self.run_main('ghcr', request)
+        self.assertEqual(code, 0)
+        self.assertEqual(calls[-1], ('DELETE', LOCATION))
+        self.assertEqual(report['cleanup'], 'confirmed')
+
     def test_cleanup_attempted_on_unexpected_initiation_status(self):
         calls, request = self.replies(status=503)
         code, report = self.run_main('ghcr', request)
