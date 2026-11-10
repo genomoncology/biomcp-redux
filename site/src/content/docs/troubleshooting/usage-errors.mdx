@@ -21,7 +21,7 @@ BioMCP <Fact k="version" /> is a command line tool and MCP server for biomedical
 
 **Fix.** Compare your command with `biomcp help search trial` (put your command's words after `help`) or its page in the [command reference](/reference/commands/). Check that the identifier comes before [section words](/concepts/progressive-disclosure/) and that `--source` names a source the command lists.
 
-When `error.option` is `--next-page` for a ClinicalTrials.gov search, BioMCP either could not verify the continuation against its saved position and filters, or the registry rejected the request. In the CLI or stdio MCP, run the suggested `next` command to refresh the first page with the same search filters. Follow the new reply's page command unchanged.
+If the error identifies `--next-page` and says BioMCP could not verify the continuation or ClinicalTrials.gov rejected it, run the suggested `next` command in the CLI or stdio MCP. It refreshes the first page with the same search filters. Follow the new reply's page command unchanged.
 
 **Confirm.** The command returns a reply with a `status` other than `usage`.
 
