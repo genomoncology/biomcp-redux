@@ -79,15 +79,10 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             } else {
                 1
             };
-            let identity = if selector.contains("a454cd24-0c6d-46e8-b1e4-197388606175") {
-                1
-            } else {
-                offset
-            };
             let rows = if offset >= total {
                 vec![]
             } else {
-                vec![record(identity)]
+                vec![record(offset, selector)]
             };
             Ok(json!({"meta":{"results":{"skip":offset,"limit":limit,"total":total}},"results":rows}).to_string())
         },
@@ -104,7 +99,9 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
     env.config(&config).map_err(|e| e.to_string())?;
     Ok((env, stub))
 }
-fn record(offset: u32) -> Value {
+fn record(offset: u32, selector: &str) -> Value {
+    let offset =
+        u32::from(offset != 0 || selector.contains("a454cd24-0c6d-46e8-b1e4-197388606175"));
     let id = if offset == 0 {
         "095a08ac-cf0e-497e-a682-ddef38d6b29c"
     } else {
