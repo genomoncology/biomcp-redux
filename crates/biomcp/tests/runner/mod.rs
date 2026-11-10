@@ -8,12 +8,12 @@ mod local_files;
 tool_only! { mod protein_commands; }
 tool_only! { mod trial_condition; }
 tool_only! { pub(super) mod other_source_value_proof; }
-mod author_pools;
 mod article_lean;
 mod article_pools;
 mod article_save;
 mod article_save_reply;
 mod assertions;
+mod author_pools;
 pub(super) mod case_main;
 tool_only! { pub(super) mod cell_line; }
 tool_only! { mod disease_mydisease; }
