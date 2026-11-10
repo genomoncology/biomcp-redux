@@ -146,7 +146,7 @@ impl Store<'_> {
             Ok(())
         })
     }
-    /// Read a source window and its current binding in one SQLite observation.
+    /// Admit both source records and read the current window in one SQLite snapshot.
     pub(crate) fn find_source_pool(
         &self,
         key: &[u8],
@@ -154,35 +154,95 @@ impl Store<'_> {
         disabled: impl Fn(biomcp_types::Source) -> bool,
     ) -> Result<Option<(Pool, String)>, CacheError> {
         self.read(|connection| {
-            let selector = if id.is_some() { "p.id=?1" } else {
-                "p.id=(SELECT pool FROM pool_current WHERE request_key=?1)"
-            };
-            let sql = format!("SELECT p.id,p.request_key,p.created,p.expires,p.size,p.outcomes,s.payload,s.outcomes \
-                FROM pool p JOIN trial_snapshot s ON s.id=p.id AND s.request_key=p.request_key \
-                WHERE {selector} AND p.expires>?2 AND s.expires>?2");
-            let parameter = id.map_or_else(|| rusqlite::types::Value::Blob(crate::source_snapshot::current_key(key)),
-                |id| rusqlite::types::Value::Text(id.into()));
-            let row = connection.query_row(&sql, params![parameter, Self::now()], |r| {
-                Ok((r.get::<_, String>(0)?, r.get::<_, Vec<u8>>(1)?, r.get::<_, i64>(2)?,
-                    r.get::<_, i64>(3)?, r.get::<_, u32>(4)?, r.get::<_, String>(5)?,
-                    r.get::<_, String>(6)?, r.get::<_, String>(7)?))
-            }).optional().map_err(db)?;
-            let Some((id, key, created, expires, size, outcomes, payload, snapshot)) = row else { return Ok(None) };
-            let Some(metadata) = self.policy().decode(&outcomes)? else { return Ok(None) };
-            let Some(snapshot) = self.policy().decode(&snapshot)? else { return Ok(None) };
-            if metadata.sources.iter().chain(&snapshot.sources).any(|source| disabled(source.source))
-                || matches!(parameter, rusqlite::types::Value::Blob(_)) && (metadata.dropped || snapshot.dropped
-                    || !crate::source_snapshot::sources_whole(&metadata.sources)
-                    || !crate::source_snapshot::sources_whole(&snapshot.sources)) {
-                return Ok(None);
+            if !connection.is_autocommit() {
+                return self.read_source_pool(connection, key, id, disabled);
             }
-            Ok(Some((Pool {
-                info: PoolInfo { id: Text::new(&id).map_err(|_| CacheError::Limit)?, size,
-                    created: u64::try_from(created).map_err(|_| CacheError::Limit)?,
-                    expires: u64::try_from(expires).map_err(|_| CacheError::Limit)? },
-                key, sources: metadata.sources, problems: metadata.problems, dropped: metadata.dropped,
-            }, payload)))
+            let tx = connection.unchecked_transaction().map_err(db)?;
+            let found = self.read_source_pool(&tx, key, id, disabled)?;
+            tx.commit().map_err(db)?;
+            Ok(found)
         })
+    }
+    fn read_source_pool(
+        &self,
+        connection: &rusqlite::Connection,
+        key: &[u8],
+        id: Option<&str>,
+        disabled: impl Fn(biomcp_types::Source) -> bool,
+    ) -> Result<Option<(Pool, String)>, CacheError> {
+        let explicit = id.is_some();
+        let selector = if explicit {
+            "p.id=?1"
+        } else {
+            "p.id=(SELECT pool FROM pool_current WHERE request_key=?1)"
+        };
+        let sql = format!(
+            "SELECT p.id,p.request_key,p.created,p.expires,p.size,p.outcomes,s.outcomes \
+            FROM pool p JOIN trial_snapshot s ON s.id=p.id AND s.request_key=p.request_key \
+            WHERE {selector} AND p.expires>?2 AND s.expires>?2"
+        );
+        let parameter = id.map_or_else(
+            || rusqlite::types::Value::Blob(crate::source_snapshot::current_key(key)),
+            |id| rusqlite::types::Value::Text(id.into()),
+        );
+        let row = connection
+            .query_row(&sql, params![parameter, Self::now()], |r| {
+                Ok((
+                    r.get::<_, String>(0)?,
+                    r.get::<_, Vec<u8>>(1)?,
+                    r.get::<_, i64>(2)?,
+                    r.get::<_, i64>(3)?,
+                    r.get::<_, u32>(4)?,
+                    r.get::<_, String>(5)?,
+                    r.get::<_, String>(6)?,
+                ))
+            })
+            .optional()
+            .map_err(db)?;
+        let Some((id, key, created, expires, size, outcomes, snapshot)) = row else {
+            return Ok(None);
+        };
+        let Some(metadata) = self.policy().decode(&outcomes)? else {
+            return Ok(None);
+        };
+        let Some(snapshot) = self.policy().decode(&snapshot)? else {
+            return Ok(None);
+        };
+        if metadata
+            .sources
+            .iter()
+            .chain(&snapshot.sources)
+            .any(|source| disabled(source.source))
+            || !explicit
+                && (metadata.dropped
+                    || snapshot.dropped
+                    || !crate::source_snapshot::sources_whole(&metadata.sources)
+                    || !crate::source_snapshot::sources_whole(&snapshot.sources))
+        {
+            return Ok(None);
+        }
+        let payload = connection
+            .query_row(
+                "SELECT payload FROM trial_snapshot WHERE id=?1",
+                [&id],
+                |r| r.get(0),
+            )
+            .map_err(db)?;
+        Ok(Some((
+            Pool {
+                info: PoolInfo {
+                    id: Text::new(&id).map_err(|_| CacheError::Limit)?,
+                    size,
+                    created: u64::try_from(created).map_err(|_| CacheError::Limit)?,
+                    expires: u64::try_from(expires).map_err(|_| CacheError::Limit)?,
+                },
+                key,
+                sources: metadata.sources,
+                problems: metadata.problems,
+                dropped: metadata.dropped,
+            },
+            payload,
+        )))
     }
     /// Publish arbitrary source snapshot payload and its fixed-lifetime pool metadata together.
     pub(crate) fn publish_source_pool(
