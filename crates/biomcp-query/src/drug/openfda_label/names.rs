@@ -3,7 +3,7 @@ use crate::{Ctx, Outcome, source_snapshot, status};
 use biodata::Text;
 use biomcp_adapters::openfda_label::NameTier;
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{DrugSearch, Paged, ReplyData, Request, Source, SourceNotice, StepKind};
+use biomcp_types::{DrugSearch, Paged, ReplyData, Request, SourceNotice, StepKind};
 use serde::{Deserialize, Serialize};
 mod resolve;
 #[derive(Serialize, Deserialize)]
@@ -73,7 +73,7 @@ pub(super) fn missing(query: &DrugSearch, out: &mut Outcome) {
     out.body = ReplyData::PoolError { mismatch: false };
     out.next.push(crate::next::Step::run(
         StepKind::Restart,
-        &[Source::OpenfdaLabel],
+        &[],
         Request::SearchDrug(query.restart()),
         false,
     ));
