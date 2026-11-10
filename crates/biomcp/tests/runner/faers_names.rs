@@ -46,7 +46,12 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub, Arc<AtomicBool>),
 
 fn lookup(mode: u8) -> Value {
     if mode == 3 { return json!({"total":"malformed","hits":[]}); }
-    let row = |id: &str| json!({"_id":id,"drugcentral":{"name":"Typed drug","synonyms":["Typed drug","Brand name"]}});
+    let alias = match mode {
+        4 => "Long alias ".repeat(150),
+        5 => "Brand \"quoted\" \\name".into(),
+        _ => "Brand name".into(),
+    };
+    let row = |id: &str| json!({"_id":id,"drugcentral":{"name":"Typed drug","synonyms":["Typed drug",alias]}});
     let hits = if mode == 2 {
         vec![row("KTUFNOKKBVMGRW-UHFFFAOYSA-N"), row("YLMAHDNUQAMNNX-UHFFFAOYSA-N")]
     } else { vec![row("KTUFNOKKBVMGRW-UHFFFAOYSA-N")] };
@@ -131,10 +136,51 @@ fn controls() -> Check {
         invoke(&env, words, 2)?;
     }
     let first = invoke(&env, args(true), 0)?;
+    snapshots(&env, &first)?;
     let mut changed = super::action(&first, "page")?;
     changed.extend(["--reaction".into(),"Changed filter".into()]);
     let refused = invoke(&env, changed, 2)?;
     if refused.to_string().contains("Brand name") { return Err("snapshot escaped its selectors".into()); }
     stub.finish()?;
+    bounds()?;
+    Ok(())
+}
+
+fn bounds() -> Check {
+    for mode in [4, 5] {
+        let (env, stub, _) = setup(mode, json!({}))?;
+        let reply = invoke(&env, args(true), 0)?;
+        if query(&reply)?.len() > 4096 || mode == 4 && query(&reply)?.contains("Long alias")
+            || mode == 4 && !reply.to_string().contains("Left out 1 additional names")
+            || mode == 5 && !query(&reply)?.contains("Brand \\\"quoted\\\" \\\\name")
+        { return Err(format!("expanded names escaped the native query bound: {reply}")); }
+        stub.finish()?;
+    }
+    let (env, stub, _) = setup(0, json!({"drug_search_name_limit":1}))?;
+    let reply = invoke(&env, args(true), 0)?;
+    if query(&reply)?.contains("Brand name") || !reply.to_string().contains("drug_search_name_limit") {
+        return Err("configured resolver limit was ignored or hidden".into());
+    }
+    stub.finish()?;
+    Ok(())
+}
+
+fn snapshots(env: &Environment, first: &Value) -> Check {
+    let next = super::action(first, "page")?;
+    let index = next.iter().position(|word| word == "--name-snapshot").ok_or("missing name snapshot")?;
+    let mut missing = next.clone();
+    missing.drain(index..=index+1);
+    invoke(env, missing, 2)?;
+    let mut tampered = next.clone();
+    *tampered.get_mut(index+1).ok_or("snapshot value")? = "synthetic-missing".into();
+    let reply = invoke(env, tampered, 2)?;
+    super::action(&reply, "restart")?;
+    let mut disabled = next.clone();
+    disabled.extend(["--disable-sources".into(), "mychem".into()]);
+    let reply = invoke(env, disabled, 2)?;
+    super::action(&reply, "restart")?;
+    let mut literal = args(false);
+    literal.extend(["--name-snapshot".into(),first.pointer("/query/name_snapshot").and_then(Value::as_str).ok_or("token")?.into()]);
+    invoke(env, literal, 2)?;
     Ok(())
 }

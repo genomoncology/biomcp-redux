@@ -323,7 +323,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(protein_domains::trials());
     trials.extend(faers_get::trials());
     trials.extend(faers_search::trials());
-    trials.extend(faers_names::trials());
     trials.extend(cpic::trials());
     trials.extend(maude::trials());
     trials.extend(disease_monarch::trials());
@@ -342,6 +341,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 fn retained_source_trials() -> Vec<Trial> {
     let mut trials = snapshot_errors::trials();
     trials.extend(author_pools::trials());
+    trials.extend(faers_names::trials());
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials
