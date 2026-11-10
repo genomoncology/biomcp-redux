@@ -16,8 +16,12 @@ mod wire;
 pub(super) fn trials() -> Vec<Trial> {
     // The test expires the actual SQLite pool and removes its replay source before checking the executable restart action.
     vec![
-        transcript_trial(required_contract::GWAS_POOL.0, || state::expired().map_err(Into::into)),
-        transcript_trial("gwas-search/threshold-unknown-membership", || uncertainty::run().map_err(Into::into)),
+        transcript_trial(required_contract::GWAS_POOL.0, || {
+            state::expired().map_err(Into::into)
+        }),
+        transcript_trial("gwas-search/threshold-unknown-membership", || {
+            uncertainty::run().map_err(Into::into)
+        }),
     ]
 }
 
