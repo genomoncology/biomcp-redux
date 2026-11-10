@@ -15,6 +15,8 @@ pub(super) struct Restored {
     dependencies: Dependencies,
 }
 
+type StoredCursor = (TrialSearch, Vec<Source>);
+
 enum Dependencies {
     Stored(Vec<SourceOutcome>),
     Portable(Vec<Source>),
@@ -44,10 +46,14 @@ pub(super) fn restore(
         return Ok(None);
     };
     let key = source_snapshot::key(NAMESPACE, &query.first_page())?;
-    let saved = source_snapshot::read_with_sources::<TrialSearch>(cx, &key, id, deadline)?;
+    let saved = source_snapshot::read_with_sources::<StoredCursor>(cx, &key, id, deadline)?;
     Ok(saved
-        .filter(|(saved, _)| saved.offset() == query.offset() && saved.next_page().is_some())
-        .map(|(query, sources)| Restored {
+        .filter(|((saved, ids), sources)| {
+            saved.offset() == query.offset()
+                && saved.next_page().is_some()
+                && *ids == source_ids(sources)
+        })
+        .map(|((query, _), sources)| Restored {
             query,
             dependencies: Dependencies::Stored(sources),
         }))
@@ -114,7 +120,7 @@ fn retain_token(
         let sources = match dependencies {
             Dependencies::Portable(sources) => sources,
             Dependencies::Stored(outcomes) => {
-                stored_ids = outcomes.iter().map(|outcome| outcome.source).collect();
+                stored_ids = source_ids(outcomes);
                 &stored_ids
             }
         };
@@ -124,9 +130,18 @@ fn retain_token(
         return Err(biomcp_fetch::CacheError::Encoding.into());
     };
     let key = source_snapshot::key(NAMESPACE, &query.first_page())?;
-    let id = source_snapshot::write(cx, &key, query, sources, deadline)?;
+    // The store derives the ID from the key and payload. Bind the dependencies there too.
+    let payload = (query, source_ids(sources));
+    let id = source_snapshot::write(cx, &key, &payload, sources, deadline)?;
     Ok(biodata::Text::new(&format!("{PREFIX}{id}"))
         .map_err(|_| biomcp_fetch::CacheError::Encoding)?)
+}
+
+fn source_ids(outcomes: &[SourceOutcome]) -> Vec<Source> {
+    let mut ids: Vec<_> = outcomes.iter().map(|outcome| outcome.source).collect();
+    ids.sort_unstable_by_key(|source| Into::<&'static str>::into(*source));
+    ids.dedup();
+    ids
 }
 
 pub(super) fn unavailable(query: &TrialSearch, out: &mut Outcome) {

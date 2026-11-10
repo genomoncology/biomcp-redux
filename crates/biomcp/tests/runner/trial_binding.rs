@@ -228,6 +228,14 @@ fn carried_source(portable: bool) -> Result<(), String> {
                 && (request.contains("Brand+alias") || request.contains("Brand%20alias"))
         })
         || continued.pointer("/page/offset") != Some(&json!(2))
+        || continued
+            .get("sources")
+            .and_then(Value::as_array)
+            .is_some_and(|sources| {
+                sources
+                    .iter()
+                    .any(|source| source.get("source") == Some(&json!("mychem")))
+            })
     {
         return Err(format!(
             "continuation lost the expanded query or repeated resolution: {requests:?} {continued}"
@@ -243,6 +251,34 @@ fn carried_source(portable: bool) -> Result<(), String> {
     )?;
     if let Some(server) = &mut second {
         server.stop()?;
+    } else {
+        let literal = hosted_call(
+            &first,
+            &[
+                "search",
+                "trial",
+                "--exact-term",
+                "--intervention",
+                "(\"Brand alias\" OR \"Typed drug\")",
+                "--limit",
+                "2",
+            ],
+            "x-biomcp-exclude-sources: mychem\r\n",
+        )?;
+        let literal_page = super::action(&literal, "page")?;
+        if literal_page.iter().map(String::as_str).eq(page_two) {
+            return Err(
+                "identical native cursor and expression aliased distinct stored dependencies"
+                    .into(),
+            );
+        }
+        let words: Vec<_> = literal_page.iter().map(String::as_str).collect();
+        let literal_second = hosted_call(&first, &words, "x-biomcp-exclude-sources: mychem\r\n")?;
+        if literal_second.pointer("/page/offset") != Some(&json!(2)) {
+            return Err(format!(
+                "literal continuation acquired the other cursor's dependency: {literal_second}"
+            ));
+        }
     }
     first.stop()?;
     stub.finish()?;
