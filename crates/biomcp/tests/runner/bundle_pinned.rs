@@ -23,12 +23,11 @@ fn read() -> Result<(), String> {
     let replay = super::launch::fixtures().join("replies/gene/gencc");
     let body = native_body(&replay, "hgnc")?;
     let (admitted, admission) = mpsc::channel();
-    let (release, released) = mpsc::channel();
     let mut foreground = None;
     let mut refresh = false;
-    let stub = Stub::for_sources(
-        &["storage.googleapis.com"],
-        |_| "text/tab-separated-values",
+    let stub = Stub::for_source_with_held_response(
+        "storage.googleapis.com",
+        "text/tab-separated-values",
         move |request| {
             let line = request.lines().next().ok_or("missing HGNC request")?;
             if let Some(expected) = &foreground {
@@ -37,13 +36,11 @@ fn read() -> Result<(), String> {
                 }
                 refresh = true;
                 admitted.send(()).map_err(|e| e.to_string())?;
-                released
-                    .recv_timeout(Duration::from_secs(60))
-                    .map_err(|e| e.to_string())?;
+                Ok(None)
             } else {
                 foreground = Some(line.to_owned());
+                Ok(Some(body.clone()))
             }
-            Ok(body.clone())
         },
     )?;
     stub.retain(env.shared_root());
@@ -80,9 +77,17 @@ fn read() -> Result<(), String> {
         .recv_timeout(Duration::from_secs(15))
         .map_err(|e| format!("owned refresh was not admitted: {e}"));
     let stopped = server.finish();
-    let released = release.send(()).map_err(|e| e.to_string());
-    let fixture = stub.finish().map(|_| ());
-    result.and(admitted).and(stopped).and(released).and(fixture)
+    let fixture = stub.finish().and_then(|requests| {
+        if requests.len() == 2 {
+            Ok(())
+        } else {
+            Err(format!(
+                "expected seed and one owned refresh, got {} requests",
+                requests.len()
+            ))
+        }
+    });
+    result.and(admitted).and(stopped).and(fixture)
 }
 
 fn args(words: &[&str]) -> Vec<String> {
