@@ -23,6 +23,7 @@ enum Checked<T> {
         Option<crate::Pagination>,
     ),
     Absent,
+    ExpiredAbsent,
 }
 
 impl Leg<'_> {
@@ -81,7 +82,7 @@ impl Leg<'_> {
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
-                None => {}
+                Some(Checked::ExpiredAbsent) | None => {}
             }
         }
         match live() {
@@ -195,6 +196,18 @@ impl Leg<'_> {
                 Some(Checked::Absent) => {
                     return Err(self.failure(Reason::NotFound, Some(404)).into());
                 }
+                Some(Checked::ExpiredAbsent) => {
+                    let notice = biomcp_types::SourceNotice::RequestGuidance {
+                        data_date: None,
+                        message: "A previously cached not-found result has expired; current absence is unknown.".into(),
+                        retry_after_seconds: None,
+                    };
+                    let mut report = self.report.lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner);
+                    if !report.data_notices.contains(&notice) {
+                        report.data_notices.push(notice);
+                    }
+                }
                 None => {}
             }
         }
@@ -244,7 +257,7 @@ impl Leg<'_> {
                     ),
                 );
             }
-            return Ok(fresh.then_some(Checked::Absent));
+            return Ok(Some(if fresh { Checked::Absent } else { Checked::ExpiredAbsent }));
         }
         let reply = (entry.content_type.as_deref() == Some(codec.name())
             && codec.validate(&entry.body).is_ok())
