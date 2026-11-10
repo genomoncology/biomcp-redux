@@ -109,6 +109,10 @@ fn check(meta: bool, broad: bool) -> Result<(), String> {
         replace(&next, "--offset", "40")?,
         replace(&next, "--phase", "2")?,
         replace(&next, "--sponsor", "Other")?,
+        next.iter()
+            .cloned()
+            .chain(["--exact-condition".into()])
+            .collect(),
         replace(&next, "--next-page", "native-two")?,
         replace(&next, "--next-page", "biomcp:ctgov-names:v1:native-two")?,
         replace(
