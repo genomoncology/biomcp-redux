@@ -62,6 +62,7 @@ fn stored_licensed_owners_admit_same_key_and_refuse_other_or_missing_keys() -> C
     let sources = [source(true)];
     let mut a = store(&first)?;
     let pool = a.publish(KEY, &[item()], &sources, &[], false)?;
+    a.publish_current(&pool, KEY)?;
     let window = a.publish_source_pool(KEY, PAYLOAD, 1, &sources, false)?;
     let snapshot = a.save_source_snapshot(KEY, PAYLOAD, &sources)?;
     let evidence = a.save_evidence(None, KEY, PAYLOAD, &sources)?;
@@ -171,6 +172,7 @@ fn public_stores_remain_shared_and_legacy_licensed_rows_require_ownership() -> C
         let mut ordinary = store(&original)?;
         let sources = [source(private)];
         let pool = ordinary.publish(KEY, &[item()], &sources, &[], false)?;
+        ordinary.publish_current(&pool, KEY)?;
         let window = ordinary.publish_source_pool(KEY, PAYLOAD, 1, &sources, false)?;
         let snapshot = ordinary.save_source_snapshot(KEY, PAYLOAD, &sources)?;
         let evidence = ordinary.save_evidence(None, KEY, PAYLOAD, &sources)?;
