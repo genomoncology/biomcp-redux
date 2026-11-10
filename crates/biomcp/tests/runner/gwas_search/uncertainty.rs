@@ -55,7 +55,47 @@ pub(super) fn run() -> Result<(), String> {
             if mode == "all-missing" { 0 } else { 2 },
         )?;
     }
-    later_page()
+    later_page()?;
+    complete_controls()
+}
+
+fn complete_controls() -> Result<(), String> {
+    for (threshold, exponent, expected) in [
+        ("4e-254", -254, 3),
+        ("1e-300", -254, 0),
+        ("4e-320", -320, 3),
+    ] {
+        let env = Environment::new().map_err(|error| error.to_string())?;
+        let args = [
+            "search",
+            "gwas",
+            "--pubmed",
+            "17529967",
+            "--p-value",
+            threshold,
+        ];
+        let mut page = body(&url(&pairs()), 0, 3);
+        for row in page["_embedded"]["associations"]
+            .as_array_mut()
+            .ok_or("association fixture")?
+        {
+            row["pvalue_exponent"] = json!(exponent);
+            if exponent == -320 {
+                row["p_value"] = json!(0.0);
+            }
+        }
+        let replay = seed(&env, &args, page, 200, 0)?;
+        let value = replay_call(&env, &replay, &args)?;
+        if value.pointer("/status") != Some(&json!("complete"))
+            || value.pointer("/result/qualifying_total") != Some(&json!(expected))
+            || value.pointer("/page/returned") != Some(&json!(expected))
+        {
+            return Err(format!(
+                "{threshold}: comparable terminal count changed: {value}"
+            ));
+        }
+    }
+    Ok(())
 }
 
 fn later_page() -> Result<(), String> {
