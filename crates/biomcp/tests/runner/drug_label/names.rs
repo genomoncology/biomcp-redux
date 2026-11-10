@@ -20,6 +20,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     .collect()
 }
 fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
+    let mut lookups = 0;
     let stub = Stub::for_sources(
         &["mychem.info", "api.fda.gov"],
         |_| "application/json",
@@ -29,9 +30,11 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
                 .map_err(|e| e.to_string())?;
             let pairs: std::collections::HashMap<_, _> = url.query_pairs().into_owned().collect();
             if target.starts_with("/v1/query?") {
+                lookups += 1;
                 let row = |id| {
                     json!({"_id":id,"drugcentral":{"synonyms":["Typed drug", match mode {
-                        4 => "Long alias ".repeat(200), 5 => "Brand \"quoted\" \\name".into(), _ => "Brand name".into()
+                        4 => "Long alias ".repeat(200), 5 => "Brand \"quoted\" \\name".into(),
+                        7 if lookups > 1 => "Changed brand".into(), _ => "Brand name".into()
                     }]}})
                 };
                 return Ok(if mode == 3 {

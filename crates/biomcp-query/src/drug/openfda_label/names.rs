@@ -88,7 +88,7 @@ pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome
             source.notices.push(SourceNotice::DrugNameSearch {
                 input: input.clone(), names: saved.names.clone().into(),
                 message: format!(
-                    "Searched these literal spellings in one native label name union; counts are native SPL sets, not sums. \
+                    "Searched these literal spellings in one native label name union; counts are native label records, not sums. \
                      Name discovery is bounded and does not establish drug-wide completeness. \
                      Left out {} additional names at the whole-query bound.", saved.omitted
                 ).into(),

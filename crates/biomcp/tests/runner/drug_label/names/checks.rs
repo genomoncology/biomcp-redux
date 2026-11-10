@@ -59,7 +59,11 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
         crate::runner::action(&failed, "restart")?;
     }
     let mut changed = next;
-    changed.extend(["--indication".into(), "Changed".into()]);
+    let field = changed
+        .iter()
+        .position(|word| word == "--indication")
+        .ok_or("indication")?;
+    *changed.get_mut(field + 1).ok_or("indication value")? = "Changed".into();
     let failed = invoke(env, changed, 3)?;
     crate::runner::action(&failed, "restart")?;
     for input in ["NDA202155", "095a08ac-cf0e-497e-a682-ddef38d6b29c"] {
@@ -72,7 +76,11 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     invoke(env, bad, 2)?;
     for source in ["mychem", "drugsfda"] {
         let mut bad = args(true);
-        bad.extend(["--source".into(), source.into()]);
+        let field = bad
+            .iter()
+            .position(|word| word == "--source")
+            .ok_or("source")?;
+        *bad.get_mut(field + 1).ok_or("source value")? = source.into();
         invoke(env, bad, 2)?;
     }
     Ok(())
