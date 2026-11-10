@@ -278,7 +278,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(research::trials());
     trials.extend(trial_gene::trials());
     trials.extend(trial_continuation::trials());
-    trials.extend(trial_binding::trials());
     trials.extend(cache_contention::trials());
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
@@ -345,6 +344,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
 
 fn retained_source_trials() -> Vec<Trial> {
     let mut trials = snapshot_errors::trials();
+    trials.extend(trial_binding::trials());
     trials.extend(author_pools::trials());
     trials.extend(faers_names::trials());
     trials.extend(protein_sections::trials());

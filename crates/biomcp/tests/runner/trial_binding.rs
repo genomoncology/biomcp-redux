@@ -1,10 +1,7 @@
 //! Registry continuation capabilities bind selectors and consumed native positions.
 use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub};
 use serde_json::{Value, json};
-use std::sync::{
-    Arc,
-    atomic::{AtomicUsize, Ordering},
-};
+use std::sync::mpsc;
 
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
     [false, true]
@@ -23,14 +20,13 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
         .collect()
 }
 
-fn setup(broad: bool) -> Result<(Environment, Stub, Arc<AtomicUsize>), String> {
-    let calls = Arc::new(AtomicUsize::new(0));
-    let observed = calls.clone();
+fn setup(broad: bool) -> Result<(Environment, Stub, mpsc::Receiver<()>), String> {
+    let (observed, calls) = mpsc::channel();
     let stub = Stub::for_source("clinicaltrials.gov", "application/json", move |request| {
+        observed.send(()).map_err(|_| "request observer closed")?;
         if request.contains("/version") {
             return Ok(json!({"dataTimestamp":"2026-11-10T00:00:00Z"}).to_string());
         }
-        observed.fetch_add(1, Ordering::SeqCst);
         if broad && !request.contains("query.spons=") {
             return Ok(json!({"totalCount":0,"studies":[]}).to_string());
         }
@@ -164,12 +160,12 @@ fn refused(
     env: &Environment,
     args: &[String],
     meta: bool,
-    calls: &AtomicUsize,
+    calls: &mpsc::Receiver<()>,
     restart_allowed: bool,
 ) -> Result<Vec<String>, String> {
-    let before = calls.load(Ordering::SeqCst);
+    for _ in calls.try_iter() {}
     let reply = call(env, args, meta, true)?;
-    if calls.load(Ordering::SeqCst) != before
+    if calls.try_iter().next().is_some()
         || reply.pointer("/error/option") != Some(&json!("--next-page"))
         || !reply
             .pointer("/error/message")
