@@ -106,7 +106,7 @@ fn restrict_notices(saved: &mut Saved) {
 
 fn disclose(query: &AdverseEventSearch, names: &[Text], omitted: usize, out: &mut Outcome) {
     if let Some(source) = out.sources.iter_mut().find(|source| source.source == Source::Faers) {
-        for input in query.text().into_iter().chain(query.drug()) {
+        for input in query.text().into_iter().chain(query.drug()).take(1) {
             source.notices.push(SourceNotice::DrugNameSearch {
                 input: input.clone(), names: names.to_vec().into(),
                 message: format!(

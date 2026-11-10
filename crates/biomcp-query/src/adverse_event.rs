@@ -18,7 +18,10 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let out = if query.expand_drug_names() && !cx.fetch.disabled(Source::Faers) {
+    let out = if query.expand_drug_names()
+        && !cx.fetch.disabled(Source::Faers)
+        && !cx.fetch.disabled(Source::Meddra)
+    {
         names::search(cx, query, &mut deadline)
     } else {
         native(cx, query, query, deadline)
@@ -27,11 +30,11 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcome {
     out
 }
 
-fn native(
-    cx: &Ctx<'_>,
+fn native<'a>(
+    cx: &Ctx<'a>,
     query: &AdverseEventSearch,
     navigation_query: &AdverseEventSearch,
-    deadline: biomcp_fetch::Deadline<'_>,
+    deadline: biomcp_fetch::Deadline<'a>,
 ) -> Outcome {
     if query.aggregate().is_some() {
         return counts::search(cx, query, navigation_query, deadline);

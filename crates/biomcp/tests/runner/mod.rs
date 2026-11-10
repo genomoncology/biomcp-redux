@@ -21,6 +21,7 @@ tool_only! { mod disease_ols; }
 tool_only! { mod disease_seer; }
 mod execution;
 mod faers_search;
+mod faers_names;
 mod native_fields;
 #[path = "../support/pool_contracts.rs"]
 mod pool_contract;
@@ -322,6 +323,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(protein_domains::trials());
     trials.extend(faers_get::trials());
     trials.extend(faers_search::trials());
+    trials.extend(faers_names::trials());
     trials.extend(cpic::trials());
     trials.extend(maude::trials());
     trials.extend(disease_monarch::trials());

@@ -5,11 +5,11 @@ use biomcp_types::{
     AdverseEventPage, AdverseEventReactionCounts, AdverseEventSearch, ReplyBody, ReportUnit, Source,
 };
 
-pub(super) fn search(
-    cx: &Ctx<'_>,
+pub(super) fn search<'a>(
+    cx: &Ctx<'a>,
     query: &AdverseEventSearch,
     navigation_query: &AdverseEventSearch,
-    deadline: biomcp_fetch::Deadline<'_>,
+    deadline: biomcp_fetch::Deadline<'a>,
 ) -> Outcome {
     let leg = cx.fetch.leg(&faers::SPEC, deadline).fresh(cx.fresh);
     let mut body = AdverseEventPage {
