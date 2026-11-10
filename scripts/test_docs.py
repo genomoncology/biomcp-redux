@@ -74,7 +74,6 @@ def tools_check(root, readme, original_readme):
     readme.write_text(original_readme)
 
 
-
 def commercial_check(root, readme, original_readme):
     """Commercial setup comes from the named configuration section, not other JSON."""
     config = root / "docs/configuration.md"
