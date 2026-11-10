@@ -66,7 +66,14 @@ fn complete_controls() -> Result<(), String> {
         ("4e-320", -320, 3),
     ] {
         let env = Environment::new().map_err(|error| error.to_string())?;
-        let args = ["search", "gwas", "--pubmed", "17529967", "--p-value", threshold];
+        let args = [
+            "search",
+            "gwas",
+            "--pubmed",
+            "17529967",
+            "--p-value",
+            threshold,
+        ];
         let mut page = body(&url(&pairs()), 0, 3);
         for row in page["_embedded"]["associations"]
             .as_array_mut()
@@ -83,7 +90,9 @@ fn complete_controls() -> Result<(), String> {
             || value.pointer("/result/qualifying_total") != Some(&json!(expected))
             || value.pointer("/page/returned") != Some(&json!(expected))
         {
-            return Err(format!("{threshold}: comparable terminal count changed: {value}"));
+            return Err(format!(
+                "{threshold}: comparable terminal count changed: {value}"
+            ));
         }
     }
     Ok(())
