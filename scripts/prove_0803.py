@@ -1,4 +1,4 @@
-"""One-off scoped witnesses for the five meaningful 0803 survivors; do not land."""
+"""One-off scoped witnesses for the six meaningful 0803 survivors; do not land."""
 from pathlib import Path
 import subprocess
 import sys
@@ -27,6 +27,10 @@ CASES = [
     ('crates/biomcp-query/src/pathway/relation.rs',
      '!self.dropped && crate::source_snapshot::sources_whole(&self.sources)',
      'false', [('pathway-reactome/healthy-events-reuse-pool', 'healthy pathway window was rebuilt')]),
+    ('crates/biomcp-query/src/protein/search.rs',
+     '!self.dropped && crate::source_snapshot::sources_whole(&self.sources)',
+     'true', [('protein-search/refused-membership-is-explicit-only',
+               'incomplete protein search pool became the implicit default')]),
 ]
 
 
@@ -49,8 +53,9 @@ def main():
         'protein-sections/displayed-bounds-and-identity',
         'pathway-reactome/healthy-events-reuse-pool',
         'pathway-reactome/refused-events-are-explicit-only',
+        'protein-search/refused-membership-is-explicit-only',
     ], cwd=ROOT, check=True)
-    print('All six unmutated public-command checks: PASS', flush=True)
+    print('All seven unmutated public-command checks: PASS', flush=True)
     for command in [
         ['cargo', 'fmt', '--all', '--', '--check'],
         ['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'cases', '--test', 'tools', '--', '-D', 'warnings'],
@@ -76,7 +81,7 @@ def main():
                 print('CONFIRMED RED:', trial, flush=True)
         finally:
             path.write_text(original)
-    print('All five scoped replacements killed by six public-command checks', flush=True)
+    print('All six scoped replacements killed by seven public-command checks', flush=True)
 
 
 if __name__ == '__main__':
