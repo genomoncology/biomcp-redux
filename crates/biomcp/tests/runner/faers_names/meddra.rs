@@ -114,6 +114,10 @@ fn refusals() -> Check {
         if !value.to_string().contains("disabled")
             || value.get("result").is_some()
             || value.get("local_error").is_some()
+            || value
+                .get("next")
+                .and_then(Value::as_array)
+                .is_some_and(|steps| !steps.is_empty())
         {
             return Err(format!(
                 "primary FAERS exclusion reused a saved payload: {value}"
