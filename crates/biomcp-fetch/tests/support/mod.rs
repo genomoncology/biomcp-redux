@@ -27,6 +27,7 @@ pub(super) struct Request<T> {
     pub(super) text: String,
     pub(super) body: Vec<u8>,
     observation: T,
+    peer: TcpStream,
     pub(super) reply: mpsc::Sender<Response>,
 }
 pub(super) struct Response {
@@ -40,6 +41,26 @@ impl<T> std::ops::Deref for Request<T> {
     }
 }
 impl<T> Request<T> {
+    pub(super) fn wait_for_disconnect(&self) -> std::io::Result<()> {
+        self.peer.set_read_timeout(Some(Duration::from_secs(30)))?;
+        match (&self.peer).read(&mut [0]) {
+            Ok(0) => Ok(()),
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    std::io::ErrorKind::ConnectionReset
+                        | std::io::ErrorKind::ConnectionAborted
+                        | std::io::ErrorKind::NotConnected
+                ) =>
+            {
+                Ok(())
+            }
+            Ok(_) => Err(std::io::Error::other(
+                "held request received unexpected bytes",
+            )),
+            Err(error) => Err(error),
+        }
+    }
     pub(super) fn respond(self, status: u16, headers: &str, body: &str) {
         let response = format!(
             "HTTP/1.1 {status} Stub\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n{headers}\r\n{body}",
@@ -121,6 +142,7 @@ impl<T: Default + Send + 'static> Server<T> {
                         text,
                         body,
                         observation: T::default(),
+                        peer: stream.try_clone().unwrap(),
                         reply,
                     })
                     .is_err()

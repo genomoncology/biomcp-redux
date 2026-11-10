@@ -21,6 +21,7 @@ fn caller_cancellation_leaves_the_server_owned_refresh_running() {
     );
     assert!(leg.finish().stale);
     let held = server.next();
+    second_stale_read(&fetch, &bundle, &held);
     cancellation.cancel();
     drop(call);
     held.respond(200, "", &TSV.replace("B raf kinase", "Updated gene"));
@@ -67,6 +68,25 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
     let held = server.next();
     cancellation.cancel();
     drop(call);
+    let part: String = db
+        .query_row(
+            "SELECT part FROM bundle_sync WHERE name='genes'",
+            [],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let part = std::fs::File::options()
+        .read(true)
+        .write(true)
+        .open(part)
+        .unwrap();
+    assert!(matches!(
+        part.try_lock(),
+        Err(std::fs::TryLockError::WouldBlock)
+    ));
+    // The interrupted worker must finish its ordinary bounded cleanup while
+    // this write remains held; simply detaching its thread is not completion.
+    db.execute_batch("BEGIN IMMEDIATE").unwrap();
 
     let (stopped, completion) = std::sync::mpsc::channel();
     let owner = std::thread::spawn(move || {
@@ -74,6 +94,9 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
         stopped.send(()).unwrap();
     });
     let result = completion.recv_timeout(Duration::from_secs(30));
+    let finished = part.try_lock();
+    let disconnected = held.wait_for_disconnect();
+    db.execute_batch("ROLLBACK").unwrap();
     // Release the fixture even on the old implementation, so the failed
     // regression reaps its worker instead of leaving a detached download.
     held.respond(400, "", "cancelled fixture");
@@ -81,6 +104,14 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
     assert!(
         result.is_ok(),
         "owner waited for the held upstream: {result:?}"
+    );
+    assert!(
+        finished.is_ok(),
+        "owner left its publisher file locked: {finished:?}"
+    );
+    assert!(
+        disconnected.is_ok(),
+        "owner left its socket open: {disconnected:?}"
     );
     assert!(
         server.requests.try_recv().is_err(),
@@ -97,4 +128,35 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
         leg.finish().stale,
         "shutdown published an incomplete refresh"
     );
+}
+
+fn second_stale_read(fetch: &Fetch, bundle: &Bundle<Gene>, held: &support::Request<()>) {
+    std::thread::scope(|scope| {
+        let (replied, reply) = std::sync::mpsc::channel();
+        let reader = scope.spawn(move || {
+            let leg = fetch.leg(bundle.spec, fetch.deadline(Duration::from_secs(30)));
+            let rows = leg.rows(bundle, Find::Exact(KeyKind::Symbol, "BRAF"));
+            replied.send((rows, leg.finish())).unwrap();
+        });
+        let response = reply.recv_timeout(Duration::from_secs(30));
+        if response.is_err() {
+            // Release the original publisher before reaping a reader that
+            // incorrectly joined it, preserving the failed assertion witness.
+            let _ = held.reply.send(support::Response {
+                bytes: b"HTTP/1.1 400 Stop\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+                    .to_vec(),
+                continuation: None,
+            });
+        }
+        reader.join().unwrap();
+        assert!(
+            response.is_ok(),
+            "second stale reader joined the held publisher"
+        );
+        let (rows, report) = response.unwrap();
+        let rows = rows.unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows.first().unwrap().name, "B raf kinase");
+        assert!(report.stale);
+    });
 }
