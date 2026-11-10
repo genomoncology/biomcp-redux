@@ -220,16 +220,11 @@ pub(super) fn stale_page() -> Result<(), String> {
         super::wire::live_body,
     )?;
     let env = crate::runner::variant::source_environment(&stub)?;
-    let config = env.root().join("config/biomcp/config.json");
-    let mut settings: Value =
-        serde_json::from_slice(&std::fs::read(&config).map_err(|error| error.to_string())?)
-            .map_err(|error| error.to_string())?;
-    let cache = env.root().join("observations.sqlite");
-    settings
-        .as_object_mut()
-        .ok_or("config object")?
-        .insert("cache".into(), json!(cache));
-    env.config(&settings).map_err(|error| error.to_string())?;
+    let cache = env.root().join(format!(
+        "cache/biomcp/cache-{}-{}.sqlite",
+        biomcp_fetch::CACHE_NAMESPACE_VERSION,
+        biomcp_query::store::CACHE_NAMESPACE_VERSION
+    ));
     let first = super::invoke(
         &env,
         [
