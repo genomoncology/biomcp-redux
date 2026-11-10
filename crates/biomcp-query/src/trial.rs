@@ -22,31 +22,43 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     let mut outcome = empty(query);
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let restored = continuation::restore(cx, query, deadline);
-    let query = match &restored {
-        Ok(Some(query)) => query,
-        Ok(None) => {
-            continuation::unavailable(query, &mut outcome);
-            command.finish(deadline.remaining());
-            return outcome;
-        }
-        Err(error) => {
-            outcome.local = status::local(*error);
-            status::item(&mut outcome, false, true, false);
-            command.finish(deadline.remaining());
-            return outcome;
-        }
+    let result = execute(cx, query, &mut outcome, &mut deadline);
+    if let Err(error) = result {
+        outcome.local = status::local(error);
+        status::item(&mut outcome, false, true, false);
+    }
+    command.finish(deadline.remaining());
+    outcome
+}
+fn execute<'a>(
+    cx: &Ctx<'a>,
+    query: &TrialSearch,
+    outcome: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) -> Result<(), biomcp_fetch::RequestError> {
+    let Some(query) = continuation::restore(cx, query, *deadline)? else {
+        continuation::unavailable(query, outcome);
+        return Ok(());
     };
-    let Some(condition) = condition::resolve(cx, query, &mut outcome, &mut deadline) else {
-        command.finish(deadline.remaining());
-        return outcome;
+    let Some(condition) = condition::resolve(cx, &query, outcome, deadline) else {
+        return Ok(());
     };
-    let Some(gene) = gene(cx, query, &mut outcome, &mut deadline) else {
-        command.finish(deadline.remaining());
-        return outcome;
+    let Some(gene) = gene(cx, &query, outcome, deadline) else {
+        return Ok(());
     };
-    let expanded = drug_names::expand(cx, query, &mut outcome, &mut deadline);
-    let leg = cx.fetch.leg(&ctgov::SPEC, deadline).fresh(cx.fresh);
+    search_source(cx, &query, condition, gene, outcome, deadline);
+    continuation::retain(cx, outcome, *deadline)
+}
+fn search_source<'a>(
+    cx: &Ctx<'a>,
+    query: &TrialSearch,
+    condition: Option<biodata::Text>,
+    gene: Option<String>,
+    outcome: &mut Outcome,
+    deadline: &mut biomcp_fetch::Deadline<'a>,
+) {
+    let expanded = drug_names::expand(cx, query, outcome, deadline);
+    let leg = cx.fetch.leg(&ctgov::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let conditions = condition
         .as_ref()
@@ -70,47 +82,41 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
         .or(version.as_ref().err())
         .copied()
         .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
-    deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
     if typed_only {
-        retract_names(&expanded.inputs, &mut source, &mut outcome);
+        retract_names(&expanded.inputs, &mut source, outcome);
     }
     {
         let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
-        let (found, identity_failed, unavailable) = item_state(&outcome, result.is_ok(), missing);
-        crate::status::item(&mut outcome, found, identity_failed, unavailable);
+        let (found, identity_failed, unavailable) = item_state(outcome, result.is_ok(), missing);
+        crate::status::item(outcome, found, identity_failed, unavailable);
     };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
-            condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
+            condition::word_notice(query, cx.fresh, &mut source, outcome);
         }
         page_notices(query, gene.as_deref(), &page, &mut source);
         let sent = sent_query(query, &expanded, typed_only);
-        apply_page(query, &sent, cx.fresh, gene.as_deref(), &mut outcome, page);
+        apply_page(query, &sent, cx.fresh, gene.as_deref(), outcome, page);
     }
     if let Ok(version) = version {
         outcome.problems.extend(version.problems);
         if let ReplyData::TrialPage {
             body: Some(body), ..
-        } = &mut outcome.body
+        } = outcome.body
         {
             body.source_updated = version.value.map(Into::into);
         }
     }
     if rejected && query.next_page().is_some() {
-        continuation::rejected(query, &mut outcome);
+        continuation::rejected(query, outcome);
     } else if generic_rejected {
         outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
-    if let Err(error) = continuation::retain(cx, &mut outcome, deadline) {
-        outcome.local = status::local(error);
-        status::item(&mut outcome, false, true, false);
-    }
-    command.finish(deadline.remaining());
-    outcome
 }
 /// The found, identity-failed and unavailable states, counting earlier source outcomes.
 fn item_state(outcome: &Outcome, answered: bool, missing: bool) -> (bool, bool, bool) {
