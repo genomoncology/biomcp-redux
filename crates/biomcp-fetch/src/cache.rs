@@ -214,9 +214,11 @@ impl Cache {
                     fetched_at,
                     content_type,
                     content_range,
+                    pagination,
                     oversized,
                 )) if (200..300).contains(&status)
-                    || status == 404 && body.as_ref().is_some_and(Vec::is_empty) => {
+                    || status == 404 && body.as_ref().is_some_and(Vec::is_empty) =>
+                {
                     let pagination = pagination
                         .map(|p| serde_json::from_str::<crate::Pagination>(&p))
                         .transpose();
