@@ -166,11 +166,12 @@ def select_mutants(inventory, files, changed, ranges, limit):
     fallback = [row['name'] for row in inventory if row['file'] not in ranges]
     selected.extend(fallback[:max(0, limit - len(selected))])
     names = set(selected)
+    selected_overlapping = names & overlapping
     counts = [dict(file=path, changed=path in ranges, changed_lines=ranges.get(path, []),
                    eligible=len(grouped[path]),
                    overlapping=sum(row['name'] in overlapping for row in grouped[path]),
                    selected=sum(row['name'] in names for row in grouped[path]),
-                   selected_overlapping=sum(row['name'] in names & overlapping
+                   selected_overlapping=sum(row['name'] in selected_overlapping
                                             for row in grouped[path])) for path in files]
     summary = dict(policy='changed-line-prioritized-file-round-robin', files=counts,
                    no_eligible_changed_files=[path for path in changed if not grouped[path]],
