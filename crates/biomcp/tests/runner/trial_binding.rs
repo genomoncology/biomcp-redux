@@ -27,44 +27,65 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
                 move || cross_store(broad).map_err(Into::into),
             )
         }))
+        .chain([false, true].map(|portable| {
+            super::transcript::trial(
+                if portable {
+                    "trial-search/portable-continuation-carries-expansion-source"
+                } else {
+                    "trial-search/stored-continuation-carries-expansion-source"
+                },
+                move || carried_source(portable).map_err(Into::into),
+            )
+        }))
         .collect()
 }
 
 fn registry(broad: bool) -> Result<(Stub, mpsc::Receiver<String>), String> {
     let (observed, calls) = mpsc::channel();
-    let stub = Stub::for_source("clinicaltrials.gov", "application/json", move |request| {
-        observed
-            .send(request.lines().next().unwrap_or_default().to_owned())
-            .map_err(|_| "request observer closed")?;
-        if request.contains("/version") {
-            return Ok(json!({"dataTimestamp":"2026-11-10T00:00:00Z"}).to_string());
-        }
-        if broad && !request.contains("query.spons=") {
-            return Ok(json!({"totalCount":0,"studies":[]}).to_string());
-        }
-        let position = if request.contains("pageToken=native-four") {
-            4
-        } else if request.contains("pageToken=native-two") {
-            2
-        } else {
-            0
-        };
-        let row = |id: &str| {
-            json!({"protocolSection":{"identificationModule":{"nctId":id,
+    let stub = Stub::for_sources(
+        &["clinicaltrials.gov", "mychem.info"],
+        |_| "application/json",
+        move |request| {
+            observed
+                .send(request.lines().next().unwrap_or_default().to_owned())
+                .map_err(|_| "request observer closed")?;
+            if request.contains("/v1/query?") {
+                return Ok(
+                    json!({"total":1,"hits":[{"_id":"KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+                "drugcentral":{"synonyms":["Typed drug","Brand alias"]}}]})
+                    .to_string(),
+                );
+            }
+            if request.contains("/version") {
+                return Ok(json!({"dataTimestamp":"2026-11-10T00:00:00Z"}).to_string());
+            }
+            if broad && !request.contains("query.spons=") {
+                return Ok(json!({"totalCount":0,"studies":[]}).to_string());
+            }
+            let position = if request.contains("pageToken=native-four") {
+                4
+            } else if request.contains("pageToken=native-two") {
+                2
+            } else {
+                0
+            };
+            let row = |id: &str| {
+                json!({"protocolSection":{"identificationModule":{"nctId":id,
             "briefTitle":"Synthetic bound cursor"},"statusModule":{"overallStatus":"RECRUITING"},
             "conditionsModule":{"conditions":["Other condition"]}}})
-        };
-        let rows = match position {
-            0 => vec![row("NCT00000001"), row("invalid")],
-            2 => vec![row("NCT00000003"), row("NCT00000004")],
-            _ => vec![row("invalid"), row("invalid")],
-        };
-        Ok(
-            json!({"totalCount":8,"studies":rows,"nextPageToken":match position {
+            };
+            let rows = match position {
+                0 => vec![row("NCT00000001"), row("invalid")],
+                2 => vec![row("NCT00000003"), row("NCT00000004")],
+                _ => vec![row("invalid"), row("invalid")],
+            };
+            Ok(
+                json!({"totalCount":8,"studies":rows,"nextPageToken":match position {
             0=>"native-two",2=>"native-four",_=>"native-six"}})
-            .to_string(),
-        )
-    })?;
+                .to_string(),
+            )
+        },
+    )?;
     Ok((stub, calls))
 }
 
@@ -91,16 +112,7 @@ fn cross_store(broad: bool) -> Result<(), String> {
     let (stub, calls) = registry(broad)?;
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let config = config(&stub, &assets)?;
-    let start = |key: Option<&str>| {
-        Server::configured_globals(
-            "127.0.0.1:0",
-            Some(config.clone()),
-            None,
-            key.map(|value| ("BIOMCP_TRIAL_CONTINUATION_KEY", value)),
-            None,
-            &["--hosted".into()],
-        )
-    };
+    let start = |key| hosted_server(&config, key);
     if !broad && start(Some("invalid")).is_ok() {
         return Err("a malformed configured cursor key started a hosted task".into());
     }
@@ -119,6 +131,8 @@ fn cross_store(broad: bool) -> Result<(), String> {
             "trial",
             "--sponsor",
             "Synthetic Registry",
+            "--condition",
+            "pancreatic",
             "--limit",
             "2",
             "--exact-term",
@@ -150,6 +164,87 @@ fn cross_store(broad: bool) -> Result<(), String> {
     wrong.stop()?;
     replacement.stop()?;
     other.stop()?;
+    stub.finish()?;
+    Ok(())
+}
+
+fn hosted_server(config: &Value, key: Option<&str>) -> Result<Server, String> {
+    Server::configured_globals(
+        "127.0.0.1:0",
+        Some(config.clone()),
+        None,
+        key.map(|value| ("BIOMCP_TRIAL_CONTINUATION_KEY", value)),
+        None,
+        &["--hosted".into()],
+    )
+}
+
+fn carried_source(portable: bool) -> Result<(), String> {
+    use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
+    let (stub, calls) = registry(false)?;
+    let assets = Environment::new().map_err(|e| e.to_string())?;
+    let mut config = config(&stub, &assets)?;
+    config["disable_sources"] = json!(["chembl", "openfda-label"]);
+    let key = portable.then(|| URL_SAFE_NO_PAD.encode([1; 32]));
+    let mut first = hosted_server(&config, key.as_deref())?;
+    stub.retain(first.environment().shared_root());
+    let initial = hosted_call(
+        &first,
+        &[
+            "search",
+            "trial",
+            "--intervention",
+            "Typed drug",
+            "--limit",
+            "2",
+        ],
+        "",
+    )?;
+    let requests: Vec<_> = calls.try_iter().collect();
+    if !requests
+        .iter()
+        .any(|request| request.contains("/v1/query?"))
+        || !requests
+            .iter()
+            .any(|request| request.contains("Brand+alias") || request.contains("Brand%20alias"))
+    {
+        return Err(format!(
+            "first page did not use a source-resolved alias: {requests:?}"
+        ));
+    }
+    let mut second = portable
+        .then(|| hosted_server(&config, key.as_deref()))
+        .transpose()?;
+    let server = second.as_ref().unwrap_or(&first);
+    let page_two = super::action(&initial, "page")?;
+    let page_two: Vec<_> = page_two.iter().map(String::as_str).collect();
+    let continued = hosted_call(server, &page_two, "")?;
+    let requests: Vec<_> = calls.try_iter().collect();
+    if requests
+        .iter()
+        .any(|request| request.contains("/v1/query?"))
+        || !requests.iter().any(|request| {
+            request.contains("pageToken=native-two")
+                && (request.contains("Brand+alias") || request.contains("Brand%20alias"))
+        })
+        || continued.pointer("/page/offset") != Some(&json!(2))
+    {
+        return Err(format!(
+            "continuation lost the expanded query or repeated resolution: {requests:?} {continued}"
+        ));
+    }
+    let page_three = super::action(&continued, "page")?;
+    let page_three: Vec<_> = page_three.iter().map(String::as_str).collect();
+    hosted_refusal(
+        server,
+        &page_three,
+        "x-biomcp-exclude-sources: mychem\r\n",
+        &calls,
+    )?;
+    if let Some(server) = &mut second {
+        server.stop()?;
+    }
+    first.stop()?;
     stub.finish()?;
     Ok(())
 }
