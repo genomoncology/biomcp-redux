@@ -26,7 +26,7 @@ fn scenario(mode: &'static str) -> Result<(), String> {
             .iter()
             .position(|word| word == "--sample-set")
             .ok_or("sample selector")?;
-        args[index + 1] = "all".into();
+        *args.get_mut(index + 1).ok_or("sample value")? = "all".into();
     }
     let admitted = matches!(mode, "empty" | "uncounted");
     let cli = super::call(&env, &args, if admitted { 0 } else { 4 })?;
@@ -118,9 +118,13 @@ fn serve(mode: &'static str) -> Result<Stub, String> {
                 let mut list = json!({"studyId":"msk_impact_2017", "sampleListId":"msk_impact_2017_all", "sampleCount":100});
                 match mode {
                     "unknown" => list = json!({"error":"Unknown sample list"}),
-                    "wrong-study" => list["studyId"] = json!("another_study"),
-                    "wrong-list" => list["sampleListId"] = json!("another_list"),
-                    "malformed" => list["sampleListId"] = json!({}),
+                    "wrong-study" => {
+                        *list.get_mut("studyId").ok_or("study id")? = json!("another_study")
+                    }
+                    "wrong-list" => {
+                        *list.get_mut("sampleListId").ok_or("list id")? = json!("another_list")
+                    }
+                    "malformed" => *list.get_mut("sampleListId").ok_or("list id")? = json!({}),
                     "uncounted" => {
                         list.as_object_mut()
                             .ok_or("list fields")?
