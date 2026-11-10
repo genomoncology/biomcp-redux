@@ -1,5 +1,5 @@
 //! An exact threshold cannot count associations it could not compare.
-use super::{Environment, Value, body, call, json, pairs, seed, url};
+use super::{Environment, Value, body, json, pairs, seed, url};
 
 pub(super) fn run() -> Result<(), String> {
     for mode in ["missing", "invalid", "refused", "all-missing"] {
@@ -35,7 +35,7 @@ pub(super) fn run() -> Result<(), String> {
             }
         }
         let replay = seed(&env, &args, page, 200, 0)?;
-        let value = call("gwas_search/uncertainty", &env, &replay, &args, 0)?;
+        let value = replay_call(&env, &replay, &args)?;
         check(&value, mode, if mode == "all-missing" { 0 } else { 2 })?;
         let pool = value
             .pointer("/page/pool/id")
@@ -50,13 +50,7 @@ pub(super) fn run() -> Result<(), String> {
         let mut explicit = args.to_vec();
         explicit.extend(["--pool", pool]);
         check(
-            &call(
-                "gwas_search/uncertainty/reload",
-                &env,
-                &replay,
-                &explicit,
-                0,
-            )?,
+            &replay_call(&env, &replay, &explicit)?,
             mode,
             if mode == "all-missing" { 0 } else { 2 },
         )?;
@@ -92,7 +86,10 @@ fn later_page() -> Result<(), String> {
             "17529967",
             "--p-value",
             "1e-200",
-        ],
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect(),
         0,
     )?;
     check(&first, "first page", 2)?;
@@ -106,6 +103,13 @@ fn later_page() -> Result<(), String> {
 }
 
 fn check(value: &Value, mode: &str, expected: usize) -> Result<(), String> {
+    if serde_json::to_vec(value)
+        .map_err(|error| error.to_string())?
+        .len()
+        > crate::runner::output_limit("gwas-state-bytes")?
+    {
+        return Err("uncertain threshold exceeds output ceiling".into());
+    }
     let count = value
         .pointer("/result/items")
         .and_then(Value::as_array)
@@ -121,4 +125,14 @@ fn check(value: &Value, mode: &str, expected: usize) -> Result<(), String> {
         return Err(format!("{mode}: unknown membership claimed exact: {value}"));
     }
     Ok(())
+}
+
+fn replay_call(
+    env: &Environment,
+    replay: &std::path::Path,
+    args: &[&str],
+) -> Result<Value, String> {
+    let mut command = env.globals(Some(replay), false);
+    command.extend(args.iter().map(|arg| (*arg).to_owned()));
+    super::invoke(env, command, 0)
 }
