@@ -75,13 +75,15 @@ fn complete_controls() -> Result<(), String> {
             threshold,
         ];
         let mut page = body(&url(&pairs()), 0, 3);
-        for row in page["_embedded"]["associations"]
-            .as_array_mut()
+        for row in page
+            .pointer_mut("/_embedded/associations")
+            .and_then(Value::as_array_mut)
             .ok_or("association fixture")?
         {
-            row["pvalue_exponent"] = json!(exponent);
+            let row = row.as_object_mut().ok_or("association object")?;
+            row.insert("pvalue_exponent".into(), json!(exponent));
             if exponent == -320 {
-                row["p_value"] = json!(0.0);
+                row.insert("p_value".into(), json!(0.0));
             }
         }
         let replay = seed(&env, &args, page, 200, 0)?;

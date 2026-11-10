@@ -74,6 +74,14 @@ fn stored_licensed_owners_admit_same_key_and_refuse_other_or_missing_keys() -> C
             same
         );
         assert_eq!(current.find(KEY, None)?.is_some(), same);
+        for selected in [None, Some(window.info.id.as_str())] {
+            assert_eq!(
+                current
+                    .find_source_pool(KEY, selected, |_| false)?
+                    .is_some(),
+                same
+            );
+        }
         assert_eq!(current.page(pool.info.id.as_str(), 0, 10).is_ok(), same);
         assert_eq!(
             current
