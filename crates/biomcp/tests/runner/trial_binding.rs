@@ -1,5 +1,5 @@
 //! Registry continuation capabilities bind selectors and consumed native positions.
-use super::{configuration::invoke, launch::Environment, mcp, network_stub::Stub};
+use super::{configuration::invoke, http::Server, launch::Environment, mcp, network_stub::Stub};
 use serde_json::{Value, json};
 use std::sync::mpsc;
 
@@ -17,13 +17,19 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
                 move || check(meta, broad).map_err(Into::into),
             )
         })
+        .chain([super::transcript::trial(
+            "trial-search/hosted-continuation-crosses-independent-stores",
+            || cross_store().map_err(Into::into),
+        )])
         .collect()
 }
 
-fn setup(broad: bool) -> Result<(Environment, Stub, mpsc::Receiver<()>), String> {
+fn registry(broad: bool) -> Result<(Stub, mpsc::Receiver<String>), String> {
     let (observed, calls) = mpsc::channel();
     let stub = Stub::for_source("clinicaltrials.gov", "application/json", move |request| {
-        observed.send(()).map_err(|_| "request observer closed")?;
+        observed
+            .send(request.lines().next().unwrap_or_default().to_owned())
+            .map_err(|_| "request observer closed")?;
         if request.contains("/version") {
             return Ok(json!({"dataTimestamp":"2026-11-10T00:00:00Z"}).to_string());
         }
@@ -53,16 +59,112 @@ fn setup(broad: bool) -> Result<(Environment, Stub, mpsc::Receiver<()>), String>
             .to_string(),
         )
     })?;
-    let env = Environment::new().map_err(|e| e.to_string())?;
-    let ca = env.root().join("registry-ca.pem");
+    Ok((stub, calls))
+}
+
+fn config(stub: &Stub, assets: &Environment) -> Result<Value, String> {
+    let ca = assets.root().join("registry-ca.pem");
     std::fs::write(&ca, &stub.certificate).map_err(|e| e.to_string())?;
-    stub.retain(env.shared_root());
-    env.config(
-        &json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,
+    Ok(
+        json!({"proxy":format!("http://{}",stub.address),"ca_bundle":ca,
         "disable_sources":["mychem","chembl","openfda-label"]}),
     )
-    .map_err(|e| e.to_string())?;
+}
+
+fn setup(broad: bool) -> Result<(Environment, Stub, mpsc::Receiver<String>), String> {
+    let (stub, calls) = registry(broad)?;
+    let env = Environment::new().map_err(|e| e.to_string())?;
+    stub.retain(env.shared_root());
+    env.config(&config(&stub, &env)?)
+        .map_err(|e| e.to_string())?;
     Ok((env, stub, calls))
+}
+
+fn cross_store() -> Result<(), String> {
+    let (stub, calls) = registry(false)?;
+    let assets = Environment::new().map_err(|e| e.to_string())?;
+    let config = config(&stub, &assets)?;
+    let start = || {
+        Server::configured_globals(
+            "127.0.0.1:0",
+            Some(config.clone()),
+            None,
+            None,
+            None,
+            &["--hosted".into()],
+        )
+    };
+    let mut first = start()?;
+    let mut other = start()?;
+    stub.retain(first.environment().shared_root());
+    stub.retain(other.environment().shared_root());
+    if first.environment().root() == other.environment().root() {
+        return Err("the two hosted cores must have independent stores".into());
+    }
+    let initial = hosted_call(
+        &first,
+        &[
+            "search",
+            "trial",
+            "--sponsor",
+            "Synthetic Registry",
+            "--limit",
+            "2",
+            "--exact-term",
+        ],
+    )?;
+    let next = super::action(&initial, "page")?;
+    let words: Vec<_> = next.iter().map(String::as_str).collect();
+    let initial_calls = calls.try_iter().count();
+    let same = hosted_call(&first, &words)?;
+    let native = calls
+        .try_iter()
+        .filter(|request| request.contains("pageToken=native-two"))
+        .count();
+    if initial_calls == 0 || native != 1 || same.pointer("/page/offset") != Some(&json!(2)) {
+        return Err(format!(
+            "same-task control failed, initial={initial_calls} continued={native}: {same}"
+        ));
+    }
+    first.stop()?;
+    let followed = hosted_call(&other, &words)?;
+    let cross_calls: Vec<_> = calls.try_iter().collect();
+    other.stop()?;
+    stub.finish()?;
+    if followed.pointer("/page/offset") != Some(&json!(2))
+        || cross_calls
+            .iter()
+            .filter(|request| request.contains("pageToken=native-two"))
+            .count()
+            != 1
+    {
+        return Err(format!(
+            "cross-task continuation failed, initial={initial_calls} same-task-cursor={native} cross-task-requests={}: {followed}",
+            cross_calls.len()
+        ));
+    }
+    Ok(())
+}
+
+fn hosted_call(server: &Server, args: &[&str]) -> Result<Value, String> {
+    let frame = mcp::request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":args}}),
+    );
+    let (status, reply) = server.request_with_headers(
+        "POST",
+        "/mcp",
+        &frame.to_string(),
+        "x-biomcp-use: restricted\r\n",
+    )?;
+    if status != 200 {
+        return Err(format!("hosted HTTP status {status}: {reply}"));
+    }
+    reply
+        .pointer("/result/structuredContent")
+        .cloned()
+        .ok_or_else(|| format!("missing hosted content: {reply}"))
 }
 
 fn call(env: &Environment, args: &[String], meta: bool, error: bool) -> Result<Value, String> {
@@ -164,7 +266,7 @@ fn refused(
     env: &Environment,
     args: &[String],
     meta: bool,
-    calls: &mpsc::Receiver<()>,
+    calls: &mpsc::Receiver<String>,
     restart_allowed: bool,
 ) -> Result<Vec<String>, String> {
     for _ in calls.try_iter() {}
