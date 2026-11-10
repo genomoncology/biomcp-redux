@@ -149,7 +149,10 @@ fn typed(env: &Environment) -> Check {
     let mut config: Value =
         serde_json::from_slice(&std::fs::read(path).map_err(|e| e.to_string())?)
             .map_err(|e| e.to_string())?;
-    config["mcp_tool_mode"] = json!("typed");
+    config
+        .as_object_mut()
+        .ok_or("fixture config object")?
+        .insert("mcp_tool_mode".into(), json!("typed"));
     env.config(&config).map_err(|e| e.to_string())?;
     let replies = crate::runner::mcp::exchange_with_globals(
         env,
