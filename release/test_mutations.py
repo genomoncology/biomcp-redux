@@ -124,6 +124,7 @@ class MutationCommands(unittest.TestCase):
         self.script = str(release / 'mutations.py')
         self.output = self.root / 'result'
         self.plan = self.output / 'plan.json'
+        (self.root / '.gitignore').write_text('native-inventory.json\ncargo-calls.jsonl\n')
         self.source('crates/biomcp-query/src/status.rs', 'fn status() {}\n')
         self.source('crates/biomcp-adapters/src/mapped.rs', 'fn mapped() {}\n')
         self.git('init', '--quiet')
@@ -333,7 +334,7 @@ class MutationCommands(unittest.TestCase):
 
     def test_short_selection_reports_unrepresented_files_without_widening_limit(self):
         first, second, mapped, empty, _ = self.varied_inventory()
-        value = self.prepare('--cost-seconds', '2000', '--baseline-seconds', '0')
+        value = self.prepare('--cost-seconds', '2000', '--baseline-seconds', '1')
         self.assertEqual(len(value['selected']), 2)
         self.assertTrue(value['selected'][0].startswith(first + ':90:'))
         self.assertTrue(value['selected'][1].startswith(second + ':2:'))
