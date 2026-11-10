@@ -87,7 +87,11 @@ pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome
         if let Some(input) = query.query() {
             source.notices.push(SourceNotice::DrugNameSearch {
                 input: input.clone(), names: saved.names.clone().into(),
-                message: format!("Searched these literal spellings in one native label name union; counts are native SPL sets, not sums. Name discovery is bounded and does not establish drug-wide completeness. Left out {} additional names at the whole-query bound.", saved.omitted).into(),
+                message: format!(
+                    "Searched these literal spellings in one native label name union; counts are native SPL sets, not sums. \
+                     Name discovery is bounded and does not establish drug-wide completeness. \
+                     Left out {} additional names at the whole-query bound.", saved.omitted
+                ).into(),
             });
         }
     }

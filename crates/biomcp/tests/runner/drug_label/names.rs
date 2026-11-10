@@ -31,7 +31,7 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             if target.starts_with("/v1/query?") {
                 let row = |id| {
                     json!({"_id":id,"drugcentral":{"synonyms":["Typed drug", match mode {
-                        4 => "Long alias ".repeat(150), 5 => "Brand \"quoted\" \\name".into(), _ => "Brand name".into()
+                        4 => "Long alias ".repeat(200), 5 => "Brand \"quoted\" \\name".into(), _ => "Brand name".into()
                     }]}})
                 };
                 return Ok(if mode == 3 {

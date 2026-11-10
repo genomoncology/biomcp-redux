@@ -51,7 +51,7 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     *bad.get_mut(index + 1).ok_or("value")? = "synthetic-missing".into();
     let failed = invoke(env, bad, 3)?;
     crate::runner::action(&failed, "restart")?;
-    for disabled in ["mychem", "drugcentral"] {
+    for disabled in ["mychem", "drugcentral", "openfda-label"] {
         let mut bad = next.clone();
         bad.extend(["--disable-sources".into(), disabled.into()]);
         let failed = invoke(env, bad, 3)?;
@@ -61,6 +61,11 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     changed.extend(["--indication".into(), "Changed".into()]);
     let failed = invoke(env, changed, 3)?;
     crate::runner::action(&failed, "restart")?;
+    for input in ["NDA202155", "095a08ac-cf0e-497e-a682-ddef38d6b29c"] {
+        let mut native = args(true);
+        *native.get_mut(2).ok_or("input")? = input.into();
+        invoke(env, native, 2)?;
+    }
     let mut bad = args(false);
     bad.extend(["--name-snapshot".into(), "synthetic-missing".into()]);
     invoke(env, bad, 2)?;
