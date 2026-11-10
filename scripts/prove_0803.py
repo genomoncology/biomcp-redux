@@ -41,6 +41,16 @@ def main():
     if unexpected:
         raise ValueError('Unmutated production differs from selected product: ' + repr(unexpected))
     print('Unmutated production equivalence: PASS', flush=True)
+    subprocess.run([
+        sys.executable, 'scripts/trials.py', '--target', 'cases',
+        'author-search/healthy-window-reuses-pool',
+        'author-search/refused-window-is-explicit-only',
+        'author-search/refused-extension-retires-default',
+        'protein-sections/displayed-bounds-and-identity',
+        'pathway-reactome/healthy-events-reuse-pool',
+        'pathway-reactome/refused-events-are-explicit-only',
+    ], cwd=ROOT, check=True)
+    print('All six unmutated public-command checks: PASS', flush=True)
     for command in [
         ['cargo', 'fmt', '--all', '--', '--check'],
         ['cargo', 'clippy', '--locked', '-p', 'biomcp', '--test', 'cases', '--test', 'tools', '--', '-D', 'warnings'],
