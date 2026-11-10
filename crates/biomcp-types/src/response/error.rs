@@ -376,14 +376,12 @@ impl From<crate::UsageError> for ErrorEnvelope {
             }
             UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
             UsageError::TrialContinuationRejected => {
-                out.error.source = Some(crate::Source::ClinicalTrialsGov);
-                out.error.option = Some("--next-page".into());
-                out.error.message = ErrorMessage::TrialContinuationRejected;
+                out.error
+                    .trial_continuation(ErrorMessage::TrialContinuationRejected);
             }
             UsageError::TrialContinuationUnavailable => {
-                out.error.source = Some(crate::Source::ClinicalTrialsGov);
-                out.error.option = Some("--next-page".into());
-                out.error.message = ErrorMessage::TrialContinuationUnavailable;
+                out.error
+                    .trial_continuation(ErrorMessage::TrialContinuationUnavailable);
             }
             UsageError::ArticlePartRange { input, last } => out.article_part_range(input, last),
             UsageError::UnsupportedTrialFilter { source, option } => {
@@ -493,6 +491,11 @@ impl ErrorEnvelope {
 }
 
 impl ErrorDetail {
+    fn trial_continuation(&mut self, message: ErrorMessage) {
+        self.source = Some(crate::Source::ClinicalTrialsGov);
+        self.option = Some("--next-page".into());
+        self.message = message;
+    }
     fn arguments(&mut self, arguments: crate::UsageArguments) -> Vec<super::Step> {
         self.option = arguments.argument;
         self.message = arguments.message.unwrap_or_else(|| {
