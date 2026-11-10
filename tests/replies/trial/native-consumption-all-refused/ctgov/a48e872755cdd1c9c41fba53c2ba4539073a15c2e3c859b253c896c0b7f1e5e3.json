@@ -24,38 +24,6 @@
                   "lastUpdatePostDateStruct": {
                     "date": "2026-09-28"
                   }
-                },
-                "conditionsModule": {
-                  "conditions": [
-                    "Breast Cancer"
-                  ]
-                },
-                "designModule": {
-                  "phases": [
-                    "PHASE3"
-                  ]
-                },
-                "armsInterventionsModule": {
-                  "interventions": [
-                    {
-                      "name": "Trastuzumab deruxtecan (DS-8201a)"
-                    },
-                    {
-                      "name": "Capecitabine"
-                    },
-                    {
-                      "name": "Eribulin"
-                    },
-                    {
-                      "name": "Gemcitabine"
-                    },
-                    {
-                      "name": "Paclitaxel"
-                    },
-                    {
-                      "name": "Nab-paclitaxel"
-                    }
-                  ]
                 }
               },
               "hasResults": true
@@ -71,38 +39,6 @@
                   "lastUpdatePostDateStruct": {
                     "date": "2026-09-28"
                   }
-                },
-                "conditionsModule": {
-                  "conditions": [
-                    "Breast Cancer"
-                  ]
-                },
-                "designModule": {
-                  "phases": [
-                    "PHASE3"
-                  ]
-                },
-                "armsInterventionsModule": {
-                  "interventions": [
-                    {
-                      "name": "Trastuzumab deruxtecan (DS-8201a)"
-                    },
-                    {
-                      "name": "Capecitabine"
-                    },
-                    {
-                      "name": "Eribulin"
-                    },
-                    {
-                      "name": "Gemcitabine"
-                    },
-                    {
-                      "name": "Paclitaxel"
-                    },
-                    {
-                      "name": "Nab-paclitaxel"
-                    }
-                  ]
                 }
               },
               "hasResults": true
