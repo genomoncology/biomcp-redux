@@ -136,3 +136,37 @@ fn replay_call(
     command.extend(args.iter().map(|arg| (*arg).to_owned()));
     super::invoke(env, command, 0)
 }
+
+pub(super) fn pools() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let args = [
+        "search",
+        "gwas",
+        "--pubmed",
+        "17529967",
+        "--p-value",
+        "1e-200",
+    ];
+    let mut page = body(&url(&pairs()), 0, 3);
+    page.pointer_mut("/_embedded/associations/1")
+        .and_then(Value::as_object_mut)
+        .ok_or("association object")?
+        .remove("pvalue_mantissa");
+    let replay = seed(&env, &args, page, 200, 0)?;
+    let first = replay_call(&env, &replay, &args)?;
+    let repeated = replay_call(&env, &replay, &args)?;
+    let id = first
+        .pointer("/page/pool/id")
+        .and_then(Value::as_str)
+        .ok_or("first pool")?;
+    if repeated.pointer("/page/pool/id") == first.pointer("/page/pool/id") {
+        return Err("new search reused an incomplete observation as current".into());
+    }
+    let mut explicit = args.to_vec();
+    explicit.extend(["--pool", id]);
+    let old = replay_call(&env, &replay, &explicit)?;
+    if old.pointer("/page/pool/id") != first.pointer("/page/pool/id") {
+        return Err("old explicit pool lost its identity".into());
+    }
+    check(&old, "explicit incomplete pool", 2)
+}
