@@ -96,6 +96,24 @@ class Probe(unittest.TestCase):
                 self.assertEqual(report['error'], 'untrusted_upload_location')
                 self.assertFalse(any(method == 'DELETE' for method, _ in calls))
 
+    def test_location_diagnostics_are_fixed_booleans_and_known_enums_only(self):
+        for value, failed in [(probe.UPLOAD + 'opaque-upload/', 'canonical_path'),
+                              ('https://other.invalid/secret?token=' + SECRET, 'exact_authority'),
+                              ('https://ghcr.io:443/v2/genomoncology/biomcp/blobs/uploads/id', 'exact_authority'),
+                              ('https://ghcr.io/v2/other/repo/blobs/uploads/id', 'repository_upload_prefix')]:
+            with self.subTest(failed=failed):
+                _, request = self.replies(location=value)
+                code, report = self.run_main('ghcr', request)
+                self.assertEqual(code, 1)
+                checks = report['location_checks']
+                self.assertIs(checks[failed], False)
+                self.assertIn(checks['relative_form'], ['absolute_uri', 'authority_relative',
+                                                      'root_relative', 'query_relative', 'path_relative'])
+                self.assertTrue(all(isinstance(v, bool) for k, v in checks.items() if k != 'relative_form'))
+                self.assertNotIn(SECRET, json.dumps(report))
+                self.assertNotIn('other.invalid', json.dumps(report))
+                self.assertNotIn('secret?', json.dumps(report))
+
     def test_authentication_denial_and_transport_errors_are_status_only(self):
         for outcome in [(403, {}, None), OSError(SECRET)]:
             def request(*_args, **_kwargs):
