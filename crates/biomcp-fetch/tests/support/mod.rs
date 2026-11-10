@@ -41,26 +41,6 @@ impl<T> std::ops::Deref for Request<T> {
     }
 }
 impl<T> Request<T> {
-    pub(super) fn wait_for_disconnect(&self) -> std::io::Result<()> {
-        self.peer.set_read_timeout(Some(Duration::from_secs(30)))?;
-        match (&self.peer).read(&mut [0]) {
-            Ok(0) => Ok(()),
-            Err(error)
-                if matches!(
-                    error.kind(),
-                    std::io::ErrorKind::ConnectionReset
-                        | std::io::ErrorKind::ConnectionAborted
-                        | std::io::ErrorKind::NotConnected
-                ) =>
-            {
-                Ok(())
-            }
-            Ok(_) => Err(std::io::Error::other(
-                "held request received unexpected bytes",
-            )),
-            Err(error) => Err(error),
-        }
-    }
     pub(super) fn respond(self, status: u16, headers: &str, body: &str) {
         let response = format!(
             "HTTP/1.1 {status} Stub\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n{headers}\r\n{body}",
@@ -79,6 +59,14 @@ impl<T> Request<T> {
     }
     pub(super) fn ok(self) {
         self.respond(200, "", r#"{"answer":true}"#);
+    }
+}
+// Contracts can inspect remaining peer bytes or EOF without adding helpers
+// that are unused in sibling targets sharing this server fixture.
+impl<T> Read for Request<T> {
+    fn read(&mut self, bytes: &mut [u8]) -> std::io::Result<usize> {
+        self.peer.set_read_timeout(Some(Duration::from_secs(30)))?;
+        self.peer.read(bytes)
     }
 }
 

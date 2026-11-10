@@ -65,7 +65,7 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
         .unwrap();
     assert_eq!(rows.len(), 1);
     assert!(leg.finish().stale);
-    let held = server.next();
+    let mut held = server.next();
     cancellation.cancel();
     drop(call);
     let part: String = db
@@ -95,7 +95,7 @@ fn last_refresh_owner_stops_a_held_download_before_its_response_is_released() {
     });
     let result = completion.recv_timeout(Duration::from_secs(30));
     let finished = part.try_lock();
-    let disconnected = held.wait_for_disconnect();
+    let disconnected = wait_for_disconnect(&mut held);
     db.execute_batch("ROLLBACK").unwrap();
     // Release the fixture even on the old implementation, so the failed
     // regression reaps its worker instead of leaving a detached download.
@@ -163,4 +163,24 @@ fn second_stale_read(fetch: &Fetch, bundle: &Bundle<Gene>, held: &support::Reque
         );
         assert!(report.stale, "second stale read lost its freshness warning");
     });
+}
+
+fn wait_for_disconnect(held: &mut support::Request<()>) -> std::io::Result<()> {
+    match std::io::Read::read(held, &mut [0]) {
+        Ok(0) => Ok(()),
+        Err(error)
+            if matches!(
+                error.kind(),
+                std::io::ErrorKind::ConnectionReset
+                    | std::io::ErrorKind::ConnectionAborted
+                    | std::io::ErrorKind::NotConnected
+            ) =>
+        {
+            Ok(())
+        }
+        Ok(_) => Err(std::io::Error::other(
+            "held request received unexpected bytes",
+        )),
+        Err(error) => Err(error),
+    }
 }
