@@ -184,7 +184,9 @@ fn carried_source(portable: bool) -> Result<(), String> {
     let (stub, calls) = registry(false)?;
     let assets = Environment::new().map_err(|e| e.to_string())?;
     let mut config = config(&stub, &assets)?;
-    config["disable_sources"] = json!(["chembl", "openfda-label"]);
+    *config
+        .get_mut("disable_sources")
+        .ok_or("missing source configuration")? = json!(["chembl", "openfda-label"]);
     let key = portable.then(|| URL_SAFE_NO_PAD.encode([1; 32]));
     let mut first = hosted_server(&config, key.as_deref())?;
     stub.retain(first.environment().shared_root());
