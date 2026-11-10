@@ -253,3 +253,9 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Option<Pool>, out: &
     out.dropped = incomplete;
     status::search(out);
 }
+
+impl crate::source_snapshot::Observation for Saved {
+    fn whole(&self) -> bool {
+        !self.incomplete()
+    }
+}
