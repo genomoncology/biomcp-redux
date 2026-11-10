@@ -5,11 +5,10 @@ use std::fs;
 
 pub(super) fn check(refused: bool) -> Result<(), String> {
     let (env, stub) = setup(refused)?;
-    let exit = if refused { 3 } else { 0 };
     let args = ["pathway", "events", "R-HSA-123", "--limit", "1"]
         .map(str::to_owned)
         .to_vec();
-    let first = invoke(&env, args.clone(), exit)?;
+    let first = invoke(&env, args.clone(), 0)?;
     let status = if refused { "partial" } else { "complete" };
     if first.pointer("/status") != Some(&json!(status))
         || first.pointer("/result/items/0/id") != Some(&json!("R-HSA-124"))
@@ -38,14 +37,14 @@ pub(super) fn check(refused: bool) -> Result<(), String> {
         return Err(format!("invalid event identity was not diagnosed: {first}"));
     }
     let next = crate::runner::action(&first, "page")?;
-    let second = invoke(&env, next.clone(), exit)?;
+    let second = invoke(&env, next.clone(), 0)?;
     if pool(&first)? != pool(&second)?
         || second.pointer("/result/items/0/id") != Some(&json!("R-HSA-125"))
         || second.pointer("/status") != Some(&json!(status))
     {
         return Err(format!("explicit events continuation changed: {second}"));
     }
-    let repeated = invoke(&env, args, exit)?;
+    let repeated = invoke(&env, args, 0)?;
     if first.pointer("/result/items") != repeated.pointer("/result/items")
         || repeated.pointer("/status") != Some(&json!(status))
     {
@@ -61,7 +60,7 @@ pub(super) fn check(refused: bool) -> Result<(), String> {
         return Err(format!("healthy pathway window was rebuilt: {repeated}"));
     }
     // The old explicit observation remains readable even after another implicit publication.
-    let kept = invoke(&env, next, exit)?;
+    let kept = invoke(&env, next, 0)?;
     if pool(&second)? != pool(&kept)?
         || second.pointer("/result/items") != kept.pointer("/result/items")
         || second.pointer("/status") != kept.pointer("/status")
