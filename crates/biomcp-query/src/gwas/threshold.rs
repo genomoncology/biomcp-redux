@@ -141,7 +141,12 @@ fn read(
         out.sources = vec![incoming.clone()];
         let page = result?;
         append(q, &mut saved, page)?;
-        saved.sources = vec![incoming];
+        if let Some(source) = saved.sources.first_mut() {
+            status::retain_source_state(source, &incoming);
+        } else {
+            saved.sources = vec![incoming];
+        }
+        out.sources = saved.sources.clone();
     } else {
         out.sources = saved.sources.clone();
     }

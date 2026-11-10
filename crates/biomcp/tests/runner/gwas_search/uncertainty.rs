@@ -210,3 +210,53 @@ pub(super) fn pools() -> Result<(), String> {
     }
     check(&old, "explicit incomplete pool", 2)
 }
+
+pub(super) fn stale_page() -> Result<(), String> {
+    let stub = crate::runner::network_stub::Stub::for_source(
+        "www.ebi.ac.uk",
+        "application/json",
+        super::wire::live_body,
+    )?;
+    let env = crate::runner::variant::source_environment(&stub)?;
+    let config = env.root().join("config/biomcp/config.json");
+    let mut settings: Value =
+        serde_json::from_slice(&std::fs::read(&config).map_err(|error| error.to_string())?)
+            .map_err(|error| error.to_string())?;
+    let cache = env.root().join("observations.sqlite");
+    settings
+        .as_object_mut()
+        .ok_or("config object")?
+        .insert("cache".into(), json!(cache));
+    env.config(&settings).map_err(|error| error.to_string())?;
+    let first = super::invoke(
+        &env,
+        [
+            "search",
+            "gwas",
+            "--pubmed",
+            "17529967",
+            "--p-value",
+            "1e-200",
+        ]
+        .into_iter()
+        .map(str::to_owned)
+        .collect(),
+        0,
+    )?;
+    let db = rusqlite::Connection::open(cache).map_err(|error| error.to_string())?;
+    db.execute(
+        "UPDATE trial_snapshot SET payload=json_set(payload,'$.sources[0].state','stale')",
+        [],
+    )
+    .map_err(|error| error.to_string())?;
+    drop(db);
+    let last = super::invoke(&env, crate::runner::action(&first, "page")?, 0)?;
+    if last.pointer("/status") != Some(&json!("partial"))
+        || last.pointer("/sources/0/state") != Some(&json!("stale"))
+        || last.pointer("/result/qualifying_total").is_some()
+        || stub.finish()?.len() != 2
+    {
+        return Err(format!("fresh extension erased stale observation: {last}"));
+    }
+    Ok(())
+}
