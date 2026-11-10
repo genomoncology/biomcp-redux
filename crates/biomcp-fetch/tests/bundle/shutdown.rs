@@ -155,8 +155,12 @@ fn second_stale_read(fetch: &Fetch, bundle: &Bundle<Gene>, held: &support::Reque
         );
         let (rows, report) = response.unwrap();
         let rows = rows.unwrap();
-        assert_eq!(rows.len(), 1);
-        assert_eq!(rows.first().unwrap().name, "B raf kinase");
-        assert!(report.stale);
+        assert_eq!(rows.len(), 1, "second stale read lost the stored row");
+        assert_eq!(
+            rows.first().unwrap().name,
+            "B raf kinase",
+            "second stale read changed the held snapshot"
+        );
+        assert!(report.stale, "second stale read lost its freshness warning");
     });
 }
