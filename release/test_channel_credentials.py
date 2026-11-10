@@ -59,6 +59,8 @@ class Probe(unittest.TestCase):
         self.assertIn('not_manifest', report['limit'])
 
     def test_path_relative_location_resolves_against_the_initiating_request(self):
+        self.assertEqual(probe.cancellation(LOCATION), LOCATION)
+        self.assertEqual(probe.cancellation(LOCATION.removeprefix('https://ghcr.io')), LOCATION)
         calls, request = self.replies(location='opaque-upload?state=opaque%2Fvalue&other=kept')
         code, report = self.run_main('ghcr', request)
         self.assertEqual(code, 0)
