@@ -4,10 +4,11 @@ set -euo pipefail
 case "${1:-focused}" in
   generate)
     make schema-generate docs-generate
+    python3 scripts/refresh_help_cases.py target/debug/biomcp
     git diff --binary > "${2:?persistent patch destination}"
     ;;
   focused)
-    python3 scripts/trials.py drug-label/explicit-alias-native-union drug-label/alias-uncertainty-and-controls drug-label/alias-frozen-word-tier
+    python3 scripts/trials.py drug-label/explicit-alias-native-union drug-label/alias-uncertainty-and-controls drug-label/alias-frozen-word-tier --case-file drug/help.yaml
     cargo fmt --all -- --check
     cargo clippy --locked -p biomcp --bin biomcp --test cases --test tools -- -D warnings
     cargo test --locked -p biomcp --test ratchets

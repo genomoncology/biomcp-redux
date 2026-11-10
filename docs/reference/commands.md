@@ -1305,19 +1305,25 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --expand-drug-names[=<expand_drug_names>]
+          openFDA labels only: explicitly search bounded source-stated drug aliases; literal is the default.
+
+          [default: false]
+          [possible values: true, false]
+
       --firm <firm>
           Literal published recalling firm phrase; drug recalls only.
-
-      --indication <indication>
-          Literal label indication; openFDA labels only.
-          Search the native Indications and Usage field without disease synonym expansion.
-          An optional name query further narrows the same source search.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --indication <indication>
+          Literal label indication; openFDA labels only.
+          Search the native Indications and Usage field without disease synonym expansion.
+          An optional name query further narrows the same source search.
 
       --initiated-from <initiated_from>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
@@ -1332,8 +1338,8 @@ Options:
           Explicit ChEMBL native name selector; omitted means preferred; help search drug
           Explicit ChEMBL native name selector; omitted means preferred name.
 
-      --offset <offset>
-          Native rows to skip.
+      --name-snapshot <name_snapshot>
+          Retained label alias/tier selection; follow the returned command with unchanged filters.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1341,14 +1347,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --prequalified-from <prequalified_from>
-          Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --offset <offset>
+          Native rows to skip.
+
+      --prequalified-from <prequalified_from>
+          Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
 
       --prequalified-to <prequalified_to>
           Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only.
@@ -1372,6 +1381,7 @@ Search drugs and medicines by name or source label indication. Sources: chembl, 
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--expand-drug-names`: openFDA labels only: explicitly search bounded source-stated drug aliases; exact is the default. Value form: boolean. Example: --expand-drug-names. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--firm`: Exact published recalling firm phrase; drug recalls only. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--indication`: Exact label indication; openFDA labels only.
 Search the source Indications and Usage field without disease synonym expansion.
@@ -1382,6 +1392,7 @@ An optional name query further narrows the same source search. Value form: strin
 - `--name-selector`: Explicit ChEMBL source name selector; omitted means preferred; help search drug
 Explicit ChEMBL source name selector; omitted means preferred name.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--name-snapshot`: Retained label alias/tier selection; follow the returned command with unchanged filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--prequalified-from`: Inclusive WHO prequalification lower bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--prequalified-to`: Inclusive WHO prequalification upper bound, YYYY, YYYY-MM or YYYY-MM-DD; WHO PQ only. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.

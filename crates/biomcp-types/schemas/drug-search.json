@@ -72,6 +72,10 @@
       "description": "Native FDA classification; drug recalls only; help search drug\nNative FDA classification; drug recalls only.",
       "x-required-component": "fda-drug-recall"
     },
+    "expand_drug_names": {
+      "description": "openFDA labels only: explicitly search bounded source-stated drug aliases; literal is the default.",
+      "type": "boolean"
+    },
     "firm": {
       "anyOf": [
         {
@@ -125,6 +129,17 @@
       "$ref": "#/$defs/DrugNameSelector",
       "description": "Explicit ChEMBL native name selector; omitted means preferred; help search drug\nExplicit ChEMBL native name selector; omitted means preferred name.",
       "x-required-component": "chembl"
+    },
+    "name_snapshot": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Retained label alias/tier selection; follow the returned command with unchanged filters."
     },
     "offset": {
       "default": 0,
