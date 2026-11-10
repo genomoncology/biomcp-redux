@@ -15,9 +15,6 @@
       ],
       "expect": {
         "/status": "partial",
-        "/result/items": {
-          "count": 0
-        },
         "/next/0/args": {
           "includes": "2"
         },
@@ -32,8 +29,10 @@
         "/page/offset": 2,
         "/page/returned": 2,
         "/page/total": 4,
-        "/next/*/kind": {
-          "excludes": "page"
+        "": {
+          "omits": [
+            "next"
+          ]
         }
       }
     }

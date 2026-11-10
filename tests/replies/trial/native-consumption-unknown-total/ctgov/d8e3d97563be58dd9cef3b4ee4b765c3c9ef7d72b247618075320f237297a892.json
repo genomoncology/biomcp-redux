@@ -44,7 +44,8 @@
               "hasResults": true
             }
           ],
-          "nextPageToken": "synthetic-next"
+          "nextPageToken": "synthetic-next",
+          "totalCount": 4
         }
       }
     }

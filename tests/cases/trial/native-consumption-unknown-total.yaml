@@ -20,7 +20,10 @@
         },
         "/next/0/args": {
           "includes": "2"
-        }
+        },
+        "/page/offset": 0,
+        "/page/returned": 1,
+        "/page/total": 4
       }
     },
     {
