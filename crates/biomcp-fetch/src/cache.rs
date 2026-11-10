@@ -214,6 +214,7 @@ impl Cache {
                     fetched_at,
                     content_type,
                     content_range,
+                    pagination,
                     oversized,
                 )) if (200..300).contains(&status)
                     || status == 404 && body.as_ref().is_some_and(Vec::is_empty) =>
