@@ -33,9 +33,9 @@ pub(super) fn search<'a>(
                 result.sources.extend(saved.sources);
                 result.problems.extend(saved.problems);
                 disclose(query, &saved.names, saved.omitted, &mut result);
-                status::search(&mut result);
-                if saved.incomplete && result.status() == biomcp_types::Status::Complete {
-                    status::item(&mut result, true, false, true);
+                status::search_for(&mut result, &[Source::Faers]);
+                if result.status() == biomcp_types::Status::Complete {
+                    status::item(&mut result, true, false, saved.incomplete);
                 }
                 result.publish_error = out.publish_error;
                 out = result;

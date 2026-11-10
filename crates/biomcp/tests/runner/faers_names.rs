@@ -43,6 +43,9 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub, Arc<AtomicBool>),
             if !request.contains("/drug/event.json?search=") {
                 return Err(format!("unexpected FAERS request: {request}"));
             }
+            if mode == 6 {
+                return Ok(json!({"meta":"malformed"}).to_string());
+            }
             if request.contains("&count=") {
                 return Ok(json!({"meta":{"last_updated":"2024-09-01"},"results":[{"term":"SYNTHETIC","count":2}]}).to_string());
             }
@@ -185,6 +188,12 @@ fn check_expanded(value: &Value) -> Check {
 }
 
 fn uncertainty() -> Check {
+    let (env, stub, _) = setup(6, json!({}))?;
+    let failed = invoke(&env, args(true), 4)?;
+    if failed.get("status") != Some(&json!("failed")) {
+        return Err("successful name lookup relabelled failed FAERS as an answer".into());
+    }
+    stub.finish()?;
     for mode in [1, 2, 3] {
         let (env, stub, _) = setup(mode, json!({}))?;
         let reply = invoke(&env, args(true), 0)?;
