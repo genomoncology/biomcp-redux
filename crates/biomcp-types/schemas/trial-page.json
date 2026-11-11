@@ -1743,6 +1743,38 @@
       ],
       "type": "object"
     },
+    "Reply_TrialDate": {
+      "description": "A registry date retains its actual or estimated qualifier.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/Reply_PartialDate",
+          "description": "Checked source date at its original precision."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialDateKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source qualifier, absent only if the registry omitted it."
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "type": "object"
+    },
+    "Reply_TrialDateKind": {
+      "description": "Registry date qualifier, without local interpretation.",
+      "enum": [
+        "ACTUAL",
+        "ESTIMATED"
+      ],
+      "type": "string"
+    },
     "Reply_TrialHeader": {
       "description": "Small source-attributed trial discovery record.",
       "properties": {
@@ -1764,6 +1796,39 @@
             "$ref": "#/$defs/Reply_TrialPhase"
           },
           "type": "array"
+        },
+        "primary_completion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source primary completion date with its qualifier, when present."
+        },
+        "sponsor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Lead sponsor as registered, absent when the row carries none."
+        },
+        "start": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source start date with its actual or estimated qualifier, when present."
         },
         "status": {
           "anyOf": [
@@ -2435,7 +2500,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/14",
+  "$id": "biomcp.trial-page/15",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2491,7 +2556,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/14",
+      "const": "biomcp.trial-page/15",
       "type": "string"
     },
     "sources": {

@@ -79,6 +79,8 @@ pub(super) fn render(
         card: Some(biomcp_types::TrialPostedCard {
             protocol: snapshot.detail.card,
             results_first_posted: snapshot.detail.results_first_posted,
+            enrollment: snapshot.detail.enrollment,
+            why_stopped: snapshot.detail.why_stopped,
         }),
         fetched: snapshot.fetched,
         sections: (!query.sections().is_empty()).then_some(sections),
