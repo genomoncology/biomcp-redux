@@ -38,6 +38,18 @@ enum Found {
     Ambiguous(Vec<SourceOutcome>),
     Failed(Vec<SourceOutcome>),
     Nothing,
+    /// MyChem holds no row for the name at all.
+    Unknown,
+}
+
+/// What a lookup that did not finish costs the search that asked for it.
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Unfinished {
+    /// A name source is also the searched source, so the caller marks its reply partial.
+    Partial,
+    /// The search has its own source, so the lookup's failed sources are listed as skipped and
+    /// the reply stays complete, with the notice naming the term searched as typed.
+    Skipped,
 }
 
 /// Run lookups under a bounded share of the command, charging only what they spent.
@@ -55,6 +67,8 @@ pub(crate) fn bounded<'a, T>(
 /// Walk the sources until one states the drug's names. A source with several structures, or
 /// nothing more to give, passes to the next; a failed source is never read as an empty one.
 /// ChEMBL comes before the label because a molecule record carries more names than one product.
+/// ChEMBL is not asked for a name MyChem has no row for: MyChem's query reads its copy of
+/// ChEMBL's preferred names and synonyms, and ChEMBL's exact-name requests take seconds each.
 /// `fits` says which names the searching provider can take.
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
@@ -62,15 +76,17 @@ pub(crate) fn resolve<'a>(
     out: &mut Outcome,
     deadline: &mut Deadline<'a>,
     fits: fn(&str) -> bool,
+    unfinished: Unfinished,
 ) -> Resolved {
     let mut ambiguous = None;
     let mut failed = Vec::new();
+    let mut unknown = false;
     for source in [
         DrugSource::Mychem,
         DrugSource::Chembl,
         DrugSource::OpenfdaLabel,
     ] {
-        if cx.fetch.disabled(source.source()) {
+        if cx.fetch.disabled(source.source()) || (unknown && source == DrugSource::Chembl) {
             continue;
         }
         if deadline.remaining().is_zero() {
@@ -113,10 +129,26 @@ pub(crate) fn resolve<'a>(
             Found::Ambiguous(evidence) => ambiguous = ambiguous.or(Some(evidence)),
             Found::Failed(evidence) => failed.extend(evidence),
             Found::Nothing => {}
+            Found::Unknown => unknown = true,
         }
     }
+    unexpanded(out, input, (failed, ambiguous), unfinished)
+}
+
+/// Say why the term stayed as typed, when a source failed or stated several structures.
+fn unexpanded(
+    out: &mut Outcome,
+    input: &Text,
+    (mut failed, ambiguous): (Vec<SourceOutcome>, Option<Vec<SourceOutcome>>),
+    unfinished: Unfinished,
+) -> Resolved {
     let typed = vec![input.clone()];
     if !failed.is_empty() {
+        for source in &mut failed {
+            if unfinished == Unfinished::Skipped && source.state == SourceState::Failed {
+                source.set_status(SourceStatus::Skipped(source.reason));
+            }
+        }
         let message = "Drug-name lookups did not finish, so names were not expanded; \
                        searched the typed term."
             .to_owned();
@@ -171,6 +203,9 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
         .collect();
     if structures.len() > 1 {
         return Found::Ambiguous(evidence);
+    }
+    if mapped.value.total == 0 {
+        return Found::Unknown;
     }
     let Some(record) = mapped
         .value
@@ -444,7 +479,9 @@ pub(crate) fn article<'a>(
     query
         .drug_name_input()
         .map_or_else(Resolved::default, |input| {
-            bounded(deadline, |lookup| resolve(cx, input, out, lookup, |_| true))
+            bounded(deadline, |lookup| {
+                resolve(cx, input, out, lookup, |_| true, Unfinished::Skipped)
+            })
         })
 }
 

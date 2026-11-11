@@ -90,7 +90,7 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
     let mut omitted = 0;
     search_names::bounded(deadline, |lookup| {
         for input in query.text().into_iter().chain(query.drug()) {
-            let found = search_names::resolve(cx, input, &mut out, lookup, fits);
+            let found = search_names::resolve(cx, input, &mut out, lookup, fits, PARTIAL);
             incomplete |= found.failed;
             for name in found.names {
                 if names
@@ -120,6 +120,8 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
         omitted,
     }
 }
+
+const PARTIAL: search_names::Unfinished = search_names::Unfinished::Partial;
 
 fn fits(name: &str) -> bool {
     // A source alias stays a literal name, never a caller-supplied OR expression.

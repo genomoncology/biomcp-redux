@@ -1,0 +1,25 @@
+{
+  "feature": "drug-name-search",
+  "live_check": "synthetic names in real source reply shapes; no clinical or live completeness claim",
+  "story": "A name MyChem has no row for is not looked up at ChEMBL, whose stalled reply would cost the search its lookup time.",
+  "replay": "search/drug-names-unknown",
+  "config": {
+    "command_timeout_seconds": 9
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "Unlisted variant"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/source": "pubmed",
+        "/sources/0/state": "ok",
+        "/page/total": 1,
+        "/result/items/0/pmid": "99000001"
+      }
+    }
+  ]
+}

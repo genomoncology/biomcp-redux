@@ -39,6 +39,7 @@ CASE_TRIALS = (
     'cache-resilience/checked-gene-survives-write-contention',
     'cache-resilience/checked-protein-command-survives-write-contention',
     'cache-resilience/stale-replies-survive-unrelated-write-until-grace',
+    'drug-name-search/slow-lookup-stays-complete-at-once',
     'gene-sections/bundle-etag-refresh',
     'gene-sections/bundle-modified-refresh',
     'gene-sections/bundle-rate-limit-deadline',

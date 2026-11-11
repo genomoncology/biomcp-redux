@@ -52,6 +52,11 @@ fn search<'a>(
     let Some(gene) = gene(cx, query, &mut outcome, deadline) else {
         return outcome;
     };
+    // A name lookup that did not finish leaves skipped sources, which cost the reply nothing.
+    let earlier = outcome
+        .sources
+        .iter()
+        .any(|source| source.state != SourceState::Ok);
     let expanded = drug_names::expand(cx, query, &mut outcome, deadline);
     let leg = cx.fetch.leg(&ctgov::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
@@ -85,8 +90,9 @@ fn search<'a>(
     }
     {
         let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
-        let (found, identity_failed, unavailable) = item_state(&outcome, result.is_ok(), missing);
-        crate::status::item(&mut outcome, found, identity_failed, unavailable);
+        let answered = result.is_ok();
+        let unavailable = answered && (missing || earlier);
+        crate::status::item(&mut outcome, answered, !answered, unavailable);
     };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
@@ -113,14 +119,6 @@ fn search<'a>(
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
     outcome
-}
-/// The found, identity-failed and unavailable states, counting earlier source outcomes.
-fn item_state(outcome: &Outcome, answered: bool, missing: bool) -> (bool, bool, bool) {
-    let earlier = outcome
-        .sources
-        .iter()
-        .any(|source| source.state != SourceState::Ok);
-    (answered, !answered, answered && (missing || earlier))
 }
 /// Say the registry searched only the typed terms after refusing the expanded names.
 fn retract_names(

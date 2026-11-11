@@ -1,7 +1,7 @@
 {
   "feature": "drug-name-search",
   "live_check": "synthetic names in real source reply shapes; no clinical or live completeness claim",
-  "story": "A lookup that outlasts its share of the command costs the lookup, not the search.",
+  "story": "A lookup that outlasts its share of the command leaves the search complete, with the typed term named as searched.",
   "replay": "search/drug-names-budget",
   "config": {
     "command_timeout_seconds": 2
@@ -14,9 +14,9 @@
         "Canonical therapy"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/sources/0/source": "mychem",
-        "/sources/0/state": "failed",
+        "/sources/0/state": "skipped",
         "/sources/0/notices/0/names": [
           "Canonical therapy"
         ],
@@ -32,9 +32,9 @@
         "Canonical therapy"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/sources/0/source": "mychem",
-        "/sources/0/state": "failed",
+        "/sources/0/state": "skipped",
         "/sources/0/notices/0/names": [
           "Canonical therapy"
         ],

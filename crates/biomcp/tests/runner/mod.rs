@@ -2,6 +2,7 @@ mod argument_recovery;
 mod corporate;
 mod credential_containment;
 mod drug_identity;
+mod drug_name_load;
 mod enum_case;
 mod key_reload;
 mod local_files;
@@ -282,6 +283,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
+    trials.extend(drug_name_load::trials());
     trials.extend(source_queries::trials());
     trials.extend(key_registration::trials());
     trials.extend(pdf::trials());
