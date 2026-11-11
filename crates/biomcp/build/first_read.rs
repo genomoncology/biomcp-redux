@@ -1,10 +1,8 @@
-//! Generate the skill's question map and its worked examples from the declarations and use cases.
+//! Generate the on-request question map and worked examples from the declarations and use cases.
 use super::front_map::typed_front_map::{ENTITY_TOOLS, command_name};
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, error::Error, fs, path::Path};
 
-/// The skill line that the question map and worked examples replace.
-pub(crate) const MARKER: &str = "<!-- {{first-read}} -->";
 const TYPED: &str = "Typed tool: `";
 
 /// One use case's first step, as a command line and as a typed tool call.
@@ -104,7 +102,7 @@ pub(crate) fn embedded(examples: &[Example]) -> Result<Value, Box<dyn Error>> {
         .iter()
         .map(|example| {
             Ok(
-                json!({"label":example.name.replace('-', " "),"command":example.command,
+                json!({"name":example.name,"title":example.title,"command":example.command,
                 "args":words(&example.command)?,"tool":example.tool,"call":example.call}),
             )
         })
@@ -150,23 +148,4 @@ pub(crate) fn question_map(commands: &[(&str, &str, &str)]) -> Result<String, Bo
         }
     }
     Ok(lines.join("\n"))
-}
-
-/// The skill section: commands by question, then each use case in both call forms.
-pub(crate) fn section(map: &str, examples: &[Example]) -> String {
-    let mut text = String::from(
-        "## Commands by question\n\nTyped tool, its CLI commands and what they answer.\n\n",
-    );
-    text.push_str(map);
-    text.push_str(
-        "\n\n## Worked examples\n\nThe first call of each use case, as a CLI command and as a typed \
-         tool call. `biomcp skill NAME` shows every step.\n\n",
-    );
-    for example in examples {
-        text.push_str(&format!(
-            "- {} ({}): `biomcp {}` or `{}` `{}`\n",
-            example.title, example.name, example.command, example.tool, example.call
-        ));
-    }
-    text.trim_end().into()
 }

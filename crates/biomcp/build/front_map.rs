@@ -9,6 +9,9 @@ use std::{
 
 pub(crate) const DEFAULT_CHARACTER_LIMIT: usize = 4000;
 use typed_front_map::TRAPS;
+/// The map's pointer to what it leaves out; it replaces the shared first trap line.
+const MORE: &str =
+    "Sources/components: help sources. By question: help questions. Worked calls: help examples.";
 
 #[derive(Default)]
 struct Entity {
@@ -155,15 +158,17 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
             .flatten()
             .cloned()
             .collect::<BTreeSet<_>>();
-        if let Some(all) = row.sections.get_mut("all") {
-            *all = represented.clone();
-        }
+        // "all" reads every section, whose sources the row already names.
         let common = row
             .sections
-            .values()
-            .cloned()
+            .iter()
+            .filter(|(word, _)| *word != "all")
+            .map(|(_, sources)| sources.clone())
             .reduce(|a, b| a.intersection(&b).cloned().collect())
-            .unwrap_or_default();
+            .unwrap_or_else(|| represented.clone());
+        if let Some(all) = row.sections.get_mut("all") {
+            *all = common.clone();
+        }
         let mut line = words(&row.commands);
         if !common.is_empty() {
             line.push_str(&format!(";({})", words(&common)));
@@ -190,7 +195,8 @@ fn render(entities: BTreeMap<String, Entity>) -> String {
         }
         lines.push(line);
     }
-    lines.extend(TRAPS.iter().map(|line| (*line).into()));
+    lines.push(MORE.into());
+    lines.extend(TRAPS.iter().skip(1).map(|line| (*line).into()));
     lines.join("\n")
 }
 
@@ -251,15 +257,11 @@ mod tests {
                 words().any(|word| word == section),
                 "{section} missing: {line}"
             );
-            let expected = if section == "all" {
-                sections(schema)
-                    .into_iter()
-                    .filter(|word| word != "all")
-                    .flat_map(|word| bindings(verb, child, &word, &sources))
-                    .collect()
-            } else {
-                bindings(verb, child, &section, &sources)
-            };
+            if section == "all" {
+                // The row names every section's sources, so "all" stands bare.
+                continue;
+            }
+            let expected = bindings(verb, child, &section, &sources);
             assert!(
                 !expected.is_empty(),
                 "missing typed binding: {verb} {child} {section}"

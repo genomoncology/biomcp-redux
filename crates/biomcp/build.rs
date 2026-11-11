@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         PathBuf::from(env::var("OUT_DIR")?).join("typed-front-map.txt"),
         typed_map,
     )?;
-    embed_skills(&map)?;
+    embed_skills()?;
     embed_examples()
 }
 
@@ -321,31 +321,27 @@ fn git_revision() -> Result<String, Box<dyn Error>> {
     Ok(String::from_utf8(commit.stdout)?.trim().to_owned())
 }
 
-fn embed_skills(map: &str) -> Result<(), Box<dyn Error>> {
+fn embed_skills() -> Result<(), Box<dyn Error>> {
     let directory = PathBuf::from(env::var("CARGO_MANIFEST_DIR")?).join("../../skills");
     println!("cargo:rerun-if-changed={}", directory.display());
     let mut assets = BTreeMap::new();
     skill_files(&directory, &directory, &mut assets)?;
-    let guide = assets.get_mut("SKILL.md").ok_or("missing skill guide")?;
-    // The marker is a comment because the plugin marketplace serves this file as written.
-    let marker = "<!-- {{front-map}} -->";
-    if guide.matches("{{front-map}}").count() != 1 || !guide.lines().any(|line| line == marker) {
-        return Err("skill template requires exactly one front-map comment line".into());
+    let guide = assets.get("SKILL.md").ok_or("missing skill guide")?;
+    // The guide is served as written, by the plugin marketplace too; the map is on request.
+    if guide.contains("{{") {
+        return Err("skill guide must hold no template marker".into());
     }
     if guide.len() > 4096 {
         return Err("agent skill template exceeds 4 KB".into());
     }
-    if guide.matches(first_read::MARKER).count() != 1 {
-        return Err("skill template requires exactly one first-read comment line".into());
-    }
     let examples = first_read::examples(&directory.join("use-cases"))?;
-    let questions = first_read::question_map(&biomcp_types::command_paths())?;
-    *guide = guide.replace(marker, map).replace(
-        first_read::MARKER,
-        &first_read::section(&questions, &examples),
-    );
+    let out = PathBuf::from(env::var("OUT_DIR")?);
     fs::write(
-        PathBuf::from(env::var("OUT_DIR")?).join("first-read-examples.json"),
+        out.join("question-map.txt"),
+        first_read::question_map(&biomcp_types::command_paths())?,
+    )?;
+    fs::write(
+        out.join("first-read-examples.json"),
         serde_json::to_vec(&first_read::embedded(&examples)?)?,
     )?;
     let entries = assets
