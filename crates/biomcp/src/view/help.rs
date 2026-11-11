@@ -33,11 +33,7 @@ pub(super) fn render(value: &Value, out: &mut String) {
             ));
             continue;
         }
-        out.push_str(&format!(
-            "# biomcp {}\n\n{}\n\n",
-            escape(&path),
-            body(command, &path)
-        ));
+        out.push_str(&format!("# biomcp {}\n\n{}\n\n", escape(&path), body(command, &path)));
         if let Some(schemas) = command["reply_schemas"]
             .as_array()
             .filter(|v| !v.is_empty())
