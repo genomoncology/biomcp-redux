@@ -5,6 +5,7 @@ use super::{Page, literal, page};
 use biodata::{DrugId, Text};
 use biomcp_fetch::{Leg, RequestError};
 mod expanded;
+mod names;
 pub use expanded::{NameTier, search_expanded};
 
 /// The native discovery result and the recovery step attempted.
@@ -91,24 +92,24 @@ fn discover(
         let name = literal(name.as_str());
         format!("openfda.brand_name:{name} OR openfda.generic_name:{name}")
     };
-    for (selector, label_text) in [
-        (scoped(exact_names(name.as_str())), false),
-        (scoped(words), false),
-        (
-            scoped(format!("indications_and_usage:{}", literal(name.as_str()))),
-            true,
-        ),
-    ] {
-        let found = candidates(leg, &selector, limit, offset)?;
-        // Select by native total so exhausted pages never broaden the query.
-        if found.window.total().is_some_and(|total| total > 0) {
-            if label_text {
-                *free_text = Some(selector.parse().map_err(|_| {
-                    biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
-                })?);
-            }
-            return Ok(found);
-        }
+    let found = names::union(
+        leg,
+        &scoped(names::exact(name.as_str())),
+        &scoped(words),
+        limit,
+        offset,
+    )?;
+    // Select by native total so exhausted pages never broaden the query.
+    if found.window.total().is_some_and(|total| total > 0) {
+        return Ok(found);
+    }
+    let selector = scoped(format!("indications_and_usage:{}", literal(name.as_str())));
+    let found = candidates(leg, &selector, limit, offset)?;
+    if found.window.total().is_some_and(|total| total > 0) {
+        *free_text = Some(selector.parse().map_err(|_| {
+            biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+        })?);
+        return Ok(found);
     }
     let selector = literal(name.as_str());
     *free_text = Some(
@@ -119,54 +120,6 @@ fn discover(
     // The publisher searched label text, so a matching passage need not name
     // this product. Preserve its candidates and mark exact name matches separately.
     candidates(leg, &scoped(selector), limit, offset)
-}
-
-/// openFDA's exact name fields compare letter case as stored, and labels store
-/// names upper, title, sentence or lower case, so one request asks for each form.
-/// The forms come in a fixed order, so every casing of a name sends the same request.
-fn exact_names(name: &str) -> String {
-    let mut forms: Vec<String> = Vec::new();
-    for form in [
-        name.to_uppercase(),
-        title_case(name),
-        sentence_case(name),
-        name.to_lowercase(),
-        name.to_owned(),
-    ] {
-        if !forms.contains(&form) {
-            forms.push(form);
-        }
-    }
-    forms
-        .iter()
-        .map(|form| {
-            let form = literal(form);
-            format!("openfda.brand_name.exact:{form} OR openfda.generic_name.exact:{form}")
-        })
-        .collect::<Vec<_>>()
-        .join(" OR ")
-}
-fn title_case(name: &str) -> String {
-    let mut word_start = true;
-    let mut out = String::with_capacity(name.len());
-    for c in name.chars() {
-        if word_start {
-            out.extend(c.to_uppercase());
-        } else {
-            out.extend(c.to_lowercase());
-        }
-        word_start = c.is_whitespace();
-    }
-    out
-}
-fn sentence_case(name: &str) -> String {
-    let mut chars = name.chars();
-    chars.next().map_or_else(String::new, |first| {
-        first
-            .to_uppercase()
-            .chain(chars.flat_map(char::to_lowercase))
-            .collect()
-    })
 }
 
 fn candidates(

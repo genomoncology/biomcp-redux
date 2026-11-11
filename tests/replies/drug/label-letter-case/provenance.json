@@ -8,9 +8,45 @@
       "retrieved": "2026-11-11"
     },
     {
+      "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22apixaban%22%20OR%20openfda.generic_name%3A%22apixaban%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22APIXABAN%22%20OR%20openfda.generic_name.exact%3A%22APIXABAN%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%22%20OR%20openfda.brand_name.exact%3A%22apixaban%22%20OR%20openfda.generic_name.exact%3A%22apixaban%22%29&limit=0&sort=effective_time%3Adesc",
+      "sha256": "57b1e7534d003e4246182162fd2469cdf038de39405056f44fc006715e5496da",
+      "status": 404,
+      "retrieved": "2026-11-11"
+    },
+    {
       "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22ELIQUIS%22%20OR%20openfda.generic_name.exact%3A%22ELIQUIS%22%20OR%20openfda.brand_name.exact%3A%22Eliquis%22%20OR%20openfda.generic_name.exact%3A%22Eliquis%22%20OR%20openfda.brand_name.exact%3A%22eliquis%22%20OR%20openfda.generic_name.exact%3A%22eliquis%22&limit=10&sort=effective_time%3Adesc",
       "sha256": "068250d95bbfa543f0f93a03033b8a9983c656975165380f098603c0fb44927b",
       "status": 200,
+      "retrieved": "2026-11-11"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22Eliquis%22%20OR%20openfda.generic_name%3A%22Eliquis%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22ELIQUIS%22%20OR%20openfda.generic_name.exact%3A%22ELIQUIS%22%20OR%20openfda.brand_name.exact%3A%22Eliquis%22%20OR%20openfda.generic_name.exact%3A%22Eliquis%22%20OR%20openfda.brand_name.exact%3A%22eliquis%22%20OR%20openfda.generic_name.exact%3A%22eliquis%22%29&limit=2&sort=effective_time%3Adesc",
+      "sha256": "57b1e7534d003e4246182162fd2469cdf038de39405056f44fc006715e5496da",
+      "status": 404,
+      "retrieved": "2026-11-11"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.generic_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.brand_name.exact%3A%22Dabigatran%22%20OR%20openfda.generic_name.exact%3A%22Dabigatran%22%20OR%20openfda.brand_name.exact%3A%22dabigatran%22%20OR%20openfda.generic_name.exact%3A%22dabigatran%22&limit=10&sort=effective_time%3Adesc",
+      "sha256": "61232d8a37841803aca6eee157d8231c6df6589c9b6468ebbd5d5f06bb024fe1",
+      "status": 200,
+      "retrieved": "2026-11-11"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22dabigatran%22%20OR%20openfda.generic_name%3A%22dabigatran%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.generic_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.brand_name.exact%3A%22Dabigatran%22%20OR%20openfda.generic_name.exact%3A%22Dabigatran%22%20OR%20openfda.brand_name.exact%3A%22dabigatran%22%20OR%20openfda.generic_name.exact%3A%22dabigatran%22%29&limit=4&sort=effective_time%3Adesc",
+      "sha256": "9d559947d554b0af3a9996c3c1472a48e1ce3f143f6134d85a55297d42b2df59",
+      "status": 200,
+      "retrieved": "2026-11-11"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22APIXABAN%22%20OR%20openfda.generic_name%3A%22APIXABAN%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22APIXABAN%22%20OR%20openfda.generic_name.exact%3A%22APIXABAN%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%22%20OR%20openfda.brand_name.exact%3A%22apixaban%22%20OR%20openfda.generic_name.exact%3A%22apixaban%22%29&limit=0&sort=effective_time%3Adesc",
+      "sha256": "57b1e7534d003e4246182162fd2469cdf038de39405056f44fc006715e5496da",
+      "status": 404,
+      "retrieved": "2026-11-11"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22ELIQUIS%22%20OR%20openfda.generic_name%3A%22ELIQUIS%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22ELIQUIS%22%20OR%20openfda.generic_name.exact%3A%22ELIQUIS%22%20OR%20openfda.brand_name.exact%3A%22Eliquis%22%20OR%20openfda.generic_name.exact%3A%22Eliquis%22%20OR%20openfda.brand_name.exact%3A%22eliquis%22%20OR%20openfda.generic_name.exact%3A%22eliquis%22%29&limit=2&sort=effective_time%3Adesc",
+      "sha256": "57b1e7534d003e4246182162fd2469cdf038de39405056f44fc006715e5496da",
+      "status": 404,
       "retrieved": "2026-11-11"
     }
   ]

@@ -1,7 +1,7 @@
 {
   "feature": "drug-label",
   "live_check": "synthetic",
-  "story": "An exhausted exact-name page retains its native total without loosening to word search. All source records are synthetic.",
+  "story": "An exhausted name page keeps the native exact total and an empty word-only remainder without loosening the query. All source records are synthetic.",
   "replay": "drug/exhausted-label",
   "steps": [
     {
