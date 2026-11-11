@@ -150,11 +150,11 @@ fn regulatory_page(
     body
 }
 /// Attach the adapter's source observation, when it has one, to the EMA outcome.
-fn add_notice(out: &mut Outcome, notice: Option<&'static str>) {
+fn add_notice(out: &mut Outcome, notice: Option<Box<str>>) {
     if let (Some(source), Some(message)) = (out.sources.last_mut(), notice) {
         source.notices.push(SourceNotice::RequestGuidance {
             data_date: None,
-            message: message.into(),
+            message,
             retry_after_seconds: None,
         });
     }

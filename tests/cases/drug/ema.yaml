@@ -11,7 +11,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/rows": 6
+        "/result/rows": 7
       },
       "max_bytes": 438
     },

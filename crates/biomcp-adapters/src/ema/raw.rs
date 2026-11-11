@@ -59,25 +59,80 @@ pub(super) fn date(text: &str) -> Result<biodata::PartialDate, BadReply> {
 }
 impl Medicine {
     pub(super) fn field(&self, name: &str) -> Option<Result<&str, BadReply>> {
-        self.fields.get(name).map(|value| match value {
-            crate::raw::Field::Value(value) => Ok(value.as_str()),
-            crate::raw::Field::Invalid(_) => Err(BadReply),
+        field(&self.fields, name)
+    }
+}
+fn field<'a>(
+    fields: &'a BTreeMap<String, crate::raw::Field<String>>,
+    name: &str,
+) -> Option<Result<&'a str, BadReply>> {
+    fields.get(name).map(|value| match value {
+        crate::raw::Field::Value(value) => Ok(value.as_str()),
+        crate::raw::Field::Invalid(_) => Err(BadReply),
+    })
+}
+/// One row of EMA's referrals file, keyed by its `reference_number`.
+#[derive(Debug)]
+pub(super) struct Referral {
+    pub reference: String,
+    pub meta: Meta,
+    pub fields: BTreeMap<String, crate::raw::Field<String>>,
+}
+impl<'de> Deserialize<'de> for Referral {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let value = Fields::deserialize(deserializer)?;
+        let reference = match field(&value.fields, "reference_number") {
+            Some(Ok(reference)) => reference.to_owned(),
+            _ => return Err(serde::de::Error::custom("Invalid EMA referral record")),
+        };
+        Ok(Self {
+            reference,
+            meta: value.meta,
+            fields: value.fields,
         })
     }
 }
-impl Row for Medicine {
+impl Referral {
+    pub(super) fn field(&self, name: &str) -> Option<Result<&str, BadReply>> {
+        field(&self.fields, name)
+    }
+}
+impl Row for Referral {
     fn data_date(&self) -> Option<&str> {
-        self.meta
-            .timestamp
+        self.meta.data_date()
+    }
+    fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
+        self.meta.check_bundle(rows)
+    }
+    // EMA's live file repeats some reference numbers, such as EMEA/H/A-31/1337 with two
+    // decision dates, and the bundle store refuses a file whose Id keys repeat.
+    fn keys(&self) -> Keys {
+        Keys {
+            exact: vec![(KeyKind::Xref, self.reference.as_str().into())],
+            words: Vec::new(),
+        }
+    }
+}
+impl Meta {
+    fn data_date(&self) -> Option<&str> {
+        self.timestamp
             .as_ref()
             .and_then(crate::raw::Field::as_ref)
             .map(|date| date.as_str())
     }
     fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
-        if self.meta.total_records != rows {
+        if self.total_records != rows {
             return Err(BadReply);
         }
         Ok(())
+    }
+}
+impl Row for Medicine {
+    fn data_date(&self) -> Option<&str> {
+        self.meta.data_date()
+    }
+    fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
+        self.meta.check_bundle(rows)
     }
     fn keys(&self) -> Keys {
         Keys {

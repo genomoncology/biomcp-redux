@@ -11,7 +11,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/rows": 6,
+        "/result/rows": 7,
         "/result/data_date": "2026-10-24T18:22:32Z"
       }
     },
