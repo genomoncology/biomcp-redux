@@ -1,0 +1,17 @@
+{
+  "projection": "Native identity, harmonized fields and product data only (effective_time, id, openfda, set_id, spl_product_data_elements, version); meta and request identity are the original live reply's.",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22APIXABAN%22%20OR%20openfda.generic_name.exact%3A%22APIXABAN%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%22%20OR%20openfda.brand_name.exact%3A%22apixaban%22%20OR%20openfda.generic_name.exact%3A%22apixaban%22&limit=10&sort=effective_time%3Adesc",
+      "sha256": "19453216cf7ff04518c7b8eb1e6f9f205a63d8eaf026199bb35c03a7ddc58830",
+      "status": 200,
+      "retrieved": "2026-11-11"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22ELIQUIS%22%20OR%20openfda.generic_name.exact%3A%22ELIQUIS%22%20OR%20openfda.brand_name.exact%3A%22Eliquis%22%20OR%20openfda.generic_name.exact%3A%22Eliquis%22%20OR%20openfda.brand_name.exact%3A%22eliquis%22%20OR%20openfda.generic_name.exact%3A%22eliquis%22&limit=10&sort=effective_time%3Adesc",
+      "sha256": "068250d95bbfa543f0f93a03033b8a9983c656975165380f098603c0fb44927b",
+      "status": 200,
+      "retrieved": "2026-11-11"
+    }
+  ]
+}

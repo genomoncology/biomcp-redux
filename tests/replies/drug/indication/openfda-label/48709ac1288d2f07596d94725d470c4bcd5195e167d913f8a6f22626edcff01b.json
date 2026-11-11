@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "openfda-label",
-  "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name.exact%3A%22ALPHA%20LABEL%22%20OR%20openfda.generic_name.exact%3A%22ALPHA%20LABEL%22%29%20AND%20indications_and_usage%3A%22melanoma%22&limit=1&sort=effective_time%3Adesc",
+  "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name.exact%3A%22ALPHA%20LABEL%22%20OR%20openfda.generic_name.exact%3A%22ALPHA%20LABEL%22%20OR%20openfda.brand_name.exact%3A%22Alpha%20Label%22%20OR%20openfda.generic_name.exact%3A%22Alpha%20Label%22%20OR%20openfda.brand_name.exact%3A%22Alpha%20label%22%20OR%20openfda.generic_name.exact%3A%22Alpha%20label%22%20OR%20openfda.brand_name.exact%3A%22alpha%20label%22%20OR%20openfda.generic_name.exact%3A%22alpha%20label%22%29%20AND%20indications_and_usage%3A%22melanoma%22&limit=1&sort=effective_time%3Adesc",
   "exchanges": [
     {
       "status": 200,

@@ -1,0 +1,117 @@
+{
+  "verified": "tests/replies/drug/label-letter-case/provenance.json records the live openFDA replies of 2026-11-11 and their body hashes.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "The exact-name label step ignores letter case: apixaban finds the same sets as APIXABAN, including all eight ELIQUIS sets, and a mixed-case brand finds its upper-case label.",
+  "replay": "drug/label-letter-case",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "apixaban",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 10,
+        "/page/total": 10,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "19a60552-374d-4b8b-a8ce-ceae252ea5ba",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef",
+          "095a08ac-cf0e-497e-a682-ddef38d6b29c"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "APIXABAN",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 10,
+        "/page/total": 10,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "19a60552-374d-4b8b-a8ce-ceae252ea5ba",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef",
+          "095a08ac-cf0e-497e-a682-ddef38d6b29c"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "Eliquis",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 8,
+        "/page/total": 8,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "ELIQUIS",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 8,
+        "/page/total": 8,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef"
+        ]
+      }
+    }
+  ]
+}
