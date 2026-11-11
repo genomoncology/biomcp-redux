@@ -3,8 +3,8 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ema;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section, Source, SourceState,
-    StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section, Source, SourceNotice,
+    SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -63,11 +63,13 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
+    let mut notice = None;
     let result = if regulatory {
         ema::regulatory(&leg, &id).map(|body| {
             out.include_refusals(body.refusals);
             out.problems.extend(body.problems);
             let body = body.value;
+            notice = body.as_ref().and_then(ema::decision_date_notice);
             let found = body.is_some();
             out.body = biomcp_types::DrugRegulatory::into_reply(
                 query.clone(),
@@ -101,8 +103,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    out.sources
-        .push(status::source(Source::Ema, leg.finish(), error));
+    out.sources.push(with_notice(
+        status::source(Source::Ema, leg.finish(), error),
+        notice,
+    ));
     if let Ok(found) = result {
         {
             let (found, identity_failed, unavailable) = if !found {
@@ -145,6 +149,20 @@ fn regulatory_page(
         });
     }
     body
+}
+/// Attach the adapter's source observation, when it has one, to the EMA outcome.
+fn with_notice(
+    mut source: biomcp_types::SourceOutcome,
+    notice: Option<&'static str>,
+) -> biomcp_types::SourceOutcome {
+    source
+        .notices
+        .extend(notice.map(|message| SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        }));
+    source
 }
 fn sync_step(out: &mut Outcome) {
     if out

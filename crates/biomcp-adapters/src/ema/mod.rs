@@ -147,6 +147,20 @@ pub fn regulatory(
         problems: problems.list,
     })
 }
+/// Why an EMA regulatory reply carries no European Commission decision date, when its record
+/// holds the date EMA's medicines file names `european_commission_decision_date`.
+pub fn decision_date_notice(body: &DrugRegulatory) -> Option<&'static str> {
+    body.date_roles
+        .iter()
+        .any(|label| label.role.as_str() == map::LATEST_PROCEDURE_ROLE)
+        .then_some(DECISION_DATE_NOTICE)
+}
+const DECISION_DATE_NOTICE: &str = "No European Commission decision date is reported. The date \
+reported as latest_procedure_affecting_product_information_date is the one EMA's medicines file \
+names european_commission_decision_date; EMA's product page shows it beside the latest procedure \
+affecting product information, and it can differ from that procedure's European Commission \
+decision date. Read the decision date from the procedure's own EMA page, such as its referral \
+page.";
 fn fields(id: Option<&DrugId>) -> crate::mapped::Problems {
     crate::mapped::Problems {
         source: Source::Ema,
