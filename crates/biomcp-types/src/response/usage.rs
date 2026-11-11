@@ -57,8 +57,8 @@ pub enum UsageError {
         /// Grammar-owned help command.
         next: crate::Step,
     },
-    /// Fixed migration guidance.
-    Retired(crate::ErrorMessage),
+    /// Fixed migration guidance and the replacement call for this request, when one checks.
+    Retired(crate::ErrorMessage, Vec<crate::Step>),
     /// A transport cannot execute this command.
     McpUnavailable(crate::ErrorMessage),
     /// A hosted source key belongs in account settings.

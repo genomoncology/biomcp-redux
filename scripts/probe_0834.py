@@ -69,6 +69,13 @@ CLI = [
     "get article 24996524 full_text",
     "get disease OMIM:621585 genes",
     "search article --drug crizotinib --keyword E4512",
+    "search diagnostic --help",
+    "search diagnostic --source fda-cdx --type fda-cdx",
+    "search pgx -g G6PD --source cpic",
+    "get drug primaquine --section approvals",
+    "get pgx --gene G6PD --section recommendations --source cpic",
+    "search drug -q imatinib",
+    "search disease -q|lung cancer",
 ]
 
 TYPED = [
@@ -79,6 +86,8 @@ TYPED = [
     {"name": "drug", "arguments": {"action": "get", "get": {"id": "primaquine", "section": "who-pq"}}},
     {"name": "variant", "arguments": {"action": "get", "get": {"id": "rs1142345", "section": "gnomad"}}},
     {"name": "trial", "arguments": {"action": "search", "search": {"query": "E4512"}}},
+    {"name": "article", "arguments": {"action": "get", "get": {"id": "24996524", "section": "fulltext"}}},
+    {"name": "drug", "arguments": {"action": "get", "get": {"id": "imatinib", "section": "boxed_warning"}}},
 ]
 
 

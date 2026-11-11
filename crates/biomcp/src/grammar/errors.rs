@@ -123,6 +123,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
         }
         let values = command
             .get_arguments()
+            .filter(|argument| !argument.is_hide_set())
             .filter_map(|argument| argument.get_long())
             .map(|name| biodata::Text::new(&format!("--{name}")).ok())
             .collect::<Option<Vec<_>>>()?;
@@ -183,6 +184,11 @@ fn parser_correction(
         .subcommand_matches(entity)?;
     let value = super::request_arguments(verb, entity, matches).ok()?;
     let schema = super::validation::schema(verb, entity)?;
+    if let Some(ContextValue::String(spelling)) = error.get(ContextKind::InvalidArg)
+        && let Some(step) = super::sections::misplaced((verb, entity), &schema, &value, spelling)
+    {
+        return Some(step);
+    }
     let declaration = biomcp_types::COMMANDS
         .iter()
         .find(|command| (command.verb, command.entity) == (*verb, *entity))?;
@@ -203,15 +209,33 @@ pub(super) fn parse_invalid(
     args: &[std::ffi::OsString],
 ) -> super::ParseInvalid {
     let (command, path) = command_context(root, error);
+    let spelling = match error.get(ContextKind::InvalidArg) {
+        Some(ContextValue::String(spelling)) if error.kind() == ErrorKind::UnknownArgument => {
+            Some(spelling.as_str())
+        }
+        _ => None,
+    };
     if let Some(mut arguments) = parser_usage(command, &path, error) {
         let registered_argument = invalid_argument(command, &path, error).is_some();
-        if registered_argument {
-            super::recovery::next(&mut arguments, parser_correction(root, &path, error, args));
-        }
+        let corrected = if registered_argument {
+            parser_correction(root, &path, error, args)
+        } else {
+            spelling.and_then(|spelling| super::positional::text_flag(root, &path, spelling, args))
+        };
+        super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
             prefer_argument_error: registered_argument,
+        };
+    }
+    if spelling.is_some()
+        && let Some(arguments) = super::positional::fix(root, &path, args)
+    {
+        return super::ParseInvalid {
+            argument: None,
+            usage: Some(UsageError::Arguments(arguments)),
+            prefer_argument_error: false,
         };
     }
     let message = match path.as_slice() {

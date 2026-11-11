@@ -347,10 +347,11 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.message = ErrorMessage::UnknownCommand;
                 out.next = vec![next];
             }
-            UsageError::Retired(message) => {
+            UsageError::Retired(message, next) => {
                 out.error.code = ErrorCode::Retired;
                 out.error.message = message;
                 out.error.valid_values = retired_values(message);
+                out.next = next;
             }
             UsageError::McpUnavailable(message) => {
                 out.error.code = ErrorCode::McpUnavailable;

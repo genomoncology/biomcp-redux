@@ -127,7 +127,8 @@ fn parse_arguments(
             let outcome = if !cause.prefer_argument_error
                 && let Some(message) = retired
             {
-                usage_envelope(UsageError::Retired(message), encoding)
+                let next = crate::retired::steps(root, canonical.as_deref().unwrap_or(args));
+                usage_envelope(UsageError::Retired(message, next), encoding)
             } else {
                 parse_refusal(root, args, cause, encoding)
             };
@@ -135,7 +136,13 @@ fn parse_arguments(
         }
     };
     match retired {
-        Some(message) => Ok(Err(usage_envelope(UsageError::Retired(message), encoding)?)),
+        Some(message) => {
+            let next = crate::retired::steps(root, canonical.as_deref().unwrap_or(args));
+            Ok(Err(usage_envelope(
+                UsageError::Retired(message, next),
+                encoding,
+            )?))
+        }
         None => Ok(Ok(parsed)),
     }
 }

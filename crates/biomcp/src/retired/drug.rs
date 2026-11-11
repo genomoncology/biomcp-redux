@@ -2,7 +2,6 @@
 use super::{Words, find};
 use biomcp_types::{DrugSection, ErrorMessage};
 pub(super) const SEARCH: &[(&str, ErrorMessage)] = &[
-    ("--query", ErrorMessage::DrugQuery),
     ("--mechanism", ErrorMessage::DrugMechanism),
     ("--interactions", ErrorMessage::DrugPartnerSearch),
     ("--region", ErrorMessage::DrugRegion),

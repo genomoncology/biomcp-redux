@@ -25,6 +25,9 @@ pub(super) fn run_step(
             )
         })
         .transpose()?;
+    if let Some(cli) = &cli {
+        names_argument(cli, &step.run)?;
+    }
     let mut answer = cli.clone();
     if let Some(args) = &step.mcp {
         let (result, text) =
@@ -42,13 +45,16 @@ pub(super) fn run_step(
             )
             .map_err(|e| e.to_string())?;
         }
+        names_argument(&result, args)?;
         answer = Some(result.clone());
         if let Some(cli) = cli.as_ref() {
             parity(cli, &result, args)?;
         }
     }
     if let Some(call) = &step.mcp_call {
-        answer = Some(named(call, step, environment, expectations, &globals)?);
+        let value = named(call, step, environment, expectations, &globals)?;
+        names_argument(&value, &call.name)?;
+        answer = Some(value);
     }
     answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
 }
@@ -187,4 +193,17 @@ fn named(
         expectations,
     )?;
     Ok(value)
+}
+
+/// Every argument refusal names the option or argument at fault, so the caller knows what
+/// to change.
+fn names_argument(reply: &Value, call: &impl std::fmt::Debug) -> Result<(), String> {
+    if reply.pointer("/error/code") == Some(&Value::from("usage.arguments"))
+        && reply.pointer("/error/option").is_none()
+    {
+        return Err(format!(
+            "usage.arguments names no option or argument: {call:?}"
+        ));
+    }
+    Ok(())
 }
