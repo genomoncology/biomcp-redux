@@ -30,8 +30,9 @@ pub(super) fn expand<'a>(
     }
     search_names::bounded(deadline, |lookup| {
         let mut term = |input: &Text| {
-            let resolved =
-                search_names::resolve(cx, input, out, lookup, biomcp_adapters::ctgov::name_fits);
+            let fits = biomcp_adapters::ctgov::name_fits;
+            let unfinished = search_names::Unfinished::Skipped;
+            let resolved = search_names::resolve(cx, input, out, lookup, fits, unfinished);
             expanded.failed |= resolved.failed;
             if resolved.names.len() < 2 {
                 return input.clone();

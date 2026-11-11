@@ -202,13 +202,13 @@ fn failed_names() -> Result<(), String> {
         .pointer("/page/total")
         .and_then(Value::as_u64)
         .unwrap_or(0);
-    if first.get("status").and_then(Value::as_str) != Some("partial")
+    if first.get("status").and_then(Value::as_str) != Some("complete")
         || first.pointer("/page/returned") != Some(&json!(1))
         || total < 2
         || first.pointer("/result/items/0/header/title").is_none()
     {
         return Err(format!(
-            "failed lookup did not page a partial pool: {first}"
+            "failed lookup did not page a complete pool: {first}"
         ));
     }
     let step = first
@@ -226,7 +226,7 @@ fn failed_names() -> Result<(), String> {
     let mut named = cached(&command, &cache, Some(&replay));
     named.extend(["--pool".into(), id.into(), "--offset".into(), "1".into()]);
     let second = invoke(&env, named, 0)?;
-    if second.get("status").and_then(Value::as_str) != Some("partial")
+    if second.get("status").and_then(Value::as_str) != Some("complete")
         || second.pointer("/page/pool/id") != first.pointer("/page/pool/id")
         || second.pointer("/page/offset") != Some(&json!(1))
         || second.pointer("/page/returned") != Some(&json!(1))

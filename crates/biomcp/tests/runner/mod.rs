@@ -2,6 +2,7 @@ mod argument_recovery;
 mod corporate;
 mod credential_containment;
 mod drug_identity;
+mod drug_name_load;
 mod enum_case;
 mod key_reload;
 mod local_files;
@@ -348,6 +349,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(trial_binding::trials());
     trials.extend(author_pools::trials());
     trials.extend(faers_names::trials());
+    trials.extend(drug_name_load::trials());
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials

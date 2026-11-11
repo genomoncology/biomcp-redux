@@ -1,6 +1,7 @@
 # 0832 — drug-name-lookup-stops-making-searches-partial
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d6a08853cf25645880150210df60a457a40389da
 
 Milestone: 7
 
@@ -15,6 +16,22 @@ In `biomed-agent-bench/results/baseline-1.0.md` (build c2511ee90, which is curre
 ## Proof
 
 - Proof: a routine case with a slow recorded name source shows the search complete with a notice naming the names it could not widen; a release-suite run of 25 concurrent searches against the recorded sources returns no partial reply caused by the lookup. The bench reruns the baseline's Sonnet MCP mode and the partial count falls below 10%.
+
+## Cause
+
+- Developer note: 2026-11-11. Measured by job j37631 on the build machine with the baseline binary (c2511ee90), live sources, a cold cache per process, at 1, 5 and 25 searches at once. Each row is one request's wire time from `--observe`.
+- The time goes to ChEMBL, and load is not needed to lose it. One search alone (`search trial imatinib`) came back partial after 7.8 s: MyChem answered in 0.28 s, then the first ChEMBL request ran 6.37 s without an answer and was cut off. ChEMBL's exact-name requests took 0.2 to 5.3 s each when they answered (median 1.2 s over 21 requests) and 14 more were cut off unanswered, against 0.26 s for MyChem, 0.2 to 0.9 s for the openFDA label and 0.15 s for ClinicalTrials.gov. Load makes it worse: with 25 at once, 6 of 12 first ChEMBL requests got no answer at all, against none of 5 with five at once.
+- The lookup asks MyChem, then ChEMBL, then the openFDA label, one after another, inside one third of the command's 20 s. ChEMBL needs three requests in a row (preferred name, synonym, then the molecule), spaced one a second. The four lookups ChEMBL finished spent 2.8 to 5.1 s on its wire plus the spacing, so a lookup that reaches ChEMBL usually runs out of its 6.4 s: 14 of 18 did. When it does, the openFDA label is never asked, yet the reply lists it as failed with `deadline-exceeded`.
+- MyChem settles the lookup alone, in under 0.3 s, when it holds one structure for the name (13 of 31 searches). ChEMBL is reached when MyChem has several structures (imatinib, metformin, trastuzumab), rows without a structure (pembrolizumab) or no row at all. The baseline's partial searches were mostly the last kind, whole phrases and trial IDs that name no drug: `GS-US-621-6289`, `apitegromab SAPPHIRE`, `germline mutation rate GWAS ...`. All 15 partial trial and article searches in the Sonnet `biomcp-mcp` records show the same two rows, `chembl` and `openfda-label` failed with `deadline-exceeded`, and the read run (`r2/v3-10-bixlenvo-ddi-2026`) shows it twice.
+- Why the reply turns partial: the lookup leaves its timed-out sources in the reply as `failed`, and the status rule counts every failed source in a reply, whether the search asked it for records or only for names (`status::item`, the trial search's `item_state`, the article page's `finish`). The registry or PubMed had answered in full each time.
+
+## Fix chosen
+
+- Developer note: 2026-11-11. Two changes, both in the lookup.
+- A lookup that does not finish no longer counts against the search. Its sources are listed as `skipped` with the reason, and carry the notice that names the term searched as typed. The reply is `complete` when its own source answered. Adverse-event and label searches keep their present rule, because there a name source is also the searched source.
+- ChEMBL is not asked when MyChem answered with no row at all. MyChem's query reads its own copy of ChEMBL's preferred names and synonyms, so such a name has none in ChEMBL to add, and this is the case that cost the baseline its wait: those searches now spend about 0.7 s on names in place of 6.7 s.
+- Not chosen: a longer budget, which lengthens the wait; a shorter one, which only stops ChEMBL ever answering; dropping ChEMBL from the lookup, which would lose the official-name and one-molecule rules that rest on it; racing the lookup against the search, which ChEMBL would never win.
+- Left: a real drug name that MyChem cannot settle (several structures, or no structure) still waits up to 6.4 s on ChEMBL and is then searched as typed, complete, with the notice. Removing that wait needs ChEMBL's names held locally, which is a new data asset and its own ticket.
 
 ## Starts from
 
