@@ -30,12 +30,14 @@ pub struct TrialEnrollment {
     pub kind: Option<biodata::TrialDateKind>,
 }
 
-/// Whole native records in registry order: participant flow, baseline, outcomes, then
+/// Whole native records: outcomes first, then participant flow, baseline, and
 /// adverse-event metadata, groups, serious and other terms.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "record", content = "data", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialResultRecord {
+    /// Posted measure, including group denominators, values and analyses.
+    Outcome(TrialPostedOutcome),
     /// Recruitment and pre-assignment notes for the participant flow, when the registry posted any.
     ParticipantFlow(crate::TrialParticipantFlow),
     /// One participant-flow arm, named by the group IDs in the flow periods.
@@ -48,8 +50,6 @@ pub enum TrialResultRecord {
     BaselineGroup(TrialResultGroup),
     /// One baseline characteristic with its values by group.
     BaselineMeasure(crate::TrialBaselineMeasure),
-    /// Posted measure, including group denominators, values and analyses.
-    Outcome(TrialPostedOutcome),
     /// Native adverse-event collection scope.
     AdverseEvents(TrialAdverseEvents),
     /// Native adverse-event group and reported counts.

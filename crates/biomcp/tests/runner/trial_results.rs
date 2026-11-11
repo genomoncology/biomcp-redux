@@ -32,6 +32,7 @@ fn posted() -> Check {
     if first["result"]["items"][0]["card"]["results_first_posted"] != "2017-09-26" {
         return Err("results first posted date differs from protocol status".into());
     }
+    posted_primary(&first)?;
     let mut rows = Vec::new();
     let mut current = first;
     // Continuations are served offline from the same stored record, never a new HTTP request.
@@ -80,7 +81,6 @@ fn posted() -> Check {
     {
         return Err("adverse-event group denominator changed".into());
     }
-    posted_primary(&rows)?;
     native_rows(&rows, &serious)
 }
 
@@ -117,6 +117,24 @@ fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     {
         return Err("participant flow or baseline record was lost, reordered or changed".into());
     }
+    let mut order: Vec<&str> = rows.iter().filter_map(|r| r["record"].as_str()).collect();
+    order.dedup();
+    if order
+        != [
+            "outcome",
+            "flow-group",
+            "flow-period",
+            "baseline",
+            "baseline-group",
+            "baseline-measure",
+            "adverse-events",
+            "adverse-event-group",
+            "serious-event",
+            "other-event",
+        ]
+    {
+        return Err(format!("posted record kinds changed order across pages: {order:?}").into());
+    }
     if json!(outcomes) != native["outcomeMeasuresModule"]["outcomeMeasures"]
         || json!(serious) != native["adverseEventsModule"]["seriousEvents"]
         || json!(other) != native["adverseEventsModule"]["otherEvents"]
@@ -125,13 +143,11 @@ fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     }
     Ok(())
 }
-fn posted_primary(rows: &[Value]) -> Check {
-    // Participant flow and baseline precede the outcomes, as they do in the registry record.
-    let primary = rows
-        .iter()
-        .find(|row| row["record"] == "outcome")
-        .ok_or("no posted outcome")?;
-    if primary["data"]["title"] != "Progression Free Survival (PFS)"
+fn posted_primary(first: &Value) -> Check {
+    // The first posted outcome opens the first page; participant flow and baseline follow the outcomes.
+    let primary = &first["result"]["items"][0]["sections"]["results"]["data"]["items"][0];
+    if primary["record"] != "outcome"
+        || primary["data"]["title"] != "Progression Free Survival (PFS)"
         || primary["data"]["paramType"] != "MEDIAN"
         || primary["data"]["dispersionType"] != "95% Confidence Interval"
         || primary["data"]["unitOfMeasure"] != "months"

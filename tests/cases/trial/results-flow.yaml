@@ -1,15 +1,15 @@
 {
   "live_check": "public",
   "feature": "trial-results",
-  "story": "The results section opens with the posted participant flow by arm and period, with its dropout reasons, then the baseline characteristics, each as the registry's own whole record.",
-  "replay": "trial/results/NCT01844505",
-  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT01844505 reply. Expected records are that reply's resultsSection.participantFlowModule.periods[1] and baselineCharacteristicsModule.measures[0], copied whole. The ceiling is the measured reply plus 15 percent; the page stays inside the section's existing 8,000-byte record budget, so the first posted outcome starts the next page.",
+  "story": "The results section still opens with the posted outcomes; the page after them carries the participant flow by arm and period, with its dropout reasons, then the baseline characteristics, each as the registry's own whole record.",
+  "replay": "trial/get/NCT02987543",
+  "verified": "tests/replies/trial/get/README.md identifies the unchanged public NCT02987543 reply. Expected records are that reply's resultsSection.participantFlowModule.periods[0] and baselineCharacteristicsModule.measures[0], copied whole, and its first outcome title. Its five outcomes fill the first page and start the second inside the section's existing 8,000-byte record budget; the flow and baseline records follow the last outcome. Each ceiling is the measured reply plus 15 percent.",
   "steps": [
     {
       "run": [
         "get",
         "trial",
-        "NCT01844505",
+        "NCT02987543",
         "results",
         "--limit",
         "20"
@@ -17,7 +17,7 @@
       "mcp": [
         "get",
         "trial",
-        "NCT01844505",
+        "NCT02987543",
         "results",
         "--limit",
         "20"
@@ -26,47 +26,71 @@
         "/status": "complete",
         "/result/items/0/card/enrollment": {
           "equals": {
-            "count": 945,
+            "count": 387,
             "kind": "ACTUAL"
           }
         },
         "/result/items/0/sections/results/data/items/*/record": {
           "equals": [
+            "outcome",
+            "outcome",
+            "outcome",
+            "outcome"
+          ]
+        },
+        "/result/items/0/sections/results/data/items/0/data/title": "Confirmed Objective Response Rate (ORR) by Blinded Independent Central Review (BICR) - Cohort A Only",
+        "/result/items/0/sections/results/data/continuation/offset": 4
+      },
+      "max_bytes": 20000
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/results/data/offset": 4,
+        "/result/items/0/sections/results/data/items/*/record": {
+          "equals": [
+            "outcome",
+            "participant-flow",
             "flow-group",
             "flow-group",
             "flow-group",
-            "flow-period",
+            "flow-group",
             "flow-period",
             "baseline",
             "baseline-group",
             "baseline-group",
             "baseline-group",
             "baseline-group",
-            "baseline-measure",
+            "baseline-group",
             "baseline-measure",
             "baseline-measure"
           ]
         },
-        "/result/items/0/sections/results/data/items/4": {
+        "/result/items/0/sections/results/data/items/6": {
           "equals": {
             "record": "flow-period",
             "data": {
-              "title": "Treatment Period",
+              "title": "Overall Study",
               "milestones": [
                 {
                   "type": "STARTED",
                   "achievements": [
                     {
                       "groupId": "FG000",
-                      "numSubjects": "313"
+                      "numSubjects": "162"
                     },
                     {
                       "groupId": "FG001",
-                      "numSubjects": "313"
+                      "numSubjects": "83"
                     },
                     {
                       "groupId": "FG002",
-                      "numSubjects": "311"
+                      "numSubjects": "94"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "48"
                     }
                   ]
                 },
@@ -84,6 +108,10 @@
                     {
                       "groupId": "FG002",
                       "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
                     }
                   ]
                 },
@@ -92,68 +120,42 @@
                   "achievements": [
                     {
                       "groupId": "FG000",
-                      "numSubjects": "313"
+                      "numSubjects": "162"
                     },
                     {
                       "groupId": "FG001",
-                      "numSubjects": "313"
+                      "numSubjects": "83"
                     },
                     {
                       "groupId": "FG002",
-                      "numSubjects": "311"
+                      "numSubjects": "94"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "48"
                     }
                   ]
                 }
               ],
               "dropWithdraws": [
                 {
-                  "type": "SUBJECT WITHDREW CONSENT",
+                  "type": "Ongoing study at data cut off",
                   "reasons": [
                     {
                       "groupId": "FG000",
-                      "numSubjects": "9"
+                      "numSubjects": "49"
                     },
                     {
                       "groupId": "FG001",
-                      "numSubjects": "12"
+                      "numSubjects": "21"
                     },
                     {
                       "groupId": "FG002",
                       "numSubjects": "19"
-                    }
-                  ]
-                },
-                {
-                  "type": "Other Reasons",
-                  "reasons": [
-                    {
-                      "groupId": "FG000",
-                      "numSubjects": "120"
                     },
                     {
-                      "groupId": "FG001",
-                      "numSubjects": "136"
-                    },
-                    {
-                      "groupId": "FG002",
-                      "numSubjects": "58"
-                    }
-                  ]
-                },
-                {
-                  "type": "Lost to Follow-up",
-                  "reasons": [
-                    {
-                      "groupId": "FG000",
-                      "numSubjects": "9"
-                    },
-                    {
-                      "groupId": "FG001",
-                      "numSubjects": "11"
-                    },
-                    {
-                      "groupId": "FG002",
-                      "numSubjects": "6"
+                      "groupId": "FG003",
+                      "numSubjects": "12"
                     }
                   ]
                 },
@@ -162,15 +164,145 @@
                   "reasons": [
                     {
                       "groupId": "FG000",
-                      "numSubjects": "175"
+                      "numSubjects": "88"
                     },
                     {
                       "groupId": "FG001",
-                      "numSubjects": "154"
+                      "numSubjects": "54"
                     },
                     {
                       "groupId": "FG002",
-                      "numSubjects": "228"
+                      "numSubjects": "67"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "28"
+                    }
+                  ]
+                },
+                {
+                  "type": "Lost to Follow-up",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "3"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "1"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Screen failure",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Withdrawal by Subject",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "21"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "7"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "7"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "6"
+                    }
+                  ]
+                },
+                {
+                  "type": "Study terminated by sponsor",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "1"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Investigator decision",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "1"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Disease progression",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "1"
                     }
                   ]
                 }
@@ -178,14 +310,14 @@
             }
           }
         },
-        "/result/items/0/sections/results/data/items/10": {
+        "/result/items/0/sections/results/data/items/13": {
           "equals": {
             "record": "baseline-measure",
             "data": {
               "title": "Age, Continuous",
               "paramType": "MEAN",
               "dispersionType": "STANDARD_DEVIATION",
-              "unitOfMeasure": "years",
+              "unitOfMeasure": "Years",
               "classes": [
                 {
                   "categories": [
@@ -193,23 +325,28 @@
                       "measurements": [
                         {
                           "groupId": "BG000",
-                          "value": "58.7",
-                          "spread": "13.92"
+                          "value": "68.0",
+                          "spread": "8.23"
                         },
                         {
                           "groupId": "BG001",
-                          "value": "59.3",
-                          "spread": "13.86"
+                          "value": "68.1",
+                          "spread": "7.36"
                         },
                         {
                           "groupId": "BG002",
-                          "value": "60.8",
-                          "spread": "13.23"
+                          "value": "69.2",
+                          "spread": "8.79"
                         },
                         {
                           "groupId": "BG003",
-                          "value": "59.6",
-                          "spread": "13.69"
+                          "value": "70.3",
+                          "spread": "7.83"
+                        },
+                        {
+                          "groupId": "BG004",
+                          "value": "68.6",
+                          "spread": "8.15"
                         }
                       ]
                     }
@@ -219,9 +356,9 @@
             }
           }
         },
-        "/result/items/0/sections/results/data/continuation/offset": 13
+        "/result/items/0/sections/results/data/continuation/offset": 19
       },
-      "max_bytes": 9560
+      "max_bytes": 20000
     }
   ],
   "harvest": "biomed-agent-bench navigator and trial-ops personas: dropout numbers"

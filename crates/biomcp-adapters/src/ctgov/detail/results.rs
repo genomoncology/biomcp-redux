@@ -78,6 +78,17 @@ impl Results {
             refusals,
             rows: Vec::new(),
         };
+        // Outcomes stay first; participant flow and baseline follow them, then adverse events.
+        if let Some(Plain(module)) = out.problems.field(
+            "resultsSection.outcomeMeasuresModule",
+            self.outcome_measures_module,
+        ) {
+            out.records(
+                "outcomeMeasures",
+                module.outcome_measures,
+                TrialResultRecord::Outcome,
+            );
+        }
         if let Some(Plain(module)) = out.problems.field(
             "resultsSection.participantFlowModule",
             self.participant_flow_module,
@@ -108,16 +119,6 @@ impl Results {
                 "baselineCharacteristicsModule.measures",
                 module.measures,
                 TrialResultRecord::BaselineMeasure,
-            );
-        }
-        if let Some(Plain(module)) = out.problems.field(
-            "resultsSection.outcomeMeasuresModule",
-            self.outcome_measures_module,
-        ) {
-            out.records(
-                "outcomeMeasures",
-                module.outcome_measures,
-                TrialResultRecord::Outcome,
             );
         }
         if let Some(Plain(module)) = out.problems.field(

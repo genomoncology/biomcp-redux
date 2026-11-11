@@ -138,7 +138,7 @@ biodata::wire_enum! {
         Eligibility => "eligibility",
         /// Primary, secondary and other outcome records.
         Outcomes => "outcomes",
-        /// Posted participant flow, baseline, outcome values, analyses and adverse-event tables (ClinicalTrials.gov).
+        /// Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
         Results => "results",
         /// Arms and interventions with original relationships.
         Arms => "arms",

@@ -63,7 +63,7 @@ pub struct TrialSections {
     /// Whole registered outcomes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub outcomes: Option<Section<TrialRecords<TrialOutcome>>>,
-    /// Posted participant flow, baseline, outcomes and adverse events, in source order.
+    /// Posted outcomes, then participant flow, baseline and adverse events; each collection in source order.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub results: Option<Section<TrialRecords<crate::TrialResultRecord>>>,
     /// Whole source arm and intervention records.
