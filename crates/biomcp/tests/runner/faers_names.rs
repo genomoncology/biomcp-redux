@@ -19,6 +19,10 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
             "adverse-event-search/alias-caller-controls-and-bounds",
             controls,
         ),
+        (
+            "adverse-event-search/alias-provider-cannot-take",
+            provider_names,
+        ),
     ]
     .into_iter()
     .map(|(name, check)| super::transcript::trial(name, move || check().map_err(Into::into)))
@@ -27,7 +31,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
 
 fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub, mpsc::Sender<()>), String> {
     let (no_lookup, stopped) = mpsc::channel();
-    let stub = Stub::for_sources(
+    let stub = Stub::with_headers(
         &["mychem.info", "api.fda.gov"],
         |_| "application/json",
         move |request| {
@@ -51,6 +55,16 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub, mpsc::Sender<()>)
             "results":[{"safetyreportid":(100+offset).to_string(),"safetyreportversion":"1","receivedate":"20240102",
                 "serious":"1","patient":{"drug":[],"reaction":[]}}]}).to_string())
         },
+        |_, bytes| bytes,
+        // Mode 8: FAERS refuses any request naming the widened brand.
+        move |request| {
+            if mode == 8 && request.contains("/drug/event.json?") && request.contains("Brand") {
+                400
+            } else {
+                200
+            }
+        },
+        |_| String::new(),
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     stub.retain(env.shared_root());
@@ -75,7 +89,11 @@ fn lookup(mode: u8) -> Value {
         5 => "Brand \"quoted\" \\name".into(),
         _ => "Brand name".into(),
     };
-    let row = |id: &str| json!({"_id":id,"drugcentral":{"synonyms":["Typed drug",alias]}});
+    let mut synonyms = vec![json!("Typed drug"), json!(alias)];
+    if mode == 9 {
+        synonyms.extend(UNFIT.map(|name| json!(name)));
+    }
+    let row = |id: &str| json!({"_id":id,"drugcentral":{"synonyms":synonyms}});
     let hits = if mode == 2 {
         vec![
             row("KTUFNOKKBVMGRW-UHFFFAOYSA-N"),
@@ -86,6 +104,14 @@ fn lookup(mode: u8) -> Value {
     };
     json!({"total":if mode == 1 { 2 } else { hits.len() },"hits":hits})
 }
+
+/// Names openFDA cannot take or that name another product, each with the reason the reply gives.
+const UNFIT: [&str; 4] = [
+    "Brand&reg;",
+    "Typed drüg",
+    "Typed drug component of synthetic combination",
+    "Brand (typed drug)",
+];
 
 fn args(expand: bool) -> Vec<String> {
     let mut words = ["search", "adverse-event", "Typed drug", "--limit", "1"]
@@ -328,5 +354,48 @@ fn verify_native(requests: &[(String, String)], expression: &str) -> Check {
     if matching < 3 {
         return Err("reports, next page and counts did not share one native expression".into());
     }
+    Ok(())
+}
+
+fn provider_names() -> Check {
+    let (env, stub, _) = setup(9, json!({}))?;
+    let reply = invoke(&env, args(true), 0)?;
+    let text = reply.to_string();
+    if reply.get("status") != Some(&json!("complete"))
+        || !query(&reply)?.contains("Brand name")
+        || UNFIT
+            .iter()
+            .any(|name| query(&reply).is_ok_and(|q| q.contains(name)))
+        || !text.contains("Left out 4 of 6 names the provider cannot search")
+        || !text.contains("(non-ASCII characters)")
+        || !text.contains("(markup or an HTML entity)")
+        || !text.contains("(names a component of another product)")
+        || !text.contains("(a bracketed qualifier)")
+    {
+        return Err(format!(
+            "unfit names reached FAERS or went unlisted: {reply}"
+        ));
+    }
+    stub.finish()?;
+    let (env, stub, _) = setup(8, json!({}))?;
+    let reply = invoke(&env, args(true), 0)?;
+    if reply.get("status") != Some(&json!("complete"))
+        || query(&reply)?.contains("Brand name")
+        || reply.pointer("/page/total") != Some(&json!(2))
+        || !reply
+            .to_string()
+            .contains("faers rejected the expanded request; searched the typed term.")
+    {
+        return Err(format!(
+            "refused widening did not fall back to the typed name: {reply}"
+        ));
+    }
+    let second = invoke(&env, super::action(&reply, "page")?, 0)?;
+    if query(&second)? != query(&reply)? || second.pointer("/page/offset") != Some(&json!(1)) {
+        return Err(format!(
+            "continuation lost the typed-name fallback: {second}"
+        ));
+    }
+    stub.finish()?;
     Ok(())
 }

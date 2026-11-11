@@ -12,6 +12,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
             checks::controls,
         ),
         ("drug-label/alias-frozen-word-tier", checks::tier),
+        ("drug-label/alias-provider-refuses", checks::refused),
     ]
     .into_iter()
     .map(|(name, check)| {
@@ -21,7 +22,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
 }
 fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
     let mut lookups = 0;
-    let stub = Stub::for_sources(
+    let stub = Stub::with_headers(
         &["mychem.info", "api.fda.gov"],
         |_| "application/json",
         move |request| {
@@ -86,6 +87,16 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             };
             Ok(json!({"meta":{"results":{"skip":offset,"limit":limit,"total":total}},"results":rows}).to_string())
         },
+        |_, bytes| bytes,
+        // Mode 8: the label source refuses any request naming the widened brand.
+        move |request| {
+            if mode == 8 && request.contains("/drug/label.json?") && request.contains("Brand") {
+                400
+            } else {
+                200
+            }
+        },
+        |_| String::new(),
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
     stub.retain(env.shared_root());
