@@ -71,6 +71,9 @@ def tools_check(root, readme, original_readme):
     readme.write_text(original_readme.replace('`{"action":"get","get":{"id":"BRAF"}}`', '`{"action":"get","get":{"id":5}}`'))
     result = run()
     assert result.returncode != 0 and "fails its schema" in result.stderr, result
+    readme.write_text(original_readme.replace('`{"action":"get","get":{"id":"BRAF"}}`', '`{"action":"fetch","fetch":{"id":"BRAF"}}`'))
+    result = run()
+    assert result.returncode != 0 and "does not offer" in result.stderr, result
     readme.write_text(original_readme)
 
 
