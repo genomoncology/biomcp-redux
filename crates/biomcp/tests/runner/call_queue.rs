@@ -29,8 +29,9 @@ fn burst() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let replay = super::launch::fixtures().join("replies/gene/main");
     let globals = environment.globals(Some(replay.as_path()), false);
-    let args = ["get", "gene", "KRAS"].map(String::from);
-    // A recorded exchange answers once; this first call stores it for the burst to share.
+    let args = ["search", "gene", "--band", "9p21.3"].map(String::from);
+    // A recorded exchange answers once per process, so the burst reads the recorded HGNC
+    // bundle, which this first call stores.
     super::mcp::call_with_globals(&environment, &args, false, &globals)?;
     let frames = (1..=CALLS)
         .map(|id| {
@@ -47,8 +48,7 @@ fn burst() -> Result<(), String> {
         let content = reply.pointer("/result/structuredContent");
         if reply.pointer("/result/isError") != Some(&json!(false))
             || content.and_then(|content| content.get("status")) != Some(&json!("complete"))
-            || content.and_then(|content| content.pointer("/result/items/0/answer/gene/symbol"))
-                != Some(&json!("KRAS"))
+            || content.and_then(|content| content.pointer("/page/total")) != Some(&json!(65))
         {
             let shown = content.map_or_else(
                 || reply.to_string(),
