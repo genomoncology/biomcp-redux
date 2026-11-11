@@ -11,7 +11,7 @@ Use `biomcp help COMMAND ENTITY` for syntax and `biomcp skill list` for examples
 
 ## MCP typed tools
 
-In typed mode each entity tool takes `action` and one object named after it. The tools are `gene`, `variant`, `disease`, `drug`, `trial`, `article`, `protein`, `pathway`, `phenotype`, `adverse_event`, `diagnostic`, `cell_line` and `study`, plus `biomcp` (the CLI arguments), `help`, `search` and `fetch`. Use `search` to find records and `get` to read one. Other actions are facets, pivots and links to related records, such as `gwas` or `pgx`. A tool's description lists its actions. To read BRAF, call `gene` with `{"action":"get","get":{"input":["BRAF"]}}`. Call `help` with a command path for options.
+In typed mode each entity tool takes `action` and one object named after it. The tools are `gene`, `variant`, `disease`, `drug`, `trial`, `article`, `protein`, `pathway`, `phenotype`, `adverse_event`, `diagnostic`, `cell_line` and `study`, plus `biomcp` (the CLI arguments), `help`, `search` and `fetch`. Use `search` to find records and `get` to read one. Every search takes its text as `query`, and every get takes the record ID as `id`, as one string or a list. Sections go in `section`, as one name or a list. To find KRAS, call `gene` with `{"action":"search","search":{"query":"KRAS"}}`. To read BRAF, call it with `{"action":"get","get":{"id":"BRAF"}}`. Other actions are facets, pivots and links to related records, such as `gwas` or `pgx`. Each tool's description gives a working search and get example, lists its other actions and says what it is not for. Earlier names (`input`, `text`, `name`, `sections`) still work. Call `help` with a command path for options.
 
 ## Exit codes and errors
 

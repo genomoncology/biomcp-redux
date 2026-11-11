@@ -1,12 +1,94 @@
 {
-  "live_check": "offline parser checks; no source requests",
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
   "feature": "mcp-parity",
-  "story": "The adverse_event tool's get example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. No retained reply covers this example, so every step is an offline parser check.",
+  "story": "The search and get examples in the adverse_event tool's description and the argument names agents guess for them reach the same commands and queries. No retained reply covers the get example, so this offline check is its only proof.",
+  "replay": "trial/condition",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
   },
   "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "pembrolizumab"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "pembrolizumab",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "text": "pembrolizumab"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "pembrolizumab",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "pembrolizumab"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "pembrolizumab",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "pembrolizumab"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "pembrolizumab",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
     {
       "mcp_call": {
         "name": "adverse_event",

@@ -1,7 +1,8 @@
 {
-  "live_check": "retained replay for the first step, then offline parser checks; no source requests",
+  "live_check": "retained replay; no source requests",
   "feature": "mcp-parity",
-  "story": "The diagnostic tool's search example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. The example call is answered from a retained reply.",
+  "story": "The search example in the diagnostic tool's description, sent exactly as written, is answered.",
+  "replay": "diagnostic/device-approvals",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -23,86 +24,6 @@
         "/query/source": "fda-pma",
         "/status": "complete"
       }
-    },
-    {
-      "mcp_call": {
-        "name": "diagnostic",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "query": "FoundationOne CDx",
-            "source": "fda-pma"
-          }
-        }
-      },
-      "expect": {
-        "/query/name": "FoundationOne CDx",
-        "/query/source": "fda-pma",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
-    },
-    {
-      "mcp_call": {
-        "name": "diagnostic",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "name": "FoundationOne CDx",
-            "source": "fda-pma"
-          }
-        }
-      },
-      "expect": {
-        "/query/name": "FoundationOne CDx",
-        "/query/source": "fda-pma",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
-    },
-    {
-      "mcp_call": {
-        "name": "diagnostic",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "keyword": "FoundationOne CDx",
-            "source": "fda-pma"
-          }
-        }
-      },
-      "expect": {
-        "/query/name": "FoundationOne CDx",
-        "/query/source": "fda-pma",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
-    },
-    {
-      "mcp_call": {
-        "name": "diagnostic",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "keywords": [
-              "FoundationOne",
-              "CDx"
-            ],
-            "source": "fda-pma"
-          }
-        }
-      },
-      "expect": {
-        "/query/name": "FoundationOne CDx",
-        "/query/source": "fda-pma",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
     }
-  ],
-  "replay": "diagnostic/device-approvals"
+  ]
 }

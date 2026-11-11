@@ -48,7 +48,7 @@ fn drug() -> Result<(), String> {
                 .pointer("/result/identity/name_resolution/alternatives/0")
                 .ok_or("drug alternatives")?,
             "get_drug",
-            json!({"input":"NDA021588","source":"drugsfda"}),
+            json!({"id":"NDA021588","source":"drugsfda"}),
             &tools,
         )?;
     }

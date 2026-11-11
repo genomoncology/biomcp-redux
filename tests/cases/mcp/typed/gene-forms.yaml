@@ -1,0 +1,206 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the gene tool's description and the argument names agents guess for them reach the same commands and queries.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "KRAS"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "KRAS",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "KRAS"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "KRAS",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "KRAS"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "KRAS",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "BRAF"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "BRAF"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "BRAF"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF",
+            "section": "pathways"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/query/section": [
+          "pathways"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "BRAF"
+            ],
+            "sections": [
+              "pathways"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/query/section": [
+          "pathways"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

@@ -95,25 +95,26 @@ pub(super) fn field<'a>(forms: &'a [Form], name: &'a str) -> &'a str {
         .map_or(name, |form| form.field.as_str())
 }
 
-fn text_or_list(items: Value) -> Value {
-    json!([{"type":"string"},{"type":"array","items":items}])
-}
-
 /// A list argument also takes one bare string, which the command spells the same way.
 fn widen(node: &mut Value) {
-    let Some(fields) = node.as_object_mut() else {
-        return;
-    };
-    if fields.get("type") != Some(&json!("array")) {
+    if let Some(fields) = node.as_object_mut()
+        && fields.get("type") == Some(&json!("array"))
+    {
+        fields.insert("type".into(), json!(["string", "array"]));
+    }
+}
+
+/// An ID or a section also takes a list; its allowed values move onto the list's items.
+fn listed(fields: &mut Map<String, Value>) {
+    if fields.get("type") != Some(&json!("string")) {
         return;
     }
-    let mut list = Map::new();
-    for key in ["type", "items", "minItems", "maxItems"] {
-        if let Some(value) = fields.remove(key) {
-            list.insert(key.into(), value);
-        }
+    let mut item = json!({"type":"string"});
+    if let (Some(choices), Some(item)) = (fields.remove("enum"), item.as_object_mut()) {
+        item.insert("enum".into(), choices);
     }
-    fields.insert("anyOf".into(), json!([{"type":"string"}, list]));
+    fields.insert("type".into(), json!(["string", "array"]));
+    fields.insert("items".into(), item);
 }
 
 /// Rewrite one action's compact schema to its advertised names and accepted guesses.
@@ -133,14 +134,8 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
             continue;
         };
         if let Some(fields) = node.as_object_mut() {
-            if !form.phrase && fields.get("type") == Some(&json!("string")) {
-                let mut item = Map::new();
-                for key in ["type", "enum"] {
-                    if let Some(value) = fields.remove(key) {
-                        item.insert(key.into(), value);
-                    }
-                }
-                fields.insert("anyOf".into(), text_or_list(Value::Object(item)));
+            if !form.phrase {
+                listed(fields);
             }
             if required.contains(&json!(form.field)) && !form.aliases.is_empty() {
                 let text = fields
@@ -154,15 +149,12 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
         properties.insert(form.advertised.into(), node);
         let same = format!("Same as {}.", form.advertised);
         for alias in &form.aliases {
-            let mut node = json!({"description":same});
-            if let Some(fields) = node.as_object_mut() {
-                if form.phrase && *alias != "keywords" {
-                    fields.insert("type".into(), json!("string"));
-                } else {
-                    fields.insert("anyOf".into(), text_or_list(json!({"type":"string"})));
-                }
-            }
-            properties.insert((*alias).into(), node);
+            let kind = if form.phrase && *alias != "keywords" {
+                json!("string")
+            } else {
+                json!(["string", "array"])
+            };
+            properties.insert((*alias).into(), json!({"description":same,"type":kind}));
         }
     }
     // A client checks `required` before the server can read a guessed name, so an argument
@@ -223,7 +215,8 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
                 value = json!(words.join(" "));
             } else if let [one] = items.as_slice() {
                 value = one.clone();
-            } else {
+            } else if form.advertised == "id" {
+                // The command would read a second ID as a section name and refuse that.
                 return Err(Refused {
                     argument: form.advertised.into(),
                     valid: vec!["one value per call".into()],

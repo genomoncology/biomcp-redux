@@ -1,7 +1,8 @@
 {
-  "live_check": "retained replay for the first step, then offline parser checks; no source requests",
+  "live_check": "retained replay; no source requests",
   "feature": "mcp-parity",
-  "story": "The phenotype tool's search example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. The example call is answered from a retained reply.",
+  "story": "The search example in the phenotype tool's description, sent exactly as written, is answered.",
+  "replay": "phenotype/headache-synthetic",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -21,77 +22,6 @@
         "/query/text": "headache",
         "/status": "complete"
       }
-    },
-    {
-      "mcp_call": {
-        "name": "phenotype",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "query": "headache"
-          }
-        }
-      },
-      "expect": {
-        "/query/text": "headache",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
-    },
-    {
-      "mcp_call": {
-        "name": "phenotype",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "text": "headache"
-          }
-        }
-      },
-      "expect": {
-        "/query/text": "headache",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
-    },
-    {
-      "mcp_call": {
-        "name": "phenotype",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "keyword": "headache"
-          }
-        }
-      },
-      "expect": {
-        "/query/text": "headache",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
-    },
-    {
-      "mcp_call": {
-        "name": "phenotype",
-        "arguments": {
-          "action": "search",
-          "search": {
-            "keywords": [
-              "headache"
-            ]
-          }
-        }
-      },
-      "expect": {
-        "/query/text": "headache",
-        "/status": "failed"
-      },
-      "offline": true,
-      "is_error": true
     }
-  ],
-  "replay": "phenotype/headache-synthetic"
+  ]
 }

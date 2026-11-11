@@ -193,7 +193,7 @@ fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     if index == 2
         && value.get("next")
             != Some(&json!([
-                {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"input":["NCT07491445"],"section":["eligibility"]}}},
+                {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["eligibility"]}}},
                 {"kind":"configure","name":"help","arguments":{"command":"get trial"}}
             ]))
     {

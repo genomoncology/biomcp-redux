@@ -1,0 +1,207 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the phenotype tool's description and the argument names agents guess for them reach the same commands and queries.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "headache"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "headache",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "text": "headache"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "headache",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "headache"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "headache",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "headache"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "headache",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "HP:0002315"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "HP:0002315",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "HP:0002315"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "HP:0002315",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "HP:0002315"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "HP:0002315",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "HP:0002315"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "HP:0002315",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "HP:0002315",
+            "section": "synonyms"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "HP:0002315",
+        "/query/section": "synonyms",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "phenotype",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "HP:0002315"
+            ],
+            "sections": [
+              "synonyms"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "HP:0002315",
+        "/query/section": "synonyms",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

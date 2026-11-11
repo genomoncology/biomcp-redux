@@ -230,8 +230,8 @@ fn standalone(tools: &[Value]) -> Result<(), String> {
 }
 
 // A model copies a description's example call, so each passes its tool's own schema, and
-// each local one is the first step of a case in tests/cases/mcp/typed, which sends exactly
-// that call and reads its reply. Every step of those cases passes the advertised schema too,
+// each local one is a step of a case in tests/cases/mcp/typed, which sends exactly that
+// call and reads its reply. Every step of those cases passes the advertised schema too,
 // as a client that checks arguments before sending would require.
 fn examples(tools: &[Value], local: bool) -> Result<(), String> {
     let mut paths = Vec::new();
@@ -241,7 +241,9 @@ fn examples(tools: &[Value], local: bool) -> Result<(), String> {
     for path in &paths {
         let case = crate::runner::case_data::read_case(path)?;
         for (index, step) in case.steps.iter().enumerate() {
-            let call = step.mcp_call.as_ref().ok_or("typed case step")?;
+            let Some(call) = step.mcp_call.as_ref() else {
+                continue;
+            };
             let tool = tools.iter().find(|tool| tool["name"] == call.name.as_str());
             if let Some(tool) = tool.filter(|_| local) {
                 jsonschema::validator_for(&tool["inputSchema"])
@@ -249,9 +251,7 @@ fn examples(tools: &[Value], local: bool) -> Result<(), String> {
                     .validate(&call.arguments)
                     .map_err(|e| format!("{} step {}: {e}", path.display(), index + 1))?;
             }
-            if index == 0 {
-                sent.push((call.name.clone(), call.arguments.clone()));
-            }
+            sent.push((call.name.clone(), call.arguments.clone()));
         }
     }
     let mut found = 0;
@@ -292,7 +292,8 @@ fn complete_words(
         .map(ToString::to_string)
         .collect::<Vec<_>>()
         .join(" ");
-    let declared = format!("{schema} {summary} {sources} IDs Sections Required Same as query id section");
+    let declared =
+        format!("{schema} {summary} {sources} IDs Sections Required Same as query id section");
     let vocabulary = declared
         .split(|c: char| !c.is_alphanumeric())
         .map(str::to_lowercase)
