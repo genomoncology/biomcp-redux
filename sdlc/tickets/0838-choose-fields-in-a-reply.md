@@ -19,7 +19,7 @@ Agents trim replies with `jq` or curl today; the baseline's default replies are 
 ## Starts from
 
 - Starts from: reply rendering in `crates/biomcp-types/src/response/`, the global options in `crates/biomcp/src/grammar.rs`.
-- PM decision: 2026-11-11. Design review before hand-over: a new global option on every command.
+- PM decision: 2026-11-11. Design review before hand-over: a new global option on every command. Moved up the same day by `sdlc/records/2026-11-11-token-gap-root-cause.md`: smaller replies are the only change that takes the replay below curl; field names must show in help and tool descriptions so an agent can ask on the first call.
 
 ## Keeps
 

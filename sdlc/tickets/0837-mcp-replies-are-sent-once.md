@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-By default an MCP tool reply carries its JSON once, not as text and again as structured content, and the reply names no server file path in its next steps.
+By default an MCP tool reply carries its JSON once, not as text and again as structured content, and the reply names no server file path in its next steps. A typed tool reply is a plain JSON object: no status line before it and no second copy of `next` (added 2026-11-11 from `sdlc/records/2026-11-11-token-gap-root-cause.md`: typed turns add 3,420 tokens against curl's 2,600, about 16% of reply bytes are envelope, and only 16% of typed turns pick fields because the reply arrives as one string).
 
 ## Why
 
