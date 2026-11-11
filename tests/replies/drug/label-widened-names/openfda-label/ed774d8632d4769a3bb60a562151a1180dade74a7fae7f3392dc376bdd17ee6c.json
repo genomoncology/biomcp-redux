@@ -1,0 +1,177 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=%28%28openfda.brand_name%3A%22dabigatran%22%20OR%20openfda.generic_name%3A%22dabigatran%22%29%20OR%20%28openfda.brand_name%3A%22BIBR-953%22%20OR%20openfda.generic_name%3A%22BIBR-953%22%29%20OR%20%28openfda.brand_name%3A%22BIBR%20953%20ZW%22%20OR%20openfda.generic_name%3A%22BIBR%20953%20ZW%22%29%20OR%20%28openfda.brand_name%3A%22BIBR-953-ZW%22%20OR%20openfda.generic_name%3A%22BIBR-953-ZW%22%29%29&limit=3&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794437699,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 394,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-11",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 23
+            }
+          },
+          "results": [
+            {
+              "id": "5bd94776-2a0b-4c30-86f6-84023518fb84",
+              "set_id": "e7eff2fc-3fac-4ad5-985b-2b8cc28eb84a",
+              "version": "1",
+              "effective_time": "20261106",
+              "openfda": {
+                "application_number": [
+                  "ANDA207961"
+                ],
+                "brand_name": [
+                  "Dabigatran Etexilate"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-8183"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DABIGATRAN ETEXILATE MESYLATE"
+                ],
+                "spl_id": [
+                  "5bd94776-2a0b-4c30-86f6-84023518fb84"
+                ],
+                "spl_set_id": [
+                  "e7eff2fc-3fac-4ad5-985b-2b8cc28eb84a"
+                ],
+                "package_ndc": [
+                  "50090-8183-0"
+                ],
+                "original_packager_product_ndc": [
+                  "31722-621"
+                ],
+                "unii": [
+                  "SC7NUW5IIT"
+                ]
+              }
+            },
+            {
+              "id": "5f52de6a-eae0-0eac-e063-6394a90a90ac",
+              "set_id": "39ac558a-b375-f3c1-e063-6394a90aa901",
+              "version": "3",
+              "effective_time": "20261102",
+              "openfda": {
+                "application_number": [
+                  "ANDA213879"
+                ],
+                "brand_name": [
+                  "DABIGATRAN"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "manufacturer_name": [
+                  "AvPAK"
+                ],
+                "product_ndc": [
+                  "50268-200"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DABIGATRAN ETEXILATE MESYLATE"
+                ],
+                "spl_id": [
+                  "5f52de6a-eae0-0eac-e063-6394a90a90ac"
+                ],
+                "spl_set_id": [
+                  "39ac558a-b375-f3c1-e063-6394a90aa901"
+                ],
+                "package_ndc": [
+                  "50268-200-11",
+                  "50268-200-16"
+                ],
+                "original_packager_product_ndc": [
+                  "72205-204"
+                ],
+                "unii": [
+                  "SC7NUW5IIT"
+                ]
+              }
+            },
+            {
+              "id": "3c5dd539-fa6a-4f6a-abc5-d951b16a2da3",
+              "set_id": "e4e3b992-621a-43a5-be59-eeb5083fd2b4",
+              "version": "4",
+              "effective_time": "20261029",
+              "openfda": {
+                "application_number": [
+                  "ANDA213879"
+                ],
+                "brand_name": [
+                  "DABIGATRAN"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-7530"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DABIGATRAN ETEXILATE MESYLATE"
+                ],
+                "rxcui": [
+                  "1037045"
+                ],
+                "spl_id": [
+                  "3c5dd539-fa6a-4f6a-abc5-d951b16a2da3"
+                ],
+                "spl_set_id": [
+                  "e4e3b992-621a-43a5-be59-eeb5083fd2b4"
+                ],
+                "package_ndc": [
+                  "50090-7530-0"
+                ],
+                "original_packager_product_ndc": [
+                  "72205-204"
+                ],
+                "unii": [
+                  "SC7NUW5IIT"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

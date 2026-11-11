@@ -1,0 +1,797 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=%22dabigatran%22%20OR%20drugbank.synonyms%3A%22dabigatran%22%20OR%20gtopdb.synonyms%3A%22dabigatran%22%20OR%20drugcentral.synonyms%3A%22dabigatran%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22dabigatran%22&size=50&fields=drugbank.name%2Cdrugbank.synonyms%2Cchembl.pref_name%2Cchembl.molecule_type%2Cchembl.molecule_synonyms%2Cdrugcentral.synonyms%2Cgtopdb.name%2Cgtopdb.type%2Cgtopdb.synonyms%2Cunii.display_name%2Cunii.ingredient_type%2Cndc.producttypename%2Cndc.nonproprietaryname%2Cndc.proprietaryname%2Copenfda.generic_name%2Copenfda.brand_name",
+  "exchanges": [
+    {
+      "fetched": 1794437698,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 282,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 14,
+          "total": 49,
+          "max_score": 65.18504,
+          "hits": [
+            {
+              "_id": "KSGXQBZTULBEEQ-UHFFFAOYSA-N",
+              "_score": 65.18504,
+              "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
+                "molecule_synonyms": [
+                  {
+                    "molecule_synonym": "BIBR 1048",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR 1048"
+                  },
+                  {
+                    "molecule_synonym": "BIBR-1048",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR-1048"
+                  },
+                  {
+                    "molecule_synonym": "BIBR1048",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR1048"
+                  },
+                  {
+                    "molecule_synonym": "BIBR 1048 BS RS1",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR 1048 BS RS1"
+                  },
+                  {
+                    "molecule_synonym": "BIBR-1048-BS-RS1",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR-1048-BS-RS1"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate",
+                    "syn_type": "ATC",
+                    "synonyms": "DABIGATRAN ETEXILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate",
+                    "syn_type": "BNF",
+                    "synonyms": "DABIGATRAN ETEXILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate",
+                    "syn_type": "INN",
+                    "synonyms": "DABIGATRAN ETEXILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate",
+                    "syn_type": "MERCK_INDEX",
+                    "synonyms": "DABIGATRAN ETEXILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate",
+                    "syn_type": "OTHER",
+                    "synonyms": "DABIGATRAN ETEXILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate",
+                    "syn_type": "USAN",
+                    "synonyms": "DABIGATRAN ETEXILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate methanesulfonate",
+                    "syn_type": "JAN",
+                    "synonyms": "DABIGATRAN ETEXILATE METHANESULFONATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilato",
+                    "syn_type": "INN_SPANISH",
+                    "synonyms": "DABIGATRAN ETEXILATO"
+                  },
+                  {
+                    "molecule_synonym": "Pradaxa",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "PRADAXA"
+                  },
+                  {
+                    "molecule_synonym": "Prazaxa",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "PRAZAXA"
+                  }
+                ],
+                "molecule_type": "Small molecule",
+                "pref_name": "DABIGATRAN ETEXILATE"
+              },
+              "drugbank": {
+                "_license": "https://bit.ly/3Hikpvm",
+                "name": "Dabigatran etexilate",
+                "synonyms": [
+                  "Dabigatran etexilate"
+                ]
+              },
+              "drugcentral": {
+                "_license": "http://bit.ly/2SeEhUy",
+                "synonyms": [
+                  "BIBR 1048",
+                  "BIBR-1048",
+                  "dabigatran etexilate mesilate",
+                  "dabigatran etexilate",
+                  "pradaxa",
+                  "dabigatran etexilate mesylate",
+                  "dabigatran etexilate methanesulfonate"
+                ]
+              },
+              "gtopdb": {
+                "_license": "https://www.guidetopharmacology.org/download.jsp",
+                "name": "dabigatran etexilate",
+                "synonyms": "BIBR 1048|Pradaxa&reg;",
+                "type": "synthetic organic"
+              },
+              "ndc": [
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "Dabigatran Etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Dabigatran Etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "Dabigatran Etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Dabigatran Etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "Dabigatran Etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Dabigatran Etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "Dabigatran Etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Dabigatran Etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "dabigatran etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "dabigatran etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "dabigatran etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "Dabigatran Etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Dabigatran Etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "Dabigatran Etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Dabigatran Etexilate"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate mesylate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate mesylate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                },
+                {
+                  "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                  "nonproprietaryname": "dabigatran etexilate mesylate",
+                  "producttypename": "HUMAN PRESCRIPTION DRUG",
+                  "proprietaryname": "Pradaxa"
+                }
+              ],
+              "unii": {
+                "_license": "http://bit.ly/2Pg8Oo9",
+                "display_name": "DABIGATRAN ETEXILATE",
+                "ingredient_type": "INGREDIENT SUBSTANCE"
+              }
+            },
+            {
+              "_id": "YBSJFWOBGCMAKL-UHFFFAOYSA-N",
+              "_score": 52.35031,
+              "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
+                "molecule_synonyms": [
+                  {
+                    "molecule_synonym": "BIBR-953",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR-953"
+                  },
+                  {
+                    "molecule_synonym": "BIBR 953 ZW",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR 953 ZW"
+                  },
+                  {
+                    "molecule_synonym": "BIBR-953-ZW",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR-953-ZW"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran",
+                    "syn_type": "INN",
+                    "synonyms": "DABIGATRAN"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran",
+                    "syn_type": "MERCK_INDEX",
+                    "synonyms": "DABIGATRAN"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran",
+                    "syn_type": "OTHER",
+                    "synonyms": "DABIGATRAN"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran",
+                    "syn_type": "USAN",
+                    "synonyms": "DABIGATRAN"
+                  },
+                  {
+                    "molecule_synonym": "Pradaxa (dabigatran)",
+                    "syn_type": "OTHER",
+                    "synonyms": "PRADAXA (DABIGATRAN)"
+                  }
+                ],
+                "molecule_type": "Small molecule",
+                "pref_name": "DABIGATRAN"
+              },
+              "drugbank": {
+                "_license": "https://bit.ly/3Hikpvm",
+                "name": "Dabigatran",
+                "synonyms": [
+                  "Dabigatran"
+                ]
+              },
+              "gtopdb": {
+                "_license": "https://www.guidetopharmacology.org/download.jsp",
+                "name": "dabigatran",
+                "type": "synthetic organic"
+              },
+              "unii": {
+                "_license": "http://bit.ly/2Pg8Oo9",
+                "display_name": "DABIGATRAN",
+                "ingredient_type": "INGREDIENT SUBSTANCE"
+              }
+            },
+            {
+              "_id": "XETBXHPXHHOLOE-UHFFFAOYSA-N",
+              "_score": 38.403503,
+              "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
+                "molecule_synonyms": [
+                  {
+                    "molecule_synonym": "BIBR 1048 MS",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR 1048 MS"
+                  },
+                  {
+                    "molecule_synonym": "BIBR-1048-MS",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "BIBR-1048-MS"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate accord",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "DABIGATRAN ETEXILATE ACCORD"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate leon farma",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "DABIGATRAN ETEXILATE LEON FARMA"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate mesilate",
+                    "syn_type": "EMA",
+                    "synonyms": "DABIGATRAN ETEXILATE MESILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate mesilate",
+                    "syn_type": "OTHER",
+                    "synonyms": "DABIGATRAN ETEXILATE MESILATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate mesylate",
+                    "syn_type": "EMA",
+                    "synonyms": "DABIGATRAN ETEXILATE MESYLATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate mesylate",
+                    "syn_type": "FDA",
+                    "synonyms": "DABIGATRAN ETEXILATE MESYLATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate mesylate",
+                    "syn_type": "OTHER",
+                    "synonyms": "DABIGATRAN ETEXILATE MESYLATE"
+                  },
+                  {
+                    "molecule_synonym": "Dabigatran etexilate mesylate",
+                    "syn_type": "USAN",
+                    "synonyms": "DABIGATRAN ETEXILATE MESYLATE"
+                  },
+                  {
+                    "molecule_synonym": "Pradaxa",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "PRADAXA"
+                  },
+                  {
+                    "molecule_synonym": "Pradaxa (dabigatran etexilate mesylate)",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "PRADAXA (DABIGATRAN ETEXILATE MESYLATE)"
+                  }
+                ],
+                "molecule_type": "Small molecule",
+                "pref_name": "DABIGATRAN ETEXILATE MESYLATE"
+              },
+              "unii": {
+                "_license": "http://bit.ly/2Pg8Oo9",
+                "display_name": "DABIGATRAN ETEXILATE MESYLATE",
+                "ingredient_type": "INGREDIENT SUBSTANCE"
+              }
+            },
+            {
+              "_id": "50268-200",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "72205-202",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "72205-203",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "0378-0266",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "59651-974",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN ETEXILATE"
+              }
+            },
+            {
+              "_id": "59651-975",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN ETEXILATE"
+              }
+            },
+            {
+              "_id": "60687-963",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "60687-974",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "42291-033",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "50090-7530",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "50090-7656",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "50090-7657",
+              "_score": 23.742912,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "C2343849",
+              "_score": 23.742912
+            },
+            {
+              "_id": "46708-634",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "46708-635",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "46708-636",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "62332-635",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "62332-636",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "50090-8158",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "31722-666",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "43598-453",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran etexilate"
+              }
+            },
+            {
+              "_id": "BGLLICFSSKPUMR-UHFFFAOYSA-N",
+              "_score": 23.741997,
+              "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
+                "molecule_type": "Small molecule",
+                "pref_name": "DABIGATRAN ETHYL ESTER"
+              },
+              "unii": {
+                "_license": "http://bit.ly/2Pg8Oo9",
+                "display_name": "DABIGATRAN ETHYL ESTER",
+                "ingredient_type": "INGREDIENT SUBSTANCE"
+              }
+            },
+            {
+              "_id": "0904-7255",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "59651-973",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN ETEXILATE"
+              }
+            },
+            {
+              "_id": "50090-7531",
+              "_score": 23.741997,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "67877-624",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "72603-239",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "43598-641",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran etexilate"
+              }
+            },
+            {
+              "_id": "43598-642",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran etexilate"
+              }
+            },
+            {
+              "_id": "62332-634",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "0904-7253",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "0904-7254",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "72205-204",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "0378-0265",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "Dabigatran Etexilate",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "Dabigatran Etexilate"
+              }
+            },
+            {
+              "_id": "42291-034",
+              "_score": 23.118546,
+              "ndc": {
+                "_license": "https://www.fda.gov/AboutFDA/AboutThisWebsite/WebsitePolicies/default.htm#linking",
+                "nonproprietaryname": "DABIGATRAN ETEXILATE",
+                "producttypename": "HUMAN PRESCRIPTION DRUG",
+                "proprietaryname": "DABIGATRAN"
+              }
+            },
+            {
+              "_id": "PA165110351",
+              "_score": 20.879349
+            },
+            {
+              "_id": "KSGXQBZTULBEEQ-UHFFFAOYSA-O",
+              "_score": 20.87822
+            },
+            {
+              "_id": "CSZFDMHIDSUHPI-KWONYSJQSA-N",
+              "_score": 20.331604,
+              "unii": {
+                "_license": "http://bit.ly/2Pg8Oo9",
+                "display_name": "DABIGATRAN 1-ACYLGLUCURONIDE",
+                "ingredient_type": "INGREDIENT SUBSTANCE"
+              }
+            },
+            {
+              "_id": "C1571583",
+              "_score": 20.331604
+            },
+            {
+              "_id": "381127112",
+              "_score": 15.330643
+            },
+            {
+              "_id": "BGLLICFSSKPUMR-UHFFFAOYSA-O",
+              "_score": 14.931595
+            },
+            {
+              "_id": "312467846",
+              "_score": 14.931595
+            },
+            {
+              "_id": "347910427",
+              "_score": 14.931595
+            },
+            {
+              "_id": "UGEWTLXHMYKLCO-UHFFFAOYSA-M",
+              "_score": 14.931595
+            },
+            {
+              "_id": "252166510",
+              "_score": 14.931595,
+              "gtopdb": {
+                "_license": "https://www.guidetopharmacology.org/download.jsp",
+                "name": "idarucizumab",
+                "synonyms": "aDabi-Fab|BI 655075|Praxbind&reg;",
+                "type": "antibody"
+              }
+            },
+            {
+              "_id": "C3493319",
+              "_score": 14.931595
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "feature": "adverse-event-search",
+  "story": "Widening a drug name for FAERS leaves out the names openFDA cannot take or that name another product, lists each with its reason, and the search completes with the native report total.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-11 with --record (job j38138). Before this change the apixaban search failed outright because openFDA rejected the query holding \"apixabán\" and \"Eliquis&reg;\"; it now finds 282,308 reports against 69,029 for the typed name alone. Valsartan's ChEMBL record states 19 names, 13 of them \"component of\" names. FAERS rows keep only report identity, version, seriousness and receipt date; totals and metadata are unchanged. The valsartan MyChem page keeps three of its 50 product rows and its total of 175: the lookup reads a partial page as unsettled either way and moves on to ChEMBL.",
+  "replay": "adverse-event/faers-widened-names",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "apixaban",
+        "--source",
+        "faers",
+        "--limit",
+        "1",
+        "--expand-drug-names"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 282308,
+        "/sources/0/notices/1/names": [
+          "apixaban",
+          "Eliquis",
+          "apixabanum",
+          "BMS 562247",
+          "BMS-562247",
+          "BMS-562247-01",
+          "Apixaban accord"
+        ],
+        "/sources/1/notices/0/message": "Searched the names stated by mychem record QNZCBYKSOIHPEH-UHFFFAOYSA-N. Left out 2 of 9 names the provider cannot search: \"apixabán\" (non-ASCII characters), \"Eliquis&reg;\" (markup or an HTML entity)."
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "valsartan",
+        "--source",
+        "faers",
+        "--limit",
+        "1",
+        "--expand-drug-names"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 268039,
+        "/sources/0/notices/1/names": [
+          "valsartan",
+          "Diovan",
+          "CGP 48933",
+          "CGP-48933",
+          "NSC-758927",
+          "Prexxartan"
+        ],
+        "/sources/1/notices/0/message": "Searched the names stated by chembl record CHEMBL1069. Left out 13 of 19 names the provider cannot search: \"Valsartan component of agsav301\" (names a component of another product), \"Valsartan component of byvalson\" (names a component of another product), \"Valsartan component of copalia\" (names a component of another product), \"Valsartan component of copalia-hct\" (names a component of another product), \"Valsartan component of dafiro\" (names a component of another product), \"Valsartan component of dafiro-hct\" (names a component of another product), \"Valsartan component of diovan hct\" (names a component of another product), \"Valsartan component of entresto\" (names a component of another product), \"Valsartan component of exforge\" (names a component of another product), \"Valsartan component of exforge hct\" (names a component of another product), \"Valsartan component of imprida\" (names a component of another product), \"Valsartan component of imprida-hct\" (names a component of another product), \"Valsartan component of valturna\" (names a component of another product)."
+      }
+    }
+  ]
+}
