@@ -78,6 +78,12 @@ impl Reply for RawPage {
 #[serde(rename_all = "camelCase")]
 pub(super) struct Study {
     pub(super) protocol_section: Protocol,
+    has_results: Option<Field<bool>>,
+}
+impl Study {
+    pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
+        self.protocol_section.header(self.has_results)
+    }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -186,7 +192,7 @@ impl Protocol {
         requested.iter().all(|word| present.contains(word))
     }
 
-    pub(super) fn header(self) -> Result<Mapped<TrialHeader>, BadReply> {
+    fn header(self, has_results: Option<Field<bool>>) -> Result<Mapped<TrialHeader>, BadReply> {
         let mut refusals = crate::Refusal::None;
         let mut problems = Problems {
             source: Source::ClinicalTrialsGov,
@@ -240,6 +246,7 @@ impl Protocol {
             sponsor,
             start: dates.start,
             primary_completion: dates.primary_completion,
+            has_results: problems.field("hasResults", has_results),
             updated: dates.updated,
         };
         Ok(Mapped {

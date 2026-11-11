@@ -197,7 +197,7 @@ pub(super) fn search_with_gene(
         .unwrap_or_default()
         .into_iter()
         .filter_map(|row| match row.value() {
-            Some(row) => Some(row.protocol_section.header()),
+            Some(row) => Some(row.header()),
             None => {
                 refusals = crate::Refusal::Refused;
                 rejected.push(crate::mapped::problem(SPEC.source, None, "nctId"));
