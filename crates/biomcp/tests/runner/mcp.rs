@@ -30,6 +30,35 @@ pub(super) fn exchange_retained(
     globals: &[String],
     directory: Option<&std::path::Path>,
 ) -> Result<Vec<Value>, String> {
+    exchange_wire(environment, frames, globals, directory)
+        .map(|replies| replies.into_iter().map(readable).collect())
+}
+
+/// Most trials check a reply's JSON value, not where its form puts it: an error reply's
+/// JSON text is also offered to them as `structuredContent`. Reply-form trials read the wire.
+pub(super) fn readable(mut reply: Value) -> Value {
+    if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut)
+        && result.get("isError") == Some(&json!(true))
+        && !result.contains_key("structuredContent")
+        && let Some(value) = result
+            .get("content")
+            .and_then(|content| content.pointer("/0/text"))
+            .and_then(Value::as_str)
+            .and_then(|text| serde_json::from_str::<Value>(text).ok())
+            .filter(Value::is_object)
+    {
+        result.insert("structuredContent".into(), value);
+    }
+    reply
+}
+
+/// The replies exactly as the server sent them.
+pub(super) fn exchange_wire(
+    environment: &Environment,
+    frames: &[Value],
+    globals: &[String],
+    directory: Option<&std::path::Path>,
+) -> Result<Vec<Value>, String> {
     let mut args = vec!["serve".into()];
     args.extend_from_slice(globals);
     let mut transcript_args = args.clone();
@@ -120,13 +149,46 @@ fn call_text_retained(
     let structured = result
         .get("structuredContent")
         .ok_or("MCP missing structuredContent")?;
-    let text = result
-        .pointer("/content/0/text")
-        .and_then(Value::as_str)
-        .ok_or("MCP missing text")?;
-    let parsed: Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
-    if &parsed != structured {
-        return Err("MCP text differs from structuredContent".into());
+    if !is_error && result.get("content") != Some(&json!([])) {
+        return Err(format!("MCP reply repeats its JSON: {result}"));
     }
-    Ok((structured.clone(), text.to_owned()))
+    Ok((structured.clone(), structured.to_string()))
+}
+
+/// One HTTP tool call's reply exactly as the server sent it.
+pub(super) fn http_wire(
+    server: &super::http::Server,
+    call: &Value,
+    extra: &str,
+) -> Result<Value, String> {
+    let name = call.pointer("/params/name").and_then(Value::as_str);
+    let headers = format!(
+        "Content-Type: application/json\r\nAccept: application/json, text/event-stream\r\n\
+         MCP-Protocol-Version: 2026-07-28\r\nMcp-Method: tools/call\r\n{}{extra}",
+        name.map(|name| format!("Mcp-Name: {name}\r\n"))
+            .unwrap_or_default()
+    );
+    let host = server.address.to_string();
+    let (status, body, _) = server.raw("POST", "/mcp", &host, &headers, &call.to_string())?;
+    if status != 200 {
+        return Err(format!("HTTP tool call failed: {status}"));
+    }
+    body.ok_or_else(|| "HTTP reply missing".into())
+}
+
+/// A tool result's JSON value; a text copy, when the form sends one, must equal it.
+pub(super) fn one_value(result: &Value) -> Result<Value, String> {
+    let text = result.pointer("/content/0/text").and_then(Value::as_str);
+    let parsed = text
+        .map(serde_json::from_str::<Value>)
+        .transpose()
+        .map_err(|e| e.to_string())?;
+    match (result.get("structuredContent"), parsed) {
+        (Some(value), Some(copy)) if value != &copy => {
+            Err("tool text differs from structured result".into())
+        }
+        (Some(value), _) => Ok(value.clone()),
+        (None, Some(copy)) => Ok(copy),
+        (None, None) => Err(format!("tool result carries no JSON: {result}")),
+    }
 }

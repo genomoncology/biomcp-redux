@@ -3,7 +3,7 @@
 use super::super::{
     http::Server,
     launch::{Environment, fixtures},
-    mcp::{exchange_with_globals, request},
+    mcp::{exchange_wire, exchange_with_globals, http_wire, request},
 };
 use serde_json::{Value, json};
 #[path = "typed_owned_followups.rs"]
@@ -21,7 +21,7 @@ pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
 }
 
 pub(super) fn check() -> Result<(), String> {
-    for form in ["structured-only", "text-only", "both"] {
+    for form in ["once", "structured-only", "text-only", "both"] {
         for hosted in [false, true] {
             check_form(form, hosted, false)?;
         }
@@ -131,7 +131,7 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
             crate::runner::protocol::typed_catalog::entity("get_gene", json!({})),
         ),
     ];
-    let replies = exchange_with_globals(&env, &frames, &globals)?;
+    let replies = exchange_wire(&env, &frames, &globals, None)?;
     let server = Server::configured_globals(
         "127.0.0.1:0",
         Some(config),
@@ -147,16 +147,13 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
         .and_then(Value::as_array)
         .ok_or("tools")?;
     for (index, frame) in frames.iter().enumerate().skip(1) {
-        let (status, http) = server.request("POST", "/mcp", &frame.to_string())?;
-        if status != 200 {
-            return Err(format!("HTTP {status}: {http}"));
-        }
+        let http = http_wire(&server, frame, "")?;
         let stdio = replies
             .iter()
             .find(|v| v["id"] == frame["id"])
             .ok_or("stdio reply")?;
         for reply in [stdio, &http] {
-            check_reply(reply, tools, index == 1 && !restricted, restricted)?;
+            check_reply(reply, form, tools, (index == 1 && !restricted, restricted))?;
         }
     }
     Ok(())
@@ -164,19 +161,12 @@ fn check_form(form: &str, hosted: bool, restricted: bool) -> Result<(), String> 
 
 fn check_reply(
     reply: &Value,
+    form: &str,
     tools: &[Value],
-    section_expected: bool,
-    restricted: bool,
+    (section_expected, restricted): (bool, bool),
 ) -> Result<(), String> {
-    let text = reply
-        .pointer("/result/content/0/text")
-        .and_then(Value::as_str)
-        .ok_or("text")?;
-    let value = reply
-        .pointer("/result/structuredContent")
-        .cloned()
-        .or_else(|| serde_json::from_str(text.split_once('\n')?.1).ok())
-        .ok_or("typed body")?;
+    let result = reply.get("result").ok_or("result")?;
+    let value = super::reply_form::check_content(result, form)?;
     let mut sections = 0;
     check_next(&value, tools, &mut sections)?;
     if restricted
@@ -201,8 +191,9 @@ fn check_reply(
     if section_expected && sections == 0 {
         return Err("gene replay supplied no typed section follow-up".into());
     }
+    let text = reply.to_string();
     if text.contains("--config") || text.contains("--replay") || text.contains("--case-cache") {
-        return Err(format!("server arguments leaked: {text}"));
+        return Err(format!("server arguments leaked: {text:.400}"));
     }
     let owner = tools
         .iter()

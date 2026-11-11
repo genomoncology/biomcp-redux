@@ -163,7 +163,7 @@ impl Server {
         );
         let (status, body, _) =
             self.raw(method, path, &self.address.to_string(), &headers, body)?;
-        Ok((status, body.unwrap_or(Value::Null)))
+        Ok((status, body.map_or(Value::Null, super::mcp::readable)))
     }
     pub(super) fn raw(
         &self,

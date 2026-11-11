@@ -154,15 +154,14 @@ fn call(http: bool, env: &Environment, args: &[String], globals: &[String]) -> C
     let value = reply
         .pointer("/result/structuredContent")
         .ok_or("missing tool result")?;
-    let text = reply
-        .pointer("/result/content/0/text")
-        .and_then(Value::as_str)
-        .ok_or("missing text")?;
-    assert_eq!(
-        serde_json::from_str::<Value>(text)?,
-        *value,
-        "MCP text must match its structured result"
-    );
+    // The default form sends a success's JSON once, as structured content.
+    if let Some(text) = reply.pointer("/result/content/0/text").and_then(Value::as_str) {
+        assert_eq!(
+            serde_json::from_str::<Value>(text)?,
+            *value,
+            "MCP text must match its structured result"
+        );
+    }
     assert_eq!(
         reply.pointer("/result/isError"),
         Some(&json!(

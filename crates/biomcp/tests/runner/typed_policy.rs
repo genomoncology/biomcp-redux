@@ -43,10 +43,7 @@ fn hosted(env: &Environment) -> Result<(), String> {
         {
             return Err("typed hosted transport mismatch".into());
         }
-        let text = stdio
-            .pointer("/result/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("summary")?;
+        let text = first_call(stdio).map(|call| call.to_string()).unwrap_or_default();
         if index < 5 {
             let command = if index == 1 || index == 2 {
                 "get trial"
@@ -55,16 +52,11 @@ fn hosted(env: &Environment) -> Result<(), String> {
             };
             exact_next(
                 env,
-                text,
+                stdio,
                 json!({"name":"help","arguments":{"command":command}}),
             )?;
         }
-        if index >= 5
-            && text
-                .lines()
-                .next()
-                .is_some_and(|line| line.contains("\"action\":\"search\""))
-        {
+        if index >= 5 && text.contains("\"action\":\"search\"") {
             return Err(format!(
                 "hosted refusal acquired a search suggestion: {text}"
             ));
@@ -113,13 +105,9 @@ pub(super) fn get_help(env: &Environment) -> Result<(), String> {
         {
             return Err(format!("getter lost typed help: {reply}"));
         }
-        let text = reply
-            .pointer("/result/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("getter summary")?;
         exact_next(
             env,
-            text,
+            reply,
             json!({"name":"help","arguments":{"command":command}}),
         )?;
     }
@@ -133,16 +121,9 @@ fn fresh_refusal(env: &Environment) -> Result<(), String> {
     );
     let replies = exchange_with_globals(env, &[frame], &["--hosted".into(), "--fresh".into()])?;
     let reply = replies.first().ok_or("hosted fresh reply")?;
-    let text = reply
-        .pointer("/result/content/0/text")
-        .and_then(Value::as_str)
-        .ok_or("summary")?;
     if reply.pointer("/result/structuredContent/error/code")
         != Some(&json!("usage.mcp_unavailable"))
-        || text
-            .lines()
-            .next()
-            .is_some_and(|line| line.contains("\"action\":\"search\""))
+        || first_call(reply).is_some_and(|call| call.to_string().contains("\"action\":\"search\""))
     {
         return Err(format!("hosted get refusal changed guidance: {reply}"));
     }
@@ -180,12 +161,14 @@ fn boundaries(env: &Environment) -> Result<(), String> {
     Ok(())
 }
 
-fn exact_next(env: &Environment, text: &str, expected: Value) -> Result<(), String> {
-    let first_line = text.lines().next().ok_or("typed summary missing")?;
-    let (_, call) = first_line
-        .split_once("next ")
-        .ok_or("typed next call missing")?;
-    let call: Value = serde_json::from_str(call).map_err(|e| e.to_string())?;
+/// The reply's first next step as a call, without its kind.
+pub(super) fn first_call(reply: &Value) -> Option<Value> {
+    let mut call = reply.pointer("/result/structuredContent/next/0")?.clone();
+    call.as_object_mut()?.remove("kind");
+    Some(call)
+}
+fn exact_next(env: &Environment, reply: &Value, expected: Value) -> Result<(), String> {
+    let call = first_call(reply).ok_or("typed next call missing")?;
     if call != expected {
         return Err(format!("wrong CLI help translation: {call}"));
     }

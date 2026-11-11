@@ -174,17 +174,13 @@ pub(super) fn recovery() -> Result<(), String> {
             {
                 return Err(format!("invalid call lost CLI usage: {result}"));
             }
-            let text = result
-                .pointer("/result/content/0/text")
-                .and_then(Value::as_str)
-                .ok_or("summary")?;
-            let next = text
-                .lines()
-                .next()
-                .and_then(|line| line.split_once("next "))
-                .map(|(_, next)| next)
-                .ok_or_else(|| format!("no typed help next: {text}"))?;
-            let next: Value = serde_json::from_str(next).map_err(|e| e.to_string())?;
+            let mut next = result
+                .pointer("/result/structuredContent/next/0")
+                .cloned()
+                .ok_or_else(|| format!("no typed help next: {result}"))?;
+            if let Some(call) = next.as_object_mut() {
+                call.remove("kind");
+            }
             let expected = json!({"name":"help","arguments":{"command":command}});
             if next != expected {
                 return Err(format!("wrong help next: {next}, expected {expected}"));

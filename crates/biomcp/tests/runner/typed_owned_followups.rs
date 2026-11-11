@@ -2,7 +2,7 @@
 //! live_check: synthetic drug replay and retained native public organization replay; no live requests.
 use crate::runner::{
     launch::{Environment, fixtures},
-    mcp::{exchange_with_globals, request},
+    mcp::{exchange_wire, exchange_with_globals, request},
     transcript::trial,
 };
 use libtest_mimic::Trial;
@@ -105,7 +105,7 @@ fn responses(
     name: &str,
     arguments: Value,
 ) -> Result<Vec<(Value, Vec<Value>)>, String> {
-    ["both", "structured-only", "text-only"]
+    ["once", "both", "structured-only", "text-only"]
         .into_iter()
         .map(|form| {
             let mut config = config.clone();
@@ -143,7 +143,7 @@ fn response(
         .ok_or("catalog")?
         .clone();
     let route = super::super::typed_catalog::command(&tools, name).ok_or("nested request route")?;
-    let replies = exchange_with_globals(
+    let replies = exchange_wire(
         &env,
         &[request(
             json!(2),
@@ -151,19 +151,20 @@ fn response(
             super::super::typed_catalog::call(&route, &arguments),
         )],
         &globals,
+        None,
     )?;
     let reply = replies
         .iter()
         .find(|v| v["id"] == 2)
         .ok_or("nested reply")?;
-    let value = reply
-        .pointer("/result/structuredContent")
-        .cloned()
-        .or_else(|| {
-            let text = reply.pointer("/result/content/0/text")?.as_str()?;
-            serde_json::from_str(text.split_once('\n')?.1).ok()
-        })
-        .ok_or("nested body")?;
+    let form = config
+        .get("mcp_reply_form")
+        .and_then(Value::as_str)
+        .unwrap_or("once");
+    let value = super::super::reply_form::check_content(
+        reply.get("result").ok_or("nested result")?,
+        form,
+    )?;
     Ok((value, tools))
 }
 fn research_text() -> Result<(), String> {

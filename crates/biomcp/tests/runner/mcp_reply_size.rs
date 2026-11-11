@@ -1,4 +1,4 @@
-//! Ten recorded calls measure what the default MCP reply form sends.
+//! Ten recorded calls measure the default MCP reply: its JSON once, and no server path.
 use super::super::{
     case_data, launch,
     launch::Environment,
@@ -96,6 +96,10 @@ fn measure(name: &str, mode: &str) -> Result<(usize, usize), String> {
          structured_bytes={structured} server_path_in_next={path}"
     )
     .map_err(|e| e.to_string())?;
+    super::reply_form::check_content(result, "once").map_err(|e| format!("{name}: {e}"))?;
+    if path {
+        return Err(format!("{name}: a next step names the server's configuration file"));
+    }
     Ok((wire, text + structured))
 }
 

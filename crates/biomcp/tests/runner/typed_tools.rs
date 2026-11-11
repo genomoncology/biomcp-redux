@@ -220,17 +220,8 @@ fn rejections(env: &Environment, globals: &[String]) -> Result<(), String> {
         {
             return Err(format!("missing recoverable usage envelope: {stdio}"));
         }
-        let text = stdio
-            .pointer("/result/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("missing summary")?;
-        let (_, next) = text
-            .lines()
-            .next()
-            .ok_or("summary line")?
-            .split_once("next ")
-            .ok_or_else(|| format!("missing typed correction: {text}"))?;
-        let next: Value = serde_json::from_str(next).map_err(|e| e.to_string())?;
+        let next = policy::first_call(&stdio)
+            .ok_or_else(|| format!("missing typed correction: {stdio}"))?;
         let frame = request(json!(4), "tools/call", next);
         let reply = validation_parity(env, globals, &server, &frame)?;
         if reply

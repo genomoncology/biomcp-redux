@@ -2,7 +2,7 @@
 use super::super::{
     http::Server,
     launch::Environment,
-    mcp::{exchange_with_globals, request},
+    mcp::{exchange_wire, http_wire, request},
 };
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -24,6 +24,7 @@ pub(super) fn check() -> Result<(), String> {
         let mut reference = Vec::new();
         for form in [
             None,
+            Some("once"),
             Some("both"),
             Some("structured-only"),
             Some("text-only"),
@@ -56,7 +57,7 @@ pub(super) fn check() -> Result<(), String> {
                     json!({"name":"biomcp","arguments":{"args":["invalid-command"]}}),
                 ),
             ];
-            let replies = exchange_with_globals(&environment, &calls, &globals)?;
+            let replies = exchange_wire(&environment, &calls, &globals, None)?;
             let server = Server::configured_globals(
                 "127.0.0.1:0",
                 Some(config),
@@ -72,7 +73,7 @@ pub(super) fn check() -> Result<(), String> {
                     .and_then(|reply| reply.get("result"))
                     .ok_or("stdio result missing")?;
                 let http = http_reply(&server, call, hosted)?;
-                let value = check_pair(stdio, &http, form.unwrap_or("both"), index)
+                let value = check_pair(stdio, &http, form.unwrap_or("once"), index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);
@@ -99,11 +100,7 @@ fn http_reply(server: &Server, call: &Value, hosted: bool) -> Result<Value, Stri
     } else {
         ""
     };
-    let (status, reply) = server.request_with_headers("POST", "/mcp", &call.to_string(), extra)?;
-    if status != 200 {
-        return Err("HTTP tool call failed".into());
-    }
-    reply
+    http_wire(server, call, extra)?
         .get("result")
         .cloned()
         .ok_or("HTTP result missing".into())
@@ -162,13 +159,23 @@ fn invalid_settings() -> Result<(), String> {
     Ok(())
 }
 
-fn check_content(result: &Value, form: &str) -> Result<Value, String> {
+/// The reply's JSON value, checked to sit where `form` puts it, once, with nothing before it.
+pub(super) fn check_content(result: &Value, form: &str) -> Result<Value, String> {
     let blocks = result
         .get("content")
         .and_then(Value::as_array)
-        .filter(|blocks| blocks.len() == 1)
-        .ok_or("expected one content block")?;
-    let block = blocks.first().ok_or("text block missing")?;
+        .ok_or("content list missing")?;
+    let structured = result.get("structuredContent");
+    let failed = result.get("isError") == Some(&json!(true));
+    if form == "once" && !failed {
+        if !blocks.is_empty() {
+            return Err(format!("once repeats JSON as text: {result}"));
+        }
+        return structured.cloned().ok_or("structured JSON missing".into());
+    }
+    let [block] = blocks.as_slice() else {
+        return Err("expected one content block".into());
+    };
     let text = block
         .get("text")
         .and_then(Value::as_str)
@@ -176,29 +183,19 @@ fn check_content(result: &Value, form: &str) -> Result<Value, String> {
     if block.get("type") != Some(&json!("text")) {
         return Err("expected text block".into());
     }
-    match form {
-        "structured-only" => {
-            if text != "JSON reply is in structuredContent." {
-                return Err("structured note differs".into());
-            }
-            result
-                .get("structuredContent")
-                .cloned()
-                .ok_or("structured JSON missing".into())
+    if form == "structured-only" {
+        if text != "JSON reply is in structuredContent." {
+            return Err("structured note differs".into());
         }
-        "both" => {
-            let value: Value = serde_json::from_str(text).map_err(|e| e.to_string())?;
-            if result.get("structuredContent") != Some(&value) {
-                return Err("JSON copies differ".into());
-            }
-            Ok(value)
-        }
-        "text-only" => {
-            if result.get("structuredContent").is_some() {
-                return Err("text-only repeats JSON".into());
-            }
-            serde_json::from_str(text).map_err(|e| e.to_string())
-        }
+        return structured.cloned().ok_or("structured JSON missing".into());
+    }
+    // The whole text is the JSON value: no status line or summary precedes it.
+    let value: Value = serde_json::from_str(text).map_err(|e| format!("{e}: {text:.200}"))?;
+    match (form, structured) {
+        ("both", Some(copy)) if copy == &value => Ok(value),
+        ("both", _) => Err("JSON copies differ".into()),
+        ("once" | "text-only", None) => Ok(value),
+        ("once" | "text-only", Some(_)) => Err(format!("{form} repeats JSON")),
         _ => Err("unknown test form".into()),
     }
 }

@@ -26,10 +26,8 @@ pub(super) fn run(measure: bool) -> Result<(), String> {
         )?;
         let rpc = fs::read(retained.join("mcp.stdout")).map_err(|e| e.to_string())?;
         let frame: Value = serde_json::from_slice(&rpc).map_err(|e| e.to_string())?;
-        let text = frame
-            .pointer("/result/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("MCP text")?;
+        let text = super::super::mcp::one_value(frame.get("result").ok_or("MCP result")?)?
+            .to_string();
         writeln!(
             std::io::stderr(),
             "CELL_LINE_HELP {phase} cli={} bare={} mcp={} rpc={}",

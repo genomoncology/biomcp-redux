@@ -141,26 +141,29 @@ pub(super) fn tool_result(
     };
     result(id, content(error, true, form), modern)
 }
-// A summary line names where this form puts the JSON, so it never names an absent field.
-pub(super) fn reply_note(form: ReplyForm) -> &'static str {
-    match form {
-        ReplyForm::StructuredOnly => "JSON reply is in structuredContent.",
-        ReplyForm::Both | ReplyForm::TextOnly => "JSON reply follows.",
-    }
-}
+// The JSON value is the whole text: no status line or summary precedes it.
 fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
+    // A note beside an empty text list would replace the JSON in clients that prefer text.
+    let note = (!matches!(form, ReplyForm::Once) || failed)
+        .then(|| crate::view::protein::note(&value))
+        .flatten();
+    let text = json!([{"type":"text","text":value.to_string()}]);
     let mut result = match form {
-        ReplyForm::Both => json!({"content":[{"type":"text","text":value.to_string()}],
-            "structuredContent":value.clone(), "isError":failed}),
+        ReplyForm::Once if failed => json!({"content":text, "isError":true}),
+        // Clients that show text when it is present show structured content when it is not.
+        ReplyForm::Once => json!({"content":[], "structuredContent":value, "isError":false}),
+        ReplyForm::Both => json!({"content":text, "structuredContent":value, "isError":failed}),
         ReplyForm::StructuredOnly => {
-            json!({"content":[{"type":"text","text":reply_note(form)}],
-            "structuredContent":value.clone(), "isError":failed})
+            json!({"content":[{"type":"text","text":"JSON reply is in structuredContent."}],
+            "structuredContent":value, "isError":failed})
         }
-        ReplyForm::TextOnly => {
-            json!({"content":[{"type":"text","text":value.to_string()}], "isError":failed})
-        }
+        ReplyForm::TextOnly => json!({"content":text, "isError":failed}),
     };
-    crate::view::protein::append_mcp(&mut result, &value);
+    if let Some(note) = note
+        && let Some(content) = result.get_mut("content").and_then(Value::as_array_mut)
+    {
+        content.push(json!({"type":"text","text":note}));
+    }
     result
 }
 pub(super) fn within_cap(value: &Value) -> bool {

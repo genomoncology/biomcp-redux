@@ -277,18 +277,7 @@ fn concurrent() -> Check {
         if result.pointer("/structuredContent/$id") != Some(&json!("biomcp.problem/2")) {
             return Err(format!("incomplete response {result}"));
         }
-        let text = result
-            .pointer("/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("text missing")?;
-        if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())?
-            != result
-                .get("structuredContent")
-                .cloned()
-                .ok_or("structured missing")?
-        {
-            return Err("concurrent content differs".into());
-        }
+        super::mcp::one_value(result).map_err(|e| format!("concurrent content: {e}"))?;
     }
     Ok(())
 }
