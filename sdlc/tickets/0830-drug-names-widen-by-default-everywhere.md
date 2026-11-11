@@ -23,9 +23,9 @@ The same drug gives different counts by spelling: the persona run reported 292 f
 - PM decision: 2026-11-11. Design review done (below). Depends on 0850, 0851 and 0843.
 
 
-## Design review (2026-11-11, PM accepted)
+## Amendment, 2026-11-11
 
-Base 888187ef, jobs j38107 and j38118, live sources. FAERS pembrolizumab, myocarditis, fatal: 292 generic, 414 KEYTRUDA, 703 both via `--drug`, 704 via `--expand-drug-names`. Label: apixaban 1 set, ELIQUIS 8.
+Design review, accepted by the PM. Base 888187ef, jobs j38107 and j38118, live sources. FAERS pembrolizumab, myocarditis, fatal: 292 generic, 414 KEYTRUDA, 703 both via `--drug`, 704 via `--expand-drug-names`. Label: apixaban 1 set, ELIQUIS 8.
 
 Blockers, split into their own tickets and landing first: widened names openFDA rejects make apixaban fail outright (0850); the label 1-vs-8 gap is letter case in the exact step (0851). The ChEMBL wait (0843) lands first or alongside: pembrolizumab goes through ChEMBL, and PRADAXA on labels took 7.4 s and came back partial.
 
