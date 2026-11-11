@@ -38,7 +38,11 @@ fn search(entity: &str, recordings: &Path) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     env.config(&json!({"command_timeout_seconds":2,"source_data_max_age_days":1_000_000}))
         .map_err(|e| e.to_string())?;
-    let args = cached(&["search", entity, TERM], &env.root().join("case"), Some(recordings));
+    let args = cached(
+        &["search", entity, TERM],
+        &env.root().join("case"),
+        Some(recordings),
+    );
     let reply = invoke(&env, args, 0)?;
     let unwidened = reply
         .pointer("/sources/0/notices/0/names")
