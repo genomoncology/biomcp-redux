@@ -42,3 +42,7 @@ After the typed-tools, drug-name-lookup and call-queue fixes, refused calls fell
 - The command map (0836) was rejected in review for growing the first read, and re-scoped: the first read must not grow and should shrink toward about 600 tokens; the map and examples move to on-request help.
 - New tickets: several sections in one get (0846), searches carry what agents loop to fetch (0847). 0836's review also found the gate never runs the docs check and the build machine's Python is too old for it (0848). 0837 also drops the typed status-line prefix and the duplicated `next`. Chosen fields (0838) moves up.
 - Bench ticket 0035: a round shaped like Amazon Quick (no shell, tools listed up front) and three more curl repeats.
+
+## Correction from 0847's developer (same day)
+
+The records show the "loops of per-record gets" were not all per-row loops. The 81 PMA gets paged one long FDA safety and effectiveness summary for two devices, about 20 pages each, searching for trial IDs and sensitivity sentences; the 26 trial-results gets paged one trial's results looking for participant-flow counts. Only the WHO diagnostic gets (one per product, for `prequalification_year`) and 6 trial gets (to learn whether results were posted) were per-row. So 0847 added just those two fields. The paging cost is a different fix: finding text inside a long section (as article text already offers), or larger pages, and participant flow as its own section (0840). The trial question that looped plain gets also wanted enrollment and acronym on search rows; deferred.
