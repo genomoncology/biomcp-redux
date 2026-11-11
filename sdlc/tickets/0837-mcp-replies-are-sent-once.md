@@ -37,6 +37,26 @@ The MCP spec (2025-11-25 tools) says a tool with an output schema MUST return st
 
 So no single form is shown by every client: `both` is double in ChatGPT and single in Claude Code. The one-copy form every verified client shows is `once`: success sends `content: []` plus `structuredContent`; an error sends the JSON as text only. It meets the spec's MUST and the SDK check, and drops only the SHOULD. Local servers default to `once`. Hosted servers keep `both`, as 0587 already ruled, until claude.ai and Amazon Quick are checked; hosting switches by setting `"mcp_reply_form": "once"`.
 
+## Reply sizes (2026-11-11)
+
+Bytes of the `CallToolResult` for the first step of ten recorded cases, sent to the `biomcp` tool over stdio with `--config` and the default reply form (trial `mcp-parity/reply-sizes`). Before: j38159 on 9d5f6c86e (main's behaviour). After: j38173 on 4eaa25318.
+
+| Case | Single before | Single after | Typed before | Typed after |
+| --- | ---: | ---: | ---: | ---: |
+| gene/braf | 5,509 | 2,510 | 5,396 | 2,578 |
+| gene/band | 5,439 | 2,404 | 5,356 | 2,466 |
+| gene/p16 | 2,313 | 978 | 2,237 | 1,050 |
+| article/filters/include-retracted | 10,899 | 4,934 | 10,801 | 5,042 |
+| article/citations/citing | 11,187 | 5,114 | 11,183 | 5,186 |
+| article/supplements/file-list | 9,280 | 4,120 | 9,086 | 4,349 |
+| cell-line/examples | 4,023 | 1,891 | 4,036 | 1,925 |
+| pathway/examples | 4,325 | 1,602 | 3,867 | 1,806 |
+| protein/native-domains | 5,365 | 2,000 | 5,177 | 2,240 |
+| variant/population/source-counts | 2,961 | 1,439 | 2,992 | 1,439 |
+| Total | 61,301 | 26,992 | 60,131 | 28,081 |
+
+Before, 9 of the 10 single-mode replies carried `--config <path>` in their next steps; after, none do. Totals fall 56% (single) and 53% (typed) on the wire; in single mode about 4% more comes from dropping the config path from next steps.
+
 ## Keeps
 
 - Keeps: `both` stays available as a setting for clients that need it; the output schema declaration.

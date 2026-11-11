@@ -93,7 +93,8 @@ fn run(mode: Mode) -> Result<(), String> {
         for line in BufReader::new(stdout).lines() {
             let reply = line
                 .map_err(|e| e.to_string())
-                .and_then(|line| serde_json::from_str::<Value>(&line).map_err(|e| e.to_string()));
+                .and_then(|line| serde_json::from_str::<Value>(&line).map_err(|e| e.to_string()))
+                .map(super::mcp::readable);
             if reply_tx.send(reply).is_err() {
                 break;
             }
