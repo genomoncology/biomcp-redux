@@ -43,7 +43,9 @@ fn hosted(env: &Environment) -> Result<(), String> {
         {
             return Err("typed hosted transport mismatch".into());
         }
-        let text = first_call(stdio).map(|call| call.to_string()).unwrap_or_default();
+        let text = first_call(stdio)
+            .map(|call| call.to_string())
+            .unwrap_or_default();
         if index < 5 {
             let command = if index == 1 || index == 2 {
                 "get trial"

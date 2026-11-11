@@ -98,7 +98,7 @@ impl Calls {
                             worker_id,
                             &outcome,
                             modern,
-                            context.settings,
+                            (context.globals, context.settings),
                         )
                     })
                 });

@@ -73,7 +73,8 @@ pub(super) fn check() -> Result<(), String> {
                     .and_then(|reply| reply.get("result"))
                     .ok_or("stdio result missing")?;
                 let http = http_reply(&server, call, hosted)?;
-                let value = check_pair(stdio, &http, form.unwrap_or("once"), index)
+                let default = if hosted { "both" } else { "once" };
+                let value = check_pair(stdio, &http, form.unwrap_or(default), index)
                     .map_err(|error| format!("hosted={hosted}: {error}"))?;
                 if form.is_none() {
                     reference.push(value);

@@ -31,4 +31,3 @@ fn has_span(value: &Value) -> bool {
         _ => false,
     }
 }
-

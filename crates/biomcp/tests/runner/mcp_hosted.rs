@@ -155,7 +155,10 @@ fn call(http: bool, env: &Environment, args: &[String], globals: &[String]) -> C
         .pointer("/result/structuredContent")
         .ok_or("missing tool result")?;
     // The default form sends a success's JSON once, as structured content.
-    if let Some(text) = reply.pointer("/result/content/0/text").and_then(Value::as_str) {
+    if let Some(text) = reply
+        .pointer("/result/content/0/text")
+        .and_then(Value::as_str)
+    {
         assert_eq!(
             serde_json::from_str::<Value>(text)?,
             *value,

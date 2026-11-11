@@ -98,7 +98,9 @@ fn measure(name: &str, mode: &str) -> Result<(usize, usize), String> {
     .map_err(|e| e.to_string())?;
     super::reply_form::check_content(result, "once").map_err(|e| format!("{name}: {e}"))?;
     if path {
-        return Err(format!("{name}: a next step names the server's configuration file"));
+        return Err(format!(
+            "{name}: a next step names the server's configuration file"
+        ));
     }
     Ok((wire, text + structured))
 }

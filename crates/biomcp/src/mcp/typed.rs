@@ -59,9 +59,9 @@ pub(super) fn tool_result(
     id: Value,
     completed: &super::research::Completed,
     modern: bool,
-    settings: &crate::config::Settings,
+    context: (&crate::grammar::Globals, &crate::config::Settings),
 ) -> Value {
-    let form = crate::config::mcp_reply_form(settings);
+    let form = crate::config::mcp_reply_form(context.0, context.1);
     super::protocol::tool_result(id, &completed.outcome, modern, form)
 }
 
@@ -320,6 +320,6 @@ pub(super) fn rejection(
         id,
         &super::research::Completed { outcome },
         modern,
-        context.settings,
+        (context.globals, context.settings),
     ))
 }

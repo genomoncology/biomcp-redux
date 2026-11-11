@@ -149,10 +149,8 @@ fn call_text_retained(
     let structured = result
         .get("structuredContent")
         .ok_or("MCP missing structuredContent")?;
-    if !is_error && result.get("content") != Some(&json!([])) {
-        return Err(format!("MCP reply repeats its JSON: {result}"));
-    }
-    Ok((structured.clone(), structured.to_string()))
+    let value = one_value(result)?;
+    Ok((value, structured.to_string()))
 }
 
 /// One HTTP tool call's reply exactly as the server sent it.

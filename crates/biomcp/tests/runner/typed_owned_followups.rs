@@ -161,10 +161,8 @@ fn response(
         .get("mcp_reply_form")
         .and_then(Value::as_str)
         .unwrap_or("once");
-    let value = super::super::reply_form::check_content(
-        reply.get("result").ok_or("nested result")?,
-        form,
-    )?;
+    let value =
+        super::super::reply_form::check_content(reply.get("result").ok_or("nested result")?, form)?;
     Ok((value, tools))
 }
 fn research_text() -> Result<(), String> {

@@ -7,10 +7,9 @@ use std::{collections::BTreeMap, fs, path::PathBuf};
 /// Where an MCP tool reply carries its JSON value.
 /// `Once` sends it once: as structured content on success, and as text on an error,
 /// because Claude Code shows the model structured content on success and text on errors.
-#[derive(Clone, Copy, Default, serde::Deserialize)]
+#[derive(Clone, Copy, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum ReplyForm {
-    #[default]
     Once,
     Both,
     StructuredOnly,
