@@ -6,7 +6,7 @@ Milestone: 8
 
 ## Outcome
 
-Every search that takes a drug name widens it to the drug's known names by default, says in the reply which names it searched and which it could not, and searches the literal text only when given `--exact-term`. This covers FAERS, openFDA labels, Drugs@FDA, EMA, drug recalls, MAUDE and VAERS, as trial and article search already do.
+Every search that takes a drug name widens it to the drug's known names by default, says in the reply which names it searched and which it could not, and searches the literal text only when given `--exact-term`. This covers FAERS, openFDA labels, Drugs@FDA, EMA and drug recalls, as trial and article search already do; MAUDE and VAERS stay literal (see design review).
 
 ## Why
 
@@ -20,7 +20,20 @@ The same drug gives different counts by spelling: the persona run reported 292 f
 
 - Starts from: `crates/biomcp-query/src/drug/search_names.rs` and `aliases.rs`; the opt-in `--expand-drug-names` paths landed by 0812, 0815 and 0816; trial search's default widening as the pattern.
 - PM decision: 2026-11-11. This overrides the "explicit opt-in only, literal default" line in 0812, 0815 and 0816. One rule for every command beats a safer default that differs by command; `--expand-drug-names` stays accepted as a no-op for one release.
-- PM decision: 2026-11-11. This ticket gets a design review before hand-over, because it changes default results. Reproduce the three counts on the base commit first and put the real numbers here.
+- PM decision: 2026-11-11. Design review done (below). Depends on 0850, 0851 and 0843.
+
+
+## Design review (2026-11-11, PM accepted)
+
+Base 888187ef, jobs j38107 and j38118, live sources. FAERS pembrolizumab, myocarditis, fatal: 292 generic, 414 KEYTRUDA, 703 both via `--drug`, 704 via `--expand-drug-names`. Label: apixaban 1 set, ELIQUIS 8.
+
+Blockers, split into their own tickets and landing first: widened names openFDA rejects make apixaban fail outright (0850); the label 1-vs-8 gap is letter case in the exact step (0851). The ChEMBL wait (0843) lands first or alongside: pembrolizumab goes through ChEMBL, and PRADAXA on labels took 7.4 s and came back partial.
+
+Rules: leave out names the provider cannot take and junk names (0850); if the provider rejects the widened query, search the typed term and say so. For sources that try exact matches before word matches (labels, Drugs@FDA), choose the step by the typed name, then search the union at that step: a widened search must never return fewer records than the literal one (dabigatran on labels must not drop below 23 sets). Never add per-name counts: use the provider's total for one OR query, remove duplicates by record ID otherwise, and report no total rather than a sum. Name lookups for FAERS and labels use 0832's skipped rule. One disclosure notice on the searched source lists names searched and each name not searched with a reason. Continuations keep page 1's names: FAERS carries them in the next-page request; labels keep the snapshot plus the chosen step; the snapshot check stops requiring `--expand-drug-names`. `--exact-term` searches the literal text only.
+
+Scope: FAERS first, then labels, then Drugs@FDA, recalls and EMA. MAUDE and VAERS stay literal (MAUDE has no drug field; VAERS takes fixed vaccine codes) and their help says so.
+
+Proof per slice: pembrolizumab finds 704 with its names listed; `--exact-term` finds 292; apixaban finds about 282k rather than failing; dabigatran on labels stays at or above 23 sets.
 
 ## Keeps
 
@@ -32,4 +45,4 @@ The same drug gives different counts by spelling: the persona run reported 292 f
 
 ## Changes
 
-- Changes: `crates/biomcp-query/src/drug/`, `crates/biomcp-adapters/src/openfda_faers/`, `crates/biomcp-adapters/src/openfda_label/`, `crates/biomcp-adapters/src/drugsfda/`, `tests/cases/drug/`, `tests/cases/adverse-event/`
+- Changes: `crates/biomcp-query/src/drug/`, `crates/biomcp-adapters/src/faers/`, `crates/biomcp-adapters/src/openfda_label/`, `crates/biomcp-adapters/src/drugsfda/`, `tests/cases/drug/`, `tests/cases/adverse-event/`
