@@ -51,7 +51,8 @@ pub(super) fn fold(
 #[cfg(test)]
 mod tests {
     use super::fold;
-    use biomcp_types::{ArticleItem, ArticleKey, ArticleSource, Pmid};
+    use biodata::Pmid;
+    use biomcp_types::{ArticleItem, ArticleKey, ArticleSource};
 
     fn row(id: u32, open_access: Option<bool>) -> Result<ArticleItem, String> {
         let id: Pmid = id.to_string().parse().map_err(|_| "synthetic PMID")?;
