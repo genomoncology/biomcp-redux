@@ -10,6 +10,8 @@ What genes and events does the source list within an exact human pathway?
 biomcp pathway genes R-HSA-5673001
 ```
 
+Typed tool: `pathway` `{"action":"genes","genes":{"id":"R-HSA-5673001"}}`.
+
 Read the pathway identity, native gene identifiers and pagination. Retain the source’s membership scope.
 
 ## 2. Retrieve and inspect

@@ -17,6 +17,10 @@ pub(super) fn instructions(
     } else {
         INSTRUCTIONS.into()
     };
+    if let Ok(examples) = super::typed::examples(context, mode == crate::config::ToolMode::Typed) {
+        instructions.push('\n');
+        instructions.push_str(&examples);
+    }
     instructions.push('\n');
     instructions.push_str(crate::grammar::ENUM_CASE_GUIDANCE);
     instructions

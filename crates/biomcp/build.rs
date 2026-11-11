@@ -7,6 +7,8 @@ use std::{collections::BTreeMap, env, error::Error, fs, path::PathBuf};
 
 #[path = "build/argument_examples.rs"]
 mod argument_examples;
+#[path = "build/first_read.rs"]
+mod first_read;
 #[path = "build/front_map.rs"]
 mod front_map;
 #[path = "build/schema_metadata.rs"]
@@ -333,7 +335,18 @@ fn embed_skills(map: &str) -> Result<(), Box<dyn Error>> {
     if guide.len() > 4096 {
         return Err("agent skill template exceeds 4 KB".into());
     }
-    *guide = guide.replace(marker, map);
+    if guide.matches(first_read::MARKER).count() != 1 {
+        return Err("skill template requires exactly one first-read comment line".into());
+    }
+    let examples = first_read::examples(&directory.join("use-cases"))?;
+    let questions = first_read::question_map(&biomcp_types::command_paths())?;
+    *guide = guide
+        .replace(marker, map)
+        .replace(first_read::MARKER, &first_read::section(&questions, &examples));
+    fs::write(
+        PathBuf::from(env::var("OUT_DIR")?).join("first-read-examples.json"),
+        serde_json::to_vec(&first_read::embedded(&examples)?)?,
+    )?;
     let entries = assets
         .iter()
         .map(|(name, text)| format!("({name:?}, {text:?}),\n"))

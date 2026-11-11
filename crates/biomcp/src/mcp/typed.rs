@@ -3,6 +3,8 @@ mod arguments;
 pub(super) mod catalog;
 pub(super) use catalog::instructions;
 mod description;
+mod examples;
+pub(super) use examples::lines as examples;
 mod followups;
 mod forms;
 mod grouping;

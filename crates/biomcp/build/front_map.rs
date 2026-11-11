@@ -22,7 +22,7 @@ pub(crate) fn generate(schemas: &BTreeMap<String, String>) -> Result<String, Box
 }
 
 #[path = "../typed_front_map.rs"]
-mod typed_front_map;
+pub(crate) mod typed_front_map;
 pub(crate) fn generate_typed(schemas: &BTreeMap<String, String>) -> Result<String, Box<dyn Error>> {
     typed_front_map::generate(
         &biomcp_types::command_paths(),

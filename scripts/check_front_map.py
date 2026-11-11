@@ -123,8 +123,13 @@ def main():
         require(process.returncode == 0 and not process.stderr, f"serve failed: {process.stderr}")
         reply = json.loads(process.stdout.splitlines()[0])
         guidance = "Listed choices accept any letter case; replies use their listed spelling."
-        require(reply["result"]["instructions"] == front + "\n" + guidance,
-                "server instructions differ from the front map and its guidance line")
+        instructions = reply["result"]["instructions"]
+        examples = instructions.removeprefix(front + "\n").removesuffix("\n" + guidance)
+        require(instructions == front + "\n" + examples + "\n" + guidance
+                and examples.startswith("Worked examples (use case: biomcp args):\n"),
+                "server instructions are not the front map, its worked examples and its guidance line")
+        require(len(examples.splitlines()) == 1 + len(list((Path(__file__).parents[1] / "skills/use-cases").glob("[0-9]*.md"))),
+                "server instructions lack a worked example for some use case")
         sizes = first_read_sizes(binary, env)
         sizes["skill_characters"] = len(rendered)
         (args.output / "first-read-sizes.json").write_text(json.dumps(sizes, indent=2) + "\n")

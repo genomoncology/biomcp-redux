@@ -10,6 +10,8 @@ Which representations does a named normalization service return for an explicit 
 biomcp variant normalize --source mutalyzer --hgvs 'NM_004333.4:c.1799T>A'
 ```
 
+Typed tool: `variant` `{"action":"normalize","normalize":{"source":"mutalyzer","hgvs":"NM_004333.4:c.1799T>A"}}`.
+
 Read the exact input accession and version, source result, messages and returned mappings. Preserve any uncertainty or refusal.
 
 ## 2. Retrieve and inspect
