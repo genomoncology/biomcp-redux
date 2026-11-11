@@ -72,6 +72,12 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
                 "decision_to",
             ]));
         }
+        if v.name
+            .as_ref()
+            .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        {
+            return Err(QueryInvalid::new(&["name"]));
+        }
         return Ok(());
     }
     if other || v.bundle_revision.is_some() {

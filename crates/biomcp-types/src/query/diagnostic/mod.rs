@@ -204,13 +204,6 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
                 "biomarker",
             ]));
         }
-        if v.source == DiagnosticSearchSource::Gtr
-            && v.name
-                .as_ref()
-                .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
-        {
-            return Err(QueryInvalid::new(&["name"]));
-        }
         if v.source == DiagnosticSearchSource::WhoIvd
             && [v.marker.as_ref(), v.manufacturer.as_ref()]
                 .into_iter()
