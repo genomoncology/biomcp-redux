@@ -6,7 +6,9 @@ Milestone: 7
 
 ## Outcome
 
-The commands agents actually typed in the baseline either run or fail with an error that names the option at fault and the exact form to use: short flags `-q`, `-c` and `-i`; a section given as a positional word or as `--section`; retired command names, which answer with the replacement command written out for this request; and no usage error leaves the option unnamed.
+The commands agents actually typed in the baseline either run or fail with an error that names the option at fault and the exact form to use: short flags `-q`, `-c` and `-i`; a section given as a positional word or as `--section`; retired command names, which answer with the replacement command written out for this request; and no usage error leaves the option unnamed. In typed MCP mode, a section value is plain text listed in the tool's description rather than a fixed list in the schema, so a wrong section such as article `text` or gene `hgnc` reaches the server, which answers with the working call (article `text` names `fulltext`).
+
+Added 2026-11-11 from the typed-tools review: after typed tools landed, the only calls a strict client still refused before BioMCP saw them were section values outside the fixed list.
 
 ## Why
 
@@ -30,4 +32,4 @@ In `biomed-agent-bench/results/baseline-1.0.md` (build c2511ee90, which is curre
 
 ## Changes
 
-- Changes: `crates/biomcp/src/grammar.rs`, `crates/biomcp-types/src/response/`, `tests/cases/grammar/`
+- Changes: `crates/biomcp/src/grammar.rs`, `crates/biomcp-types/src/response/`, `tests/cases/grammar/`, `crates/biomcp/typed_front_map.rs` and the typed tool-list snapshot (tool-list size stays within 1% of main)
