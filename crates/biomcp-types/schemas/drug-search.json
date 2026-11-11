@@ -69,7 +69,7 @@
           "type": "null"
         }
       ],
-      "description": "Exact applicant name; Drugs@FDA only.\nThe source matches its complete native sponsor_name with case, such as ALNYLAM PHARMS INC;\nno company-family or subsidiary inference. An optional name narrows the same search.",
+      "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
       "x-required-component": "drugsfda"
     },
     "classification": {

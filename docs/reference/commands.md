@@ -1302,8 +1302,8 @@ Arguments:
 
 Options:
       --applicant <applicant>
-          Exact applicant name; Drugs@FDA only.
-          The source matches its complete native sponsor_name with case, such as ALNYLAM PHARMS INC;
+          Applicant name start; Drugs@FDA only.
+          Matches native sponsor_name values starting with this text, ignoring letter case;
           no company-family or subsidiary inference. An optional name narrows the same search.
 
       --format <format>
@@ -1398,8 +1398,8 @@ Options:
 
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
-- `--applicant`: Exact applicant name; Drugs@FDA only.
-The source matches its complete source sponsor_name with case, such as ALNYLAM PHARMS INC;
+- `--applicant`: Applicant name start; Drugs@FDA only.
+Matches source sponsor_name values starting with this text, ignoring letter case;
 no company-family or subsidiary inference. An optional name narrows the same search. Value form: string. Example: --applicant 'ALNYLAM PHARMS INC'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
