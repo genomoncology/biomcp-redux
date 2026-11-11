@@ -62,6 +62,24 @@ Done when: on the bench's baseline questions, each BioMCP mode uses at least 20%
 
 Ordered by the 1.0 baseline (`biomed-agent-bench/results/baseline-1.0.md`) and the 2026-11-11 decision that this is 1.0 work. Amazon Quick's launch in late November sets the date for the typed-tool fixes.
 
+## 8. Gaps where curl won (1.0)
+
+Delivers: the answers the persona runs got from curl or web search and not from BioMCP: trial enrollment and why-stopped, gene-set enrichment, approvals by company, participant flow, per-paper open-access rights, Orphanet prevalence, the WHO essential medicines list, OpenAlex institutions, and name expansion with disclosure on every filter that takes a name.
+
+Serves: Ian's goal of sources and capabilities that make the personas happy. It is 1.0 work under the 2026-11-11 decision that agent tooling goes in 1.0, so its tickets land on main. Evidence: `biomed-agent-bench/personas/rollup.md`. That suite was run and graded by one agent, so each item is reproduced on current main before its ticket is filed.
+
+Done when: each listed question is answered by one BioMCP command, and a different model regrades the eleven suites from their logs.
+
+## 9. Saved work (1.1)
+
+Delivers: saved collections, saved queries, result snapshots and "what changed since last time", through the same commands locally and hosted. Locally they live in the SQLite store; hosted, in the account's storage. Records hold typed references, queries and as-of dates, never copies of source content.
+
+Serves: Ian's goal of state for the MCP "both locally and on the cloud", and hosting's "beta with saved work" milestone. Its code is built on the `1.1` branch, not main, until the PM merges that branch.
+
+Unknown: the rule for reading a saved record after its schema's major version changes, since today's rule is an exact pin with no compatibility promise. Decide that rule, with one design review, before the first ticket. Documents, cases, lab reports and variant files come after this milestone shows people use it.
+
+Done when: an agent saves a collection and a query in one session, a later session lists what changed, the same commands work against the hosted account, and the user exports everything as typed JSON.
+
 ## Later, unordered
 
 Each waits for a consumer or for Ian. None has tickets.
