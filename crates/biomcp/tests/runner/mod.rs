@@ -290,7 +290,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(credential_containment::trials());
     trials.extend(http::trials());
     trials.extend(remote_tools::trials());
-    trials.extend(mcp_boundaries::trials().into_iter().chain(call_queue::trials()));
+    trials.extend(mcp_boundaries::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
     trials.extend(declared_use::trials());
@@ -353,15 +353,17 @@ fn retained_source_trials() -> Vec<Trial> {
     trials
 }
 
-fn transcript_trials() -> [Trial; 2] {
-    [
+fn transcript_trials() -> Vec<Trial> {
+    let mut trials = call_queue::trials();
+    trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)
         }),
         transcript_trial("mcp-parity/ping-passes-held-provider-call", || {
             held_proxy::check().map_err(Into::into)
         }),
-    ]
+    ]);
+    trials
 }
 
 fn load_floors(case: &mut Case, path: &Path) -> Result<(), String> {

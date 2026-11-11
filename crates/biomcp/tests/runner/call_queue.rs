@@ -28,20 +28,20 @@ fn burst() -> Result<(), String> {
             "command_timeout_seconds":30}))
         .map_err(|e| e.to_string())?;
     let replay = super::launch::fixtures().join("replies/gene/main");
+    let globals = environment.globals(Some(replay.as_path()), false);
+    let args = ["get", "gene", "KRAS"].map(String::from);
+    // A recorded exchange answers once; this first call stores it for the burst to share.
+    super::mcp::call_with_globals(&environment, &args, false, &globals)?;
     let frames = (1..=CALLS)
         .map(|id| {
             request(
                 json!(id),
                 "tools/call",
-                json!({"name":"biomcp", "arguments":{"args":["get","gene","KRAS"]}}),
+                json!({"name":"biomcp", "arguments":{"args":args}}),
             )
         })
         .collect::<Vec<_>>();
-    let replies = super::mcp::exchange_with_globals(
-        &environment,
-        &frames,
-        &environment.globals(Some(replay.as_path()), false),
-    )?;
+    let replies = super::mcp::exchange_with_globals(&environment, &frames, &globals)?;
     let mut answered = std::collections::BTreeSet::new();
     for reply in &replies {
         let content = reply.pointer("/result/structuredContent");
@@ -75,6 +75,23 @@ fn burst() -> Result<(), String> {
     Ok(())
 }
 
+#[cfg(unix)]
+fn send(address: std::net::SocketAddr, body: &str) -> Result<std::net::TcpStream, String> {
+    use std::io::Write;
+    let mut stream = std::net::TcpStream::connect(address).map_err(|e| e.to_string())?;
+    let frame = format!(
+        "POST /mcp HTTP/1.1\r\nHost: {address}\r\nContent-Type: application/json\r\n\
+         Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\n\
+         Mcp-Method: tools/call\r\nMcp-Name: biomcp\r\nConnection: close\r\n\
+         Content-Length: {}\r\n\r\n{body}",
+        body.len()
+    );
+    stream
+        .write_all(frame.as_bytes())
+        .map_err(|e| e.to_string())?;
+    Ok(stream)
+}
+
 /// One call holds the only slot; the next gets no answer until that slot frees, then runs.
 #[cfg(unix)]
 fn hosted_turn() -> Result<(), String> {
@@ -103,18 +120,7 @@ fn hosted_turn() -> Result<(), String> {
     let first = call(1, json!(["get", "gene", "KRAS", "--offline"]));
     let (_held, mut writer) = super::http_limits::hold_settings_reader(&server, &first)?;
     let second = call(2, json!(["help"]));
-    let mut waiting = std::net::TcpStream::connect(server.address).map_err(|e| e.to_string())?;
-    let frame = format!(
-        "POST /mcp HTTP/1.1\r\nHost: {}\r\nContent-Type: application/json\r\n\
-         Accept: application/json, text/event-stream\r\nMCP-Protocol-Version: 2026-07-28\r\n\
-         Mcp-Method: tools/call\r\nMcp-Name: biomcp\r\nConnection: close\r\n\
-         Content-Length: {}\r\n\r\n{second}",
-        server.address,
-        second.len()
-    );
-    waiting
-        .write_all(frame.as_bytes())
-        .map_err(|e| e.to_string())?;
+    let mut waiting = send(server.address, &second)?;
     // A queued call is silent however long this pause runs; only a refusal can break it.
     waiting
         .set_read_timeout(Some(Duration::from_millis(500)))
