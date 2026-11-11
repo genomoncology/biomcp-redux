@@ -47,3 +47,55 @@ pub(super) fn fold(
     }
     items
 }
+
+#[cfg(test)]
+mod tests {
+    use super::fold;
+    use biomcp_types::{ArticleItem, ArticleKey, ArticleSource, Pmid};
+
+    fn row(id: u32, open_access: Option<bool>) -> Result<ArticleItem, String> {
+        let id: Pmid = id.to_string().parse().map_err(|_| "synthetic PMID")?;
+        Ok(ArticleItem {
+            text_withheld: None,
+            context_license: None,
+            key: Some(ArticleKey::Pubmed(id)),
+            pmid: Some(id),
+            found_by: Default::default(),
+            cited_by: None,
+            open_access,
+            sentence: None,
+            intents: None,
+            influential: None,
+            contexts: None,
+            header: None,
+        })
+    }
+
+    #[test]
+    fn a_merged_row_keeps_the_europe_pmc_access_flag_and_others_state_none() -> Result<(), String> {
+        let legs = vec![
+            (
+                ArticleSource::Pubmed,
+                vec![row(1111, None)?, row(2222, None)?],
+            ),
+            (
+                ArticleSource::Europepmc,
+                vec![row(1111, Some(true))?, row(3333, Some(false))?],
+            ),
+        ];
+        let flags: Vec<_> = fold(legs, true)
+            .iter()
+            .map(|item| (item.pmid.map(|id| id.to_string()), item.open_access))
+            .collect();
+        let expected = [
+            (Some("1111".to_string()), Some(true)),
+            (Some("2222".to_string()), None),
+            (Some("3333".to_string()), Some(false)),
+        ];
+        assert_eq!(
+            flags, expected,
+            "only Europe PMC states the flag, and a merge keeps it"
+        );
+        Ok(())
+    }
+}
