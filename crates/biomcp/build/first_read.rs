@@ -134,7 +134,7 @@ pub(crate) fn question_map(commands: &[(&str, &str, &str)]) -> Result<String, Bo
                 others.push(format!("{command} ({does})"));
             }
         }
-        let mut line = format!("- `{tool}` ({}): {asks}.", own.join(", "));
+        let mut line = format!("- {tool} ({}): {asks}.", own.join(", "));
         if !others.is_empty() {
             line.push_str(&format!(" Also {}.", others.join("; ")));
         }

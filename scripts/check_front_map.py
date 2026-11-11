@@ -99,7 +99,7 @@ def topic(binary, env, *path):
     return json.loads(run(binary, ["help", *path], env))["result"]["commands"][0]["description"]
 
 
-EXAMPLE_LINE = re.compile(r"^- .* \(([a-z-]+)\): `biomcp (.*)` \| `([a-z_]+)` `(\{.*\})`$")
+EXAMPLE_LINE = re.compile(r"^- .* \(([a-z-]+)\): biomcp (.*) \| ([a-z_]+) (\{.*\})$")
 
 
 def check_on_request(binary, env, front):
@@ -122,7 +122,7 @@ def check_on_request(binary, env, front):
         require(served.get(name) == (command, tool, call),
                 f"{name}: help examples serve {served.get(name)}, the use case documents {(command, tool, call)}")
         page = topic(binary, env, tool.replace("_", "-"))
-        require(page.startswith(f"`{tool}` ") and f"({name})" in page, f"help {tool} lacks its question or {name}")
+        require(page.startswith(f"{tool} (") and f"({name})" in page, f"help {tool} lacks its question or {name}")
 
 
 def main():

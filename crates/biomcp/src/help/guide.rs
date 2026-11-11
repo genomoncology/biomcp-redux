@@ -27,7 +27,7 @@ pub(super) fn tool_page(
     let tool = entity.replace('-', "_");
     let Some(question) = QUESTIONS
         .lines()
-        .find(|line| line.starts_with(&format!("- `{tool}` ")))
+        .find(|line| line.starts_with(&format!("- {tool} (")))
     else {
         return Ok(None);
     };
@@ -52,10 +52,10 @@ fn lines(root: &crate::grammar::Root, tool: Option<&str>) -> io::Result<String> 
         }
         let typed = typed.map_or_else(
             || "no typed call".to_owned(),
-            |(name, arguments)| format!("`{name}` `{arguments}`"),
+            |(name, arguments)| format!("{name} {arguments}"),
         );
         lines.push(format!(
-            "- {} ({}): `biomcp {}` | {typed}",
+            "- {} ({}): biomcp {} | {typed}",
             field("title"),
             field("name"),
             field("command")
