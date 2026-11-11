@@ -100,6 +100,22 @@
         "/page/total": 0,
         "/page/returned": 0
       }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "%%"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--name"
+      }
     }
   ]
 }
