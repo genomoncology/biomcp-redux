@@ -265,7 +265,9 @@ pub(in crate::runner) fn coverage_schemas(tools: &[Value]) -> Result<(), String>
             .count();
         if keys != actions.len()
             || !said.starts_with(&format!("One of: {listed}. "))
-            || tool.pointer("/inputSchema/properties/action/enum").is_some()
+            || tool
+                .pointer("/inputSchema/properties/action/enum")
+                .is_some()
             || tool.pointer("/inputSchema/required") != Some(&json!(["action"]))
         {
             return Err(format!(

@@ -133,10 +133,7 @@ pub(super) fn tool(
         .map(|(action, note)| format!("{action} ({note})"))
         .collect::<Vec<_>>();
     if !others.is_empty() {
-        parts.push(plain(&format!(
-            "Other actions: {}.",
-            others.join(", ")
-        )));
+        parts.push(plain(&format!("Other actions: {}.", others.join(", "))));
     }
     parts.push(plain(&format!("{not_for}.")));
     parts.join(" ")

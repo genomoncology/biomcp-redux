@@ -263,8 +263,7 @@ fn complete_words(
         .map(ToString::to_string)
         .collect::<Vec<_>>()
         .join(" ");
-    let declared =
-        format!("{schema} {summary} {sources} IDs Sections Required");
+    let declared = format!("{schema} {summary} {sources} IDs Sections Required");
     let vocabulary = declared
         .split(|c: char| !c.is_alphanumeric())
         .map(str::to_lowercase)
