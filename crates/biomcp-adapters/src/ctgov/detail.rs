@@ -2,15 +2,18 @@
 use biomcp_fetch::{Input, Read};
 mod arms;
 mod dates;
+mod eligibility;
+mod posted;
 mod publications;
 mod results;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{
-    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
-    TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
+    Markdown, NctId, StudyType, TrialArm, TrialCard, TrialEligibility, TrialIntervention,
+    TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_types::Source;
+use posted::{Enrollment, Posted};
 
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use serde::{Deserialize, Serialize};
@@ -137,7 +140,6 @@ struct Status {
     primary_completion_date_struct: Option<Field<RawDate>>,
     completion_date_struct: Option<Field<RawDate>>,
 }
-/// Registry date struct shared by the record and the search row projections.
 #[derive(Deserialize)]
 pub(in crate::ctgov) struct RawDate {
     date: Option<Field<biodata::PartialDate>>,
@@ -151,19 +153,6 @@ struct Design {
     study_type: Option<Field<StudyType>>,
     phases: Option<Field<Vec<Field<TrialPhase>>>>,
     enrollment_info: Option<Field<Enrollment>>,
-}
-#[derive(Deserialize)]
-struct Enrollment {
-    count: Option<Field<u64>>,
-    #[serde(rename = "type")]
-    kind: Option<Field<biodata::TrialDateKind>>,
-}
-/// Protocol facts shown beside the card that its shared type does not hold.
-#[derive(Default)]
-struct Posted {
-    results_first_posted: Option<biodata::PartialDate>,
-    enrollment: Option<biomcp_types::TrialEnrollment>,
-    why_stopped: Option<Box<str>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -299,7 +288,7 @@ impl Protocol {
             problems,
         )
         .map(|d| d.date);
-        posted.why_stopped = why_stopped(status.why_stopped, problems);
+        posted.why_stopped = posted::why_stopped(status.why_stopped, problems);
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();
@@ -357,40 +346,11 @@ impl Protocol {
         }
     }
 }
-impl Enrollment {
-    /// A qualifier without a count says nothing, so the count is required.
-    fn mapped(self, problems: &mut Problems) -> Option<biomcp_types::TrialEnrollment> {
-        let count = problems.required_field("enrollmentInfo.count", self.count)?;
-        Some(biomcp_types::TrialEnrollment {
-            count,
-            kind: problems.field("enrollmentInfo.type", self.kind),
-        })
-    }
-}
-/// The registry escapes this plain sentence as Markdown; readers get the sentence.
-fn why_stopped(value: Option<Field<Box<str>>>, problems: &mut Problems) -> Option<Box<str>> {
-    let escaped = problems.field("whyStopped", value)?;
-    let plain = crate::source_text::unescape_markdown(&escaped);
-    problems
-        .text("whyStopped", Some(plain.as_ref()))
-        .map(|text| text.as_str().into())
-}
 impl Sponsor {
     fn name(self, problems: &mut Problems) -> Option<Box<str>> {
         problems
             .field("leadSponsor", self.lead_sponsor)
             .and_then(|s| problems.native_text("leadSponsor.name", s.name))
-    }
-}
-impl Eligibility {
-    fn mapped(self, problems: &mut Problems) -> TrialEligibility {
-        TrialEligibility {
-            minimum_age: age("minimumAge", self.minimum_age, problems),
-            maximum_age: age("maximumAge", self.maximum_age, problems),
-            sex: problems.field("sex", self.sex),
-            healthy_volunteers: problems.field("healthyVolunteers", self.healthy_volunteers),
-            criteria: problems.field("eligibilityCriteria", self.eligibility_criteria),
-        }
     }
 }
 impl Outcomes {
@@ -414,17 +374,5 @@ impl Outcomes {
             time_frame: problems.native_text("outcomes.timeFrame", v.time_frame),
         })
         .collect()
-    }
-}
-fn age(
-    field: &str,
-    value: Option<Field<Box<str>>>,
-    problems: &mut Problems,
-) -> Option<TrialAgeBound> {
-    match value {
-        None => Some(TrialAgeBound::NoLimit),
-        Some(value) => problems
-            .native_text(field, Some(value))
-            .map(|raw| TrialAgeBound::Source { raw }),
     }
 }

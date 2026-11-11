@@ -10,8 +10,11 @@ use super::detail::RawDate;
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::TrialHeader;
 use serde::Deserialize;
+#[path = "raw_dates.rs"]
+mod dates;
 #[path = "raw_gene.rs"]
 mod gene_context;
+use dates::Dates;
 #[derive(Deserialize)]
 #[serde(transparent)]
 pub(super) struct FirstPage(pub(super) RawPage);
@@ -95,7 +98,7 @@ struct Identification {
     nct_id: NctId,
     brief_title: Option<Field<Text>>,
 }
-#[derive(Default, Deserialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
@@ -190,24 +193,7 @@ impl Protocol {
             record: crate::mapped::record(self.identification_module.nct_id),
             list: Vec::new(),
         };
-        // A row without its status module reports the same two required fields as an empty one.
-        let status = problems
-            .field("statusModule", self.status_module)
-            .unwrap_or_default();
-        let overall = problems.required_field("overallStatus", status.overall_status);
-        let updated = problems
-            .field(
-                "lastUpdatePostDateStruct",
-                status.last_update_post_date_struct,
-            )
-            .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
-        let updated = problems.required("lastUpdatePostDateStruct.date", updated);
-        let start = RawDate::field("startDateStruct", status.start_date_struct, &mut problems);
-        let primary_completion = RawDate::field(
-            "primaryCompletionDateStruct",
-            status.primary_completion_date_struct,
-            &mut problems,
-        );
+        let dates = Dates::read(self.status_module, &mut problems);
         let sponsor = problems
             .field(
                 "sponsorCollaboratorsModule",
@@ -226,7 +212,7 @@ impl Protocol {
             ))
             .map_err(|_| BadReply)?,
             title: problems.required_field("briefTitle", self.identification_module.brief_title),
-            status: overall,
+            status: dates.status,
             phases,
             conditions: names(
                 problems
@@ -252,9 +238,9 @@ impl Protocol {
                     .collect(),
             ),
             sponsor,
-            start,
-            primary_completion,
-            updated,
+            start: dates.start,
+            primary_completion: dates.primary_completion,
+            updated: dates.updated,
         };
         Ok(Mapped {
             refusals,

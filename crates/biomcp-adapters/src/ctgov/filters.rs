@@ -3,7 +3,10 @@ use biomcp_types::TrialSearch;
 use std::collections::BTreeMap;
 
 /// Every search row asks for these; a date's type is its actual or estimated qualifier.
-const FIELDS: &str = "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults,LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType";
+const FIELDS: &str = concat!(
+    "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults",
+    ",LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType"
+);
 
 pub(super) fn base_parameters(query: &TrialSearch) -> BTreeMap<String, String> {
     let mut fields = FIELDS.to_owned();
