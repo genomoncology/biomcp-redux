@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=sponsor_name%3ANO%5C%20SUCH%5C%20SPONSOR%2A&limit=10",
+  "exchanges": [
+    {
+      "fetched": 1794411113,
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"No matches found!\"\n  }\n}"
+      }
+    }
+  ]
+}

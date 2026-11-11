@@ -4,7 +4,7 @@ use crate::raw::Field;
 use biodata::TrialDate;
 
 impl RawDate {
-    pub(super) fn field(
+    pub(in crate::ctgov) fn field(
         field: &str,
         value: Option<Field<Self>>,
         problems: &mut Problems,

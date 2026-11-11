@@ -1,6 +1,6 @@
 # 0826 — trial-search-rows-carry-sponsor-and-dates
 
-Status: OPEN.
+Status: COMPLETE. Built and reviewed on the trial-fields branch with 0823; landed on main at b69a82ce1 (gate j37604).
 
 Milestone: 8
 

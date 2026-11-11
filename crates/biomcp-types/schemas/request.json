@@ -927,7 +927,7 @@
       "x-enum-descriptions": [
         " Intact criteria and structured age/sex fields.",
         " Primary, secondary and other outcome records.",
-        " Posted outcome values, analyses and adverse-event tables (ClinicalTrials.gov).",
+        " Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).",
         " Arms and interventions with original relationships.",
         " Whole source sites with their attached contacts.",
         " Central contacts and overall officials in their original roles.",
@@ -2700,6 +2700,18 @@
           ],
           "description": "Stored bundle revision.\nImmutable stored bundle revision retained by a continuation."
         },
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugRecallClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA recall class.\nNative enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.",
+          "x-required-component": "fda-device-recall"
+        },
         "command": {
           "const": "search-diagnostic",
           "type": "string"
@@ -3421,6 +3433,18 @@
       "additionalProperties": false,
       "description": "Search drugs and medicines by name or native label indication.",
       "properties": {
+        "applicant": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
+          "x-required-component": "drugsfda"
+        },
         "classification": {
           "anyOf": [
             {
@@ -3539,7 +3563,7 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges and label indication searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+          "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
           "x-positional": 0
         },
         "reason": {

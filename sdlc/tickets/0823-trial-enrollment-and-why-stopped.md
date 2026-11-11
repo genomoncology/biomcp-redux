@@ -1,6 +1,7 @@
 # 0823 — trial-enrollment-and-why-stopped
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 18a0e2cd5263fcb2fabdaeb3ee7b8c588154b3bc
 
 Milestone: 8
 

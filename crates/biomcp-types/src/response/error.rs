@@ -177,6 +177,8 @@ singleton! {
         VariantQueryPolicy => "raw --query cannot enforce disabled source component terms; use declared protein or region \
             selectors and named filters, or clear the component restriction",
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
+        DeviceRecallClassificationProductCode => "--classification selects device enforcement records, which carry no product code; \
+            drop --product-code, or drop --classification and read each returned row's classification",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
         TrialSince => "renamed; use: --updated-since",

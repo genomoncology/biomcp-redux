@@ -3,8 +3,8 @@ use crate::{
     mapped::{Mapped, field_text, push_problem, record},
     raw::Field,
 };
-use biodata::Text;
-use biomcp_types::{DeviceRecallCard, DeviceRecallHeader, Problem, Source};
+use biodata::{DeviceRecallNumber, Text};
+use biomcp_types::{DeviceRecallCard, DeviceRecallHeader, DiagnosticCandidate, Problem, Source};
 const SOURCE: Source = Source::FdaDeviceRecall;
 fn list(
     value: Option<Field<Vec<Field<Text>>>>,
@@ -90,5 +90,38 @@ pub(super) fn classification(row: raw::Enforcement) -> Mapped<Option<Text>> {
         refusals: crate::Refusal::None,
         value,
         problems,
+    }
+}
+/// The compact search header of one native recall record.
+pub(super) fn header(row: raw::Record, problems: &mut Vec<Problem>) -> DeviceRecallHeader {
+    let row = mapped(row);
+    problems.extend(row.problems);
+    row.value.header
+}
+/// An enforcement record without its recall record retains only the shared identity.
+pub(super) fn bare(recall_number: DeviceRecallNumber) -> DeviceRecallHeader {
+    DeviceRecallHeader {
+        recall_number,
+        event_number: None,
+        firm: None,
+        product_code: None,
+        status: None,
+        initiated: None,
+    }
+}
+/// One search row; a row without an enforcement record states no classification.
+pub(super) fn candidate(
+    header: DeviceRecallHeader,
+    class: Option<raw::Enforcement>,
+    problems: &mut Vec<Problem>,
+) -> DiagnosticCandidate {
+    let classification = class.and_then(|row| {
+        let row = classification(row);
+        problems.extend(row.problems);
+        row.value
+    });
+    DiagnosticCandidate::DeviceRecall {
+        header,
+        classification,
     }
 }

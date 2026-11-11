@@ -11,15 +11,45 @@ pub struct TrialPostedCard {
     /// First public posting date, distinct from submission and update dates.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub results_first_posted: Option<biodata::PartialDate>,
+    /// Registry enrollment, absent when the record carries no usable count.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub enrollment: Option<TrialEnrollment>,
+    /// Registry's own reason the study stopped early, absent when it gives none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub why_stopped: Option<Box<str>>,
 }
 
-/// Whole native records in outcome, adverse-event metadata, group, serious and other order.
+/// Registry enrollment count with the registry's own qualifier; never a derived number.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TrialEnrollment {
+    /// Participants enrolled or planned, as registered.
+    pub count: u64,
+    /// The registry's actual or estimated qualifier, the same pair it uses for dates.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<biodata::TrialDateKind>,
+}
+
+/// Whole native records: outcomes first, then participant flow, baseline, and
+/// adverse-event metadata, groups, serious and other terms.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "record", content = "data", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialResultRecord {
     /// Posted measure, including group denominators, values and analyses.
     Outcome(TrialPostedOutcome),
+    /// Recruitment and pre-assignment notes for the participant flow, when the registry posted any.
+    ParticipantFlow(crate::TrialParticipantFlow),
+    /// One participant-flow arm, named by the group IDs in the flow periods.
+    FlowGroup(TrialResultGroup),
+    /// One flow period: started, completed and not completed by arm, with reasons.
+    FlowPeriod(crate::TrialFlowPeriod),
+    /// Baseline analysis population and its participant counts by group.
+    Baseline(crate::TrialBaseline),
+    /// One baseline group, named by the group IDs in the baseline measures.
+    BaselineGroup(TrialResultGroup),
+    /// One baseline characteristic with its values by group.
+    BaselineMeasure(crate::TrialBaselineMeasure),
     /// Native adverse-event collection scope.
     AdverseEvents(TrialAdverseEvents),
     /// Native adverse-event group and reported counts.
