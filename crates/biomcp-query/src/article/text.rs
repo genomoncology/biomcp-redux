@@ -16,7 +16,9 @@ pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
     match query.clone().into_request() {
         Request::GetArticle(card) => super::get::get(cx, &card),
         Request::ArticleText(reader) => download(cx, &reader, false).out,
-        _ => crate::status::ready(ReplyData::Usage(biomcp_types::UsageError::arguments())),
+        _ => crate::status::ready(ReplyData::Usage(biomcp_types::UsageError::argument(
+            "input".into(),
+        ))),
     }
 }
 /// Obtain the whole document for an explicit binary-owned save.
@@ -33,7 +35,12 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleText, allow: bool) -> super::save::
         .with_query(query.clone()),
     );
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        let option = if query.variant().is_some() {
+            "--variant"
+        } else {
+            "--find"
+        };
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError(option));
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
@@ -276,7 +283,7 @@ fn position_error(query: &ArticleText, document: &pmc_oa::Document) -> biomcp_ty
                 .unwrap_or(0),
         }
     } else {
-        biomcp_types::UsageError::TextPositionError
+        biomcp_types::UsageError::TextPositionError("--offset")
     }
 }
 

@@ -81,6 +81,6 @@ fn missing_document(query: &TrialDocumentGet, out: &mut Outcome, incomplete_mani
         })
         .with_query(query.clone());
     } else {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("file"));
     }
 }

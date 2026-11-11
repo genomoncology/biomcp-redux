@@ -12,7 +12,10 @@ pub(crate) mod rewrite;
 pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
+mod positional;
+pub(crate) use positional::candidate;
 mod recovery;
+mod sections;
 mod tree;
 pub(crate) use tree::Root;
 mod validation;
@@ -501,8 +504,13 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         .iter()
         .find(|command| (command.verb, command.entity) == (verb, entity))
         .ok_or_else(ParseInvalid::default)?;
+    // A label read with a heading as a second section always fails; name the label section.
+    if let Some(invalid) = sections::label(verb, entity, &value) {
+        return Err(invalid);
+    }
     rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
-        errors::source_filter(command.via, verb, entity, &value, &cause)
+        sections::fix(verb, entity, &value)
+            .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause))
             .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))
     })
 }

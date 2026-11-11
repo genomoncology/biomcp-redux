@@ -113,7 +113,7 @@ fn search<'a>(
     if rejected && query.next_page().is_some() {
         continuation::rejected(query, &mut outcome);
     } else if generic_rejected {
-        outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        outcome.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("query"));
     }
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);

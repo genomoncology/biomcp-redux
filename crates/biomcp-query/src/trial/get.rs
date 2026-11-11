@@ -148,7 +148,7 @@ fn restore(
         return Err(CacheError::Internal.into());
     }
     if !page::valid(query, &snapshot) {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("--offset"));
         return Ok(());
     }
     let version = snapshot.version.clone();
