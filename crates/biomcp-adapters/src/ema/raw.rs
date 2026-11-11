@@ -104,9 +104,11 @@ impl Row for Referral {
     fn check_bundle(&self, rows: usize) -> Result<(), BadReply> {
         self.meta.check_bundle(rows)
     }
+    // EMA's live file repeats some reference numbers, such as EMEA/H/A-31/1337 with two
+    // decision dates, and the bundle store refuses a file whose Id keys repeat.
     fn keys(&self) -> Keys {
         Keys {
-            exact: vec![(KeyKind::Id, self.reference.as_str().into())],
+            exact: vec![(KeyKind::Xref, self.reference.as_str().into())],
             words: Vec::new(),
         }
     }

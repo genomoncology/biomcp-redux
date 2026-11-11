@@ -47,7 +47,7 @@ pub(super) fn decision(
         return Ok(None);
     }
     let reference = format!("EMA/{procedure}");
-    let (rows, _) = leg.stored_rows(&REFERRALS, Find::Exact(KeyKind::Id, &reference))?;
+    let (rows, _) = leg.stored_rows(&REFERRALS, Find::Exact(KeyKind::Xref, &reference))?;
     // SQLite indexes fold keys; the join still requires the published reference itself.
     let mut rows = rows.into_iter().filter(|row| row.reference == reference);
     let (Some(row), None) = (rows.next(), rows.next()) else {
