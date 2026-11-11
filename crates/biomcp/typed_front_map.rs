@@ -54,13 +54,28 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("search", "search_variant", ""),
             ("get", "get_variant", ""),
             ("normalize", "variant_normalize", "check and convert HGVS"),
-            ("assertions", "variant_assertions", "ClinVar or ClinGen classifications"),
-            ("population", "variant_population", "population allele frequencies"),
-            ("recurrence", "variant_recurrence", "how often it is seen in a cancer cohort"),
+            (
+                "assertions",
+                "variant_assertions",
+                "ClinVar or ClinGen classifications",
+            ),
+            (
+                "population",
+                "variant_population",
+                "population allele frequencies",
+            ),
+            (
+                "recurrence",
+                "variant_recurrence",
+                "how often it is seen in a cancer cohort",
+            ),
             ("gwas", "search_gwas", GWAS),
             ("gwas_get", "get_gwas", GWAS_GET),
         ],
-        [r#"{"gene":"BRAF","protein":"V600E"}"#, r#"{"id":"rs113488022"}"#],
+        [
+            r#"{"gene":"BRAF","protein":"V600E"}"#,
+            r#"{"id":"rs113488022"}"#,
+        ],
         "get takes an rsID, ClinVar ID or HGVS, not a name like BRAF V600E; search finds \
          those. Not for gene-level facts (use gene)",
     ),
@@ -85,7 +100,10 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("get", "get_drug", ""),
             ("pgx_get", "get_pgx", PGX_GET),
         ],
-        [r#"{"query":"imatinib"}"#, r#"{"id":"imatinib","section":"approvals"}"#],
+        [
+            r#"{"query":"imatinib"}"#,
+            r#"{"id":"imatinib","section":"approvals"}"#,
+        ],
         "approvals and label are sections of get, not actions; a label read also takes \
          label_section, such as boxed_warning. Not for side-effect reports (use \
          adverse_event) or trials (use trial)",
@@ -97,10 +115,26 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
         &[
             ("search", "search_trial", ""),
             ("get", "get_trial", ""),
-            ("document", "trial_document", "save a protocol or consent file"),
-            ("organization_search", "search_organization", "find a site or sponsor"),
-            ("biomarker_search", "search_biomarker", "find an NCI biomarker code"),
-            ("biomarker_get", "get_biomarker", "read an NCI biomarker code"),
+            (
+                "document",
+                "trial_document",
+                "save a protocol or consent file",
+            ),
+            (
+                "organization_search",
+                "search_organization",
+                "find a site or sponsor",
+            ),
+            (
+                "biomarker_search",
+                "search_biomarker",
+                "find an NCI biomarker code",
+            ),
+            (
+                "biomarker_get",
+                "get_biomarker",
+                "read an NCI biomarker code",
+            ),
         ],
         [
             r#"{"condition":"melanoma","intervention":"pembrolizumab"}"#,
@@ -117,7 +151,11 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("get", "get_article", ""),
             ("text", "article_text", "read the full text"),
             ("pdf", "article_pdf", "save the PDF"),
-            ("supplement", "article_supplement", "read a supplementary file"),
+            (
+                "supplement",
+                "article_supplement",
+                "read a supplementary file",
+            ),
             ("citations", "article_citations", "papers that cite it"),
             ("references", "article_references", "papers it cites"),
             (
@@ -125,12 +163,16 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
                 "article_citation_evidence",
                 "where one paper cites another",
             ),
-            ("recommendations", "article_recommendations", "related papers"),
+            (
+                "recommendations",
+                "article_recommendations",
+                "related papers",
+            ),
             ("author_search", "search_author", "find an author"),
             ("author_get", "get_author", "read an author"),
             ("author_papers", "author_papers", "an author's papers"),
         ],
-        [r#"{"query":"BRAF V600E melanoma resistance"}"#, r#"{"id":"22663011"}"#],
+        [r#"{"query":"AKT1 E17K"}"#, r#"{"id":"33123537"}"#],
         "Full text is the text action, not a get section. Not for trial registry records \
          (use trial)",
     ),
@@ -141,11 +183,19 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
         &[
             ("search", "search_protein", ""),
             ("get", "get_protein", ""),
-            ("features", "protein_features", "sites and regions by residue"),
+            (
+                "features",
+                "protein_features",
+                "sites and regions by residue",
+            ),
             ("isoforms", "protein_isoforms", "alternative products"),
             ("domains", "protein_domains", "domains and families"),
             ("complexes", "protein_complexes", "complexes it belongs to"),
-            ("complex_members", "protein_complex_members", "members of one complex"),
+            (
+                "complex_members",
+                "protein_complex_members",
+                "members of one complex",
+            ),
             ("structures", "protein_structures", "PDB structures"),
             ("sequence", "protein_sequence", "the amino-acid sequence"),
         ],
@@ -162,7 +212,10 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("genes", "pathway_genes", "member genes"),
             ("events", "pathway_events", "reactions and sub-pathways"),
         ],
-        [r#"{"query":"Signaling by EGFR"}"#, r#"{"id":"R-HSA-177929"}"#],
+        [
+            r#"{"query":"Signaling by EGFR"}"#,
+            r#"{"id":"R-HSA-177929"}"#,
+        ],
         "Not for one gene's function (use gene)",
     ),
     (
@@ -197,8 +250,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("get", "get_diagnostic", ""),
         ],
         [
-            r#"{"query":"FoundationOne","source":"fda-pma"}"#,
-            r#"{"id":"P170019","source":"fda-pma"}"#,
+            r#"{"query":"FoundationOne CDx","source":"fda-pma"}"#,
+            r#"{"id":"P170019","source":"fda-pma","section":"summary"}"#,
         ],
         "source is required on both. Not for test results in papers (use article)",
     ),

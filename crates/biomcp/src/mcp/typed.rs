@@ -231,15 +231,23 @@ fn command_call(
     let input = arguments::input(&schema);
     let forms = forms::forms(verb, &schema);
     let mut values = values.clone();
-    let refused = forms::normalize(&mut values, &forms, &input).err().or_else(|| {
-        (!validation::valid(&input, &values)).then(|| forms::Refused {
-            argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
-            valid: refusal::names(&input, &forms),
-        })
-    });
+    let refused = forms::normalize(&mut values, &forms, &input)
+        .err()
+        .or_else(|| {
+            (!validation::valid(&input, &values)).then(|| forms::Refused {
+                argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
+                valid: refusal::names(&input, &forms),
+            })
+        });
     if let Some(refused) = refused {
         let error = refusal::arguments(&refused, &["help", verb, entity])?;
-        let args = arguments::cli(root, verb, entity, &schema, &refusal::known(&input, &values))?;
+        let args = arguments::cli(
+            root,
+            verb,
+            entity,
+            &schema,
+            &refusal::known(&input, &values),
+        )?;
         return Some(Err(Rejected {
             error,
             args,

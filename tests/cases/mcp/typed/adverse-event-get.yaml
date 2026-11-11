@@ -1,0 +1,125 @@
+{
+  "live_check": "offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "The adverse_event tool's get example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. No retained reply covers this example, so every step is an offline parser check.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "27325180"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "27325180",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "27325180"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "27325180",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "27325180"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "27325180",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "27325180"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "27325180",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "27325180",
+            "section": "reactions"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "27325180",
+        "/query/section": "reactions",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "27325180"
+            ],
+            "sections": [
+              "reactions"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "27325180",
+        "/query/section": "reactions",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

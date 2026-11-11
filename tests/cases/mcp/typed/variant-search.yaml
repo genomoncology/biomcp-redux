@@ -1,0 +1,30 @@
+{
+  "live_check": "offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "The variant tool's search example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. No retained reply covers this example, so every step is an offline parser check.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "gene": "BRAF",
+            "protein": "V600E"
+          }
+        }
+      },
+      "expect": {
+        "/query/gene": "BRAF",
+        "/query/protein": "V600E",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

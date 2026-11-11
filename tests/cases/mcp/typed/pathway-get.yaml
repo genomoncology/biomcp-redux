@@ -1,0 +1,141 @@
+{
+  "live_check": "retained replay for the first step, then offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "The pathway tool's get example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. The example call is answered from a retained reply.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "R-HSA-177929"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "R-HSA-177929"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "R-HSA-177929"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "R-HSA-177929"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "R-HSA-177929"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "R-HSA-177929",
+            "section": "genes"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/query/section": "genes",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "R-HSA-177929"
+            ],
+            "sections": [
+              "genes"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/query/section": "genes",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ],
+  "replay": "pathway/native"
+}

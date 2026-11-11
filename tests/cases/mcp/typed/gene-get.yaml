@@ -1,0 +1,159 @@
+{
+  "live_check": "retained replay for the first step, then offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "The gene tool's get example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. The example call is answered from a retained reply.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "BRAF"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "BRAF"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "BRAF"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "BRAF",
+            "section": "pathways"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/query/section": [
+          "pathways"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "BRAF"
+            ],
+            "sections": [
+              "pathways"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "BRAF"
+        ],
+        "/query/section": [
+          "pathways"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ],
+  "replay": "gene/main"
+}

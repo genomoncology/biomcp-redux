@@ -1,0 +1,64 @@
+{
+  "live_check": "offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "The drug tool's search example from its description passes the advertised schema and reaches its command, and the argument names agents guess reach the same query. No retained reply covers this example, so every step is an offline parser check.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "imatinib"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "imatinib"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "imatinib"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}
