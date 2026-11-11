@@ -41,7 +41,7 @@
         "/result/items/0/sections/results/data/items/0/data/title": "Confirmed Objective Response Rate (ORR) by Blinded Independent Central Review (BICR) - Cohort A Only",
         "/result/items/0/sections/results/data/continuation/offset": 4
       },
-      "max_bytes": 20000
+      "max_bytes": 11276
     },
     {
       "follow": "page",
@@ -358,7 +358,7 @@
         },
         "/result/items/0/sections/results/data/continuation/offset": 19
       },
-      "max_bytes": 20000
+      "max_bytes": 12221
     }
   ],
   "harvest": "biomed-agent-bench navigator and trial-ops personas: dropout numbers"

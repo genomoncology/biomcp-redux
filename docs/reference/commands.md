@@ -3336,7 +3336,7 @@ Optional intact source sections. Default cards only; diseases and summary requir
 
 - `eligibility`: Intact criteria and structured age/sex fields.
 - `outcomes`: Primary, secondary and other outcome records.
-- `results`: Posted participant flow, baseline, outcome values, analyses and adverse-event tables (ClinicalTrials.gov).
+- `results`: Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
 - `arms`: Arms and interventions with original relationships.
 - `locations`: Whole source sites with their attached contacts.
 - `contacts`: Central contacts and overall officials in their original roles.

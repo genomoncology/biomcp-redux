@@ -3987,8 +3987,25 @@
       "type": "object"
     },
     "Reply_TrialResultRecord": {
-      "description": "Whole native records in registry order: participant flow, baseline, outcomes, then\nadverse-event metadata, groups, serious and other terms.",
+      "description": "Whole native records: outcomes first, then participant flow, baseline, and\nadverse-event metadata, groups, serious and other terms.",
       "oneOf": [
+        {
+          "description": "Posted measure, including group denominators, values and analyses.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialPostedOutcome"
+            },
+            "record": {
+              "const": "outcome",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
         {
           "description": "Recruitment and pre-assignment notes for the participant flow, when the registry posted any.",
           "properties": {
@@ -4092,23 +4109,6 @@
           "type": "object"
         },
         {
-          "description": "Posted measure, including group denominators, values and analyses.",
-          "properties": {
-            "data": {
-              "$ref": "#/$defs/Reply_TrialPostedOutcome"
-            },
-            "record": {
-              "const": "outcome",
-              "type": "string"
-            }
-          },
-          "required": [
-            "record",
-            "data"
-          ],
-          "type": "object"
-        },
-        {
           "description": "Native adverse-event collection scope.",
           "properties": {
             "data": {
@@ -4197,7 +4197,7 @@
       "x-enum-descriptions": [
         " Intact criteria and structured age/sex fields.",
         " Primary, secondary and other outcome records.",
-        " Posted participant flow, baseline, outcome values, analyses and adverse-event tables (ClinicalTrials.gov).",
+        " Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).",
         " Arms and interventions with original relationships.",
         " Whole source sites with their attached contacts.",
         " Central contacts and overall officials in their original roles.",
@@ -4297,7 +4297,7 @@
               "type": "null"
             }
           ],
-          "description": "Posted participant flow, baseline, outcomes and adverse events, in source order."
+          "description": "Posted outcomes, then participant flow, baseline and adverse events; each collection in source order."
         }
       },
       "type": "object"
