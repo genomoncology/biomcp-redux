@@ -44,6 +44,10 @@ pub struct Detail {
     pub results: Box<[biomcp_types::TrialResultRecord]>,
     /// Results first publicly posted date from the protocol status.
     pub results_first_posted: Option<biodata::PartialDate>,
+    /// Registered enrollment count and qualifier from the design module.
+    pub enrollment: Option<biomcp_types::TrialEnrollment>,
+    /// Registry's reason the study stopped early, from the protocol status.
+    pub why_stopped: Option<Box<str>>,
     /// Actual refused native records, including refused document manifest records.
     #[serde(default = "super::refusals::none", with = "super::refusals")]
     pub refusals: crate::Refusal,
@@ -126,14 +130,16 @@ struct Identification {
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
+    why_stopped: Option<Field<Box<str>>>,
     results_first_post_date_struct: Option<Field<RawDate>>,
     last_update_post_date_struct: Option<Field<RawDate>>,
     start_date_struct: Option<Field<RawDate>>,
     primary_completion_date_struct: Option<Field<RawDate>>,
     completion_date_struct: Option<Field<RawDate>>,
 }
+/// Registry date struct shared by the record and the search row projections.
 #[derive(Deserialize)]
-struct RawDate {
+pub(in crate::ctgov) struct RawDate {
     date: Option<Field<biodata::PartialDate>>,
     #[serde(rename = "type")]
     kind: Option<Field<biodata::TrialDateKind>>,
@@ -144,6 +150,20 @@ struct RawDate {
 struct Design {
     study_type: Option<Field<StudyType>>,
     phases: Option<Field<Vec<Field<TrialPhase>>>>,
+    enrollment_info: Option<Field<Enrollment>>,
+}
+#[derive(Deserialize)]
+struct Enrollment {
+    count: Option<Field<u64>>,
+    #[serde(rename = "type")]
+    kind: Option<Field<biomcp_types::TrialEnrollmentKind>>,
+}
+/// Protocol facts shown beside the card that its shared type does not hold.
+#[derive(Default)]
+struct Posted {
+    results_first_posted: Option<biodata::PartialDate>,
+    enrollment: Option<biomcp_types::TrialEnrollment>,
+    why_stopped: Option<Box<str>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -236,11 +256,13 @@ impl Protocol {
                 || (Box::default(), Box::default(), Box::default()),
                 |sites| sites.rows(&mut problems, &mut refusals),
             );
-        let mut results_first_posted = None;
-        let card = self.card(&interventions, &mut problems, &mut results_first_posted);
+        let mut posted = Posted::default();
+        let card = self.card(&interventions, &mut problems, &mut posted);
         Detail {
             results: Box::default(),
-            results_first_posted,
+            results_first_posted: posted.results_first_posted,
+            enrollment: posted.enrollment,
+            why_stopped: posted.why_stopped,
             references: problems
                 .field("referencesModule", self.references_module)
                 .map_or_else(Box::default, |r| r.rows(&mut problems, &mut refusals)),
@@ -266,20 +288,24 @@ impl Protocol {
         &mut self,
         interventions: &[TrialIntervention],
         problems: &mut Problems,
-        results_first_posted: &mut Option<biodata::PartialDate>,
+        posted: &mut Posted,
     ) -> TrialCard {
         let status = problems
             .field("statusModule", self.status_module.take())
             .unwrap_or_default();
-        *results_first_posted = RawDate::field(
+        posted.results_first_posted = RawDate::field(
             "resultsFirstPostDateStruct",
             status.results_first_post_date_struct,
             problems,
         )
         .map(|d| d.date);
+        posted.why_stopped = why_stopped(status.why_stopped, problems);
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();
+        posted.enrollment = problems
+            .field("enrollmentInfo", design.enrollment_info)
+            .and_then(|e| e.mapped(problems));
         let updated = RawDate::field(
             "lastUpdatePostDateStruct",
             status.last_update_post_date_struct,
@@ -330,6 +356,24 @@ impl Protocol {
                 .and_then(|d| problems.field("briefSummary", d.brief_summary)),
         }
     }
+}
+impl Enrollment {
+    /// A qualifier without a count says nothing, so the count is required.
+    fn mapped(self, problems: &mut Problems) -> Option<biomcp_types::TrialEnrollment> {
+        let count = problems.required_field("enrollmentInfo.count", self.count)?;
+        Some(biomcp_types::TrialEnrollment {
+            count,
+            kind: problems.field("enrollmentInfo.type", self.kind),
+        })
+    }
+}
+/// The registry escapes this plain sentence as Markdown; readers get the sentence.
+fn why_stopped(value: Option<Field<Box<str>>>, problems: &mut Problems) -> Option<Box<str>> {
+    let escaped = problems.field("whyStopped", value)?;
+    let plain = crate::source_text::unescape_markdown(&escaped);
+    problems
+        .text("whyStopped", Some(plain.as_ref()))
+        .map(|text| text.as_str().into())
 }
 impl Sponsor {
     fn name(self, problems: &mut Problems) -> Option<Box<str>> {

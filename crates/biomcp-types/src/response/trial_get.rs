@@ -17,7 +17,7 @@ pub struct TrialCards {
     pub attribution: Box<str>,
 }
 impl super::ResponseBody for TrialCards {
-    const SCHEMA: &'static str = "biomcp.trial-cards/9";
+    const SCHEMA: &'static str = "biomcp.trial-cards/10";
     type Query = crate::TrialGet;
 }
 /// Result for one exact requested NCT identity.
@@ -63,7 +63,7 @@ pub struct TrialSections {
     /// Whole registered outcomes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub outcomes: Option<Section<TrialRecords<TrialOutcome>>>,
-    /// Posted results, followed by adverse-event groups and terms, in source order.
+    /// Posted participant flow, baseline, outcomes and adverse events, in source order.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub results: Option<Section<TrialRecords<crate::TrialResultRecord>>>,
     /// Whole source arm and intervention records.

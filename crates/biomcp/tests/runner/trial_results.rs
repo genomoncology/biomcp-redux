@@ -104,6 +104,19 @@ fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     {
         return Err("a Markdown escape reached posted result text".into());
     }
+    let of = |record: &str| -> Vec<_> {
+        rows.iter()
+            .filter(|r| r["record"] == record)
+            .map(|r| r["data"].clone())
+            .collect()
+    };
+    if json!(of("flow-period")) != native["participantFlowModule"]["periods"]
+        || json!(of("flow-group")) != native["participantFlowModule"]["groups"]
+        || json!(of("baseline-measure")) != native["baselineCharacteristicsModule"]["measures"]
+        || json!(of("baseline-group")) != native["baselineCharacteristicsModule"]["groups"]
+    {
+        return Err("participant flow or baseline record was lost, reordered or changed".into());
+    }
     if json!(outcomes) != native["outcomeMeasuresModule"]["outcomeMeasures"]
         || json!(serious) != native["adverseEventsModule"]["seriousEvents"]
         || json!(other) != native["adverseEventsModule"]["otherEvents"]
@@ -113,9 +126,12 @@ fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     Ok(())
 }
 fn posted_primary(first: &Value) -> Check {
-    let primary = &first["result"]["items"][0]["sections"]["results"]["data"]["items"][0];
-    if primary["record"] != "outcome"
-        || primary["data"]["title"] != "Progression Free Survival (PFS)"
+    // Participant flow and baseline precede the outcomes, as they do in the registry record.
+    let primary = first["result"]["items"][0]["sections"]["results"]["data"]["items"]
+        .as_array()
+        .and_then(|rows| rows.iter().find(|row| row["record"] == "outcome"))
+        .ok_or("first page holds no posted outcome")?;
+    if primary["data"]["title"] != "Progression Free Survival (PFS)"
         || primary["data"]["paramType"] != "MEDIAN"
         || primary["data"]["dispersionType"] != "95% Confidence Interval"
         || primary["data"]["unitOfMeasure"] != "months"

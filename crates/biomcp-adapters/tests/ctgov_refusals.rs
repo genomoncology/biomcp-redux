@@ -148,7 +148,7 @@ fn snapshot_facts_round_trip_and_legacy_fields_default_to_none() -> Check {
 fn search_refusals_preserve_native_continuation_and_retained_studies() -> Check {
     let params: BTreeMap<String, String> = [
         ("countTotal", "true"),
-        ("fields", "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults"),
+        ("fields", "NCTId,BriefTitle,OverallStatus,Phase,Condition,InterventionName,LastUpdatePostDate,HasResults,LeadSponsorName,StartDate,StartDateType,PrimaryCompletionDate,PrimaryCompletionDateType"),
         ("pageSize", "1"),
         ("query.cond", "(melanoma)"),
     ].map(|(k,v)| (k.into(),v.into())).into();

@@ -6,6 +6,7 @@ use crate::{
 use biodata::{NctId, PartialDate, Text, TrialPhase, TrialStatus};
 use biomcp_types::Source;
 
+use super::detail::RawDate;
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::TrialHeader;
 use serde::Deserialize;
@@ -81,6 +82,7 @@ pub(super) struct Protocol {
     identification_module: Identification,
     status_module: Option<Field<Status>>,
     design_module: Option<Field<Design>>,
+    sponsor_collaborators_module: Option<Field<Sponsor>>,
     conditions_module: Option<Field<Conditions>>,
     arms_interventions_module: Option<Field<Interventions>>,
     contacts_locations_module: Option<Field<CountryLocations>>,
@@ -93,11 +95,22 @@ struct Identification {
     nct_id: NctId,
     brief_title: Option<Field<Text>>,
 }
-#[derive(Deserialize)]
+#[derive(Default, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
+    start_date_struct: Option<Field<RawDate>>,
+    primary_completion_date_struct: Option<Field<RawDate>>,
     last_update_post_date_struct: Option<Field<Updated>>,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Sponsor {
+    lead_sponsor: Option<Field<SponsorName>>,
+}
+#[derive(Deserialize)]
+struct SponsorName {
+    name: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 struct Updated {
@@ -177,24 +190,31 @@ impl Protocol {
             record: crate::mapped::record(self.identification_module.nct_id),
             list: Vec::new(),
         };
-        let status = problems.field("statusModule", self.status_module);
-        let (status, updated) = if let Some(status) = status {
-            let overall = problems.field("overallStatus", status.overall_status);
-            let overall = problems.required("overallStatus", overall);
-            let updated = problems
-                .field(
-                    "lastUpdatePostDateStruct",
-                    status.last_update_post_date_struct,
-                )
-                .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
-            let updated = problems.required("lastUpdatePostDateStruct.date", updated);
-            (overall, updated)
-        } else {
-            (
-                problems.required("overallStatus", None),
-                problems.required("lastUpdatePostDateStruct.date", None),
+        // A row without its status module reports the same two required fields as an empty one.
+        let status = problems
+            .field("statusModule", self.status_module)
+            .unwrap_or_default();
+        let overall = problems.required_field("overallStatus", status.overall_status);
+        let updated = problems
+            .field(
+                "lastUpdatePostDateStruct",
+                status.last_update_post_date_struct,
             )
-        };
+            .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
+        let updated = problems.required("lastUpdatePostDateStruct.date", updated);
+        let start = RawDate::field("startDateStruct", status.start_date_struct, &mut problems);
+        let primary_completion = RawDate::field(
+            "primaryCompletionDateStruct",
+            status.primary_completion_date_struct,
+            &mut problems,
+        );
+        let sponsor = problems
+            .field(
+                "sponsorCollaboratorsModule",
+                self.sponsor_collaborators_module,
+            )
+            .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
+            .and_then(|s| problems.field("leadSponsor.name", s.name));
         let phases = problems
             .field("designModule", self.design_module)
             .map_or_else(Box::default, |d| problems.fields("phases", d.phases));
@@ -206,7 +226,7 @@ impl Protocol {
             ))
             .map_err(|_| BadReply)?,
             title: problems.required_field("briefTitle", self.identification_module.brief_title),
-            status,
+            status: overall,
             phases,
             conditions: names(
                 problems
@@ -231,6 +251,9 @@ impl Protocol {
                     .filter_map(|v| problems.field("interventions.name", v.name))
                     .collect(),
             ),
+            sponsor,
+            start,
+            primary_completion,
             updated,
         };
         Ok(Mapped {
