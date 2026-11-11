@@ -96,7 +96,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     biomarker: Option<Text>,
-    #[doc = "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell."]
+    #[doc = "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
     marker: Option<Text>,

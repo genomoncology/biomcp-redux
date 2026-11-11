@@ -993,7 +993,7 @@ Options:
 
       --marker <marker>
           WHO marker phrase.
-          Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell.
+          Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year.
 
       --name <name>
           Native device name.
@@ -1050,7 +1050,7 @@ Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: stri
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--marker`: WHO marker phrase.
-Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. Value form: string. Example: --marker hIv. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker hIv. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--name`: Source device name.
 Source trade_name (PMA) or device_name (510(k)) phrase. Value form: string. Example: --name 'FoundationOne CDx'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
@@ -1802,7 +1802,7 @@ Options:
 
       --has-results[=<has_results>]
           Posted results.
-          ClinicalTrials.gov only: require posted source results.
+          ClinicalTrials.gov only: require posted source results. Each row carries has_results.
 
           [default: false]
           [possible values: true, false]
@@ -1918,7 +1918,7 @@ Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI match
 - `--gene`: Gene symbol/ID.
 ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string. Example: --gene BRAF. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--has-results`: Posted results.
-ClinicalTrials.gov only: require posted source results. Value form: boolean. Example: --has-results. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: require posted source results. Each row carries has_results. Value form: boolean. Example: --has-results. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--id`: NCT identifier.
 ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters. Value form: string. Example: --id NCT05273554. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--intervention`: Treatment terms; OR.

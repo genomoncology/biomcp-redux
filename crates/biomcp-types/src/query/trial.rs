@@ -246,7 +246,7 @@ struct Fields {
     #[doc = "Total.\nSource total only; no returned study rows."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     count_only: bool,
-    #[doc = "Posted results.\nClinicalTrials.gov only: require posted source results."]
+    #[doc = "Posted results.\nClinicalTrials.gov only: require posted source results. Each row carries has_results."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     has_results: bool,
     #[doc = "Page size.\nHeaders per page; NCI applies its own lower publisher limit."]

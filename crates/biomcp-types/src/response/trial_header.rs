@@ -28,6 +28,9 @@ pub struct TrialHeader {
     /// Source primary completion date with its qualifier, when present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub primary_completion: Option<biodata::TrialDate>,
+    /// Whether the registry has posted results, absent when the row carries no flag.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub has_results: Option<bool>,
     /// Last posted registry update, absent when missing or rejected.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated: Option<PartialDate>,

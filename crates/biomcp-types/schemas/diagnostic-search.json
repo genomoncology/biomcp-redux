@@ -256,7 +256,7 @@
           "type": "null"
         }
       ],
-      "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell.",
+      "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year.",
       "x-required-component": "who-ivd"
     },
     "name": {

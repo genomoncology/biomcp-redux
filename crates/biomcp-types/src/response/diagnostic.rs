@@ -70,6 +70,8 @@ pub enum DiagnosticCandidate {
         manufacturer: Box<str>,
         /// Unmodified marker cell.
         marker: Box<str>,
+        /// Unmodified prequalification year cell from the same row.
+        prequalification_year: Box<str>,
     },
     /// One resolved native identity.
     Resolved {
