@@ -48,7 +48,7 @@
             "| Opinion adopted |  | opinion\\_adopted\\_date |",
             "| 2026-05-28 | latest\\_procedure\\_affecting\\_product\\_information\\_date |",
             "| 2022-01-06 | marketing\\_authorisation\\_date |",
-            "No European Commission decision date is reported."
+            "| request-guidance | No European Commission decision date is reported&#46; The date reported as latest\\_procedure\\_affecting\\_product\\_information\\_date"
           ]
         }
       }
