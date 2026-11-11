@@ -283,7 +283,6 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(cache_admission::trials());
     trials.extend(corporate::trials());
     trials.extend(drug_identity::trials());
-    trials.extend(drug_name_load::trials());
     trials.extend(source_queries::trials());
     trials.extend(key_registration::trials());
     trials.extend(pdf::trials());
@@ -349,6 +348,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(trial_binding::trials());
     trials.extend(author_pools::trials());
     trials.extend(faers_names::trials());
+    trials.extend(drug_name_load::trials());
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials

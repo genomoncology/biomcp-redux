@@ -90,9 +90,8 @@ fn search<'a>(
     }
     {
         let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
-        let answered = result.is_ok();
-        let unavailable = answered && (missing || earlier);
-        crate::status::item(&mut outcome, answered, !answered, unavailable);
+        let (found, identity_failed, unavailable) = item_state(earlier, result.is_ok(), missing);
+        crate::status::item(&mut outcome, found, identity_failed, unavailable);
     };
     if let Ok(page) = result {
         if page.condition_word_mismatch {
@@ -119,6 +118,10 @@ fn search<'a>(
     outcome.local = error.and_then(status::local);
     outcome.sources.push(source);
     outcome
+}
+/// The found, identity-failed and unavailable states, counting earlier source outcomes.
+fn item_state(earlier: bool, answered: bool, missing: bool) -> (bool, bool, bool) {
+    (answered, !answered, answered && (missing || earlier))
 }
 /// Say the registry searched only the typed terms after refusing the expanded names.
 fn retract_names(
