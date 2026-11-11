@@ -36,13 +36,7 @@ pub(super) fn render(value: &Value, out: &mut String) {
         out.push_str(&format!(
             "# biomcp {}\n\n{}\n\n",
             escape(&path),
-            command["description"]
-                .as_str()
-                .unwrap_or_default()
-                .lines()
-                .map(escape)
-                .collect::<Vec<_>>()
-                .join("\n\n")
+            body(command, &path)
         ));
         if let Some(schemas) = command["reply_schemas"]
             .as_array()
@@ -82,6 +76,34 @@ pub(super) fn render(value: &Value, out: &mut String) {
             }
         }
     }
+}
+
+/// A help topic holds commands and typed calls to copy, so it stays verbatim in a fence.
+fn body(command: &Value, path: &str) -> String {
+    let description = command["description"].as_str().unwrap_or_default();
+    let topic = path.starts_with("help ")
+        && ["arguments", "sections", "examples"]
+            .iter()
+            .all(|key| command[*key].as_array().is_none_or(Vec::is_empty));
+    if !topic {
+        return description
+            .lines()
+            .map(escape)
+            .collect::<Vec<_>>()
+            .join("\n\n");
+    }
+    let longest = description
+        .split(|c| c != '`')
+        .map(str::len)
+        .max()
+        .unwrap_or(0);
+    let fence = "`".repeat(longest.max(2) + 1);
+    let text = description
+        .lines()
+        .map(super::controls)
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!("{fence}text\n{text}\n{fence}")
 }
 
 fn escape(text: &str) -> String {

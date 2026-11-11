@@ -10,6 +10,8 @@ mod queue;
 mod research;
 mod rpc;
 mod typed;
+/// Each use case's worked example with the typed call this server derives from its command.
+pub(crate) use typed::example_calls;
 mod worker;
 
 use framing::Frame;

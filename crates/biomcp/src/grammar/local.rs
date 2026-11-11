@@ -91,6 +91,10 @@ pub(super) fn help_command(root: &Command) -> Command {
     .subcommand(Command::new("sources"))
     .subcommand(Command::new("config"))
     .subcommand(Command::new("exit").about("Explain process exit and error codes."))
+    .subcommand(Command::new("questions").about("List every command by the question it answers."))
+    .subcommand(
+        Command::new("examples").about("Show each use case's first call in CLI and typed form."),
+    )
     .subcommand(
         Command::new("relations").about("Map entities through sections and search filters."),
     )

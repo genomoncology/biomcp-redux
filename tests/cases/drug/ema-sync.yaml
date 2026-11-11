@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "drug-ema",
-  "story": "Explicit EMA synchronization imports a complete synthetic file and can explicitly refresh it.",
+  "story": "Explicit EMA synchronization imports a complete synthetic medicines file and a one-row referrals file and can explicitly refresh them.",
   "replay": "drug/ema-synthetic",
   "steps": [
     {
@@ -14,8 +14,8 @@
         "/schema": "biomcp.sync/7",
         "/status": "complete",
         "/query/source": "ema",
-        "/result/rows": 6,
-        "/result/bytes": 1776,
+        "/result/rows": 7,
+        "/result/bytes": 2756,
         "/result/downloaded_bytes": 0
       }
     },
@@ -30,8 +30,8 @@
         "/schema": "biomcp.sync/7",
         "/status": "complete",
         "/query/source": "ema",
-        "/result/rows": 6,
-        "/result/bytes": 1776,
+        "/result/rows": 7,
+        "/result/bytes": 2756,
         "/result/downloaded_bytes": 0
       }
     }

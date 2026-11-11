@@ -1,6 +1,7 @@
 # 0848 — gate-runs-docs-checks-on-a-pinned-python
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: d1ce11fb3a1dbd0ae84866039d085cdc77e9994d
 
 Milestone: 7
 

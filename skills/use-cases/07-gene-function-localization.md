@@ -10,6 +10,8 @@ Which protein record and annotated features can I inspect for EGFR?
 biomcp get protein EGFR
 ```
 
+Typed tool: `protein` `{"action":"get","get":{"id":["EGFR"]}}`.
+
 Inspect the gene match and returned protein accession. If the reply lists candidates, resolve the identity before selecting a protein.
 
 ## 2. Retrieve and inspect

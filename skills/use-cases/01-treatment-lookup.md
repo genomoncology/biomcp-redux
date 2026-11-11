@@ -10,6 +10,8 @@ Which articles match the stated KRAS G12C and sotorasib question?
 biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5
 ```
 
+Typed tool: `article` `{"action":"search","search":{"query":"KRAS G12C sotorasib","since":"2024","sort":"date","limit":5}}`.
+
 Read the echoed query, publication dates, titles and source outcomes. The date selector can match either electronic or print dates. Keep the returned publication identifiers.
 
 ## 2. Retrieve and inspect

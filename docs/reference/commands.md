@@ -6273,6 +6273,8 @@ Commands:
   sources
   config
   exit               Explain process exit and error codes.
+  questions          List every command by the question it answers.
+  examples           Show each use case's first call in CLI and typed form.
   relations          Map entities through sections and search filters.
 
 Options:
@@ -11714,6 +11716,86 @@ Process exit codes:
 4: source request failed
 5: local configuration, storage or output failed
 Error codes: usage.schema, usage.arguments, usage.mcp_unavailable, usage.unknown_command, usage.retired, local.failure, pool.expired, usage.pool_mismatch, usage.too_many_pmids, usage.too_broad, usage.unsupported_filter. Source problems and reasons appear in their reply fields.
+
+
+## biomcp help questions
+
+```text
+List every command by the question it answers.
+
+Usage: biomcp help questions [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+List every command by the question it answers.
+
+
+## biomcp help examples
+
+```text
+Show each use case's first call in CLI and typed form.
+
+Usage: biomcp help examples [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Show each use case's first call in CLI and typed form.
 
 
 ## biomcp help relations

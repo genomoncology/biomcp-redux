@@ -1,6 +1,7 @@
 # 0836 — command-map-and-examples-in-first-read
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1466a308ce2a9a66f259a08e3403306ed76c7f7d
 
 Milestone: 7
 
