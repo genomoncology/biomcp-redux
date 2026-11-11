@@ -106,9 +106,10 @@ fn discover(
     let selector = scoped(format!("indications_and_usage:{}", literal(name.as_str())));
     let found = candidates(leg, &selector, limit, offset)?;
     if found.window.total().is_some_and(|total| total > 0) {
-        *free_text = Some(selector.parse().map_err(|_| {
-            biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
-        })?);
+        *free_text =
+            Some(selector.parse().map_err(|_| {
+                biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
+            })?);
         return Ok(found);
     }
     let selector = literal(name.as_str());
