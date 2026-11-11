@@ -4,6 +4,7 @@ mod argument_details;
 #[path = "../coverage.rs"]
 pub(crate) mod coverage;
 mod discovery;
+mod guide;
 pub(crate) use discovery::relations;
 pub(crate) const FRONT_MAP: &str = include_str!(concat!(env!("OUT_DIR"), "/front-map.txt"));
 mod schema_fields;
@@ -27,6 +28,12 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
             }
         }
         return Ok(help);
+    }
+    if path == ["questions"] {
+        return Ok(guide::questions());
+    }
+    if path == ["examples"] {
+        return guide::examples(root);
     }
     if let [topic] = path
         && matches!(topic.as_str(), "sources" | "config")
@@ -69,6 +76,11 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
             command.section_rule = None;
         }
         compact(&mut commands);
+        if let Some(entity) = path.first()
+            && let Some(page) = guide::tool_page(root, entity)?
+        {
+            commands.insert(0, page);
+        }
     } else if !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }

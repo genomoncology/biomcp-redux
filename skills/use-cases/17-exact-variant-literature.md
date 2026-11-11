@@ -10,6 +10,8 @@ Which publications match the stated AKT1 E17K literature query?
 biomcp search article 'AKT1 E17K'
 ```
 
+Typed tool: `article` `{"action":"search","search":{"query":"AKT1 E17K"}}`.
+
 Read the echoed query, titles, source outcomes and problems. Search candidates require inspection for gene, variant and study context.
 
 ## 2. Retrieve and inspect

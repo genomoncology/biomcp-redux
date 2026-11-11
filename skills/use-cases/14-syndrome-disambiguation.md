@@ -10,6 +10,8 @@ How do I avoid silently selecting one gene from an ambiguous alias?
 biomcp get gene p16
 ```
 
+Typed tool: `gene` `{"action":"get","get":{"id":["p16"]}}`.
+
 Read the ambiguous resolution and all candidate HGNC identifiers. Preserve the source match kind and candidate names.
 
 ## 2. Retrieve and inspect

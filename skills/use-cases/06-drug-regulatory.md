@@ -10,6 +10,8 @@ What regulatory fields belong to the exact EMA record I requested?
 biomcp get drug EMEA/H/C/000406 --source ema
 ```
 
+Typed tool: `drug` `{"action":"get","get":{"id":"EMEA/H/C/000406","source":"ema"}}`.
+
 Inspect the exact application identifier, product name and available sections. A source record identifier is distinct from a molecular identity.
 
 ## 2. Retrieve and inspect

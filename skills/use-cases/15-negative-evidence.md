@@ -10,6 +10,8 @@ What does an empty or inapplicable source section actually report?
 biomcp get gene MIR21 expression
 ```
 
+Typed tool: `gene` `{"action":"get","get":{"id":["MIR21"],"section":["expression"]}}`.
+
 Read the resolved gene and expression section state, source outcomes and problems. An empty section reports no returned rows for this source and request.
 
 ## 2. Retrieve and inspect

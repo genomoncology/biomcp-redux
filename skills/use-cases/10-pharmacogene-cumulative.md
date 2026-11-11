@@ -10,6 +10,8 @@ How do I inspect gene and diplotype source records without calculating a phenoty
 biomcp search pgx --gene DPYD --source cpic
 ```
 
+Typed tool: `gene` `{"action":"pgx","pgx":{"gene":"DPYD","source":"cpic"}}`.
+
 Read the source’s returned gene and drug rows and identifiers.
 
 ## 2. Retrieve and inspect

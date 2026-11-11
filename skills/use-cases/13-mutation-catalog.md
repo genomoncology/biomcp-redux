@@ -10,6 +10,8 @@ Which source variant records overlap this stated region and assembly?
 biomcp search variant --region chr7:55259515-55259515 --build GRCh37 --limit 2
 ```
 
+Typed tool: `variant` `{"action":"search","search":{"region":"chr7:55259515-55259515","build":"GRCh37","limit":2}}`.
+
 Read the echoed one-based inclusive region and assembly, source query and every candidate representation. Different alternate alleles can share an rsID.
 
 ## Next

@@ -58,7 +58,7 @@ Delivers: an agent reaches a right answer through BioMCP with fewer tokens and f
 
 Serves: the 2026-11-11 decision, and the paper's claim.
 
-Done when: on the bench's baseline questions, each BioMCP mode uses at least 20% fewer total tokens than plain curl with no fewer questions right, on both models, across repeats.
+Done when: its open tickets have landed. The earlier bar, at least 20% fewer total tokens than plain curl on the baseline questions, no longer gates 1.0 (`decisions/2026-11-11-stop-the-token-race-with-curl.md`); the Amazon Quick-shaped bench round (bench 0035) reports where BioMCP stands for chat clients.
 
 Ordered by the 1.0 baseline (`biomed-agent-bench/results/baseline-1.0.md`) and the 2026-11-11 decision that this is 1.0 work. Amazon Quick's launch in late November sets the date for the typed-tool fixes.
 

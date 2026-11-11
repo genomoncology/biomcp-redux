@@ -22,17 +22,17 @@ fn cli(env: &Environment, args: &[&str]) -> Check<(Option<i32>, Value)> {
     Ok((output.status.code(), reply))
 }
 
-// Reads the installed skill the way an agent does: each row opens with its commands.
+// Reads the help map the way an agent does: each row opens with its commands.
 fn map_commands(env: &Environment) -> Check<Vec<String>> {
     let output = env
         .command(
             env!("CARGO_BIN_EXE_biomcp"),
-            &["skill".to_owned(), "render".to_owned()],
+            &["--format".to_owned(), "md".to_owned(), "help".to_owned()],
         )
         .output()
         .map_err(|error| error.to_string())?;
-    let skill = String::from_utf8(output.stdout).map_err(|error| error.to_string())?;
-    let map = skill.split("\n\n").next().ok_or("skill has no map")?;
+    let help = String::from_utf8(output.stdout).map_err(|error| error.to_string())?;
+    let map = help.split("\n\n").next().ok_or("help has no map")?;
     Ok(map
         .lines()
         .take_while(|line| !line.starts_with("Sources/components"))
