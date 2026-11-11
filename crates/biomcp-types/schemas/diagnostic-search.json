@@ -17,6 +17,20 @@
       ],
       "type": "string"
     },
+    "DrugRecallClassification": {
+      "description": "FDA's native recall classification, with no local ranking.",
+      "enum": [
+        "Class I",
+        "Class II",
+        "Class III"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Class I.",
+        " Native Class II.",
+        " Native Class III."
+      ]
+    },
     "FdaDrugApplication": {
       "description": "Cell-owned drug application preserving native NDA/BLA prefix and leading zeros.",
       "pattern": "^(NDA|BLA)[0-9]{6}$",
@@ -57,7 +71,7 @@
   "$id": "biomcp.diagnostic-search/3",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",
+  "description": "Search five source records by default. FDA device recalls cover every medical device and show each record's exact enforcement classification; totals count recall records, without harm inference.",
   "properties": {
     "biomarker": {
       "anyOf": [
@@ -81,6 +95,18 @@
         }
       ],
       "description": "Stored bundle revision.\nImmutable stored bundle revision retained by a continuation."
+    },
+    "classification": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DrugRecallClassification"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "FDA recall class; help search diagnostic\nFDA recall class.\nNative enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.",
+      "x-required-component": "fda-device-recall"
     },
     "condition_id": {
       "anyOf": [

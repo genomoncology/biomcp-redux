@@ -192,6 +192,17 @@
         {
           "description": "One native product recall record; repeated event numbers remain separate records.",
           "properties": {
+            "classification": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Classification from an exact enforcement recall_number match, absent without that match."
+            },
             "header": {
               "$ref": "#/$defs/Reply_DeviceRecallHeader",
               "description": "Source-owned compact recall fields."
@@ -472,7 +483,7 @@
       "type": "object"
     },
     "Reply_DiagnosticSearch": {
-      "description": "Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.",
+      "description": "Search five source records by default. FDA device recalls cover every medical device and show each record's exact enforcement classification; totals count recall records, without harm inference.",
       "properties": {
         "biomarker": {
           "anyOf": [
@@ -496,6 +507,18 @@
             }
           ],
           "description": "Stored bundle revision.\nImmutable stored bundle revision retained by a continuation."
+        },
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugRecallClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA recall class.\nNative enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.",
+          "x-required-component": "fda-device-recall"
         },
         "condition_id": {
           "anyOf": [
@@ -719,6 +742,20 @@
         "fda-device-recall"
       ],
       "type": "string"
+    },
+    "Reply_DrugRecallClassification": {
+      "description": "FDA's native recall classification, with no local ranking.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Class I.",
+        " Native Class II.",
+        " Native Class III."
+      ],
+      "x-extensible-enum": [
+        "Class I",
+        "Class II",
+        "Class III"
+      ]
     },
     "Reply_FdaDrugApplication": {
       "description": "Cell-owned drug application preserving native NDA/BLA prefix and leading zeros.",
@@ -1726,7 +1763,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.diagnostic-page/5",
+  "$id": "biomcp.diagnostic-page/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1782,7 +1819,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.diagnostic-page/5",
+      "const": "biomcp.diagnostic-page/6",
       "type": "string"
     },
     "sources": {

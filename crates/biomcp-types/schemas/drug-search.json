@@ -58,8 +58,20 @@
   "$id": "biomcp.drug-search/4",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Other sources require a name.",
+  "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
   "properties": {
+    "applicant": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Exact applicant name; Drugs@FDA only.\nThe source matches its complete native sponsor_name with case, such as ALNYLAM PHARMS INC;\nno company-family or subsidiary inference. An optional name narrows the same search.",
+      "x-required-component": "drugsfda"
+    },
     "classification": {
       "anyOf": [
         {
@@ -174,7 +186,7 @@
     },
     "query": {
       "$ref": "#/$defs/Text",
-      "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges and label indication searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
+      "description": "Drug name phrase.\nFDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.\nDrugs@FDA searches brands and ingredients,\nexact names before word matches. openFDA labels search exact then word brand/generic names,\nthen label text (including indications) when no names match; source matches need not be exact names.\nHarmonized recall names match but never become display names.",
       "x-positional": 0
     },
     "reason": {

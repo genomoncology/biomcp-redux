@@ -119,10 +119,10 @@ Commands:
   pathway        Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
-  diagnostic     Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
+  diagnostic     Search five source records by default. FDA device recalls cover every medical device and show each record's exact enforcement classification; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -903,7 +903,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 ## biomcp search diagnostic
 
 ```text
-Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
+Search five source records by default. FDA device recalls cover every medical device and show each record's exact enforcement classification; totals count recall records, without harm inference.
 
 Usage: biomcp search diagnostic [OPTIONS] --source <source>
 
@@ -925,12 +925,17 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --condition-id <condition_id>
-          Exact MedGen:CUI.
-          Exact MedGen:CUI identifier only.
+      --classification <classification>
+          FDA recall class; help search diagnostic
+          FDA recall class.
+          Native enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --condition-id <condition_id>
+          Exact MedGen:CUI.
+          Exact MedGen:CUI identifier only.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -955,10 +960,6 @@ Options:
           Exact gene symbol.
           Exact source gene_symbol field, without alias expansion.
 
-      --gene-id <gene_id>
-          Exact NCBI GeneID.
-          Exact source GeneID, exclusive with gene symbol.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -970,6 +971,10 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --gene-id <gene_id>
+          Exact NCBI GeneID.
+          Exact source GeneID, exclusive with gene symbol.
 
       --initiated-from <initiated_from>
           First date, YYYY-MM-DD.
@@ -1019,6 +1024,10 @@ Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-
 Exact table-0 biomarker cell; unsupported in the group table. Value form: string. Example: --biomarker KRAS. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--bundle-revision`: Stored bundle revision.
 Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--classification`: FDA recall class; help search diagnostic
+FDA recall class.
+Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class I'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--condition-id`: Exact MedGen:CUI.
 Exact MedGen:CUI identifier only. Value form: string. Example: --condition-id MedGen:C2676676. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--decision-from`: First date, YYYY-MM-DD.
@@ -1278,29 +1287,34 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
 Arguments:
   [query]
           Drug name phrase.
-          FDA drug recalls, WHO date ranges and label indication searches allow no name.
+          FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
           Drugs@FDA searches brands and ingredients,
           exact names before word matches. openFDA labels search exact then word brand/generic names,
           then label text (including indications) when no names match; source matches need not be exact names.
           Harmonized recall names match but never become display names.
 
 Options:
-      --classification <classification>
-          Native FDA classification; drug recalls only; help search drug
-          Native FDA classification; drug recalls only.
+      --applicant <applicant>
+          Exact applicant name; Drugs@FDA only.
+          The source matches its complete native sponsor_name with case, such as ALNYLAM PHARMS INC;
+          no company-family or subsidiary inference. An optional name narrows the same search.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
 
           [default: json]
           [possible values: json, md]
+
+      --classification <classification>
+          Native FDA classification; drug recalls only; help search drug
+          Native FDA classification; drug recalls only.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -1312,15 +1326,15 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --firm <firm>
-          Recall firm phrase.
-          Matches the published firm literally.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --firm <firm>
+          Recall firm phrase.
+          Matches the published firm literally.
 
       --indication <indication>
           Literal label indication; openFDA labels only.
@@ -1341,10 +1355,6 @@ Options:
           ChEMBL name selector.
           Omit to search the preferred name.
 
-      --name-snapshot <name_snapshot>
-          Label alias page token.
-          Follow the returned command with unchanged filters to retain aliases and matching tier.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1356,6 +1366,10 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --name-snapshot <name_snapshot>
+          Label alias page token.
+          Follow the returned command with unchanged filters to retain aliases and matching tier.
 
       --offset <offset>
           Native rows to skip.
@@ -1384,6 +1398,9 @@ Options:
 
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
+- `--applicant`: Exact applicant name; Drugs@FDA only.
+The source matches its complete source sponsor_name with case, such as ALNYLAM PHARMS INC;
+no company-family or subsidiary inference. An optional name narrows the same search. Value form: string. Example: --applicant 'ALNYLAM PHARMS INC'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
@@ -1409,7 +1426,7 @@ Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified
 - `--prequalified-to`: WHO PQ end date, inclusive.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `query`: Drug name phrase.
-FDA drug recalls, WHO date ranges and label indication searches allow no name.
+FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
 exact names before word matches. openFDA labels search exact then word brand/generic names,
 then label text (including indications) when no names match; source matches need not be exact names.
@@ -2798,7 +2815,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 - `--source`: Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
 Explicit source: GTR accession/version, WHO Product ID, PMA P number,
 510(k) K number or device recall Z-NNNN-YYYY.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source who-ivd. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string. Example: --supplement S020. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
