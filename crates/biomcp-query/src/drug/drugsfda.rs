@@ -31,21 +31,8 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     );
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    let mut report = status::source(Source::Drugsfda, leg.finish(), error);
-    if let Some(applicant) = query.applicant() {
-        report
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: format!(
-                    "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
-                    source::applicant_prefix(applicant)
-                )
-                .into(),
-                retry_after_seconds: None,
-            });
-    }
-    out.sources.push(report);
+    out.sources
+        .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
         out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
@@ -68,6 +55,21 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             source_updated: page.updated.map(Into::into),
         })
         .with_query(query.clone());
+    }
+    if let Some(applicant) = query.applicant()
+        && let Some(report) = out.sources.first_mut()
+    {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: format!(
+                    "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
+                    source::applicant_prefix(applicant)
+                )
+                .into(),
+                retry_after_seconds: None,
+            });
     }
     command.finish(deadline.remaining());
     out
