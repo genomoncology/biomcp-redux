@@ -49,7 +49,9 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .ok_or("property")?;
             let expected = description(node);
             let own = property.get("description").and_then(Value::as_str);
-            if own.map(|text| text.strip_prefix("Required. ").unwrap_or(text)) != expected.as_deref() {
+            if own.map(|text| text.strip_prefix("Required. ").unwrap_or(text))
+                != expected.as_deref()
+            {
                 failures.push(format!("{name}.{key}: lost own description"));
             }
             if nested_description(property, true) {
@@ -69,8 +71,10 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     }
     report(&tools)?;
     // Exercise the same budget rejection used for the installed catalog.
-    if budget(&json!({"name":"oversized", "description":"x".repeat(ACTION_BUDGET + 1), "inputSchema":{}}))
-        .is_ok()
+    if budget(
+        &json!({"name":"oversized", "description":"x".repeat(ACTION_BUDGET + 1), "inputSchema":{}}),
+    )
+    .is_ok()
     {
         return Err("oversized synthetic tool passed budget".into());
     }
