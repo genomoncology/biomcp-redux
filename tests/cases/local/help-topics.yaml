@@ -120,7 +120,7 @@ steps:
       includes_all_of:
       - "(treatment-lookup): biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5"
       - "--hgvs 'NM_004333.4:c.1799T>A' | variant {\"action\":\"normalize\",\"normalize\":{\"hgvs\":\"NM_004333.4:c.1799T>A\",\"source\":\"mutalyzer\"}}"
-      - "| gene {\"action\":\"get\",\"get\":{\"id\":[\"MIR21\"],\"section\":[\"expression\"]}}"
+      - "| gene {\"action\":\"get\",\"get\":{\"id\":[\"MIR21\"],\"section\":[\"expression\"]}}\n- Keep normalization services independent (normalize-to-codes): biomcp variant normalize"
 - run:
   - --format
   - md

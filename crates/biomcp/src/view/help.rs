@@ -98,7 +98,12 @@ fn body(command: &Value, path: &str) -> String {
         .max()
         .unwrap_or(0);
     let fence = "`".repeat(longest.max(2) + 1);
-    format!("{fence}text\n{}\n{fence}", super::controls(description))
+    let text = description
+        .lines()
+        .map(super::controls)
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!("{fence}text\n{text}\n{fence}")
 }
 
 fn escape(text: &str) -> String {
