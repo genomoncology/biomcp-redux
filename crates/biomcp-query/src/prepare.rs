@@ -80,7 +80,7 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     let values = DISEASE_SECTIONS
         .into_iter()
         .filter(|section| get_supported(q.source(), Some(*section), q.id().as_str()))
-        .map(|section| <&str>::from(section).parse())
+        .map(|section| section.as_str().parse())
         .collect::<Result<Vec<biodata::Text>, _>>();
     let values = match values {
         Ok(values) if !values.is_empty() => values,
