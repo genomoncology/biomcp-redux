@@ -483,7 +483,7 @@
       "type": "object"
     },
     "Reply_DiagnosticSearch": {
-      "description": "Search five source records by default. FDA device recalls cover every medical device and show the recall class; totals count recall records, without harm inference.",
+      "description": "Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.",
       "properties": {
         "biomarker": {
           "anyOf": [

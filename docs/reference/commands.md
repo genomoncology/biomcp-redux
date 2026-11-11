@@ -119,7 +119,7 @@ Commands:
   pathway        Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
-  diagnostic     Search five source records by default. FDA device recalls cover every medical device and show the recall class; totals count recall records, without harm inference.
+  diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
   drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
@@ -903,7 +903,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 ## biomcp search diagnostic
 
 ```text
-Search five source records by default. FDA device recalls cover every medical device and show the recall class; totals count recall records, without harm inference.
+Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
 
 Usage: biomcp search diagnostic [OPTIONS] --source <source>
 
