@@ -17,6 +17,10 @@ pub(super) fn trials() -> Vec<Trial> {
         transcript_trial("mcp-call-queue/hosted-call-waits-for-held-slot", || {
             hosted_turn().map_err(Into::into)
         }),
+        #[cfg(unix)]
+        transcript_trial("mcp-call-queue/hosted-wait-ends-at-call-deadline", || {
+            hosted_deadline().map_err(Into::into)
+        }),
     ]
 }
 
@@ -99,8 +103,9 @@ fn hosted_turn() -> Result<(), String> {
         io::{Read, Write},
         time::Duration,
     };
-    let config = json!({"http_max_calls":1, "http_max_connections":4,
-        "mcp_queue_wait_seconds":60, "command_timeout_seconds":60});
+    // No connection setting: the hosted default must leave the waiting call a connection.
+    let config = json!({"http_max_calls":1, "mcp_queue_wait_seconds":60,
+        "command_timeout_seconds":60});
     let server = super::http::Server::configured_globals(
         "127.0.0.1:0",
         Some(config.clone()),
@@ -169,6 +174,52 @@ fn hosted_turn() -> Result<(), String> {
     if reply.get("id") != Some(&json!(2)) || reply.pointer("/result/isError") != Some(&json!(false))
     {
         return Err(format!("the queued call did not run: {reply}"));
+    }
+    Ok(())
+}
+
+/// The call deadline is far shorter than the queue wait, so the refusal comes at the deadline.
+#[cfg(unix)]
+fn hosted_deadline() -> Result<(), String> {
+    let config = json!({"http_max_calls":1, "mcp_queue_wait_seconds":120,
+        "command_timeout_seconds":2});
+    let server = super::http::Server::configured_globals(
+        "127.0.0.1:0",
+        Some(config),
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    let call = |id: u64, args: Value| {
+        request(
+            json!(id),
+            "tools/call",
+            json!({"name":"biomcp", "arguments":{"args":args}}),
+        )
+        .to_string()
+    };
+    let first = call(1, json!(["get", "gene", "KRAS", "--offline"]));
+    // The held worker keeps the only slot after its own deadline, until its writer drops.
+    let (_held, _writer) = super::http_limits::hold_settings_reader(&server, &first)?;
+    let sent = std::time::Instant::now();
+    let mut waiting = send(server.address, &call(2, json!(["help"])))?;
+    waiting
+        .set_read_timeout(Some(std::time::Duration::from_secs(90)))
+        .map_err(|e| e.to_string())?;
+    let mut response = String::new();
+    std::io::Read::read_to_string(&mut waiting, &mut response)
+        .map_err(|e| format!("the waiting call got no answer: {e}"))?;
+    let waited = sent.elapsed();
+    let (_, body) = response
+        .split_once("\r\n\r\n")
+        .ok_or("refused call response has no body")?;
+    let reply: Value = serde_json::from_str(body).map_err(|e| e.to_string())?;
+    if reply.pointer("/error/code") != Some(&json!(-31000)) || !super::capacity_refusal(&reply, 1) {
+        return Err(format!("no timed refusal at the call deadline: {reply}"));
+    }
+    if waited >= std::time::Duration::from_secs(60) {
+        return Err(format!("the call waited {waited:?}, past its two-second deadline"));
     }
     Ok(())
 }

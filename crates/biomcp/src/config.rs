@@ -48,6 +48,9 @@ pub(crate) fn queue_wait(settings: &Settings) -> Duration {
         })
 }
 
+/// A waiting hosted call keeps its connection, so the hosted default leaves one
+/// connection to wait behind each running call. Plain HTTP runs each call on its
+/// connection and has no queue, so its default stays at the call default.
 pub(crate) fn http_capacity(
     globals: &Globals,
     settings: &Settings,
@@ -62,7 +65,11 @@ pub(crate) fn http_capacity(
         .http_max_connections
         .or_else(|| file.and_then(|f| f.http_max_connections))
         .map(std::num::NonZeroUsize::get)
-        .unwrap_or(DEFAULT_HTTP_CAPACITY);
+        .unwrap_or(if globals.hosted {
+            calls.saturating_mul(2)
+        } else {
+            DEFAULT_HTTP_CAPACITY
+        });
     if connections < calls || connections > (usize::MAX - 1) / 2 {
         return Err(ConfigError::field("http_max_connections"));
     }

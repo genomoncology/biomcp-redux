@@ -357,7 +357,8 @@ fn busy_capacity(configured: bool, flags: bool) -> Check {
         serde_json::json!({"http_max_calls":2, "http_max_connections":4,
             "mcp_queue_wait_seconds":1})
     } else {
-        serde_json::json!({})
+        // The hosted default leaves room for waiting calls; this case fills every connection.
+        serde_json::json!({"http_max_connections":8})
     };
     let mut globals = vec!["--hosted".into()];
     if flags {
