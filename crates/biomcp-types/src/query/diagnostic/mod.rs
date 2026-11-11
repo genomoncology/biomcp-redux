@@ -120,9 +120,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     classification: Option<crate::DrugRecallClassification>,
-    #[doc = "Native device name.\nNative trade_name (PMA) or device_name (510(k)) phrase."]
+    #[doc = "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; GTR lab_test_name text, literal and case-insensitive."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::Gtr, crate::Source::FdaPma, crate::Source::Fda510k])))]
     name: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -203,6 +203,13 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
                 "drug_application",
                 "biomarker",
             ]));
+        }
+        if v.source == DiagnosticSearchSource::Gtr
+            && v.name
+                .as_ref()
+                .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        {
+            return Err(QueryInvalid::new(&["name"]));
         }
         if v.source == DiagnosticSearchSource::WhoIvd
             && [v.marker.as_ref(), v.manufacturer.as_ref()]
@@ -311,7 +318,7 @@ impl DiagnosticSearch {
     pub fn classification(&self) -> Option<crate::DrugRecallClassification> {
         self.0.classification
     }
-    /// Native device name phrase.
+    /// Native device name phrase or literal GTR test name text.
     pub fn name(&self) -> Option<&Text> {
         self.0.name.as_ref()
     }
