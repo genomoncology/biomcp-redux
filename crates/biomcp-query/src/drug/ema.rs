@@ -103,10 +103,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     };
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    out.sources.push(with_notice(
-        status::source(Source::Ema, leg.finish(), error),
-        notice,
-    ));
+    out.sources
+        .push(status::source(Source::Ema, leg.finish(), error));
     if let Ok(found) = result {
         {
             let (found, identity_failed, unavailable) = if !found {
@@ -119,6 +117,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             crate::status::item(&mut out, found, identity_failed, unavailable);
         };
     }
+    add_notice(&mut out, notice);
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
@@ -151,18 +150,14 @@ fn regulatory_page(
     body
 }
 /// Attach the adapter's source observation, when it has one, to the EMA outcome.
-fn with_notice(
-    mut source: biomcp_types::SourceOutcome,
-    notice: Option<&'static str>,
-) -> biomcp_types::SourceOutcome {
-    source
-        .notices
-        .extend(notice.map(|message| SourceNotice::RequestGuidance {
+fn add_notice(out: &mut Outcome, notice: Option<&'static str>) {
+    if let (Some(source), Some(message)) = (out.sources.last_mut(), notice) {
+        source.notices.push(SourceNotice::RequestGuidance {
             data_date: None,
             message: message.into(),
             retry_after_seconds: None,
-        }));
-    source
+        });
+    }
 }
 fn sync_step(out: &mut Outcome) {
     if out
