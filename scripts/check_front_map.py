@@ -3,6 +3,8 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import shlex
 from pathlib import Path
 import shutil
 import subprocess
@@ -46,7 +48,7 @@ FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
 
 def first_read_sizes(binary, env):
     """Measure what every connection loads: initialize instructions and the tools list."""
-    sizes = {}
+    sizes, texts = {}, {}
     for mode, flags in FIRST_READ_MODES.items():
         frames = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
             "protocolVersion": "2025-11-25", "capabilities": {},
@@ -62,7 +64,40 @@ def first_read_sizes(binary, env):
         tools = json.dumps(replies[2]["result"]["tools"], ensure_ascii=False, separators=(",", ":"))
         sizes[mode] = {"instructions_characters": len(instructions), "tools_bytes": len(tools.encode()),
                        "tools": len(replies[2]["result"]["tools"])}
+        texts[mode] = instructions
+        require(mode == "single" or len(instructions) <= 4096, f"{mode} instructions exceed 4096 characters")
+    check_examples(texts)
     return sizes
+
+
+def use_cases():
+    """Yield each use case's label, first command words and documented typed call."""
+    for path in sorted((Path(__file__).resolve().parents[1] / "skills/use-cases").glob("[0-9]*.md")):
+        text = path.read_text()
+        command = re.search(r"```sh\nbiomcp (.*)\n", text)
+        typed = re.findall(r"^Typed tool: `([a-z_]+)` `(\{.*\})`\.$", text, re.M)
+        require(command and len(typed) == 1, f"{path.name} lacks a first command or one typed tool line")
+        yield path.stem.split("-", 1)[1].replace("-", " "), command[1], typed[0][0], json.loads(typed[0][1])
+
+
+def check_examples(texts):
+    """The server derives each typed call from the CLI command, so a match proves parse and schema fit."""
+    cases = Path(__file__).resolve().parents[1] / "tests/cases"
+    recorded = set()
+    for path in cases.rglob("*.yaml"):
+        try:  # most cases are JSON; the few written as YAML hold no worked example
+            steps = json.loads(path.read_text()).get("steps", [])
+        except ValueError:
+            continue
+        recorded.update(json.dumps(step.get("run")) for step in steps if isinstance(step, dict))
+    for label, command, tool, call in use_cases():
+        require(json.dumps(shlex.split(command)) in recorded, f"{label}: example is no recorded case step: {command}")
+        require(f"\n{label}: {command}\n" in texts["single"], f"{label}: single instructions lack {command}")
+        for mode in ("typed", "hosted"):
+            line = next((line for line in texts[mode].splitlines() if line.startswith(label + ": ")), "")
+            served_tool, _, served = line.removeprefix(label + ": ").partition(" ")
+            require(served_tool == tool and served and json.loads(served) == call,
+                    f"{label}: {mode} server derives `{served_tool}` `{served}`, the use case documents `{tool}` `{call}`")
 
 
 def main():

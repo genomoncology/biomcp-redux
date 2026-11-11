@@ -103,8 +103,10 @@ pub(crate) fn embedded(examples: &[Example]) -> Result<Value, Box<dyn Error>> {
     examples
         .iter()
         .map(|example| {
-            Ok(json!({"label":example.name.replace('-', " "),"command":example.command,
-                "args":words(&example.command)?,"tool":example.tool,"call":example.call}))
+            Ok(
+                json!({"label":example.name.replace('-', " "),"command":example.command,
+                "args":words(&example.command)?,"tool":example.tool,"call":example.call}),
+            )
         })
         .collect::<Result<Vec<_>, Box<dyn Error>>>()
         .map(Value::Array)
@@ -142,7 +144,9 @@ pub(crate) fn question_map(commands: &[(&str, &str, &str)]) -> Result<String, Bo
     }
     for (verb, entity, _) in commands {
         if !listed.contains(&format!("{verb} {entity}")) {
-            return Err(format!("registry command missing from the question map: {verb} {entity}").into());
+            return Err(
+                format!("registry command missing from the question map: {verb} {entity}").into(),
+            );
         }
     }
     Ok(lines.join("\n"))

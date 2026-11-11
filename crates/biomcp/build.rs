@@ -340,9 +340,10 @@ fn embed_skills(map: &str) -> Result<(), Box<dyn Error>> {
     }
     let examples = first_read::examples(&directory.join("use-cases"))?;
     let questions = first_read::question_map(&biomcp_types::command_paths())?;
-    *guide = guide
-        .replace(marker, map)
-        .replace(first_read::MARKER, &first_read::section(&questions, &examples));
+    *guide = guide.replace(marker, map).replace(
+        first_read::MARKER,
+        &first_read::section(&questions, &examples),
+    );
     fs::write(
         PathBuf::from(env::var("OUT_DIR")?).join("first-read-examples.json"),
         serde_json::to_vec(&first_read::embedded(&examples)?)?,
