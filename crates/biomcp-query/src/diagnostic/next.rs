@@ -26,7 +26,7 @@ pub(super) fn candidates(
                 header.k_number.to_string(),
                 biomcp_types::DiagnosticGetSource::Fda510k,
             ),
-            DiagnosticCandidate::DeviceRecall { header } => (
+            DiagnosticCandidate::DeviceRecall { header, .. } => (
                 header.recall_number.to_string(),
                 biomcp_types::DiagnosticGetSource::FdaDeviceRecall,
             ),

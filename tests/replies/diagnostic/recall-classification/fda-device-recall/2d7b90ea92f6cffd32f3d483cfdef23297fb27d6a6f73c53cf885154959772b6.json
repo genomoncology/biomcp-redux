@@ -1,0 +1,50 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%28%22Z-0334-2023%22%20OR%20%22Z-0329-2023%22%20OR%20%22Z-0330-2023%22%29&limit=3&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794409255,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-07",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 3
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-0329-2023",
+              "res_event_number": "91104",
+              "recall_status": "Terminated",
+              "event_date_initiated": "2022-10-20",
+              "product_code": "JWY"
+            },
+            {
+              "product_res_number": "Z-0330-2023",
+              "res_event_number": "91104",
+              "recall_status": "Terminated",
+              "event_date_initiated": "2022-10-20",
+              "product_code": "JWY"
+            },
+            {
+              "product_res_number": "Z-0334-2023",
+              "res_event_number": "91104",
+              "recall_status": "Terminated",
+              "event_date_initiated": "2022-10-20",
+              "product_code": "JWY"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

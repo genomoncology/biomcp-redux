@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-device-recall",
-  "story": "Native device recall records retain their own identifiers and optionally join exact enforcement classification, without projecting product-code metadata.",
+  "story": "Native device recall records retain their own identifiers and join exact enforcement classification in search rows and cards, without projecting product-code metadata; a failed or wrong-identity join leaves the rows visible and the reply partial.",
   "replay": "diagnostic/recall-synthetic",
   "steps": [
     {
@@ -15,9 +15,10 @@
       ],
       "expect": {
         "/result/count_unit": "recall-records",
-        "/result/items/0/header/recall_number": "Z-0001-2024"
+        "/result/items/0/header/recall_number": "Z-0001-2024",
+        "/result/items/0/classification": "Class II"
       },
-      "max_bytes": 817,
+      "max_bytes": 857,
       "full_output_bytes": true
     },
     {
@@ -30,9 +31,62 @@
         "ABC"
       ],
       "expect": {
-        "/page/total": 1
+        "/page/total": 1,
+        "/result/items/0/classification": "Class II"
       },
-      "max_bytes": 803,
+      "max_bytes": 843,
+      "full_output_bytes": true
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Failing join"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 1,
+        "/result/items/0/header/recall_number": "Z-0002-2024",
+        "/result/items/0": {
+          "omits": [
+            "classification"
+          ]
+        },
+        "/sources/0/state": "failed"
+      },
+      "max_bytes": 1100,
+      "full_output_bytes": true
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Wrong join"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 1,
+        "/result/items/0/header/recall_number": "Z-0003-2024",
+        "/result/items/0": {
+          "omits": [
+            "classification"
+          ]
+        },
+        "/sources/0/state": "failed",
+        "/problems/*/code": [
+          "identity.conflict"
+        ],
+        "/problems/*/field": [
+          "recall_number"
+        ]
+      },
+      "max_bytes": 1100,
       "full_output_bytes": true
     },
     {

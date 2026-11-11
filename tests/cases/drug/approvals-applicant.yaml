@@ -1,0 +1,135 @@
+{
+  "feature": "drug-approvals",
+  "story": "A complete or partial sponsor name, in any letter case, returns the applications held by Drugs@FDA sponsors whose names start with it, paged with the native total, in the CLI and MCP; a notice states the prefix; an unknown sponsor answers empty.",
+  "live_check": "public",
+  "verified": "Native openFDA Drugs@FDA captures 2026-11-11 through scripts/source_capture.py; bodies unchanged. Requests, byte counts and SHA-256 are in tests/replies/drug/approvals-applicant/README.md. The sponsor held four applications on that date.",
+  "replay": "drug/approvals-applicant",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "ALNYLAM PHARMS INC",
+        "--limit",
+        "2"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "ALNYLAM PHARMS INC",
+        "--limit",
+        "2"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.drug-fda-page/7",
+        "/query/applicant": "ALNYLAM PHARMS INC",
+        "/page/total": 4,
+        "/page/returned": 2,
+        "/result/total": 4,
+        "/result/items/*/id": [
+          "NDA210922",
+          "NDA215515"
+        ],
+        "/result/items/0/name": "ONPATTRO",
+        "/sources/0/source": "drugsfda",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--applicant matches sponsor names starting with \"ALNYLAM PHARMS INC\", ignoring letter case."
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "max_bytes": 6000,
+      "expect": {
+        "/query/applicant": "ALNYLAM PHARMS INC",
+        "/query/offset": 2,
+        "/page/total": 4,
+        "/page/returned": 2,
+        "/result/items/*/id": [
+          "NDA212194",
+          "NDA214103"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "Alnylam",
+        "--limit",
+        "2"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "Alnylam",
+        "--limit",
+        "2"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/status": "complete",
+        "/query/applicant": "Alnylam",
+        "/page/total": 4,
+        "/page/returned": 2,
+        "/result/items/*/id": [
+          "NDA210922",
+          "NDA215515"
+        ],
+        "/sources/0/notices/*/message": {
+          "includes": "--applicant matches sponsor names starting with \"ALNYLAM\", ignoring letter case."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "NO SUCH SPONSOR"
+      ],
+      "exit": 0,
+      "max_bytes": 2000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--applicant matches sponsor names starting with \"NO SUCH SPONSOR\", ignoring letter case."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "mychem",
+        "--applicant",
+        "ALNYLAM PHARMS INC"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}
