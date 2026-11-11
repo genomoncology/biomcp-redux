@@ -156,7 +156,7 @@ struct Design {
 struct Enrollment {
     count: Option<Field<u64>>,
     #[serde(rename = "type")]
-    kind: Option<Field<biomcp_types::TrialEnrollmentKind>>,
+    kind: Option<Field<biodata::TrialDateKind>>,
 }
 /// Protocol facts shown beside the card that its shared type does not hold.
 #[derive(Default)]

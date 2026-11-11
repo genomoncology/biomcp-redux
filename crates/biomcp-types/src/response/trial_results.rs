@@ -25,21 +25,9 @@ pub struct TrialPostedCard {
 pub struct TrialEnrollment {
     /// Participants enrolled or planned, as registered.
     pub count: u64,
-    /// Whether the registry marks the count actual or estimated, absent if it does not say.
+    /// The registry's actual or estimated qualifier, the same pair it uses for dates.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub kind: Option<TrialEnrollmentKind>,
-}
-
-/// Registry enrollment qualifier.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[non_exhaustive]
-pub enum TrialEnrollmentKind {
-    /// Participants actually enrolled.
-    Actual,
-    /// Planned enrollment, which the registry formerly called anticipated.
-    Estimated,
+    pub kind: Option<biodata::TrialDateKind>,
 }
 
 /// Whole native records in registry order: participant flow, baseline, outcomes, then
@@ -48,7 +36,7 @@ pub enum TrialEnrollmentKind {
 #[serde(tag = "record", content = "data", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum TrialResultRecord {
-    /// Recruitment and pre-assignment notes for the participant flow.
+    /// Recruitment and pre-assignment notes for the participant flow, when the registry posted any.
     ParticipantFlow(crate::TrialParticipantFlow),
     /// One participant-flow arm, named by the group IDs in the flow periods.
     FlowGroup(TrialResultGroup),

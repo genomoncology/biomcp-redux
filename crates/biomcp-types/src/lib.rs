@@ -282,10 +282,9 @@ pub use adverse_event::AdverseEventSearchCommand;
 
 pub use response::{PdfText, PdfTextState};
 pub use response::{
-    TrialAdverseEvents, TrialBaseline, TrialBaselineMeasure, TrialEnrollment, TrialEnrollmentKind,
-    TrialEvent, TrialEventGroup, TrialEventStats, TrialFlowAchievement, TrialFlowDrop,
-    TrialFlowMilestone, TrialFlowPeriod, TrialFlowReason, TrialParticipantFlow, TrialPostedCard,
-    TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory, TrialResultClass,
-    TrialResultCount, TrialResultDenominator, TrialResultGroup, TrialResultMeasurement,
-    TrialResultRecord,
+    TrialAdverseEvents, TrialBaseline, TrialBaselineMeasure, TrialEnrollment, TrialEvent,
+    TrialEventGroup, TrialEventStats, TrialFlowAchievement, TrialFlowDrop, TrialFlowMilestone,
+    TrialFlowPeriod, TrialFlowReason, TrialParticipantFlow, TrialPostedCard, TrialPostedOutcome,
+    TrialResultAnalysis, TrialResultCategory, TrialResultClass, TrialResultCount,
+    TrialResultDenominator, TrialResultGroup, TrialResultMeasurement, TrialResultRecord,
 };

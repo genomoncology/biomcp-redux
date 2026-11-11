@@ -203,8 +203,8 @@ mod pdf;
 pub use pdf::{PdfText, PdfTextState};
 mod trial_results;
 pub use trial_results::{
-    TrialAdverseEvents, TrialEnrollment, TrialEnrollmentKind, TrialEvent, TrialEventGroup,
-    TrialEventStats, TrialPostedCard, TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory,
+    TrialAdverseEvents, TrialEnrollment, TrialEvent, TrialEventGroup, TrialEventStats,
+    TrialPostedCard, TrialPostedOutcome, TrialResultAnalysis, TrialResultCategory,
     TrialResultClass, TrialResultCount, TrialResultDenominator, TrialResultGroup,
     TrialResultMeasurement, TrialResultRecord,
 };

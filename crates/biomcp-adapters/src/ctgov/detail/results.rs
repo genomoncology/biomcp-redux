@@ -82,8 +82,7 @@ impl Results {
             "resultsSection.participantFlowModule",
             self.participant_flow_module,
         ) {
-            out.rows
-                .push(TrialResultRecord::ParticipantFlow(module.scope));
+            out.scope(module.scope, TrialResultRecord::ParticipantFlow);
             out.records(
                 "participantFlowModule.groups",
                 module.groups,
@@ -99,7 +98,7 @@ impl Results {
             "resultsSection.baselineCharacteristicsModule",
             self.baseline_characteristics_module,
         ) {
-            out.rows.push(TrialResultRecord::Baseline(module.scope));
+            out.scope(module.scope, TrialResultRecord::Baseline);
             out.records(
                 "baselineCharacteristicsModule.groups",
                 module.groups,
@@ -153,6 +152,12 @@ struct Rows<'a> {
     rows: Vec<TrialResultRecord>,
 }
 impl Rows<'_> {
+    /// A module with no notes of its own adds no empty record before its rows.
+    fn scope<T: Default + PartialEq>(&mut self, scope: T, record: fn(T) -> TrialResultRecord) {
+        if scope != T::default() {
+            self.rows.push(record(scope));
+        }
+    }
     fn records<T>(
         &mut self,
         field: &str,
