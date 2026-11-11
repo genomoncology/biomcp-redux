@@ -76,8 +76,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             r#"{"gene":"BRAF","protein":"V600E"}"#,
             r#"{"id":"rs113488022"}"#,
         ],
-        "get takes an rsID, ClinVar ID or HGVS, not a name like BRAF V600E; search finds \
-         those. Not for gene-level facts (use gene)",
+        "get takes an rsID, ClinVar ID or HGVS; for a name like BRAF V600E use search with \
+         gene and protein, not query. Not for gene-level facts (use gene)",
     ),
     (
         "disease",
@@ -173,8 +173,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("author_papers", "author_papers", "an author's papers"),
         ],
         [r#"{"query":"AKT1 E17K"}"#, r#"{"id":"33123537"}"#],
-        "Read a paper's full text with the text action. Not for trial registry records \
-         (use trial)",
+        "Not for trial registry records (use trial)",
     ),
     (
         "protein",

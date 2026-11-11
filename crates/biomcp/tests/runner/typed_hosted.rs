@@ -89,7 +89,8 @@ fn hosted(budgets: &mut Vec<String>) -> Result<(), String> {
     Ok(())
 }
 
-// One case per owner: a field goes only when every source that answers it is off.
+// One case per owner: a field goes only when every source that answers it is off. Fields
+// are under their advertised names: `query` for search text and `id` for the record ID.
 fn source_fields(hosted: &Value) -> Result<(), String> {
     let owners: [(&str, &[&str], &[&str]); 4] = [
         (
@@ -100,9 +101,9 @@ fn source_fields(hosted: &Value) -> Result<(), String> {
         (
             "search_diagnostic",
             &["marker"],
-            &["manufacturer", "name", "gene", "product_code"],
+            &["manufacturer", "query", "gene", "product_code"],
         ),
-        ("get_variant", &["tumor_type"], &["input", "build"]),
+        ("get_variant", &["tumor_type"], &["id", "build"]),
         (
             "search_article",
             &[],
