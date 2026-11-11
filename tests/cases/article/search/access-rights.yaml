@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "article-search",
-  "story": "Each Europe PMC search row says whether the paper is open access, from the flag the search page already holds, so a reader can tell open papers from closed ones without opening each paper.",
+  "story": "Each Europe PMC search row says whether the paper is open access, from the flag its search page already holds, and shows no licence because that page states none.",
   "replay": "article/search/access-rights",
   "steps": [
     {
@@ -16,9 +16,40 @@
         "3"
       ],
       "expect": {
-        "/result/items": "dump"
+        "/status": "complete",
+        "/result/items/*/key/id": {
+          "equals": [
+            "10.20944/preprints202610.0762.v1",
+            "42852808",
+            "42640561"
+          ]
+        },
+        "/result/items/*/open_access": {
+          "equals": [
+            false,
+            false,
+            true
+          ]
+        },
+        "/result/items/0": {
+          "omits": [
+            "license"
+          ]
+        },
+        "/result/items/1": {
+          "omits": [
+            "license"
+          ]
+        },
+        "/result/items/2": {
+          "omits": [
+            "license"
+          ]
+        }
       },
       "max_bytes": 2429
     }
-  ]
+  ],
+  "verified": "2026-11-11 public capture with curl of the exact request identities BioMCP sends: the Europe PMC lite search page for tebentafusp (1,078 hits, isOpenAccess on every row, license on none) and the PubMed summaries for the two PMID rows on the first page. Values are the recorded rows' isOpenAccess: PPR1339986 N, 42852808 N, 42640561 Y. The ceiling is the measured 2,112-byte page plus 15 percent.",
+  "harvest": "biomed-agent-bench msl persona: which papers may be shared"
 }
