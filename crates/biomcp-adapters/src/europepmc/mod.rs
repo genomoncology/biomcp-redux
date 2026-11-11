@@ -162,7 +162,10 @@ impl Row {
         let date = p.field("date", self.first_publication_date);
         let authors = p.source_field("authors", self.author_string);
         let open_access = p.field("open_access", self.is_open_access);
-        let open_access = p.optional("open_access", open_access.map(|flag| yes_no(&flag)));
+        let open_access = match open_access {
+            Some(flag) => p.required("open_access", yes_no(&flag)),
+            None => None,
+        };
         let header = if pmid.is_none() {
             title.map(|title| ArticleHeader {
                 pmid: None,
@@ -206,11 +209,11 @@ impl Row {
 }
 
 // Europe PMC states its open-access flag as Y or N; anything else is a field problem.
-fn yes_no(flag: &str) -> Result<bool, ()> {
+fn yes_no(flag: &str) -> Option<bool> {
     match flag {
-        "Y" => Ok(true),
-        "N" => Ok(false),
-        _ => Err(()),
+        "Y" => Some(true),
+        "N" => Some(false),
+        _ => None,
     }
 }
 
