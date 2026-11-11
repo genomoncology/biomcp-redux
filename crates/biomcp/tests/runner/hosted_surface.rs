@@ -52,8 +52,9 @@ fn surface(mode: &str) -> Check {
         let validator = jsonschema::validator_for(gene.get("inputSchema").ok_or("gene schema")?)
             .map_err(|e| e.to_string())?;
         // Section words are plain text listed in the description; the server refuses the rest.
-        let sections = gene["description"]
-            .as_str()
+        let sections = gene
+            .get("description")
+            .and_then(Value::as_str)
             .and_then(|text| text.split_once("Sections:"))
             .map(|(_, rest)| rest.split_whitespace().next().unwrap_or_default());
         if !validator.is_valid(&json!({"input":["BRAF"]}))

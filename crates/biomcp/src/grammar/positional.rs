@@ -127,10 +127,10 @@ fn split(
     entity: &str,
     args: &[OsString],
 ) -> Option<(Vec<OsString>, Vec<String>)> {
-    let start = args
-        .windows(2)
-        .position(|pair| pair[0].to_str() == Some(verb) && pair[1].to_str() == Some(entity))?
-        + 2;
+    let start = args.windows(2).position(|pair| {
+        let [first, second] = pair else { return false };
+        first.to_str() == Some(verb) && second.to_str() == Some(entity)
+    })? + 2;
     let mut kept = args.get(..start)?.to_vec();
     let mut words = Vec::new();
     let mut rest = args.get(start..)?.iter();
