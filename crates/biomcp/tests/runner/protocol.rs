@@ -7,6 +7,8 @@ mod source_age;
 mod label_priority;
 #[path = "mcp_reply_form.rs"]
 mod reply_form;
+#[path = "mcp_reply_size.rs"]
+mod reply_size;
 #[path = "protocol_schemas.rs"]
 mod schemas;
 #[path = "typed_tools.rs"]
@@ -75,6 +77,7 @@ pub(super) fn trials() -> Vec<Trial> {
         trials.extend(typed::proof_trials());
     }
     trials.extend(reply_form::trials());
+    trials.extend(reply_size::trials());
     trials.extend(super::store_clean::trials());
     trials.extend(super::store_coexistence::trials());
     trials
