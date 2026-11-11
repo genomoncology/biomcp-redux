@@ -32,26 +32,7 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             let pairs: std::collections::HashMap<_, _> = url.query_pairs().into_owned().collect();
             if target.starts_with("/v1/query?") {
                 lookups += 1;
-                let row = |id| {
-                    json!({"_id":id,"drugcentral":{"synonyms":["Typed drug", match mode {
-                        4 => "Long alias ".repeat(200), 5 => "Brand \"quoted\" \\name".into(),
-                        7 if lookups > 1 => "Changed brand".into(), _ => "Brand name".into()
-                    }]}})
-                };
-                return Ok(if mode == 3 {
-                    json!({"total":"malformed","hits":[]})
-                } else {
-                    let hits = if mode == 2 {
-                        vec![
-                            row("KTUFNOKKBVMGRW-UHFFFAOYSA-N"),
-                            row("YLMAHDNUQAMNNX-UHFFFAOYSA-N"),
-                        ]
-                    } else {
-                        vec![row("KTUFNOKKBVMGRW-UHFFFAOYSA-N")]
-                    };
-                    json!({"total":if mode == 1 {2} else {hits.len()},"hits":hits})
-                }
-                .to_string());
+                return Ok(lookup(mode, lookups).to_string());
             }
             if !target.starts_with("/drug/label.json?") {
                 return Err(format!("unexpected request {request}"));
@@ -88,14 +69,7 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             Ok(json!({"meta":{"results":{"skip":offset,"limit":limit,"total":total}},"results":rows}).to_string())
         },
         |_, bytes| bytes,
-        // Mode 8: the label source refuses any request naming the widened brand.
-        move |request| {
-            if mode == 8 && request.contains("/drug/label.json?") && request.contains("Brand") {
-                400
-            } else {
-                200
-            }
-        },
+        move |request| status(mode, request),
         |_| String::new(),
     )?;
     let env = Environment::new().map_err(|e| e.to_string())?;
@@ -109,6 +83,36 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
         .extend(extra.as_object().ok_or("extra")?.clone());
     env.config(&config).map_err(|e| e.to_string())?;
     Ok((env, stub))
+}
+/// The synthetic MyChem reply for one name lookup.
+fn lookup(mode: u8, lookups: u32) -> Value {
+    let row = |id| {
+        json!({"_id":id,"drugcentral":{"synonyms":["Typed drug", match mode {
+            4 => "Long alias ".repeat(200), 5 => "Brand \"quoted\" \\name".into(),
+            7 if lookups > 1 => "Changed brand".into(), _ => "Brand name".into()
+        }]}})
+    };
+    if mode == 3 {
+        json!({"total":"malformed","hits":[]})
+    } else {
+        let hits = if mode == 2 {
+            vec![
+                row("KTUFNOKKBVMGRW-UHFFFAOYSA-N"),
+                row("YLMAHDNUQAMNNX-UHFFFAOYSA-N"),
+            ]
+        } else {
+            vec![row("KTUFNOKKBVMGRW-UHFFFAOYSA-N")]
+        };
+        json!({"total":if mode == 1 {2} else {hits.len()},"hits":hits})
+    }
+}
+/// Mode 8: the label source refuses any request naming the widened brand.
+fn status(mode: u8, request: &str) -> u16 {
+    if mode == 8 && request.contains("/drug/label.json?") && request.contains("Brand") {
+        400
+    } else {
+        200
+    }
 }
 fn record(offset: u32, selector: &str) -> Value {
     let offset =
