@@ -237,6 +237,10 @@
               "description": "Unmodified marker cell.",
               "type": "string"
             },
+            "prequalification_year": {
+              "description": "Unmodified prequalification year cell from the same row.",
+              "type": "string"
+            },
             "product_name": {
               "description": "Unmodified product name cell.",
               "type": "string"
@@ -247,7 +251,8 @@
             "id",
             "product_name",
             "manufacturer",
-            "marker"
+            "marker",
+            "prequalification_year"
           ],
           "type": "object"
         },
@@ -668,7 +673,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell.",
+          "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year.",
           "x-required-component": "who-ivd"
         },
         "name": {
