@@ -1,14 +1,14 @@
 {
-  "live_check": "public EMA medicine rows from the 2026-11-07 JSON data file, trimmed to two exact records; replay only",
+  "live_check": "public EMA medicine rows from the 2026-11-07 JSON data file, trimmed to two exact records, and the Tecovirimat SIGA row from the 2026-11-11 referrals JSON data file; replay only",
   "feature": "drug-ema",
-  "story": "Each EMA date keeps its exact day and EMA's own published words for it. The medicines file's european_commission_decision_date is the date EMA's product page shows beside the latest procedure affecting product information; for Tecovirimat SIGA it is 2026-05-28 while EMA's referral page gives 2026-05-29 as the decision, so it is reported as the latest procedure's date and a notice says no decision date is reported",
+  "story": "Each EMA date keeps its exact day and EMA's own published words for it. The medicines file's european_commission_decision_date is the date EMA's product page shows beside the latest procedure affecting product information; for Tecovirimat SIGA it is 2026-05-28. Its latest procedure REF/0000287477 is the referrals file's EMA/REF/0000287477, whose european_commission_decision_date 2026-05-29 is reported as the decision with its source. A product whose latest procedure is no referral keeps a notice that no decision date is reported",
   "replay": "drug/ema-dates",
   "steps": [
     {
       "run": ["sync", "ema"],
       "expect": {
         "/status": "complete",
-        "/result/rows": 2
+        "/result/rows": 3
       }
     },
     {
@@ -17,9 +17,8 @@
         "/status": "complete",
         "/result/regulatory/data/records/0/dates/0/role": "latest_procedure_affecting_product_information_date",
         "/result/regulatory/data/records/0/dates/0/date": "2026-05-28",
-        "/result/regulatory/data/records/0/dates/*/role": {
-          "excludes": "european_commission_decision_date"
-        },
+        "/result/regulatory/data/records/0/dates/5/role": "european_commission_decision_date",
+        "/result/regulatory/data/records/0/dates/5/date": "2026-05-29",
         "/result/regulatory/data/records/0/dates/3/role": "marketing_authorisation_date",
         "/result/regulatory/data/records/0/dates/3/date": "2022-01-06",
         "/result/regulatory/data/records/0/dates/4/role": "opinion_adopted_date",
@@ -27,14 +26,14 @@
         "/result/date_roles/0/role": "latest_procedure_affecting_product_information_date",
         "/result/date_roles/0/label": "Latest procedure affecting product information",
         "/result/date_roles/0/procedure": "REF/0000287477",
-        "/result/date_roles/*/role": {
-          "excludes": "european_commission_decision_date"
-        },
+        "/result/date_roles/5/role": "european_commission_decision_date",
+        "/result/date_roles/5/label": "European Commission decision date",
+        "/result/date_roles/5/procedure": "EMA/REF/0000287477",
         "/result/date_roles/3/role": "marketing_authorisation_date",
         "/result/date_roles/3/label": "Marketing authorisation issued",
         "/result/date_roles/4/label": "Opinion adopted",
         "/sources/0/notices/*/message": {
-          "includes": "No European Commission decision date is reported. latest_procedure_affecting_product_information_date is EMA's european_commission_decision_date field, which EMA's product page shows as the latest procedure's date; it can differ from the Commission decision. Read the decision date on the procedure's own EMA page, such as its referral page."
+          "includes": "european_commission_decision_date is from EMA's referrals file, record EMA/REF/0000287477."
         }
       }
     },
@@ -48,7 +47,9 @@
             "| Opinion adopted |  | opinion\\_adopted\\_date |",
             "| 2026-05-28 | latest\\_procedure\\_affecting\\_product\\_information\\_date |",
             "| 2022-01-06 | marketing\\_authorisation\\_date |",
-            "| request-guidance | No European Commission decision date is reported&#46; latest\\_procedure\\_affecting\\_product\\_information\\_date is EMA"
+            "| European Commission decision date | EMA/REF/0000287477 | european\\_commission\\_decision\\_date |",
+            "| 2026-05-29 | european\\_commission\\_decision\\_date |",
+            "| request-guidance | european\\_commission\\_decision\\_date is from EMA"
           ]
         }
       }
@@ -60,7 +61,13 @@
         "/result/regulatory/data/records/0/dates/0/role": "latest_procedure_affecting_product_information_date",
         "/result/regulatory/data/records/0/dates/0/date": "2014-01-01",
         "/result/regulatory/data/records/0/dates/1/role": "first_published_date",
-        "/result/regulatory/data/records/0/dates/1/date": "2014-01-01"
+        "/result/regulatory/data/records/0/dates/1/date": "2014-01-01",
+        "/result/regulatory/data/records/0/dates/*/role": {
+          "excludes": "european_commission_decision_date"
+        },
+        "/sources/0/notices/*/message": {
+          "includes": "No European Commission decision date is reported. latest_procedure_affecting_product_information_date is EMA's european_commission_decision_date field, which EMA's product page shows as the latest procedure's date; it can differ from the Commission decision. Read the decision date on the procedure's own EMA page, such as its referral page."
+        }
       }
     }
   ]

@@ -11,7 +11,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/rows": 1
+        "/result/rows": 2
       }
     },
     {
