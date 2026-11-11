@@ -130,8 +130,11 @@ fn disease_sources(action: &Action) -> UsageError {
     let values = accepted
         .iter()
         .map(|source| source.as_str().parse())
-        .collect::<Result<Vec<biodata::Text>, _>>()
-        .unwrap_or_default();
+        .collect::<Result<Vec<biodata::Text>, _>>();
+    let values = match values {
+        Ok(values) => values,
+        Err(_) => return UsageError::argument("--source".into()),
+    };
     UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("--source".into()),
         message: None,
