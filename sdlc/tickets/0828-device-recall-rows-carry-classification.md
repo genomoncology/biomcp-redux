@@ -1,6 +1,6 @@
 # 0828 — device-recall-rows-carry-classification
 
-Status: OPEN.
+Status: COMPLETE. Built and reviewed on the FDA-filters branch with 0825; landed on main at a69f573d9 (gate j37604).
 
 Milestone: 8
 

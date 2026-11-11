@@ -1,0 +1,64 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=recalling_firm%3A%22Remel%22&limit=5&skip=0&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794409246,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-07",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 117
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-0355-2027",
+              "res_event_number": "100139",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-10-19",
+              "product_code": "NGZ"
+            },
+            {
+              "product_res_number": "Z-2927-2026",
+              "res_event_number": "99450",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-07-17",
+              "product_code": "GTJ"
+            },
+            {
+              "product_res_number": "Z-2623-2026",
+              "res_event_number": "99132",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-06-03",
+              "product_code": "JTY"
+            },
+            {
+              "product_res_number": "Z-1923-2026",
+              "res_event_number": "98652",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-03-25",
+              "product_code": "GRM"
+            },
+            {
+              "product_res_number": "Z-1806-2026",
+              "res_event_number": "98616",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-03-24",
+              "product_code": "NGZ"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -104,6 +104,37 @@ fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     {
         return Err("a Markdown escape reached posted result text".into());
     }
+    let of = |record: &str| -> Vec<_> {
+        rows.iter()
+            .filter(|r| r["record"] == record)
+            .map(|r| r["data"].clone())
+            .collect()
+    };
+    if json!(of("flow-period")) != native["participantFlowModule"]["periods"]
+        || json!(of("flow-group")) != native["participantFlowModule"]["groups"]
+        || json!(of("baseline-measure")) != native["baselineCharacteristicsModule"]["measures"]
+        || json!(of("baseline-group")) != native["baselineCharacteristicsModule"]["groups"]
+    {
+        return Err("participant flow or baseline record was lost, reordered or changed".into());
+    }
+    let mut order: Vec<&str> = rows.iter().filter_map(|r| r["record"].as_str()).collect();
+    order.dedup();
+    if order
+        != [
+            "outcome",
+            "flow-group",
+            "flow-period",
+            "baseline",
+            "baseline-group",
+            "baseline-measure",
+            "adverse-events",
+            "adverse-event-group",
+            "serious-event",
+            "other-event",
+        ]
+    {
+        return Err(format!("posted record kinds changed order across pages: {order:?}").into());
+    }
     if json!(outcomes) != native["outcomeMeasuresModule"]["outcomeMeasures"]
         || json!(serious) != native["adverseEventsModule"]["seriousEvents"]
         || json!(other) != native["adverseEventsModule"]["otherEvents"]
@@ -113,6 +144,7 @@ fn native_rows(rows: &[Value], serious: &[Value]) -> Check {
     Ok(())
 }
 fn posted_primary(first: &Value) -> Check {
+    // The first posted outcome opens the first page; participant flow and baseline follow the outcomes.
     let primary = &first["result"]["items"][0]["sections"]["results"]["data"]["items"][0];
     if primary["record"] != "outcome"
         || primary["data"]["title"] != "Progression Free Survival (PFS)"

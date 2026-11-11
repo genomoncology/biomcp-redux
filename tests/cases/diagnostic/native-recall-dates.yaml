@@ -2,7 +2,7 @@
   "feature": "diagnostic-device-recall",
   "live_check": "public",
   "story": "Existing literal FDA selectors retain native recall identifiers and source-reported totals.",
-  "verified": "Native openFDA captures2026-10-30. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection retains only source identifiers, government classification/status/date facts and native counts; manufacturer/product/reason/distribution prose and third-party content omitted. Original bodies/headers/requests/hashes retained in native-fda-trial archive outside Git. No rows or values invented.",
+  "verified": "Native openFDA captures2026-10-30. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection retains only source identifiers, government classification/status/date facts and native counts; manufacturer/product/reason/distribution prose and third-party content omitted. Original bodies/headers/requests/hashes retained in native-fda-trial archive outside Git. No rows or values invented. The exact device enforcement record for the returned recall number was captured 2026-11-11 through scripts/source_capture.py (200, 3,548 bytes, SHA-256 f14943ea222e9ba2144bb3a146564350a1aa86e57920657910b9567440d02e2a) and projected to its recall number and classification.",
   "replay": "diagnostic/native-recall-dates",
   "steps": [
     {
@@ -20,7 +20,8 @@
       ],
       "expect": {
         "/result/items/0/header/recall_number": "Z-0991-2025",
-        "/page/total": 3279
+        "/page/total": 3279,
+        "/result/items/0/classification": "Class I"
       }
     }
   ]

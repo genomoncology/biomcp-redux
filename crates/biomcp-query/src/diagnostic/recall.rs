@@ -6,7 +6,7 @@ use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiagnosticCard, DiagnosticCountUnit, DiagnosticGet, DiagnosticPage, DiagnosticSearch, PageInfo,
-    Problem, ProblemCode, Request, Source, SourceState, Status, StepKind,
+    Problem, ProblemCode, Request, Source, SourceNotice, SourceState, Status, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let mut out = empty(
@@ -20,8 +20,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&adapter::SPEC, deadline).fresh(cx.fresh);
+    let mut unmatched = (0, 0);
     let result = adapter::search(&leg, q);
-    let error = result.as_ref().err().copied();
+    let mut error = result.as_ref().err().copied();
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
         {
@@ -29,6 +30,10 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
+        unmatched = (page.unmatched, returned);
+        if let Some(failure) = page.join_failure {
+            error = Some(failed(&mut out, None, failure));
+        }
         next::candidates(&mut out, q, &page.items, cx.fresh);
         if u64::from(q.offset()) + u64::from(returned) < page.total && returned > 0 {
             next::push(
@@ -53,10 +58,45 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         })
         .with_query(q.clone());
     }
+    let rows_survive = error.is_some() && out.page.is_some();
     finish(&mut out, leg, error);
-    status::search(&mut out);
+    if rows_survive {
+        crate::status::item(&mut out, true, false, true);
+    } else {
+        status::search(&mut out);
+    }
+    if let Some(source) = out.sources.last_mut() {
+        if q.classification().is_some() {
+            source.notices.push(guidance(CLASS_NOTICE.into()));
+        }
+        if unmatched.0 > 0 {
+            source
+                .notices
+                .push(unmatched_notice(q, unmatched.0, unmatched.1));
+        }
+    }
     command.finish(deadline.remaining());
     out
+}
+const CLASS_NOTICE: &str = "--classification selects openFDA device enforcement records: the total counts \
+    enforcement records, and --manufacturer and the initiation dates match enforcement fields.";
+/// Count rows the exact join left without their other openFDA record; nothing is inferred for them.
+fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNotice {
+    let (missing, shown) = if q.classification().is_some() {
+        ("recall", "only the recall number and classification")
+    } else {
+        ("enforcement", "no classification")
+    };
+    guidance(format!(
+        "{rows} of {returned} returned rows have no exact openFDA device {missing} record and show {shown}."
+    ))
+}
+fn guidance(message: String) -> SourceNotice {
+    SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    }
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNumber) -> Outcome {
     let mut out = empty(biomcp_types::DiagnosticCard::into_reply(q.clone(), None));
@@ -76,7 +116,7 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
                     out.problems.append(&mut classification.problems);
                 }
                 Err(failure) => {
-                    error = Some(failed(&mut out, q, failure));
+                    error = Some(failed(&mut out, Some(q.record().clone()), failure));
                     crate::status::item(&mut out, true, false, true);
                 }
             }
@@ -107,17 +147,21 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
             out.body = (DiagnosticCard::DeviceRecall(Box::new(mapped.value))).with_query(q.clone());
         }
         Ok(None) => crate::status::item(&mut out, false, false, false),
-        Err(failure) => error = Some(failed(&mut out, q, failure)),
+        Err(failure) => error = Some(failed(&mut out, Some(q.record().clone()), failure)),
     }
     finish(&mut out, leg, error);
     command.finish(deadline.remaining());
     out
 }
-fn failed(out: &mut Outcome, q: &DiagnosticGet, failure: adapter::Failure) -> RequestError {
+fn failed(
+    out: &mut Outcome,
+    record: Option<biodata::Text>,
+    failure: adapter::Failure,
+) -> RequestError {
     if let Some(field) = failure.identity_field {
         out.problems.push(Problem {
             source: Source::FdaDeviceRecall,
-            record: Some(q.record().clone()),
+            record,
             field: field.into(),
             code: ProblemCode::IdentityConflict,
         });

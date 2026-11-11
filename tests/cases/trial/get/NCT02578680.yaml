@@ -28,6 +28,29 @@
         }
       },
       "max_bytes": 8395
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02578680"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "COMPLETED",
+        "/result/items/0/card/enrollment": {
+          "equals": {
+            "count": 616,
+            "kind": "ACTUAL"
+          }
+        },
+        "/result/items/0/card": {
+          "omits": [
+            "why_stopped"
+          ]
+        }
+      },
+      "max_bytes": 3958
     }
   ],
   "harvest": "Reviewed question bank: T04, T05, T06"

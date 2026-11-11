@@ -566,6 +566,7 @@ fn context(
         ("get", "pgx", "kind") => json!({"source":"clinpgx", "section":"annotations"}),
         ("get", "disease", "ontology") => json!({"source":"ols"}),
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
+        ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
         ("search", "adverse-event", "section") => json!({"source":"vaers", "text":"COVID19"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),

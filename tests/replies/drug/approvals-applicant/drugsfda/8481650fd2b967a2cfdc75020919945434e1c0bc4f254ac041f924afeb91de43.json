@@ -1,0 +1,488 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=sponsor_name%3AALNYLAM%2A&limit=2",
+  "exchanges": [
+    {
+      "fetched": 1794411113,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-10",
+            "results": {
+              "skip": 0,
+              "limit": 2,
+              "total": 4
+            }
+          },
+          "results": [
+            {
+              "submissions": [
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "4",
+                  "submission_status": "AP",
+                  "submission_status_date": "20190916",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "60021",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/210922Orig1s004ltr.pdf",
+                      "date": "20190917",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "60029",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/210922s004lbl.pdf",
+                      "date": "20190918",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "12",
+                  "submission_status": "AP",
+                  "submission_status_date": "20230113",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "EFFICACY",
+                  "submission_class_code_description": "Efficacy",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "73185",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/210922Orig1s012ltr.pdf",
+                      "date": "20230117",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "73195",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/210922s012lbl.pdf",
+                      "date": "20230117",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "9",
+                  "submission_status": "AP",
+                  "submission_status_date": "20210506",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "67445",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/210922Orig1s009ltr.pdf",
+                      "date": "20210510",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "67474",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/210922s009lbl.pdf",
+                      "date": "20210512",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20180810",
+                  "review_priority": "PRIORITY",
+                  "submission_class_code": "TYPE 1",
+                  "submission_class_code_description": "Type 1 - New Molecular Entity",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "55153",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/210922s000lbl.pdf",
+                      "date": "20180810",
+                      "type": "Label"
+                    },
+                    {
+                      "id": "55169",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/210922Orig1s000ltr.pdf",
+                      "date": "20180813",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "55395",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/210922Orig1s000TOC.html",
+                      "date": "20180907",
+                      "type": "Review"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "7",
+                  "submission_status": "AP",
+                  "submission_status_date": "20200417",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "62599",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/210922Orig1s007ltr.pdf",
+                      "date": "20200420",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "62610",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/210922s007lbl.pdf",
+                      "date": "20200420",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "13",
+                  "submission_status": "AP",
+                  "submission_status_date": "20221003",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "72239",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/210922Orig1s013ltr.pdf",
+                      "date": "20221004",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "72267",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/210922s013lbl.pdf",
+                      "date": "20221007",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20190506",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "58602",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/210922s001ltr.pdf",
+                      "date": "20190507",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "58662",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/210922Orig1s001lbl.pdf",
+                      "date": "20190513",
+                      "type": "Label"
+                    }
+                  ]
+                }
+              ],
+              "application_number": "NDA210922",
+              "sponsor_name": "ALNYLAM PHARMS INC",
+              "openfda": {
+                "application_number": [
+                  "NDA210922"
+                ],
+                "brand_name": [
+                  "ONPATTRO"
+                ],
+                "generic_name": [
+                  "PATISIRAN"
+                ],
+                "manufacturer_name": [
+                  "Alnylam Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "71336-1000"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "INTRAVENOUS"
+                ],
+                "substance_name": [
+                  "PATISIRAN SODIUM"
+                ],
+                "rxcui": [
+                  "2053524",
+                  "2053529"
+                ],
+                "spl_id": [
+                  "254d330d-6f47-45c4-9774-95864ab46941"
+                ],
+                "spl_set_id": [
+                  "e87ec36f-b4b4-49d4-aea4-d4ffb09b0970"
+                ],
+                "package_ndc": [
+                  "71336-1000-1"
+                ],
+                "unii": [
+                  "WO0YM16LKG"
+                ]
+              },
+              "products": [
+                {
+                  "product_number": "001",
+                  "reference_drug": "Yes",
+                  "brand_name": "ONPATTRO",
+                  "active_ingredients": [
+                    {
+                      "name": "PATISIRAN SODIUM",
+                      "strength": "EQ 10MG BASE/5ML (EQ 2MG BASE/ML)"
+                    }
+                  ],
+                  "reference_standard": "Yes",
+                  "dosage_form": "SOLUTION",
+                  "route": "INTRAVENOUS",
+                  "marketing_status": "Prescription"
+                }
+              ]
+            },
+            {
+              "submissions": [
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "6",
+                  "submission_status": "AP",
+                  "submission_status_date": "20250320",
+                  "review_priority": "PRIORITY",
+                  "submission_class_code": "EFFICACY",
+                  "submission_class_code_description": "Efficacy",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "81679",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/215515Orig1s006ltr.pdf",
+                      "date": "20250324",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "81732",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/215515s006lbl.pdf",
+                      "date": "20250326",
+                      "type": "Label"
+                    },
+                    {
+                      "id": "87552",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2026/215515Orig1s006.pdf",
+                      "date": "20261026",
+                      "type": "Review"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20220613",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "TYPE 1",
+                  "submission_class_code_description": "Type 1 - New Molecular Entity",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "71292",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/215515s000lbl.pdf",
+                      "date": "20220614",
+                      "type": "Label"
+                    },
+                    {
+                      "id": "71306",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/215515Orig1s000ltr.pdf",
+                      "date": "20220614",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "71538",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/215515Orig1s000TOC.html",
+                      "date": "20220712",
+                      "type": "Review"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "2",
+                  "submission_status": "AP",
+                  "submission_status_date": "20230216",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "73545",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215515Orig1s002ltr.pdf",
+                      "date": "20230217",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "73550",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/215515s002lbl.pdf",
+                      "date": "20230217",
+                      "type": "Label"
+                    }
+                  ]
+                },
+                {
+                  "submission_type": "SUPPL",
+                  "submission_number": "5",
+                  "submission_status": "AP",
+                  "submission_status_date": "20250311",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "LABELING",
+                  "submission_class_code_description": "Labeling",
+                  "submission_property_type": [
+                    {
+                      "code": "Orphan"
+                    }
+                  ],
+                  "application_docs": [
+                    {
+                      "id": "81548",
+                      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/215515Orig1s005ltr.pdf",
+                      "date": "20250313",
+                      "type": "Letter"
+                    },
+                    {
+                      "id": "81574",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/215515s005lbl.pdf",
+                      "date": "20250314",
+                      "type": "Label"
+                    }
+                  ]
+                }
+              ],
+              "application_number": "NDA215515",
+              "sponsor_name": "ALNYLAM PHARMS INC",
+              "openfda": {
+                "application_number": [
+                  "NDA215515"
+                ],
+                "brand_name": [
+                  "AMVUTTRA"
+                ],
+                "generic_name": [
+                  "VUTRISIRAN"
+                ],
+                "manufacturer_name": [
+                  "Alnylam Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "71336-1003"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "SUBCUTANEOUS"
+                ],
+                "substance_name": [
+                  "VUTRISIRAN SODIUM"
+                ],
+                "rxcui": [
+                  "2604788",
+                  "2604794"
+                ],
+                "spl_id": [
+                  "1791a81a-d261-4b66-b699-273afe02c380"
+                ],
+                "spl_set_id": [
+                  "8db0facb-81b6-4006-9239-27dc6409c5d3"
+                ],
+                "package_ndc": [
+                  "71336-1003-1"
+                ],
+                "unii": [
+                  "28O0WP6Z1P"
+                ]
+              },
+              "products": [
+                {
+                  "product_number": "001",
+                  "reference_drug": "Yes",
+                  "brand_name": "AMVUTTRA",
+                  "active_ingredients": [
+                    {
+                      "name": "VUTRISIRAN SODIUM",
+                      "strength": "EQ 25MG BASE/0.5ML (EQ 25MG BASE/0.5ML)"
+                    }
+                  ],
+                  "reference_standard": "Yes",
+                  "dosage_form": "SOLUTION",
+                  "route": "SUBCUTANEOUS",
+                  "marketing_status": "Prescription"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

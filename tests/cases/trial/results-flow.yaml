@@ -1,0 +1,365 @@
+{
+  "live_check": "public",
+  "feature": "trial-results",
+  "story": "The results section still opens with the posted outcomes; the page after them carries the participant flow by arm and period, with its dropout reasons, then the baseline characteristics, each as the registry's own whole record.",
+  "replay": "trial/get/NCT02987543",
+  "verified": "tests/replies/trial/get/README.md identifies the unchanged public NCT02987543 reply. Expected records are that reply's resultsSection.participantFlowModule.periods[0] and baselineCharacteristicsModule.measures[0], copied whole, and its first outcome title. Its five outcomes fill the first page and start the second inside the section's existing 8,000-byte record budget; the flow and baseline records follow the last outcome. Each ceiling is the measured reply plus 15 percent.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02987543",
+        "results",
+        "--limit",
+        "20"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT02987543",
+        "results",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/enrollment": {
+          "equals": {
+            "count": 387,
+            "kind": "ACTUAL"
+          }
+        },
+        "/result/items/0/sections/results/data/items/*/record": {
+          "equals": [
+            "outcome",
+            "outcome",
+            "outcome",
+            "outcome"
+          ]
+        },
+        "/result/items/0/sections/results/data/items/0/data/title": "Confirmed Objective Response Rate (ORR) by Blinded Independent Central Review (BICR) - Cohort A Only",
+        "/result/items/0/sections/results/data/continuation/offset": 4
+      },
+      "max_bytes": 11276
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/results/data/offset": 4,
+        "/result/items/0/sections/results/data/items/*/record": {
+          "equals": [
+            "outcome",
+            "participant-flow",
+            "flow-group",
+            "flow-group",
+            "flow-group",
+            "flow-group",
+            "flow-period",
+            "baseline",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-measure",
+            "baseline-measure"
+          ]
+        },
+        "/result/items/0/sections/results/data/items/6": {
+          "equals": {
+            "record": "flow-period",
+            "data": {
+              "title": "Overall Study",
+              "milestones": [
+                {
+                  "type": "STARTED",
+                  "achievements": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "162"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "83"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "94"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "48"
+                    }
+                  ]
+                },
+                {
+                  "type": "COMPLETED",
+                  "achievements": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "NOT COMPLETED",
+                  "achievements": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "162"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "83"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "94"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "48"
+                    }
+                  ]
+                }
+              ],
+              "dropWithdraws": [
+                {
+                  "type": "Ongoing study at data cut off",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "49"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "21"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "19"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "12"
+                    }
+                  ]
+                },
+                {
+                  "type": "Death",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "88"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "54"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "67"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "28"
+                    }
+                  ]
+                },
+                {
+                  "type": "Lost to Follow-up",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "3"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "1"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Screen failure",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "1"
+                    }
+                  ]
+                },
+                {
+                  "type": "Withdrawal by Subject",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "21"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "7"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "7"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "6"
+                    }
+                  ]
+                },
+                {
+                  "type": "Study terminated by sponsor",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "1"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Investigator decision",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "1"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "Disease progression",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG003",
+                      "numSubjects": "1"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "/result/items/0/sections/results/data/items/13": {
+          "equals": {
+            "record": "baseline-measure",
+            "data": {
+              "title": "Age, Continuous",
+              "paramType": "MEAN",
+              "dispersionType": "STANDARD_DEVIATION",
+              "unitOfMeasure": "Years",
+              "classes": [
+                {
+                  "categories": [
+                    {
+                      "measurements": [
+                        {
+                          "groupId": "BG000",
+                          "value": "68.0",
+                          "spread": "8.23"
+                        },
+                        {
+                          "groupId": "BG001",
+                          "value": "68.1",
+                          "spread": "7.36"
+                        },
+                        {
+                          "groupId": "BG002",
+                          "value": "69.2",
+                          "spread": "8.79"
+                        },
+                        {
+                          "groupId": "BG003",
+                          "value": "70.3",
+                          "spread": "7.83"
+                        },
+                        {
+                          "groupId": "BG004",
+                          "value": "68.6",
+                          "spread": "8.15"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "/result/items/0/sections/results/data/continuation/offset": 19
+      },
+      "max_bytes": 12221
+    }
+  ],
+  "harvest": "biomed-agent-bench navigator and trial-ops personas: dropout numbers"
+}

@@ -56,6 +56,9 @@ pub enum DiagnosticCandidate {
     DeviceRecall {
         /// Source-owned compact recall fields.
         header: super::DeviceRecallHeader,
+        /// Classification from an exact enforcement recall_number match, absent without that match.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        classification: Option<Text>,
     },
     /// One matched WHO product with cells from its first matching native row.
     WhoIvd {
@@ -211,7 +214,7 @@ page!(
     DiagnosticPage,
     DiagnosticCandidate,
     DiagnosticSearch,
-    "biomcp.diagnostic-page/5",
+    "biomcp.diagnostic-page/6",
     "Source-ordered native diagnostic and medical-device submission candidates."
 );
 page!(

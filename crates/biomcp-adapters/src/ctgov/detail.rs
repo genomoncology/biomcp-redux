@@ -2,15 +2,18 @@
 use biomcp_fetch::{Input, Read};
 mod arms;
 mod dates;
+mod eligibility;
+mod posted;
 mod publications;
 mod results;
 mod sites;
 use crate::{mapped::Problems, raw::Field};
 use biodata::{
-    Markdown, NctId, StudyType, TrialAgeBound, TrialArm, TrialCard, TrialEligibility,
-    TrialIntervention, TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
+    Markdown, NctId, StudyType, TrialArm, TrialCard, TrialEligibility, TrialIntervention,
+    TrialOutcome, TrialOutcomeKind, TrialPhase, TrialSex, TrialStatus,
 };
 use biomcp_types::Source;
+use posted::{Enrollment, Posted};
 
 use biomcp_fetch::{BadReply, Freshness, Leg, Reply, ReplyMetadata, RequestError};
 use serde::{Deserialize, Serialize};
@@ -44,6 +47,10 @@ pub struct Detail {
     pub results: Box<[biomcp_types::TrialResultRecord]>,
     /// Results first publicly posted date from the protocol status.
     pub results_first_posted: Option<biodata::PartialDate>,
+    /// Registered enrollment count and qualifier from the design module.
+    pub enrollment: Option<biomcp_types::TrialEnrollment>,
+    /// Registry's reason the study stopped early, from the protocol status.
+    pub why_stopped: Option<Box<str>>,
     /// Actual refused native records, including refused document manifest records.
     #[serde(default = "super::refusals::none", with = "super::refusals")]
     pub refusals: crate::Refusal,
@@ -126,6 +133,7 @@ struct Identification {
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
+    why_stopped: Option<Field<Box<str>>>,
     results_first_post_date_struct: Option<Field<RawDate>>,
     last_update_post_date_struct: Option<Field<RawDate>>,
     start_date_struct: Option<Field<RawDate>>,
@@ -133,7 +141,7 @@ struct Status {
     completion_date_struct: Option<Field<RawDate>>,
 }
 #[derive(Deserialize)]
-struct RawDate {
+pub(in crate::ctgov) struct RawDate {
     date: Option<Field<biodata::PartialDate>>,
     #[serde(rename = "type")]
     kind: Option<Field<biodata::TrialDateKind>>,
@@ -144,6 +152,7 @@ struct RawDate {
 struct Design {
     study_type: Option<Field<StudyType>>,
     phases: Option<Field<Vec<Field<TrialPhase>>>>,
+    enrollment_info: Option<Field<Enrollment>>,
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -236,11 +245,13 @@ impl Protocol {
                 || (Box::default(), Box::default(), Box::default()),
                 |sites| sites.rows(&mut problems, &mut refusals),
             );
-        let mut results_first_posted = None;
-        let card = self.card(&interventions, &mut problems, &mut results_first_posted);
+        let mut posted = Posted::default();
+        let card = self.card(&interventions, &mut problems, &mut posted);
         Detail {
             results: Box::default(),
-            results_first_posted,
+            results_first_posted: posted.results_first_posted,
+            enrollment: posted.enrollment,
+            why_stopped: posted.why_stopped,
             references: problems
                 .field("referencesModule", self.references_module)
                 .map_or_else(Box::default, |r| r.rows(&mut problems, &mut refusals)),
@@ -266,20 +277,24 @@ impl Protocol {
         &mut self,
         interventions: &[TrialIntervention],
         problems: &mut Problems,
-        results_first_posted: &mut Option<biodata::PartialDate>,
+        posted: &mut Posted,
     ) -> TrialCard {
         let status = problems
             .field("statusModule", self.status_module.take())
             .unwrap_or_default();
-        *results_first_posted = RawDate::field(
+        posted.results_first_posted = RawDate::field(
             "resultsFirstPostDateStruct",
             status.results_first_post_date_struct,
             problems,
         )
         .map(|d| d.date);
+        posted.why_stopped = posted::why_stopped(status.why_stopped, problems);
         let design = problems
             .field("designModule", self.design_module.take())
             .unwrap_or_default();
+        posted.enrollment = problems
+            .field("enrollmentInfo", design.enrollment_info)
+            .and_then(|e| e.mapped(problems));
         let updated = RawDate::field(
             "lastUpdatePostDateStruct",
             status.last_update_post_date_struct,
@@ -338,17 +353,6 @@ impl Sponsor {
             .and_then(|s| problems.native_text("leadSponsor.name", s.name))
     }
 }
-impl Eligibility {
-    fn mapped(self, problems: &mut Problems) -> TrialEligibility {
-        TrialEligibility {
-            minimum_age: age("minimumAge", self.minimum_age, problems),
-            maximum_age: age("maximumAge", self.maximum_age, problems),
-            sex: problems.field("sex", self.sex),
-            healthy_volunteers: problems.field("healthyVolunteers", self.healthy_volunteers),
-            criteria: problems.field("eligibilityCriteria", self.eligibility_criteria),
-        }
-    }
-}
 impl Outcomes {
     fn rows(self, problems: &mut Problems, refusals: &mut crate::Refusal) -> Box<[TrialOutcome]> {
         use TrialOutcomeKind::{Other, Primary, Secondary};
@@ -370,17 +374,5 @@ impl Outcomes {
             time_frame: problems.native_text("outcomes.timeFrame", v.time_frame),
         })
         .collect()
-    }
-}
-fn age(
-    field: &str,
-    value: Option<Field<Box<str>>>,
-    problems: &mut Problems,
-) -> Option<TrialAgeBound> {
-    match value {
-        None => Some(TrialAgeBound::NoLimit),
-        Some(value) => problems
-            .native_text(field, Some(value))
-            .map(|raw| TrialAgeBound::Source { raw }),
     }
 }

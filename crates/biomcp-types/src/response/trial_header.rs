@@ -19,6 +19,15 @@ pub struct TrialHeader {
     pub conditions: crate::Capped<Text>,
     /// Source intervention names.
     pub interventions: crate::Capped<Text>,
+    /// Lead sponsor as registered, absent when the row carries none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sponsor: Option<Text>,
+    /// Source start date with its actual or estimated qualifier, when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub start: Option<biodata::TrialDate>,
+    /// Source primary completion date with its qualifier, when present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub primary_completion: Option<biodata::TrialDate>,
     /// Last posted registry update, absent when missing or rejected.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub updated: Option<PartialDate>,

@@ -1,0 +1,34 @@
+{
+  "live_check": "public",
+  "feature": "trial-get",
+  "story": "A terminated trial's card shows the registered enrollment with its qualifier and the registry's own reason the study stopped, as a plain sentence.",
+  "replay": "trial/get/NCT00627419",
+  "verified": "The actual CLI recorded https://clinicaltrials.gov/api/v2/studies/NCT00627419 and the version reply from the public source on 2026-11-11 with --record; registry processing time 2026-11-10T10:00:05. The registry's statusModule.whyStopped reads 'Study closed \\& recruitment will not recommence' and designModule.enrollmentInfo is count 1, type ACTUAL. The ceiling is the measured reply plus 15 percent.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT00627419"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT00627419"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/status": "TERMINATED",
+        "/result/items/0/card/enrollment": {
+          "equals": {
+            "count": 1,
+            "kind": "ACTUAL"
+          }
+        },
+        "/result/items/0/card/why_stopped": "Study closed & recruitment will not recommence"
+      },
+      "max_bytes": 2264
+    }
+  ],
+  "harvest": "biomed-agent-bench trial-ops persona, questions 6 and 7"
+}

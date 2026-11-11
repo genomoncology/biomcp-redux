@@ -1,6 +1,6 @@
 # 0824 — trial-participant-flow-and-baseline
 
-Status: OPEN.
+Status: COMPLETE. Built and reviewed on the trial-fields branch with 0823; landed on main at b69a82ce1 (gate j37604).
 
 Milestone: 8
 

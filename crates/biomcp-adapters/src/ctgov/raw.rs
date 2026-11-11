@@ -6,11 +6,15 @@ use crate::{
 use biodata::{NctId, PartialDate, Text, TrialPhase, TrialStatus};
 use biomcp_types::Source;
 
+use super::detail::RawDate;
 use biomcp_fetch::{BadReply, Reply};
 use biomcp_types::TrialHeader;
 use serde::Deserialize;
+#[path = "raw_dates.rs"]
+mod dates;
 #[path = "raw_gene.rs"]
 mod gene_context;
+use dates::Dates;
 #[derive(Deserialize)]
 #[serde(transparent)]
 pub(super) struct FirstPage(pub(super) RawPage);
@@ -81,6 +85,7 @@ pub(super) struct Protocol {
     identification_module: Identification,
     status_module: Option<Field<Status>>,
     design_module: Option<Field<Design>>,
+    sponsor_collaborators_module: Option<Field<Sponsor>>,
     conditions_module: Option<Field<Conditions>>,
     arms_interventions_module: Option<Field<Interventions>>,
     contacts_locations_module: Option<Field<CountryLocations>>,
@@ -97,7 +102,18 @@ struct Identification {
 #[serde(rename_all = "camelCase")]
 struct Status {
     overall_status: Option<Field<TrialStatus>>,
+    start_date_struct: Option<Field<RawDate>>,
+    primary_completion_date_struct: Option<Field<RawDate>>,
     last_update_post_date_struct: Option<Field<Updated>>,
+}
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Sponsor {
+    lead_sponsor: Option<Field<SponsorName>>,
+}
+#[derive(Deserialize)]
+struct SponsorName {
+    name: Option<Field<Text>>,
 }
 #[derive(Deserialize)]
 struct Updated {
@@ -177,24 +193,14 @@ impl Protocol {
             record: crate::mapped::record(self.identification_module.nct_id),
             list: Vec::new(),
         };
-        let status = problems.field("statusModule", self.status_module);
-        let (status, updated) = if let Some(status) = status {
-            let overall = problems.field("overallStatus", status.overall_status);
-            let overall = problems.required("overallStatus", overall);
-            let updated = problems
-                .field(
-                    "lastUpdatePostDateStruct",
-                    status.last_update_post_date_struct,
-                )
-                .and_then(|d| problems.field("lastUpdatePostDateStruct.date", d.date));
-            let updated = problems.required("lastUpdatePostDateStruct.date", updated);
-            (overall, updated)
-        } else {
-            (
-                problems.required("overallStatus", None),
-                problems.required("lastUpdatePostDateStruct.date", None),
+        let dates = Dates::read(self.status_module, &mut problems);
+        let sponsor = problems
+            .field(
+                "sponsorCollaboratorsModule",
+                self.sponsor_collaborators_module,
             )
-        };
+            .and_then(|s| problems.field("leadSponsor", s.lead_sponsor))
+            .and_then(|s| problems.field("leadSponsor.name", s.name));
         let phases = problems
             .field("designModule", self.design_module)
             .map_or_else(Box::default, |d| problems.fields("phases", d.phases));
@@ -206,7 +212,7 @@ impl Protocol {
             ))
             .map_err(|_| BadReply)?,
             title: problems.required_field("briefTitle", self.identification_module.brief_title),
-            status,
+            status: dates.status,
             phases,
             conditions: names(
                 problems
@@ -231,7 +237,10 @@ impl Protocol {
                     .filter_map(|v| problems.field("interventions.name", v.name))
                     .collect(),
             ),
-            updated,
+            sponsor,
+            start: dates.start,
+            primary_completion: dates.primary_completion,
+            updated: dates.updated,
         };
         Ok(Mapped {
             refusals,

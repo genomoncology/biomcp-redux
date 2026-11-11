@@ -27,7 +27,7 @@
       ],
       "max_bytes": 4080,
       "expect": {
-        "/schema": "biomcp.diagnostic-page/5",
+        "/schema": "biomcp.diagnostic-page/6",
         "/page/total": 8,
         "/page/returned": 5,
         "/result/items/0/header/id": "GTR000006692.3",
