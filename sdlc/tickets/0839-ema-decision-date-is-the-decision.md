@@ -1,6 +1,7 @@
 # 0839 — ema-decision-date-is-the-decision
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1be2a722955acfad5b8a75ec3453d9aec2463e37
 
 Milestone: 7
 

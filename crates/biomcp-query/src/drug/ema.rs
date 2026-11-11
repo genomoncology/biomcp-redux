@@ -3,8 +3,8 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ema;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section, Source, SourceState,
-    StepKind,
+    DrugGet, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section, Source, SourceNotice,
+    SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -63,11 +63,13 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
+    let mut notice = None;
     let result = if regulatory {
         ema::regulatory(&leg, &id).map(|body| {
             out.include_refusals(body.refusals);
             out.problems.extend(body.problems);
             let body = body.value;
+            notice = body.as_ref().and_then(ema::decision_date_notice);
             let found = body.is_some();
             out.body = biomcp_types::DrugRegulatory::into_reply(
                 query.clone(),
@@ -115,6 +117,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             crate::status::item(&mut out, found, identity_failed, unavailable);
         };
     }
+    add_notice(&mut out, notice);
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
@@ -145,6 +148,16 @@ fn regulatory_page(
         });
     }
     body
+}
+/// Attach the adapter's source observation, when it has one, to the EMA outcome.
+fn add_notice(out: &mut Outcome, notice: Option<&'static str>) {
+    if let (Some(source), Some(message)) = (out.sources.last_mut(), notice) {
+        source.notices.push(SourceNotice::RequestGuidance {
+            data_date: None,
+            message: message.into(),
+            retry_after_seconds: None,
+        });
+    }
 }
 fn sync_step(out: &mut Outcome) {
     if out
