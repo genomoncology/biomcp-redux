@@ -347,12 +347,7 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.message = ErrorMessage::UnknownCommand;
                 out.next = vec![next];
             }
-            UsageError::Retired(message, next) => {
-                out.error.code = ErrorCode::Retired;
-                out.error.message = message;
-                out.error.valid_values = retired_values(message);
-                out.next = next;
-            }
+            UsageError::Retired(message, next) => out.retired(message, next),
             UsageError::McpUnavailable(message) => {
                 out.error.code = ErrorCode::McpUnavailable;
                 out.error.message = message;
@@ -417,6 +412,13 @@ impl From<crate::UsageError> for ErrorEnvelope {
 }
 
 impl ErrorEnvelope {
+    fn retired(&mut self, message: ErrorMessage, next: Vec<super::Step>) {
+        self.error.code = ErrorCode::Retired;
+        self.error.message = message;
+        self.error.valid_values = retired_values(message);
+        self.next = next;
+    }
+
     fn source_selector(&mut self, usage: crate::UsageError) {
         if let crate::UsageError::SourceSelector {
             source,
