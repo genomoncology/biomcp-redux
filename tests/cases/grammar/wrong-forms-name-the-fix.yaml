@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Wrong forms agents typed in the baseline are refused with the argument at fault and the call that works: a section under another name, a label heading or source typed as a section, a record word in the section's place, words split from one value, text where the command takes none, and a source typed as an option.",
+  "story": "Wrong forms agents typed in the baseline are refused with the argument at fault and the call that works: a section under another name, a label heading or source typed as a section, a record word in the section's place, words split from one value, text where the command takes none, a source typed as an option, and a section the default source lacks.",
   "steps": [
     {
       "run": [
@@ -323,6 +323,41 @@
           "get",
           "gene",
           "MSTN"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "apitegromab",
+        "targets"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "source",
+        "/error/valid_values": [
+          "chembl",
+          "opentargets"
+        ],
+        "/next/0/args": [
+          "get",
+          "drug",
+          "apitegromab",
+          "targets",
+          "--source",
+          "chembl"
+        ],
+        "/next/1/args": [
+          "get",
+          "drug",
+          "apitegromab",
+          "targets",
+          "--source",
+          "opentargets"
         ]
       }
     }

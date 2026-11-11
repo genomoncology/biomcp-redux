@@ -1,7 +1,7 @@
 {
   "live_check": "offline parser checks; no source requests",
   "feature": "mcp-parity",
-  "story": "A typed section is plain text, so a wrong one reaches the server, which answers with the typed call that works: article text names fulltext, gene hgnc reads the HGNC card, variant gnomad names population, drug who-pq names the source and a label heading names the label section.",
+  "story": "A typed section is plain text, so a wrong one reaches the server, which answers with the typed call that works: article text names fulltext, gene hgnc reads the HGNC card, variant gnomad names population, drug who-pq names the source and a label heading names the label section, and a section the default source lacks names the sources that serve it.",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -111,6 +111,31 @@
         "/next/0/arguments/get/label_section": "boxed_warning",
         "/next/0/arguments/get/section": [
           "label"
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "imatinib",
+            "section": [
+              "indications"
+            ]
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "source",
+        "/next/0/name": "drug",
+        "/next/0/arguments/get/source": "chembl",
+        "/next/0/arguments/get/section": [
+          "indications"
         ]
       }
     }

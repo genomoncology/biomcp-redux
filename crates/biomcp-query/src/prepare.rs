@@ -37,7 +37,7 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
         DiseaseSource::MyDisease => {
             biomcp_adapters::mydisease::supported_id(id)
                 && matches!(
-                    section,
+                    *section,
                     None | Some(
                         DiseaseSection::Synonyms
                             | DiseaseSection::Xrefs
@@ -268,9 +268,26 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
         return Ok(());
     };
     let label_only = query.sections() == [biomcp_types::DrugSection::Label];
+    // One section the selected source lacks: the sources that serve it, each call written out.
+    let serving = match query.sections() {
+        [section] if !label_only => biomcp_types::DrugSource::ALL
+            .into_iter()
+            .filter(|source| source.sections().contains(section))
+            .map(|source| (<&str>::from(*section), source.as_str()))
+            .collect::<Vec<_>>(),
+        _ => Vec::new(),
+    };
     let (option, values) = if !query.supports_sections() && label_only {
         // Only the openFDA label source serves a label read, so name the source to pass.
         ("source", "openfda-label".parse().map(|v| vec![v]))
+    } else if !query.supports_sections() && !serving.is_empty() {
+        (
+            "source",
+            serving
+                .iter()
+                .map(|(_, source)| source.parse())
+                .collect::<Result<Vec<biodata::Text>, _>>(),
+        )
     } else if !query.supports_sections() {
         (
             "section",
@@ -294,9 +311,26 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
         },
         option: option.into(),
         valid_values: values.into(),
-        next: vec![biomcp_types::Step {
-            kind: biomcp_types::StepKind::Configure,
-            args: ["help", "get", "drug"].map(Into::into).into(),
-        }],
+        next: serving
+            .iter()
+            .filter(|_| option == "source" && !label_only)
+            .map(|(section, source)| biomcp_types::Step {
+                kind: biomcp_types::StepKind::Configure,
+                args: [
+                    "get",
+                    "drug",
+                    query.input().as_str(),
+                    *section,
+                    "--source",
+                    *source,
+                ]
+                .map(Into::into)
+                .into(),
+            })
+            .chain([biomcp_types::Step {
+                kind: biomcp_types::StepKind::Configure,
+                args: ["help", "get", "drug"].map(Into::into).into(),
+            }])
+            .collect(),
     })
 }
