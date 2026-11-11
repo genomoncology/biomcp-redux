@@ -258,7 +258,14 @@ pub(super) fn parse_invalid(
     };
     super::ParseInvalid {
         argument: None,
-        usage: message.map(UsageError::message),
+        // A command group answers a word it does not name with its commands.
+        usage: message.map(UsageError::message).or_else(|| {
+            command
+                .has_subcommands()
+                .then(|| super::positional::unplaced(command, &path))
+                .flatten()
+                .map(UsageError::Arguments)
+        }),
         prefer_argument_error: false,
     }
 }

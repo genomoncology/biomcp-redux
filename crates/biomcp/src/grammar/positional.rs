@@ -295,14 +295,15 @@ pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
             }
             _ => None,
         },
-        Err(cause) => completed(root, args).or_else(|| match cause.usage? {
-            biomcp_types::UsageError::Arguments(arguments) => arguments
+        Err(cause) => match cause.usage {
+            Some(biomcp_types::UsageError::Arguments(arguments)) => arguments
                 .next
                 .into_iter()
                 .next()
-                .filter(|step| step.args.first().is_some_and(|word| &**word != "help")),
-            _ => None,
-        }),
+                .filter(|step| step.args.first().is_some_and(|word| &**word != "help"))
+                .or_else(|| completed(root, args)),
+            _ => completed(root, args),
+        },
     }
 }
 
