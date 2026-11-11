@@ -34,7 +34,7 @@
         "/result/date_roles/3/label": "Marketing authorisation issued",
         "/result/date_roles/4/label": "Opinion adopted",
         "/sources/0/notices/*/message": {
-          "includes": "No European Commission decision date is reported. The date reported as latest_procedure_affecting_product_information_date is the one EMA's medicines file names european_commission_decision_date; EMA's product page shows it beside the latest procedure affecting product information, and it can differ from that procedure's European Commission decision date. Read the decision date from the procedure's own EMA page, such as its referral page."
+          "includes": "No European Commission decision date is reported. latest_procedure_affecting_product_information_date is EMA's european_commission_decision_date field, which EMA's product page shows as the latest procedure's date; it can differ from the Commission decision. Read the decision date on the procedure's own EMA page, such as its referral page."
         }
       }
     },
@@ -48,7 +48,7 @@
             "| Opinion adopted |  | opinion\\_adopted\\_date |",
             "| 2026-05-28 | latest\\_procedure\\_affecting\\_product\\_information\\_date |",
             "| 2022-01-06 | marketing\\_authorisation\\_date |",
-            "| request-guidance | No European Commission decision date is reported&#46; The date reported as latest\\_procedure\\_affecting\\_product\\_information\\_date"
+            "| request-guidance | No European Commission decision date is reported&#46; latest\\_procedure\\_affecting\\_product\\_information\\_date is EMA"
           ]
         }
       }

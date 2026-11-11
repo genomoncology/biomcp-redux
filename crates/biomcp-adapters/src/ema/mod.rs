@@ -155,11 +155,10 @@ pub fn decision_date_notice(body: &DrugRegulatory) -> Option<&'static str> {
         .any(|label| label.role.as_str() == map::LATEST_PROCEDURE_ROLE)
         .then_some(DECISION_DATE_NOTICE)
 }
-const DECISION_DATE_NOTICE: &str = "No European Commission decision date is reported. The date \
-reported as latest_procedure_affecting_product_information_date is the one EMA's medicines file \
-names european_commission_decision_date; EMA's product page shows it beside the latest procedure \
-affecting product information, and it can differ from that procedure's European Commission \
-decision date. Read the decision date from the procedure's own EMA page, such as its referral \
+const DECISION_DATE_NOTICE: &str = "No European Commission decision date is reported. \
+latest_procedure_affecting_product_information_date is EMA's european_commission_decision_date \
+field, which EMA's product page shows as the latest procedure's date; it can differ from the \
+Commission decision. Read the decision date on the procedure's own EMA page, such as its referral \
 page.";
 fn fields(id: Option<&DrugId>) -> crate::mapped::Problems {
     crate::mapped::Problems {

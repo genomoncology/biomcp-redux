@@ -5,7 +5,9 @@ use biomcp_types::{DateRoleLabel, DrugCard, DrugHeader, DrugSection, DrugSource}
 /// - "Download website data in JSON data format", section "Medicines through centralised procedure -
 ///   data included":
 ///   <https://www.ema.europa.eu/en/about-us/about-website/download-website-data-json-data-format>.
-///   It names "first published date" and "last updated date".
+///   It names "first published date" and "last updated date". It also names the
+///   `european_commission_decision_date` key "European Commission decision date", which its
+///   value does not bear out, as below.
 /// - Each medicine's EPAR page, for example
 ///   <https://www.ema.europa.eu/en/medicines/human/EPAR/tecovirimat-siga>, shows the
 ///   `marketing_authorisation_date` value as "Marketing authorisation issued", the
