@@ -1,0 +1,126 @@
+{
+  "feature": "diagnostic-device-recall",
+  "story": "Device recall search rows carry the exact enforcement classification from one joined request per page, a row without an enforcement record is counted in a notice, and a classification filter pages enforcement records joined to their recall records.",
+  "live_check": "public",
+  "verified": "Native openFDA device recall and device enforcement captures 2026-11-11 through scripts/source_capture.py. Git projection retains only source identifiers, government classification/status/date facts, product codes and native counts; firm, product, reason and distribution prose omitted. Requests, byte counts and SHA-256 of the original bodies are in tests/replies/diagnostic/recall-classification/README.md. No rows or values invented.",
+  "replay": "diagnostic/recall-classification",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Remel"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Remel"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.diagnostic-page/6",
+        "/page/total": 117,
+        "/page/returned": 5,
+        "/result/items/*/header/recall_number": [
+          "Z-0355-2027",
+          "Z-2927-2026",
+          "Z-2623-2026",
+          "Z-1923-2026",
+          "Z-1806-2026"
+        ],
+        "/result/items/0": {
+          "omits": [
+            "classification"
+          ]
+        },
+        "/result/items/1/classification": "Class II",
+        "/result/items/4/classification": "Class II",
+        "/sources": {
+          "count": 1
+        },
+        "/sources/0/notices/*/message": {
+          "includes": "1 of 5 returned rows have no exact openFDA device enforcement record and show no classification."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Remel",
+        "--classification",
+        "Class I",
+        "--limit",
+        "3"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Remel",
+        "--classification",
+        "Class I",
+        "--limit",
+        "3"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/status": "complete",
+        "/query/classification": "Class I",
+        "/page/total": 9,
+        "/page/returned": 3,
+        "/result/items/*/header/recall_number": [
+          "Z-0334-2023",
+          "Z-0329-2023",
+          "Z-0330-2023"
+        ],
+        "/result/items/*/classification": [
+          "Class I",
+          "Class I",
+          "Class I"
+        ],
+        "/result/items/0/header/status": "Terminated",
+        "/result/items/0/header/product_code": "JWY",
+        "/sources": {
+          "count": 1
+        },
+        "/sources/0": {
+          "omits": [
+            "notices"
+          ]
+        },
+        "/next/*/kind": {
+          "includes": "page"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--classification",
+        "Class I",
+        "--product-code",
+        "JWY"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

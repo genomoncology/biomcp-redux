@@ -57,7 +57,7 @@ drug-ema: Explicitly synchronize EMA medicines and read separate native candidat
 drug-civic: Search literal CIViC therapy candidates and retrieve independent native evidence and assertion pages with their complete profile context and shared native evidence level and status selectors.
 drug-mychem: Search literal MyChem candidate pages and retrieve exact native document identities with attributed cross-references.
 drug-label: Search literal label indication phrases or source brand, generic and label-text matches without dropping native page rows, preserve source display names and exact-match facts, and read exact SPL identities and native label fields with complete bounded text continuation, preserving revision, original text and source outcomes.
-drug-approvals: Read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
+drug-approvals: Search the applications one exact Drugs@FDA applicant holds; read source-native application candidates, independent product status and application submission history newest status date first, with explicit product selection, configurable submission pages and the linked FDA letter's literal efficacy supplement purpose or explicit unavailable evidence.
 disease-ols: Discover source-ordered ontology candidates, read exact OLS facts and refuse retired disease inputs before source access.
 disease-mydisease: Read an exact selected annotation and independently page native synonyms, cross references and parents without hidden enrichment.
 disease-seer: Find native SEER sites by name or code, report all required selectors together, and page labeled incidence or annual survival within the source deadline.
@@ -122,7 +122,7 @@ agent-skill: Agents read case-backed guidance and install managed guidance only 
 variant-alphagenome: Read independently paged native scoring groups for one source-resolved GRCh38 variant with the caller's required key.
 query-validation: A caller sees argument identities and accepted forms for input failures, accepting sources and declared replacements for incompatible filters, optional true or false values for boolean flags, and case-insensitive enumerated choices echoed canonically.
 local-file-persistence: Create private Unix cache files and update symlinked credential configuration targets while retaining field order.
-diagnostic-device-recall: Search native device recall records, inspect exact recall numbers and follow product codes to MAUDE without inferring harm.
+diagnostic-device-recall: Search native device recall records with each row's exact enforcement classification, filter by classification, inspect exact recall numbers and follow product codes to MAUDE without inferring harm.
 organization-nci: Find source-native NCI organizations with bounded snapshots and local paging.
 biomarker-nci: Find NCI biomarker concepts by name or synonym and retrieve native concept rows by NCIt code.
 drug-recall: Search published FDA drug recall records by name, firm, classification, status, reason and initiation dates; page and fetch exact native recall numbers with source field problems.

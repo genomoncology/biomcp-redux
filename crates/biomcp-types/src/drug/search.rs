@@ -12,7 +12,7 @@ fn default_limit() -> u32 {
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
     WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. \
-    Other sources require a name."]
+    Drugs@FDA accepts a name or an applicant. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -23,7 +23,7 @@ pub struct DrugSearch(SearchFields);
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
     /// Drug name phrase.
-    /// FDA drug recalls, WHO date ranges and label indication searches allow no name.
+    /// FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
     /// Drugs@FDA searches brands and ingredients,
     /// exact names before word matches. openFDA labels search exact then word brand/generic names,
     /// then label text (including indications) when no names match; source matches need not be exact names.
@@ -55,6 +55,12 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
+    /// Exact applicant name; Drugs@FDA only.
+    /// The source matches its complete native sponsor_name with case, such as ALNYLAM PHARMS INC;
+    /// no company-family or subsidiary inference. An optional name narrows the same search.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
+    applicant: Option<Text>,
     /// Recall firm phrase.
     /// Matches the published firm literally.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -128,6 +134,9 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.name_selector.is_some() && fields.source != DrugSource::Chembl {
             return Err(QueryInvalid::new(&["name_selector", "source"]));
         }
+        if fields.applicant.is_some() && fields.source != DrugSource::Drugsfda {
+            return Err(QueryInvalid::new(&["applicant", "source"]));
+        }
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
         if who_dates && fields.source != DrugSource::WhoPq {
             return Err(QueryInvalid::new(&[
@@ -156,6 +165,7 @@ impl TryFrom<SearchFields> for DrugSearch {
             fields.source,
             fields.query.is_some()
                 || fields.indication.is_some()
+                || fields.applicant.is_some()
                 || (fields.source == DrugSource::WhoPq && who_dates),
             fields.firm.is_some()
                 || fields.classification.is_some()
@@ -209,6 +219,7 @@ impl DrugSearch {
             source,
             limit,
             offset: 0,
+            applicant: None,
             firm: None,
             classification: None,
             status: None,
@@ -245,6 +256,10 @@ impl DrugSearch {
     /// Literal native Indications and Usage phrase; never an inferred indication.
     pub fn indication(&self) -> Option<&Text> {
         self.0.indication.as_ref()
+    }
+    /// Literal Drugs@FDA sponsor phrase, matched by the source.
+    pub fn applicant(&self) -> Option<&Text> {
+        self.0.applicant.as_ref()
     }
     /// Selected native recall filter.
     pub fn firm(&self) -> Option<&Text> {

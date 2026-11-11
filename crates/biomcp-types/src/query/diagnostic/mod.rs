@@ -55,7 +55,7 @@ const PRODUCT_CODE_SOURCES: [crate::Source; 3] = [
     crate::Source::Fda510k,
     crate::Source::FdaDeviceRecall,
 ];
-/// Search five source records by default. FDA device recalls cover every medical device; totals count recall records, without harm inference.
+/// Search five source records by default. FDA device recalls cover every medical device and show each record's exact enforcement classification; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -116,6 +116,10 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     initiated_to: Option<PartialDate>,
+    #[doc = "FDA recall class.\nNative enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
+    classification: Option<crate::DrugRecallClassification>,
     #[doc = "Native device name.\nNative trade_name (PMA) or device_name (510(k)) phrase."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
@@ -244,6 +248,7 @@ impl DiagnosticSearch {
             product_code: None,
             initiated_from: None,
             initiated_to: None,
+            classification: None,
             limit: limit(),
             offset: 0,
             bundle_revision: None,
@@ -301,6 +306,10 @@ impl DiagnosticSearch {
     /// Inclusive source initiation range.
     pub fn initiated_to(&self) -> Option<PartialDate> {
         self.0.initiated_to
+    }
+    /// Native enforcement classification selecting device recalls.
+    pub fn classification(&self) -> Option<crate::DrugRecallClassification> {
+        self.0.classification
     }
     /// Native device name phrase.
     pub fn name(&self) -> Option<&Text> {

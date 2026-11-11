@@ -10,15 +10,23 @@ fn device_source(v: &SearchFields) -> bool {
 pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     if v.source != DiagnosticSearchSource::FdaDeviceRecall {
         let code = v.product_code.is_some() && !device_source(v);
-        if code || v.initiated_from.is_some() || v.initiated_to.is_some() {
+        if code
+            || v.initiated_from.is_some()
+            || v.initiated_to.is_some()
+            || v.classification.is_some()
+        {
             return Err(QueryInvalid::new(&[
                 "source",
                 "product_code",
                 "initiated_from",
                 "initiated_to",
+                "classification",
             ]));
         }
         return Ok(());
+    }
+    if v.classification.is_some() && v.product_code.is_some() {
+        return Err(QueryInvalid::new(&["classification", "product_code"]));
     }
     if other || v.marker.is_some() || v.bundle_revision.is_some() {
         return Err(QueryInvalid::new(&[

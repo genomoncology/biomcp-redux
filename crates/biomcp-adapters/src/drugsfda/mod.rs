@@ -48,15 +48,29 @@ fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
 /// Discover exact brand or ingredient names, then try their native word fields after a zero total.
-pub fn search(leg: &Leg<'_>, text: &Text, limit: u32, offset: u32) -> Result<Page, RequestError> {
+/// An applicant narrows either tier by the native sponsor_name, or selects alone.
+pub fn search(
+    leg: &Leg<'_>,
+    text: Option<&Text>,
+    applicant: Option<&Text>,
+    limit: u32,
+    offset: u32,
+) -> Result<Page, RequestError> {
+    let sponsor = applicant.map(|v| format!("sponsor_name:{}", literal(v.as_str())));
     let selector = |suffix: &str| {
-        let name = literal(text.as_str());
-        format!(
-            "products.brand_name{suffix}:{name} OR products.active_ingredients.name{suffix}:{name}"
-        )
+        let names = text.map(|text| {
+            let name = literal(text.as_str());
+            format!(
+                "products.brand_name{suffix}:{name} OR products.active_ingredients.name{suffix}:{name}"
+            )
+        });
+        match (names, &sponsor) {
+            (Some(names), Some(sponsor)) => format!("({names}) AND {sponsor}"),
+            (names, sponsor) => names.or_else(|| sponsor.clone()).unwrap_or_default(),
+        }
     };
     let exact = page(leg, &selector(".exact"), limit, offset, None)?;
-    if exact.total > 0 {
+    if exact.total > 0 || text.is_none() {
         return Ok(exact);
     }
     page(leg, &selector(""), limit, offset, None)

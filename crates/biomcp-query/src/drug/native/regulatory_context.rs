@@ -25,7 +25,7 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
     };
     let limit = query.section_limit().unwrap_or(10);
     let leg = cx.fetch.leg(&drugsfda::SPEC, deadline).fresh(cx.fresh);
-    let reply = drugsfda::search(&leg, &name, limit, 0);
+    let reply = drugsfda::search(&leg, Some(&name), None, limit, 0);
     let error = reply.as_ref().err().copied();
     let mut source = status::source(Source::Drugsfda, leg.finish(), error);
     source.notices.push(SourceNotice::RequestGuidance {
