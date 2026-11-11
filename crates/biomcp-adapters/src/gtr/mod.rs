@@ -2,6 +2,7 @@
 mod bundle;
 mod get;
 mod map;
+mod name;
 mod raw;
 mod search;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};

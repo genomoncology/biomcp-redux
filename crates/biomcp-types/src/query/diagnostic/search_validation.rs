@@ -62,13 +62,21 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     if !device_source(v) {
-        if v.name.is_some() || v.decision_from.is_some() || v.decision_to.is_some() {
+        // GTR matches literal test names; other non-device sources have no name field.
+        let name = v.name.is_some() && v.source != DiagnosticSearchSource::Gtr;
+        if name || v.decision_from.is_some() || v.decision_to.is_some() {
             return Err(QueryInvalid::new(&[
                 "source",
                 "name",
                 "decision_from",
                 "decision_to",
             ]));
+        }
+        if v.name
+            .as_ref()
+            .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
+        {
+            return Err(QueryInvalid::new(&["name"]));
         }
         return Ok(());
     }

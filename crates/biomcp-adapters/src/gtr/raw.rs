@@ -22,6 +22,7 @@ pub(super) struct Refused {
     #[serde(rename = "GTR_identifier")]
     medgen: Option<crate::raw::Field<Box<str>>>,
     test_type: Option<crate::raw::Field<GtrTestType>>,
+    lab_test_name: Option<crate::raw::Field<Box<str>>>,
 }
 impl Refused {
     pub(super) fn matches(&self, q: &biomcp_types::DiagnosticSearch) -> bool {
@@ -41,7 +42,17 @@ impl Refused {
         }) && q.condition_id().is_none_or(|condition| {
             object == Some(&Object::Condition)
                 && medgen.is_some_and(|id| format!("MedGen:{id}") == condition.as_str())
-        })
+        }) && self.named(q)
+    }
+    /// A refused row without a readable name cannot be ruled out, so it is disclosed.
+    fn named(&self, q: &biomcp_types::DiagnosticSearch) -> bool {
+        let name = self
+            .lab_test_name
+            .as_ref()
+            .and_then(crate::raw::Field::as_ref);
+        q.name()
+            .zip(name)
+            .is_none_or(|(q, name)| super::name::contains(name, q.as_str()))
     }
     pub(super) fn disclose(&self, cx: &mut crate::mapped::Problems) {
         let before = cx.list.len();

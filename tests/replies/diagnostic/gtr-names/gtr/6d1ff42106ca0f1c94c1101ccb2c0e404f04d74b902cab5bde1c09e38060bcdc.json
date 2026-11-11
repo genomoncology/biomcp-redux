@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "gtr",
+  "url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/test_condition_gene.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/plain",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "#accession_version\ttest_type\tobject\tGTR_identifier\tMIM_number\tobject_name\tgene_or_SNOMED_CT_ID\tgene_symbol\nGTR000000101.1\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000000103.1\tClinical\tgene\tC0000004\t\tCFTR object name\t1080\tCFTR\nGTR000000104.2\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\nGTR000000105.1\tClinical\tgene\tC0000001\t\tBRCA1 object name\t672\tBRCA1\n"
+      }
+    }
+  ]
+}
