@@ -518,8 +518,8 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         .find(|command| (command.verb, command.entity) == (verb, entity))
         .ok_or_else(ParseInvalid::default)?;
     rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
-        errors::source_filter(command.via, verb, entity, &value, &cause)
-            .or_else(|| sections::fix(verb, entity, &value))
+        sections::fix(verb, entity, &value)
+            .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause))
             .unwrap_or_else(|| errors::checked_invalid(command.via, verb, entity, &value, &cause))
     })
 }

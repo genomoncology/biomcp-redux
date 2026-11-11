@@ -20,9 +20,14 @@ pub(super) fn fix(verb: &str, entity: &str, value: &Value) -> Option<super::Pars
     let property = schema.get("properties")?.get("section")?;
     let words = super::validation::accepted(&schema, property)?;
     let valid = |word: &str| words.iter().any(|known| known.as_str() == word);
-    let (word, mut candidate) = wrong_word(value, property, &valid)?;
-    let fields = candidate.as_object_mut()?;
-    replace(verb, entity, &schema, &word, fields)?;
+    let candidate = match label_word(&schema, value) {
+        Some(candidate) => candidate,
+        None => {
+            let (word, mut candidate) = wrong_word(value, property, &valid)?;
+            replace(verb, entity, &schema, &word, candidate.as_object_mut()?)?;
+            candidate
+        }
+    };
     let step = super::positional::complete((verb, entity), &schema, &candidate)?;
     let argument = if property.get("x-positional").is_some() {
         "section"
@@ -39,6 +44,29 @@ pub(super) fn fix(verb: &str, entity: &str, value: &Value) -> Option<super::Pars
         })),
         prefer_argument_error: true,
     })
+}
+
+/// A label read with a second section that names a label heading, as in
+/// `label --section indications`: that heading is the label section.
+fn label_word(schema: &Value, value: &Value) -> Option<Value> {
+    schema.pointer("/properties/label_section")?;
+    if value.get("label_section").is_some() {
+        return None;
+    }
+    let mut candidate = value.clone();
+    let fields = candidate.as_object_mut()?;
+    let items = fields.get_mut("section")?.as_array_mut()?;
+    if !items.contains(&json!("label")) {
+        return None;
+    }
+    let index = items.iter().position(|item| {
+        item.as_str()
+            .is_some_and(|word| word != "label" && heading(word).is_some())
+    })?;
+    let word = items.remove(index);
+    let heading = heading(word.as_str()?)?;
+    fields.insert("label_section".into(), json!(heading));
+    Some(candidate)
 }
 
 /// The first section word the command does not have, and the call without it. A command

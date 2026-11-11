@@ -1,0 +1,118 @@
+{
+  "live_check": "offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "A typed section is plain text, so a wrong one reaches the server, which answers with the typed call that works: article text names fulltext, gene hgnc reads the HGNC card, variant gnomad names population, drug who-pq names the source and a label heading names the label section.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "article",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "24996524",
+            "section": "text"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--section",
+        "/next/0/name": "article",
+        "/next/0/arguments/get/section": [
+          "fulltext"
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "MSTN",
+            "section": "hgnc"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/name": "gene",
+        "/next/0/arguments/get/id": [
+          "MSTN"
+        ],
+        "/next/0/arguments/get": {
+          "omits": [
+            "section"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "rs1142345",
+            "section": "gnomad"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/get/section": [
+          "population"
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "primaquine",
+            "section": "who-pq"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/get/source": "who-pq"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "imatinib",
+            "section": "boxed_warning"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/arguments/get/label_section": "boxed_warning",
+        "/next/0/arguments/get/section": [
+          "label"
+        ]
+      }
+    }
+  ]
+}

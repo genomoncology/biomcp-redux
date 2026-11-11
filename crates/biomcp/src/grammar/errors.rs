@@ -220,7 +220,10 @@ pub(super) fn parse_invalid(
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
         } else {
-            spelling.and_then(|spelling| super::positional::text_flag(root, &path, spelling, args))
+            spelling.and_then(|spelling| {
+                super::positional::text_flag(root, &path, spelling, args)
+                    .or_else(|| super::positional::source_flag(root, &path, spelling, args))
+            })
         };
         super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
@@ -231,6 +234,7 @@ pub(super) fn parse_invalid(
     }
     if spelling.is_some()
         && let Some(arguments) = super::positional::fix(root, &path, args)
+            .or_else(|| super::positional::unplaced(command, &path))
     {
         return super::ParseInvalid {
             argument: None,

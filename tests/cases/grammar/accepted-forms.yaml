@@ -1,0 +1,125 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "Forms agents typed in the baseline run under the canonical field: trial -c, -i and -q, search -q and --query, --section on a positional section, an underscored option name, and help after a retired option.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "-c",
+        "spinal muscular atrophy",
+        "-i",
+        "apitegromab"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/query/condition": [
+          "spinal muscular atrophy"
+        ],
+        "/query/intervention": [
+          "apitegromab"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "-q",
+        "E4512 crizotinib"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/query/query": "E4512 crizotinib"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "-q",
+        "imatinib"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/query/query": "imatinib"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "disease",
+        "--query",
+        "lung cancer"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/query/text": "lung cancer"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "G6PD",
+        "--section",
+        "recommendations",
+        "--source",
+        "cpic"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/query/section": "recommendations",
+        "/query/gene": "G6PD"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "alectinib",
+        "label",
+        "--label_section",
+        "warnings_and_cautions"
+      ],
+      "offline": true,
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--help"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/command": [
+          "search",
+          "diagnostic"
+        ]
+      }
+    }
+  ]
+}

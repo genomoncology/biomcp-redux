@@ -1,0 +1,172 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "Retired options agents typed in the baseline answer with the replacement call written out for the same request.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "tecovirimat",
+        "regulatory",
+        "--region",
+        "ema"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": [
+          "get",
+          "drug",
+          "tecovirimat",
+          "regulatory",
+          "--source",
+          "ema"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "rifapentine",
+        "--region",
+        "who"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "rifapentine",
+          "--source",
+          "who-pq"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "pgx",
+        "--gene",
+        "G6PD",
+        "--drug",
+        "primaquine"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": [
+          "search",
+          "pgx",
+          "--gene",
+          "G6PD",
+          "--source",
+          "cpic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--gene",
+        "G6PD",
+        "--source",
+        "cpic",
+        "--drug",
+        "primaquine"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": [
+          "get",
+          "pgx",
+          "recommendations",
+          "--gene",
+          "G6PD",
+          "--source",
+          "cpic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "pgx",
+        "-g",
+        "G6PD"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": [
+          "search",
+          "pgx",
+          "--gene",
+          "G6PD",
+          "--source",
+          "cpic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "-k",
+        "MYCN MYCL",
+        "--limit",
+        "8"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": [
+          "search",
+          "article",
+          "MYCN MYCL",
+          "--limit",
+          "8"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--type",
+        "fda-cdx",
+        "--drug",
+        "camizestrant"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.retired",
+        "/next/0/args": {
+          "includes": [
+            "--source",
+            "fda-cdx"
+          ]
+        }
+      }
+    }
+  ]
+}
