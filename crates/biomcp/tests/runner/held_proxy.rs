@@ -140,7 +140,7 @@ fn mode_input(
 ) -> Result<(), String> {
     match mode {
         Mode::Reply => Ok(()),
-        Mode::Cancel => cancel_capacity(stdin, replies, control),
+        Mode::Cancel => cancel_capacity(stdin, replies, connected, control),
         Mode::Isolation => {
             send(
                 stdin,
@@ -278,7 +278,12 @@ fn hold(
         match release.try_recv() {
             Ok(Probe::Stop) => break,
             Ok(Probe::Cancelled) => {
-                let _ = checked.send(held.iter_mut().try_for_each(peer_eof));
+                let all = if held.len() == 8 {
+                    held.iter_mut().try_for_each(peer_eof)
+                } else {
+                    Err(format!("cancel needs eight held sockets, saw {}", held.len()))
+                };
+                let _ = checked.send(all);
             }
             Ok(Probe::Isolation) => {
                 let _ = checked.send(resume_other(&mut held, tls.clone()));
@@ -378,9 +383,11 @@ fn proxy_request(
     Ok(stream)
 }
 
+/// Cancel only after every call holds its proxy socket, so no cancel lands mid-CONNECT.
 fn cancel_capacity(
     stdin: &mut impl Write,
     replies: &mpsc::Receiver<Result<Value, String>>,
+    connected: &mpsc::Receiver<Result<(), String>>,
     control: &ProxyControl,
 ) -> Result<(), String> {
     for id in 1..8 {
@@ -392,6 +399,11 @@ fn cancel_capacity(
                 json!({"name":"biomcp", "arguments":{ "args":["get","protein","P15056"]}}),
             ),
         )?;
+    }
+    for _ in 1..8 {
+        connected
+            .recv_timeout(WATCHDOG)
+            .map_err(|_| "held CONNECT watchdog")??;
     }
     send(
         stdin,
