@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "ema",
+  "url": "https://www.ema.europa.eu/en/documents/report/referrals-output-json-report_en.json",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"total_records\":1,\"timestamp\":\"2026-11-11T18:10:22Z\"},\"data\":[{\"category\":\"Human\",\"referral_name\":\"Tecovirimat SIGA\",\"international_non_proprietary_name_inn_common_name\":\"tecovirimat\",\"current_status\":\"European Commission final decision\",\"safety_referral\":\"No\",\"referral_type\":\"Article 20 procedures\",\"associated_names_centrally_authorised_medicines\":\"Tecovirimat SIGA\",\"associated_names_non_centrally_authorised_medicines\":\"\",\"class\":\"\",\"reference_number\":\"EMA/REF/0000287477\",\"non_prac_decision_making_model\":\"CHMP-EC\",\"prac_decision_making_model\":\"\",\"authorisation_model\":\"Centrally authorised product(s)\",\"prac_recommendation\":\"\",\"procedure_start_date\":\"24/07/2025\",\"prac_recommendation_date\":\"\",\"cmdh_position_date\":\"\",\"chmp_cvmp_opinion_date\":\"26/03/2026\",\"european_commission_decision_date\":\"29/05/2026\",\"first_published_date\":\"25/07/2025\",\"last_updated_date\":\"15/06/2026\",\"referral_url\":\"https://www.ema.europa.eu/en/medicines/human/referrals/tecovirimat-siga\"}]}"
+      }
+    }
+  ]
+}
