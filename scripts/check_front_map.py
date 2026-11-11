@@ -40,6 +40,31 @@ def discover(binary, env):
     return leaves
 
 
+FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
+                    "hosted": ["--hosted", "--tool-mode", "typed"]}
+
+
+def first_read_sizes(binary, env):
+    """Measure what every connection loads: initialize instructions and the tools list."""
+    sizes = {}
+    for mode, flags in FIRST_READ_MODES.items():
+        frames = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+            "protocolVersion": "2025-11-25", "capabilities": {},
+            "clientInfo": {"name": "first-read-size", "version": "1"}}},
+            {"jsonrpc": "2.0", "method": "notifications/initialized"},
+            {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
+        process = subprocess.run([str(binary), "serve", "--offline", *flags],
+                                 input="".join(json.dumps(frame) + "\n" for frame in frames),
+                                 env=env, capture_output=True, text=True, timeout=60)
+        require(process.returncode == 0, f"{mode} serve failed: {process.stderr}")
+        replies = {reply.get("id"): reply for reply in map(json.loads, process.stdout.splitlines())}
+        instructions = replies[1]["result"]["instructions"]
+        tools = json.dumps(replies[2]["result"]["tools"], ensure_ascii=False, separators=(",", ":"))
+        sizes[mode] = {"instructions_characters": len(instructions), "tools_bytes": len(tools.encode()),
+                       "tools": len(replies[2]["result"]["tools"])}
+    return sizes
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
@@ -100,6 +125,10 @@ def main():
         guidance = "Listed choices accept any letter case; replies use their listed spelling."
         require(reply["result"]["instructions"] == front + "\n" + guidance,
                 "server instructions differ from the front map and its guidance line")
+        sizes = first_read_sizes(binary, env)
+        sizes["skill_characters"] = len(rendered)
+        (args.output / "first-read-sizes.json").write_text(json.dumps(sizes, indent=2) + "\n")
+        print(json.dumps({"first_read": sizes}))
         (args.output / "help.json").write_text(help_reply)
         (args.output / "front-map.txt").write_text(front)
         (args.output / "initialize.json").write_text(process.stdout)
