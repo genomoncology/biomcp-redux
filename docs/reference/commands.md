@@ -996,8 +996,8 @@ Options:
           Literal whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year.
 
       --name <name>
-          Native device name.
-          Native trade_name (PMA) or device_name (510(k)) phrase.
+          Native test or device name.
+          Native trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.
 
       --offset <offset>
           Zero-based source result offset.
@@ -1051,8 +1051,8 @@ Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: stri
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker hIv. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--name`: Source device name.
-Source trade_name (PMA) or device_name (510(k)) phrase. Value form: string. Example: --name 'FoundationOne CDx'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--name`: Source test or device name.
+Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string. Example: --product-code ABC. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
