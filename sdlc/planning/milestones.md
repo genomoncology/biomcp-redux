@@ -52,6 +52,34 @@ Serves: the November 9 cache review and the corrected trial-cursor report suppli
 
 Done when: a narrow reader cannot delete a valid cached answer usable by a wider reader; offline replies distinguish expired absence knowledge from no cached answer without treating stale absence as current fact; and a rejected trial continuation identifies the request and offers an explicit fresh first-page restart that preserves filters. The remaining continuation diagnostic is implemented after 1.0 publication without guessing a registry cursor lifetime.
 
+## 7. Efficiency (1.1)
+
+Delivers: an agent reaches a right answer through BioMCP with fewer tokens and fewer failed calls than through curl. The known costs at the start: MCP replies carry the same JSON twice by default; the typed tool list costs about 19,400 tokens; no command returns chosen fields only; a next-page step arrives as command-line words rather than a call a chat client can make; and concurrent calls are refused with a capacity error. It also delivers the two front doors Ian named, one for chat clients and one for coding agents, each with a short generated map of commands.
+
+Serves: the 2026-11-11 decision, and the paper's claim.
+
+Done when: on the bench's baseline questions, each BioMCP mode uses at least 20% fewer total tokens than plain curl with no fewer questions right, on both models, across repeats.
+
+Unknown until the 1.0 baseline reports (bench ticket 0032): which costs matter most. Break into tickets from its failed-call list and token tables.
+
+## 8. Gaps where curl won (1.1)
+
+Delivers: the answers the persona runs got from curl or web search and not from BioMCP: trial enrollment and why-stopped, gene-set enrichment, approvals by company, participant flow, per-paper open-access rights, Orphanet prevalence, the WHO essential medicines list, OpenAlex institutions, and name expansion with disclosure on every filter that takes a name.
+
+Serves: Ian's goal of sources and capabilities that make the personas happy. Evidence: `biomed-agent-bench/personas/rollup.md`. That suite was run and graded by one agent, so each item is reproduced on current main before its ticket is filed.
+
+Done when: each listed question is answered by one BioMCP command, and a different model regrades the eleven suites from their logs.
+
+## 9. Saved work (1.1)
+
+Delivers: saved collections, saved queries, result snapshots and "what changed since last time", through the same commands locally and hosted. Locally they live in the SQLite store; hosted, in the account's storage. Records hold typed references, queries and as-of dates, never copies of source content.
+
+Serves: Ian's goal of state for the MCP "both locally and on the cloud", and hosting's "beta with saved work" milestone.
+
+Unknown: the rule for reading a saved record after its schema's major version changes, since today's rule is an exact pin with no compatibility promise. Decide that rule, with one design review, before the first ticket. Documents, cases, lab reports and variant files come after this milestone shows people use it.
+
+Done when: an agent saves a collection and a query in one session, a later session lists what changed, the same commands work against the hosted account, and the user exports everything as typed JSON.
+
 ## Later, unordered
 
 Each waits for a consumer or for Ian. None has tickets.
