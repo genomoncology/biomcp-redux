@@ -1,5 +1,5 @@
 //! One clinical catalog policy shared by discovery and executable follow-ups.
-use super::catalog::front_map::{ENTITY_TOOLS, Kind};
+use super::catalog::front_map::ENTITY_TOOLS;
 use serde_json::{Value, json};
 use std::{collections::BTreeSet, io};
 
@@ -26,17 +26,20 @@ impl Catalog {
             })
     }
 
-    /// The advertised actions of an entity tool.
+    /// The advertised actions of an entity tool, in the tool map's order.
     pub(super) fn actions(&self, tool: &str) -> Vec<String> {
-        self.tools
+        let offered = self
+            .tools
             .iter()
             .find(|advertised| advertised["name"] == tool)
-            .and_then(|advertised| advertised.pointer("/inputSchema/properties/action/enum"))
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .map(Into::into)
+            .and_then(|advertised| advertised.pointer("/inputSchema/properties"))
+            .and_then(Value::as_object);
+        ENTITY_TOOLS
+            .iter()
+            .filter(|(name, ..)| *name == tool)
+            .flat_map(|(_, _, placed, ..)| placed.iter())
+            .filter(|(action, ..)| offered.is_some_and(|fields| fields.contains_key(*action)))
+            .map(|(action, ..)| (*action).into())
             .collect()
     }
 }
@@ -93,28 +96,38 @@ pub(super) fn catalog(
 
 /// An entity tool: `action` picks one command, whose own schema is the object named after it.
 fn entity(
-    &(name, label, placed): &super::catalog::front_map::EntityTool,
+    tool: &super::catalog::front_map::EntityTool,
     commands: &[Command],
     output_schema: bool,
     excluded: &BTreeSet<biomcp_types::Source>,
 ) -> io::Result<Option<Value>> {
+    let &(name, _, placed, _, _) = tool;
     let actions = placed
         .iter()
-        .filter_map(|&(action, command, kind)| {
+        .filter_map(|&(action, command, note)| {
             commands
                 .iter()
                 .find(|found| super::name(found.path.0, found.path.1) == command)
-                .map(|found| (action, kind, found))
+                .map(|found| (action, note, found))
         })
         .collect::<Vec<_>>();
     if actions.is_empty() {
         return Ok(None);
     }
     let mut properties = serde_json::Map::new();
+    // The actions are named, not enumerated, and other fields are not forbidden: a client
+    // that checks arguments then passes a guess such as drug `approvals` to the server,
+    // which answers with the call that works.
+    let names = actions
+        .iter()
+        .map(|(action, _, _)| *action)
+        .collect::<Vec<_>>();
     properties.insert(
         "action".into(),
-        json!({"type":"string","enum":actions.iter().map(|(action, _, _)| *action).collect::<Vec<_>>(),
-            "description":"Which operation; its arguments go in the object of the same name."}),
+        json!({"type":"string","description":format!(
+            "One of: {}. Its arguments go in the object of the same name.",
+            names.join(", ")
+        )}),
     );
     for (action, _, command) in &actions {
         let mut input = command.input.clone();
@@ -131,23 +144,15 @@ fn entity(
         .iter()
         .flat_map(|(_, _, command)| command.sources.iter().cloned())
         .collect::<BTreeSet<_>>();
-    let names = actions
+    let notes = actions
         .iter()
-        .map(|(action, _, _)| *action)
+        .map(|(action, note, _)| (*action, *note))
         .collect::<Vec<_>>();
-    let facets = actions
-        .iter()
-        .filter(|(_, kind, _)| *kind == Kind::Facet)
-        .map(|(action, _, _)| *action)
-        .collect::<Vec<_>>();
-    let mut description = super::description::tool(label, &sources, &names, &facets, excluded);
-    if name == "drug" {
-        description.push_str(" A label read takes label_section, such as boxed_warning.");
-    }
+    let description = super::description::tool(tool, &sources, &notes, excluded);
     let mut tool = json!({"name":name,
         "description":description,
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
-            "properties":properties,"required":["action"],"additionalProperties":false},
+            "properties":properties,"required":["action"]},
         "annotations":{"readOnlyHint":actions.iter().all(|(_, _, command)| command.read_only),
             "destructiveHint":false,"openWorldHint":true}});
     if output_schema && let Some(fields) = tool.as_object_mut() {
@@ -178,9 +183,10 @@ pub(super) fn call(canonical: Value, catalog: &Catalog) -> Option<Value> {
     }
     command?;
     let arguments = canonical.get("arguments")?;
+    let arguments = &advertised(name, arguments);
     let mut placements = ENTITY_TOOLS
         .iter()
-        .flat_map(|(tool, _, actions)| {
+        .flat_map(|(tool, _, actions, _, _)| {
             actions
                 .iter()
                 .filter(|(_, placed, _)| *placed == name)
@@ -193,4 +199,13 @@ pub(super) fn call(canonical: Value, catalog: &Catalog) -> Option<Value> {
         let call = json!({"name":tool,"arguments":{"action":action,action:arguments}});
         super::followups::allowed(&call, tools).then_some(call)
     })
+}
+
+/// A registry command's arguments under their advertised names.
+fn advertised(command: &str, arguments: &Value) -> Value {
+    let forms = crate::grammar::command_paths()
+        .into_iter()
+        .find(|(verb, entity, _)| super::name(verb, entity) == command)
+        .and_then(|(verb, _, id)| Some(super::forms::forms(verb, &super::schema(id).ok()?)));
+    super::forms::advertised_arguments(arguments, &forms.unwrap_or_default())
 }

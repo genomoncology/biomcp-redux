@@ -1,0 +1,27 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search example in the pathway tool's description, sent exactly as written, is answered.",
+  "replay": "pathway/native",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "Signaling by EGFR"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "Signaling by EGFR",
+        "/status": "complete"
+      }
+    }
+  ]
+}

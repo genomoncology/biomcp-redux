@@ -45,10 +45,13 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             let property = tool
                 .get("inputSchema")
                 .and_then(|s| s.get("properties"))
-                .and_then(|p| p.get(key))
+                .and_then(|p| p.get(advertised(verb, &schema, key)))
                 .ok_or("property")?;
             let expected = description(node);
-            if property.get("description").and_then(Value::as_str) != expected.as_deref() {
+            let own = property.get("description").and_then(Value::as_str);
+            if own.map(|text| text.strip_prefix("Required. ").unwrap_or(text))
+                != expected.as_deref()
+            {
                 failures.push(format!("{name}.{key}: lost own description"));
             }
             if nested_description(property, true) {
@@ -68,8 +71,10 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     }
     report(&tools)?;
     // Exercise the same budget rejection used for the installed catalog.
-    if budget(&json!({"name":"oversized", "description":"x".repeat(2001), "inputSchema":{}}))
-        .is_ok()
+    if budget(
+        &json!({"name":"oversized", "description":"x".repeat(ACTION_BUDGET + 1), "inputSchema":{}}),
+    )
+    .is_ok()
     {
         return Err("oversized synthetic tool passed budget".into());
     }
@@ -168,6 +173,23 @@ pub(super) fn size(tool: &Value) -> usize {
         .sum::<usize>()
         + field(tool, "inputSchema").to_string().chars().count()
 }
+/// One action's description and schema. The names agents guess for search text, record IDs
+/// and sections are accepted without being advertised, so they cost nothing here.
+const ACTION_BUDGET: usize = 2000;
+/// The name an action advertises for a registry field: `query` for search text and `id`
+/// for the record ID.
+fn advertised<'a>(verb: &str, schema: &Value, key: &'a str) -> &'a str {
+    let has = |name: &str| schema.pointer(&format!("/properties/{name}")).is_some();
+    let first = schema.pointer(&format!("/properties/{key}/x-positional")) == Some(&json!(0));
+    let text = ["query", "text", "name"].into_iter().find(|name| has(name));
+    if verb == "search" && text == Some(key) {
+        "query"
+    } else if first && key == "input" && !has("id") {
+        "id"
+    } else {
+        key
+    }
+}
 pub(super) fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
@@ -176,7 +198,7 @@ pub(super) fn budget(tool: &Value) -> Result<(), String> {
     let limit = if field(tool, "name") == "search_trial" {
         3500
     } else {
-        2000
+        ACTION_BUDGET
     };
     if length > limit {
         Err(format!(

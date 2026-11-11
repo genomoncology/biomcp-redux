@@ -1,0 +1,33 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search example in the trial tool's description, sent exactly as written, is answered.",
+  "replay": "trial/intervention",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "condition": "melanoma",
+            "intervention": "pembrolizumab"
+          }
+        }
+      },
+      "expect": {
+        "/query/condition": [
+          "melanoma"
+        ],
+        "/query/intervention": [
+          "pembrolizumab"
+        ],
+        "/status": "complete"
+      }
+    }
+  ]
+}

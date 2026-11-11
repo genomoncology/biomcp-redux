@@ -1,0 +1,27 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search example in the adverse_event tool's description, sent exactly as written, is answered.",
+  "replay": "adverse-event/faers-synthetic",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "adverse_event",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "pembrolizumab"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "pembrolizumab",
+        "/status": "complete"
+      }
+    }
+  ]
+}

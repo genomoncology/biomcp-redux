@@ -1,0 +1,206 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the protein tool's description and the argument names agents guess for them reach the same commands and queries. No retained reply covers the search or get example, so this offline check is its only proof.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "EGFR"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "EGFR",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "EGFR"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "EGFR",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "EGFR"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "EGFR",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "P00533"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "P00533"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "P00533"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "P00533"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "P00533"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "P00533"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "P00533"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "P00533"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "P00533",
+            "section": "function"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "P00533"
+        ],
+        "/query/section": [
+          "function"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "protein",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "P00533"
+            ],
+            "sections": [
+              "function"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "P00533"
+        ],
+        "/query/section": [
+          "function"
+        ],
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

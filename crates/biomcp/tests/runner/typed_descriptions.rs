@@ -11,11 +11,11 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     let tools = crate::runner::protocol::typed_catalog::commands(&entities);
     standalone(&entities)?;
     standalone(&tools)?;
-    examples(&entities)?;
+    examples(&entities, true)?;
     let hosted = catalog(env, true)?;
     standalone(&hosted)?;
     standalone(&crate::runner::protocol::typed_catalog::commands(&hosted))?;
-    examples(&hosted)?;
+    examples(&hosted, false)?;
     faers_drug(&tools)?;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
@@ -62,7 +62,6 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .ok_or("parameter description")?;
             complete_words(&schema, summary, description, &format!("{name}.{key}"))?;
         }
-        primary(&schema, description, &name)?;
         publishers(verb, entity, &schema, description)?;
     }
     spot_words(&tools)?;
@@ -123,27 +122,6 @@ fn cli(env: &Environment, args: &[String]) -> Result<Value, String> {
         return Err("discovery command failed".into());
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
-}
-fn primary(schema: &Value, description: &str, name: &str) -> Result<(), String> {
-    let primary = schema
-        .get("properties")
-        .and_then(Value::as_object)
-        .into_iter()
-        .flatten()
-        .filter_map(|(name, node)| {
-            node.get("x-positional")
-                .and_then(Value::as_u64)
-                .map(|p| (p, name))
-        })
-        .min_by_key(|(position, _)| *position);
-    if let Some((_, input)) = primary
-        && !description.contains(&format!("{input}:"))
-    {
-        return Err(format!(
-            "{name}: primary input {input} is missing: {description}"
-        ));
-    }
-    Ok(())
 }
 fn publishers(verb: &str, entity: &str, schema: &Value, description: &str) -> Result<(), String> {
     let mut sections = BTreeSet::new();
@@ -222,27 +200,47 @@ fn standalone(tools: &[Value]) -> Result<(), String> {
     }
 }
 
-// A model copies a description's example call, so each names an action its tool advertises.
-fn examples(tools: &[Value]) -> Result<(), String> {
+// A model copies a description's example call, so each passes its tool's own schema, and
+// each local one is a step of a case in tests/cases/mcp/typed, which sends exactly that
+// call and reads its reply. Every step of those cases passes the advertised schema too,
+// as a client that checks arguments before sending would require.
+fn examples(tools: &[Value], local: bool) -> Result<(), String> {
+    let mut paths = Vec::new();
+    let directory = crate::runner::launch::fixtures().join("cases/mcp/typed");
+    crate::runner::case_data::collect(&directory, &mut paths).map_err(|e| e.to_string())?;
+    let mut sent = Vec::new();
+    for path in &paths {
+        let case = crate::runner::case_data::read_case(path)?;
+        for (index, step) in case.steps.iter().enumerate() {
+            let Some(call) = step.mcp_call.as_ref() else {
+                continue;
+            };
+            let tool = tools.iter().find(|tool| tool["name"] == call.name.as_str());
+            if let Some(tool) = tool.filter(|_| local) {
+                jsonschema::validator_for(&tool["inputSchema"])
+                    .map_err(|e| e.to_string())?
+                    .validate(&call.arguments)
+                    .map_err(|e| format!("{} step {}: {e}", path.display(), index + 1))?;
+            }
+            sent.push((call.name.clone(), call.arguments.clone()));
+        }
+    }
     let mut found = 0;
     for tool in tools {
         let text = tool["description"].as_str().unwrap_or_default();
-        let actions = tool
-            .pointer("/inputSchema/properties/action/enum")
-            .and_then(Value::as_array);
+        let name = tool["name"].as_str().unwrap_or_default();
         for (start, _) in text.match_indices("{\"action\":\"") {
-            let action = text[start + 11..]
-                .split('"')
+            let example = serde_json::Deserializer::from_str(&text[start..])
+                .into_iter::<Value>()
                 .next()
-                .ok_or("example action")?;
-            let object = format!("{{\"action\":\"{action}\",\"{action}\":{{");
-            if !text[start..].starts_with(&object)
-                || !actions.is_some_and(|actions| actions.contains(&json!(action)))
-            {
-                return Err(format!(
-                    "{}: example names unadvertised {action}",
-                    tool["name"]
-                ));
+                .and_then(Result::ok)
+                .ok_or_else(|| format!("{name}: example is not JSON"))?;
+            jsonschema::validator_for(&tool["inputSchema"])
+                .map_err(|e| e.to_string())?
+                .validate(&example)
+                .map_err(|e| format!("{name}: example {example} fails its schema: {e}"))?;
+            if local && !sent.contains(&(name.to_owned(), example.clone())) {
+                return Err(format!("{name}: no case sends the example {example}"));
             }
             found += 1;
         }
@@ -265,7 +263,7 @@ fn complete_words(
         .map(ToString::to_string)
         .collect::<Vec<_>>()
         .join(" ");
-    let declared = format!("{schema} {summary} {sources} IDs Sections");
+    let declared = format!("{schema} {summary} {sources} IDs Sections Required");
     let vocabulary = declared
         .split(|c: char| !c.is_alphanumeric())
         .map(str::to_lowercase)

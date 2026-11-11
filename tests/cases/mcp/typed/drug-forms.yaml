@@ -1,0 +1,200 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the drug tool's description and the argument names agents guess for them reach the same commands and queries. No retained reply covers the search or get example, so this offline check is its only proof.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "imatinib"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "imatinib"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "imatinib"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "imatinib",
+            "section": "approvals"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/source": "drugsfda",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "section": "approvals",
+            "input": [
+              "imatinib"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/source": "drugsfda",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "section": "approvals",
+            "input": "imatinib"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/source": "drugsfda",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "section": "approvals",
+            "id": [
+              "imatinib"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/source": "drugsfda",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "imatinib",
+            "sections": [
+              "approvals"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/source": "drugsfda",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "sections": [
+              "approvals"
+            ],
+            "input": [
+              "imatinib"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "imatinib",
+        "/query/source": "drugsfda",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

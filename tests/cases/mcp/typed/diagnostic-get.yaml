@@ -1,0 +1,31 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The get example in the diagnostic tool's description, sent exactly as written, is answered.",
+  "replay": "diagnostic/fda-documents",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "P170019",
+            "source": "fda-pma",
+            "section": "summary"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "P170019",
+        "/query/source": "fda-pma",
+        "/query/section": "summary",
+        "/status": "complete"
+      }
+    }
+  ]
+}

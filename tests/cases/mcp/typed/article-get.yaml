@@ -1,0 +1,29 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The get example in the article tool's description, sent exactly as written, is answered.",
+  "replay": "article/get/synthetic-derived",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "article",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "33123537"
+          }
+        }
+      },
+      "expect": {
+        "/query/input": [
+          "33123537"
+        ],
+        "/status": "complete"
+      }
+    }
+  ]
+}

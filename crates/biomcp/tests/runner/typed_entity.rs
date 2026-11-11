@@ -128,9 +128,8 @@ fn served_action(tools: &[Value], tool: &str, action: &str) -> bool {
     tools
         .iter()
         .find(|advertised| advertised["name"] == tool)
-        .and_then(|advertised| advertised.pointer("/inputSchema/properties/action/enum"))
-        .and_then(Value::as_array)
-        .is_some_and(|actions| actions.contains(&json!(action)))
+        .and_then(|advertised| advertised.pointer(&format!("/inputSchema/properties/{action}")))
+        .is_some()
 }
 
 fn path(command: &str) -> Result<(&'static str, &'static str, &'static str), String> {

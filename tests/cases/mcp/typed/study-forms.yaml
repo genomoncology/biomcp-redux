@@ -1,0 +1,207 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the study tool's description and the argument names agents guess for them reach the same commands and queries. No retained reply covers the search or get example, so this offline check is its only proof.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "melanoma"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "melanoma",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "text": "melanoma"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "melanoma",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "melanoma"
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "melanoma",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "melanoma"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/text": "melanoma",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "skcm_tcga"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "skcm_tcga",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "skcm_tcga"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "skcm_tcga",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "skcm_tcga"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "skcm_tcga",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "skcm_tcga"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "skcm_tcga",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "skcm_tcga",
+            "section": "profiles"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "skcm_tcga",
+        "/query/section": "profiles",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "study",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "skcm_tcga"
+            ],
+            "sections": [
+              "profiles"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "skcm_tcga",
+        "/query/section": "profiles",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

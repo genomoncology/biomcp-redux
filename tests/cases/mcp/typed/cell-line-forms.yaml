@@ -1,0 +1,190 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the cell_line tool's description and the argument names agents guess for them reach the same commands and queries.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "MOLM13"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "MOLM13",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "MOLM13"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "MOLM13",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "MOLM13"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "MOLM13",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "CVCL_2119"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "CVCL_2119",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "CVCL_2119"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "CVCL_2119",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "CVCL_2119"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "CVCL_2119",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "CVCL_2119"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "CVCL_2119",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "CVCL_2119",
+            "section": "names"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "CVCL_2119",
+        "/query/section": "names",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "CVCL_2119"
+            ],
+            "sections": [
+              "names"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "CVCL_2119",
+        "/query/section": "names",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

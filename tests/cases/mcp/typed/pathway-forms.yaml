@@ -1,0 +1,190 @@
+{
+  "live_check": "offline parser checks after one retained trial replay initializes the isolated case cache; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search and get examples in the pathway tool's description and the argument names agents guess for them reach the same commands and queries.",
+  "replay": "trial/condition",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "Signaling by EGFR"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "Signaling by EGFR",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keyword": "Signaling by EGFR"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "Signaling by EGFR",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "keywords": [
+              "Signaling by EGFR"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "Signaling by EGFR",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "R-HSA-177929"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "R-HSA-177929"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": "R-HSA-177929"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "R-HSA-177929"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "R-HSA-177929",
+            "section": "genes"
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/query/section": "genes",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "pathway",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "input": [
+              "R-HSA-177929"
+            ],
+            "sections": [
+              "genes"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/query/id": "R-HSA-177929",
+        "/query/section": "genes",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    }
+  ]
+}

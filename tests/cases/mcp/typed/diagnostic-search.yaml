@@ -1,0 +1,29 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search example in the diagnostic tool's description, sent exactly as written, is answered.",
+  "replay": "diagnostic/device-approvals",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "FoundationOne CDx",
+            "source": "fda-pma"
+          }
+        }
+      },
+      "expect": {
+        "/query/name": "FoundationOne CDx",
+        "/query/source": "fda-pma",
+        "/status": "complete"
+      }
+    }
+  ]
+}

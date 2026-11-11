@@ -1,6 +1,7 @@
 # 0833 — typed-tools-callable-from-their-descriptions
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a49b20cbf92be88e663ca231443f05f5876b3959
 
 Milestone: 7
 

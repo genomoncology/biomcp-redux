@@ -1,0 +1,27 @@
+{
+  "live_check": "retained replay; no source requests",
+  "feature": "mcp-parity",
+  "story": "The search example in the cell_line tool's description, sent exactly as written, is answered.",
+  "replay": "cell-line/examples",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "cell_line",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "query": "MOLM13"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "MOLM13",
+        "/status": "complete"
+      }
+    }
+  ]
+}
