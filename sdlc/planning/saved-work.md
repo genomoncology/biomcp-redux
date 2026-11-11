@@ -2,6 +2,14 @@
 
 2026-11-11. The design for milestone 9, after one design review. The owner-facing note is `notes/biomcp-1.1/2 Saved work.md` in the workspace; this file is what tickets build from. PM decisions here are dated 2026-11-11.
 
+## Where the code lives
+
+Ian, 2026-11-11: "I meant the same code for the MCP/CLI of the data store stuff. The website is completely a BioMCP hosting thing, and that is completely a private repo."
+
+- This repository holds all saved-work logic: the records, the file, the commands, change detection, export and delete. One implementation serves the command line, local MCP and the hosted service. It opens a file in a folder it is given and knows nothing of object storage, accounts or web pages.
+- A hosting service holds everything about being a service: fetching and writing back each account's file, sign-in, limits and any website.
+- A website never reads the saved file itself. It asks this program through the same commands an agent uses, so there is one implementation and a local user can get anything a web page shows.
+
 ## Records
 
 Six `biomcp.saved-*` and `biomcp.change-report` schemas in `crates/biomcp-types`. Times are Unix seconds. IDs are 16 random bytes in hex, as pool IDs are.
