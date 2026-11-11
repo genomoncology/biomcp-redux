@@ -1,5 +1,6 @@
 //! Resolve one typed drug name to the names its sources state, for trial and article search.
-mod kept;
+use super::name_fit::capped;
+pub(crate) use super::name_fit::{Fit, any, openfda};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_fetch::{Deadline, RequestError};
@@ -7,8 +8,6 @@ use biomcp_types::{
     DrugGet, DrugNameMatch, DrugSource, Reason, ReplyData, SourceNotice, SourceOutcome,
     SourceState, SourceStatus,
 };
-use kept::capped;
-pub(crate) use kept::{Fit, any, openfda};
 
 /// MyChem rows read per page for one name. The trial-name lookup reads one page of its scoped
 /// phrase query; a name get pages free text until a page holds an exact name.

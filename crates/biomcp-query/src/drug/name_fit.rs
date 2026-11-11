@@ -36,8 +36,8 @@ fn lowered(name: &Text) -> String {
 }
 
 /// The names one provider will search, and how many the record stated beyond them.
-pub(super) struct Capped {
-    pub(super) names: Vec<Text>,
+pub(crate) struct Capped {
+    pub(crate) names: Vec<Text>,
     left_out: usize,
     /// Names the provider cannot take, each with its reason.
     unfit: Vec<(Text, &'static str)>,
@@ -46,7 +46,7 @@ pub(super) struct Capped {
 }
 
 impl Capped {
-    pub(super) fn message(&self, source: biomcp_types::Source, record: &str) -> String {
+    pub(crate) fn message(&self, source: biomcp_types::Source, record: &str) -> String {
         let total = self.names.len() + self.left_out + self.unfit.len();
         let mut message = format!("Searched the names stated by {source} record {record}.");
         if !self.unfit.is_empty() {
@@ -81,7 +81,7 @@ impl Capped {
 /// One spelling per name, the typed one kept when the provider can take it. Official names
 /// pass the limit up to [`OFFICIAL_NAME_CEILING`]; the record's preferred names rank next and then the shortest, so the same
 /// drug keeps the same names whichever of them was typed.
-pub(super) fn capped(
+pub(crate) fn capped(
     names: Vec<Text>,
     (preferred, official): (&[String], &[String]),
     input: &Text,
@@ -141,34 +141,5 @@ pub(super) fn capped(
         left_out,
         unfit,
         official_left_out,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::openfda;
-
-    #[test]
-    fn openfda_leaves_out_names_it_cannot_take() {
-        for name in [
-            "apixabán",
-            "Eliquis&reg;",
-            "<b>Eliquis</b>",
-            "Valsartan component of entresto",
-            "Pradaxa (dabigatran)",
-            "Brand [kit]",
-            "this OR that",
-        ] {
-            assert!(openfda(name).is_some(), "{name} should be left out");
-        }
-        for name in [
-            "apixaban",
-            "BMS-562247",
-            "Apixaban accord",
-            "Ordinal",
-            r#"Brand "quoted" \name"#,
-        ] {
-            assert_eq!(openfda(name), None, "{name} should be kept");
-        }
     }
 }

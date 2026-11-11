@@ -74,8 +74,13 @@ fn typed_only<'a>(
     if saved.names.len() <= typed.len() || !search_names::refused(result, Source::Faers) {
         return;
     }
-    let Ok(native) = query.with_literal_drugs(typed.clone()) else {
-        return;
+    let native = match query.with_literal_drugs(typed.clone()) {
+        Ok(native) => native,
+        // The typed names alone formed the caller's valid query, so this is a local fault.
+        Err(_) => {
+            result.local = Some(biomcp_fetch::CacheError::Snapshot.into());
+            return;
+        }
     };
     *result = super::search(cx, &native, sent, deadline);
     saved.names = typed;
