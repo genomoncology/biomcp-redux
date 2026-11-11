@@ -160,7 +160,7 @@ fn split(
 /// argument, or `positional` where it takes none, with its options and help.
 pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArguments> {
     if command.has_subcommands() {
-        return group(command, path);
+        return group(command);
     }
     let [_, _] = path else { return None };
     let argument = command
@@ -181,8 +181,9 @@ pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArgument
     })
 }
 
-/// A word a command group does not name: the group's commands, with its help.
-fn group(command: &Command, path: &[&str]) -> Option<UsageArguments> {
+/// A word a command group does not name: the group's commands. No next call is set, so a
+/// command typed in the wrong word order is still answered with the command it names.
+fn group(command: &Command) -> Option<UsageArguments> {
     let names = command
         .get_subcommands()
         .filter(|command| !command.is_hide_set())
@@ -192,7 +193,7 @@ fn group(command: &Command, path: &[&str]) -> Option<UsageArguments> {
         argument: Some("command".into()),
         message: None,
         valid_values: (!names.is_empty()).then(|| names.into()),
-        next: vec![super::validation::help(path.iter().copied())],
+        next: Vec::new(),
     })
 }
 
