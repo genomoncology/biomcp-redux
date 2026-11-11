@@ -1,0 +1,24 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "Each Europe PMC search row says whether the paper is open access, from the flag the search page already holds, so a reader can tell open papers from closed ones without opening each paper.",
+  "replay": "article/search/access-rights",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--source",
+        "europepmc",
+        "--exact-term",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/result/items": "dump"
+      },
+      "max_bytes": 1
+    }
+  ]
+}

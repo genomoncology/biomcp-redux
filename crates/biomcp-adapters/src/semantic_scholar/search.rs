@@ -251,6 +251,7 @@ impl Paper {
             pmid,
             header,
             cited_by: None,
+            open_access: None,
             sentence: None,
             intents: None,
             influential: None,

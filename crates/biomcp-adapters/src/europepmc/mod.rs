@@ -104,6 +104,7 @@ struct Row {
     journal_title: Option<Field<NativeText>>,
     first_publication_date: Option<Field<PartialDate>>,
     author_string: Option<Field<NativeText>>,
+    is_open_access: Option<Field<String>>,
 }
 impl Reply for Raw {
     fn check(&self) -> Result<(), BadReply> {
@@ -160,6 +161,8 @@ impl Row {
         let journal = p.source_field("journal", self.journal_title);
         let date = p.field("date", self.first_publication_date);
         let authors = p.source_field("authors", self.author_string);
+        let open_access = p.field("open_access", self.is_open_access);
+        let open_access = p.optional("open_access", open_access.map(|flag| yes_no(&flag)));
         let header = if pmid.is_none() {
             title.map(|title| ArticleHeader {
                 pmid: None,
@@ -192,12 +195,22 @@ impl Row {
             pmid,
             header,
             cited_by: None,
+            open_access,
             intents: None,
             influential: None,
             contexts: None,
             found_by: Default::default(),
             sentence: None,
         })
+    }
+}
+
+// Europe PMC states its open-access flag as Y or N; anything else is a field problem.
+fn yes_no(flag: &str) -> Result<bool, ()> {
+    match flag {
+        "Y" => Ok(true),
+        "N" => Ok(false),
+        _ => Err(()),
     }
 }
 

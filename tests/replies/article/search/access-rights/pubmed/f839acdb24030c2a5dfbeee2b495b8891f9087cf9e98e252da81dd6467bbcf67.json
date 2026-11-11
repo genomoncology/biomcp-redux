@@ -1,0 +1,347 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "56d02d896f9d59dd9dc08268e7cd653b4bf8d2ffd6a21f7be412dbd898065a78"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794434679,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "42640561",
+              "42852808"
+            ],
+            "42640561": {
+              "uid": "42640561",
+              "pubdate": "2026 Sep 9",
+              "epubdate": "",
+              "source": "Oncologist",
+              "authors": [
+                {
+                  "name": "Joseph M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tharakan J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Proudfoot-Jones J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sacco JJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Furness A",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McMahon D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Khoja L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pallan L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Serra P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ranatunge D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Oladipo B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Clements G",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mariappan L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hennah L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Talbot T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nobes J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Carter T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shaw H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nathan P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Nathan P",
+              "title": "Real-world efficacy and toxicity of tebentafusp in metastatic uveal melanoma patients treated on the United Kingdom expanded access programme.",
+              "sorttitle": "real world efficacy and toxicity of tebentafusp in metastatic uveal melanoma patients treated on the united kingdom expanded access programme",
+              "volume": "31",
+              "issue": "10",
+              "pages": "",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9607837",
+              "issn": "1083-7159",
+              "essn": "1549-490X",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "4",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "42640561"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC13568816"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC13568816;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1093/oncolo/oyag341"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "8770367"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2026/02/27 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2026/08/19 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2026/09/11 23:36"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2026/08/25 17:35"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2026/08/25 11:23"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2026/08/25 00:00"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 17,
+              "fulljournalname": "The oncologist",
+              "elocationid": "doi: 10.1093/oncolo/oyag341",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2026/09/09 00:00",
+              "sortfirstauthor": "Joseph M",
+              "vernaculartitle": ""
+            },
+            "42852808": {
+              "uid": "42852808",
+              "pubdate": "2026 Oct 9",
+              "epubdate": "2026 Oct 9",
+              "source": "J Oncol Pharm Pract",
+              "authors": [
+                {
+                  "name": "Herrera E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pappano E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Fayngor R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hahn E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Pappalardo AA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Naffakh N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hinkes J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nguyen R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Nguyen R",
+              "title": "Tebentafusp desensitization in an adult with metastatic uveal melanoma.",
+              "sorttitle": "tebentafusp desensitization in an adult with metastatic uveal melanoma",
+              "volume": "",
+              "issue": "",
+              "pages": "10781552261495131",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9511372",
+              "issn": "1078-1552",
+              "essn": "1477-092X",
+              "pubtype": [
+                "Journal Article"
+              ],
+              "recordstatus": "PubMed - as supplied by publisher",
+              "pubstatus": "10",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "42852808"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1177/10781552261495131"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "medline",
+                  "date": "2026/10/09 11:40"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2026/10/09 11:40"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2026/10/09 08:23"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Journal of oncology pharmacy practice : official publication of the International Society of Oncology Pharmacy Practitioners",
+              "elocationid": "doi: 10.1177/10781552261495131",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2026/10/09 00:00",
+              "sortfirstauthor": "Herrera E",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ]
+}

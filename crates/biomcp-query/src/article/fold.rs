@@ -27,6 +27,10 @@ pub(super) fn fold(
                         existing.text_withheld = row.text_withheld.clone();
                     }
                 }
+                // A row from a source that states no access flag takes one stated by another source.
+                if existing.open_access.is_none() {
+                    existing.open_access = row.open_access;
+                }
                 if disclose {
                     existing.found_by.entry(*source).or_insert(native_rank);
                 }
