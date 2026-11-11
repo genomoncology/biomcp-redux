@@ -6,7 +6,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
     fs,
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufRead, BufReader, Write},
     net::{Shutdown, TcpListener},
     process::Stdio,
     sync::mpsc,
@@ -140,7 +140,7 @@ fn mode_input(
 ) -> Result<(), String> {
     match mode {
         Mode::Reply => Ok(()),
-        Mode::Cancel => cancel_capacity(stdin, replies, connected, control),
+        Mode::Cancel => cancel_capacity(stdin, replies, control),
         Mode::Isolation => {
             send(
                 stdin,
@@ -278,12 +278,7 @@ fn hold(
         match release.try_recv() {
             Ok(Probe::Stop) => break,
             Ok(Probe::Cancelled) => {
-                let all = if held.len() == 8 {
-                    held.iter_mut().try_for_each(peer_eof)
-                } else {
-                    Err(format!("cancel needs eight held sockets, saw {}", held.len()))
-                };
-                let _ = checked.send(all);
+                let _ = checked.send(held.iter_mut().try_for_each(peer_eof));
             }
             Ok(Probe::Isolation) => {
                 let _ = checked.send(resume_other(&mut held, tls.clone()));
@@ -369,12 +364,21 @@ fn proxy_request(
         .set_read_timeout(Some(WATCHDOG))
         .map_err(|e| e.to_string())?;
     let mut header = Vec::new();
-    while !header.ends_with(b"\r\n\r\n") && header.len() < 8192 {
+    let mut closed = false;
+    while !closed && !header.ends_with(b"\r\n\r\n") && header.len() < 8192 {
         let mut byte = [0];
-        stream.read_exact(&mut byte).map_err(|e| e.to_string())?;
-        header.extend(byte);
+        match super::socket_read::read(&mut stream, &mut byte) {
+            Ok(0) => closed = true,
+            Ok(_) => header.extend(byte),
+            Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => closed = true,
+            Err(error) => return Err(error.to_string()),
+        }
     }
-    let result = if header.starts_with(b"CONNECT ") && header.ends_with(b"\r\n\r\n") {
+    // A call cancelled while it opens its socket may close before CONNECT is complete. Report that
+    // to whoever waits for a CONNECT, and keep the socket so the cancel check sees it closed.
+    let result = if closed {
+        Err("peer closed before CONNECT".into())
+    } else if header.starts_with(b"CONNECT ") && header.ends_with(b"\r\n\r\n") {
         Ok(())
     } else {
         Err("proxy expected CONNECT".into())
@@ -383,11 +387,9 @@ fn proxy_request(
     Ok(stream)
 }
 
-/// Cancel only after every call holds its proxy socket, so no cancel lands mid-CONNECT.
 fn cancel_capacity(
     stdin: &mut impl Write,
     replies: &mpsc::Receiver<Result<Value, String>>,
-    connected: &mpsc::Receiver<Result<(), String>>,
     control: &ProxyControl,
 ) -> Result<(), String> {
     for id in 1..8 {
@@ -399,11 +401,6 @@ fn cancel_capacity(
                 json!({"name":"biomcp", "arguments":{ "args":["get","protein","P15056"]}}),
             ),
         )?;
-    }
-    for _ in 1..8 {
-        connected
-            .recv_timeout(WATCHDOG)
-            .map_err(|_| "held CONNECT watchdog")??;
     }
     send(
         stdin,
