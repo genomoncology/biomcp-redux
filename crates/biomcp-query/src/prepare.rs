@@ -268,9 +268,11 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
         return Ok(());
     };
     let label_only = query.sections() == [biomcp_types::DrugSection::Label];
-    // One section the selected source lacks: the sources that serve it, each call written out.
+    // One section the default source lacks: the sources that serve it, each call written out.
+    // A source the caller named keeps the answer of the sections that source serves.
+    let defaulted = query.source() == biomcp_types::DrugSource::Mychem;
     let serving = match query.sections() {
-        [section] if !label_only => biomcp_types::DrugSource::ALL
+        [section] if defaulted && !label_only => biomcp_types::DrugSource::ALL
             .into_iter()
             .filter(|source| source.sections().contains(section))
             .map(|source| (<&str>::from(*section), source.as_str()))
