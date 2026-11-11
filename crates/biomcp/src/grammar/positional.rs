@@ -159,6 +159,9 @@ fn split(
 /// A positional word no argument took and no fix places: the command's last positional
 /// argument, or `positional` where it takes none, with its options and help.
 pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArguments> {
+    if command.has_subcommands() {
+        return group(command, path);
+    }
     let [_, _] = path else { return None };
     let argument = command
         .get_positionals()
@@ -174,6 +177,21 @@ pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArgument
         argument: Some(argument.into()),
         message: None,
         valid_values: (!options.is_empty()).then(|| options.into()),
+        next: vec![super::validation::help(path.iter().copied())],
+    })
+}
+
+/// A word a command group does not name: the group's commands, with its help.
+fn group(command: &Command, path: &[&str]) -> Option<UsageArguments> {
+    let names = command
+        .get_subcommands()
+        .filter(|command| !command.is_hide_set())
+        .map(|command| biodata::Text::new(command.get_name()).ok())
+        .collect::<Option<Vec<_>>>()?;
+    Some(UsageArguments {
+        argument: Some("command".into()),
+        message: None,
+        valid_values: (!names.is_empty()).then(|| names.into()),
         next: vec![super::validation::help(path.iter().copied())],
     })
 }

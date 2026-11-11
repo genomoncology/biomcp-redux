@@ -225,11 +225,7 @@ pub(super) fn parse_invalid(
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
         } else {
-            spelling.and_then(|spelling| {
-                super::positional::text_flag(root, &path, spelling, args)
-                    .or_else(|| super::positional::source_flag(root, &path, spelling, args))
-                    .or_else(|| super::positional::respelled(root, &path, spelling, args))
-            })
+            spelling.and_then(|spelling| flag_fix(root, &path, spelling, args))
         };
         super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
@@ -238,10 +234,17 @@ pub(super) fn parse_invalid(
             prefer_argument_error: registered_argument,
         };
     }
-    if spelling.is_some()
+    if let Some(spelling) = spelling
         && let Some(arguments) = super::positional::fix(root, &path, args)
             .or_else(|| super::positional::unplaced(command, &path))
     {
+        let mut arguments = arguments;
+        if spelling.starts_with('-')
+            && let Some(step) = flag_fix(root, &path, spelling, args)
+        {
+            arguments.argument = Some(spelling.into());
+            super::recovery::next(&mut arguments, Some(step));
+        }
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
@@ -500,6 +503,18 @@ fn replacement_step(
         kind: biomcp_types::StepKind::Configure,
         args: args.into(),
     })
+}
+
+/// An option spelling this command lacks: the call with it spelled as this command takes it.
+fn flag_fix(
+    root: &Command,
+    path: &[&str],
+    spelling: &str,
+    args: &[std::ffi::OsString],
+) -> Option<biomcp_types::Step> {
+    super::positional::text_flag(root, path, spelling, args)
+        .or_else(|| super::positional::source_flag(root, path, spelling, args))
+        .or_else(|| super::positional::respelled(root, path, spelling, args))
 }
 
 /// The root parser, with errors ignored along the command path unless `strict`.
