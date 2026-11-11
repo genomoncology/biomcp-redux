@@ -3,6 +3,8 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import shlex
 from pathlib import Path
 import shutil
 import subprocess
@@ -40,6 +42,91 @@ def discover(binary, env):
     return leaves
 
 
+FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
+                    "hosted": ["--hosted", "--tool-mode", "typed"], "hosted-single": ["--hosted"]}
+# What every connection reads first, in characters, as measured on main 4f4414616. The skill is re-read
+# every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so ticket 0836 lets none of these grow;
+# the command map and worked examples are served on request instead.
+FIRST_READ_CEILINGS = {"single": 3669, "typed": 2009, "hosted": 1996, "hosted-single": 2518, "skill": 5557}
+
+
+def first_read_sizes(binary, env):
+    """Measure what every connection loads: initialize instructions and the tools list."""
+    sizes = {}
+    for mode, flags in FIRST_READ_MODES.items():
+        frames = [{"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+            "protocolVersion": "2025-11-25", "capabilities": {},
+            "clientInfo": {"name": "first-read-size", "version": "1"}}},
+            {"jsonrpc": "2.0", "method": "notifications/initialized"},
+            {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}]
+        process = subprocess.run([str(binary), "serve", "--offline", *flags],
+                                 input="".join(json.dumps(frame) + "\n" for frame in frames),
+                                 env=env, capture_output=True, text=True, timeout=60)
+        require(process.returncode == 0, f"{mode} serve failed: {process.stderr}")
+        replies = {reply.get("id"): reply for reply in map(json.loads, process.stdout.splitlines())}
+        instructions = replies[1]["result"]["instructions"]
+        tools = json.dumps(replies[2]["result"]["tools"], ensure_ascii=False, separators=(",", ":"))
+        sizes[mode] = {"instructions_characters": len(instructions), "tools_bytes": len(tools.encode()),
+                       "tools": len(replies[2]["result"]["tools"])}
+        require(len(instructions) <= FIRST_READ_CEILINGS[mode],
+                f"{mode} instructions are {len(instructions)} characters, over main's {FIRST_READ_CEILINGS[mode]}")
+        require(all(word in instructions for word in ("questions", "examples")),
+                f"{mode} instructions do not name help questions and help examples")
+    return sizes
+
+
+def use_cases():
+    """Yield each use case's name, first command and documented typed call."""
+    for path in sorted((Path(__file__).resolve().parents[1] / "skills/use-cases").glob("[0-9]*.md")):
+        text = path.read_text()
+        command = re.search(r"```sh\nbiomcp (.*)\n", text)
+        typed = re.findall(r"^Typed tool: `([a-z_]+)` `(\{.*\})`\.$", text, re.M)
+        require(command and len(typed) == 1, f"{path.name} lacks a first command or one typed tool line")
+        yield path.stem.split("-", 1)[1], command[1], typed[0][0], json.loads(typed[0][1])
+
+
+def recorded_runs():
+    cases = Path(__file__).resolve().parents[1] / "tests/cases"
+    recorded = set()
+    for path in cases.rglob("*.yaml"):
+        try:  # most cases are JSON; the few written as YAML hold no worked example
+            steps = json.loads(path.read_text()).get("steps", [])
+        except ValueError:
+            continue
+        recorded.update(json.dumps(step.get("run")) for step in steps if isinstance(step, dict))
+    return recorded
+
+
+def topic(binary, env, *path):
+    return json.loads(run(binary, ["help", *path], env))["result"]["commands"][0]["description"]
+
+
+EXAMPLE_LINE = re.compile(r"^- .* \(([a-z-]+)\): biomcp (.*) \| ([a-z_]+) (\{.*\})$")
+
+
+def check_on_request(binary, env, front):
+    """The map and examples are served on request. The server derives each typed call from the
+    command through the grammar and the typed catalog, so a match proves parse and schema fit."""
+    questions = topic(binary, env, "questions")
+    rows = front.split("\nSources/components:", 1)[0].splitlines()
+    for row in rows:
+        for command in row.split(";", 1)[0].split(","):
+            require(f"{command} (" in questions or f"{command})" in questions or f"{command}," in questions,
+                    f"help questions lacks {command}")
+    served = {}
+    for line in topic(binary, env, "examples").splitlines():
+        match = EXAMPLE_LINE.match(line)
+        require(match, f"help examples line has no typed call: {line}")
+        served[match[1]] = (match[2], match[3], json.loads(match[4]))
+    recorded = recorded_runs()
+    for name, command, tool, call in use_cases():
+        require(json.dumps(shlex.split(command)) in recorded, f"{name}: example is no recorded case step: {command}")
+        require(served.get(name) == (command, tool, call),
+                f"{name}: help examples serve {served.get(name)}, the use case documents {(command, tool, call)}")
+        page = topic(binary, env, tool.replace("_", "-"))
+        require(page.startswith(f"{tool} (") and f"({name})" in page, f"help {tool} lacks its question or {name}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("binary", type=Path)
@@ -69,7 +156,9 @@ def main():
         require(len(front) <= limit, f"front map is {len(front)} characters, over the limit of {limit}")
         require("--" not in front, "front map names a flag, and it must name commands only")
         rendered = run(binary, ["skill", "render"], env)
-        require(rendered.startswith(front + "\n\n"), "rendered skill does not open with the front map")
+        require(len(rendered) <= FIRST_READ_CEILINGS["skill"] and "help questions" in rendered
+                and "help examples" in rendered, "skill grew past main or names no on-request map")
+        check_on_request(binary, env, front)
         source_help = json.loads(run(binary, ["help", "sources"], env))["result"]["commands"][0]["description"]
         require(source_help.startswith("Services:") and "Components:" in source_help,
                 "help sources lacks its Services and Components lists")
@@ -88,8 +177,7 @@ def main():
         install = root / "installed"
         run(binary, ["skill", "install", str(install)], env)
         skill = (install / "skills/biomcp/SKILL.md").read_text()
-        require(skill.split("\n---\n", 1)[1].lstrip().startswith(front + "\n\n"),
-                "installed skill does not open with the front map")
+        require(skill.split("\n---\n", 1)[1].lstrip() == rendered, "installed skill differs from the rendered one")
         request = {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
             "protocolVersion": "2025-11-25", "capabilities": {},
             "clientInfo": {"name": "front-map-proof", "version": "1"}}}
@@ -100,6 +188,10 @@ def main():
         guidance = "Listed choices accept any letter case; replies use their listed spelling."
         require(reply["result"]["instructions"] == front + "\n" + guidance,
                 "server instructions differ from the front map and its guidance line")
+        sizes = first_read_sizes(binary, env)
+        sizes["skill_characters"] = len(rendered)
+        (args.output / "first-read-sizes.json").write_text(json.dumps(sizes, indent=2) + "\n")
+        print(json.dumps({"first_read": sizes}))
         (args.output / "help.json").write_text(help_reply)
         (args.output / "front-map.txt").write_text(front)
         (args.output / "initialize.json").write_text(process.stdout)

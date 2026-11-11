@@ -315,7 +315,7 @@ pub(crate) fn generate(
     }
     let (tool, _, _, [_, get], _) = ENTITY_TOOLS.first().ok_or("no entity tool")?;
     let mut lines = vec![format!(
-        "Each tool takes action and one object named after it, e.g. {tool} {{\"action\":\"get\",\"get\":{get}}}. Search takes query; get takes id. help(command): arguments, sections, examples."
+        "Each tool takes action and one object named after it, e.g. {tool} {{\"action\":\"get\",\"get\":{get}}}. Search takes query; get takes id. help(command): options; help(questions|examples|sources): map, worked calls, sources."
     )];
     for (tool, _, placed, _, _) in ENTITY_TOOLS {
         let mut actions = BTreeSet::new();
@@ -335,7 +335,7 @@ pub(crate) fn generate(
             ));
         }
     }
-    lines.push("help: command path (e.g. search trial, sources); search/fetch: research results and exact result IDs.".into());
+    lines.push("search/fetch: research results and exact result IDs.".into());
     for trap in TRAPS.iter().skip(1) {
         if trap
             .split(|c: char| !c.is_alphanumeric() && c != '-')
