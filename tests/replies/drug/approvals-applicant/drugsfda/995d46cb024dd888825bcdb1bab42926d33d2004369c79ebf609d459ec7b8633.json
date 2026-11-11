@@ -1,10 +1,10 @@
 {
   "method": "GET",
   "source": "drugsfda",
-  "url": "https://api.fda.gov/drug/drugsfda.json?search=sponsor_name%3A%22ALNYLAM%20PHARMS%20INC%22&limit=2&skip=2",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=sponsor_name%3AALNYLAM%5C%20PHARMS%5C%20INC%2A&limit=2&skip=2",
   "exchanges": [
     {
-      "fetched": 1794409246,
+      "fetched": 1794411113,
       "status": 200,
       "content_type": "application/json",
       "delay_ms": 0,

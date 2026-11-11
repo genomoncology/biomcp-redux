@@ -55,8 +55,8 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::OpenfdaLabel)))]
     indication: Option<Text>,
-    /// Exact applicant name; Drugs@FDA only.
-    /// The source matches its complete native sponsor_name with case, such as ALNYLAM PHARMS INC;
+    /// Applicant name start; Drugs@FDA only.
+    /// Matches native sponsor_name values starting with this text, ignoring letter case;
     /// no company-family or subsidiary inference. An optional name narrows the same search.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
@@ -257,7 +257,7 @@ impl DrugSearch {
     pub fn indication(&self) -> Option<&Text> {
         self.0.indication.as_ref()
     }
-    /// Literal Drugs@FDA sponsor phrase, matched by the source.
+    /// Start of a Drugs@FDA sponsor name, matched by the source without letter case.
     pub fn applicant(&self) -> Option<&Text> {
         self.0.applicant.as_ref()
     }

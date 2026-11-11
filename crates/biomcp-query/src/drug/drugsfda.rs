@@ -31,8 +31,21 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     );
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
-    out.sources
-        .push(status::source(Source::Drugsfda, leg.finish(), error));
+    let mut report = status::source(Source::Drugsfda, leg.finish(), error);
+    if let Some(applicant) = query.applicant() {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: format!(
+                    "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
+                    source::applicant_prefix(applicant)
+                )
+                .into(),
+                retry_after_seconds: None,
+            });
+    }
+    out.sources.push(report);
     if let Ok(page) = result {
         out.include_refusals(page.refusals);
         out.problems.extend(page.problems);

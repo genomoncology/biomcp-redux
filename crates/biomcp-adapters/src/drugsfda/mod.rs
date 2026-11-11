@@ -47,8 +47,12 @@ pub struct Page {
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
+/// The sponsor-name prefix an applicant selects: the source stores sponsor names in upper case.
+pub fn applicant_prefix(applicant: &Text) -> String {
+    applicant.as_str().to_uppercase()
+}
 /// Discover exact brand or ingredient names, then try their native word fields after a zero total.
-/// An applicant narrows either tier by the native sponsor_name, or selects alone.
+/// An applicant narrows either tier by a native sponsor_name prefix wildcard, or selects alone.
 pub fn search(
     leg: &Leg<'_>,
     text: Option<&Text>,
@@ -56,7 +60,17 @@ pub fn search(
     limit: u32,
     offset: u32,
 ) -> Result<Page, RequestError> {
-    let sponsor = applicant.map(|v| format!("sponsor_name:{}", literal(v.as_str())));
+    let sponsor = applicant.map(|v| {
+        let mut term = String::from("sponsor_name:");
+        for c in applicant_prefix(v).chars() {
+            if !c.is_alphanumeric() {
+                term.push('\\');
+            }
+            term.push(c);
+        }
+        term.push('*');
+        term
+    });
     let selector = |suffix: &str| {
         let names = text.map(|text| {
             let name = literal(text.as_str());

@@ -6,7 +6,7 @@ Milestone: 8
 
 ## Outcome
 
-`search drug --source drugsfda --applicant NAME` returns the applications that sponsor holds, paged, with totals; the same filter works in MCP.
+`search drug --source drugsfda --applicant NAME` returns the applications that sponsor holds, paged, with totals; the same filter works in MCP. `--applicant` is a case-insensitive prefix match through the source's own wildcard: the text is normalized to the source's upper case, escaped, and given the prefix wildcard, so "Alnylam" and the complete name both match; a source notice states the rule ("matches sponsor names starting with ...").
 
 ## Why
 
@@ -14,7 +14,7 @@ Regulatory affairs asked what a company has had approved; raw openFDA answers in
 
 ## Proof
 
-- Proof: a routine case under `tests/cases/drug/` with a recorded reply asserts a known sponsor's rows and total; an unknown sponsor answers empty, not an error.
+- Proof: a routine case under `tests/cases/drug/` with a recorded reply asserts a known sponsor's rows and total by complete and partial name; an unknown sponsor answers empty, not an error.
 
 ## Starts from
 
@@ -22,7 +22,7 @@ Regulatory affairs asked what a company has had approved; raw openFDA answers in
 
 ## Keeps
 
-- Keeps: every existing field, schema ID rule (a changed reply schema takes a new major), source attribution and page behavior; no new source, key or dependency. Matching is the source's own on `sponsor_name`; no company-family or subsidiary inference.
+- Keeps: every existing field, schema ID rule (a changed reply schema takes a new major), source attribution and page behavior; no new source, key or dependency. Matching is the source's own prefix wildcard on `sponsor_name`; no company-family or subsidiary inference.
 
 ## Defers
 
