@@ -33,7 +33,7 @@ tools = []
 for name in %s:
     schema = {"type": "object", "required": ["action"], "additionalProperties": False,
               "properties": {"action": {"enum": ACTIONS},
-                             "get": {"type": "object", "properties": {"input": {"type": ["array", "string"]}}},
+                             "get": {"type": "object", "properties": {"id": {"type": ["array", "string"]}}},
                              "search": {"type": "object"}}}
     tools.append({"name": name, "inputSchema": schema})
 for line in sys.stdin:
@@ -56,7 +56,7 @@ def tools_check(root, readme, original_readme):
     result = check(root)
     assert result.returncode != 0 and "does not list every retired tool name" in result.stderr, result
     notes.write_text(original_notes)
-    readme.write_text(original_readme.replace('`{"action":"get","get":{"input":["BRAF"]}}`', '`{"action":"get","input":["BRAF"]}`'))
+    readme.write_text(original_readme.replace('`{"action":"get","get":{"id":"BRAF"}}`', '`{"action":"get","id":"BRAF"}`'))
     result = check(root)
     assert result.returncode != 0 and "not an action with one object" in result.stderr, result
     readme.write_text(original_readme)
@@ -68,7 +68,7 @@ def tools_check(root, readme, original_readme):
                                  capture_output=True, text=True, check=False)
     result = run()
     assert result.returncode == 0, result.stderr
-    readme.write_text(original_readme.replace('`{"action":"get","get":{"input":["BRAF"]}}`', '`{"action":"get","get":{"input":5}}`'))
+    readme.write_text(original_readme.replace('`{"action":"get","get":{"id":"BRAF"}}`', '`{"action":"get","get":{"id":5}}`'))
     result = run()
     assert result.returncode != 0 and "fails its schema" in result.stderr, result
     readme.write_text(original_readme)
