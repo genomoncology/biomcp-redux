@@ -1,0 +1,111 @@
+{
+  "live_check": "offline parser checks; no source requests",
+  "feature": "mcp-parity",
+  "story": "A typed call the server must refuse names the argument, what it may be and, where one exists, the call that works: a section sent as an action, two record IDs where one is read, one argument under two names, and a missing record ID.",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "approvals",
+          "approvals": {
+            "input": "imatinib"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "action",
+        "/error/valid_values": {
+          "includes": "get"
+        },
+        "/next/0": {
+          "equals": {
+            "kind": "section",
+            "name": "drug",
+            "arguments": {
+              "action": "get",
+              "get": {
+                "id": "imatinib",
+                "section": [
+                  "approvals"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "variant",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": [
+              "rs113488022",
+              "rs121913529"
+            ]
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "id",
+        "/error/valid_values": [
+          "one value per call"
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "imatinib",
+            "input": "imatinib"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "input",
+        "/error/valid_values": [
+          "id"
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "section": "label"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "id"
+      }
+    }
+  ]
+}
