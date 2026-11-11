@@ -70,6 +70,8 @@ def first_read_sizes(binary, env):
                        "tools": len(replies[2]["result"]["tools"])}
         require(len(instructions) <= FIRST_READ_CEILINGS[mode],
                 f"{mode} instructions are {len(instructions)} characters, over main's {FIRST_READ_CEILINGS[mode]}")
+        require(all(word in instructions for word in ("questions", "examples")),
+                f"{mode} instructions do not name help questions and help examples")
     return sizes
 
 

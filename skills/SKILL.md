@@ -7,6 +7,7 @@ BioMCP retrieves source records on genes, variants, diseases, drugs, trials, art
 
 Ask for more when you need it:
 
+- `biomcp help`: every command with its sections and sources, in one call.
 - `biomcp help questions`: every command and the question it answers.
 - `biomcp help examples`: one worked call per use case, as a command and a typed call.
 - `biomcp help ENTITY` and `biomcp help COMMAND ENTITY`: questions, examples, options and sections.
