@@ -37,7 +37,7 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
         DiseaseSource::MyDisease => {
             biomcp_adapters::mydisease::supported_id(id)
                 && matches!(
-                    *section,
+                    section,
                     None | Some(
                         DiseaseSection::Synonyms
                             | DiseaseSection::Xrefs
