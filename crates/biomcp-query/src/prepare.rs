@@ -55,8 +55,51 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
         ),
     }
 }
-/// The sources that serve this disease request, named on `--source`.
+/// Every disease section, in declaration order.
+const DISEASE_SECTIONS: [DiseaseSection; 7] = [
+    DiseaseSection::Synonyms,
+    DiseaseSection::Xrefs,
+    DiseaseSection::Hierarchy,
+    DiseaseSection::Genes,
+    DiseaseSection::Phenotypes,
+    DiseaseSection::Incidence,
+    DiseaseSection::Survival,
+];
+/// A source that serves only named sections, read without one: the sections it serves.
+fn disease_sections(action: &Action) -> Option<UsageError> {
+    let Action::Run {
+        request: Request::GetDisease(q),
+        ..
+    } = action
+    else {
+        return None;
+    };
+    if q.section().is_some() {
+        return None;
+    }
+    let values = DISEASE_SECTIONS
+        .into_iter()
+        .filter(|section| get_supported(q.source(), Some(*section), q.id().as_str()))
+        .filter_map(|section| serde_json::to_value(section).ok()?.as_str()?.parse().ok())
+        .collect::<Vec<biodata::Text>>();
+    (!values.is_empty()).then(|| {
+        UsageError::Arguments(biomcp_types::UsageArguments {
+            argument: Some("section".into()),
+            message: None,
+            valid_values: Some(values.into()),
+            next: vec![biomcp_types::Step {
+                kind: biomcp_types::StepKind::Configure,
+                args: ["help", "get", "disease"].map(Into::into).into(),
+            }],
+        })
+    })
+}
+/// The sources that serve this disease request, named on `--source`; a source read without
+/// the section it needs names the section instead.
 fn disease_sources(action: &Action) -> UsageError {
+    if let Some(sections) = disease_sections(action) {
+        return sections;
+    }
     let (path, accepted): ([&str; 2], Vec<DiseaseSource>) = match action {
         Action::Run {
             request: Request::SearchDisease(_),

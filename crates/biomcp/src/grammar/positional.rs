@@ -277,13 +277,27 @@ pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
             }
             _ => None,
         },
-        Err(cause) => match cause.usage? {
+        Err(cause) => completed(root, args).or_else(|| match cause.usage? {
             biomcp_types::UsageError::Arguments(arguments) => arguments
                 .next
                 .into_iter()
                 .next()
                 .filter(|step| step.args.first().is_some_and(|word| &**word != "help")),
             _ => None,
-        },
+        }),
     }
+}
+
+/// The checked call for words the parser reads but the request refuses, with any required
+/// argument that has one possible value filled in.
+fn completed(root: &Command, args: &[OsString]) -> Option<Step> {
+    let matches = root
+        .clone()
+        .try_get_matches_from(std::iter::once(OsString::from("biomcp")).chain(args.iter().cloned()))
+        .ok()?;
+    let (verb, matches) = matches.subcommand()?;
+    let (entity, matches) = matches.subcommand()?;
+    let schema = super::validation::schema(verb, entity)?;
+    let value = super::request_arguments(verb, entity, matches).ok()?;
+    complete((verb, entity), &schema, &value)
 }
