@@ -88,6 +88,47 @@ steps:
     - help
     - network
     - ca_bundle
+- run: &id005
+  - help
+  - questions
+  expect:
+    /status: complete
+    /result/commands/0/command: *id005
+- run:
+  - --format
+  - md
+  - help
+  - questions
+  expect:
+    '':
+      includes_all_of:
+      - "gene (search gene, get gene): Human genes"
+      - variant assertions (ClinVar or ClinGen classifications)
+- run: &id006
+  - help
+  - examples
+  expect:
+    /status: complete
+    /result/commands/0/command: *id006
+- run:
+  - --format
+  - md
+  - help
+  - examples
+  expect:
+    '':
+      includes_all_of:
+      - "(treatment-lookup): biomcp search article 'KRAS G12C sotorasib' --since 2024 --sort date --limit 5"
+- run:
+  - --format
+  - md
+  - help
+  - gene
+  expect:
+    '':
+      includes_all_of:
+      - "gene (search gene, get gene): Human genes"
+      - "(negative-evidence): biomcp get gene MIR21 expression"
 - run: &id003
   - help
   - relations
