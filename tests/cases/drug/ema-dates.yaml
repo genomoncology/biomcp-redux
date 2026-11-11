@@ -33,7 +33,7 @@
         "/result/date_roles/3/role": "marketing_authorisation_date",
         "/result/date_roles/3/label": "Marketing authorisation issued",
         "/result/date_roles/4/label": "Opinion adopted",
-                "/sources/0/notices/*/message": {
+        "/sources/0/notices/*/message": {
           "includes": "No European Commission decision date is reported. The date reported as latest_procedure_affecting_product_information_date is the one EMA's medicines file names european_commission_decision_date; EMA's product page shows it beside the latest procedure affecting product information, and it can differ from that procedure's European Commission decision date. Read the decision date from the procedure's own EMA page, such as its referral page."
         }
       }
