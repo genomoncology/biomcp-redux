@@ -100,7 +100,7 @@
           "includes": "page"
         },
         "/sources/0/notices/*/message": {
-          "excludes": "1 of 3 returned rows have no exact openFDA device recall record and show only the recall number and classification."
+          "includes": "--classification selects openFDA device enforcement records: the total counts enforcement records, and --manufacturer and the initiation dates match enforcement fields."
         }
       }
     },
@@ -117,7 +117,9 @@
       ],
       "exit": 2,
       "expect": {
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/argument": "--product-code",
+        "/error/message": "--classification selects device enforcement records, which carry no product code; drop --product-code, or drop --classification and read each returned row's classification"
       }
     }
   ]

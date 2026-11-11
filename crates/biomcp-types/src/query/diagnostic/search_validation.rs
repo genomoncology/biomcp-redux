@@ -26,7 +26,8 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
         return Ok(());
     }
     if v.classification.is_some() && v.product_code.is_some() {
-        return Err(QueryInvalid::new(&["classification", "product_code"]));
+        return Err(QueryInvalid::new(&["product_code", "classification"])
+            .with_message(crate::ErrorMessage::DeviceRecallClassificationProductCode));
     }
     if other || v.marker.is_some() || v.bundle_revision.is_some() {
         return Err(QueryInvalid::new(&[

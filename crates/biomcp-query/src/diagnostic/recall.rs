@@ -65,16 +65,21 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     } else {
         status::search(&mut out);
     }
-    if unmatched.0 > 0
-        && let Some(source) = out.sources.last_mut()
-    {
-        source
-            .notices
-            .push(unmatched_notice(q, unmatched.0, unmatched.1));
+    if let Some(source) = out.sources.last_mut() {
+        if q.classification().is_some() {
+            source.notices.push(guidance(CLASS_NOTICE.into()));
+        }
+        if unmatched.0 > 0 {
+            source
+                .notices
+                .push(unmatched_notice(q, unmatched.0, unmatched.1));
+        }
     }
     command.finish(deadline.remaining());
     out
 }
+const CLASS_NOTICE: &str = "--classification selects openFDA device enforcement records: the total counts \
+    enforcement records, and --manufacturer and the initiation dates match enforcement fields.";
 /// Count rows the exact join left without their other openFDA record; nothing is inferred for them.
 fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNotice {
     let (missing, shown) = if q.classification().is_some() {
@@ -82,12 +87,14 @@ fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNot
     } else {
         ("enforcement", "no classification")
     };
+    guidance(format!(
+        "{rows} of {returned} returned rows have no exact openFDA device {missing} record and show {shown}."
+    ))
+}
+fn guidance(message: String) -> SourceNotice {
     SourceNotice::RequestGuidance {
         data_date: None,
-        message: format!(
-            "{rows} of {returned} returned rows have no exact openFDA device {missing} record and show {shown}."
-        )
-        .into(),
+        message: message.into(),
         retry_after_seconds: None,
     }
 }
