@@ -26,17 +26,20 @@ impl Catalog {
             })
     }
 
-    /// The advertised actions of an entity tool.
+    /// The advertised actions of an entity tool, in the tool map's order.
     pub(super) fn actions(&self, tool: &str) -> Vec<String> {
-        self.tools
+        let offered = self
+            .tools
             .iter()
             .find(|advertised| advertised["name"] == tool)
-            .and_then(|advertised| advertised.pointer("/inputSchema/properties/action/enum"))
-            .and_then(Value::as_array)
-            .into_iter()
-            .flatten()
-            .filter_map(Value::as_str)
-            .map(Into::into)
+            .and_then(|advertised| advertised.pointer("/inputSchema/properties"))
+            .and_then(Value::as_object);
+        ENTITY_TOOLS
+            .iter()
+            .filter(|(name, ..)| *name == tool)
+            .flat_map(|(_, _, placed, ..)| placed.iter())
+            .filter(|(action, ..)| offered.is_some_and(|fields| fields.contains_key(*action)))
+            .map(|(action, ..)| (*action).into())
             .collect()
     }
 }
@@ -112,10 +115,19 @@ fn entity(
         return Ok(None);
     }
     let mut properties = serde_json::Map::new();
+    // The actions are named, not enumerated, and other fields are not forbidden: a client
+    // that checks arguments then passes a guess such as drug `approvals` to the server,
+    // which answers with the call that works.
+    let names = actions
+        .iter()
+        .map(|(action, _, _)| *action)
+        .collect::<Vec<_>>();
     properties.insert(
         "action".into(),
-        json!({"type":"string","enum":actions.iter().map(|(action, _, _)| *action).collect::<Vec<_>>(),
-            "description":"Which operation; its arguments go in the object of the same name."}),
+        json!({"type":"string","description":format!(
+            "One of: {}. Its arguments go in the object of the same name.",
+            names.join(", ")
+        )}),
     );
     for (action, _, command) in &actions {
         let mut input = command.input.clone();
@@ -140,7 +152,7 @@ fn entity(
     let mut tool = json!({"name":name,
         "description":description,
         "inputSchema":{"$schema":super::super::protocol::SCHEMA_DIALECT,"type":"object",
-            "properties":properties,"required":["action"],"additionalProperties":false},
+            "properties":properties,"required":["action"]},
         "annotations":{"readOnlyHint":actions.iter().all(|(_, _, command)| command.read_only),
             "destructiveHint":false,"openWorldHint":true}});
     if output_schema && let Some(fields) = tool.as_object_mut() {

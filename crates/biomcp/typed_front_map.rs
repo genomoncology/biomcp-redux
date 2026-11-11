@@ -28,7 +28,7 @@ pub(crate) type EntityTool = (
     &'static str,
 );
 
-const GWAS: &str = "GWAS Catalog associations";
+const GWAS: &str = "GWAS Catalog associations by gene, trait or variant";
 const GWAS_GET: &str = "one GWAS association or study";
 const PGX_GET: &str = "pharmacogenomic guidance and annotations";
 pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
@@ -173,7 +173,7 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
             ("author_papers", "author_papers", "an author's papers"),
         ],
         [r#"{"query":"AKT1 E17K"}"#, r#"{"id":"33123537"}"#],
-        "Full text is the text action, not a get section. Not for trial registry records \
+        "Read a paper's full text with the text action. Not for trial registry records \
          (use trial)",
     ),
     (

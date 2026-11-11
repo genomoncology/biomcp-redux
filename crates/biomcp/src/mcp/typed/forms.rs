@@ -2,8 +2,10 @@
 //!
 //! The command registry names its search text `query`, `text` or `name`, its record ID
 //! `input` or `id`, and its sections `section`. Callers that see only a tool's schema
-//! guess across those, so every action advertises `query`, `id` and `section`, still
-//! accepts the registry's own name and the common guesses, and takes one string or a list.
+//! guess across those, so every action advertises `query`, `id` and `section` and takes one
+//! string or a list. The registry's own name and the common guesses are accepted without
+//! being advertised: an action's schema names its arguments and does not forbid others, so
+//! a client that checks arguments lets a guess through and the server maps or refuses it.
 use serde_json::{Map, Value, json};
 
 /// One advertised argument: the registry field it stands for and the other names accepted.
@@ -37,9 +39,10 @@ pub(super) fn forms(verb: &str, schema: &Value) -> Vec<Form> {
     if verb == "search"
         && let Some(field) = SEARCH_TEXT.into_iter().find(|name| has(name))
     {
+        // The other spellings of search text, unless the command gives one its own meaning.
         let mut aliases = SEARCH_TEXT
             .into_iter()
-            .filter(|name| *name == field && *name != "query")
+            .filter(|name| *name != "query" && (*name == field || !has(name)))
             .collect::<Vec<_>>();
         if !SEARCH_GUESSES.into_iter().any(has) {
             aliases.extend(SEARCH_GUESSES);
@@ -117,13 +120,17 @@ fn listed(fields: &mut Map<String, Value>) {
     fields.insert("items".into(), item);
 }
 
-/// Rewrite one action's compact schema to its advertised names and accepted guesses.
+/// Rewrite one action's compact schema to its advertised names. The schema stops forbidding
+/// other names, so a guessed one reaches the server.
 pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
     let required = input
         .get("required")
         .and_then(Value::as_array)
         .cloned()
         .unwrap_or_default();
+    if let Some(fields) = input.as_object_mut() {
+        fields.remove("additionalProperties");
+    }
     let Some(properties) = input.get_mut("properties").and_then(Value::as_object_mut) else {
         return;
     };
@@ -147,15 +154,6 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
             }
         }
         properties.insert(form.advertised.into(), node);
-        let same = format!("Same as {}.", form.advertised);
-        for alias in &form.aliases {
-            let kind = if form.phrase && *alias != "keywords" {
-                json!("string")
-            } else {
-                json!(["string", "array"])
-            };
-            properties.insert((*alias).into(), json!({"description":same,"type":kind}));
-        }
     }
     // A client checks `required` before the server can read a guessed name, so an argument
     // with accepted guesses is required by the server and by its description instead.
@@ -183,9 +181,12 @@ pub(super) fn normalize(values: &mut Value, forms: &[Form], input: &Value) -> Re
         return Ok(());
     };
     for form in forms {
-        let mut names = vec![form.advertised, form.field.as_str()];
-        names.extend(form.aliases.iter().copied());
-        names.dedup();
+        let mut names = vec![form.advertised];
+        for name in std::iter::once(form.field.as_str()).chain(form.aliases.iter().copied()) {
+            if !names.contains(&name) {
+                names.push(name);
+            }
+        }
         let mut sent = names.into_iter().filter(|name| fields.contains_key(*name));
         let Some(name) = sent.next() else {
             if required.is_some_and(|names| names.contains(&json!(form.field))) {

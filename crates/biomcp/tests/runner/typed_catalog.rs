@@ -90,6 +90,22 @@ pub(in crate::runner) const TOOLS: [&str; 17] = [
     "fetch",
 ];
 
+/// An entity tool's advertised actions, in map order: the map's actions that have an object
+/// in its schema. A shared tool, which takes no action, has none.
+pub(in crate::runner) fn actions(tool: &Value) -> Option<Vec<Value>> {
+    let fields = tool
+        .pointer("/inputSchema/properties")
+        .and_then(Value::as_object)
+        .filter(|fields| fields.contains_key("action"))?;
+    let name = tool["name"].as_str()?;
+    Some(
+        MAP.iter()
+            .filter(|row| row.0 == name && fields.contains_key(row.1))
+            .map(|row| json!(row.1))
+            .collect(),
+    )
+}
+
 /// One advertised action as a per-command view: its command name, its own schema and
 /// description, and the tool and action that reach it.
 fn route(tool: &Value, action: &str, command: &str) -> Option<Value> {
@@ -112,10 +128,7 @@ pub(in crate::runner) fn commands(tools: &[Value]) -> Vec<Value> {
     let mut result = Vec::new();
     for tool in tools {
         let name = tool["name"].as_str().unwrap_or_default();
-        let actions = tool
-            .pointer("/inputSchema/properties/action/enum")
-            .and_then(Value::as_array);
-        let Some(actions) = actions else {
+        let Some(actions) = actions(tool) else {
             result.push(tool.clone());
             continue;
         };
@@ -204,10 +217,7 @@ pub(super) fn coverage(tools: &[Value]) -> Result<(), String> {
     coverage_schemas(tools)?;
     for tool in tools {
         let name = tool["name"].as_str().ok_or("tool name")?;
-        let Some(actions) = tool
-            .pointer("/inputSchema/properties/action/enum")
-            .and_then(Value::as_array)
-        else {
+        let Some(actions) = actions(tool) else {
             continue;
         };
         let placed = MAP
@@ -215,7 +225,7 @@ pub(super) fn coverage(tools: &[Value]) -> Result<(), String> {
             .filter(|row| row.0 == name)
             .map(|row| json!(row.1))
             .collect::<Vec<_>>();
-        if actions != &placed {
+        if actions != placed {
             return Err(format!(
                 "{name} actions {actions:?} differ from the map {placed:?}"
             ));
@@ -224,49 +234,51 @@ pub(super) fn coverage(tools: &[Value]) -> Result<(), String> {
     Ok(())
 }
 
-/// Each entity tool takes a required action and one closed object per advertised action,
-/// in map order, and no schema accepts a free-form object. Hosting may serve fewer actions.
+/// Each entity tool takes a required action, named in map order by the action's own
+/// description, and one object per advertised action whose every field is named. Hosting
+/// may serve fewer actions. An entity tool's schema names its fields without forbidding
+/// others, so a guessed name reaches the server, which maps or refuses it; the shared
+/// tools stay closed.
 pub(in crate::runner) fn coverage_schemas(tools: &[Value]) -> Result<(), String> {
     for tool in tools {
         let name = tool["name"].as_str().ok_or("tool name")?;
-        free_form(&tool["inputSchema"], name)?;
-        let Some(actions) = tool
-            .pointer("/inputSchema/properties/action/enum")
-            .and_then(Value::as_array)
-        else {
+        let Some(actions) = actions(tool) else {
+            free_form(&tool["inputSchema"], name, true)?;
             continue;
         };
-        let mut placed = MAP.iter().filter(|row| row.0 == name).map(|row| row.1);
-        if !actions
+        free_form(&tool["inputSchema"], name, false)?;
+        let listed = actions
             .iter()
-            .all(|action| placed.any(|placed| action == placed))
-        {
-            return Err(format!(
-                "{name} actions {actions:?} are not the map's, in order"
-            ));
-        }
-        let mut keys = tool
+            .filter_map(Value::as_str)
+            .collect::<Vec<_>>()
+            .join(", ");
+        let said = tool
+            .pointer("/inputSchema/properties/action/description")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        let keys = tool
             .pointer("/inputSchema/properties")
             .and_then(Value::as_object)
             .ok_or("entity properties")?
             .keys()
             .filter(|key| *key != "action")
-            .map(|key| json!(key))
-            .collect::<Vec<_>>();
-        let mut expected = actions.clone();
-        keys.sort_by_key(ToString::to_string);
-        expected.sort_by_key(ToString::to_string);
-        if keys != expected || tool.pointer("/inputSchema/required") != Some(&json!(["action"])) {
+            .count();
+        if keys != actions.len()
+            || !said.starts_with(&format!("One of: {listed}. "))
+            || tool.pointer("/inputSchema/properties/action/enum").is_some()
+            || tool.pointer("/inputSchema/required") != Some(&json!(["action"]))
+        {
             return Err(format!(
-                "{name}: one object per action and a required action: {keys:?}"
+                "{name}: one object per action and a required, named action: {said}"
             ));
         }
     }
     Ok(())
 }
 
-/// Fail on any object node that accepts unnamed fields.
-fn free_form(node: &Value, path: &str) -> Result<(), String> {
+/// Fail on any object node that does not name its fields, or, when `closed`, that accepts
+/// unnamed ones.
+fn free_form(node: &Value, path: &str, closed: bool) -> Result<(), String> {
     match node {
         Value::Object(fields) => {
             let object = fields.get("type") == Some(&json!("object"))
@@ -275,20 +287,20 @@ fn free_form(node: &Value, path: &str) -> Result<(), String> {
                     .and_then(Value::as_array)
                     .is_some_and(|kinds| kinds.contains(&json!("object")));
             if object
-                && (fields.get("additionalProperties") != Some(&json!(false))
+                && ((closed && fields.get("additionalProperties") != Some(&json!(false)))
                     || !fields.get("properties").is_some_and(Value::is_object))
             {
                 return Err(format!("{path}: free-form object"));
             }
             for (key, value) in fields {
-                free_form(value, &format!("{path}/{key}"))?;
+                free_form(value, &format!("{path}/{key}"), closed)?;
             }
             Ok(())
         }
         Value::Array(values) => values
             .iter()
             .enumerate()
-            .try_for_each(|(index, value)| free_form(value, &format!("{path}/{index}"))),
+            .try_for_each(|(index, value)| free_form(value, &format!("{path}/{index}"), closed)),
         _ => Ok(()),
     }
 }

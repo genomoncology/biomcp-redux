@@ -22,9 +22,7 @@ pub(super) fn render(
         .find(|row| row.verb == verb && row.entity == entity)
         .map_or("", |row| row.summary.trim());
     let summary = super::catalog::summary(summary, excluded);
-    let forms = super::forms::forms(verb, schema);
-    let input = input_description(schema, &forms);
-    [summary.as_str(), input.as_str(), provenance.as_str()]
+    [summary.as_str(), provenance.as_str()]
         .into_iter()
         .filter(|part| !part.is_empty())
         .collect::<Vec<_>>()
@@ -103,43 +101,6 @@ fn provenance(
     }
 }
 
-fn input_description(schema: &Value, forms: &[super::forms::Form]) -> String {
-    let Some((_, name, node)) = schema
-        .get("properties")
-        .and_then(Value::as_object)
-        .into_iter()
-        .flatten()
-        .filter_map(|(name, node)| {
-            node.get("x-positional")
-                .and_then(Value::as_u64)
-                .map(|position| (position, name, node))
-        })
-        .min_by_key(|(position, _, _)| *position)
-    else {
-        return String::new();
-    };
-    let description = node
-        .get("description")
-        .and_then(Value::as_str)
-        .unwrap_or_default()
-        .lines()
-        .next()
-        .unwrap_or_default()
-        .split(". ")
-        .next()
-        .unwrap_or_default()
-        .split(';')
-        .next()
-        .unwrap_or_default();
-    let description = description
-        .replace("identifiers", "IDs")
-        .replace("reference-qualified ", "")
-        .replace("VCF-style genomic coordinates", "VCF")
-        .replace(", in input order", "")
-        .replace(", in caller order", "");
-    format!("{}:{description}", super::forms::advertised(forms, name))
-}
-
 /// What a person would ask the tool for, its sources by full name, one search and one get
 /// example, the other actions in a few words, and what the tool is not for.
 pub(super) fn tool(
@@ -173,7 +134,7 @@ pub(super) fn tool(
         .collect::<Vec<_>>();
     if !others.is_empty() {
         parts.push(plain(&format!(
-            "Other actions, each with an object of the same name: {}.",
+            "Other actions: {}.",
             others.join(", ")
         )));
     }

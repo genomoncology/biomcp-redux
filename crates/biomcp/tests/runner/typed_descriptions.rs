@@ -62,7 +62,6 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
                 .ok_or("parameter description")?;
             complete_words(&schema, summary, description, &format!("{name}.{key}"))?;
         }
-        primary(verb, &schema, description, &name)?;
         publishers(verb, entity, &schema, description)?;
     }
     spot_words(&tools)?;
@@ -123,34 +122,6 @@ fn cli(env: &Environment, args: &[String]) -> Result<Value, String> {
         return Err("discovery command failed".into());
     }
     serde_json::from_slice(&output.stdout).map_err(|e| e.to_string())
-}
-// Every action names its record ID `id` and every search names its text `query`.
-fn primary(verb: &str, schema: &Value, description: &str, name: &str) -> Result<(), String> {
-    let primary = schema
-        .get("properties")
-        .and_then(Value::as_object)
-        .into_iter()
-        .flatten()
-        .filter_map(|(name, node)| {
-            node.get("x-positional")
-                .and_then(Value::as_u64)
-                .map(|p| (p, name))
-        })
-        .min_by_key(|(position, _)| *position);
-    if let Some((_, input)) = primary {
-        let input = match input.as_str() {
-            "input" => "id",
-            "text" | "name" if verb == "search" => "query",
-            other => other,
-        };
-        if description.contains(&format!("{input}:")) {
-            return Ok(());
-        }
-        return Err(format!(
-            "{name}: primary input {input} is missing: {description}"
-        ));
-    }
-    Ok(())
 }
 fn publishers(verb: &str, entity: &str, schema: &Value, description: &str) -> Result<(), String> {
     let mut sections = BTreeSet::new();
@@ -293,7 +264,7 @@ fn complete_words(
         .collect::<Vec<_>>()
         .join(" ");
     let declared =
-        format!("{schema} {summary} {sources} IDs Sections Required Same as query id section");
+        format!("{schema} {summary} {sources} IDs Sections Required");
     let vocabulary = declared
         .split(|c: char| !c.is_alphanumeric())
         .map(str::to_lowercase)

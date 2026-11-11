@@ -105,7 +105,12 @@ fn choices(schema: &Value, value: &Value) -> bool {
                 .get("properties")
                 .and_then(|fields| fields.get(key))
                 .map_or_else(
-                    || schema.get("additionalProperties") != Some(&Value::Bool(false)),
+                    // A schema that names its fields offers only those, whether or not it
+                    // also forbids others: a suggested call never uses an unadvertised one.
+                    || {
+                        schema.get("properties").is_none()
+                            && schema.get("additionalProperties") != Some(&Value::Bool(false))
+                    },
                     |node| choices(node, value),
                 )
         }),

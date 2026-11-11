@@ -173,10 +173,9 @@ pub(super) fn size(tool: &Value) -> usize {
         .sum::<usize>()
         + field(tool, "inputSchema").to_string().chars().count()
 }
-/// One action's description and schema. It was 2000 until every action also had to accept
-/// the names agents guess for search text, record IDs and sections, each of which is a
-/// property a client checks; the catalog's own byte ceiling still bounds the whole list.
-const ACTION_BUDGET: usize = 2400;
+/// One action's description and schema. The names agents guess for search text, record IDs
+/// and sections are accepted without being advertised, so they cost nothing here.
+const ACTION_BUDGET: usize = 2000;
 /// The name an action advertises for a registry field: `query` for search text and `id`
 /// for the record ID.
 fn advertised<'a>(verb: &str, schema: &Value, key: &'a str) -> &'a str {

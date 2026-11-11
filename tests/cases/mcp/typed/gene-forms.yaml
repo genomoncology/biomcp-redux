@@ -76,6 +76,23 @@
       "mcp_call": {
         "name": "gene",
         "arguments": {
+          "action": "search",
+          "search": {
+            "text": "KRAS"
+          }
+        }
+      },
+      "expect": {
+        "/query/query": "KRAS",
+        "/status": "failed"
+      },
+      "offline": true,
+      "is_error": true
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
           "action": "get",
           "get": {
             "id": "BRAF"
