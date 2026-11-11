@@ -10,6 +10,8 @@ Which source term represents the stated word Headache?
 biomcp search phenotype headache --source monarch
 ```
 
+Typed tool: `phenotype` `{"action":"search","search":{"query":"headache","source":"monarch"}}`.
+
 Read all returned candidate identifiers and labels. Inspect the echoed query, source outcomes and problems. Select the general term Headache because that is the term in this question. Do not choose a more specific candidate without that information in the question.
 
 ## 2. Inspect the selected identifier

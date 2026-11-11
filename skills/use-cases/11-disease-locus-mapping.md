@@ -10,6 +10,8 @@ Which source gene records are listed for the cytoband 9p21.3?
 biomcp search gene --band 9p21.3
 ```
 
+Typed tool: `gene` `{"action":"search","search":{"band":"9p21.3"}}`.
+
 Read the echoed cytoband, total, returned gene identities and next page command. The first page is only part of the source listing.
 
 ## 2. Retrieve and inspect

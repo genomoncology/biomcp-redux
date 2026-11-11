@@ -10,6 +10,8 @@ Which native pathway record matches the stated pathway name?
 biomcp search pathway 'Signaling by EGFR'
 ```
 
+Typed tool: `pathway` `{"action":"search","search":{"query":"Signaling by EGFR"}}`.
+
 Read candidate identifiers and names. Select an exact source record rather than assuming all name matches are interchangeable.
 
 ## 2. Retrieve and inspect

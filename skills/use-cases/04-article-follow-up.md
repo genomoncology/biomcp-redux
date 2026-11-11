@@ -10,6 +10,8 @@ Which source records and citation context can I read after opening an article?
 biomcp get article 33123537
 ```
 
+Typed tool: `article` `{"action":"get","get":{"id":["33123537"]}}`.
+
 Read the PMID, DOI, title, publication date and publication type. Inspect abstract parts with their labels and source outcomes.
 
 ## 2. Retrieve and inspect

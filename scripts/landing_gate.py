@@ -4,8 +4,9 @@ import sys
 import time
 
 # Rights, audit and secrets take seconds and need no build, so they stop a bad
-# change before the compile in pre-job.
-LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'workflow-lint', 'cases')
+# change before the compile in pre-job. The first-read check proves the documented
+# examples and first read against the debug binary pre-job builds.
+LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases')
 FULL = ('audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
         'tensor-proto-check', 'library-tests', 'coverage')
 

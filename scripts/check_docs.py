@@ -235,7 +235,11 @@ def validate_examples(root, executable):
         raise ValueError(f"typed server offers {sorted(tools)}, not the 17 entity and shared tools")
     seen = set()
     for where, tool, call in example_calls(root):
-        errors = schema_errors(tools[tool]["inputSchema"], call, tools[tool]["inputSchema"])
+        schema = tools[tool]["inputSchema"]
+        # The served schemas take action as any string, so check it names one of the tool's action objects.
+        if call["action"] == "action" or call["action"] not in schema.get("properties", {}):
+            raise ValueError(f"{where}: example call for {tool} names action {call['action']!r}, which {tool} does not offer")
+        errors = schema_errors(schema, call, schema)
         if errors:
             raise ValueError(f"{where}: example call for {tool} fails its schema: {errors[0]}")
         seen.add(tool)

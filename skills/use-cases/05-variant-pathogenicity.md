@@ -10,6 +10,8 @@ Which assertions does a named source return for this explicit variant record?
 biomcp variant assertions clinvar:13961 --source clinvar
 ```
 
+Typed tool: `variant` `{"action":"assertions","assertions":{"id":"clinvar:13961","source":"clinvar"}}`.
+
 Read the resolved allele identity, submitted assertion, condition, submitter, review information and dates where supplied. Preserve differences between assertions.
 
 ## 2. Retrieve and inspect

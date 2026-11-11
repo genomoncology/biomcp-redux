@@ -10,6 +10,8 @@ How can I inspect the source assessments for a named group of genes?
 biomcp get gene MLH1 MSH2 MSH6 PMS2 EPCAM clingen
 ```
 
+Typed tool: `gene` `{"action":"get","get":{"id":["MLH1","MSH2","MSH6","PMS2","EPCAM"],"section":["clingen"]}}`.
+
 Read each resolved gene identity in input order. Inspect the source disease identifier, assessment label and cited record for each returned validity row. Keep dosage and validity records separate.
 
 ## Next
