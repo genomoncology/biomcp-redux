@@ -125,8 +125,10 @@ fn configure(
     let path = environment.root().join("source.pem");
     fs::write(&path, certificate).map_err(|e| e.to_string())?;
     environment
-        .config(&json!({"proxy":format!("http://{address}"), "ca_bundle":path, "mcp_max_calls":8,
-            "mcp_queue_wait_seconds":1}))
+        .config(
+            &json!({"proxy":format!("http://{address}"), "ca_bundle":path, "mcp_max_calls":8,
+            "mcp_queue_wait_seconds":1}),
+        )
         .map_err(|e| e.to_string())
 }
 fn mode_input(

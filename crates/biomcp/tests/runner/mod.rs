@@ -290,8 +290,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(credential_containment::trials());
     trials.extend(http::trials());
     trials.extend(remote_tools::trials());
-    trials.extend(mcp_boundaries::trials());
-    trials.extend(call_queue::trials());
+    trials.extend(mcp_boundaries::trials().into_iter().chain(call_queue::trials()));
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
     trials.extend(declared_use::trials());

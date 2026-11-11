@@ -40,7 +40,7 @@ fn burst() -> Result<(), String> {
     let replies = super::mcp::exchange_with_globals(
         &environment,
         &frames,
-        &environment.globals(Some(&replay), false),
+        &environment.globals(Some(replay.as_path()), false),
     )?;
     let mut answered = std::collections::BTreeSet::new();
     for reply in &replies {
@@ -50,7 +50,17 @@ fn burst() -> Result<(), String> {
             || content.and_then(|content| content.pointer("/result/items/0/answer/gene/symbol"))
                 != Some(&json!("KRAS"))
         {
-            let shown = reply.to_string().chars().take(600).collect::<String>();
+            let shown = content.map_or_else(
+                || reply.to_string(),
+                |content| {
+                    format!(
+                        "status {:?} sources {:?} error {:?}",
+                        content.get("status"),
+                        content.get("sources"),
+                        content.get("error")
+                    )
+                },
+            );
             return Err(format!("a call in the burst did not complete: {shown}"));
         }
         answered.insert(reply.get("id").and_then(Value::as_u64));
@@ -126,8 +136,13 @@ fn hosted_turn() -> Result<(), String> {
         Err(error) => return Err(error.to_string()),
     }
     // The freed worker and the queued call both read ordinary settings from here on.
-    std::fs::remove_file(server.environment().root().join("config/biomcp/config.json"))
-        .map_err(|e| e.to_string())?;
+    std::fs::remove_file(
+        server
+            .environment()
+            .root()
+            .join("config/biomcp/config.json"),
+    )
+    .map_err(|e| e.to_string())?;
     server
         .environment()
         .config(&config)
