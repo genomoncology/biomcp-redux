@@ -79,6 +79,7 @@ pub(crate) struct ConfigFile {
     pub(super) drug_search_name_limit: Option<std::num::NonZeroUsize>,
     pub(super) source_pacing: Option<BTreeMap<String, biomcp_fetch::PacingOverride>>,
     pub(super) mcp_max_calls: Option<std::num::NonZeroUsize>,
+    pub(super) mcp_queue_wait_seconds: Option<u32>,
     pub(super) http_max_calls: Option<std::num::NonZeroUsize>,
     pub(super) http_max_connections: Option<std::num::NonZeroUsize>,
 }
@@ -206,6 +207,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
             .map(pacing)
             .transpose()?,
         mcp_max_calls: take(&mut map, "mcp_max_calls")?,
+        mcp_queue_wait_seconds: take(&mut map, "mcp_queue_wait_seconds")?,
         http_max_calls: take(&mut map, "http_max_calls")?,
         http_max_connections: take(&mut map, "http_max_connections")?,
     };
