@@ -40,6 +40,7 @@ mod bundle_sync;
 mod bundle_wait;
 mod cache_admission;
 mod cache_contention;
+mod call_queue;
 mod capture;
 mod citation_values;
 mod clinpgx;
@@ -290,6 +291,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(http::trials());
     trials.extend(remote_tools::trials());
     trials.extend(mcp_boundaries::trials());
+    trials.extend(call_queue::trials());
     trials.extend(mcp_hosted::trials());
     trials.extend(request_keys::trials());
     trials.extend(declared_use::trials());
@@ -550,14 +552,21 @@ use biomcp_test_support::hash as stable_hash;
 
 use biomcp_test_support::recordings as recording_support;
 
-/// A full server keeps the hosted code and leading text, then names its limit.
+/// A full server keeps the hosted code and leading text, names its limit and the
+/// wait this call had, and says in whole seconds when to retry.
 fn capacity_refusal(reply: &serde_json::Value, limit: usize) -> bool {
+    let retry = reply
+        .pointer("/error/data/retry_after_seconds")
+        .and_then(serde_json::Value::as_u64)
+        .filter(|seconds| *seconds > 0);
     reply
         .pointer("/error/message")
         .and_then(serde_json::Value::as_str)
-        .is_some_and(|message| {
+        .zip(retry)
+        .is_some_and(|(message, retry)| {
             message.starts_with("Tool capacity exceeded")
                 && message.contains(&format!("at most {limit} tool calls at once"))
-                && message.contains("Retry this call after")
+                && message.contains(" seconds for a turn")
+                && message.contains(&format!("Retry this call after {retry} seconds"))
         })
 }

@@ -351,9 +351,11 @@ fn configured_capacity() -> Check {
 #[cfg(unix)]
 fn busy_capacity(configured: bool, flags: bool) -> Check {
     let config = if flags {
-        serde_json::json!({"http_max_calls":6,"http_max_connections":1})
+        serde_json::json!({"http_max_calls":6, "http_max_connections":1,
+            "mcp_queue_wait_seconds":1})
     } else if configured {
-        serde_json::json!({"http_max_calls":2,"http_max_connections":4})
+        serde_json::json!({"http_max_calls":2, "http_max_connections":4,
+            "mcp_queue_wait_seconds":1})
     } else {
         serde_json::json!({})
     };
@@ -465,7 +467,7 @@ fn refuse_over_capacity(server: &Server, probe: &str, held: &mut Vec<TcpStream>)
         || body.pointer("/error/code") != Some(&serde_json::json!(-31000))
         || !super::capacity_refusal(&body, 2)
     {
-        return Err(format!("third tool escaped call cap: {status} {body}"));
+        return Err(format!("third tool got no timed refusal: {status} {body}"));
     }
     // Two tool connections plus two unfinished headers fill the normal budget.
     held.push(hold_header(server)?);
@@ -479,7 +481,10 @@ fn refuse_over_capacity(server: &Server, probe: &str, held: &mut Vec<TcpStream>)
 }
 
 #[cfg(unix)]
-fn hold_settings_reader(server: &Server, body: &str) -> Result<(TcpStream, std::fs::File), String> {
+pub(super) fn hold_settings_reader(
+    server: &Server,
+    body: &str,
+) -> Result<(TcpStream, std::fs::File), String> {
     use std::os::unix::fs::OpenOptionsExt;
     let config = server
         .environment()
