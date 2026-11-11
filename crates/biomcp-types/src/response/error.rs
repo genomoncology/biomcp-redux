@@ -377,7 +377,8 @@ impl From<crate::UsageError> for ErrorEnvelope {
                 out.error.message = ErrorMessage::OrganizationTooBroad;
                 out.error.source = Some(crate::Source::Nci);
             }
-            UsageError::UnsupportedAdverseEvent | UsageError::TextPositionError => {}
+            UsageError::UnsupportedAdverseEvent => {}
+            UsageError::TextPositionError(option) => out.error.option = Some(option.into()),
             UsageError::TrialContinuationRejected => {
                 out.error
                     .trial_continuation(ErrorMessage::TrialContinuationRejected);

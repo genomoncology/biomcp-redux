@@ -174,8 +174,9 @@ fn named_site(
             let search = match DiseaseSearch::seer_named(id.as_str()) {
                 Ok(search) => search,
                 Err(_) => {
-                    out.body =
-                        biomcp_types::ReplyData::Usage(biomcp_types::UsageError::arguments());
+                    out.body = biomcp_types::ReplyData::Usage(biomcp_types::UsageError::argument(
+                        "id".into(),
+                    ));
                     return (None, out, None);
                 }
             };

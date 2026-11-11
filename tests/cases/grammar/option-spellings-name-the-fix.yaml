@@ -1,0 +1,212 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "Option spellings agents typed in the baseline are refused with the option named and the call in this command's spelling: trial -c, -i and -q, --query where the text is positional, --keyword, --section where the section is positional, and an underscored option name. Help after a retired option still answers.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "-c",
+        "spinal muscular atrophy",
+        "-i",
+        "apitegromab"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "-c",
+        "/next/0/args": [
+          "search",
+          "trial",
+          "--condition",
+          "spinal muscular atrophy",
+          "--intervention",
+          "apitegromab"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "-i",
+        "tecovirimat",
+        "--limit",
+        "30"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "-i",
+        "/next/0/args": [
+          "search",
+          "trial",
+          "--intervention",
+          "tecovirimat",
+          "--limit",
+          "30"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "-q",
+        "E4512 crizotinib"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "-q",
+        "/next/0/args": [
+          "search",
+          "trial",
+          "E4512 crizotinib"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "study",
+        "--query",
+        "MSK-CHORD"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--query",
+        "/next/0/args": [
+          "search",
+          "study",
+          "MSK-CHORD"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--drug",
+        "crizotinib",
+        "--keyword",
+        "E4512"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--keyword",
+        "/next/0/args": {
+          "includes_all_of": [
+            "E4512",
+            "--drug",
+            "crizotinib"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "G6PD",
+        "--section",
+        "recommendations",
+        "--source",
+        "cpic"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--section",
+        "/next/0/args": [
+          "get",
+          "pgx",
+          "recommendations",
+          "--gene",
+          "G6PD",
+          "--source",
+          "cpic"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "iberdomide",
+        "label",
+        "--section",
+        "indications"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "label",
+            "--label-section",
+            "indications_and_usage"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "alectinib",
+        "label",
+        "--label_section",
+        "warnings_and_cautions"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--label_section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "label",
+            "--label-section",
+            "warnings_and_cautions"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--help"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/command": [
+          "search",
+          "diagnostic"
+        ]
+      }
+    }
+  ]
+}

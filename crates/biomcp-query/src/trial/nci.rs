@@ -34,7 +34,12 @@ pub(super) fn search(cx: &Ctx<'_>, q: &TrialSearch) -> Outcome {
         || q.next_page()
             .is_some_and(|p| p.as_str().parse::<u32>().is_err())
     {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        let option = if q.limit() > nci::PAGE_LIMIT {
+            "--limit"
+        } else {
+            "--next-page"
+        };
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError(option));
         return out;
     }
     let command = cx.fetch.command_deadline(cx.budget);

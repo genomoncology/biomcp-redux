@@ -76,31 +76,15 @@ fn aliases(
 ) -> Result<Command, super::ParseInvalid> {
     for alias in super::query_aliases::declarations(name, schema) {
         if let Some(long) = alias.long {
-            let mut argument = Arg::new(alias.argument)
-                .long(long)
-                .hide(!alias.visible)
-                .help("Alias for positional article text.");
-            if let Some(short) = alias.short {
-                argument = argument.short(short);
-            }
-            // A list alias joins the positional values; any other stands in for the one value.
-            let list = properties(schema)?
-                .get(alias.field)
-                .is_some_and(|property| property_type(property) == Some("array"));
-            argument = if list {
-                argument.num_args(1).action(ArgAction::Append)
-            } else {
-                argument.conflicts_with(alias.field)
-            };
-            command = command.arg(argument);
-        } else if let Some(short) = alias.short {
-            command = command.mut_arg(alias.argument, |argument| {
-                if alias.visible {
-                    argument.short(short)
-                } else {
-                    argument.short_alias(short)
-                }
-            });
+            command = command.arg(
+                Arg::new(alias.argument)
+                    .long(long)
+                    .short(alias.short)
+                    .help("Alias for positional article text.")
+                    .conflicts_with(alias.field),
+            );
+        } else {
+            command = command.mut_arg(alias.argument, |argument| argument.short(alias.short));
         }
     }
     Ok(command)
@@ -175,9 +159,6 @@ pub(super) fn boolean_literals(
         if let Some(child) = command.find_subcommand(text) {
             command = child;
         }
-        let dashed = dashed(command, text);
-        let word = dashed.as_ref().map_or_else(|| word.clone(), Into::into);
-        let text = dashed.as_deref().unwrap_or(text);
         let argument =
             super::entry::argument(command, text).or_else(|| super::entry::argument(root, text));
         if let Some((argument, inline)) = argument {
@@ -189,7 +170,7 @@ pub(super) fn boolean_literals(
                 result.push(format!("{text}={value}").into());
                 continue;
             }
-            result.push(word);
+            result.push(word.clone());
             if !inline
                 && argument.get_action().takes_values()
                 && !argument.is_require_equals_set()
@@ -199,26 +180,7 @@ pub(super) fn boolean_literals(
             }
             continue;
         }
-        result.push(word);
+        result.push(word.clone());
     }
     result
-}
-
-/// An option typed with underscores, such as `--label_section`, is its dashed option when
-/// only that spelling exists.
-fn dashed(command: &Command, text: &str) -> Option<String> {
-    let rest = text.strip_prefix("--")?;
-    let (name, value) = rest
-        .split_once('=')
-        .map_or((rest, None), |(name, value)| (name, Some(value)));
-    let long = name.replace('_', "-");
-    let known = |name: &str| {
-        command
-            .get_arguments()
-            .any(|arg| arg.get_long() == Some(name))
-    };
-    if long == name || known(name) || !known(&long) {
-        return None;
-    }
-    Some(value.map_or_else(|| format!("--{long}"), |value| format!("--{long}={value}")))
 }

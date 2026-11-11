@@ -3,7 +3,7 @@
 //! The candidate is the same request with the retired option renamed, or with an option
 //! that was dropped left out. It is offered only when the grammar accepts it and nothing
 //! in it is retired, so the next call never repeats the refusal.
-use biomcp_types::{Step, StepKind};
+use biomcp_types::Step;
 use std::ffi::OsString;
 
 /// Retired option spellings and the option that took their place.
@@ -69,25 +69,9 @@ fn drop(args: &[OsString]) -> Option<Vec<OsString>> {
     Some(args)
 }
 
-/// The canonical call for a candidate the grammar accepts, or the corrected call its
-/// refusal already names, when that call is not retired too.
+/// A candidate's call, when that call is not retired too.
 fn checked(root: &clap::Command, args: &[OsString]) -> Option<Step> {
-    let step = match crate::grammar::parse(root, args) {
-        Ok(parsed) => match parsed.action? {
-            action @ biomcp_query::Action::Run { .. } => {
-                crate::spell::step(StepKind::Configure, &action).ok()?
-            }
-            _ => return None,
-        },
-        Err(cause) => match cause.usage? {
-            biomcp_types::UsageError::Arguments(arguments) => arguments
-                .next
-                .into_iter()
-                .next()
-                .filter(|step| step.args.first().is_some_and(|word| &**word != "help"))?,
-            _ => return None,
-        },
-    };
+    let step = crate::grammar::candidate(root, args)?;
     let words = step
         .args
         .iter()

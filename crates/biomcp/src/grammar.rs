@@ -13,6 +13,7 @@ pub(crate) use entry::entry_aliases;
 mod errors;
 mod metadata;
 mod positional;
+pub(crate) use positional::candidate;
 mod recovery;
 mod sections;
 mod tree;
@@ -413,22 +414,8 @@ fn arguments(matches: &clap::ArgMatches, schema: &Value) -> Result<Value, ParseI
         .iter()
         .filter(|alias| alias.argument != alias.field)
     {
-        let Some(values) = matches.get_many::<String>(alias.argument) else {
-            continue;
-        };
-        let mut values = values.cloned().map(Value::String);
-        let list = properties(schema)?
-            .get(alias.field)
-            .is_some_and(|property| property_type(property) == Some("array"));
-        if list {
-            if let Value::Array(items) = result
-                .entry(alias.field)
-                .or_insert_with(|| Value::Array(Vec::new()))
-            {
-                items.extend(values);
-            }
-        } else if let Some(value) = values.next() {
-            result.insert(alias.field.into(), value);
+        if let Some(text) = matches.get_one::<String>(alias.argument) {
+            result.insert(alias.field.into(), Value::String(text.clone()));
         }
     }
     split_sections(&mut result, schema)?;
@@ -517,6 +504,10 @@ fn request(verb: &str, entity: &str, matches: &clap::ArgMatches) -> Result<Reque
         .iter()
         .find(|command| (command.verb, command.entity) == (verb, entity))
         .ok_or_else(ParseInvalid::default)?;
+    // A label read with a heading as a second section always fails; name the label section.
+    if let Some(invalid) = sections::label(verb, entity, &value) {
+        return Err(invalid);
+    }
     rewrite::request(command.via, verb, entity, value.clone()).map_err(|cause| {
         sections::fix(verb, entity, &value)
             .or_else(|| errors::source_filter(command.via, verb, entity, &value, &cause))

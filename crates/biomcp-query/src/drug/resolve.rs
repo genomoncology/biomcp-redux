@@ -15,7 +15,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let name = query.input().to_string();
     let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
-        Err(_) => return status::empty(ReplyData::Usage(UsageError::arguments())),
+        Err(_) => return status::empty(ReplyData::Usage(UsageError::argument("input".into()))),
     };
     let mut unsettled = false;
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {

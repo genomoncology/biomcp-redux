@@ -165,30 +165,35 @@ fn parser_correction(
     {
         args.remove(index);
     }
-    let parser = if error.kind() == ErrorKind::MissingRequiredArgument {
-        root.clone()
-            .ignore_errors(true)
-            .mut_subcommand(*verb, |command| {
-                command
-                    .ignore_errors(true)
-                    .mut_subcommand(*entity, |command| command.ignore_errors(true))
-            })
-    } else {
-        root.clone()
+    // An unknown word is corrected only from a strict parse, except a section word typed
+    // after a record word, which is read leniently because the record option is missing.
+    let missing = error.kind() == ErrorKind::MissingRequiredArgument;
+    let spelling = match error.get(ContextKind::InvalidArg) {
+        Some(ContextValue::String(spelling)) => Some(spelling.as_str()),
+        _ => None,
     };
-    let matches = parser
-        .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))
-        .ok()?;
-    let matches = matches
-        .subcommand_matches(verb)?
-        .subcommand_matches(entity)?;
-    let value = super::request_arguments(verb, entity, matches).ok()?;
     let schema = super::validation::schema(verb, entity)?;
-    if let Some(ContextValue::String(spelling)) = error.get(ContextKind::InvalidArg)
-        && let Some(step) = super::sections::misplaced((verb, entity), &schema, &value, spelling)
-    {
+    let read = |strict: bool| {
+        let matches = lenient(root, path, strict)
+            .try_get_matches_from(
+                std::iter::once(std::ffi::OsString::from("biomcp")).chain(args.iter().cloned()),
+            )
+            .ok()?;
+        let matches = matches
+            .subcommand_matches(verb)?
+            .subcommand_matches(entity)?;
+        super::request_arguments(verb, entity, matches).ok()
+    };
+    let value = read(!missing);
+    let misplaced = |value: &serde_json::Value| {
+        super::sections::misplaced((verb, entity), &schema, value, spelling?)
+    };
+    if let Some(step) = value.as_ref().and_then(misplaced) {
         return Some(step);
     }
+    let Some(value) = value else {
+        return read(false).as_ref().and_then(misplaced);
+    };
     let declaration = biomcp_types::COMMANDS
         .iter()
         .find(|command| (command.verb, command.entity) == (*verb, *entity))?;
@@ -223,6 +228,7 @@ pub(super) fn parse_invalid(
             spelling.and_then(|spelling| {
                 super::positional::text_flag(root, &path, spelling, args)
                     .or_else(|| super::positional::source_flag(root, &path, spelling, args))
+                    .or_else(|| super::positional::respelled(root, &path, spelling, args))
             })
         };
         super::recovery::next(&mut arguments, corrected);
@@ -494,4 +500,21 @@ fn replacement_step(
         kind: biomcp_types::StepKind::Configure,
         args: args.into(),
     })
+}
+
+/// The root parser, with errors ignored along the command path unless `strict`.
+fn lenient(root: &Command, path: &[&str], strict: bool) -> Command {
+    let &[verb, entity] = path else {
+        return root.clone();
+    };
+    if strict {
+        return root.clone();
+    }
+    root.clone()
+        .ignore_errors(true)
+        .mut_subcommand(verb, |command| {
+            command
+                .ignore_errors(true)
+                .mut_subcommand(entity, |command| command.ignore_errors(true))
+        })
 }

@@ -20,15 +20,22 @@ pub(super) fn fix(verb: &str, entity: &str, value: &Value) -> Option<super::Pars
     let property = schema.get("properties")?.get("section")?;
     let words = super::validation::accepted(&schema, property)?;
     let valid = |word: &str| words.iter().any(|known| known.as_str() == word);
-    let candidate = match label_word(&schema, value) {
-        Some(candidate) => candidate,
-        None => {
-            let (word, mut candidate) = wrong_word(value, property, &valid)?;
-            replace(verb, entity, &schema, &word, candidate.as_object_mut()?)?;
-            candidate
-        }
-    };
-    let step = super::positional::complete((verb, entity), &schema, &candidate)?;
+    let (word, mut candidate) = wrong_word(value, property, &valid)?;
+    replace(verb, entity, &schema, &word, candidate.as_object_mut()?)?;
+    refusal((verb, entity), &schema, &candidate)
+}
+
+/// Refuse a label read that names a label heading as a second section.
+pub(super) fn label(verb: &str, entity: &str, value: &Value) -> Option<super::ParseInvalid> {
+    let schema = super::validation::schema(verb, entity)?;
+    let candidate = label_word(&schema, value)?;
+    refusal((verb, entity), &schema, &candidate)
+}
+
+/// The section refusal whose next call is the checked candidate.
+fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<super::ParseInvalid> {
+    let property = schema.get("properties")?.get("section")?;
+    let step = super::positional::complete(path, schema, candidate)?;
     let argument = if property.get("x-positional").is_some() {
         "section"
     } else {
@@ -39,8 +46,8 @@ pub(super) fn fix(verb: &str, entity: &str, value: &Value) -> Option<super::Pars
         usage: Some(UsageError::Arguments(UsageArguments {
             argument: Some(argument.into()),
             message: Some(ErrorMessage::ArgumentGuidance),
-            valid_values: Some(words),
-            next: super::recovery::guidance(step, [verb, entity]),
+            valid_values: super::validation::accepted(schema, property),
+            next: super::recovery::guidance(step, [path.0, path.1]),
         })),
         prefer_argument_error: true,
     })

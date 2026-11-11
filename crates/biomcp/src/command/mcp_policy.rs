@@ -24,12 +24,15 @@ pub(crate) fn refusal(parsed: &crate::grammar::Parsed, http: bool) -> Option<Usa
             return Some(UsageError::McpUnavailable(command));
         }
         if globals.fresh {
-            return Some(UsageError::arguments());
+            return Some(UsageError::argument("--fresh".into()));
         }
     }
     match action {
-        Action::Run { request, .. } if replaces(request) || hidden_save(request) => {
-            Some(UsageError::arguments())
+        Action::Run { request, .. } if replaces(request) => {
+            Some(UsageError::argument("--replace".into()))
+        }
+        Action::Run { request, .. } if hidden_save(request) => {
+            Some(UsageError::argument("--save".into()))
         }
         _ => None,
     }

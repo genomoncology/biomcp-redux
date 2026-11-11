@@ -30,8 +30,8 @@ pub enum UsageError {
         /// Checked article filter.
         option: crate::ArticleFilter,
     },
-    /// A body position is invalid.
-    TextPositionError,
+    /// A body position or selector is invalid; names the option at fault.
+    TextPositionError(&'static str),
     /// ClinicalTrials.gov rejected a request carrying a registry continuation.
     TrialContinuationRejected,
     /// A retained registry continuation cannot establish its position and selectors.

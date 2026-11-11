@@ -17,38 +17,84 @@ fn disease_unsupported(action: &Action) -> bool {
         Action::Run {
             request: Request::SearchDisease(q),
             ..
-        } => !matches!(q.source(), DiseaseSource::Ols | DiseaseSource::Seer),
+        } => !search_supported(q.source()),
         Action::Run {
             request: Request::GetDisease(q),
             ..
-        } => match q.source() {
-            DiseaseSource::Ols => !matches!(
-                q.section(),
-                None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
-            ),
-            DiseaseSource::MyDisease => {
-                let supported = biomcp_adapters::mydisease::supported_id(q.id().as_str());
-                !supported
-                    || !matches!(
-                        q.section(),
-                        None | Some(
-                            DiseaseSection::Synonyms
-                                | DiseaseSection::Xrefs
-                                | DiseaseSection::Hierarchy
-                        )
-                    )
-            }
-            DiseaseSource::Monarch => !matches!(
-                q.section(),
-                Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)
-            ),
-            DiseaseSource::Seer => !matches!(
-                q.section(),
-                Some(DiseaseSection::Incidence | DiseaseSection::Survival)
-            ),
-        },
+        } => !get_supported(q.source(), q.section(), q.id().as_str()),
         _ => false,
     }
+}
+fn search_supported(source: DiseaseSource) -> bool {
+    matches!(source, DiseaseSource::Ols | DiseaseSource::Seer)
+}
+fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &str) -> bool {
+    match source {
+        DiseaseSource::Ols => matches!(
+            section,
+            None | Some(DiseaseSection::Synonyms | DiseaseSection::Xrefs)
+        ),
+        DiseaseSource::MyDisease => {
+            biomcp_adapters::mydisease::supported_id(id)
+                && matches!(
+                    section,
+                    None | Some(
+                        DiseaseSection::Synonyms
+                            | DiseaseSection::Xrefs
+                            | DiseaseSection::Hierarchy
+                    )
+                )
+        }
+        DiseaseSource::Monarch => matches!(
+            section,
+            Some(DiseaseSection::Genes | DiseaseSection::Phenotypes)
+        ),
+        DiseaseSource::Seer => matches!(
+            section,
+            Some(DiseaseSection::Incidence | DiseaseSection::Survival)
+        ),
+    }
+}
+/// The sources that serve this disease request, named on `--source`.
+fn disease_sources(action: &Action) -> UsageError {
+    let (path, accepted): ([&str; 2], Vec<DiseaseSource>) = match action {
+        Action::Run {
+            request: Request::SearchDisease(_),
+            ..
+        } => (
+            ["search", "disease"],
+            DiseaseSource::ALL
+                .iter()
+                .copied()
+                .filter(|source| search_supported(*source))
+                .collect(),
+        ),
+        Action::Run {
+            request: Request::GetDisease(q),
+            ..
+        } => (
+            ["get", "disease"],
+            DiseaseSource::ALL
+                .iter()
+                .copied()
+                .filter(|source| get_supported(*source, q.section(), q.id().as_str()))
+                .collect(),
+        ),
+        _ => return UsageError::argument("--source".into()),
+    };
+    let values = accepted
+        .iter()
+        .filter_map(|source| source.as_str().parse::<biodata::Text>().ok())
+        .collect::<Vec<_>>();
+    UsageError::Arguments(biomcp_types::UsageArguments {
+        argument: Some("--source".into()),
+        message: None,
+        valid_values: (!values.is_empty()).then(|| values.into()),
+        next: vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: ["help", path[0], path[1]].map(Into::into).into(),
+        }],
+    })
 }
 fn prepare_disease(action: Action) -> Result<Action, biomcp_adapters::seer::SelectorError> {
     if let Action::Run {
@@ -91,7 +137,7 @@ pub(crate) fn selector_error(error: biomcp_adapters::seer::SelectorError) -> Usa
         .map(|code| code.parse())
         .collect::<Result<Vec<biodata::Text>, _>>();
     let Ok(values) = values else {
-        return UsageError::arguments();
+        return UsageError::argument("--source".into());
     };
     UsageError::SourceSelector {
         source: biomcp_types::Source::Seer,
@@ -119,7 +165,7 @@ fn unsupported(action: &Action) -> Option<UsageError> {
     } = action
         && matches!(q.id(), biomcp_types::CellLineInput::Source(id) if biomcp_adapters::cellosaurus::native_database(id).is_none())
     {
-        return Some(UsageError::arguments());
+        return Some(UsageError::argument("id".into()));
     }
     if let Action::Run {
         request: Request::GetCellLine(query),
@@ -133,7 +179,7 @@ fn unsupported(action: &Action) -> Option<UsageError> {
         ));
     }
     if disease_unsupported(action) {
-        return Some(UsageError::arguments());
+        return Some(disease_sources(action));
     }
     if let Action::Run {
         request: Request::SearchTrial(q),
@@ -189,7 +235,7 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
     } else {
         return Ok(());
     };
-    let values = values.map_err(|_| UsageError::arguments())?;
+    let values = values.map_err(|_| UsageError::argument(option.into()))?;
     Err(UsageError::SourceSelector {
         source: query.source().source(),
         message: if query.sections().len() > 1 {

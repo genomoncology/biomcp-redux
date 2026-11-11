@@ -98,11 +98,7 @@ pub(super) fn argument<'a>(command: &'a Command, word: &str) -> Option<(&'a clap
             name.strip_prefix("--")
                 .is_some_and(|name| arg.get_long() == Some(name))
                 || name.strip_prefix('-').is_some_and(|name| {
-                    name.len() == 1
-                        && (arg.get_short().is_some_and(|short| name.starts_with(short))
-                            || arg
-                                .get_all_short_aliases()
-                                .is_some_and(|shorts| shorts.iter().any(|s| name.starts_with(*s))))
+                    name.len() == 1 && arg.get_short().is_some_and(|short| name.starts_with(short))
                 })
         })
         .map(|arg| (arg, inline))

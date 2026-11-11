@@ -6,17 +6,7 @@ use serde_json::Value;
 use std::ffi::OsString;
 
 /// The options a stray text most often belongs to, in the order they are tried.
-const TEXT_OPTIONS: [&str; 9] = [
-    "query",
-    "text",
-    "name",
-    "marker",
-    "biomarker",
-    "gene",
-    "condition",
-    "keyword",
-    "drug",
-];
+const TEXT_OPTIONS: [&str; 5] = ["query", "text", "name", "marker", "keyword"];
 /// Option spellings that carry search text on some other command.
 const TEXT_FLAGS: [&str; 6] = ["-q", "--query", "-k", "--keyword", "--text", "--search"];
 /// The words after the command that no argument took, joined into the value they meant.
@@ -219,11 +209,81 @@ pub(super) fn source_flag(
         }
         args.splice(index..=index, ["--source".into(), OsString::from(name)]);
     }
-    let parsed = super::parse(root, &args).ok()?;
-    match parsed.action? {
-        action @ biomcp_query::Action::Run { .. } => {
-            crate::spell::step(biomcp_types::StepKind::Configure, &action).ok()
-        }
-        _ => None,
+    candidate(root, &args)
+}
+
+/// Short flags agents carry from other tools, and the option each stands for here.
+const SHORT_FLAGS: [(&str, &str); 4] = [
+    ("-c", "--condition"),
+    ("-i", "--intervention"),
+    ("-g", "--gene"),
+    ("-l", "--limit"),
+];
+
+/// An option spelled another way: a short flag this command lacks, `--section` where the
+/// section is a positional word, or underscores for dashes. Answered with the call in the
+/// command's own spelling; the typed spelling is not accepted.
+pub(super) fn respelled(
+    root: &Command,
+    path: &[&str],
+    spelling: &str,
+    args: &[OsString],
+) -> Option<Step> {
+    let &[verb, entity] = path else { return None };
+    let command = root.find_subcommand(verb)?.find_subcommand(entity)?;
+    let has = |long: &str| {
+        command
+            .get_arguments()
+            .any(|arg| arg.get_long() == long.strip_prefix("--"))
+    };
+    let index = args.iter().position(|word| {
+        word.to_str().is_some_and(|word| {
+            word == spelling
+                || word
+                    .strip_prefix(spelling)
+                    .is_some_and(|rest| rest.starts_with('='))
+        })
+    })?;
+    let mut args = args.to_vec();
+    let word = args.get(index)?.to_str()?.to_owned();
+    let dashed = spelling.replace('_', "-");
+    if let Some((_, long)) = SHORT_FLAGS.iter().find(|(short, _)| *short == spelling)
+        && has(long)
+    {
+        *args.get_mut(index)? = word.replacen(spelling, long, 1).into();
+    } else if spelling == "--section"
+        && command
+            .get_positionals()
+            .any(|arg| arg.get_id() == "section")
+    {
+        let value = args.remove(index + 1);
+        args.remove(index);
+        args.push(value);
+    } else if spelling.starts_with("--") && dashed != spelling && has(&dashed) {
+        *args.get_mut(index)? = word.replacen(spelling, &dashed, 1).into();
+    } else {
+        return None;
+    }
+    candidate(root, &args)
+}
+
+/// The canonical call for words the grammar accepts, or the corrected call its refusal
+/// already names.
+pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
+    match super::parse(root, args) {
+        Ok(parsed) => match parsed.action? {
+            action @ biomcp_query::Action::Run { .. } => {
+                crate::spell::step(biomcp_types::StepKind::Configure, &action).ok()
+            }
+            _ => None,
+        },
+        Err(cause) => match cause.usage? {
+            biomcp_types::UsageError::Arguments(arguments) => arguments
+                .next
+                .into_iter()
+                .next()
+                .filter(|step| step.args.first().is_some_and(|word| &**word != "help")),
+            _ => None,
+        },
     }
 }

@@ -28,7 +28,12 @@ pub fn download(cx: &Ctx<'_>, query: &ArticleSupplement, allow: bool) -> super::
         .with_query(query.clone()),
     );
     let Ok(selection) = super::protein_change::Selection::new(query.find(), query.variant()) else {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        let option = if query.variant().is_some() {
+            "--variant"
+        } else {
+            "--find"
+        };
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError(option));
         return super::save::Download { out, file: None };
     };
     let result = execute(cx, query, &selection, &mut deadline, &mut out, &mut save);
@@ -107,7 +112,7 @@ fn execute<'a>(
     let content = result?;
     if !matches!(
         out.body,
-        ReplyData::Usage(biomcp_types::UsageError::TextPositionError)
+        ReplyData::Usage(biomcp_types::UsageError::TextPositionError(_))
     ) {
         out.body = (ArticleSupplementResult {
             pmcid: Some(id),
@@ -145,7 +150,7 @@ fn content(
         .iter()
         .find(|v| v.file.name == *query.file())
     else {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("file"));
         return Ok(Section::NotApplicable);
     };
     let mut content = empty(document.license, selection.forms.clone());
@@ -182,7 +187,7 @@ fn content(
         )
         .map_err(failure)?
         {
-            out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+            out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("--offset"));
             return Ok(Section::NotApplicable);
         }
     }

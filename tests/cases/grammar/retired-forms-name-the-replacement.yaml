@@ -161,7 +161,7 @@
         "/status": "usage",
         "/error/code": "usage.retired",
         "/next/0/args": {
-          "includes": [
+          "includes_all_of": [
             "--source",
             "fda-cdx"
           ]
