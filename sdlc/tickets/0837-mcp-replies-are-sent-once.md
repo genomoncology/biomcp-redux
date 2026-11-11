@@ -55,7 +55,7 @@ Bytes of the `CallToolResult` for the first step of ten recorded cases, sent to 
 | variant/population/source-counts | 2,961 | 1,439 | 2,992 | 1,439 |
 | Total | 61,301 | 26,992 | 60,131 | 28,081 |
 
-Before, 9 of the 10 single-mode replies carried `--config <path>` in their next steps; after, none do. Totals fall 56% (single) and 53% (typed) on the wire; in single mode about 4% more comes from dropping the config path from next steps.
+Before, 9 of the 10 single-mode replies carried `--config <path>` in their next steps; after, none do. Totals fall 56% (single) and 53% (typed) on the wire; in single mode the JSON itself is also 9% smaller (27,897 to 25,412 bytes) because next steps no longer carry the config path.
 
 ## Keeps
 
