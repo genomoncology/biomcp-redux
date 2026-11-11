@@ -150,7 +150,8 @@ fn unexpanded(
             }
         }
         let message = "Drug-name lookups did not finish, so names were not expanded; \
-                       searched the typed term."
+                       searched only the typed term. Records under the drug's other names \
+                       may be missing; repeat the search to retry the lookup."
             .to_owned();
         record_evidence(out, failed, input, &typed, message);
         return Resolved {
