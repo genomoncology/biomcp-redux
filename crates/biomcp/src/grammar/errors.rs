@@ -260,8 +260,7 @@ pub(super) fn parse_invalid(
         argument: None,
         // A command group answers a word it does not name with its commands.
         usage: message.map(UsageError::message).or_else(|| {
-            command
-                .has_subcommands()
+            (command.has_subcommands() && !path.is_empty())
                 .then(|| super::positional::unplaced(command, &path))
                 .flatten()
                 .map(UsageError::Arguments)

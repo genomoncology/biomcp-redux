@@ -80,19 +80,21 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
     let values = DISEASE_SECTIONS
         .into_iter()
         .filter(|section| get_supported(q.source(), Some(*section), q.id().as_str()))
-        .filter_map(|section| serde_json::to_value(section).ok()?.as_str()?.parse().ok())
-        .collect::<Vec<biodata::Text>>();
-    (!values.is_empty()).then(|| {
-        UsageError::Arguments(biomcp_types::UsageArguments {
-            argument: Some("section".into()),
-            message: None,
-            valid_values: Some(values.into()),
-            next: vec![biomcp_types::Step {
-                kind: biomcp_types::StepKind::Configure,
-                args: ["help", "get", "disease"].map(Into::into).into(),
-            }],
-        })
-    })
+        .map(|section| <&str>::from(section).parse())
+        .collect::<Result<Vec<biodata::Text>, _>>();
+    let values = match values {
+        Ok(values) if !values.is_empty() => values,
+        _ => return None,
+    };
+    Some(UsageError::Arguments(biomcp_types::UsageArguments {
+        argument: Some("section".into()),
+        message: None,
+        valid_values: Some(values.into()),
+        next: vec![biomcp_types::Step {
+            kind: biomcp_types::StepKind::Configure,
+            args: ["help", "get", "disease"].map(Into::into).into(),
+        }],
+    }))
 }
 /// The sources that serve this disease request, named on `--source`; a source read without
 /// the section it needs names the section instead.
@@ -127,8 +129,9 @@ fn disease_sources(action: &Action) -> UsageError {
     };
     let values = accepted
         .iter()
-        .filter_map(|source| source.as_str().parse::<biodata::Text>().ok())
-        .collect::<Vec<_>>();
+        .map(|source| source.as_str().parse())
+        .collect::<Result<Vec<biodata::Text>, _>>()
+        .unwrap_or_default();
     UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some("--source".into()),
         message: None,
@@ -180,7 +183,7 @@ pub(crate) fn selector_error(error: biomcp_adapters::seer::SelectorError) -> Usa
         .map(|code| code.parse())
         .collect::<Result<Vec<biodata::Text>, _>>();
     let Ok(values) = values else {
-        return UsageError::argument("--source".into());
+        return UsageError::arguments();
     };
     UsageError::SourceSelector {
         source: biomcp_types::Source::Seer,
