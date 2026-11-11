@@ -118,7 +118,7 @@
       "exit": 2,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/argument": "--product-code",
+        "/error/option": "--product-code",
         "/error/message": "--classification selects device enforcement records, which carry no product code; drop --product-code, or drop --classification and read each returned row's classification"
       }
     }
