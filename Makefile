@@ -2,10 +2,11 @@
 
 # release/notices.py needs tomllib (Python 3.11+), and the build machine's
 # python3 is 3.9. Run every Python step on the newest Python 3.11+ found, or on
-# PYTHON=/path/to/python when given. When python3 itself is older, put the
-# chosen Python's real directory first on PATH so scripts that call python3 get it.
+# PYTHON=/path/to/python when given. When python3 itself is older, put a folder
+# holding only a python3 link to the chosen Python first on PATH, so scripts that
+# call python3 get it and no other tool on PATH changes.
 PYTHON_FOUND := $(shell for p in $(if $(PYTHON),$(PYTHON),python3.13 python3.12 python3.11 python3); do \
-	$$p -c 'import sys; from pathlib import Path; sys.version_info >= (3, 11) and print(Path(sys.executable).resolve())' 2>/dev/null \
+	$$p -c 'import sys; sys.version_info >= (3, 11) and print(sys.executable)' 2>/dev/null \
 	| grep . && break; done)
 ifeq ($(PYTHON_FOUND),)
 $(error no Python 3.11 or newer found$(if $(PYTHON), at PYTHON=$(PYTHON)); install one or run make PYTHON=/path/to/python3.11+)
@@ -13,7 +14,9 @@ endif
 override PYTHON := $(PYTHON_FOUND)
 export PYTHON
 ifneq ($(shell python3 -c 'import sys; print(sys.version_info >= (3, 11))' 2>/dev/null),True)
-export PATH := $(patsubst %/,%,$(dir $(PYTHON))):$(PATH)
+PYTHON_SHIM := $(CURDIR)/target/python-shim
+$(shell mkdir -p "$(PYTHON_SHIM)" && ln -sf "$(PYTHON)" "$(PYTHON_SHIM)/python3")
+export PATH := $(PYTHON_SHIM):$(PATH)
 endif
 BIOMCP_DEBUG = $(if $(CARGO_TARGET_DIR),$(CARGO_TARGET_DIR),target)/debug/biomcp
 
@@ -112,9 +115,11 @@ schema-shape-check: docs-check library-tests
 unreached:
 	sh scripts/coverage.sh unreached
 
-# The landing gate runs this after pre-job builds the debug binary.
+# The landing gate runs this after pre-job builds the debug binary: documented
+# example calls must pass their tool schemas, and the first read must hold.
 .PHONY: first-read-check
 first-read-check:
+	$(PYTHON) scripts/check_docs.py --executable "$(BIOMCP_DEBUG)"
 	$(PYTHON) scripts/check_front_map.py "$(BIOMCP_DEBUG)"
 
 .PHONY: docs-check
@@ -125,7 +130,6 @@ docs-check:
 	$(PYTHON) -m unittest release.test_toolchain
 	$(PYTHON) release/tools.py
 	$(PYTHON) -m unittest release.test_tools release.test_linux release.test_mutations
-	$(PYTHON) scripts/check_docs.py --executable "$(BIOMCP_DEBUG)"
 	+$(MAKE) --no-print-directory first-read-check
 	+$(MAKE) --no-print-directory rights
 	$(PYTHON) scripts/test_docs.py
