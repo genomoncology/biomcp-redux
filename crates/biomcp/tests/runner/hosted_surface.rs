@@ -51,8 +51,13 @@ fn surface(mode: &str) -> Check {
         let gene = super::typed_catalog::command(&tools, "get_gene").ok_or("get_gene")?;
         let validator = jsonschema::validator_for(gene.get("inputSchema").ok_or("gene schema")?)
             .map_err(|e| e.to_string())?;
+        // Section words are plain text listed in the description; the server refuses the rest.
+        let sections = gene["description"]
+            .as_str()
+            .and_then(|text| text.split_once("Sections:"))
+            .map(|(_, rest)| rest.split_whitespace().next().unwrap_or_default());
         if !validator.is_valid(&json!({"input":["BRAF"]}))
-            || validator.is_valid(&json!({"input":["BRAF"],"section":["oncokb"]}))
+            || sections.is_none_or(|sections| sections.contains("oncokb"))
         {
             return Err("hosted gene schema disagrees with supported input/OncoKB policy".into());
         }
