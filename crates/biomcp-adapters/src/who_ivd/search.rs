@@ -44,6 +44,7 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Search, RequestErro
                 product_name: row.product_name,
                 manufacturer: row.manufacturer,
                 marker: row.marker,
+                prequalification_year: row.prequalification_year,
             });
         }
     }

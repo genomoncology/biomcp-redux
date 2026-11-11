@@ -2864,7 +2864,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell.",
+          "description": "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year.",
           "x-required-component": "who-ivd"
         },
         "name": {
@@ -4636,7 +4636,7 @@
           "description": "Gene symbol/ID.\nClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment."
         },
         "has_results": {
-          "description": "Posted results.\nClinicalTrials.gov only: require posted source results.",
+          "description": "Posted results.\nClinicalTrials.gov only: require posted source results. Each row carries has_results.",
           "type": "boolean"
         },
         "id": {

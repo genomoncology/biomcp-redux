@@ -112,6 +112,13 @@
       "$ref": "#/$defs/Reply_Capped_Text",
       "description": "Source condition names."
     },
+    "has_results": {
+      "description": "Whether the registry has posted results, absent when the row carries no flag.",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "interventions": {
       "$ref": "#/$defs/Reply_Capped_Text",
       "description": "Source intervention names."

@@ -1,6 +1,7 @@
 //! Canonical EMA source declaration.
 mod map;
 mod raw;
+mod referrals;
 use biodata::DrugId;
 use biomcp_fetch::{
     Bundle, Fetch, Find, Freshness, KeyKind, KeyUse, Leg, RequestError, RowFormat, SourceSpec,
@@ -37,11 +38,17 @@ const MEDICINES: Bundle<raw::Medicine> = Bundle {
     fresh: Freshness::Days(1),
     row: PhantomData,
 };
-/// Explicit complete-file synchronization through the shared atomic bundle store.
+/// Explicit complete-file synchronization of the medicines and referrals files through the
+/// shared atomic bundle store. The reply keeps the medicines file's date and sums both files.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
-    fetch
-        .sync(&MEDICINES)
-        .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
+    let mut sync = crate::mapped::bundle_sync(SPEC.source, fetch.sync(&MEDICINES)?);
+    let referrals = crate::mapped::bundle_sync(SPEC.source, fetch.sync(&referrals::REFERRALS)?);
+    sync.refusals.include(referrals.refusals);
+    sync.problems.extend(referrals.problems);
+    sync.value.rows += referrals.value.rows;
+    sync.value.bytes += referrals.value.bytes;
+    sync.value.downloaded_bytes += referrals.value.downloaded_bytes;
+    Ok(sync)
 }
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
@@ -117,17 +124,31 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
         problems: problems.list,
     })
 }
-/// Source-native dates and status for only the selected EMA application record.
+/// Source-native dates and status for only the selected EMA application record, with the
+/// Commission decision date from the referrals file when its latest procedure is a referral.
 pub fn regulatory(
     leg: &Leg<'_>,
     id: &DrugId,
 ) -> Result<crate::Mapped<Option<DrugRegulatory>>, RequestError> {
     let mut problems = fields(Some(id));
-    let value = exact(leg, id)?.map(|row| {
-        let event = map::event(&row, &mut problems);
+    let row = exact(leg, id)?;
+    let procedure = row.as_ref().and_then(|row| {
+        row.field("latest_procedure_affecting_product_information")
+            .and_then(Result::ok)
+    });
+    let decision = referrals::decision(leg, procedure, &mut problems)?;
+    let value = row.map(|row| {
+        let mut event = map::event(&row, &mut problems);
+        let mut date_roles = map::date_roles(&row, &mut problems, &event).into_vec();
+        if let Some(decision) = decision {
+            let mut dates = std::mem::take(&mut event.dates).into_vec();
+            dates.push(decision.date);
+            event.dates = dates.into();
+            date_roles.push(decision.label);
+        }
         DrugRegulatory {
             identity: map::header(&row, &mut problems),
-            date_roles: map::date_roles(&row, &mut problems, &event),
+            date_roles: date_roles.into(),
             regulatory: Section::Data {
                 source: Source::Ema,
                 data: DrugRecords {
@@ -147,13 +168,28 @@ pub fn regulatory(
         problems: problems.list,
     })
 }
-/// Why an EMA regulatory reply carries no European Commission decision date, when its record
-/// holds the date EMA's medicines file names `european_commission_decision_date`.
-pub fn decision_date_notice(body: &DrugRegulatory) -> Option<&'static str> {
-    body.date_roles
-        .iter()
-        .any(|label| label.role.as_str() == map::LATEST_PROCEDURE_ROLE)
-        .then_some(DECISION_DATE_NOTICE)
+/// Where an EMA regulatory reply's European Commission decision date came from, or, when it has
+/// none, why the date EMA's medicines file names `european_commission_decision_date` is not it.
+pub fn decision_date_notice(body: &DrugRegulatory) -> Option<Box<str>> {
+    let role = |name: &str| {
+        body.date_roles
+            .iter()
+            .find(|label| label.role.as_str() == name)
+    };
+    if let Some(label) = role(referrals::DECISION_ROLE) {
+        let record = label
+            .procedure
+            .as_ref()
+            .map_or("", |record| record.as_str());
+        return Some(
+            format!(
+                "{} is from EMA's referrals file, record {record}.",
+                referrals::DECISION_ROLE
+            )
+            .into(),
+        );
+    }
+    role(map::LATEST_PROCEDURE_ROLE).map(|_| DECISION_DATE_NOTICE.into())
 }
 const DECISION_DATE_NOTICE: &str = "No European Commission decision date is reported. \
 latest_procedure_affecting_product_information_date is EMA's european_commission_decision_date \
@@ -170,7 +206,9 @@ fn fields(id: Option<&DrugId>) -> crate::mapped::Problems {
 
 /// Inspect this source's validated local catalog without reading rows or synchronizing.
 pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
-    leg.stored_bundle_state(&MEDICINES)
+    Ok(leg
+        .stored_bundle_state(&MEDICINES)?
+        .with(leg.stored_bundle_state(&referrals::REFERRALS)?))
 }
 
 /// Complete source policy and command declaration.

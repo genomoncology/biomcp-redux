@@ -1782,6 +1782,13 @@
           "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Source condition names."
         },
+        "has_results": {
+          "description": "Whether the registry has posted results, absent when the row carries no flag.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "interventions": {
           "$ref": "#/$defs/Reply_Capped_Text",
           "description": "Source intervention names."
@@ -2283,7 +2290,7 @@
           "description": "Gene symbol/ID.\nClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment."
         },
         "has_results": {
-          "description": "Posted results.\nClinicalTrials.gov only: require posted source results.",
+          "description": "Posted results.\nClinicalTrials.gov only: require posted source results. Each row carries has_results.",
           "type": "boolean"
         },
         "id": {

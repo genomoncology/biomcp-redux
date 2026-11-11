@@ -1,6 +1,7 @@
 # 0847 — searches-carry-what-agents-fetch-next
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 1f20bac05c47eaa2576456e60efa99228dd09904
 
 Milestone: 7
 

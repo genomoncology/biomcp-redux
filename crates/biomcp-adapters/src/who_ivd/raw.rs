@@ -19,7 +19,7 @@ pub(super) struct Native {
     #[serde(rename = "Regulatory Version")]
     regulatory_version: Box<str>,
     #[serde(rename = "Year prequalification")]
-    prequalification_year: Box<str>,
+    pub prequalification_year: Box<str>,
 }
 impl Row for Native {
     fn keys(&self) -> Keys {

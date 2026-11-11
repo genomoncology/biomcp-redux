@@ -1,9 +1,9 @@
 {
   "live_check": "public",
   "feature": "trial-search",
-  "story": "Each registry search row carries the lead sponsor and the start and primary completion dates with their actual or estimated qualifiers, and leaves out what the registry leaves out.",
+  "story": "Each registry search row carries the lead sponsor and the start and primary completion dates with their actual or estimated qualifiers and whether results are posted, and leaves out what the registry leaves out.",
   "replay": "trial/row-fields",
-  "verified": "The actual CLI recorded this page and the version reply from the public source on 2026-11-11 with --record; registry processing time 2026-11-10T10:00:05. Values are the recorded rows' leadSponsor.name, startDateStruct and primaryCompletionDateStruct. NCT00000124 has no primary completion date in the registry. Row order and the total of 22 are the registry's. The ceiling is the measured page plus 15 percent.",
+  "verified": "The actual CLI recorded this page and the version reply from the public source on 2026-11-11 with --record; registry processing time 2026-11-10T10:00:05. Values are the recorded rows' leadSponsor.name, startDateStruct, primaryCompletionDateStruct and hasResults. NCT00000124 has no primary completion date in the registry. Row order and the total of 22 are the registry's. The ceiling is the measured page plus 15 percent.",
   "steps": [
     {
       "run": [
@@ -57,6 +57,13 @@
         "/result/items/1": {
           "omits": [
             "primary_completion"
+          ]
+        },
+        "/result/items/*/has_results": {
+          "equals": [
+            true,
+            false,
+            false
           ]
         },
         "/result/items/2/start": {
