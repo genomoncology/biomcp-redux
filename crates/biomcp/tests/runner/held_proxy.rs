@@ -6,7 +6,7 @@ use libtest_mimic::Trial;
 use serde_json::{Value, json};
 use std::{
     fs,
-    io::{BufRead, BufReader, Read, Write},
+    io::{BufRead, BufReader, Write},
     net::{Shutdown, TcpListener},
     process::Stdio,
     sync::mpsc,
@@ -364,12 +364,21 @@ fn proxy_request(
         .set_read_timeout(Some(WATCHDOG))
         .map_err(|e| e.to_string())?;
     let mut header = Vec::new();
-    while !header.ends_with(b"\r\n\r\n") && header.len() < 8192 {
+    let mut closed = false;
+    while !closed && !header.ends_with(b"\r\n\r\n") && header.len() < 8192 {
         let mut byte = [0];
-        stream.read_exact(&mut byte).map_err(|e| e.to_string())?;
-        header.extend(byte);
+        match super::socket_read::read(&mut stream, &mut byte) {
+            Ok(0) => closed = true,
+            Ok(_) => header.extend(byte),
+            Err(error) if error.kind() == std::io::ErrorKind::ConnectionReset => closed = true,
+            Err(error) => return Err(error.to_string()),
+        }
     }
-    let result = if header.starts_with(b"CONNECT ") && header.ends_with(b"\r\n\r\n") {
+    // A call cancelled while it opens its socket may close before CONNECT is complete. Report that
+    // to whoever waits for a CONNECT, and keep the socket so the cancel check sees it closed.
+    let result = if closed {
+        Err("peer closed before CONNECT".into())
+    } else if header.starts_with(b"CONNECT ") && header.ends_with(b"\r\n\r\n") {
         Ok(())
     } else {
         Err("proxy expected CONNECT".into())
