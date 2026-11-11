@@ -56,10 +56,10 @@
         "Failing medicine"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/query/query": "Failing medicine",
         "/sources/0/source": "mychem",
-        "/sources/0/state": "failed",
+        "/sources/0/state": "skipped",
         "/sources/0/notices/0/names": [
           "Failing medicine"
         ],
@@ -73,7 +73,7 @@
         "Failing medicine"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/sources/0/notices/0/names": [
           "Failing medicine"
         ]
