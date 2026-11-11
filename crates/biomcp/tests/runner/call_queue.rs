@@ -219,7 +219,9 @@ fn hosted_deadline() -> Result<(), String> {
         return Err(format!("no timed refusal at the call deadline: {reply}"));
     }
     if waited >= std::time::Duration::from_secs(60) {
-        return Err(format!("the call waited {waited:?}, past its two-second deadline"));
+        return Err(format!(
+            "the call waited {waited:?}, past its two-second deadline"
+        ));
     }
     Ok(())
 }
