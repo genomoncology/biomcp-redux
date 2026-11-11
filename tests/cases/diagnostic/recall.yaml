@@ -55,10 +55,7 @@
             "classification"
           ]
         },
-        "/sources/0/state": "failed",
-        "/problems": {
-          "count": 0
-        }
+        "/sources/0/state": "failed"
       },
       "max_bytes": 1100,
       "full_output_bytes": true

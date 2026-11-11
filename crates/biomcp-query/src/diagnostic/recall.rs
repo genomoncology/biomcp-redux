@@ -20,9 +20,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&adapter::SPEC, deadline).fresh(cx.fresh);
+    let mut unmatched = (0, 0);
     let result = adapter::search(&leg, q);
     let mut error = result.as_ref().err().copied();
-    let mut unmatched = (0, 0);
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
         {

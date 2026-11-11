@@ -55,7 +55,7 @@ const PRODUCT_CODE_SOURCES: [crate::Source; 3] = [
     crate::Source::Fda510k,
     crate::Source::FdaDeviceRecall,
 ];
-/// Search five source records by default. FDA device recalls cover every medical device and show each record's exact enforcement classification; totals count recall records, without harm inference.
+/// Search five source records by default. FDA device recalls cover every medical device and show the recall class; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]

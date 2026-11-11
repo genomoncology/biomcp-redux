@@ -96,13 +96,11 @@
         "/sources": {
           "count": 1
         },
-        "/sources/0": {
-          "omits": [
-            "notices"
-          ]
-        },
         "/next/*/kind": {
           "includes": "page"
+        },
+        "/sources/0/notices/*/message": {
+          "excludes": "1 of 3 returned rows have no exact openFDA device recall record and show only the recall number and classification."
         }
       }
     },
