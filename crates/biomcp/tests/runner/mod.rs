@@ -40,6 +40,7 @@ mod bundle_sync;
 mod bundle_wait;
 mod cache_admission;
 mod cache_contention;
+mod call_queue;
 mod capture;
 mod citation_values;
 mod clinpgx;
@@ -352,15 +353,17 @@ fn retained_source_trials() -> Vec<Trial> {
     trials
 }
 
-fn transcript_trials() -> [Trial; 2] {
-    [
+fn transcript_trials() -> Vec<Trial> {
+    let mut trials = call_queue::trials();
+    trials.extend([
         transcript_trial(pool_contract::ARTICLE_SAVES.0, || {
             article_save::check().map_err(Into::into)
         }),
         transcript_trial("mcp-parity/ping-passes-held-provider-call", || {
             held_proxy::check().map_err(Into::into)
         }),
-    ]
+    ]);
+    trials
 }
 
 fn load_floors(case: &mut Case, path: &Path) -> Result<(), String> {
@@ -550,14 +553,21 @@ use biomcp_test_support::hash as stable_hash;
 
 use biomcp_test_support::recordings as recording_support;
 
-/// A full server keeps the hosted code and leading text, then names its limit.
+/// A full server keeps the hosted code and leading text, names its limit and the
+/// wait this call had, and says in whole seconds when to retry.
 fn capacity_refusal(reply: &serde_json::Value, limit: usize) -> bool {
+    let retry = reply
+        .pointer("/error/data/retry_after_seconds")
+        .and_then(serde_json::Value::as_u64)
+        .filter(|seconds| *seconds > 0);
     reply
         .pointer("/error/message")
         .and_then(serde_json::Value::as_str)
-        .is_some_and(|message| {
+        .zip(retry)
+        .is_some_and(|(message, retry)| {
             message.starts_with("Tool capacity exceeded")
                 && message.contains(&format!("at most {limit} tool calls at once"))
-                && message.contains("Retry this call after")
+                && message.contains(" seconds for a turn")
+                && message.contains(&format!("Retry this call after {retry} seconds"))
         })
 }

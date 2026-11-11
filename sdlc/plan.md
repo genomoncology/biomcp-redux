@@ -2,6 +2,10 @@
 
 This plan covers milestone 5: a useful and accurate CLI/MCP interface, bounded and maintainable source handling, validated hosted operation, and an honestly qualified 1.0 release. Ticket state and lane ownership live in pm. The execution order and collision groups are in [build-plan.md](planning/build-plan.md); the [findings register](records/2026-11-10-product-review.md) records the reviewed snapshot and evidence, and the [test playbook](planning/remaining-issues-playbook.md) gives reproducible checks.
 
+## Current state
+
+Read [the November 11 handover](planning/handover-2026-11-11.md) first. Since this plan was written, Ian made agent tooling the content of 1.0, parked publication and the AWS rollout, and put one PM in charge. Sections 4 and 5 below are parked, not cancelled; milestones 7 and 8 in `planning/milestones.md` are the active work.
+
 ## Immediate priority
 
 Ian's [November 10 direction](decisions/2026-11-10-prioritize-remaining-product-issues.md) puts finding and fixing remaining maintainability, usability and accuracy issues ahead of release timing and AWS publication. Review external claims as leads, inspect the code, independently weigh findings, then file small executable tickets. Do not call an unrun suspicion a reproduced bug or a later successful provider request an explanation of an earlier failure.

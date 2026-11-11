@@ -32,14 +32,25 @@ pub(super) fn info() -> Value {
 pub(super) fn error(id: Value, code: i32, message: &str) -> Value {
     json!({"jsonrpc":"2.0", "id":id, "error":{"code":code,"message":message}})
 }
-/// Keeps the code and leading text hosting relies on, then says what to do.
-pub(super) fn capacity(id: Value, limit: usize) -> Value {
+/// Keeps the code and leading text hosting relies on, then says how long to wait.
+pub(super) fn capacity(
+    id: Value,
+    limit: usize,
+    waited: std::time::Duration,
+    retry: std::time::Duration,
+) -> Value {
+    let waited = waited.as_secs();
+    let retry = retry
+        .as_secs()
+        .saturating_add(u64::from(retry.subsec_nanos() > 0))
+        .max(1);
     let message = format!(
-        "Tool capacity exceeded: this server runs at most {limit} tool calls at once. \
-         Retry this call after one of your running calls returns, \
-         or after a few seconds if none are running."
+        "Tool capacity exceeded: this server runs at most {limit} tool calls at once, \
+         and this call waited {waited} seconds for a turn. \
+         Retry this call after {retry} seconds."
     );
-    error(id, -31000, &message)
+    json!({"jsonrpc":"2.0", "id":id, "error":{"code":-31000,"message":message,
+        "data":{"retry_after_seconds":retry}}})
 }
 pub(super) fn timeout(id: Value) -> Value {
     json!({"jsonrpc":"2.0", "id":id, "error":{"code":-32000,"message":"Tool deadline exceeded",

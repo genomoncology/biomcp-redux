@@ -1,4 +1,5 @@
 //! Own bounded hosted tool workers through completion and return whole-call timeouts.
+//! A call over the limit waits its turn in arrival order, within its own deadline.
 use super::Service;
 use crate::{
     command::Context,
@@ -11,8 +12,10 @@ use serde_json::Value;
     reason = "The HTTP service owns its bounded active tool workers"
 )]
 use std::{
-    sync::{Mutex, mpsc},
+    collections::VecDeque,
+    sync::{Mutex, MutexGuard, mpsc},
     thread::JoinHandle,
+    time::{Duration, Instant},
 };
 
 #[derive(Default)]
@@ -20,7 +23,15 @@ use std::{
     clippy::disallowed_types,
     reason = "The HTTP service owns its bounded active tool workers"
 )]
-pub(super) struct Calls(Mutex<Vec<Active>>);
+pub(super) struct Calls(Mutex<State>);
+#[derive(Default)]
+struct State {
+    active: Vec<Active>,
+    /// Tickets of waiting calls in arrival order; only the first may take a free slot.
+    waiting: VecDeque<u64>,
+    issued: u64,
+    closed: bool,
+}
 struct Active {
     worker: JoinHandle<()>,
     scope: Cancellation,
@@ -50,18 +61,12 @@ impl Calls {
             declared_use,
             scope,
         } = work;
-        let mut active = self.0.lock().unwrap_or_else(|e| e.into_inner());
-        for index in (0..active.len()).rev() {
-            if active
-                .get(index)
-                .is_some_and(|call| call.worker.is_finished())
-            {
-                let _ = active.swap_remove(index).worker.join();
+        let mut state = match self.turn(service, &scope) {
+            Ok(state) => state,
+            Err((waited, retry)) => {
+                return protocol::capacity(id, service.max_calls, waited, retry);
             }
-        }
-        if active.len() >= service.max_calls {
-            return protocol::capacity(id, service.max_calls);
-        }
+        };
         if scope.remaining().is_zero() {
             return protocol::timeout(id);
         }
@@ -106,16 +111,70 @@ impl Calls {
                 return protocol::error(id, -32603, "Internal error");
             }
         };
-        active.push(Active {
+        state.active.push(Active {
             worker,
             scope: scope.clone(),
         });
-        drop(active);
+        drop(state);
         wait(&scope, receiver, id)
     }
+    /// Hold the lock with a free slot, or say how long this call waited and when to retry.
+    fn turn(
+        &self,
+        service: &Service,
+        scope: &Cancellation,
+    ) -> Result<MutexGuard<'_, State>, (Duration, Duration)> {
+        let arrived = Instant::now();
+        let wait = service.queue_wait.min(scope.remaining());
+        let mut ticket = None;
+        loop {
+            let mut state = self.0.lock().unwrap_or_else(|e| e.into_inner());
+            state.reap();
+            let first = match ticket {
+                Some(ticket) => state.waiting.front() == Some(&ticket),
+                None => state.waiting.is_empty(),
+            };
+            if first && state.active.len() < service.max_calls {
+                if ticket.is_some() {
+                    state.waiting.pop_front();
+                }
+                return Ok(state);
+            }
+            let waited = arrived.elapsed();
+            if state.closed || waited >= wait {
+                state.waiting.retain(|waiting| Some(*waiting) != ticket);
+                let retry = state.active.iter().map(|call| call.scope.remaining()).min();
+                return Err((waited, retry.unwrap_or_default()));
+            }
+            if ticket.is_none() {
+                state.issued = state.issued.wrapping_add(1);
+                let issued = state.issued;
+                state.waiting.push_back(issued);
+                ticket = Some(issued);
+            }
+            drop(state);
+            std::thread::sleep(super::ACCEPT_POLL.min(wait.saturating_sub(waited)));
+        }
+    }
+    /// Stop running calls and send every waiting call away; the server is shutting down.
     pub(super) fn cancel(&self) {
-        for call in self.0.lock().unwrap_or_else(|e| e.into_inner()).iter() {
+        let mut state = self.0.lock().unwrap_or_else(|e| e.into_inner());
+        state.closed = true;
+        for call in &state.active {
             call.scope.cancel();
+        }
+    }
+}
+impl State {
+    fn reap(&mut self) {
+        for index in (0..self.active.len()).rev() {
+            if self
+                .active
+                .get(index)
+                .is_some_and(|call| call.worker.is_finished())
+            {
+                let _ = self.active.swap_remove(index).worker.join();
+            }
         }
     }
 }
@@ -126,6 +185,7 @@ impl Drop for Calls {
             .0
             .get_mut()
             .unwrap_or_else(|e| e.into_inner())
+            .active
             .drain(..)
         {
             let _ = call.worker.join();
@@ -181,6 +241,7 @@ mod tests {
             calls: Calls::default(),
             connections: super::super::admission::Slots::new(MAX_CONNECTIONS),
             max_calls: MAX_CONNECTIONS,
+            queue_wait: Duration::ZERO,
             max_connections: MAX_CONNECTIONS,
             address: "127.0.0.1:1".parse().unwrap(),
             hosts: Vec::new(),
@@ -327,7 +388,7 @@ mod tests {
                 leaving.send(()).unwrap();
                 let _ = exiting.recv();
             });
-            service.calls.0.lock().unwrap().push(Active {
+            service.calls.0.lock().unwrap().active.push(Active {
                 worker,
                 scope: Cancellation::with_budget(Duration::ZERO),
             });

@@ -113,6 +113,7 @@ fn load_service(directory: &Path) -> Result<LoadService, Box<dyn std::error::Err
         calls: Calls::default(),
         connections: super::super::admission::Slots::new(ADMITTED),
         max_calls: ADMITTED,
+        queue_wait: std::time::Duration::ZERO,
         max_connections: ADMITTED,
         address,
         hosts: Vec::new(),

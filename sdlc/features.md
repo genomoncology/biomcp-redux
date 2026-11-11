@@ -31,6 +31,7 @@ article-supplements: List source-confirmed files and read bounded spreadsheet an
 article-preprints: A caller retrieves preprint cards and licensed full text by Europe PMC ID.
 article-help: A caller discovers article arguments, sections and executable examples through generated help.
 mcp-http: A native client sends independent MCP requests over bounded HTTP and checks local storage health.
+mcp-call-queue: An agent that sends more tool calls at once than the server runs gets each one answered in its turn, or a refusal that says how long to wait.
 article-evidence: Read all source citation contexts and explicit full-text reference paragraphs through checked continuations.
 article-recommendations: Read Semantic Scholar recommendations in source order with stable pages and explicit failures.
 article-saves: Save whole article Markdown or original supplement bytes only to an explicit caller destination.

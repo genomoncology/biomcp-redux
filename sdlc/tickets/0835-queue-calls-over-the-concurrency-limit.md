@@ -1,6 +1,7 @@
 # 0835 — queue-calls-over-the-concurrency-limit
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 4fb8da192cd136dfe3900d7ea7b4eea4f67812c3
 
 Milestone: 7
 
