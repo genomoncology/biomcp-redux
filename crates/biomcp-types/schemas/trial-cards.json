@@ -1907,6 +1907,109 @@
         }
       ]
     },
+    "Reply_TrialBaseline": {
+      "description": "Native baseline population; groups and measures follow as their own records.",
+      "properties": {
+        "denoms": {
+          "description": "Native `denoms` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialResultDenominator"
+          },
+          "type": "array"
+        },
+        "populationDescription": {
+          "description": "Native `population_description` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "typeUnitsAnalyzed": {
+          "description": "Native `type_units_analyzed` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialBaselineMeasure": {
+      "description": "One native baseline characteristic; values are never recomputed.",
+      "properties": {
+        "calculatePct": {
+          "description": "Native `calculate_pct` field.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "classes": {
+          "description": "Native `classes` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialResultClass"
+          },
+          "type": "array"
+        },
+        "denomUnitsSelected": {
+          "description": "Native `denom_units_selected` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "denoms": {
+          "description": "Native `denoms` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialResultDenominator"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "Native `description` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dispersionType": {
+          "description": "Native `dispersion_type` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "paramType": {
+          "description": "Native `param_type` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "populationDescription": {
+          "description": "Native `population_description` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "description": "Native `title` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unitOfMeasure": {
+          "description": "Native `unit_of_measure` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "Reply_TrialCardItem": {
       "description": "Result for one exact requested NCT identity.",
       "properties": {
@@ -2312,6 +2415,32 @@
       ],
       "type": "object"
     },
+    "Reply_TrialEnrollment": {
+      "description": "Registry enrollment count with the registry's own qualifier; never a derived number.",
+      "properties": {
+        "count": {
+          "description": "Participants enrolled or planned, as registered.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialDateKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The registry's actual or estimated qualifier, the same pair it uses for dates."
+        }
+      },
+      "required": [
+        "count"
+      ],
+      "type": "object"
+    },
     "Reply_TrialEvent": {
       "description": "Native event term and its group statistics.",
       "properties": {
@@ -2475,6 +2604,148 @@
           "minimum": 0,
           "type": [
             "integer",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialFlowAchievement": {
+      "description": "Reported participants reaching a milestone in one flow group.",
+      "properties": {
+        "comment": {
+          "description": "Native `comment` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "groupId": {
+          "description": "Native `group_id` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "numSubjects": {
+          "description": "Native `num_subjects` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "numUnits": {
+          "description": "Native `num_units` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialFlowDrop": {
+      "description": "Native reason participants did not complete a period.",
+      "properties": {
+        "comment": {
+          "description": "Native `comment` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reasons": {
+          "description": "Native `reasons` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialFlowReason"
+          },
+          "type": "array"
+        },
+        "type": {
+          "description": "Native `type` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialFlowMilestone": {
+      "description": "Native milestone such as STARTED, COMPLETED or NOT COMPLETED.",
+      "properties": {
+        "achievements": {
+          "description": "Native `achievements` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialFlowAchievement"
+          },
+          "type": "array"
+        },
+        "comment": {
+          "description": "Native `comment` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type": {
+          "description": "Native `type` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialFlowPeriod": {
+      "description": "One native flow period; counts are never summed or subtracted.",
+      "properties": {
+        "dropWithdraws": {
+          "description": "Native `drop_withdraws` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialFlowDrop"
+          },
+          "type": "array"
+        },
+        "milestones": {
+          "description": "Native `milestones` field.",
+          "items": {
+            "$ref": "#/$defs/Reply_TrialFlowMilestone"
+          },
+          "type": "array"
+        },
+        "title": {
+          "description": "Native `title` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "Reply_TrialFlowReason": {
+      "description": "Reported participants leaving for one reason in one flow group.",
+      "properties": {
+        "comment": {
+          "description": "Native `comment` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "groupId": {
+          "description": "Native `group_id` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "numSubjects": {
+          "description": "Native `num_subjects` field.",
+          "type": [
+            "string",
             "null"
           ]
         }
@@ -2755,6 +3026,33 @@
       ],
       "type": "string"
     },
+    "Reply_TrialParticipantFlow": {
+      "description": "Native participant-flow notes; arms and periods follow as their own records.",
+      "properties": {
+        "preAssignmentDetails": {
+          "description": "Native `pre_assignment_details` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recruitmentDetails": {
+          "description": "Native `recruitment_details` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "typeUnitsAnalyzed": {
+          "description": "Native `type_units_analyzed` field.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
+    },
     "Reply_TrialPhase": {
       "description": "Source-native registry value.",
       "enum": [
@@ -2798,6 +3096,17 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "enrollment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_TrialEnrollment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Registry enrollment, absent when the record carries no usable count."
         },
         "interventions": {
           "description": "All registered intervention names.",
@@ -2912,6 +3221,13 @@
           "description": "Canonical publisher record URL.",
           "format": "uri",
           "type": "string"
+        },
+        "why_stopped": {
+          "description": "Registry's own reason the study stopped early, absent when it gives none.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [
@@ -3671,8 +3987,110 @@
       "type": "object"
     },
     "Reply_TrialResultRecord": {
-      "description": "Whole native records in outcome, adverse-event metadata, group, serious and other order.",
+      "description": "Whole native records in registry order: participant flow, baseline, outcomes, then\nadverse-event metadata, groups, serious and other terms.",
       "oneOf": [
+        {
+          "description": "Recruitment and pre-assignment notes for the participant flow, when the registry posted any.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialParticipantFlow"
+            },
+            "record": {
+              "const": "participant-flow",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "One participant-flow arm, named by the group IDs in the flow periods.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialResultGroup"
+            },
+            "record": {
+              "const": "flow-group",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "One flow period: started, completed and not completed by arm, with reasons.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialFlowPeriod"
+            },
+            "record": {
+              "const": "flow-period",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Baseline analysis population and its participant counts by group.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialBaseline"
+            },
+            "record": {
+              "const": "baseline",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "One baseline group, named by the group IDs in the baseline measures.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialResultGroup"
+            },
+            "record": {
+              "const": "baseline-group",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "One baseline characteristic with its values by group.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_TrialBaselineMeasure"
+            },
+            "record": {
+              "const": "baseline-measure",
+              "type": "string"
+            }
+          },
+          "required": [
+            "record",
+            "data"
+          ],
+          "type": "object"
+        },
         {
           "description": "Posted measure, including group denominators, values and analyses.",
           "properties": {
@@ -3879,7 +4297,7 @@
               "type": "null"
             }
           ],
-          "description": "Posted results, followed by adverse-event groups and terms, in source order."
+          "description": "Posted participant flow, baseline, outcomes and adverse events, in source order."
         }
       },
       "type": "object"
@@ -3953,7 +4371,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-cards/9",
+  "$id": "biomcp.trial-cards/10",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -4009,7 +4427,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-cards/9",
+      "const": "biomcp.trial-cards/10",
       "type": "string"
     },
     "sources": {

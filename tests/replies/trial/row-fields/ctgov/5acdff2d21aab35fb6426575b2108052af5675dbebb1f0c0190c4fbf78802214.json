@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&filter.advanced=AREA%5BPhase%5DPHASE3&pageSize=3&query.cond=%28uveal%20melanoma%29",
+  "exchanges": [
+    {
+      "fetched": 1794409799,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 138,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":22,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT01974752","briefTitle":"Selumetinib (AZD6244: ARRY-142886) (Hyd-Sulfate) in Metastatic Uveal Melanoma (SUMIT)"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"2014-04"},"primaryCompletionDateStruct":{"date":"2015-05","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2017-01-05"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"AstraZeneca"}},"conditionsModule":{"conditions":["Metastatic","Uveal Melanoma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"75mg selumetinib"},{"name":"placebo"},{"name":"Dacarbazine"}]}},"hasResults":true},
+{"protocolSection":{"identificationModule":{"nctId":"NCT00000124","briefTitle":"Collaborative Ocular Melanoma Study (COMS)"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"1986-11"},"lastUpdatePostDateStruct":{"date":"2006-06-02"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"National Eye Institute (NEI)"}},"conditionsModule":{"conditions":["Choroid Neoplasms","Uveitis"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Brachytherapy"},{"name":"Eye Removal"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT02843386","briefTitle":"Comparison Between Fotemustin to Intensive Surveillance in Patients With High Risk Uveal Melanoma"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"2009-06-23","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2020-06-12","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2022-08-31"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Institut Curie"}},"conditionsModule":{"conditions":["Uveal Melanoma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Adjuvant chemotherapy by Fotemustin"},{"name":"Intensive surveillance"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyXdC5577umpOQJJxnYvGj1PwW"}
+      }
+    }
+  ]
+}

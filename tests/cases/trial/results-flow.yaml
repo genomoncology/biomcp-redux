@@ -1,0 +1,228 @@
+{
+  "live_check": "public",
+  "feature": "trial-results",
+  "story": "The results section opens with the posted participant flow by arm and period, with its dropout reasons, then the baseline characteristics, each as the registry's own whole record.",
+  "replay": "trial/results/NCT01844505",
+  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT01844505 reply. Expected records are that reply's resultsSection.participantFlowModule.periods[1] and baselineCharacteristicsModule.measures[0], copied whole. The ceiling is the measured reply plus 15 percent; the page stays inside the section's existing 8,000-byte record budget, so the first posted outcome starts the next page.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT01844505",
+        "results",
+        "--limit",
+        "20"
+      ],
+      "mcp": [
+        "get",
+        "trial",
+        "NCT01844505",
+        "results",
+        "--limit",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/card/enrollment": {
+          "equals": {
+            "count": 945,
+            "kind": "ACTUAL"
+          }
+        },
+        "/result/items/0/sections/results/data/items/*/record": {
+          "equals": [
+            "flow-group",
+            "flow-group",
+            "flow-group",
+            "flow-period",
+            "flow-period",
+            "baseline",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-measure",
+            "baseline-measure",
+            "baseline-measure"
+          ]
+        },
+        "/result/items/0/sections/results/data/items/4": {
+          "equals": {
+            "record": "flow-period",
+            "data": {
+              "title": "Treatment Period",
+              "milestones": [
+                {
+                  "type": "STARTED",
+                  "achievements": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "313"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "313"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "311"
+                    }
+                  ]
+                },
+                {
+                  "type": "COMPLETED",
+                  "achievements": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "0"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "0"
+                    }
+                  ]
+                },
+                {
+                  "type": "NOT COMPLETED",
+                  "achievements": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "313"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "313"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "311"
+                    }
+                  ]
+                }
+              ],
+              "dropWithdraws": [
+                {
+                  "type": "SUBJECT WITHDREW CONSENT",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "9"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "12"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "19"
+                    }
+                  ]
+                },
+                {
+                  "type": "Other Reasons",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "120"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "136"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "58"
+                    }
+                  ]
+                },
+                {
+                  "type": "Lost to Follow-up",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "9"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "11"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "6"
+                    }
+                  ]
+                },
+                {
+                  "type": "Death",
+                  "reasons": [
+                    {
+                      "groupId": "FG000",
+                      "numSubjects": "175"
+                    },
+                    {
+                      "groupId": "FG001",
+                      "numSubjects": "154"
+                    },
+                    {
+                      "groupId": "FG002",
+                      "numSubjects": "228"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "/result/items/0/sections/results/data/items/10": {
+          "equals": {
+            "record": "baseline-measure",
+            "data": {
+              "title": "Age, Continuous",
+              "paramType": "MEAN",
+              "dispersionType": "STANDARD_DEVIATION",
+              "unitOfMeasure": "years",
+              "classes": [
+                {
+                  "categories": [
+                    {
+                      "measurements": [
+                        {
+                          "groupId": "BG000",
+                          "value": "58.7",
+                          "spread": "13.92"
+                        },
+                        {
+                          "groupId": "BG001",
+                          "value": "59.3",
+                          "spread": "13.86"
+                        },
+                        {
+                          "groupId": "BG002",
+                          "value": "60.8",
+                          "spread": "13.23"
+                        },
+                        {
+                          "groupId": "BG003",
+                          "value": "59.6",
+                          "spread": "13.69"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "/result/items/0/sections/results/data/continuation/offset": 13
+      },
+      "max_bytes": 9560
+    }
+  ],
+  "harvest": "biomed-agent-bench navigator and trial-ops personas: dropout numbers"
+}

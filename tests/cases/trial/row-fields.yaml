@@ -1,0 +1,79 @@
+{
+  "live_check": "public",
+  "feature": "trial-search",
+  "story": "Each registry search row carries the lead sponsor and the start and primary completion dates with their actual or estimated qualifiers, and leaves out what the registry leaves out.",
+  "replay": "trial/row-fields",
+  "verified": "The actual CLI recorded this page and the version reply from the public source on 2026-11-11 with --record; registry processing time 2026-11-10T10:00:05. Values are the recorded rows' leadSponsor.name, startDateStruct and primaryCompletionDateStruct. NCT00000124 has no primary completion date in the registry. Row order and the total of 22 are the registry's. The ceiling is the measured page plus 15 percent.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "3",
+        "--limit",
+        "3"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "3",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 22,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT01974752",
+            "NCT00000124",
+            "NCT02843386"
+          ]
+        },
+        "/result/items/*/sponsor": {
+          "equals": [
+            "AstraZeneca",
+            "National Eye Institute (NEI)",
+            "Institut Curie"
+          ]
+        },
+        "/result/items/0/start": {
+          "equals": {
+            "date": "2014-04"
+          }
+        },
+        "/result/items/0/primary_completion": {
+          "equals": {
+            "date": "2015-05",
+            "kind": "ACTUAL"
+          }
+        },
+        "/result/items/1": {
+          "omits": [
+            "primary_completion"
+          ]
+        },
+        "/result/items/2/start": {
+          "equals": {
+            "date": "2009-06-23",
+            "kind": "ACTUAL"
+          }
+        },
+        "/result/items/2/primary_completion": {
+          "equals": {
+            "date": "2020-06-12",
+            "kind": "ACTUAL"
+          }
+        }
+      },
+      "max_bytes": 3229
+    }
+  ],
+  "harvest": "biomed-agent-bench trial-ops persona: who runs a trial and when"
+}
