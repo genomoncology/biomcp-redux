@@ -12,7 +12,14 @@ pub(super) fn resolve<'a>(cx: &Ctx<'a>, query: &DrugSearch, deadline: &mut Deadl
     search_names::bounded(deadline, |lookup| {
         if let Some(input) = query.query() {
             let unfinished = search_names::Unfinished::Partial;
-            let found = search_names::resolve(cx, input, &mut out, lookup, |_| true, unfinished);
+            let found = search_names::resolve(
+                cx,
+                input,
+                &mut out,
+                lookup,
+                search_names::openfda,
+                unfinished,
+            );
             incomplete = found.failed;
             for name in found.names {
                 if names
@@ -60,5 +67,6 @@ pub(super) fn resolve<'a>(cx: &Ctx<'a>, query: &DrugSearch, deadline: &mut Deadl
         incomplete,
         omitted,
         tier: None,
+        rejected: false,
     }
 }

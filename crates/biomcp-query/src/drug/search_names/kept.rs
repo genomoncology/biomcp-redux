@@ -1,0 +1,174 @@
+//! Which stated names one provider searches, and why each other name was left out.
+use biodata::Text;
+
+/// Most official names one search keeps past the name limit, so one OR group stays bounded.
+const OFFICIAL_NAME_CEILING: usize = 10;
+
+/// Why the searching provider cannot take a name, or `None` when it can.
+pub(crate) type Fit = fn(&str) -> Option<&'static str>;
+
+/// Every name fits a provider that takes any literal text.
+pub(crate) fn any(_: &str) -> Option<&'static str> {
+    None
+}
+
+/// openFDA refuses a whole query holding non-ASCII text or an entity such as `Eliquis&reg;`,
+/// and ChEMBL's "X component of Y" and bracketed product names are not names of the drug alone.
+pub(crate) fn openfda(name: &str) -> Option<&'static str> {
+    let lowered = name.to_ascii_lowercase();
+    if !name.is_ascii() {
+        Some("non-ASCII characters")
+    } else if name.contains(['&', '<', '>']) {
+        Some("markup or an HTML entity")
+    } else if lowered.contains(" component of ") {
+        Some("names a component of another product")
+    } else if name.contains(['(', ')', '[', ']']) {
+        Some("a bracketed qualifier")
+    } else if lowered.split_whitespace().any(|word| word == "or") {
+        Some("a Boolean operator")
+    } else {
+        None
+    }
+}
+
+fn lowered(name: &Text) -> String {
+    name.as_str().to_lowercase()
+}
+
+/// The names one provider will search, and how many the record stated beyond them.
+pub(super) struct Capped {
+    pub(super) names: Vec<Text>,
+    left_out: usize,
+    /// Names the provider cannot take, each with its reason.
+    unfit: Vec<(Text, &'static str)>,
+    /// Official names past [`OFFICIAL_NAME_CEILING`], named in the notice.
+    official_left_out: Vec<Text>,
+}
+
+impl Capped {
+    pub(super) fn message(&self, source: biomcp_types::Source, record: &str) -> String {
+        let total = self.names.len() + self.left_out + self.unfit.len();
+        let mut message = format!("Searched the names stated by {source} record {record}.");
+        if !self.unfit.is_empty() {
+            let names: Vec<_> = self
+                .unfit
+                .iter()
+                .map(|(name, reason)| format!("{:?} ({reason})", name.as_str()))
+                .collect();
+            message.push_str(&format!(
+                " Left out {} of {total} names the provider cannot search: {}.",
+                self.unfit.len(),
+                names.join(", ")
+            ));
+        }
+        if self.left_out > 0 {
+            message.push_str(&format!(
+                " Left out {} of {total} names, past the drug_search_name_limit setting.",
+                self.left_out
+            ));
+        }
+        if !self.official_left_out.is_empty() {
+            let names: Vec<_> = self.official_left_out.iter().map(Text::as_str).collect();
+            message.push_str(&format!(
+                " Left out official names past the ceiling of {OFFICIAL_NAME_CEILING}: {}.",
+                names.join(", ")
+            ));
+        }
+        message
+    }
+}
+
+/// One spelling per name, the typed one kept when the provider can take it. Official names
+/// pass the limit up to [`OFFICIAL_NAME_CEILING`]; the record's preferred names rank next and then the shortest, so the same
+/// drug keeps the same names whichever of them was typed.
+pub(super) fn capped(
+    names: Vec<Text>,
+    (preferred, official): (&[String], &[String]),
+    input: &Text,
+    limit: usize,
+    fit: Fit,
+) -> Capped {
+    let mut seen = std::collections::BTreeSet::new();
+    let mut unfit = Vec::new();
+    let mut names: Vec<_> = std::iter::once(input.clone())
+        .chain(names)
+        .filter(|name| seen.insert(lowered(name)))
+        .filter(|name| match fit(name.as_str()) {
+            Some(reason) => {
+                unfit.push((name.clone(), reason));
+                false
+            }
+            None => true,
+        })
+        .collect();
+    let lowered_set = |names: &[String]| -> std::collections::BTreeSet<_> {
+        names.iter().map(|name| name.to_lowercase()).collect()
+    };
+    let preferred = lowered_set(preferred);
+    let official = lowered_set(official);
+    names.sort_by_key(|name| {
+        (
+            !official.contains(&lowered(name)),
+            !preferred.contains(&lowered(name)),
+            name.as_str().chars().count(),
+            lowered(name),
+        )
+    });
+    let kept_official = names
+        .iter()
+        .filter(|name| official.contains(&lowered(name)))
+        .count();
+    let limit = limit.max(kept_official.min(OFFICIAL_NAME_CEILING));
+    let left_out = names.len().saturating_sub(limit);
+    let mut cut = names.split_off(limit.min(names.len()));
+    // The typed name stays, in place of the last name that is not official, else the last one.
+    if let Some(at) = cut.iter().position(|name| name == input) {
+        let typed = cut.remove(at);
+        let slot = names
+            .iter()
+            .rposition(|name| !official.contains(&lowered(name)))
+            .or(names.len().checked_sub(1));
+        if let Some(kept) = slot.and_then(|slot| names.get_mut(slot)) {
+            cut.push(std::mem::replace(kept, typed));
+        }
+    }
+    let official_left_out = cut
+        .into_iter()
+        .filter(|name| official.contains(&lowered(name)))
+        .collect();
+    Capped {
+        names,
+        left_out,
+        unfit,
+        official_left_out,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::openfda;
+
+    #[test]
+    fn openfda_leaves_out_names_it_cannot_take() {
+        for name in [
+            "apixabán",
+            "Eliquis&reg;",
+            "<b>Eliquis</b>",
+            "Valsartan component of entresto",
+            "Pradaxa (dabigatran)",
+            "Brand [kit]",
+            "this OR that",
+        ] {
+            assert!(openfda(name).is_some(), "{name} should be left out");
+        }
+        for name in [
+            "apixaban",
+            "BMS-562247",
+            "Apixaban accord",
+            "Ordinal",
+            r#"Brand "quoted" \name"#,
+        ] {
+            assert_eq!(openfda(name), None, "{name} should be kept");
+        }
+    }
+}
