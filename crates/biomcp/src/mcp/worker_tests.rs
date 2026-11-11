@@ -8,6 +8,7 @@ fn panicking_worker_completes_with_internal_error() {
         sender,
         active: std::collections::BTreeMap::new(),
         max_calls: crate::config::DEFAULT_MCP_CAPACITY,
+        queue: super::super::queue::Queue::new(&Ok(None)),
         legacy: false,
         globals: crate::grammar::Globals::default(),
         root: std::sync::Arc::new(crate::grammar::Root::new(clap::Command::new(

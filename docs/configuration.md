@@ -69,7 +69,9 @@ Use the same names as flags on `serve --http`: `--http_max_calls` and `--http_ma
 
 `mcp_max_calls` limits tool calls in flight on a stdio `serve`, which serves one agent. It accepts a positive integer, and the default lives in [`DEFAULT_MCP_CAPACITY`](../crates/biomcp/src/config.rs): agents send many calls at once, and source pacing already bounds upstream load, so this ceiling only bounds local worker threads.
 
-A call over either limit gets JSON-RPC error `-31000`. Its message starts with `Tool capacity exceeded`, names the limit, and says to retry after a running call returns, or after a few seconds if the client has none running.
+A call over the stdio limit, or over the hosted HTTP limit, waits its turn in arrival order and then runs. `mcp_queue_wait_seconds` sets how long it may wait; it accepts a whole number of seconds, `0` turns waiting off, and the default lives in [`DEFAULT_QUEUE_WAIT`](../crates/biomcp/src/config.rs). A call never waits past its own deadline: on hosted HTTP the wait counts against the whole-call deadline, and on stdio it is capped at `command_timeout_seconds`, with the command's own budget starting when the call runs. A waiting HTTP call keeps its connection, so set `http_max_connections` above `http_max_calls` to give the queue room.
+
+A call whose wait runs out gets JSON-RPC error `-31000`. Its message starts with `Tool capacity exceeded`, names the limit, says how many seconds the call waited, and says after how many seconds to retry. The same number is in `error.data.retry_after_seconds`: by then the running call nearest its deadline has finished or timed out.
 
 For example, this configuration gives discovery requests room alongside tool calls:
 

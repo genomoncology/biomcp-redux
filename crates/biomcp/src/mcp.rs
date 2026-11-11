@@ -6,6 +6,7 @@ pub(crate) mod http;
 mod legacy;
 mod output_schema;
 mod protocol;
+mod queue;
 mod research;
 mod rpc;
 mod typed;
@@ -18,6 +19,7 @@ use std::{
     io::{self, Write},
     sync::mpsc,
     thread,
+    time::Instant,
 };
 
 const MAX_RETAINED_EVENTS: usize = 32;
@@ -33,12 +35,14 @@ struct Call {
     cancelled: bool,
     cancellation: Option<biomcp_fetch::Cancellation>,
     worker: thread::JoinHandle<()>,
+    ends: Instant,
 }
 
 struct Server {
     sender: mpsc::SyncSender<Event>,
     active: BTreeMap<String, Call>,
     max_calls: usize,
+    queue: queue::Queue,
     legacy: bool,
     globals: crate::grammar::Globals,
     root: std::sync::Arc<crate::grammar::Root>,
@@ -60,6 +64,7 @@ pub(crate) fn serve(
         sender,
         active: BTreeMap::new(),
         max_calls: crate::config::mcp_capacity(&settings),
+        queue: queue::Queue::new(&settings),
         legacy: false,
         globals,
         root,
@@ -70,25 +75,25 @@ pub(crate) fn serve(
     let mut output = io::stdout().lock();
     let mut eof = false;
     while !eof || !server.active.is_empty() {
-        let event = receiver
-            .recv()
-            .map_err(|_| io::Error::other("MCP input stopped"))?;
-        let reply = match event {
-            Event::Input(Frame::Eof) => {
+        let event = next_event(&receiver, server.queue.next_expiry())?;
+        let mut replies = server.refuse_expired();
+        replies.extend(match event {
+            None => None,
+            Some(Event::Input(Frame::Eof)) => {
                 eof = true;
                 None
             }
-            Event::Input(Frame::Malformed) => {
+            Some(Event::Input(Frame::Malformed)) => {
                 eof = true;
                 Some(protocol::error(Value::Null, -32700, "Parse error"))
             }
-            Event::Input(Frame::Oversized) => {
+            Some(Event::Input(Frame::Oversized)) => {
                 Some(protocol::error(Value::Null, -32600, "Frame too large"))
             }
-            Event::Input(Frame::Message(frame)) => server.message(&frame)?,
-            Event::Completed(key, outcome) => server.complete(&key, outcome)?,
-        };
-        if let Some(reply) = reply {
+            Some(Event::Input(Frame::Message(frame))) => server.message(&frame)?,
+            Some(Event::Completed(key, outcome)) => server.complete(&key, outcome)?,
+        });
+        for reply in replies {
             let mut bytes = serde_json::to_vec(&reply)?;
             bytes.push(b'\n');
             output.write_all(&bytes)?;
@@ -98,6 +103,22 @@ pub(crate) fn serve(
     // The input thread may still be in a blocking stdin read after output breaks.
     // Dropping its handle lets main return without joining that read.
     Ok(())
+}
+
+/// Wait for the next event, or only until the longest-waiting queued call must be refused.
+fn next_event(
+    receiver: &mpsc::Receiver<Event>,
+    expiry: Option<Instant>,
+) -> io::Result<Option<Event>> {
+    let stopped = || io::Error::other("MCP input stopped");
+    let Some(expiry) = expiry else {
+        return receiver.recv().map(Some).map_err(|_| stopped());
+    };
+    match receiver.recv_timeout(expiry.saturating_duration_since(Instant::now())) {
+        Ok(event) => Ok(Some(event)),
+        Err(mpsc::RecvTimeoutError::Timeout) => Ok(None),
+        Err(mpsc::RecvTimeoutError::Disconnected) => Err(stopped()),
+    }
 }
 
 #[expect(
@@ -134,12 +155,8 @@ impl Server {
             rpc::Message::Notification { method, params } => {
                 if method == "notifications/cancelled"
                     && let Some(id) = params.get("requestId").filter(|id| protocol::valid_id(id))
-                    && let Some(call) = self.active.get_mut(&id.to_string())
                 {
-                    call.cancelled = true;
-                    if let Some(cancellation) = &call.cancellation {
-                        cancellation.cancel();
-                    }
+                    self.cancel(&id.to_string());
                 }
                 Ok(None)
             }
@@ -175,11 +192,12 @@ impl Server {
             }
         };
         let key = id.to_string();
-        if self.active.contains_key(&key) {
+        if self.active.contains_key(&key) || self.queue.contains(&key) {
             return Ok(Some(protocol::error(id, -32600, "Request already active")));
         }
-        if self.active.len() >= self.max_calls {
-            return Ok(Some(protocol::capacity(id, self.max_calls)));
+        let full = self.active.len() >= self.max_calls;
+        if full && self.queue.wait().is_zero() {
+            return Ok(Some(self.refusal(id)));
         }
         let globals = self.globals.clone();
         let root = self.root.clone();
@@ -200,13 +218,57 @@ impl Server {
             ),
         };
         let scope = recovery.as_ref().and(cancellation.clone());
-        self.start_call(key.clone(), id, modern, cancellation, move || {
+        let work: queue::Work = Box::new(move || {
             let mut context = crate::command::Context::new(&globals, &fetch, &root, &settings);
             context.recovery = recovery.as_deref();
             context.scope = scope.as_ref();
             research::execute(&call, context, false)
-        })?;
+        });
+        if full {
+            self.queue.push(key, id, modern, cancellation, work);
+        } else {
+            self.start_call(key, id, modern, cancellation, work)?;
+        }
         Ok(None)
+    }
+
+    fn cancel(&mut self, key: &str) {
+        if let Some(call) = self.active.get_mut(key) {
+            call.cancelled = true;
+            if let Some(cancellation) = &call.cancellation {
+                cancellation.cancel();
+            }
+        }
+        self.queue.remove(key);
+    }
+
+    /// The timed refusal: how long this call waited and when a running call must have ended.
+    fn refusal(&self, id: Value) -> Value {
+        let now = Instant::now();
+        let retry = self
+            .active
+            .values()
+            .map(|call| call.ends.saturating_duration_since(now))
+            .min()
+            .unwrap_or_default();
+        protocol::capacity(id, self.max_calls, self.queue.wait(), retry)
+    }
+
+    fn refuse_expired(&mut self) -> Vec<Value> {
+        let mut replies = Vec::new();
+        while let Some(call) = self.queue.pop_expired() {
+            replies.push(self.refusal(call.id));
+        }
+        replies
+    }
+
+    fn start_waiting(&mut self) -> io::Result<()> {
+        while self.active.len() < self.max_calls
+            && let Some(call) = self.queue.pop()
+        {
+            self.start_call(call.key, call.id, call.modern, call.cancellation, call.work)?;
+        }
+        Ok(())
     }
 
     #[expect(
@@ -229,6 +291,7 @@ impl Server {
                 let outcome = worker::execute(work);
                 let _ = sender.send(Event::Completed(worker_key, outcome));
             })?;
+        let now = Instant::now();
         self.active.insert(
             key,
             Call {
@@ -237,6 +300,7 @@ impl Server {
                 cancelled: false,
                 cancellation,
                 worker,
+                ends: now.checked_add(self.queue.budget).unwrap_or(now),
             },
         );
         Ok(())
@@ -253,6 +317,7 @@ impl Server {
         call.worker
             .join()
             .map_err(|_| io::Error::other("MCP worker stopped"))?;
+        self.start_waiting()?;
         if call.cancelled {
             return Ok(None);
         }

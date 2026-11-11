@@ -33,6 +33,21 @@ pub(crate) fn mcp_capacity(settings: &Settings) -> usize {
         .map_or(DEFAULT_MCP_CAPACITY, std::num::NonZeroUsize::get)
 }
 
+/// A call over the limit waits this long for a turn, and never past its own
+/// deadline. Half the default command budget leaves a queued call time to run.
+pub(crate) const DEFAULT_QUEUE_WAIT: Duration = Duration::from_secs(10);
+
+pub(crate) fn queue_wait(settings: &Settings) -> Duration {
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.mcp_queue_wait_seconds)
+        .map_or(DEFAULT_QUEUE_WAIT, |seconds| {
+            Duration::from_secs(u64::from(seconds))
+        })
+}
+
 pub(crate) fn http_capacity(
     globals: &Globals,
     settings: &Settings,
