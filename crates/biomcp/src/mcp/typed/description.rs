@@ -22,7 +22,8 @@ pub(super) fn render(
         .find(|row| row.verb == verb && row.entity == entity)
         .map_or("", |row| row.summary.trim());
     let summary = super::catalog::summary(summary, excluded);
-    let input = input_description(schema);
+    let forms = super::forms::forms(verb, schema);
+    let input = input_description(schema, &forms);
     [summary.as_str(), input.as_str(), provenance.as_str()]
         .into_iter()
         .filter(|part| !part.is_empty())
@@ -102,7 +103,7 @@ fn provenance(
     }
 }
 
-fn input_description(schema: &Value) -> String {
+fn input_description(schema: &Value, forms: &[super::forms::Form]) -> String {
     let Some((_, name, node)) = schema
         .get("properties")
         .and_then(Value::as_object)
@@ -136,43 +137,48 @@ fn input_description(schema: &Value) -> String {
         .replace("VCF-style genomic coordinates", "VCF")
         .replace(", in input order", "")
         .replace(", in caller order", "");
-    format!("{name}:{description}")
+    format!("{}:{description}", super::forms::advertised(forms, name))
 }
 
-/// One line naming the entity, its sources and every action, then how to call it.
+/// What a person would ask the tool for, its sources by full name, one search and one get
+/// example, the other actions in a few words, and what the tool is not for.
 pub(super) fn tool(
-    label: &str,
+    (_, asks, _, [search, get], not_for): &super::catalog::front_map::EntityTool,
     sources: &BTreeSet<String>,
-    actions: &[&str],
-    facets: &[&str],
+    actions: &[(&str, &str)],
     excluded: &BTreeSet<biomcp_types::Source>,
 ) -> String {
-    let label = super::catalog::summary(label, excluded);
-    let lead = if sources.is_empty() {
-        label
-    } else {
-        format!(
-            "{label} ({})",
-            sources.iter().cloned().collect::<Vec<_>>().join(", ")
-        )
-    };
-    let example = if actions.contains(&"get") {
-        "get"
-    } else {
-        actions.first().copied().unwrap_or("get")
-    };
-    let pages = if actions.contains(&"get") && !facets.is_empty() {
-        format!(
-            " get returns the first page of a section; {} return all of it.",
-            facets.join(", ")
-        )
-    } else {
-        String::new()
-    };
-    format!(
-        "{lead}. Actions: {}.{pages} Call {{\"action\":\"{example}\",\"{example}\":{{...}}}}.",
-        actions.join(", ")
-    )
+    let plain = |text: &str| super::catalog::summary(text, excluded);
+    let mut parts = vec![plain(&format!("{asks}."))];
+    let names = sources
+        .iter()
+        .filter_map(|word| word.parse::<biomcp_types::Source>().ok())
+        .map(biomcp_query::sources::display_name)
+        .collect::<BTreeSet<_>>();
+    if !names.is_empty() {
+        let names = names.into_iter().collect::<Vec<_>>();
+        parts.push(format!("Sources: {}.", names.join(", ")));
+    }
+    for (label, action, example) in [("Search", "search", search), ("Get", "get", get)] {
+        if actions.iter().any(|(name, _)| *name == action) {
+            parts.push(format!(
+                "{label}: {{\"action\":\"{action}\",\"{action}\":{example}}}."
+            ));
+        }
+    }
+    let others = actions
+        .iter()
+        .filter(|(_, note)| !note.is_empty())
+        .map(|(action, note)| format!("{action} ({note})"))
+        .collect::<Vec<_>>();
+    if !others.is_empty() {
+        parts.push(plain(&format!(
+            "Other actions, each with an object of the same name: {}.",
+            others.join(", ")
+        )));
+    }
+    parts.push(plain(&format!("{not_for}.")));
+    parts.join(" ")
 }
 
 /// An action's object keeps its command's description; citations says what it lists.

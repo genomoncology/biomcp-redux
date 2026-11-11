@@ -4,9 +4,11 @@ pub(super) mod catalog;
 pub(super) use catalog::instructions;
 mod description;
 mod followups;
+mod forms;
 mod grouping;
 pub(super) use grouping::Catalog;
 mod help;
+mod refusal;
 mod summary;
 mod validation;
 
@@ -108,7 +110,7 @@ pub(in crate::mcp) fn served(tool: &str) -> bool {
     FIXED_TOOLS.contains(&tool)
         || catalog::front_map::ENTITY_TOOLS
             .iter()
-            .any(|(name, _, _)| *name == tool)
+            .any(|(name, ..)| *name == tool)
 }
 pub(in crate::mcp) fn schema(id: &str) -> io::Result<Value> {
     serde_json::from_str(
@@ -146,7 +148,8 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
                 })
                 .collect();
             let description = description::render(verb, entity, &schema, &excluded);
-            let input = arguments::input_with_limit(&schema, enum_limit);
+            let mut input = arguments::input_with_limit(&schema, enum_limit);
+            forms::advertise(&mut input, &forms::forms(verb, &schema));
             let caller_schema = catalog::caller_schema(schema, verb, entity, &excluded);
             let canonical = json!({"name":name(verb, entity),
                 "inputSchema":arguments::input_with_limit(&caller_schema, usize::MAX)});
@@ -188,9 +191,9 @@ pub(super) fn parse(
         call.catalog = Some(catalog);
         return Some(Ok(call));
     }
-    let (tool, _, placed) = catalog::front_map::ENTITY_TOOLS
+    let (tool, _, placed, ..) = catalog::front_map::ENTITY_TOOLS
         .iter()
-        .find(|(tool, _, _)| *tool == called)?;
+        .find(|(tool, ..)| *tool == called)?;
     catalog.current = Some((*tool).into());
     let fields = match params.get("arguments") {
         Some(Value::Object(fields)) => fields.clone(),
@@ -201,14 +204,12 @@ pub(super) fn parse(
     let Some(&(action, command, _)) = placed.iter().find(|(placed, _, _)| Some(*placed) == action)
     else {
         let actions = catalog.actions(tool);
-        return Some(Err(rejected("action", &actions, catalog)));
+        let section = action.and_then(|word| refusal::section(root, placed, word, &fields));
+        return Some(Err(rejected("action", &actions, section, catalog)));
     };
     if let Some(key) = fields.keys().find(|key| *key != "action" && *key != action) {
-        return Some(Err(rejected(
-            key,
-            &["action".into(), action.into()],
-            catalog,
-        )));
+        let valid = [String::from("action"), action.to_owned()];
+        return Some(Err(rejected(key, &valid, None, catalog)));
     }
     let path = crate::grammar::command_paths()
         .into_iter()
@@ -228,38 +229,17 @@ fn command_call(
 ) -> Option<Result<super::research::Call, Rejected>> {
     let schema = schema(id).ok()?;
     let input = arguments::input(&schema);
-    if !validation::valid(&input, values) {
-        let properties = input.get("properties")?.as_object()?;
-        let fields = values.as_object();
-        let key =
-            fields.and_then(|fields| fields.keys().find(|key| !properties.contains_key(*key)));
-        let error = biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
-            argument: Some(key.map_or_else(|| action.into(), |key| key.clone().into())),
-            valid_values: Some(
-                properties
-                    .keys()
-                    .map(|key| biodata::Text::new(key).ok())
-                    .collect::<Option<Vec<_>>>()?
-                    .into(),
-            ),
-            next: vec![biomcp_types::Step {
-                kind: biomcp_types::StepKind::Configure,
-                args: ["help", verb, entity].into_iter().map(Box::from).collect(),
-            }],
-            ..Default::default()
-        });
-        let known = fields
-            .map(|fields| {
-                Value::Object(
-                    fields
-                        .iter()
-                        .filter(|(key, _)| properties.contains_key(*key))
-                        .map(|(key, value)| (key.clone(), value.clone()))
-                        .collect(),
-                )
-            })
-            .unwrap_or_else(|| json!({}));
-        let args = arguments::cli(root, verb, entity, &schema, &known)?;
+    let forms = forms::forms(verb, &schema);
+    let mut values = values.clone();
+    let refused = forms::normalize(&mut values, &forms, &input).err().or_else(|| {
+        (!validation::valid(&input, &values)).then(|| forms::Refused {
+            argument: refusal::unknown(&input, &values).unwrap_or_else(|| action.into()),
+            valid: refusal::names(&input, &forms),
+        })
+    });
+    if let Some(refused) = refused {
+        let error = refusal::arguments(&refused, &["help", verb, entity])?;
+        let args = arguments::cli(root, verb, entity, &schema, &refusal::known(&input, &values))?;
         return Some(Err(Rejected {
             error,
             args,
@@ -267,7 +247,7 @@ fn command_call(
             catalog: Some(catalog),
         }));
     }
-    let mut args = arguments::cli(root, verb, entity, &schema, values)?;
+    let mut args = arguments::cli(root, verb, entity, &schema, &values)?;
     if fresh {
         args.insert(2, "--fresh".into());
     }
@@ -279,7 +259,25 @@ fn command_call(
 }
 
 /// Refuse an entity call's own shape: a missing or unknown action, or a field beside it.
-fn rejected(argument: &str, valid: &[String], catalog: Catalog) -> Rejected {
+/// A guessed action that is a section of get is answered with that get call.
+fn rejected(
+    argument: &str,
+    valid: &[String],
+    fix: Option<Vec<std::ffi::OsString>>,
+    catalog: Catalog,
+) -> Rejected {
+    let args = fix.unwrap_or_else(|| vec!["help".into()]);
+    let step = biomcp_types::Step {
+        kind: if args.len() == 1 {
+            biomcp_types::StepKind::Configure
+        } else {
+            biomcp_types::StepKind::Section
+        },
+        args: args
+            .iter()
+            .map(|word| word.to_string_lossy().into())
+            .collect(),
+    };
     let error = biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some(argument.into()),
         valid_values: valid
@@ -287,10 +285,7 @@ fn rejected(argument: &str, valid: &[String], catalog: Catalog) -> Rejected {
             .map(|value| biodata::Text::new(value).ok())
             .collect::<Option<Vec<_>>>()
             .map(Into::into),
-        next: vec![biomcp_types::Step {
-            kind: biomcp_types::StepKind::Configure,
-            args: ["help".into()].into(),
-        }],
+        next: vec![step],
         ..Default::default()
     });
     Rejected {
@@ -323,13 +318,14 @@ pub(super) fn rejection(
         if let biomcp_types::UsageError::Arguments(arguments) = &mut rejected.error
             && let Some(values) = arguments.valid_values.take()
         {
+            let forms = forms::forms(verb, &schema);
             let values = values
                 .into_vec()
                 .into_iter()
                 .filter(|value| {
                     schema
                         .get("properties")
-                        .and_then(|fields| fields.get(value.as_str()))
+                        .and_then(|fields| fields.get(forms::field(&forms, value.as_str())))
                         .is_some()
                 })
                 .collect::<Vec<_>>();
