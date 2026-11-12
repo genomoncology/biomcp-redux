@@ -1,4 +1,5 @@
-//! Explicit label aliases preserve native SPL membership and retained matching tiers.
+//! Label search widens drug names by default, keeps native SPL membership and the discovery
+//! step chosen on its first page, and searches the typed name alone with --exact-term.
 use super::{Check, Environment, Stub, Value, invoke, json};
 mod checks;
 pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
@@ -52,13 +53,14 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
                 .map_err(|_| "bad offset")?;
             // In uncertain modes the label resolver's broad candidate lookup must not invent aliases.
             let lookup = limit != 1;
-            let expanded = selector.starts_with("((");
-            let exact = selector.contains("brand_name.exact");
-            // Literal searches ask for word-only matches beyond the exact hits; there are none here.
+            // Every name hit here is an exact hit, so no word-only rows follow them.
             let word_only = selector.contains(" AND NOT ");
-            let total = if lookup || word_only || mode == 7 && expanded && exact && offset == 0 {
+            // Mode 7: no label states either name, so only label text matches.
+            let text_only = mode == 7
+                && (selector.contains("openfda.") || selector.contains("indications_and_usage:\""));
+            let total = if lookup || word_only || text_only {
                 0
-            } else if expanded && selector.contains("Brand") {
+            } else if selector.contains("Brand") {
                 2
             } else {
                 1
@@ -141,9 +143,8 @@ fn args(expand: bool) -> Vec<String> {
     ]
     .map(str::to_owned)
     .to_vec();
-    if expand {
-        words.push("--expand-drug-names".into());
-    }
+    // The retired opt-in is still accepted and changes nothing; the opt-out searches as typed.
+    words.push(if expand { "--expand-drug-names" } else { "--exact-term" }.into());
     words
 }
 fn selector(value: &Value) -> Result<&str, String> {

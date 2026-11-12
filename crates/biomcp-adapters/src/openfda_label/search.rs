@@ -6,7 +6,7 @@ use biodata::{DrugId, Text};
 use biomcp_fetch::{Leg, RequestError};
 mod expanded;
 mod names;
-pub use expanded::{NameTier, search_expanded};
+pub use expanded::{NameGroup, NameStep, search_expanded};
 
 /// The native discovery result and the recovery step attempted.
 #[derive(Debug)]

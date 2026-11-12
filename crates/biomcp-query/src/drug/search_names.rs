@@ -42,16 +42,6 @@ enum Found {
     Unknown,
 }
 
-/// What a lookup that did not finish costs the search that asked for it.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Unfinished {
-    /// A name source is also the searched source, so the caller marks its reply partial.
-    Partial,
-    /// The search has its own source, so the lookup's failed sources are listed as skipped and
-    /// the reply stays complete, with the notice naming the term searched as typed.
-    Skipped,
-}
-
 /// Run lookups under a bounded share of the command, charging only what they spent.
 pub(crate) fn bounded<'a, T>(
     deadline: &mut Deadline<'a>,
@@ -71,13 +61,14 @@ pub(crate) fn bounded<'a, T>(
 /// second, where ChEMBL's own API takes two searches and a molecule read of seconds each, and
 /// stalls for whole lookups when it is unwell. They are not read for a name MyChem has no row for.
 /// `fit` says which names the searching provider can take, and why it cannot take the others.
+/// A lookup that does not finish never counts against the search: its sources are listed as
+/// skipped, and the notice names the term searched as typed.
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
     input: &Text,
     out: &mut Outcome,
     deadline: &mut Deadline<'a>,
     fit: Fit,
-    unfinished: Unfinished,
 ) -> Resolved {
     let mut ambiguous = None;
     let mut failed = Vec::new();
@@ -138,7 +129,7 @@ pub(crate) fn resolve<'a>(
             Found::Unknown => unknown = true,
         }
     }
-    unexpanded(out, input, (failed, ambiguous), unfinished)
+    unexpanded(out, input, (failed, ambiguous))
 }
 
 /// Say why the term stayed as typed, when a source failed or stated several structures.
@@ -146,12 +137,11 @@ fn unexpanded(
     out: &mut Outcome,
     input: &Text,
     (mut failed, ambiguous): (Vec<SourceOutcome>, Option<Vec<SourceOutcome>>),
-    unfinished: Unfinished,
 ) -> Resolved {
     let typed = vec![input.clone()];
     if !failed.is_empty() {
         for source in &mut failed {
-            if unfinished == Unfinished::Skipped && source.state == SourceState::Failed {
+            if source.state == SourceState::Failed {
                 source.set_status(SourceStatus::Skipped(source.reason));
             }
         }
@@ -439,7 +429,7 @@ pub(crate) fn article<'a>(
         .drug_name_input()
         .map_or_else(Resolved::default, |input| {
             bounded(deadline, |lookup| {
-                resolve(cx, input, out, lookup, any, Unfinished::Skipped)
+                resolve(cx, input, out, lookup, any)
             })
         })
 }

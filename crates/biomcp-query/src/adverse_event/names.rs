@@ -122,8 +122,7 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
     let mut omitted = 0;
     search_names::bounded(deadline, |lookup| {
         for input in query.text().into_iter().chain(query.drug()) {
-            let found =
-                search_names::resolve(cx, input, &mut out, lookup, search_names::openfda, SKIPPED);
+            let found = search_names::resolve(cx, input, &mut out, lookup, search_names::openfda);
             for name in found.names {
                 if names
                     .iter()
@@ -151,8 +150,6 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
         rejected: false,
     }
 }
-
-const SKIPPED: search_names::Unfinished = search_names::Unfinished::Skipped;
 
 /// One notice on FAERS names every name searched and why any other was not.
 fn disclose(query: &AdverseEventSearch, saved: &Saved, out: &mut Outcome) {

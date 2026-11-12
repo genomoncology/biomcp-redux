@@ -47,9 +47,13 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
         .iter()
         .position(|s| s == "--name-snapshot")
         .ok_or("snapshot")?;
+    // A later page typed without its snapshot looks the names up again.
     let mut missing = next.clone();
     missing.drain(index..=index + 1);
-    invoke(env, missing, 2)?;
+    let fresh = invoke(env, missing, 0)?;
+    if selector(&fresh)? != selector(first)? {
+        return Err(format!("a page without its snapshot searched other names: {fresh}"));
+    }
     let mut bad = next.clone();
     *bad.get_mut(index + 1).ok_or("value")? = "synthetic-missing".into();
     let failed = invoke(env, bad, 3)?;
@@ -76,7 +80,7 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     let mut bad = args(false);
     bad.extend(["--name-snapshot".into(), "synthetic-missing".into()]);
     invoke(env, bad, 2)?;
-    for source in ["mychem", "drugsfda"] {
+    for source in ["mychem", "chembl"] {
         let mut bad = args(true);
         let field = bad
             .iter()
@@ -99,7 +103,8 @@ pub(super) fn controls() -> Check {
             if expression.len() > 4096
                 || mode == 4 && expression.contains("Long alias")
                 || [1, 2, 3].contains(&mode) && expression.contains("Brand name")
-                || [1, 3].contains(&mode) && value.get("status") != Some(&json!("partial"))
+                // A lookup that does not finish is skipped and leaves the search complete.
+                || value.get("status") != Some(&json!("complete"))
                 || mode == 5 && !expression.contains(r#"Brand \"quoted\" \\name"#)
             {
                 return Err(format!("uncertainty or bound dishonest {value}"));
@@ -122,16 +127,18 @@ pub(super) fn controls() -> Check {
     Ok(())
 }
 pub(super) fn tier() -> Check {
+    // No label states either name, so the typed name's own search would reach label text;
+    // the widened search takes the same step and keeps it on the next page.
     let (env, stub) = setup(7, json!({}))?;
     let first = invoke(&env, args(true), 0)?;
-    if selector(&first)?.contains(".exact") {
-        return Err("empty exact tier did not advance".into());
+    if selector(&first)?.contains("openfda.") || first.pointer("/page/total") != Some(&json!(2)) {
+        return Err(format!("empty name step did not advance to label text: {first}"));
     }
     let mut next = crate::runner::action(&first, "page")?;
     next.push("--fresh".into());
     let second = invoke(&env, next, 0)?;
     if selector(&first)? != selector(&second)? {
-        return Err("selected native tier changed".into());
+        return Err("selected native step changed".into());
     }
     let requests = stub.finish()?;
     if requests
@@ -215,7 +222,7 @@ fn identities(env: &Environment, first: &Value, second: &Value) -> Check {
     Ok(())
 }
 fn native(requests: &[(String, String)], expected: &str) -> Check {
-    let mut union_pages = 0;
+    let mut exact_pages = 0;
     for (_, request) in requests {
         let target = request.split_whitespace().nth(1).ok_or("native request")?;
         if !target.starts_with("/drug/label.json?") {
@@ -228,25 +235,28 @@ fn native(requests: &[(String, String)], expected: &str) -> Check {
             .find(|(key, _)| key == "search")
             .ok_or("native selector")?
             .1;
-        if selector.starts_with("((") {
-            union_pages += 1;
-            if !selector.contains("openfda.brand_name.exact:")
-                || !selector.contains("openfda.generic_name.exact:")
-            {
-                return Err(format!(
-                    "expanded label page did not use both exact name fields: {selector}"
-                ));
-            }
-            if selector != expected {
-                return Err(format!(
-                    "native alias union or literal indication changed: {selector}"
-                ));
-            }
+        if !selector.contains("Brand name") {
+            continue;
+        }
+        if !selector.contains("indications_and_usage:\"Synthetic indication\"") {
+            return Err(format!("widened label request lost the indication: {selector}"));
+        }
+        if selector == expected || selector.contains(" AND NOT ") {
+            continue;
+        }
+        exact_pages += 1;
+        // Exact name fields compare letter case as stored, so each name is asked in each case.
+        if !selector.contains("openfda.brand_name.exact:\"BRAND NAME\"")
+            || !selector.contains("openfda.generic_name.exact:\"typed drug\"")
+        {
+            return Err(format!(
+                "widened exact names were not asked in each letter case: {selector}"
+            ));
         }
     }
-    if union_pages != 2 {
+    if exact_pages != 2 {
         return Err(format!(
-            "expected initial and following native union pages; got {union_pages}"
+            "expected initial and following exact-name pages; got {exact_pages}"
         ));
     }
     Ok(())
@@ -258,7 +268,7 @@ pub(super) fn refused() -> Check {
         || selector(&first)?.contains("Brand name")
         || !first
             .to_string()
-            .contains("openfda-label rejected the expanded request; searched the typed term.")
+            .contains("openFDA rejected the label query holding the drug's other names")
     {
         return Err(format!(
             "refused widening did not fall back to the typed name {first}"

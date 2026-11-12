@@ -214,6 +214,7 @@ pub(crate) const LABEL_NAMES: (&str, &[&str]) = (
     "drug-label/explicit-alias-native-union",
     &[
         "option search drug --expand-drug-names",
+        "option search drug --exact-term",
         "option search drug --name-snapshot",
     ],
 );

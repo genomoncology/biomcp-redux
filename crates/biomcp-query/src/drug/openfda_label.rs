@@ -20,8 +20,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     );
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut expanded = if query.expand_drug_names()
+    // A name too long for one bounded request is searched as typed, as it always was.
+    let mut expanded = if query.widens_drug_names()
         && (query.name_snapshot().is_some() || !cx.fetch.disabled(SOURCE))
+        && names::typed(query).is_some()
     {
         match names::prepare(cx, query, &mut deadline) {
             Ok(Some(saved)) => Some(saved),
