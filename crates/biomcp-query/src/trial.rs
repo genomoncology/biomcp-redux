@@ -84,8 +84,7 @@ fn search<'a>(
         .err()
         .or(version.as_ref().err())
         .copied()
-        .or_else(|| result.as_ref().ok().and_then(|page| page.count_error))
-        .or_else(|| result.as_ref().ok().and_then(|page| page.codon_error));
+        .or_else(|| result.as_ref().ok().and_then(|page| page.side_error()));
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);

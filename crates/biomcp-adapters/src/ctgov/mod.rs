@@ -63,6 +63,12 @@ pub struct SearchPage {
     /// Opaque next page.
     pub next: Option<Text>,
 }
+impl SearchPage {
+    /// A count or codon check failure while the page rows remain usable.
+    pub fn side_error(&self) -> Option<RequestError> {
+        self.count_error.or(self.codon_error)
+    }
+}
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
     name_parameters(query, gene, query.broader_names())
