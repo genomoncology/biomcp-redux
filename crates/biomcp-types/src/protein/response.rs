@@ -49,8 +49,7 @@ pub struct ProteinDomains {
     pub items: Box<[ProteinDomainMatch]>,
     /// Native source total before type selection or exact participant admission.
     pub native_total: u64,
-    /// How to read the spans above; present when any row has a fragment, and absent inside a card,
-    /// whose own note covers it.
+    /// How to read the spans above; present when any row has a fragment, but not inside a card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub coordinate_note: Option<Box<str>>,
 }

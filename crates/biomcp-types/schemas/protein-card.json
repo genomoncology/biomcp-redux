@@ -809,6 +809,13 @@
     "Reply_ProteinCard": {
       "description": "Answers to requested inputs; ambiguous gene inputs retain all candidates.",
       "properties": {
+        "coordinate_note": {
+          "description": "How to read feature and domain spans; present when any section holds one.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "items": {
           "description": "One result per input in caller order.",
           "items": {
@@ -1086,6 +1093,13 @@
     "Reply_ProteinDomains": {
       "description": "Whole native rows with the independent unfiltered source count.",
       "properties": {
+        "coordinate_note": {
+          "description": "How to read the spans above; present when any row has a fragment, but not inside a card.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "items": {
           "description": "Bounded retained rows in source order.",
           "items": {
@@ -3242,7 +3256,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-card/10",
+  "$id": "biomcp.protein-card/11",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -3298,7 +3312,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-card/10",
+      "const": "biomcp.protein-card/11",
       "type": "string"
     },
     "sources": {
