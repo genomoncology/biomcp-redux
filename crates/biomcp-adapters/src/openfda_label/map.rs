@@ -103,6 +103,47 @@ impl RawRecord {
     }
 }
 
+/// Who holds a label, best first when several labels share one name.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LabelHolder {
+    /// A new drug or biologic application (NDA or BLA) label under a brand name of its own.
+    Brand,
+    /// Another NDA or BLA label, such as an authorized generic sold under the generic name.
+    Application,
+    /// A generic (ANDA) or unapproved label.
+    Other,
+}
+/// The facts a name get uses to choose among labels sharing one name.
+#[derive(Clone, Copy, Debug)]
+pub struct LabelChoice {
+    /// Who holds the label.
+    pub holder: LabelHolder,
+    /// Distinct numbered indications (1.1, 1.2, …) in the indications section; 0 when unnumbered.
+    pub indications: u32,
+}
+/// Count distinct subsection numbers 1.1 to 1.99 in the indications text, skipping those inside
+/// longer numbers such as 11.2 or 1.2.3.
+fn numbered_indications(parts: &[String]) -> u32 {
+    let mut seen = std::collections::BTreeSet::new();
+    for part in parts {
+        for (at, _) in part.match_indices("1.") {
+            let before = part.get(..at).and_then(|head| head.chars().next_back());
+            if before.is_some_and(|c| c.is_ascii_digit() || c == '.') {
+                continue;
+            }
+            let rest = part.get(at + 2..).unwrap_or("");
+            let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
+            let mut after = rest.chars().skip(digits.len());
+            let longer =
+                after.next() == Some('.') && after.next().is_some_and(|c| c.is_ascii_digit());
+            if (1..=2).contains(&digits.len()) && !digits.starts_with('0') && !longer {
+                seen.insert(digits);
+            }
+        }
+    }
+    seen.len() as u32
+}
+
 /// Accepted SPL record whose provider fields remain private to the adapter.
 #[derive(Debug)]
 pub struct Record(pub(super) super::raw::Record);
@@ -138,6 +179,32 @@ impl Record {
             exact(&self.0.openfda.brand_name) && !exact(&self.0.openfda.generic_name),
             generic,
         )
+    }
+    /// What orders labels that share one name: the application holding the label, whether it
+    /// carries a brand name of its own, and how many numbered indications (1.1, 1.2, …) it lists.
+    pub fn choice(&self) -> LabelChoice {
+        let names = &self.0.openfda;
+        let application = names
+            .application_number
+            .iter()
+            .flatten()
+            .any(|n| n.as_str().starts_with("NDA") || n.as_str().starts_with("BLA"));
+        let own_brand = names.brand_name.iter().flatten().any(|brand| {
+            !names.generic_name.iter().flatten().any(|generic| {
+                biomcp_types::DrugNameMatch::same_name(brand.as_str(), generic.as_str())
+            })
+        });
+        LabelChoice {
+            holder: match (application, own_brand) {
+                (true, true) => LabelHolder::Brand,
+                (true, false) => LabelHolder::Application,
+                (false, _) => LabelHolder::Other,
+            },
+            indications: self
+                .0
+                .parts("indications_and_usage")
+                .map_or(0, numbered_indications),
+        }
     }
     /// Preserve search's existing complete-name and spacing normalization.
     pub fn name_match(&self, name: &biodata::Text) -> Option<biomcp_types::DrugNameMatch> {

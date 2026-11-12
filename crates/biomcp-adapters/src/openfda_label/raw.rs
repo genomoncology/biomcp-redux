@@ -24,6 +24,8 @@ pub(super) struct Record {
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct Names {
+    /// FDA application numbers, such as NDA022406 or ANDA208544.
+    pub application_number: Option<Vec<NativeText>>,
     pub brand_name: Option<Vec<NativeText>>,
     pub generic_name: Option<Vec<NativeText>>,
     pub spl_set_id: Option<Vec<DrugId>>,

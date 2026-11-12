@@ -1,0 +1,2116 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22rivaroxaban%22%20OR%20openfda.generic_name%3A%22rivaroxaban%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 50,
+              "total": 28
+            }
+          },
+          "results": [
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban Rivaroxaban Rivaroxaban SILICON DIOXIDE Croscarmellose Sodium Magnesium Stearate Poloxamer 407 POLYVINYL ALCOHOL, UNSPECIFIED Polyethylene Glycol 8000 Talc Titanium Dioxide Ferric Oxide Yellow Anhydrous Lactose R;2pt5 btl-lbl-60s.jpg btl-lbl-500s.jpg structure.jpg figure2.jpg figure3.jpg figure9.jpg figure10.jpg figure11.jpg figure12.jpg"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd",
+              "id": "4f4d3b6f-a93f-468b-7574-c5305ed585af",
+              "effective_time": "20261021",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "ANDA217810"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Apotex Corp."
+                ],
+                "product_ndc": [
+                  "60505-6256"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "4f4d3b6f-a93f-468b-7574-c5305ed585af"
+                ],
+                "spl_set_id": [
+                  "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd"
+                ],
+                "package_ndc": [
+                  "60505-6256-6",
+                  "60505-6256-5"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0360505625666",
+                  "0360505625659"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "XARELTO rivaroxaban RIVAROXABAN RIVAROXABAN HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE SODIUM LAURYL SULFATE FERRIC OXIDE YELLOW POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE light yellow 2;5;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED light red biconvex 10;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM biconvex 15;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE dark red 20;Xa XARELTO Rivaroxaban Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED 15;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED POLYVINYL ALCOHOL, UNSPECIFIED TALC dark red 20;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN ANHYDROUS CITRIC ACID HYPROMELLOSE, UNSPECIFIED MANNITOL MICROCRYSTALLINE CELLULOSE CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED SODIUM BENZOATE SUCRALOSE XANTHAN GUM White to off-white"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "10db92f9-2300-4a80-836b-673e1ae91610",
+              "id": "5294926b-7812-41da-a0e8-56f492198450",
+              "effective_time": "20260910",
+              "version": "65",
+              "openfda": {
+                "application_number": [
+                  "NDA215859",
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "Xarelto",
+                  "XARELTO"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Janssen Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "50458-575",
+                  "50458-577",
+                  "50458-580",
+                  "50458-578",
+                  "50458-579",
+                  "50458-584"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1114202",
+                  "1232082",
+                  "1232084",
+                  "1232086",
+                  "1232088",
+                  "1549682",
+                  "1549683",
+                  "2059015",
+                  "2059017",
+                  "2588062",
+                  "2588066"
+                ],
+                "spl_id": [
+                  "5294926b-7812-41da-a0e8-56f492198450"
+                ],
+                "spl_set_id": [
+                  "10db92f9-2300-4a80-836b-673e1ae91610"
+                ],
+                "package_ndc": [
+                  "50458-577-60",
+                  "50458-577-18",
+                  "50458-577-14",
+                  "50458-577-01",
+                  "50458-577-10",
+                  "50458-580-01",
+                  "50458-580-10",
+                  "50458-580-30",
+                  "50458-580-07",
+                  "50458-580-90",
+                  "50458-578-01",
+                  "50458-578-10",
+                  "50458-578-30",
+                  "50458-578-90",
+                  "50458-578-14",
+                  "50458-578-07",
+                  "50458-579-01",
+                  "50458-579-10",
+                  "50458-579-30",
+                  "50458-579-90",
+                  "50458-579-99",
+                  "50458-579-07",
+                  "50458-579-89",
+                  "50458-584-51",
+                  "50458-584-52",
+                  "50458-575-01"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0350458575019",
+                  "0350458579307",
+                  "0350458580303",
+                  "0350458578300",
+                  "0350458577600"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM CELLULOSE, MICROCRYSTALLINE LACTOSE MONOHYDRATE HYPROMELLOSES SODIUM LAURYL SULFATE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 3350 FERRIC OXIDE YELLOW biconvex 2;5"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "481b7802-5093-43e7-bbd9-1532197eb6e6",
+              "id": "5aa363d7-60db-4e9f-e063-6294a90a8ee6",
+              "effective_time": "20260904",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA208334"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Micro Labs Limited"
+                ],
+                "product_ndc": [
+                  "42571-345"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "5aa363d7-60db-4e9f-e063-6294a90a8ee6"
+                ],
+                "spl_set_id": [
+                  "481b7802-5093-43e7-bbd9-1532197eb6e6"
+                ],
+                "package_ndc": [
+                  "42571-345-30",
+                  "42571-345-60",
+                  "42571-345-05"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0342571345303"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE SODIUM LAURYL SULFATE FERRIC OXIDE RED POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE light red biconvex 10;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE SODIUM LAURYL SULFATE FERRIC OXIDE RED POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE biconvex 15;Xa Xarelto rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE SODIUM LAURYL SULFATE FERRIC OXIDE RED POLYETHYLENE GLYCOL 3350 POLYVINYL ALCOHOL, UNSPECIFIED TALC TITANIUM DIOXIDE dark red 20;Xa"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: \u2022 to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) \u2022 for treatment of deep vein thrombosis (DVT) ( 1.2 ) \u2022 for treatment of pulmonary embolism (PE) ( 1.3 ) \u2022 for reduction in the risk of recurrence of DVT or PE ( 1.4 ) \u2022 for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) \u2022 for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) \u2022 to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) \u2022 to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) \u2022 for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) \u2022 for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "d0e105f6-28f3-45ee-83bd-7d458835242b",
+              "id": "709dd93d-a1ee-44e5-9948-fc08eb4e6509",
+              "effective_time": "20260812",
+              "version": "28",
+              "openfda": {
+                "application_number": [
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "Xarelto"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Cardinal Health 107, LLC"
+                ],
+                "product_ndc": [
+                  "55154-1423",
+                  "55154-1422",
+                  "55154-1424"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1114202",
+                  "1232082",
+                  "1232084",
+                  "1232086",
+                  "1232088"
+                ],
+                "spl_id": [
+                  "709dd93d-a1ee-44e5-9948-fc08eb4e6509"
+                ],
+                "spl_set_id": [
+                  "d0e105f6-28f3-45ee-83bd-7d458835242b"
+                ],
+                "package_ndc": [
+                  "55154-1422-0",
+                  "55154-1424-8",
+                  "55154-1423-8"
+                ],
+                "original_packager_product_ndc": [
+                  "50458-580",
+                  "50458-578",
+                  "50458-579"
+                ],
+                "upc": [
+                  "0055154142205",
+                  "0355154142381",
+                  "0355154142480"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 102 SODIUM LAURYL SULFATE HYPROMELLOSE 2910 (5 MPA.S) TITANIUM DIOXIDE POLYETHYLENE GLYCOL 3350 FERRIC OXIDE YELLOW light yellow biconvex R;2;5"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "e8e4275c-6cbe-4976-8cae-f62baf954d27",
+              "id": "257ac149-46bc-48f3-b992-fe5bedbb9440",
+              "effective_time": "20260812",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA208546"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Novadoz Pharmaceuticals LLC"
+                ],
+                "product_ndc": [
+                  "72205-416"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "257ac149-46bc-48f3-b992-fe5bedbb9440"
+                ],
+                "spl_set_id": [
+                  "e8e4275c-6cbe-4976-8cae-f62baf954d27"
+                ],
+                "package_ndc": [
+                  "72205-416-03",
+                  "72205-416-04",
+                  "72205-416-05",
+                  "72205-416-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0372205416024",
+                  "0372205416031",
+                  "0372205416055",
+                  "0372205416048"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN rivaroxaban RIVAROXABAN RIVAROXABAN CELLULOSE, MICROCRYSTALLINE CROSCARMELLOSE SODIUM FERRIC OXIDE YELLOW HYPROMELLOSE 2910 (5 MPA.S) HYPROMELLOSE 2910 (6 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 3350 SODIUM LAURYL SULFATE TITANIUM DIOXIDE light yellow to yellow biconvex LS;6"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) (1.7) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD (1.8) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "d6de1719-6fbd-4386-9f81-d65980dc4bd8",
+              "id": "0438bd24-fd5f-476b-a7e8-eeab15f3551b",
+              "effective_time": "20260717",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "ANDA220874"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Lifestar Pharma LLC"
+                ],
+                "product_ndc": [
+                  "70756-006"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "0438bd24-fd5f-476b-a7e8-eeab15f3551b"
+                ],
+                "spl_set_id": [
+                  "d6de1719-6fbd-4386-9f81-d65980dc4bd8"
+                ],
+                "package_ndc": [
+                  "70756-006-60",
+                  "70756-006-81",
+                  "70756-006-12",
+                  "70756-006-99"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban ANHYDROUS LACTOSE CROSCARMELLOSE SODIUM HYPROMELLOSES MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 400 POLYVINYL ALCOHOL FERRIC OXIDE RED TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW RIVAROXABAN RIVAROXABAN BEIGE IG;513"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Rivaroxaban Tablets is a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban Tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban Tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "3b53cebf-946c-b82b-e063-6394a90a5da7",
+              "id": "217d0add-6ff0-455d-8d0f-51d30f82769b",
+              "effective_time": "20260623",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA218117"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "ScieGen pharmaceuticals,Inc"
+                ],
+                "product_ndc": [
+                  "50228-513"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "217d0add-6ff0-455d-8d0f-51d30f82769b"
+                ],
+                "spl_set_id": [
+                  "3b53cebf-946c-b82b-e063-6394a90a5da7"
+                ],
+                "package_ndc": [
+                  "50228-513-60",
+                  "50228-513-18"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0350228513180",
+                  "0350228513609"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CELLULOSE, MICROCRYSTALLINE LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM SILICON DIOXIDE HYPROMELLOSES SODIUM LAURYL SULFATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 400 FERRIC OXIDE YELLOW TITANIUM DIOXIDE Light Yellow circular, biconvex J;7"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: \u2022 to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) \u2022 to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "88246a0e-befe-4dc6-81e1-4b7adc266db2",
+              "id": "88246a0e-befe-4dc6-81e1-4b7adc266db2",
+              "effective_time": "20260604",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA213114"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "NorthStar RxLLC"
+                ],
+                "product_ndc": [
+                  "72603-890"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "88246a0e-befe-4dc6-81e1-4b7adc266db2"
+                ],
+                "spl_set_id": [
+                  "88246a0e-befe-4dc6-81e1-4b7adc266db2"
+                ],
+                "package_ndc": [
+                  "72603-890-01",
+                  "72603-890-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban MICROCRYSTALLINE CELLULOSE SODIUM LAURYL SULFATE CROSCARMELLOSE SODIUM FERRIC OXIDE YELLOW FERROSOFERRIC OXIDE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE HYDROXYPROPYL CELLULOSE (1600000 WAMW) HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE RIVAROXABAN RIVAROXABAN Light yellow o;2"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban is a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "925a9a11-ae5b-405c-96d2-b1be4b85bf71",
+              "id": "52d1407e-403f-49ef-e063-6294a90ab543",
+              "effective_time": "20260527",
+              "version": "15",
+              "openfda": {
+                "application_number": [
+                  "ANDA208557"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Sun Pharmaceutical Industries, Inc."
+                ],
+                "product_ndc": [
+                  "51672-4228"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "52d1407e-403f-49ef-e063-6294a90ab543"
+                ],
+                "spl_set_id": [
+                  "925a9a11-ae5b-405c-96d2-b1be4b85bf71"
+                ],
+                "package_ndc": [
+                  "51672-4228-4",
+                  "51672-4228-9"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0351672422844"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSE 2910 (3 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 101 MICROCRYSTALLINE CELLULOSE 102 POLYETHYLENE GLYCOL 3350 POLYVINYL ALCOHOL, UNSPECIFIED FERRIC OXIDE RED SODIUM LAURYL SULFATE TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW light orange Biconvex 2;5;M"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "bcb0e6e7-3006-4d82-8009-c5fddbbfc80d",
+              "id": "41ba542b-b8da-4a6e-a39e-284fd6314627",
+              "effective_time": "20260507",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA208544"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Aurobindo Pharma Limited"
+                ],
+                "product_ndc": [
+                  "59651-849"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "41ba542b-b8da-4a6e-a39e-284fd6314627"
+                ],
+                "spl_set_id": [
+                  "bcb0e6e7-3006-4d82-8009-c5fddbbfc80d"
+                ],
+                "package_ndc": [
+                  "59651-849-60",
+                  "59651-849-18"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0359651849606"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban Rivaroxaban Rivaroxaban Croscarmellose Sodium Hypromelloses Lactose Monohydrate Magnesium Stearate Cellulose, Microcrystalline Sodium Lauryl Sulfate Ferric Oxide Yellow Polyethylene Glycol 3350 Titanium Dioxide light yellow 2;5 stru figure2 figure3 figure9 figure10 figure11 container4 figure12"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablet is a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) (1.7) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD (1.8) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "122e6f78-067b-9065-adb2-ec7fec9f008e",
+              "id": "eafdf7d8-5014-31c8-daa1-09fc017f5018",
+              "effective_time": "20260429",
+              "version": "11",
+              "openfda": {
+                "application_number": [
+                  "ANDA208534"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Dr.Reddy's Laboratories, Inc."
+                ],
+                "product_ndc": [
+                  "43598-981"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "eafdf7d8-5014-31c8-daa1-09fc017f5018"
+                ],
+                "spl_set_id": [
+                  "122e6f78-067b-9065-adb2-ec7fec9f008e"
+                ],
+                "package_ndc": [
+                  "43598-981-60",
+                  "43598-981-18",
+                  "43598-981-79",
+                  "43598-981-78"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0343598981604"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 TALC FERRIC OXIDE RED biconvex L;10 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 504 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 505 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 FERRIC OXIDE RED FERRIC OXIDE YELLOW D&C YELLOW NO. 10 ALUMINUM LAKE MAGNESIUM STEARATE Light yellow to yellow biconvex 9;C RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 504 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 505"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablet is a factor Xa inhibitor indicated: \u2022 to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) \u2022 for treatment of deep vein thrombosis (DVT) ( 1.2 ) \u2022 for treatment of pulmonary embolism (PE) ( 1.3 ) \u2022 for reduction in the risk of recurrence of DVT or PE ( 1.4 ) \u2022 for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) \u2022 for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) \u2022 to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) \u2022 to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) \u2022 for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) \u2022 for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation Rivaroxaban tablets are indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of rivaroxaban tablets and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1)]. 1.2 Treatment of Deep Vein Thrombosis Rivaroxaban tablets are indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism Rivaroxaban tablets are indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism Rivaroxaban tablets are indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery Rivaroxaban tablets are indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding Rivaroxaban tablets are indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5)]. 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients Rivaroxaban tablets are indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure Rivaroxaban tablets are indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "e62f23c6-89f2-4179-95dc-5732401b3f93",
+              "id": "30e909dc-eab4-4caf-831d-d46d4921b9ce",
+              "effective_time": "20260415",
+              "version": "8",
+              "openfda": {
+                "application_number": [
+                  "ANDA210301"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Alembic Pharmaceuticals Inc."
+                ],
+                "product_ndc": [
+                  "62332-240",
+                  "62332-346",
+                  "62332-347",
+                  "62332-348",
+                  "62332-683"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1232082",
+                  "1232086",
+                  "1549682",
+                  "2059015"
+                ],
+                "spl_id": [
+                  "30e909dc-eab4-4caf-831d-d46d4921b9ce"
+                ],
+                "spl_set_id": [
+                  "e62f23c6-89f2-4179-95dc-5732401b3f93"
+                ],
+                "package_ndc": [
+                  "62332-346-30",
+                  "62332-346-91",
+                  "62332-346-10",
+                  "62332-346-90",
+                  "62332-347-30",
+                  "62332-347-91",
+                  "62332-347-10",
+                  "62332-347-90",
+                  "62332-348-30",
+                  "62332-348-91",
+                  "62332-348-10",
+                  "62332-348-90",
+                  "62332-683-60",
+                  "62332-683-45",
+                  "62332-683-91",
+                  "62332-683-10",
+                  "62332-240-51"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0362332347308",
+                  "0362332348305",
+                  "0362332683604",
+                  "0362332346301"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "rivaroxaban granule rivaroxaban granule RIVAROXABAN RIVAROXABAN ANHYDROUS CITRIC ACID CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED MANNITOL MICROCRYSTALLINE CELLULOSE SODIUM BENZOATE SUCRALOSE XANTHAN GUM HYPROMELLOSE, UNSPECIFIED white to off-white"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban for oral suspension is a factor Xa inhibitor indicated: for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients Rivaroxaban for oral suspension is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure Rivaroxaban for oral suspension is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "b0306b06-d8cf-48de-9e93-57d77e4e98f5",
+              "id": "75d51b1e-1d97-40c7-854e-4736e335e048",
+              "effective_time": "20260413",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "ANDA218195"
+                ],
+                "brand_name": [
+                  "rivaroxaban granule"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN GRANULE"
+                ],
+                "manufacturer_name": [
+                  "Lupin Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "70748-355"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2588062"
+                ],
+                "spl_id": [
+                  "75d51b1e-1d97-40c7-854e-4736e335e048"
+                ],
+                "spl_set_id": [
+                  "b0306b06-d8cf-48de-9e93-57d77e4e98f5"
+                ],
+                "package_ndc": [
+                  "70748-355-01"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0370748355015"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN CELLULOSE, MICROCRYSTALLINE CROSCARMELLOSE SODIUM FERRIC OXIDE YELLOW HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 400 SODIUM LAURYL SULFATE TITANIUM DIOXIDE light yellow C4;L"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban is a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "702fed3e-ae25-49ba-98cc-562e0e244214",
+              "id": "310f0bf6-9b0f-441b-afd7-b9a0f7905395",
+              "effective_time": "20260408",
+              "version": "14",
+              "openfda": {
+                "application_number": [
+                  "ANDA208555"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Lupin Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "68180-709"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "310f0bf6-9b0f-441b-afd7-b9a0f7905395"
+                ],
+                "spl_set_id": [
+                  "702fed3e-ae25-49ba-98cc-562e0e244214"
+                ],
+                "package_ndc": [
+                  "68180-709-09",
+                  "68180-709-06"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0368180709060"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CELLULOSE, MICROCRYSTALLINE LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM SILICON DIOXIDE HYPROMELLOSES SODIUM LAURYL SULFATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 400 FERRIC OXIDE YELLOW TITANIUM DIOXIDE Light Yellow circular, biconvex J;7"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: \u2022 to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) \u2022 to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "57717a31-d9d3-4246-90c0-4e4c0a29adf5",
+              "id": "b6691115-e5df-4846-8358-79d091cdc3c0",
+              "effective_time": "20260406",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "ANDA213114"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Macleods Pharmaceuticals Limited"
+                ],
+                "product_ndc": [
+                  "33342-488"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "b6691115-e5df-4846-8358-79d091cdc3c0"
+                ],
+                "spl_set_id": [
+                  "57717a31-d9d3-4246-90c0-4e4c0a29adf5"
+                ],
+                "package_ndc": [
+                  "33342-488-09",
+                  "33342-488-57",
+                  "33342-488-98"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0333342488572"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "rivaroxaban rivaroxaban MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED RIVAROXABAN RIVAROXABAN biconvex 10 rivaroxaban rivaroxaban HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM RIVAROXABAN RIVAROXABAN biconvex 15 rivaroxaban rivaroxaban SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE YELLOW MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE RIVAROXABAN RIVAROXABAN light yellow biconvex 20"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation Rivaroxaban tablets are indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of rivaroxaban and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis Rivaroxaban tablets are indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism Rivaroxaban tablets are indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism Rivaroxaban tablets are indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery Rivaroxaban tablets are indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding Rivaroxaban tablets are indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients Rivaroxaban tablets are indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure Rivaroxaban tablets are indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "9178947d-9d58-4c1a-b158-6030e17556af",
+              "id": "8b1205ed-1f1c-4e13-8076-aefada9213ad",
+              "effective_time": "20251211",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA216995"
+                ],
+                "brand_name": [
+                  "rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Changzhou Pharmaceutical Factory"
+                ],
+                "product_ndc": [
+                  "55488-0540",
+                  "55488-0541",
+                  "55488-0542"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1232082",
+                  "1232086"
+                ],
+                "spl_id": [
+                  "8b1205ed-1f1c-4e13-8076-aefada9213ad"
+                ],
+                "spl_set_id": [
+                  "9178947d-9d58-4c1a-b158-6030e17556af"
+                ],
+                "package_ndc": [
+                  "55488-0540-1",
+                  "55488-0541-1",
+                  "55488-0542-1"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0355488054114",
+                  "0355488054015",
+                  "0355488054213"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE SODIUM LAURYL SULFATE TITANIUM DIOXIDE FERRIC OXIDE YELLOW POLYETHYLENE GLYCOL 3350 Light yellow 7C Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE SODIUM LAURYL SULFATE TITANIUM DIOXIDE FERRIC OXIDE RED POLYETHYLENE GLYCOL 3350 11C Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE SODIUM LAURYL SULFATE TITANIUM DIOXIDE FERRIC OXIDE RED POLYETHYLENE GLYCOL 3350 light red 12C Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE SODIUM LAURYL SULFATE TITANIUM DIOXIDE FERRIC OXIDE RED POLYETHYLENE GLYCOL 3350 dark red 12C"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Rivaroxaban tablet is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation Rivaroxaban tablet is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of rivaroxaban tablets and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [ see Clinical Studies ( 14.1 )]. 1.2 Treatment of Deep Vein Thrombosis Rivaroxaban tablet is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism Rivaroxaban tablet is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism Rivaroxaban tablet is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery Rivaroxaban tablet is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely III Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding Rivaroxaban tablet is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [ see Warnings and Precautions ( 5.2 ) and Clinical Studies ( 14.5 ) ]. 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients Rivaroxaban tablet is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure Rivaroxaban tablet is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "9fee7136-c8fd-4bea-ab15-7a0e7292396d",
+              "id": "b57414a3-eca8-4cda-b7eb-7c060d52a6b6",
+              "effective_time": "20251128",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA218445"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Indoco Remedies Limited"
+                ],
+                "product_ndc": [
+                  "14445-147",
+                  "14445-148",
+                  "14445-183",
+                  "14445-184"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1232082",
+                  "1232086",
+                  "2059015"
+                ],
+                "spl_id": [
+                  "b57414a3-eca8-4cda-b7eb-7c060d52a6b6"
+                ],
+                "spl_set_id": [
+                  "9fee7136-c8fd-4bea-ab15-7a0e7292396d"
+                ],
+                "package_ndc": [
+                  "14445-147-60",
+                  "14445-147-18",
+                  "14445-147-02",
+                  "14445-147-10",
+                  "14445-148-30",
+                  "14445-148-90",
+                  "14445-148-02",
+                  "14445-148-10",
+                  "14445-183-30",
+                  "14445-183-90",
+                  "14445-183-02",
+                  "14445-183-10",
+                  "14445-184-30",
+                  "14445-184-90",
+                  "14445-184-02",
+                  "14445-184-10",
+                  "14445-184-00"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0314445184301",
+                  "0314445147603",
+                  "0314445148303",
+                  "0314445183304"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 CROSCARMELLOSE SODIUM TALC FERRIC OXIDE RED biconvex L;10 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 504 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 505 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 FERRIC OXIDE RED FERRIC OXIDE YELLOW D&C YELLOW NO. 10 ALUMINUM LAKE MAGNESIUM STEARATE Light yellow to yellow biconvex 9;C RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 504 RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE CROSCARMELLOSE SODIUM MICROCRYSTALLINE CELLULOSE HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE SILICON DIOXIDE MAGNESIUM STEARATE TITANIUM DIOXIDE POLYETHYLENE GLYCOL 8000 FERRIC OXIDE RED FERROSOFERRIC OXIDE biconvex 505"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablet is a factor Xa inhibitor indicated: \u2022 to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) \u2022 for treatment of deep vein thrombosis (DVT) ( 1.2 ) \u2022 for treatment of pulmonary embolism (PE) ( 1.3 ) \u2022 for reduction in the risk of recurrence of DVT or PE ( 1.4 ) \u2022 for prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) \u2022 for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) \u2022 to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) \u2022 to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) \u2022 for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) \u2022 for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation Rivaroxaban tablets are indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of rivaroxaban tablets and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1)]. 1.2 Treatment of Deep Vein Thrombosis Rivaroxaban tablets are indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism Rivaroxaban tablets are indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism Rivaroxaban tablets are indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery Rivaroxaban tablets are indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding Rivaroxaban tablets are indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5)]. 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients Rivaroxaban tablets are indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure Rivaroxaban tablets are indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "5524f30f-789d-4f5c-8f7c-d03a475b6d34",
+              "id": "4b61dc52-0593-4ef0-8246-a82ff6972842",
+              "effective_time": "20251121",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA210301"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Alembic Pharmaceuticals Limited"
+                ],
+                "product_ndc": [
+                  "46708-240",
+                  "46708-346",
+                  "46708-347",
+                  "46708-348",
+                  "46708-683"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1232082",
+                  "1232086",
+                  "1549682",
+                  "2059015"
+                ],
+                "spl_id": [
+                  "4b61dc52-0593-4ef0-8246-a82ff6972842"
+                ],
+                "spl_set_id": [
+                  "5524f30f-789d-4f5c-8f7c-d03a475b6d34"
+                ],
+                "package_ndc": [
+                  "46708-346-30",
+                  "46708-346-91",
+                  "46708-346-10",
+                  "46708-346-90",
+                  "46708-347-30",
+                  "46708-347-91",
+                  "46708-347-10",
+                  "46708-347-90",
+                  "46708-348-30",
+                  "46708-348-91",
+                  "46708-348-10",
+                  "46708-348-90",
+                  "46708-683-60",
+                  "46708-683-45",
+                  "46708-683-91",
+                  "46708-683-10",
+                  "46708-240-51"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "rivaroxaban rivaroxaban RIVAROXABAN RIVAROXABAN CROSCARMELLOSE SODIUM HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE FERRIC OXIDE YELLOW WATER SODIUM LAURYL SULFATE Light yellow coloured 7C"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Rivaroxaban is a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, are indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "f0ef9361-f06d-4028-97af-183b545f4aea",
+              "id": "f0ef9361-f06d-4028-97af-183b545f4aea",
+              "effective_time": "20250819",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA218445"
+                ],
+                "brand_name": [
+                  "rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Florida Pharmaceutical Products, LLC"
+                ],
+                "product_ndc": [
+                  "71921-405"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "f0ef9361-f06d-4028-97af-183b545f4aea"
+                ],
+                "spl_set_id": [
+                  "f0ef9361-f06d-4028-97af-183b545f4aea"
+                ],
+                "package_ndc": [
+                  "71921-405-06",
+                  "71921-405-21"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban RIVAROXABAN RIVAROXABAN ANHYDROUS CITRIC ACID HYPROMELLOSE 2910 (5 MPA.S) MANNITOL MICROCRYSTALLINE CELLULOSE CARBOXYMETHYLCELLULOSE SODIUM SODIUM BENZOATE SUCRALOSE XANTHAN GUM VANILLA Off white to yellowish Cream"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Rivaroxaban for oral suspension is a factor Xa inhibitor indicated: for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients Rivaroxaban for oral suspension is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure Rivaroxaban for oral suspension is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "c0efa9f9-ca7a-471a-8030-99056fa5da09",
+              "id": "d111f8d6-a073-4a43-bf16-bc1bacba9898",
+              "effective_time": "20250701",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA218502"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Ascend Laboratories, LLC"
+                ],
+                "product_ndc": [
+                  "67877-882"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2588062"
+                ],
+                "spl_id": [
+                  "d111f8d6-a073-4a43-bf16-bc1bacba9898"
+                ],
+                "spl_set_id": [
+                  "c0efa9f9-ca7a-471a-8030-99056fa5da09"
+                ],
+                "package_ndc": [
+                  "67877-882-71"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0367877882710"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE MAGNESIUM STEARATE D&C YELLOW NO. 10 ALUMINUM LAKE POLYETHYLENE GLYCOL, UNSPECIFIED TITANIUM DIOXIDE T;2;5"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) (1.7) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD (1.8) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "291011aa-60eb-4109-b59c-1c521fbeac4f",
+              "id": "a24524f3-072e-4484-b6c8-77c70e4e3005",
+              "effective_time": "20250617",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA219332"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "XLCare Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "72865-321"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "a24524f3-072e-4484-b6c8-77c70e4e3005"
+                ],
+                "spl_set_id": [
+                  "291011aa-60eb-4109-b59c-1c521fbeac4f"
+                ],
+                "package_ndc": [
+                  "72865-321-60",
+                  "72865-321-18"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0372865321188",
+                  "0372865321607"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Rivaroxaban Rivaroxaban Rivaroxaban RIVAROXABAN ANHYDROUS LACTOSE CROSCARMELLOSE SODIUM HYPROMELLOSES MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 400 POLYVINYL ALCOHOL FERRIC OXIDE RED TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW BEIGE IG;513"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Rivaroxaban Tablets is a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban Tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban Tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "c2f55475-2a98-43f3-9eac-93995904ebc5",
+              "id": "fcd1f593-213c-490f-b0d1-75b2d7817582",
+              "effective_time": "20250601",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA218117"
+                ],
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Exelan pharmaceuticals,Inc"
+                ],
+                "product_ndc": [
+                  "76282-774"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "fcd1f593-213c-490f-b0d1-75b2d7817582"
+                ],
+                "spl_set_id": [
+                  "c2f55475-2a98-43f3-9eac-93995904ebc5"
+                ],
+                "package_ndc": [
+                  "76282-774-60",
+                  "76282-774-18"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0376282774602"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "RIVAROXABAN RIVAROXABAN RIVAROXABAN RIVAROXABAN LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED SODIUM LAURYL SULFATE MAGNESIUM STEARATE D&C YELLOW NO. 10 ALUMINUM LAKE POLYETHYLENE GLYCOL, UNSPECIFIED TITANIUM DIOXIDE T;2;5"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Rivaroxaban tablets are a factor Xa inhibitor indicated: to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) (1.7) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD (1.8) 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD Rivaroxaban tablets, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD."
+              ],
+              "set_id": "45f16f1b-e405-4aa6-bc8b-977d4864af3e",
+              "id": "d1afd534-ca74-462d-9cbb-03e54547cd9a",
+              "effective_time": "20250517",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA219332"
+                ],
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Camber Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "31722-496"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "2059015"
+                ],
+                "spl_id": [
+                  "d1afd534-ca74-462d-9cbb-03e54547cd9a"
+                ],
+                "spl_set_id": [
+                  "45f16f1b-e405-4aa6-bc8b-977d4864af3e"
+                ],
+                "package_ndc": [
+                  "31722-496-60",
+                  "31722-496-18"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0331722496186",
+                  "0331722496605"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Xarelto rivaroxaban MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED RIVAROXABAN RIVAROXABAN dark red 20;Xa"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "e76bf2cf-a8b8-4471-a8ce-57c918b11a48",
+              "id": "da5a3782-08dc-42f1-8027-785b7b138a0a",
+              "effective_time": "20240926",
+              "version": "12",
+              "openfda": {
+                "application_number": [
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "Xarelto"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-4468"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1232086",
+                  "1232088"
+                ],
+                "spl_id": [
+                  "da5a3782-08dc-42f1-8027-785b7b138a0a"
+                ],
+                "spl_set_id": [
+                  "e76bf2cf-a8b8-4471-a8ce-57c918b11a48"
+                ],
+                "package_ndc": [
+                  "50090-4468-0"
+                ],
+                "original_packager_product_ndc": [
+                  "50458-579"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Xarelto rivaroxaban MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED RIVAROXABAN RIVAROXABAN light red biconvex 10;Xa"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "65727928-9421-4df8-bff2-f72a9cc78069",
+              "id": "4d42fd56-57bd-43a6-93c9-6454028dfef4",
+              "effective_time": "20240522",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "Xarelto"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-4469"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1114202"
+                ],
+                "spl_id": [
+                  "4d42fd56-57bd-43a6-93c9-6454028dfef4"
+                ],
+                "spl_set_id": [
+                  "65727928-9421-4df8-bff2-f72a9cc78069"
+                ],
+                "package_ndc": [
+                  "50090-4469-0"
+                ],
+                "original_packager_product_ndc": [
+                  "50458-580"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Xarelto rivaroxaban MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED RIVAROXABAN RIVAROXABAN light red biconvex 10;Xa"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "7e9ab975-db2f-423c-a089-bc5a73313609",
+              "id": "555f1ee6-225c-4834-b936-cdad8f836f81",
+              "effective_time": "20240520",
+              "version": "16",
+              "openfda": {
+                "application_number": [
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "Xarelto"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-3625"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1114202"
+                ],
+                "spl_id": [
+                  "555f1ee6-225c-4834-b936-cdad8f836f81"
+                ],
+                "spl_set_id": [
+                  "7e9ab975-db2f-423c-a089-bc5a73313609"
+                ],
+                "package_ndc": [
+                  "50090-3625-0",
+                  "50090-3625-1"
+                ],
+                "original_packager_product_ndc": [
+                  "50458-580"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "XARELTO rivaroxaban MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED RIVAROXABAN RIVAROXABAN dark red 20;Xa"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "3e95389b-0a93-4560-98c5-02637fb2600f",
+              "id": "e5d5aa2f-de19-4bad-a5c4-1136fe148975",
+              "effective_time": "20231110",
+              "version": "11",
+              "openfda": {
+                "application_number": [
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "XARELTO"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-3639"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1232086",
+                  "1232088"
+                ],
+                "spl_id": [
+                  "e5d5aa2f-de19-4bad-a5c4-1136fe148975"
+                ],
+                "spl_set_id": [
+                  "3e95389b-0a93-4560-98c5-02637fb2600f"
+                ],
+                "package_ndc": [
+                  "50090-3639-0"
+                ],
+                "original_packager_product_ndc": [
+                  "50458-579"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Xarelto rivaroxaban MICROCRYSTALLINE CELLULOSE CROSCARMELLOSE SODIUM HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE SODIUM LAURYL SULFATE POLYETHYLENE GLYCOL 3350 TITANIUM DIOXIDE FERRIC OXIDE RED RIVAROXABAN RIVAROXABAN light red biconvex 10;Xa"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE XARELTO is a factor Xa inhibitor indicated: to reduce risk of stroke and systemic embolism in nonvalvular atrial fibrillation ( 1.1 ) for treatment of deep vein thrombosis (DVT) ( 1.2 ) for treatment of pulmonary embolism (PE) ( 1.3 ) for reduction in the risk of recurrence of DVT or PE ( 1.4 ) for the prophylaxis of DVT, which may lead to PE in patients undergoing knee or hip replacement surgery ( 1.5 ) for prophylaxis of venous thromboembolism (VTE) in acutely ill medical patients ( 1.6 ) to reduce the risk of major cardiovascular events in patients with coronary artery disease (CAD) ( 1.7 ) to reduce the risk of major thrombotic vascular events in patients with peripheral artery disease (PAD), including patients after recent lower extremity revascularization due to symptomatic PAD ( 1.8 ) for treatment of VTE and reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years ( 1.9 ) for thromboprophylaxis in pediatric patients 2 years and older with congenital heart disease after the Fontan procedure ( 1.10 ) 1.1 Reduction of Risk of Stroke and Systemic Embolism in Nonvalvular Atrial Fibrillation XARELTO is indicated to reduce the risk of stroke and systemic embolism in adult patients with nonvalvular atrial fibrillation. There are limited data on the relative effectiveness of XARELTO and warfarin in reducing the risk of stroke and systemic embolism when warfarin therapy is well-controlled [see Clinical Studies (14.1) ]. 1.2 Treatment of Deep Vein Thrombosis XARELTO is indicated for the treatment of deep vein thrombosis (DVT). 1.3 Treatment of Pulmonary Embolism XARELTO is indicated for the treatment of pulmonary embolism (PE). 1.4 Reduction in the Risk of Recurrence of Deep Vein Thrombosis and/or Pulmonary Embolism XARELTO is indicated for the reduction in the risk of recurrence of DVT and/or PE in adult patients at continued risk for recurrent DVT and/or PE after completion of initial treatment lasting at least 6 months. 1.5 Prophylaxis of Deep Vein Thrombosis Following Hip or Knee Replacement Surgery XARELTO is indicated for the prophylaxis of DVT, which may lead to PE in adult patients undergoing knee or hip replacement surgery. 1.6 Prophylaxis of Venous Thromboembolism in Acutely Ill Medical Patients at Risk for Thromboembolic Complications Not at High Risk of Bleeding XARELTO is indicated for the prophylaxis of venous thromboembolism (VTE) and VTE related death during hospitalization and post hospital discharge in adult patients admitted for an acute medical illness who are at risk for thromboembolic complications due to moderate or severe restricted mobility and other risk factors for VTE and not at high risk of bleeding [see Warnings and Precautions (5.2) and Clinical Studies (14.5) ] . 1.7 Reduction of Risk of Major Cardiovascular Events in Patients with Coronary Artery Disease (CAD) XARELTO, in combination with aspirin, is indicated to reduce the risk of major cardiovascular events (cardiovascular death, myocardial infarction, and stroke) in adult patients with coronary artery disease. 1.8 Reduction of Risk of Major Thrombotic Vascular Events in Patients with Peripheral Artery Disease (PAD), Including Patients after Lower Extremity Revascularization due to Symptomatic PAD XARELTO, in combination with aspirin, is indicated to reduce the risk of major thrombotic vascular events (myocardial infarction, ischemic stroke, acute limb ischemia, and major amputation of a vascular etiology) in adult patients with PAD, including patients who have recently undergone a lower extremity revascularization procedure due to symptomatic PAD. 1.9 Treatment of Venous Thromboembolism and Reduction in Risk of Recurrent Venous Thromboembolism in Pediatric Patients XARELTO is indicated for the treatment of venous thromboembolism (VTE) and the reduction in the risk of recurrent VTE in pediatric patients from birth to less than 18 years after at least 5 days of initial parenteral anticoagulant treatment. 1.10 Thromboprophylaxis in Pediatric Patients with Congenital Heart Disease after the Fontan Procedure XARELTO is indicated for thromboprophylaxis in pediatric patients aged 2 years and older with congenital heart disease who have undergone the Fontan procedure."
+              ],
+              "set_id": "38b11f5d-f0fc-46dc-aef1-ea31872bb621",
+              "id": "d0758929-1cc8-4ac2-807e-969a8c7f6c77",
+              "effective_time": "20230217",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "NDA022406"
+                ],
+                "brand_name": [
+                  "Xarelto"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "manufacturer_name": [
+                  "Aphena Pharma Solutions - Tennessee, LLC"
+                ],
+                "product_ndc": [
+                  "71610-690"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "RIVAROXABAN"
+                ],
+                "rxcui": [
+                  "1114198",
+                  "1114202"
+                ],
+                "spl_id": [
+                  "d0758929-1cc8-4ac2-807e-969a8c7f6c77"
+                ],
+                "spl_set_id": [
+                  "38b11f5d-f0fc-46dc-aef1-ea31872bb621"
+                ],
+                "package_ndc": [
+                  "71610-690-42"
+                ],
+                "original_packager_product_ndc": [
+                  "50458-580"
+                ],
+                "nui": [
+                  "N0000175635",
+                  "N0000175637"
+                ],
+                "pharm_class_moa": [
+                  "Factor Xa Inhibitors [MoA]"
+                ],
+                "pharm_class_epc": [
+                  "Factor Xa Inhibitor [EPC]"
+                ],
+                "unii": [
+                  "9NDF7JZ4M3"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

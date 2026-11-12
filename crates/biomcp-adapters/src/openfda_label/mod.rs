@@ -26,7 +26,7 @@ use biodata::{DrugId, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
 /// Exact native headings supported by the label surface.
 pub use biomcp_types::OPENFDA_LABEL_HEADINGS as HEADINGS;
-pub use map::Record;
+pub use map::{LabelChoice, LabelHolder, Record};
 use raw::Record as RawRecord;
 const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 /// A source candidate page, preserving native order and source total.

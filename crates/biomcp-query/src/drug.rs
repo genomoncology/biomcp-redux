@@ -6,6 +6,7 @@ mod civic;
 mod ddinter;
 mod drugsfda;
 mod ema;
+mod label_choice;
 mod name_fit;
 mod next;
 mod openfda_label;

@@ -54,7 +54,7 @@
       ]
     },
     "Reply_DrugNameResolution": {
-      "description": "Exact source name choice; brand before generic, original FDA application then earliest approval, otherwise source order.",
+      "description": "Exact source name choice; brand before generic, FDA application then earliest approval, labels by holder then indications, else source order.",
       "properties": {
         "alternatives": {
           "description": "Up to five other exact records as ready get commands.",
@@ -74,6 +74,17 @@
         "ranking": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Applied ambiguity ordering, emitted only from fixed nonempty rule text."
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Which record was chosen and why, with counts of the others by kind; label names only."
         },
         "total": {
           "description": "Total exact source records, including the selected record.",
