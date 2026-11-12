@@ -91,14 +91,18 @@
       "x-required-component": "meddra"
     },
     "drug": {
-      "description": "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
+      "description": "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
       "items": {
         "$ref": "#/$defs/Text"
       },
       "type": "array"
     },
+    "exact_term": {
+      "description": "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.",
+      "type": "boolean"
+    },
     "expand_drug_names": {
-      "description": "FAERS only: explicitly search bounded source-stated aliases; literal search remains the default.",
+      "description": "FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.",
       "type": "boolean"
     },
     "limit": {
@@ -239,7 +243,7 @@
     },
     "text": {
       "$ref": "#/$defs/Text",
-      "description": "Drug, device or vaccine.\nLiteral drug text, MAUDE device phrase or exact supported VAERS vaccine.",
+      "description": "Drug, device or vaccine.\nFAERS drug name, searched with the drug's other names unless --exact-term; MAUDE device phrase or exact supported VAERS vaccine, both searched as typed.",
       "x-positional": 0
     }
   },

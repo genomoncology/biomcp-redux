@@ -420,8 +420,12 @@
           "description": "Native FDA classification; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
+        "exact_term": {
+          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
+          "type": "boolean"
+        },
         "expand_drug_names": {
-          "description": "Expand openFDA label aliases.\nUses bounded source-stated names. Literal search is the default.",
+          "description": "Accepted for one release; changes nothing.\nSources that widen drug names do so by default.",
           "type": "boolean"
         },
         "firm": {
@@ -487,7 +491,7 @@
               "type": "null"
             }
           ],
-          "description": "Label alias page token.\nFollow the returned command with unchanged filters to retain aliases and matching tier."
+          "description": "Label name page token.\nFollow the returned command with unchanged filters to keep the first page's names and step."
         },
         "offset": {
           "default": 0,
