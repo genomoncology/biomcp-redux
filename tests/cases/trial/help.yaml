@@ -68,6 +68,8 @@
           "eligibility",
           "outcomes",
           "results",
+          "flow",
+          "baseline",
           "arms",
           "locations",
           "contacts",

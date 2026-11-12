@@ -140,6 +140,10 @@ biodata::wire_enum! {
         Outcomes => "outcomes",
         /// Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
         Results => "results",
+        /// Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).
+        Flow => "flow",
+        /// Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).
+        Baseline => "baseline",
         /// Arms and interventions with original relationships.
         Arms => "arms",
         /// Whole source sites with their attached contacts.
@@ -150,7 +154,7 @@ biodata::wire_enum! {
         References => "references",
         /// Posted document metadata and source URLs.
         Documents => "documents",
-        /// Every implemented trial section, each with independent continuations.
+        /// Every implemented trial section, each with independent continuations; flow and baseline stay within results.
         All => "all",
         /// Native NCI disease concepts, including source enrichment metadata.
         Diseases => "diseases",
@@ -163,8 +167,8 @@ impl TrialSource {
     /// Implemented protocol sections in source presentation order.
     pub const fn sections(self) -> &'static [TrialSection] {
         use TrialSection::{
-            Arms, Contacts, Diseases, Documents, Eligibility, Locations, Outcomes, References,
-            Results, Summary,
+            Arms, Baseline, Contacts, Diseases, Documents, Eligibility, Flow, Locations, Outcomes,
+            References, Results, Summary,
         };
         match self {
             Self::Ctgov => &[
@@ -176,6 +180,8 @@ impl TrialSource {
                 References,
                 Documents,
                 Results,
+                Flow,
+                Baseline,
             ],
             Self::Nci => &[Eligibility, Outcomes, Arms, Diseases, Summary],
         }
