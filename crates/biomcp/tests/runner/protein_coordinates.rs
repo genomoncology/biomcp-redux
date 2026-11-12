@@ -1,4 +1,4 @@
-//! Render the real synthetic span replies through both public text surfaces.
+//! The real synthetic span replies carry their coordinate note on the CLI and in default MCP data.
 use super::launch::Environment;
 use serde_json::{Value, json};
 
@@ -26,18 +26,7 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
     }
     guidance(&markdown)?;
     let args: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
-    // The default form sends a success's JSON alone; a form with JSON text adds the note.
-    let path = env.root().join("config/biomcp/config.json");
-    let original = std::fs::read(&path).ok();
-    let mut config: Value = original
-        .as_deref()
-        .and_then(|bytes| serde_json::from_slice(bytes).ok())
-        .unwrap_or_else(|| json!({}));
-    config
-        .as_object_mut()
-        .ok_or("configuration object")?
-        .insert("mcp_reply_form".into(), json!("both"));
-    env.config(&config).map_err(|e| e.to_string())?;
+    // The default form sends a success once, as structured data that carries the note itself.
     let messages = super::mcp::exchange(
         env,
         &[super::mcp::request(
@@ -45,14 +34,11 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
             "tools/call",
             json!({"name":"biomcp","arguments":{"args":args}}),
         )],
-    );
-    match original {
-        Some(bytes) => std::fs::write(&path, bytes),
-        None => std::fs::remove_file(&path),
-    }
-    .map_err(|e| e.to_string())?;
-    let messages = messages?;
+    )?;
     let reply = messages.first().ok_or("missing protein MCP reply")?;
+    if reply.pointer("/result/content") != Some(&json!([])) {
+        return Err(format!("default protein MCP reply sent text: {reply}"));
+    }
     let structured = reply
         .pointer("/result/structuredContent")
         .ok_or("protein structured reply")?;
@@ -61,30 +47,17 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
     {
         return Err(format!("MCP numeric span changed: {reply}"));
     }
-    let blocks = reply
-        .pointer("/result/content")
-        .and_then(Value::as_array)
-        .ok_or("protein MCP text")?;
-    let first_text = blocks
-        .first()
-        .and_then(|v| v.get("text"))
-        .and_then(Value::as_str)
-        .ok_or("MCP JSON text")?;
-    let parsed: Value = serde_json::from_str(first_text).map_err(|e| e.to_string())?;
-    if &parsed != structured {
-        return Err("coordinate guidance changed the MCP JSON text contract".into());
-    }
-    let text = blocks
-        .iter()
-        .filter_map(|v| v.get("text").and_then(Value::as_str))
-        .collect::<Vec<_>>()
-        .join("\n");
-    guidance(&text)
+    guidance(
+        structured
+            .pointer("/result/coordinate_note")
+            .and_then(Value::as_str)
+            .ok_or_else(|| format!("protein MCP reply lacks its coordinate note: {reply}"))?,
+    )
 }
 
 fn guidance(text: &str) -> Result<(), String> {
     for expected in [
-        "Zero-based interbase",
+        "zero-based interbase",
         "half-open [start, end)",
         "one-based inclusive",
         "--position selector remains one-based",

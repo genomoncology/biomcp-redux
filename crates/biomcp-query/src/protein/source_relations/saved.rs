@@ -128,8 +128,10 @@ impl Saved {
             (Self::Domains(items, native_total, problems, dropped), Selection::Domains(query)) => {
                 out.dropped |= dropped;
                 out.problems.extend(problems);
+                let items: Box<[_]> = items.into_iter().skip(offset).take(limit).collect();
                 out.body = (ProteinDomains {
-                    items: items.into_iter().skip(offset).take(limit).collect(),
+                    coordinate_note: biomcp_types::coordinate_note(super::spans(&items)),
+                    items,
                     native_total,
                 })
                 .with_query(query.clone())
