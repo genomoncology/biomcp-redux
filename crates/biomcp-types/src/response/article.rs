@@ -54,6 +54,9 @@ pub struct ArticleItem {
     /// iCite citing-paper count, only under citation ordering.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cited_by: Option<u64>,
+    /// Europe PMC open-access flag; absent when no source states one. Not a licence.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub open_access: Option<bool>,
     /// Record-owned text was not admitted under the current use policy.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text_withheld: Option<WithheldArticleText>,
