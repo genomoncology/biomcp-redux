@@ -37,15 +37,14 @@ pub struct GtrHeader {
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
 }
-/// How `--name` text sits in a GTR test name; whole-word rows come first.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-pub enum GtrNameMatch {
-    /// The text appears with no letter or digit touching either end.
-    WholeWord,
-    /// The text appears only inside a longer word.
-    PartialWord,
+biodata::wire_enum! {
+    /// How `--name` text sits in a GTR test name; whole-word rows come first.
+    GtrNameMatch {
+        /// The text appears with no letter or digit touching either end.
+        WholeWord => "whole-word",
+        /// The text appears only inside a longer word.
+        PartialWord => "partial-word"
+    }
 }
 /// A conflict is visible once without a selected name or card.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
