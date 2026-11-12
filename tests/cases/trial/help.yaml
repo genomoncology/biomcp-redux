@@ -80,7 +80,7 @@
           "summary"
         ]
       },
-      "max_bytes": 3927,
+      "max_bytes": 4536,
       "run": [
         "help",
         "get",

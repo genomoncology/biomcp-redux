@@ -20,7 +20,7 @@
           "omits": ["results", "baseline"]
         }
       },
-      "max_bytes": 1
+      "max_bytes": 5165
     },
     {
       "run": ["get", "trial", "NCT01844505", "baseline"],

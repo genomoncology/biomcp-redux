@@ -13,7 +13,10 @@ pub(super) fn rows(section: TrialSection, results: &[TrialResultRecord]) -> Vec<
         .iter()
         .filter(|row| match section {
             TrialSection::Flow => {
-                matches!(row, R::ParticipantFlow(_) | R::FlowGroup(_) | R::FlowPeriod(_))
+                matches!(
+                    row,
+                    R::ParticipantFlow(_) | R::FlowGroup(_) | R::FlowPeriod(_)
+                )
             }
             TrialSection::Baseline => matches!(
                 row,
