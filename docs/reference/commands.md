@@ -1781,7 +1781,7 @@ Options:
 
       --criteria <criteria>
           Criteria text.
-          ClinicalTrials.gov only: search registry eligibility text; a protein change or exon deletion/insertion adds its other spellings; no eligibility judgment.
+          ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment.
 
       --distance <distance>
           Radius, mi or km.
@@ -1902,7 +1902,7 @@ Options:
 
       --variant <variant>
           Variant text.
-          ClinicalTrials.gov only: general text or eligibility criteria; a protein change or exon deletion/insertion adds its other spellings, and its codon with --gene; no eligibility judgment.
+          ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment.
 
 ```
 
@@ -1927,7 +1927,7 @@ Country label.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--criteria`: Criteria text.
-ClinicalTrials.gov only: search registry eligibility text; a protein change or exon deletion/insertion adds its other spellings; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--distance`: Radius, mi or km.
 ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--exact-condition`: Exact condition.
@@ -1987,7 +1987,7 @@ ClinicalTrials.gov only: first included registry update date. Value form: string
 - `--updated-until`: Last date.
 ClinicalTrials.gov only: last included registry update date. Value form: string. Example: --updated-until <updated-until> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--variant`: Variant text.
-ClinicalTrials.gov only: general text or eligibility criteria; a protein change or exon deletion/insertion adds its other spellings, and its codon with --gene; no eligibility judgment. Value form: string. Example: --variant L576P. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment. Value form: string. Example: --variant V600E. Command sources: ctgov, nci; source restrictions in the field description apply.
 
 ## biomcp search variant
 

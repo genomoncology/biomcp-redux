@@ -1768,7 +1768,7 @@
         },
         "criteria": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Criteria text.\nClinicalTrials.gov only: search registry eligibility text; a protein change or exon deletion/insertion adds its other spellings; no eligibility judgment."
+          "description": "Criteria text.\nClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment."
         },
         "distance": {
           "$ref": "#/$defs/Reply_Text",
@@ -1884,7 +1884,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Variant text.\nClinicalTrials.gov only: general text or eligibility criteria; a protein change or exon deletion/insertion adds its other spellings, and its codon with --gene; no eligibility judgment."
+          "description": "Variant text.\nClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment."
         }
       },
       "type": "object"
