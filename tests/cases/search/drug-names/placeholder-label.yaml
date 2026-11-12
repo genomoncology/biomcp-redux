@@ -16,7 +16,7 @@
           "PH-7",
           "Placeholder therapy"
         ],
-        "/sources/0/notices/0/message": "Searched the names stated by mychem record PLACEHOLDERAAA-SFHVURJKSA-N. Left out 2 of 4 names: \"COMPOUND 20\" (placeholder label), \"compound 20 [PMID: 99000009]\" (citation label).",
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record PLACEHOLDERAAA-SFHVURJKSA-N. Left out 3 of 5 names: \"COMPOUND 20\" (placeholder label), \"compound 20 [PMID: 99000009]\" (citation label), \"(R)-38\" (placeholder label).",
         "/page/total": 3
       }
     },
@@ -32,7 +32,7 @@
           "PH-7",
           "Placeholder therapy"
         ],
-        "/sources/0/notices/0/message": "Searched the names stated by mychem record PLACEHOLDERAAA-SFHVURJKSA-N. Left out 2 of 4 names: \"COMPOUND 20\" (placeholder label), \"compound 20 [PMID: 99000009]\" (citation label).",
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record PLACEHOLDERAAA-SFHVURJKSA-N. Left out 3 of 5 names: \"COMPOUND 20\" (placeholder label), \"compound 20 [PMID: 99000009]\" (citation label), \"(R)-38\" (placeholder label).",
         "/page/total": 2
       }
     }

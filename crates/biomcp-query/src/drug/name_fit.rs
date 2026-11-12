@@ -31,29 +31,47 @@ pub(crate) fn openfda(name: &str) -> Option<&'static str> {
     }
 }
 
-/// Labels a source states only in the context of one paper, such as "COMPOUND 20" or
-/// "compound 20 [PMID: 32250617]", name no drug on their own and match unrelated records in
-/// every provider, so no widened search takes them. Development codes such as "MRTX849" or
-/// "AMG 510" stay.
+/// Labels a source states only in the context of one paper or patent name no drug on their own
+/// and match unrelated records in every provider, so no widened search takes them. MyChem states
+/// them as "COMPOUND 20", "(R)-38", "KRAS G12C INHIBITOR 9", "compound 20 [PMID: 32250617]" and
+/// "Embodiment 3A [US10414756]". Development codes such as "MRTX849" or "AMG 510" stay, as do
+/// systematic names, whose brackets never follow a space.
 fn context_only(name: &str) -> Option<&'static str> {
-    let lowered = name.to_ascii_lowercase();
-    if lowered.contains("pmid") || name.contains(['[', ']']) {
+    let lowered = name.to_lowercase();
+    if lowered.contains(" [") || lowered.contains("pmid") {
         return Some("citation label");
     }
-    let mut words = lowered.split([' ', '-', '#']).filter(|word| !word.is_empty());
-    match (words.next(), words.next(), words.next()) {
-        (Some(word), Some(number), None)
-            if PLACEHOLDER_WORDS.contains(&word)
-                && number.starts_with(|c: char| c.is_ascii_digit()) =>
-        {
-            Some("placeholder label")
-        }
-        _ => None,
-    }
+    let words: Vec<&str> = lowered.split_whitespace().collect();
+    let placeholder = match words.as_slice() {
+        [only] => numbered(only),
+        [.., word, last] => PLACEHOLDER_WORDS.contains(word) && numbered(last),
+        [] => false,
+    };
+    placeholder.then_some("placeholder label")
 }
 
-/// Words a paper uses to number its own molecules, as in "compound 20" or "example 3".
-const PLACEHOLDER_WORDS: &[&str] = &["compound", "cpd", "example", "analog", "analogue"];
+/// A paper's own number for a molecule, such as "20", "3a" or "(r)-38".
+fn numbered(word: &str) -> bool {
+    let number = word
+        .strip_prefix('(')
+        .and_then(|rest| rest.split_once(")-"))
+        .map_or(word, |(_, number)| number);
+    let digits = number.trim_end_matches(|c: char| c.is_ascii_lowercase());
+    number.len() - digits.len() <= 1
+        && (1..=3).contains(&digits.len())
+        && digits.chars().all(|c| c.is_ascii_digit())
+}
+
+/// Words that name a molecule only by its number within one paper or patent.
+const PLACEHOLDER_WORDS: &[&str] = &[
+    "compound",
+    "cpd",
+    "example",
+    "embodiment",
+    "analog",
+    "analogue",
+    "inhibitor",
+];
 
 fn lowered(name: &Text) -> String {
     name.as_str().to_lowercase()
