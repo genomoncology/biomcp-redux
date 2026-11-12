@@ -1,0 +1,92 @@
+{
+  "feature": "trial-search",
+  "story": "With --gene, a protein change also searches its codon forms, the notice lists them apart, and the reply names each returned trial that ClinicalTrials.gov matched only through the codon. Page 2 keeps page 1's query, and --exact-term returns the literal count.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from ClinicalTrials.gov on 2026-11-12 with --record (job j38599). BRAF V600E finds 508 trials widened with codon forms and 257 as typed. Page 2's local candidates NCT01531361 and NCT03220035 were not marked because the registry finds a V600E spelling in them.",
+  "replay": "trial/variant-codon",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--gene",
+        "BRAF",
+        "--variant",
+        "V600E",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 508,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT05900219",
+            "NCT01543698",
+            "NCT01266967",
+            "NCT02109653",
+            "NCT05004350",
+            "NCT01927419",
+            "NCT01943422",
+            "NCT07543471",
+            "NCT07004075",
+            "NCT07561554"
+          ]
+        },
+        "/sources/1/notices/1/kind": "variant-search",
+        "/sources/1/notices/1/codon": [
+          "V600",
+          "V600X"
+        ],
+        "/sources/1/notices/2/message": "Matched only by codon form V600 or V600X: NCT01927419, NCT07561554. ClinicalTrials.gov finds no spelling of V600E in them; check each trial's allele."
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/page/total": 508,
+        "/page/offset": 10,
+        "/query/variant": "((V600E) OR \"p.V600E\" OR \"p.Val600Glu\" OR \"V600\" OR \"V600E\" OR \"V600X\" OR \"Val600Glu\" OR AREA[EligibilityCriteria](\"p.V600E\" OR \"p.Val600Glu\" OR \"V600\" OR \"V600E\" OR \"V600X\" OR \"Val600Glu\"))",
+        "/query/exact_term": true,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT01531361",
+            "NCT00880321",
+            "NCT04017650",
+            "NCT03915951",
+            "NCT06262919",
+            "NCT03026517",
+            "NCT03794297",
+            "NCT03220035",
+            "NCT03088176",
+            "NCT05710406"
+          ]
+        },
+        "/sources/1/notices": {
+          "count": 5
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--gene",
+        "BRAF",
+        "--variant",
+        "V600E",
+        "--limit",
+        "10",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 257,
+        "/sources/1/notices": {
+          "count": 2
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId&filter.advanced=%28AREA%5BNCTId%5DNCT01927419%20OR%20AREA%5BNCTId%5DNCT07561554%29&pageSize=2&query.term=%28%22V600E%22%20OR%20%22Val600Glu%22%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20AREA%5BEligibilityCriteria%5D%28%22V600E%22%20OR%20%22Val600Glu%22%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1794509242,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 50,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":0,"studies":[
+
+]}
+      }
+    }
+  ]
+}
