@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&filter.advanced=AREA%5BEligibilityCriteria%5D%28%2219del%22%20OR%20%22del19%22%20OR%20%22ex19del%22%20OR%20%22exon%2019%20del%22%20OR%20%22exon%2019%20deletion%22%20OR%20%22exon%2019%20deletions%22%29&pageSize=3",
+  "exchanges": [
+    {
+      "fetched": 1794508807,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 134,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":605,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT02368990","briefTitle":"T790M Mutation Positive 2nd Line STandard of cAre Registry"},"statusModule":{"overallStatus":"WITHDRAWN","startDateStruct":{"date":"2015-06"},"primaryCompletionDateStruct":{"date":"2018-06","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2015-07-08"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"AstraZeneca"}},"conditionsModule":{"conditions":["Non Small Cell Lung Cancer"]},"designModule":{},"armsInterventionsModule":{}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT05514314","briefTitle":"A Multicenter Prospective Study to Assess the Effects of Adjuvant Icotinib in EGFRm Stage I NSCLC With High-risk of Disease Recurrence After Complete Resection"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"2022-09-01","type":"ESTIMATED"},"primaryCompletionDateStruct":{"date":"2024-09-30","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2022-08-24"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Wu Nan"}},"conditionsModule":{"conditions":["Non-Small Cell Lung Cancer"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Icotinib"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06436144","briefTitle":"Osimertinib and Etoposide as First-Line Treatment in Osimertinib-Resistant Advanced EGFR-Mutant NSCLC"},"statusModule":{"overallStatus":"NOT_YET_RECRUITING","startDateStruct":{"date":"2024-06","type":"ESTIMATED"},"primaryCompletionDateStruct":{"date":"2029-06","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2024-05-30"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Daping Hospital and the Research Institute of Surgery of the Third Military Medical University"}},"conditionsModule":{"conditions":["Non Small Cell Lung Cancer","EGFR Gene Mutation","Non Small Cell Lung Cancer Stage IIIB","Non-small Cell Lung Cancer Stage IV"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Osimertinib"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxtbPOs3_g"}
+      }
+    }
+  ]
+}

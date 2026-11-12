@@ -121,8 +121,8 @@ pub(super) fn codon_notice(
     source.notices.push(SourceNotice::RequestGuidance {
         data_date: None,
         message: format!(
-            "Matched only by codon form {}: {}. Their returned title, summary, description, conditions, \
-             keywords and criteria do not write {change} or its other spellings; check each trial's allele.",
+            "Matched only by codon form {}: {}. ClinicalTrials.gov finds no spelling of {change} in \
+             them; check each trial's allele.",
             codon.join(" or "),
             ids.join(", ")
         )

@@ -194,7 +194,7 @@ pub(super) fn search_with_gene(
     let (condition_word_mismatch, gene_contexts) = raw.search_contexts(conditions, gene);
     // Without the gene's protocol text in the reply, no row can be checked.
     let codon_only = if gene.is_some() && !exact.is_empty() {
-        raw.codon_only(exact)
+        confirm_codon_only(leg, exact, raw.codon_only(exact))
     } else {
         Vec::new()
     };
@@ -236,6 +236,37 @@ pub(super) fn search_with_gene(
         count_request,
         next: raw.next_page_token,
     })
+}
+/// Rows the returned text did not show writing an exact spelling may write it in a field the
+/// search did not return, so the registry's own matching decides; a failed check marks none.
+fn confirm_codon_only(
+    leg: &Leg<'_>,
+    exact: &[String],
+    candidates: Vec<biodata::NctId>,
+) -> Vec<biodata::NctId> {
+    if candidates.is_empty() {
+        return candidates;
+    }
+    let ids = candidates
+        .iter()
+        .map(|id| format!("AREA[NCTId]{id}"))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let params = BTreeMap::from([
+        ("countTotal".to_owned(), "true".to_owned()),
+        ("pageSize".to_owned(), candidates.len().to_string()),
+        ("fields".to_owned(), "NCTId".to_owned()),
+        ("query.term".to_owned(), biomcp_types::exact_terms(exact)),
+        ("filter.advanced".to_owned(), format!("({ids})")),
+    ]);
+    let Ok(page) = fetch_page(leg, &params) else {
+        return Vec::new();
+    };
+    let found = page.ids();
+    candidates
+        .into_iter()
+        .filter(|id| !found.contains(id))
+        .collect()
 }
 fn fetch_page(leg: &Leg<'_>, params: &BTreeMap<String, String>) -> Result<RawPage, RequestError> {
     let args: Vec<_> = params

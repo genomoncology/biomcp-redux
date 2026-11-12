@@ -70,6 +70,18 @@ pub fn variant_terms(typed: &str, spellings: Option<&VariantSpellings>) -> Strin
     format!("(({typed}) OR {general} OR AREA[EligibilityCriteria]{quoted})")
 }
 
+/// The exact spellings alone, in general text or eligibility criteria, to tell which rows
+/// matched only through a codon form.
+pub fn exact_terms(exact: &[String]) -> String {
+    let quoted = group(exact);
+    let general = exact
+        .iter()
+        .map(|value| quote(value))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    format!("({general} OR AREA[EligibilityCriteria]{quoted})")
+}
+
 /// Whether criteria text is a group this module wrote, `("a" OR "b")`, sent unquoted.
 pub fn is_criteria_group(value: &str) -> bool {
     value

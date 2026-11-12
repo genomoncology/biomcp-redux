@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=1&query.term=%28%28V600E%29%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20%22V600E%22%20OR%20%22Val600Glu%22%20OR%20AREA%5BEligibilityCriteria%5D%28%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20%22V600E%22%20OR%20%22Val600Glu%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1794508767,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 58,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":631,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT07221357","briefTitle":"A Study to Evaluate the Safety and Efficacy of Pumitamig in Combination With Chemotherapy Versus Bevacizumab in Combination With Chemotherapy in Participants With Previously Untreated, Unresectable, or Metastatic Colorectal Cancer"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2025-12-31","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2030-02-02","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-10-23"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Bristol-Myers Squibb"}},"conditionsModule":{"conditions":["Untreated, Unresectable, or Metastatic Colorectal Cancer"]},"designModule":{"phases":["PHASE2","PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Pumitamig"},{"name":"FOLFOX"},{"name":"FOLFIRI"},{"name":"Bevacizumab"},{"name":"CAPOX"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxpY_Wt0A"}
+      }
+    }
+  ]
+}

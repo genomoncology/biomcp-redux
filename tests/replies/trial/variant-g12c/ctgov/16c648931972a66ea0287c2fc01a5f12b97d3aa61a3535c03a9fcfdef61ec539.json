@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=3&query.term=%28%28G12C%29%20OR%20%22G12C%22%20OR%20%22Gly12Cys%22%20OR%20%22p.G12C%22%20OR%20%22p.Gly12Cys%22%20OR%20AREA%5BEligibilityCriteria%5D%28%22G12C%22%20OR%20%22Gly12Cys%22%20OR%20%22p.G12C%22%20OR%20%22p.Gly12Cys%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1794508801,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 135,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":303,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT05119933","briefTitle":"A Phase 1/2, Study of YL-15293 in Subjects With Advanced Solid Tumors With a KRAS G12C Mutation"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"2021-11-09","type":"ESTIMATED"},"primaryCompletionDateStruct":{"date":"2023-06-01","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2021-11-15"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Shanghai YingLi Pharmaceutical Co. Ltd."}},"conditionsModule":{"conditions":["Advanced Solid Tumor"]},"designModule":{"phases":["PHASE1","PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"YL-15293"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT06497556","briefTitle":"A Study Evaluating the Efficacy and Safety of Divarasib Versus Sotorasib or Adagrasib in Participants With Previously Treated KRAS G12C-positive Advanced or Metastatic Non-Small Cell Lung Cancer"},"statusModule":{"overallStatus":"ACTIVE_NOT_RECRUITING","startDateStruct":{"date":"2024-09-23","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2026-05-19","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2026-09-16"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Hoffmann-La Roche"}},"conditionsModule":{"conditions":["Non-Small Cell Lung Cancer","KRAS G12C Lung Cancer"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Divarasib"},{"name":"Sotorasib"},{"name":"Adagrasib"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07252739","briefTitle":"KEYMAKER-U01 Substudy 01J: A Study of Pembrolizumab Plus MK-1084 in Participants With Non-Small Cell Lung Cancer (NSCLC) With Kirsten Rat Sarcoma Viral Oncogene Homolog (KRAS) G12C Mutations (MK-3475-01J/KEYMAKER-U01J)"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2025-12-19","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2029-11-15","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-11-10"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Merck Sharp & Dohme LLC"}},"conditionsModule":{"conditions":["Malignant Neoplasm"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"MK-1084"},{"name":"Pembrolizumab"},{"name":"Cetuximab"},{"name":"Sacituzumab tirumotecan (sac-TMT)"},{"name":"Rescue medication"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxsZPSk1Pg"}
+      }
+    }
+  ]
+}

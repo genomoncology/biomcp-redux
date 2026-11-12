@@ -8,8 +8,10 @@ mod variant_terms;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
 pub use filters::{NciStatusFilter, TrialPhaseFilter, TrialStatusFilter};
-pub use variant_terms::{VariantSpellings, codon_split, is_criteria_group, variant_terms};
 use serde::{Deserialize, Serialize};
+pub use variant_terms::{
+    VariantSpellings, codon_split, exact_terms, is_criteria_group, variant_terms,
+};
 const MAX_ALTERNATIVES: usize = 5;
 biodata::wire_enum! {
     /// Registry funding category facet.

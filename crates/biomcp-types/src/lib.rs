@@ -57,7 +57,8 @@ pub use query::{
 };
 pub use query::{
     NciBiomarkerUse, NciStatusFilter, TrialFilter, TrialPhaseFilter, TrialSearch, TrialSource,
-    TrialStatusFilter, VariantSpellings, codon_split, is_criteria_group, variant_terms,
+    TrialStatusFilter, VariantSpellings, codon_split, exact_terms, is_criteria_group,
+    variant_terms,
 };
 pub use query::{
     NormalizationSource, VariantGet, VariantGetEcho, VariantNormalize, VariantResolver,

@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=3&query.term=V600E",
+  "exchanges": [
+    {
+      "fetched": 1794508768,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 133,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":260,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT05900219","briefTitle":"Efficacy and Safety of HL-085 Combined With Vemurafenib in BRAF V600E Patients With Non-small Cell Lung Cancer: a Phase II Clinical Study"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"2023-09-24","type":"ESTIMATED"},"primaryCompletionDateStruct":{"date":"2025-09-24","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2023-06-12"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Shanghai Kechow Pharma, Inc."}},"conditionsModule":{"conditions":["Non-small-cell Lung Cancer"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"HL-085+Vemurafenib"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01266967","briefTitle":"A Study of GSK2118436 in BRAF Mutant Metastatic Melanoma to the Brain"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"2011-02"},"primaryCompletionDateStruct":{"date":"2011-11","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2014-05-08"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"GlaxoSmithKline"}},"conditionsModule":{"conditions":["Melanoma and Brain Metastases"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"GSK2118436"}]}},"hasResults":true},
+{"protocolSection":{"identificationModule":{"nctId":"NCT02109653","briefTitle":"Efficacy and Safety of LGX818 in Patients With Advanced or Metastatic BRAF V600 Mutant NSCLC"},"statusModule":{"overallStatus":"WITHDRAWN","startDateStruct":{"date":"2015-06"},"primaryCompletionDateStruct":{"date":"2017-11","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2020-11-13"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Array Biopharma, now a wholly owned subsidiary of Pfizer"}},"conditionsModule":{"conditions":["Non-Small Cell Lung Cancer"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"LGX818"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxqYfOn2_g"}
+      }
+    }
+  ]
+}

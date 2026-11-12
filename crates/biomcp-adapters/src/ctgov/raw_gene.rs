@@ -43,6 +43,18 @@ impl RawPage {
     }
 }
 
+impl RawPage {
+    /// Returned row identities.
+    pub(in crate::ctgov) fn ids(&self) -> std::collections::BTreeSet<biodata::NctId> {
+        self.studies
+            .iter()
+            .flatten()
+            .filter_map(Field::as_ref)
+            .map(|row| row.protocol_section.identification_module.nct_id)
+            .collect()
+    }
+}
+
 impl Protocol {
     fn writes_any(&self, words: &[String]) -> bool {
         let eligibility = self
