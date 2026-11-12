@@ -37,11 +37,27 @@ fn literal(value: &Text) -> String {
         value.as_str().replace('\\', "\\\\").replace('"', "\\\"")
     )
 }
-fn expression(q: &DrugSearch) -> String {
+/// BioMCP's own bound on one native recall request, so a name group stays one request.
+const NAME_QUERY_MAX_BYTES: usize = 4096;
+
+/// Whether one request can carry this name group with the search's other filters.
+pub fn names_fit(q: &DrugSearch, names: &[Text]) -> bool {
+    expression(q, names).len() <= NAME_QUERY_MAX_BYTES
+}
+
+/// The native selector: each name in the product description or harmonized names, with the
+/// other filters. One name gives the typed name's own selector.
+fn expression(q: &DrugSearch, names: &[Text]) -> String {
     let mut terms = Vec::new();
-    if let Some(v) = q.query() {
-        let name = literal(v);
-        terms.push(format!("(product_description:{name} OR openfda.brand_name:{name} OR openfda.generic_name:{name})"));
+    if !names.is_empty() {
+        let names: Vec<_> = names
+            .iter()
+            .map(|name| {
+                let name = literal(name);
+                format!("product_description:{name} OR openfda.brand_name:{name} OR openfda.generic_name:{name}")
+            })
+            .collect();
+        terms.push(format!("({})", names.join(" OR ")));
     }
     for (field, value) in [
         ("recalling_firm", q.firm()),
@@ -65,7 +81,14 @@ fn expression(q: &DrugSearch) -> String {
 }
 /// Search one bounded source-ordered native page.
 pub fn search(leg: &Leg<'_>, q: &DrugSearch) -> Result<Page, RequestError> {
-    let selector = expression(q);
+    let names: Vec<Text> = q.query().cloned().into_iter().collect();
+    search_names(leg, q, &names)
+}
+
+/// Search one bounded page for a group of names in one native query; the total is the
+/// source's own count for that query, never a sum per name.
+pub fn search_names(leg: &Leg<'_>, q: &DrugSearch, names: &[Text]) -> Result<Page, RequestError> {
+    let selector = expression(q, names);
     let mut args = Vec::new();
     if !selector.is_empty() {
         args.push(("search", Arg::Text(&selector)));

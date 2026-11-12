@@ -19,10 +19,36 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         .with_query(q.clone()),
     );
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
+    let fits = |names: &[biodata::Text]| source::names_fit(q, names);
+    let mut widened = None;
+    if q.widens_drug_names()
+        && (q.name_snapshot().is_some() || !cx.fetch.disabled(Source::FdaDrugRecall))
+        && q.query().is_some_and(|typed| fits(std::slice::from_ref(typed)))
+    {
+        match super::widen::prepare(cx, q, &mut deadline, fits) {
+            Ok(Some(saved)) => widened = Some(saved),
+            Ok(None) => {
+                super::widen::missing(q, &mut out);
+                return out;
+            }
+            Err(error) => {
+                out.local = Some(error);
+                return out;
+            }
+        }
+    }
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let result = source::search(&leg, q);
+    let result = match widened.as_mut() {
+        Some(saved) => widened_page(&leg, q, saved),
+        None => source::search(&leg, q),
+    };
     let error = result.as_ref().err().copied();
+    // The search status comes from the source outcomes below, so the outcome can come first.
+    finish(&mut out, leg, error);
+    let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, result.is_ok(), &mut out);
+    let query = q;
+    let q = &sent;
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
         {
@@ -74,10 +100,29 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         })
         .with_query(q.clone());
     }
-    finish(&mut out, leg, error);
     status::search(&mut out);
+    if let Some(saved) = widened {
+        super::widen::finish(query, saved, SEARCHED, &mut out);
+    }
     command.finish(deadline.remaining());
     out
+}
+
+const SEARCHED: &str = "Searched these names in one recall query; the total is openFDA's own \
+    count of matching recall records, not a sum per name.";
+
+/// Search the name group; after a refusal, search the typed name alone and keep it.
+fn widened_page(
+    leg: &Leg<'_>,
+    q: &DrugSearch,
+    saved: &mut super::widen::Saved<()>,
+) -> Result<source::Page, RequestError> {
+    let result = source::search_names(leg, q, &saved.names);
+    if saved.names.len() < 2 || !super::search_names::rejected(result.as_ref().err()) {
+        return result;
+    }
+    saved.reject(q);
+    source::search_names(leg, q, &saved.names)
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
     let mut out = empty(biomcp_types::DrugRecallCard::into_reply(q.clone(), None));
