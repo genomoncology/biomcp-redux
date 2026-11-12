@@ -33,7 +33,6 @@
               "--exact-term",
               "--gene",
               "KIT",
-              "--exact-term",
               "--limit",
               "100"
             ]
