@@ -22,6 +22,10 @@ Bench 0037's blind persona rerun (2026-11-12) found this the largest silent unde
 - Starts from: trial search's `--variant`/`--criteria` paths in `crates/biomcp-query/src/trial/`, the variant normalizers BioMCP already has (`variant_normalize`, HGVS protein forms), and 0830's widening pattern (one disclosure notice, frozen names, never fewer than literal, totals not summed).
 - PM decision: 2026-11-12. Design review first: whether widening a specific change (V600E) to its codon (V600) is right is a clinical-meaning question, since V600K patients match V600 trials too. Default to exact change in its spellings; codon widening only if the review shows trials mostly write the codon and the reply says so. Consult expert-assist if this stays unsettled.
 
+## Amendment, 2026-11-12
+
+PM rulings on the design review below. (1) Accept the proposal: `--variant` searches general text OR eligibility criteria in one query, in this ticket, since that is the larger part of the measured gap (V600E 260 to 631). (2) Codon: option (b). Add the codon form only when `--gene` is given and mark codon-only trials individually; without a gene, no codon, only the next-step suggestion. The "most trials write the codon" test is dropped. (3) Spellings as proposed: four protein forms, the fixed exon N deletion/insertion set, no DNA-level forms, typed text always included. (4) A new notice kind with trial-page/16 is accepted; the notice stays compact, one line in 0830's style. (5) If the registry rejects the widened query, search the typed text and say so.
+
 ## Keeps
 
 - Keeps: literal search with `--exact-term`; no result presented as widened when it was not; native totals never summed per spelling; existing trial row fields and paging.
