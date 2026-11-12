@@ -11,9 +11,9 @@ mod next;
 mod openfda_label;
 mod recall;
 mod resolve;
-mod widen;
 pub(crate) mod search_names;
 pub(crate) mod who;
+mod widen;
 use crate::{Ctx, Outcome, status};
 /// Search selected-source records, consulting source-stated names only after an empty lookup.
 pub(crate) use aliases::search as search_with_aliases;

@@ -52,7 +52,9 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     missing.drain(index..=index + 1);
     let fresh = invoke(env, missing, 0)?;
     if selector(&fresh)? != selector(first)? {
-        return Err(format!("a page without its snapshot searched other names: {fresh}"));
+        return Err(format!(
+            "a page without its snapshot searched other names: {fresh}"
+        ));
     }
     let mut bad = next.clone();
     *bad.get_mut(index + 1).ok_or("value")? = "synthetic-missing".into();
@@ -132,7 +134,9 @@ pub(super) fn tier() -> Check {
     let (env, stub) = setup(7, json!({}))?;
     let first = invoke(&env, args(true), 0)?;
     if selector(&first)?.contains("openfda.") || first.pointer("/page/total") != Some(&json!(2)) {
-        return Err(format!("empty name step did not advance to label text: {first}"));
+        return Err(format!(
+            "empty name step did not advance to label text: {first}"
+        ));
     }
     let mut next = crate::runner::action(&first, "page")?;
     next.push("--fresh".into());
@@ -239,7 +243,9 @@ fn native(requests: &[(String, String)], expected: &str) -> Check {
             continue;
         }
         if !selector.contains("indications_and_usage:\"Synthetic indication\"") {
-            return Err(format!("widened label request lost the indication: {selector}"));
+            return Err(format!(
+                "widened label request lost the indication: {selector}"
+            ));
         }
         if selector == expected || selector.contains(" AND NOT ") {
             continue;

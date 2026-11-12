@@ -27,23 +27,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let fits = |names: &[Text]| source::names_fit(names, query.applicant());
-    let mut widened = None;
-    if query.widens_drug_names()
-        && (query.name_snapshot().is_some() || !cx.fetch.disabled(Source::Drugsfda))
-        && query.query().is_some_and(|typed| fits(std::slice::from_ref(typed)))
-    {
-        match super::widen::prepare(cx, query, &mut deadline, fits) {
-            Ok(Some(saved)) => widened = Some(saved),
-            Ok(None) => {
-                super::widen::missing(query, &mut out);
-                return out;
-            }
-            Err(error) => {
-                out.local = Some(error);
-                return out;
-            }
-        }
-    }
+    let Ok(mut widened) = super::widen::begin(cx, query, &mut deadline, fits, &mut out) else {
+        return out;
+    };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result = match (widened.as_mut(), query.query()) {
         (Some(saved), Some(typed)) => widened_page(&leg, query, typed, saved),

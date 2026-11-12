@@ -27,8 +27,10 @@ pub(super) fn typed(query: &DrugSearch) -> Option<NameGroup> {
 
 pub(super) fn search(leg: &biomcp_fetch::Leg<'_>, query: &DrugSearch, saved: &mut Saved) -> Search {
     let page = (query.limit(), query.offset());
-    let (Some(typed), Some(group)) = (typed(query), NameGroup::new(&saved.names, query.indication()))
-    else {
+    let (Some(typed), Some(group)) = (
+        typed(query),
+        NameGroup::new(&saved.names, query.indication()),
+    ) else {
         // Both were checked before the search, so only a damaged snapshot reaches this.
         return Search {
             page: Err(biomcp_fetch::CacheError::Snapshot.into()),

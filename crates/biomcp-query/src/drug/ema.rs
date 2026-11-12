@@ -20,23 +20,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut widened: Option<super::widen::Saved<()>> = None;
-    if query.widens_drug_names()
-        && (query.name_snapshot().is_some() || !cx.fetch.disabled(Source::Ema))
-    {
-        // Each name is its own local lookup, so no request bound limits the group.
-        match super::widen::prepare(cx, query, &mut deadline, |_| true) {
-            Ok(Some(saved)) => widened = Some(saved),
-            Ok(None) => {
-                super::widen::missing(query, &mut out);
-                return out;
-            }
-            Err(error) => {
-                out.local = Some(error);
-                return out;
-            }
-        }
-    }
+    // Each EMA name is its own local lookup, so no request bound limits the group.
+    let Ok(widened) = super::widen::begin::<()>(cx, query, &mut deadline, |_| true, &mut out)
+    else {
+        return out;
+    };
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
     let result = match &widened {
         Some(saved) => union(&leg, &saved.names),

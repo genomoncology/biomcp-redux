@@ -147,5 +147,8 @@ pub fn search_expanded(
     if settled {
         return found(NameStep::Indication, page);
     }
-    found(NameStep::Text, group.page(leg, NameStep::Text, limit, offset))
+    found(
+        NameStep::Text,
+        group.page(leg, NameStep::Text, limit, offset),
+    )
 }

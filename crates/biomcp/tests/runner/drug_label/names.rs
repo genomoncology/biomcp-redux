@@ -144,7 +144,14 @@ fn args(expand: bool) -> Vec<String> {
     .map(str::to_owned)
     .to_vec();
     // The retired opt-in is still accepted and changes nothing; the opt-out searches as typed.
-    words.push(if expand { "--expand-drug-names" } else { "--exact-term" }.into());
+    words.push(
+        if expand {
+            "--expand-drug-names"
+        } else {
+            "--exact-term"
+        }
+        .into(),
+    );
     words
 }
 fn selector(value: &Value) -> Result<&str, String> {

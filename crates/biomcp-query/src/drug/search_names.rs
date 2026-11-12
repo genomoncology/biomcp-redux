@@ -428,9 +428,7 @@ pub(crate) fn article<'a>(
     query
         .drug_name_input()
         .map_or_else(Resolved::default, |input| {
-            bounded(deadline, |lookup| {
-                resolve(cx, input, out, lookup, any)
-            })
+            bounded(deadline, |lookup| resolve(cx, input, out, lookup, any))
         })
 }
 

@@ -61,11 +61,23 @@ pub fn search(
     offset: u32,
 ) -> Result<Page, RequestError> {
     let names: Vec<Text> = text.cloned().into_iter().collect();
-    let exact = page(leg, &selector(&names, applicant, NameStep::Exact), limit, offset, None)?;
+    let exact = page(
+        leg,
+        &selector(&names, applicant, NameStep::Exact),
+        limit,
+        offset,
+        None,
+    )?;
     if exact.total > 0 || text.is_none() {
         return Ok(exact);
     }
-    page(leg, &selector(&names, applicant, NameStep::Words), limit, offset, None)
+    page(
+        leg,
+        &selector(&names, applicant, NameStep::Words),
+        limit,
+        offset,
+        None,
+    )
 }
 
 /// BioMCP's own bound on one native Drugs@FDA request, so a name group stays one request.
@@ -95,7 +107,11 @@ fn sponsor(applicant: &Text) -> String {
 
 /// One native selector for a name group at one step, narrowed by the applicant prefix.
 fn selector(names: &[Text], applicant: Option<&Text>, step: NameStep) -> String {
-    let suffix = if step == NameStep::Exact { ".exact" } else { "" };
+    let suffix = if step == NameStep::Exact {
+        ".exact"
+    } else {
+        ""
+    };
     let names = (!names.is_empty()).then(|| {
         names
             .iter()
@@ -140,7 +156,13 @@ pub fn search_widened(
     };
     if found && names.len() > 1 {
         let typed = std::slice::from_ref(typed);
-        match page(leg, &selector(typed, applicant, NameStep::Exact), 1, 0, None) {
+        match page(
+            leg,
+            &selector(typed, applicant, NameStep::Exact),
+            1,
+            0,
+            None,
+        ) {
             Ok(page) if page.total > 0 => return (exact, NameStep::Exact),
             Ok(_) => {}
             Err(error) => return (Err(error), NameStep::Exact),

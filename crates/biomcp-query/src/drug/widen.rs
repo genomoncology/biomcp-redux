@@ -35,6 +35,36 @@ fn namespace(query: &DrugSearch) -> String {
     format!("{}-drug-names", query.source())
 }
 
+/// Start a widened search when the query widens and its source can run: `Ok(None)` searches
+/// the typed name as before, and `Err(())` means the reply in `out` is already final.
+pub(super) fn begin<'a, S: Serialize + DeserializeOwned>(
+    cx: &Ctx<'a>,
+    query: &DrugSearch,
+    deadline: &mut Deadline<'a>,
+    fits: impl Fn(&[Text]) -> bool,
+    out: &mut Outcome,
+) -> Result<Option<Saved<S>>, ()> {
+    if !query.widens_drug_names()
+        || (query.name_snapshot().is_none() && cx.fetch.disabled(query.source().source()))
+        || !query
+            .query()
+            .is_some_and(|typed| fits(std::slice::from_ref(typed)))
+    {
+        return Ok(None);
+    }
+    match prepare(cx, query, deadline, fits) {
+        Ok(Some(saved)) => Ok(Some(saved)),
+        Ok(None) => {
+            missing(query, out);
+            Err(())
+        }
+        Err(error) => {
+            out.local = Some(error);
+            Err(())
+        }
+    }
+}
+
 /// Read the first page's names from a continuation, or look them up for a first page.
 /// `fits` says whether one native request can carry a name group.
 pub(super) fn prepare<'a, S: Serialize + DeserializeOwned>(

@@ -119,7 +119,14 @@ fn args(expand: bool) -> Vec<String> {
         .map(str::to_owned)
         .to_vec();
     // The retired opt-in is still accepted and changes nothing; the opt-out searches as typed.
-    words.push(if expand { "--expand-drug-names" } else { "--exact-term" }.into());
+    words.push(
+        if expand {
+            "--expand-drug-names"
+        } else {
+            "--exact-term"
+        }
+        .into(),
+    );
     words
 }
 
@@ -312,7 +319,9 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
     missing.drain(index..=index + 1);
     let fresh = invoke(env, missing, 0)?;
     if query(&fresh)? != query(first)? {
-        return Err(format!("a page without its snapshot searched other names: {fresh}"));
+        return Err(format!(
+            "a page without its snapshot searched other names: {fresh}"
+        ));
     }
     let mut tampered = next.clone();
     *tampered.get_mut(index + 1).ok_or("snapshot value")? = "synthetic-missing".into();
