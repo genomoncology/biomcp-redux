@@ -1,0 +1,73 @@
+{
+  "live_check": "synthetic authored replies; no live provider observation",
+  "feature": "diagnostic-device-recall",
+  "story": "Recall pages page at offsets 0, 10 and 20 with limit 10 when one source record carries a multi-megabyte lot list, keeping every record and the native total.",
+  "verified": "Source lot lists (code_info) reach 9.9 MB in one record (Z-1645-2026) and 19 MB across a 50-record page in the openFDA device recall bulk export of 2026-11-10; the synthetic Z-0112-2025 lot list passes the former 2 MiB reply bound.",
+  "replay": "diagnostic/recall-large-lots",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Large lot maker",
+        "--limit",
+        "10",
+        "--offset",
+        "0"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 0,
+        "/page/returned": 10,
+        "/page/total": 25,
+        "/result/items/0/header/recall_number": "Z-0100-2025"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Large lot maker",
+        "--limit",
+        "10",
+        "--offset",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 10,
+        "/page/returned": 10,
+        "/page/total": 25,
+        "/result/items/2/header/recall_number": "Z-0112-2025",
+        "/result/items/2/classification": "Class II"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Large lot maker",
+        "--limit",
+        "10",
+        "--offset",
+        "20"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 20,
+        "/page/returned": 5,
+        "/page/total": 25,
+        "/result/items/4/header/recall_number": "Z-0124-2025"
+      }
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=recalling_firm%3A%22Large%20lot%20maker%22&limit=10&skip=0&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1792921798,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 0,
+              "limit": 10,
+              "total": 25
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-0100-2025",
+              "res_event_number": "900",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-12-28"
+            },
+            {
+              "product_res_number": "Z-0101-2025",
+              "res_event_number": "900",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-12-27"
+            },
+            {
+              "product_res_number": "Z-0102-2025",
+              "res_event_number": "901",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-12-26"
+            },
+            {
+              "product_res_number": "Z-0103-2025",
+              "res_event_number": "901",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-11-28"
+            },
+            {
+              "product_res_number": "Z-0104-2025",
+              "res_event_number": "902",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-11-27"
+            },
+            {
+              "product_res_number": "Z-0105-2025",
+              "res_event_number": "902",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-11-26"
+            },
+            {
+              "product_res_number": "Z-0106-2025",
+              "res_event_number": "903",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-10-28"
+            },
+            {
+              "product_res_number": "Z-0107-2025",
+              "res_event_number": "903",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-10-27"
+            },
+            {
+              "product_res_number": "Z-0108-2025",
+              "res_event_number": "904",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-10-26"
+            },
+            {
+              "product_res_number": "Z-0109-2025",
+              "res_event_number": "904",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-09-28"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

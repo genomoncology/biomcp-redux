@@ -1,6 +1,7 @@
 # 0864 — device-recall-paging-at-small-offsets
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: b3a49471c47ca6698b8392ec68dc3663daf31fdb
 
 Milestone: 7
 
