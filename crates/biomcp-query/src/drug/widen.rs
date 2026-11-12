@@ -7,7 +7,7 @@ use biomcp_types::{DrugSearch, Paged, ReplyData, Request, SourceNotice, StepKind
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 #[derive(Serialize, Deserialize)]
-#[serde(bound = "S: Serialize + DeserializeOwned")]
+#[serde(bound(serialize = "S: Serialize", deserialize = "S: DeserializeOwned"))]
 pub(super) struct Saved<S> {
     pub(super) names: Vec<Text>,
     sources: Vec<biomcp_types::SourceOutcome>,

@@ -20,7 +20,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let mut widened = None;
+    let mut widened: Option<super::widen::Saved<()>> = None;
     if query.widens_drug_names()
         && (query.name_snapshot().is_some() || !cx.fetch.disabled(Source::Ema))
     {
