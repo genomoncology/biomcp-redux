@@ -1,0 +1,65 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "feature": "diagnostic-gtr",
+  "story": "A lab director looking up the HAMA assay by name sees tests that hold HAMA as a whole word before tests where it only sits inside a longer word such as Hamartoma, and each row says which kind of match it is.",
+  "replay": "diagnostic/gtr-words",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 198,
+      "expect": {
+        "/schema": "biomcp.sync/7",
+        "/result/rows": 4
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "hama"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "hama"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/page/total": 2,
+        "/result/items/0/header/id": "GTR000000202.1",
+        "/result/items/0/name_match": "whole-word",
+        "/result/items/1/header/id": "GTR000000201.1",
+        "/result/items/1/name_match": "partial-word"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "HAMA",
+        "--gene",
+        "PTEN"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/page/total": 2,
+        "/result/items/0/header/id": "GTR000000202.1",
+        "/result/items/0/name_match": "whole-word",
+        "/result/items/1/header/id": "GTR000000201.1",
+        "/result/items/1/name_match": "partial-word"
+      }
+    }
+  ]
+}

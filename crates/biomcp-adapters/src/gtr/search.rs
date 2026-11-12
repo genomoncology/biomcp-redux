@@ -35,7 +35,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         named => relations(leg, query, named.as_ref()),
     }
 }
-/// Relation-selected tests, narrowed to name matches when a name is given.
+/// Relation-selected tests, narrowed to name matches when a name is given, whole-word matches first.
 fn relations(
     leg: &Leg<'_>,
     query: &DiagnosticSearch,
@@ -77,12 +77,13 @@ fn relations(
         if let Native::Relation(r) = row.value
             && let Some(relation) = map::relation(&r, &mut cx, &mut refusals)
             && matches(&r, query)
-            && named.is_none_or(|n| n.contains(&r.id))
+            && let Some(name_match) = named.map_or(Some(None), |n| n.matched(&r.id).map(Some))
             && seen.insert(r.id.clone())
         {
-            matched.push((r, relation));
+            matched.push((r, relation, name_match));
         }
     }
+    matched.sort_by_key(|(_, _, m)| *m == Some(biomcp_types::GtrNameMatch::PartialWord));
     let total = matched.len() as u64;
     let page: Vec<_> = matched
         .into_iter()
@@ -103,10 +104,14 @@ fn relations(
 fn cards(
     leg: &Leg<'_>,
     info: &BundleInfo,
-    page: &[(Relation, biodata::GtrTestRelation)],
+    page: &[(
+        Relation,
+        biodata::GtrTestRelation,
+        Option<biomcp_types::GtrNameMatch>,
+    )],
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<Box<[DiagnosticCandidate]>, RequestError> {
-    let ids: Vec<_> = page.iter().map(|(r, _)| r.id.to_string()).collect();
+    let ids: Vec<_> = page.iter().map(|(r, ..)| r.id.to_string()).collect();
     let keys: Vec<_> = ids.iter().map(String::as_str).collect();
     let (versions, other) = bundle::read(leg, Find::AnyExact(KeyKind::Id, &keys))?;
     if other.content_revision != info.content_revision {
@@ -122,10 +127,11 @@ fn cards(
         }
     }
     page.iter()
-        .map(|(r, relation)| {
+        .map(|(r, relation, name_match)| {
             candidate(
                 r,
                 relation.clone(),
+                *name_match,
                 by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(),
                 problems,
             )
@@ -146,6 +152,7 @@ fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
 fn candidate(
     r: &Relation,
     relation: biodata::GtrTestRelation,
+    name_match: Option<biomcp_types::GtrNameMatch>,
     versions: &[Box<biodata::GtrTestVersion>],
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<DiagnosticCandidate, RequestError> {
@@ -153,6 +160,7 @@ fn candidate(
         [v] if v.now_current.as_ref() == "1" => DiagnosticCandidate::Resolved {
             header: map::header(v, problems)?,
             matched: Some(relation),
+            name_match,
         },
         [] | [_] => DiagnosticCandidate::MissingCard {
             id: r.id.clone(),
@@ -161,6 +169,7 @@ fn candidate(
         _ => DiagnosticCandidate::Conflict {
             id: r.id.clone(),
             problem: super::conflict(&r.id),
+            name_match,
         },
     })
 }

@@ -2,7 +2,7 @@
 use super::{bundle, map, raw::Native};
 use biodata::{GtrTestId, GtrTestVersion};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
-use biomcp_types::{DiagnosticCandidate, DiagnosticSearch, Problem};
+use biomcp_types::{DiagnosticCandidate, DiagnosticSearch, GtrNameMatch, Problem};
 use std::collections::HashMap;
 type Version = Box<GtrTestVersion>;
 
@@ -11,18 +11,32 @@ pub(super) fn contains(name: &str, query: &str) -> bool {
     name.to_lowercase().contains(&query.to_lowercase())
 }
 
-/// Matching identities from the complete version report, in report order.
+/// Whether a lower-cased needle occurs in a name with no letter or digit touching either end.
+fn whole_word(name: &str, needle: &str) -> bool {
+    let name = name.to_lowercase();
+    name.match_indices(needle).any(|(at, _)| {
+        !name[..at].chars().next_back().is_some_and(char::is_alphanumeric)
+            && !name[at + needle.len()..]
+                .chars()
+                .next()
+                .is_some_and(char::is_alphanumeric)
+    })
+}
+
+/// Matching identities from the complete version report: whole-word matches, then
+/// partial-word matches, each in report order.
 pub(super) struct Named {
     ids: Vec<GtrTestId>,
     versions: HashMap<GtrTestId, Vec<Version>>,
+    matches: HashMap<GtrTestId, GtrNameMatch>,
     pub(super) refusals: crate::Refusal,
     pub(super) problems: Vec<Problem>,
     pub(super) info: BundleInfo,
 }
 impl Named {
-    /// Whether this exact identity has a matching current or conflicting card.
-    pub(super) fn contains(&self, id: &GtrTestId) -> bool {
-        self.versions.contains_key(id)
+    /// How this exact identity's current or conflicting card matched, if it did.
+    pub(super) fn matched(&self, id: &GtrTestId) -> Option<GtrNameMatch> {
+        self.matches.get(id).copied()
     }
 }
 
@@ -59,23 +73,36 @@ pub(super) fn read(
             Native::Refused(_) | Native::Relation(_) => {}
         }
     }
-    versions.retain(|_, list| listed(list, &needle));
-    ids.retain(|id| versions.contains_key(id));
+    let matches: HashMap<_, _> = versions
+        .iter()
+        .filter_map(|(id, list)| Some((id.clone(), listed(list, &needle)?)))
+        .collect();
+    versions.retain(|id, _| matches.contains_key(id));
+    ids.retain(|id| matches.contains_key(id));
+    ids.sort_by_key(|id| matches.get(id) != Some(&GtrNameMatch::WholeWord));
     Ok(Named {
         ids,
         versions,
+        matches,
         refusals,
         problems: cx.list,
         info,
     })
 }
 
-/// A current card, or every row of an accession/version conflict, whose name matches.
-fn listed(list: &[Version], needle: &str) -> bool {
-    (list.len() > 1 || list.iter().all(|v| v.now_current.as_ref() == "1"))
-        && list
-            .iter()
-            .any(|v| v.lab_test_name.to_lowercase().contains(needle))
+/// How a current card, or any row of an accession/version conflict, matches by name.
+fn listed(list: &[Version], needle: &str) -> Option<GtrNameMatch> {
+    if list.len() == 1 && list[0].now_current.as_ref() != "1" {
+        return None;
+    }
+    let names = || list.iter().map(|v| &*v.lab_test_name);
+    if names().any(|name| whole_word(name, needle)) {
+        Some(GtrNameMatch::WholeWord)
+    } else {
+        names()
+            .any(|name| name.to_lowercase().contains(needle))
+            .then_some(GtrNameMatch::PartialWord)
+    }
 }
 
 /// Page name-only matches; a conflict stays visible and no card is chosen for it.
@@ -83,6 +110,7 @@ pub(super) fn page(named: Named, query: &DiagnosticSearch) -> Result<super::Sear
     let Named {
         ids,
         versions,
+        matches,
         refusals,
         mut problems,
         info,
@@ -97,11 +125,13 @@ pub(super) fn page(named: Named, query: &DiagnosticSearch) -> Result<super::Sear
                 [v] => Ok(DiagnosticCandidate::Resolved {
                     header: map::header(v, &mut problems)?,
                     matched: None,
+                    name_match: matches.get(id).copied(),
                 }),
                 [] => Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None)),
                 _ => Ok(DiagnosticCandidate::Conflict {
                     id: id.clone(),
                     problem: super::conflict(id),
+                    name_match: matches.get(id).copied(),
                 }),
             },
         )
