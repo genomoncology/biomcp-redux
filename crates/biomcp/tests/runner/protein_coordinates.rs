@@ -26,6 +26,18 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
     }
     guidance(&markdown)?;
     let args: Vec<_> = args.iter().map(|s| (*s).to_owned()).collect();
+    // The default form sends a success's JSON alone; a form with JSON text adds the note.
+    let path = env.root().join("config/biomcp/config.json");
+    let original = std::fs::read(&path).ok();
+    let mut config: Value = original
+        .as_deref()
+        .and_then(|bytes| serde_json::from_slice(bytes).ok())
+        .unwrap_or_else(|| json!({}));
+    config
+        .as_object_mut()
+        .ok_or("configuration object")?
+        .insert("mcp_reply_form".into(), json!("both"));
+    env.config(&config).map_err(|e| e.to_string())?;
     let messages = super::mcp::exchange(
         env,
         &[super::mcp::request(
@@ -33,7 +45,13 @@ pub(super) fn check(env: &Environment, args: &[&str], first: &Value) -> Result<(
             "tools/call",
             json!({"name":"biomcp","arguments":{"args":args}}),
         )],
-    )?;
+    );
+    match original {
+        Some(bytes) => std::fs::write(&path, bytes),
+        None => std::fs::remove_file(&path),
+    }
+    .map_err(|e| e.to_string())?;
+    let messages = messages?;
     let reply = messages.first().ok_or("missing protein MCP reply")?;
     let structured = reply
         .pointer("/result/structuredContent")

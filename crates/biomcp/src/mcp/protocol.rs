@@ -143,13 +143,10 @@ pub(super) fn tool_result(
 }
 // The JSON value is the whole text: no status line or summary precedes it.
 fn content(value: Value, failed: bool, form: ReplyForm) -> Value {
-    let note = crate::view::protein::note(&value);
-    // A note beside an empty text list would replace the JSON in clients that prefer text,
-    // so a success that carries coordinate guidance sends both copies (ticket 0811).
-    let form = match form {
-        ReplyForm::Once if !failed && note.is_some() => ReplyForm::Both,
-        form => form,
-    };
+    // A note beside an empty text list would replace the JSON in clients that prefer text.
+    let note = (!matches!(form, ReplyForm::Once) || failed)
+        .then(|| crate::view::protein::note(&value))
+        .flatten();
     let text = json!([{"type":"text","text":value.to_string()}]);
     let mut result = match form {
         ReplyForm::Once if failed => json!({"content":text, "isError":true}),
