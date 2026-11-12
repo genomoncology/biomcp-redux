@@ -1,0 +1,265 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "1c7dc4c44a17a8abf5982d12fb21ac3aab22300c33504e2efc8897262e863210"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "evidenceItems": {
+              "totalCount": 13,
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "MTA"
+              },
+              "nodes": [
+                {
+                  "id": 2994,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "A",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "24868098",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 275,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Gefitinib"
+                    },
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": "SUBSTITUTES",
+                  "source": {
+                    "citationId": "24457318",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 229,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Gefitinib"
+                    },
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": "SUBSTITUTES",
+                  "source": {
+                    "citationId": "24736073",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 885,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "22285168",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 12203,
+                  "status": "SUBMITTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "DOES_NOT_SUPPORT",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Gefitinib"
+                    },
+                    {
+                      "name": "Erlotinib"
+                    },
+                    {
+                      "name": "Afatinib"
+                    }
+                  ],
+                  "therapyInteractionType": "SUBSTITUTES",
+                  "source": {
+                    "citationId": "34298851",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 4290,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "B",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Adenocarcinoma",
+                    "doid": "3910"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "27032107",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 2632,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "C",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "15329413",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 4265,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "D",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "17877814",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 4286,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "D",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "24353160",
+                    "sourceType": "PUBMED"
+                  }
+                },
+                {
+                  "id": 4284,
+                  "status": "ACCEPTED",
+                  "evidenceType": "PREDICTIVE",
+                  "evidenceLevel": "D",
+                  "evidenceDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "source": {
+                    "citationId": "18408761",
+                    "sourceType": "PUBMED"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "a1708696b3514be6e08d63316d63bed0f5dc5b20703d30d61ea2f464cba2c24f"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "molecularProfiles": {
+              "totalCount": 11,
+              "pageInfo": {
+                "hasNextPage": true,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 33,
+                  "name": "EGFR L858R",
+                  "rawName": "#VID33",
+                  "link": "/molecular-profiles/33",
+                  "isComplex": false,
+                  "variants": [
+                    {
+                      "id": 33,
+                      "name": "L858R",
+                      "link": "/variants/33",
+                      "feature": {
+                        "id": 19,
+                        "name": "EGFR"
+                      },
+                      "alleleRegistryId": "CA126713",
+                      "hgvsDescriptions": [
+                        "NC_000007.13:g.55259515T>G",
+                        "NM_005228.4:c.2573T>G",
+                        "ENST00000275493.2:c.2573T>G",
+                        "NP_005219.2:p.Leu858Arg",
+                        "NC_000007.14:g.55191822T>G",
+                        "ENSP00000275493.2:p.Leu858Arg"
+                      ]
+                    }
+                  ],
+                  "evidenceItems": {
+                    "totalCount": 48,
+                    "pageInfo": {
+                      "hasNextPage": true,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  },
+                  "assertions": {
+                    "totalCount": 5,
+                    "pageInfo": {
+                      "hasNextPage": true,
+                      "endCursor": null
+                    },
+                    "nodes": []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

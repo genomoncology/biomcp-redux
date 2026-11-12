@@ -1,0 +1,52 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "5cf34a08fbc3b4eae93eaeeacb5524d36abf33c20700d6d5d9ea03210115bc59"
+  },
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "data": {
+            "assertions": {
+              "totalCount": 1,
+              "pageInfo": {
+                "hasNextPage": false,
+                "endCursor": "MQ"
+              },
+              "nodes": [
+                {
+                  "id": 5,
+                  "status": "ACCEPTED",
+                  "assertionType": "PREDICTIVE",
+                  "assertionDirection": "SUPPORTS",
+                  "significance": "SENSITIVITYRESPONSE",
+                  "ampLevel": "TIER_I_LEVEL_A",
+                  "disease": {
+                    "name": "Lung Non-small Cell Carcinoma",
+                    "doid": "3908"
+                  },
+                  "therapies": [
+                    {
+                      "name": "Erlotinib"
+                    }
+                  ],
+                  "therapyInteractionType": null,
+                  "variantOrigin": "SOMATIC"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

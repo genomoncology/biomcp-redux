@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "3928c64de248da22fc405476be2baac9b0d03290da156697b035f28bf750b44f"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794520327,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 90,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"variants":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":"MQ"},"nodes":[{"id":415,"name":"C797S","link":"/variants/415","feature":{"id":19,"name":"EGFR"},"alleleRegistryId":"CA16602785","hgvsDescriptions":["NC_000007.13:g.55249091T\u003eA","ENST00000275493.2:c.2389T\u003eA","NM_005228.4:c.2389T\u003eA","NP_005219.2:p.Cys797Ser"]}]}}}
+      }
+    }
+  ]
+}

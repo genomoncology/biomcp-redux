@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/query?q=rs2128958701&size=1000&from=0&fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann%2Cchrom%2Chg19%2Chg38%2Cclingen.caid&assembly=hg38",
+  "exchanges": [
+    {
+      "fetched": 1794520327,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 301,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":5,"total":2,"max_score":10.807251,"hits":[{"_id":"chr7:g.55181399G>C","_score":10.807251,"chrom":"7","clingen":{"caid":"CA367578899"},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":[{"symbol":"EGFR"},{"symbol":"EGFR-AS1"}],"rsid":"rs2128958701"},"hg38":{"end":55181399,"start":55181399},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":[{"cdna":{"length":"5600","position":"2636"},"cds":{"length":"3633","position":"2390"},"effect":"missense_variant","feature_id":"NM_005228.3","feature_type":"transcript","gene_id":"EGFR","genename":"EGFR","hgvs_c":"c.2390G>C","hgvs_p":"p.Cys797Ser","protein":{"length":"1210","position":"797"},"putative_impact":"MODERATE","rank":"20","total":"28","transcript_biotype":"protein_coding"},{"effect":"non_coding_transcript_exon_variant","feature_id":"NR_047551.1","feature_type":"transcript","gene_id":"EGFR-AS1","genename":"EGFR-AS1","hgvs_c":"n.1172C>G","putative_impact":"MODIFIER","rank":"2","total":"2","transcript_biotype":"pseudogene"}]}},{"_id":"chr7:g.55181399G>A","_score":10.805489,"chrom":"7","clingen":{"caid":"CA367578897"},"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":[{"symbol":"EGFR"},{"symbol":"EGFR-AS1"}],"rsid":"rs2128958701"},"hg38":{"end":55181399,"start":55181399},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":[{"cdna":{"length":"5600","position":"2636"},"cds":{"length":"3633","position":"2390"},"effect":"missense_variant","feature_id":"NM_005228.3","feature_type":"transcript","gene_id":"EGFR","genename":"EGFR","hgvs_c":"c.2390G>A","hgvs_p":"p.Cys797Tyr","protein":{"length":"1210","position":"797"},"putative_impact":"MODERATE","rank":"20","total":"28","transcript_biotype":"protein_coding"},{"effect":"non_coding_transcript_exon_variant","feature_id":"NR_047551.1","feature_type":"transcript","gene_id":"EGFR-AS1","genename":"EGFR-AS1","hgvs_c":"n.1172C>T","putative_impact":"MODIFIER","rank":"2","total":"2","transcript_biotype":"pseudogene"}]}}]}
+      }
+    }
+  ]
+}

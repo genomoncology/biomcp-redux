@@ -178,6 +178,8 @@ biodata::wire_enum! {
     CivicMembership {
         /// Source member identity was checked against the requested variant.
         Exact => "exact",
+        /// A source member with another allele states the same protein change as the requested variant.
+        Protein => "protein",
         /// Only a source name matched; no claim is attached to an allele.
         Candidate => "candidate",
     }
