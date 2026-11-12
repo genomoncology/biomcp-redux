@@ -95,7 +95,9 @@ pub(super) fn read(
 
 /// How a current card, or any row of an accession/version conflict, matches by name.
 fn listed(list: &[Version], needle: &str) -> Option<GtrNameMatch> {
-    if list.len() == 1 && list[0].now_current.as_ref() != "1" {
+    if let [only] = list
+        && only.now_current.as_ref() != "1"
+    {
         return None;
     }
     let names = || list.iter().map(|v| &*v.lab_test_name);
