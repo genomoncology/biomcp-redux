@@ -26,7 +26,7 @@
           "search",
           "pathway"
         ],
-        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.",
+        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nFields: id, name, revision, species, version. Choose some with --fields a,b (typed: fields list); always kept: id, species.",
         "/result/commands/0/examples": {
           "count": 1
         },

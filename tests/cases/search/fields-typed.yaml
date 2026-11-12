@@ -5,7 +5,8 @@
   "replay": "trial/row-fields",
   "verified": "Reuses the trial/row-fields recording; narrowing changes no source request.",
   "config": {
-    "mcp_tool_mode": "typed"
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
   },
   "steps": [
     {

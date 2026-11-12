@@ -13,7 +13,7 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Search research paper authors. Sources: pubmed, semantic-scholar.",
+        "/result/commands/0/description": "Search research paper authors. Sources: pubmed, semantic-scholar.\nFields: affiliations, counts, id, name. Choose some with --fields a,b (typed: fields list); always kept: id.",
         "/result/commands/0/examples": {
           "count": 1
         },
