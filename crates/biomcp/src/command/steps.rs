@@ -33,13 +33,19 @@ fn source_steps(
             globals.disable_sources.join(",").into(),
         ]);
     }
-    if prefix.is_empty() {
+    let fields: Option<Box<str>> =
+        (!globals.fields.is_empty()).then(|| format!("--fields={}", globals.fields.join(",")).into());
+    if prefix.is_empty() && fields.is_none() {
         return steps;
     }
     steps
         .into_iter()
         .map(|mut step| {
+            let carried = crate::fields::carried(&step);
             let mut args = step.args.into_vec();
+            if carried && let Some(fields) = &fields {
+                args.insert(0, fields.clone());
+            }
             args.splice(0..0, prefix.iter().cloned());
             step.args = args.into();
             step

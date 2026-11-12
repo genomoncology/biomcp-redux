@@ -1915,10 +1915,7 @@
         }
       },
       "required": [
-        "nct_id",
-        "conditions",
-        "interventions",
-        "url"
+        "nct_id"
       ],
       "type": "object"
     },

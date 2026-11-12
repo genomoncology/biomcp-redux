@@ -84,12 +84,23 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
     } else if !public_grammar::overview(root, &mut commands, path)? {
         compact(&mut commands);
     }
+    fields_line(&mut commands, path);
     if path.is_empty() {
         let mut map = topic("map", FRONT_MAP.into());
         map.command.clear();
         commands.insert(0, map);
     }
     Ok(Help { commands })
+}
+/// Search help names the row fields a caller may choose.
+fn fields_line(commands: &mut [HelpCommand], path: &[String]) {
+    if let [verb, entity] = path
+        && let Some(line) = crate::fields::help_line(verb, entity)
+        && let Some(command) = commands.iter_mut().find(|command| command.command == path)
+    {
+        command.description.push('\n');
+        command.description.push_str(&line);
+    }
 }
 // Large catalogs remain available through the command's complete query schema.
 const INLINE_CHOICE_LIMIT: usize = 24;

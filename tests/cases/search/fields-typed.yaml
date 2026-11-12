@@ -1,0 +1,91 @@
+{
+  "feature": "search-fields",
+  "live_check": "public",
+  "story": "A typed search call names row fields in a top-level fields list; its rows keep those fields and their identity, its next page call keeps the list, and the research search tool refuses fields.",
+  "replay": "trial/row-fields",
+  "verified": "Reuses the trial/row-fields recording; narrowing changes no source request.",
+  "config": {
+    "mcp_tool_mode": "typed"
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "condition": [
+              "uveal melanoma"
+            ],
+            "phase": "3",
+            "limit": 3
+          },
+          "fields": [
+            "sponsor"
+          ]
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT01974752",
+            "NCT00000124",
+            "NCT02843386"
+          ]
+        },
+        "/result/items/2": {
+          "omits": [
+            "title",
+            "conditions",
+            "url"
+          ]
+        },
+        "/next/*/arguments/fields": {
+          "includes": [
+            "sponsor"
+          ]
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "condition": [
+              "uveal melanoma"
+            ]
+          },
+          "fields": [
+            "sponsors"
+          ]
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/valid_values": {
+          "includes": "sponsor"
+        }
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "search",
+        "arguments": {
+          "query": "trial --condition melanoma --fields title"
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--fields"
+      }
+    }
+  ]
+}

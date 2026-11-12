@@ -261,7 +261,7 @@ pub(in crate::runner) fn coverage_schemas(tools: &[Value]) -> Result<(), String>
             .and_then(Value::as_object)
             .ok_or("entity properties")?
             .keys()
-            .filter(|key| *key != "action")
+            .filter(|key| !matches!(key.as_str(), "action" | "fields"))
             .count();
         if keys != actions.len()
             || !said.starts_with(&format!("One of: {listed}. "))

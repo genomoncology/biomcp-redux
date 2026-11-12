@@ -1,0 +1,136 @@
+{
+  "feature": "search-fields",
+  "live_check": "public",
+  "story": "A caller who names row fields gets each search row with only those fields and its required identity, the whole envelope, and a next page that keeps the same fields; an unknown or dotted name, or fields on a get, is a usage error naming the valid fields.",
+  "replay": "trial/row-fields",
+  "verified": "Reuses the trial/row-fields recording (registry rows NCT01974752, NCT00000124 and NCT02843386 with their lead sponsors, 22 in total); narrowing changes no source request.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "3",
+        "--limit",
+        "3",
+        "--fields",
+        "sponsor"
+      ],
+      "mcp": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "3",
+        "--limit",
+        "3",
+        "--fields",
+        "sponsor"
+      ],
+      "expect": {
+        "/schema": "biomcp.trial-page/16",
+        "/status": "complete",
+        "/page/total": 22,
+        "/sources/*/source": {
+          "includes": "ctgov"
+        },
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT01974752",
+            "NCT00000124",
+            "NCT02843386"
+          ]
+        },
+        "/result/items/*/sponsor": {
+          "equals": [
+            "AstraZeneca",
+            "National Eye Institute (NEI)",
+            "Institut Curie"
+          ]
+        },
+        "/result/items/0": {
+          "omits": [
+            "title",
+            "conditions",
+            "interventions",
+            "url",
+            "start",
+            "has_results"
+          ]
+        },
+        "/next/*/args/0": {
+          "includes": "--fields=sponsor"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--fields",
+        "sponsor.name"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/valid_values": {
+          "includes_all_of": [
+            "nct_id",
+            "title",
+            "sponsor",
+            "conditions",
+            "url"
+          ]
+        },
+        "/next/*/args": {
+          "includes": [
+            "help",
+            "search",
+            "trial"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT01974752",
+        "--fields",
+        "title"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields"
+      }
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "trial",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Fields: ",
+            "always kept: "
+          ]
+        }
+      }
+    }
+  ]
+}
