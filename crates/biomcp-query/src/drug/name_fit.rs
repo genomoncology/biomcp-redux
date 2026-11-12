@@ -161,16 +161,20 @@ pub(crate) fn capped(
     let mut names: Vec<_> = std::iter::once(input.clone())
         .chain(names)
         .filter(|name| seen.insert(lowered(name)))
-        .filter(|name| match (name != input)
-            .then(|| context_only(name.as_str()))
-            .flatten()
-            .or_else(|| fit(name.as_str()))
-        {
-            Some(reason) => {
-                unfit.push((name.clone(), reason));
-                false
+        .filter(|name| {
+            // The typed name is always searched when the provider can take it.
+            let label = if name == input {
+                None
+            } else {
+                context_only(name.as_str())
+            };
+            match label.or_else(|| fit(name.as_str())) {
+                Some(reason) => {
+                    unfit.push((name.clone(), reason));
+                    false
+                }
+                None => true,
             }
-            None => true,
         })
         .collect();
     let lowered_set = |names: &[String]| -> std::collections::BTreeSet<_> {
