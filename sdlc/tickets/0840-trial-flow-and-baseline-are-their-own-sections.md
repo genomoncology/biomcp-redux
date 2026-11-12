@@ -21,6 +21,10 @@ The review of the participant-flow ticket found that with outcomes first in `res
 
 - Starts from: the results section's record ordering and paging in the trial adapter and query crates, as landed by the participant-flow ticket.
 
+## Amendment, 2026-11-12
+
+PM: the second Proof line (re-measure trial search byte ceilings for sponsor, date and enrollment fields) was copied from the trial-fields tickets (0823, 0826) and does not apply; this change touches no search rows. Dropped. Accepted at ca3f7c0d7 on gate j38492: flow 4,491 bytes, baseline 5,468, both 7,914, against about 152 KB paging results for NCT01844505.
+
 ## Keeps
 
 - Keeps: `results` unchanged, with outcomes first, then flow, baseline and adverse events; schema ID rule; source attribution; no new source, key or dependency.
