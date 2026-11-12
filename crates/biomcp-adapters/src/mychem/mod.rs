@@ -24,9 +24,9 @@ mod map;
 mod names;
 mod normalize;
 mod raw;
-pub use chembl_names::{ChemblNames, ChemblRecord, chembl_names};
 use biomcp_fetch::{Arg, Endpoint, Freshness, Leg, PathSegment, RequestError};
 use biomcp_types::{DrugCard, DrugPage};
+pub use chembl_names::{ChemblNames, ChemblRecord, chembl_names};
 /// Reviewed identity fields, excluding every unapproved source component.
 pub const SEARCH_FIELDS: &str = "drugbank.id,drugbank.name,chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_type,\
                     gtopdb.ligand_id,gtopdb.name,gtopdb.type,unii.unii,unii.display_name,unii.ingredient_type,ndc.product_id,\
