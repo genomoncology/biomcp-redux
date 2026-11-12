@@ -71,7 +71,7 @@ impl Peer {
     pub(super) fn next(&mut self) -> Result<Value, String> {
         let started = Instant::now();
         match self.replies.recv_timeout(Duration::from_secs(30)) {
-            Ok(Ok(reply)) => Ok(reply),
+            Ok(Ok(reply)) => Ok(super::mcp::readable(reply)),
             result => Err(self.failure(&format!(
                 "publication reply after {:?}: {result:?}",
                 started.elapsed()

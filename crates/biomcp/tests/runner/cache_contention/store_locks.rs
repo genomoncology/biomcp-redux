@@ -118,10 +118,7 @@ fn call(phase: &str, peer: &mut Peer, schemas: &Registry, args: &[&str]) -> Resu
     let words = args.iter().map(|arg| (*arg).to_owned()).collect::<Vec<_>>();
     schemas.validate(content, &words, false)?;
     if let Some(kind) = content.get("local_error") {
-        let text = reply
-            .pointer("/result/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("MCP content text missing")?;
+        let text = content.to_string();
         use std::io::Write;
         writeln!(
             std::io::stdout(),

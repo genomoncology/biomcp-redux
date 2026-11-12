@@ -113,15 +113,8 @@ fn repeat_calls(
         if reply.get("id") != Some(&json!(id)) || result.get("isError") != Some(&json!(id >= 3)) {
             return Err(format!("replay call failed: {reply}"));
         }
-        let content = result.get("structuredContent").ok_or("missing content")?;
-        let text = result
-            .pointer("/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("missing text")?;
-        if serde_json::from_str::<Value>(text).map_err(|e| e.to_string())? != *content {
-            return Err("text differs from structured content".into());
-        }
-        if text.len() > limit {
+        let content = &mcp::one_value(result)?;
+        if content.to_string().len() > limit {
             return Err("replay MCP text exceeded its budget".into());
         }
         if id >= 3 && !replay_miss(content) {

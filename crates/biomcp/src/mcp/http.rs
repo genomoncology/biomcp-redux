@@ -341,7 +341,12 @@ impl Service {
             )
         } else {
             match super::research::execute(&call, context, true) {
-                Ok(outcome) => super::typed::tool_result(id, &outcome, modern, context.settings),
+                Ok(outcome) => super::typed::tool_result(
+                    id,
+                    &outcome,
+                    modern,
+                    (context.globals, context.settings),
+                ),
                 Err(_) => super::protocol::error(id, -32603, "Internal error"),
             }
         };

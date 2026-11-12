@@ -65,24 +65,7 @@ pub(super) fn call_checked(
     if expected_error.is_some_and(|expected| result.get("isError") != Some(&json!(expected))) {
         return Err("named MCP is_error mismatch".into());
     }
-    let value = result
-        .get("structuredContent")
-        .ok_or("missing structured content")?;
-    let text = result
-        .pointer("/content/0/text")
-        .and_then(Value::as_str)
-        .ok_or("missing text")?;
-    let typed = tools
-        .iter()
-        .any(|tool| tool.get("name") == Some(&json!("help")));
-    let payload = if typed {
-        text.lines().last().unwrap_or_default()
-    } else {
-        text
-    };
-    if serde_json::from_str::<Value>(payload).map_err(|e| e.to_string())? != *value {
-        return Err("research text differs from structured content".into());
-    }
+    let value = &super::mcp::one_value(result)?;
     validate_reply_schema(&tools, &called, value)?;
     use std::io::Write;
     writeln!(

@@ -1,42 +1,8 @@
-//! Summarize typed replies and translate checked CLI Steps to tool calls.
+//! Translate checked CLI Steps, and a refused call's correction, to tool calls.
 use serde_json::{Value, json};
 
-pub(super) fn render(
-    root: &crate::grammar::Root,
-    value: &Value,
-    args: &[std::ffi::OsString],
-    tools: &super::grouping::Catalog,
-    projected: &[Value],
-    form: crate::config::ReplyForm,
-) -> String {
-    let status = value
-        .get("status")
-        .and_then(Value::as_str)
-        .unwrap_or("complete");
-    let mut calls = Vec::new();
-    for call in projected {
-        let mut call = call.clone();
-        if let Some(fields) = call.as_object_mut() {
-            fields.remove("kind");
-        }
-        let text = call.to_string();
-        if !calls.contains(&text) {
-            calls.push(text);
-        }
-    }
-    if calls.is_empty()
-        && status == "usage"
-        && let Some(call) = correction(root, value, args, tools)
-    {
-        calls.push(call.to_string());
-    }
-    calls.first().map_or_else(
-        || format!("{status}: {}", super::super::protocol::reply_note(form)),
-        |call| format!("{status}: next {call}"),
-    )
-}
 // The parser names the rejected option; omit it and let the parser check the correction.
-fn correction(
+pub(super) fn correction(
     root: &crate::grammar::Root,
     value: &Value,
     args: &[std::ffi::OsString],

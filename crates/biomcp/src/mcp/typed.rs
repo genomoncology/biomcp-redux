@@ -19,84 +19,50 @@ pub(super) fn prepare(
     context: crate::command::Context<'_>,
     args: &[std::ffi::OsString],
     read_only: bool,
-) -> io::Result<Option<String>> {
+) -> io::Result<()> {
     if crate::config::mcp_tool_mode(context.globals, context.settings)
         != crate::config::ToolMode::Typed
     {
-        return Ok(None);
+        return Ok(());
     }
     let advertised = catalog(context, read_only)?;
     prepare_with_catalog(outcome, context, args, &advertised)
 }
 
+/// Spell the reply's next steps as tool calls; a refused option with none gets its correction.
 pub(super) fn prepare_with_catalog(
     outcome: &mut crate::command::Outcome,
     context: crate::command::Context<'_>,
     args: &[std::ffi::OsString],
     advertised: &Catalog,
-) -> io::Result<Option<String>> {
+) -> io::Result<()> {
     if crate::config::mcp_tool_mode(context.globals, context.settings)
         != crate::config::ToolMode::Typed
     {
-        return Ok(None);
+        return Ok(());
     }
     let value = outcome.value_mut()?;
-    let calls = followups::project(context.root, value, advertised)?;
-    Ok(Some(summary::render(
-        context.root,
-        value,
-        args,
-        advertised,
-        &calls,
-        crate::config::mcp_reply_form(context.settings),
-    )))
+    if followups::project(context.root, value, advertised)?.is_empty()
+        && value.get("status") == Some(&json!("usage"))
+        && let Some(mut call) = summary::correction(context.root, value, args, advertised)
+        && let Some(fields) = value.as_object_mut()
+    {
+        if let Some(call) = call.as_object_mut() {
+            call.insert("kind".into(), json!("configure"));
+        }
+        fields.insert("next".into(), json!([call]));
+    }
+    Ok(())
 }
 
 pub(super) fn tool_result(
     id: Value,
     completed: &super::research::Completed,
     modern: bool,
-    settings: &crate::config::Settings,
+    context: (&crate::grammar::Globals, &crate::config::Settings),
 ) -> Value {
-    let form = crate::config::mcp_reply_form(settings);
-    let mut reply = super::protocol::tool_result(id, &completed.outcome, modern, form);
-    let Some(summary) = completed.summary.as_ref() else {
-        return reply;
-    };
-    let value = reply
-        .pointer("/result/structuredContent")
-        .cloned()
-        .or_else(|| serde_json::from_str(reply.pointer("/result/content/0/text")?.as_str()?).ok());
-    if let Some(value) = value {
-        let summary = if completed
-            .outcome
-            .value()
-            .is_ok_and(|original| original == &value)
-        {
-            summary.clone()
-        } else {
-            format!(
-                "{}: {}",
-                value
-                    .get("status")
-                    .and_then(Value::as_str)
-                    .unwrap_or("complete"),
-                super::protocol::reply_note(form)
-            )
-        };
-        let text = if matches!(form, crate::config::ReplyForm::StructuredOnly) {
-            summary
-        } else {
-            format!("{summary}\n{value}")
-        };
-        if let Some(result) = reply.get_mut("result").and_then(Value::as_object_mut) {
-            result.insert("content".into(), json!([{"type":"text","text":text}]));
-        }
-        if let Some(result) = reply.get_mut("result") {
-            crate::view::protein::append_mcp(result, &value);
-        }
-    }
-    reply
+    let form = crate::config::mcp_reply_form(context.0, context.1);
+    super::protocol::tool_result(id, &completed.outcome, modern, form)
 }
 
 use serde_json::{Value, json};
@@ -345,15 +311,15 @@ pub(super) fn rejection(
     let mut outcome =
         crate::command::usage_envelope(rejected.error, crate::command::Encoding::Mcp)?;
     super::hosted::project(&mut outcome, context, &rejected.args)?;
-    let summary = if let Some(catalog) = rejected.catalog.as_ref() {
-        prepare_with_catalog(&mut outcome, context, &rejected.args, catalog)?
+    if let Some(catalog) = rejected.catalog.as_ref() {
+        prepare_with_catalog(&mut outcome, context, &rejected.args, catalog)?;
     } else {
-        prepare(&mut outcome, context, &rejected.args, read_only)?
-    };
+        prepare(&mut outcome, context, &rejected.args, read_only)?;
+    }
     Ok(tool_result(
         id,
-        &super::research::Completed { outcome, summary },
+        &super::research::Completed { outcome },
         modern,
-        context.settings,
+        (context.globals, context.settings),
     ))
 }

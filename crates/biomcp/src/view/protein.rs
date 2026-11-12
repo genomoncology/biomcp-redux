@@ -31,11 +31,3 @@ fn has_span(value: &Value) -> bool {
         _ => false,
     }
 }
-
-pub(crate) fn append_mcp(result: &mut Value, value: &Value) {
-    if let Some(note) = note(value)
-        && let Some(content) = result.get_mut("content").and_then(Value::as_array_mut)
-    {
-        content.push(serde_json::json!({"type":"text","text":note}));
-    }
-}

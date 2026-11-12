@@ -257,6 +257,10 @@ fn hidden_cwd(env: &Environment) -> Check {
     let (status, stdout, stderr) = super::process::exchange(child, &[request])?;
     command.record(status, &stdout, "mcp")?;
     let replies = super::process::messages(status, &stdout, &stderr)?;
+    let replies = replies
+        .into_iter()
+        .map(super::mcp::readable)
+        .collect::<Vec<_>>();
     let value = replies
         .first()
         .and_then(|reply| reply.pointer("/result/structuredContent"))

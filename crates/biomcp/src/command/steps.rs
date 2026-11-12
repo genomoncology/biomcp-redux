@@ -18,8 +18,9 @@ fn source_steps(
     steps: Vec<biomcp_types::Step>,
 ) -> Vec<biomcp_types::Step> {
     let mut prefix: Vec<Box<str>> = Vec::new();
+    // A server call inherits its configuration, and refuses a call that names one.
     if let Some(path) = &globals.config
-        && !globals.hosted
+        && !globals.served
     {
         prefix.extend([
             "--config".into(),

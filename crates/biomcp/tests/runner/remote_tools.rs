@@ -118,21 +118,9 @@ fn check_result(reply: &Value, text: &str, over: bool) -> Result<(), String> {
             result.to_string().chars().count()
         ));
     }
-    let structured = result
-        .get("structuredContent")
-        .ok_or("missing structured content")?;
+    let structured = &super::mcp::one_value(result)?;
     if structured.to_string().chars().count() >= super::output_limit("remote-result-characters")? {
         return Err("JSON value exceeded character cap".into());
-    }
-    let content: Value = serde_json::from_str(
-        result
-            .pointer("/content/0/text")
-            .and_then(Value::as_str)
-            .ok_or("missing text")?,
-    )
-    .map_err(|e| e.to_string())?;
-    if content != *structured {
-        return Err("tool text differs from structured result".into());
     }
     let error_schema: Value =
         serde_json::from_str(include_str!("../../../biomcp-types/schemas/error.json"))

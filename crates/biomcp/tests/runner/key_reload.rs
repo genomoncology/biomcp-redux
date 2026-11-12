@@ -44,7 +44,7 @@ impl Client {
                 let line = replies
                     .recv_timeout(Duration::from_secs(20))
                     .map_err(|_| "key reload reply watchdog")??;
-                serde_json::from_str(&line).map_err(|e| e.to_string())?
+                super::mcp::readable(serde_json::from_str(&line).map_err(|e| e.to_string())?)
             }
         };
         for marker in [ENV, FIRST, SECOND] {

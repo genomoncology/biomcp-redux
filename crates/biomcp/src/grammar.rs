@@ -51,6 +51,8 @@ pub(crate) struct Globals {
     pub(crate) offline: bool,
     pub(crate) fresh: bool,
     pub(crate) hosted: bool,
+    /// Set when a server call inherits the process globals; its caller cannot name their paths.
+    pub(crate) served: bool,
     pub(crate) mcp_tool_mode: Option<crate::config::ToolMode>,
     pub(crate) http_max_calls: Option<std::num::NonZeroUsize>,
     pub(crate) http_max_connections: Option<std::num::NonZeroUsize>,
@@ -353,6 +355,7 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
         offline: matches.get_flag("offline"),
         fresh: matches.get_flag("fresh"),
         hosted: false,
+        served: false,
         http_max_calls: None,
         http_max_connections: None,
         source_pacing: matches.get_one::<String>("source_pacing").cloned(),
@@ -439,6 +442,7 @@ impl Globals {
         self.case_cache = process.case_cache.clone();
         self.fresh |= process.fresh;
         self.hosted = process.hosted;
+        self.served = true;
         self.http_max_calls = process.http_max_calls;
         self.http_max_connections = process.http_max_connections;
         self.rate_share = process.rate_share;

@@ -222,12 +222,16 @@ fn study_clock(before: &str, after: &str) -> Result<(), String> {
     }
     let body = old.pointer("/result/structuredContent").ok_or("study body")?;
     let serialized_body = body.to_string();
-    if old.pointer("/result/content/0/text").and_then(Value::as_str) != Some(serialized_body.as_str()) {
+    let text = old.pointer("/result/content/0/text").and_then(Value::as_str);
+    if text.is_some_and(|text| text != serialized_body) {
         return Err("study CURRENT text is not its exact serialized body".into());
     }
+    let repeated = text.is_some();
     *old.pointer_mut(path).ok_or("study clock field")? = Value::from(last);
     let body = old.pointer("/result/structuredContent").ok_or("study updated body")?.to_string();
-    *old.pointer_mut("/result/content/0/text").ok_or("study text")? = Value::String(body);
+    if repeated {
+        *old.pointer_mut("/result/content/0/text").ok_or("study text")? = Value::String(body);
+    }
     let expected = old.to_string();
     if expected != after {
         return Err("study delayed CURRENT/CURRENT differs outside acquisition clock".into());

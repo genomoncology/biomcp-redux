@@ -46,7 +46,6 @@ pub(super) struct Call {
 }
 pub(super) struct Completed {
     pub(super) outcome: crate::command::Outcome,
-    pub(super) summary: Option<String>,
 }
 enum View {
     Search(Value),
@@ -127,16 +126,16 @@ pub(super) fn execute(
     } else {
         None
     };
-    let summary = if let Some(catalog) = call.catalog.as_ref() {
-        super::typed::prepare_with_catalog(&mut outcome, context, &call.args, catalog)?
+    if let Some(catalog) = call.catalog.as_ref() {
+        super::typed::prepare_with_catalog(&mut outcome, context, &call.args, catalog)?;
     } else {
-        super::typed::prepare(&mut outcome, context, &call.args, http)?
-    };
+        super::typed::prepare(&mut outcome, context, &call.args, http)?;
+    }
     if let Some(view) = view {
         let original = std::mem::take(outcome.value_mut()?);
         *outcome.value_mut()? = render_view(view, original)?;
     }
-    Ok(Completed { outcome, summary })
+    Ok(Completed { outcome })
 }
 // Exact record IDs are derived before the typed transport changes command spelling.
 fn prepare_view(

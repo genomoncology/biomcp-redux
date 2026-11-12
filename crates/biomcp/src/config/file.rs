@@ -4,11 +4,13 @@ use serde::{Deserialize, de::DeserializeOwned};
 use serde_json::{Map, Value};
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
-/// Keep both copies until the deployed clients have been checked for structured output.
-#[derive(Clone, Copy, Default, serde::Deserialize)]
+/// Where an MCP tool reply carries its JSON value.
+/// `Once` sends it once: as structured content on success, and as text on an error,
+/// because Claude Code shows the model structured content on success and text on errors.
+#[derive(Clone, Copy, serde::Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub(crate) enum ReplyForm {
-    #[default]
+    Once,
     Both,
     StructuredOnly,
     TextOnly,
