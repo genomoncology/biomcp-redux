@@ -90,6 +90,10 @@ const REVIEWED_ABSENCES: &[(&str, &str)] = &[
         "restore: ? ) else { return Ok ( None ) ; } ; let Ok ( cursor ) = serde_json : : from_slice : : < Cursor > (",
     ),
     (
+        "crates/biomcp-adapters/src/civic/variant_protein.rs",
+        "alleles: . hgvs_p . as_ref ( ) ? . as_str ( ) ) . ok ( )",
+    ),
+    (
         "crates/biomcp-adapters/src/article_rights/policy.rs",
         "parse_pmid: - > Option < Pmid > { value . parse ( ) . ok ( )",
     ),
