@@ -1,13 +1,14 @@
 //! Chosen fields: one generic filter keeps named top-level keys of each search row.
 //!
 //! The row is `result.items[]` of the reply schema. Its required fields and the whole
-//! envelope always stay, so identifiers and source attribution survive narrowing.
+//! envelope always stay, and so do identifier properties (`x-identifier`), so identifiers
+//! and source attribution survive narrowing.
 use biomcp_query::Action;
 use biomcp_types::{Step, StepKind, UsageArguments, UsageError};
 use serde_json::Value;
 use std::{collections::BTreeSet, io};
 
-/// Names a search row offers, and those it always keeps.
+/// Names a search row offers, and those it always keeps (required or identifier).
 #[derive(Debug, Default)]
 struct Row {
     names: BTreeSet<String>,
@@ -21,11 +22,31 @@ fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
         .map_or(node, |target| resolve(target, root))
 }
 
+/// Whether a property is an identifier object, directly or as a nullable variant.
+fn identifier(node: &Value, root: &Value) -> bool {
+    let node = resolve(node, root);
+    node.get("x-identifier") == Some(&Value::Bool(true))
+        || node
+            .get("anyOf")
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+            .any(|branch| identifier(branch, root))
+}
+
 /// Collect a row's properties across its variants; a nullable wrapper adds none.
+/// Identifier properties are always kept, like required ones, so an optional row
+/// identity (such as an article's key) survives narrowing.
 fn collect(node: &Value, root: &Value, row: &mut Row) {
     let node = resolve(node, root);
     if let Some(fields) = node.get("properties").and_then(Value::as_object) {
         row.names.extend(fields.keys().cloned());
+        row.required.extend(
+            fields
+                .iter()
+                .filter(|(_, property)| identifier(property, root))
+                .map(|(name, _)| name.clone()),
+        );
     }
     row.required.extend(
         node.get("required")

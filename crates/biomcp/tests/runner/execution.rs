@@ -33,7 +33,7 @@ pub(super) fn run_step(
         let (result, text) =
             mcp::call_text_with_globals(environment, args, step.is_error, &globals)?;
         registry.validate(&result, args, !step.is_error)?;
-        if !narrowed(args) {
+        if step.is_error || !narrowed(args) {
             super::reply_readback::check(text.as_bytes(), &result, true)?;
         }
         pathway_budgets::help(&result, args, "mcp")?;
@@ -122,7 +122,7 @@ fn cli(
         return Ok(value);
     }
     registry.validate(&value, args, output.status.success())?;
-    if !narrowed(args) {
+    if !output.status.success() || !narrowed(args) {
         super::reply_readback::check(&output.stdout, &value, false)?;
     }
     pathway_budgets::help(&value, args, "cli")?;
@@ -177,8 +177,8 @@ fn parity(cli: &Value, result: &Value, args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
-/// A reply with chosen row fields validates against its schema but need not read back
-/// into the Rust row type, whose fields it may leave out.
+/// A successful reply with chosen row fields validates against its schema but need not
+/// read back into the Rust row type, whose fields it may leave out; its errors still do.
 fn narrowed(args: &[String]) -> bool {
     args.iter()
         .any(|arg| arg == "--fields" || arg.starts_with("--fields="))
