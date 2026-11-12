@@ -1,4 +1,4 @@
-//! Own bounded hosted tool workers through completion and return whole-call timeouts.
+//! Own bounded HTTP tool workers through completion and return hosted whole-call timeouts.
 //! A call over the limit waits its turn in arrival order, within its own deadline.
 use super::Service;
 use crate::{
@@ -13,6 +13,7 @@ use serde_json::Value;
 )]
 use std::{
     collections::VecDeque,
+    net::TcpStream,
     sync::{Mutex, MutexGuard, mpsc},
     thread::JoinHandle,
     time::{Duration, Instant},
@@ -34,16 +35,18 @@ struct State {
 }
 struct Active {
     worker: JoinHandle<()>,
+    /// When the call must have ended, which dates the retry advice.
     scope: Cancellation,
 }
-pub(super) struct HostedCall {
+pub(super) struct ToolCall {
     pub(super) id: Value,
     pub(super) modern: bool,
     pub(super) call: research::Call,
     pub(super) secrets: Option<Secrets>,
     pub(super) excluded: std::collections::BTreeSet<biomcp_types::Source>,
-    pub(super) declared_use: crate::command::DeclaredUse,
-    pub(super) scope: Cancellation,
+    pub(super) declared_use: Option<crate::command::DeclaredUse>,
+    /// The hosted whole-call deadline; plain HTTP has none, and its wait ends at the command budget.
+    pub(super) scope: Option<Cancellation>,
 }
 
 impl Calls {
@@ -51,8 +54,8 @@ impl Calls {
         clippy::disallowed_methods,
         reason = "Retain every hosted tool worker until it completes"
     )]
-    pub(super) fn run(&self, service: &Service, work: HostedCall) -> Value {
-        let HostedCall {
+    pub(super) fn run(&self, service: &Service, work: ToolCall, peer: Option<&TcpStream>) -> Value {
+        let ToolCall {
             id,
             modern,
             call,
@@ -61,13 +64,20 @@ impl Calls {
             declared_use,
             scope,
         } = work;
-        let mut state = match self.turn(service, &scope) {
+        let budget = crate::config::budget(&service.settings);
+        let patience = service
+            .queue_wait
+            .min(scope.as_ref().map_or(budget, Cancellation::remaining));
+        let mut state = match self.turn(service.max_calls, patience, peer) {
             Ok(state) => state,
             Err((waited, retry)) => {
                 return protocol::capacity(id, service.max_calls, waited, retry);
             }
         };
-        if scope.remaining().is_zero() {
+        let expired = scope
+            .as_ref()
+            .is_some_and(|scope| scope.remaining().is_zero());
+        if expired {
             return protocol::timeout(id);
         }
         let globals = service.globals.clone();
@@ -76,6 +86,9 @@ impl Calls {
         let fetch = service.fetch.clone();
         let recovery = service.recovery.clone();
         let worker_scope = scope.clone();
+        let held = scope
+            .clone()
+            .unwrap_or_else(|| Cancellation::with_budget(budget));
         let worker_id = id.clone();
         let (sender, receiver) = mpsc::sync_channel(1);
         let worker = std::thread::Builder::new()
@@ -89,8 +102,8 @@ impl Calls {
                     recovery: recovery.as_deref(),
                     secrets: secrets.as_ref(),
                     excluded: Some(&excluded),
-                    declared_use: Some(declared_use),
-                    scope: Some(&worker_scope),
+                    declared_use,
+                    scope: worker_scope.as_ref(),
                 };
                 let outcome = worker::execute(|| {
                     research::execute(&call, context, true).map(|outcome| {
@@ -113,19 +126,19 @@ impl Calls {
         };
         state.active.push(Active {
             worker,
-            scope: scope.clone(),
+            scope: held,
         });
         drop(state);
-        wait(&scope, receiver, id)
+        wait(scope.as_ref(), receiver, id)
     }
     /// Hold the lock with a free slot, or say how long this call waited and when to retry.
     fn turn(
         &self,
-        service: &Service,
-        scope: &Cancellation,
+        max_calls: usize,
+        wait: Duration,
+        peer: Option<&TcpStream>,
     ) -> Result<MutexGuard<'_, State>, (Duration, Duration)> {
         let arrived = Instant::now();
-        let wait = service.queue_wait.min(scope.remaining());
         let mut ticket = None;
         loop {
             let mut state = self.0.lock().unwrap_or_else(|e| e.into_inner());
@@ -134,14 +147,16 @@ impl Calls {
                 Some(ticket) => state.waiting.front() == Some(&ticket),
                 None => state.waiting.is_empty(),
             };
-            if first && state.active.len() < service.max_calls {
+            if first && state.active.len() < max_calls {
                 if ticket.is_some() {
                     state.waiting.pop_front();
                 }
                 return Ok(state);
             }
             let waited = arrived.elapsed();
-            if state.closed || waited >= wait {
+            // Only a waiting call checks its client, so a free slot never costs a socket probe.
+            let left = ticket.is_some() && peer.is_some_and(gone);
+            if state.closed || waited >= wait || left {
                 state.waiting.retain(|waiting| Some(*waiting) != ticket);
                 let retry = state.active.iter().map(|call| call.scope.remaining()).min();
                 return Err((waited, retry.unwrap_or_default()));
@@ -164,6 +179,22 @@ impl Calls {
             call.scope.cancel();
         }
     }
+}
+/// A client that closed its connection can get no answer, so its waiting call gives up its place.
+/// A client that half-closes after its request is treated as gone; HTTP clients wait open.
+fn gone(peer: &TcpStream) -> bool {
+    if peer.set_nonblocking(true).is_err() {
+        return false;
+    }
+    let closed = match peer.peek(&mut [0]) {
+        Ok(read) => read == 0,
+        Err(error) => !matches!(
+            error.kind(),
+            std::io::ErrorKind::WouldBlock | std::io::ErrorKind::Interrupted
+        ),
+    };
+    // A socket that cannot return to blocking writes cannot carry the answer either.
+    peer.set_nonblocking(false).is_err() || closed
 }
 impl State {
     fn reap(&mut self) {
@@ -194,10 +225,17 @@ impl Drop for Calls {
 }
 
 fn wait(
-    scope: &Cancellation,
+    scope: Option<&Cancellation>,
     receiver: mpsc::Receiver<std::io::Result<Value>>,
     id: Value,
 ) -> Value {
+    let Some(scope) = scope else {
+        // Plain HTTP has no whole-call deadline; the command's own budget ends its work.
+        let reply = receiver
+            .recv()
+            .unwrap_or_else(|_| Err(std::io::ErrorKind::Other.into()));
+        return reply.unwrap_or_else(|_| protocol::error(id, -32603, "Internal error"));
+    };
     loop {
         let remaining = scope.remaining();
         if remaining.is_zero() {
@@ -222,7 +260,7 @@ fn wait(
 
 #[cfg(test)]
 mod tests {
-    use super::{Active, Calls, HostedCall, Service};
+    use super::{Active, Calls, Service, ToolCall};
     use crate::config::DEFAULT_HTTP_CAPACITY as MAX_CONNECTIONS;
     use crate::{
         config::StartupError,
@@ -395,7 +433,7 @@ mod tests {
         }
         let reply = service.calls.run(
             &service,
-            HostedCall {
+            ToolCall {
                 id: json!(1),
                 modern: false,
                 call: Call {
@@ -405,9 +443,10 @@ mod tests {
                 },
                 secrets: None,
                 excluded: Default::default(),
-                declared_use: crate::command::DeclaredUse::Academic,
-                scope: Cancellation::with_budget(DEADLOCK_GUARD),
+                declared_use: Some(crate::command::DeclaredUse::Academic),
+                scope: Some(Cancellation::with_budget(DEADLOCK_GUARD)),
             },
+            None,
         );
         assert_eq!(
             reply.pointer("/error/code"),

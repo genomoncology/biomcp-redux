@@ -8,7 +8,7 @@ mod logging;
 mod metadata;
 mod wire;
 use authority::Authority;
-use call::{Calls, HostedCall};
+use call::{Calls, ToolCall};
 use serde_json::{Value, json};
 use std::{
     io,
@@ -151,7 +151,7 @@ impl Service {
             drop(reader);
             Some(permit)
         };
-        let (status, value, revision) = self.route(&request);
+        let (status, value, revision) = self.route(&request, Some(&stream));
         let body = value
             .map(|v| serde_json::to_vec(&v))
             .transpose()?
@@ -163,13 +163,22 @@ impl Service {
         });
         wire::write(&mut stream, status, &body, revision, allow)
     }
-    fn route(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
+    /// The peer lets a waiting tool call notice that its client left.
+    fn route(
+        &self,
+        request: &wire::Request,
+        peer: Option<&TcpStream>,
+    ) -> (u16, Option<Value>, Option<&'static str>) {
         let started = std::time::Instant::now();
-        let result = self.route_inner(request);
+        let result = self.route_inner(request, peer);
         logging::record(request, started.elapsed(), result.0, result.1.as_ref());
         result
     }
-    fn route_inner(&self, request: &wire::Request) -> (u16, Option<Value>, Option<&'static str>) {
+    fn route_inner(
+        &self,
+        request: &wire::Request,
+        peer: Option<&TcpStream>,
+    ) -> (u16, Option<Value>, Option<&'static str>) {
         if !self.allowed(request) {
             return (403, Some(json!({"error":"Forbidden"})), None);
         }
@@ -228,7 +237,7 @@ impl Service {
             super::rpc::Message::Reply(reply) => reply,
             super::rpc::Message::Notification { .. } => return (202, None, Some(revision)),
             super::rpc::Message::Tool { id, params, modern } => {
-                return self.tool(request, id, &params, modern, revision, caller);
+                return self.tool(request, id, &params, modern, (revision, caller), peer);
             }
         };
         let status = if result.pointer("/error/code") == Some(&json!(-32601)) {
@@ -288,8 +297,8 @@ impl Service {
         id: Value,
         params: &Value,
         modern: bool,
-        revision: &'static str,
-        caller: Caller,
+        (revision, caller): (&'static str, Caller),
+        peer: Option<&TcpStream>,
     ) -> (u16, Option<Value>, Option<&'static str>) {
         let scope = self.globals.hosted.then(|| {
             biomcp_fetch::Cancellation::with_budget(crate::config::budget(&self.settings))
@@ -324,32 +333,24 @@ impl Service {
             Ok(call) => call,
             Err(reply) => return (200, Some(reply), Some(revision)),
         };
-        let result = if let Some(scope) = scope {
-            self.calls.run(
-                self,
-                HostedCall {
-                    id,
-                    modern,
-                    call,
-                    secrets: keys,
-                    declared_use: caller
-                        .declared_use
-                        .unwrap_or(crate::command::DeclaredUse::Restricted),
-                    excluded: caller.excluded,
-                    scope,
-                },
-            )
-        } else {
-            match super::research::execute(&call, context, true) {
-                Ok(outcome) => super::typed::tool_result(
-                    id,
-                    &outcome,
-                    modern,
-                    (context.globals, context.settings),
-                ),
-                Err(_) => super::protocol::error(id, -32603, "Internal error"),
-            }
-        };
+        let declared_use = self.globals.hosted.then(|| {
+            caller
+                .declared_use
+                .unwrap_or(crate::command::DeclaredUse::Restricted)
+        });
+        let result = self.calls.run(
+            self,
+            ToolCall {
+                id,
+                modern,
+                call,
+                secrets: keys,
+                declared_use,
+                excluded: caller.excluded,
+                scope,
+            },
+            peer,
+        );
         (200, Some(result), Some(revision))
     }
     fn parse_tool(

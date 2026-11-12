@@ -21,7 +21,7 @@ use std::{
     io::{self, Write},
     sync::mpsc,
     thread,
-    time::Instant,
+    time::{Duration, Instant},
 };
 
 const MAX_RETAINED_EVENTS: usize = 32;
@@ -198,8 +198,8 @@ impl Server {
             return Ok(Some(protocol::error(id, -32600, "Request already active")));
         }
         let full = self.active.len() >= self.max_calls;
-        if full && self.queue.wait().is_zero() {
-            return Ok(Some(self.refusal(id)));
+        if full && self.queue.closed() {
+            return Ok(Some(self.refusal(id, Duration::ZERO)));
         }
         let globals = self.globals.clone();
         let root = self.root.clone();
@@ -245,7 +245,7 @@ impl Server {
     }
 
     /// The timed refusal: how long this call waited and when a running call must have ended.
-    fn refusal(&self, id: Value) -> Value {
+    fn refusal(&self, id: Value, waited: Duration) -> Value {
         let now = Instant::now();
         let retry = self
             .active
@@ -253,13 +253,13 @@ impl Server {
             .map(|call| call.ends.saturating_duration_since(now))
             .min()
             .unwrap_or_default();
-        protocol::capacity(id, self.max_calls, self.queue.wait(), retry)
+        protocol::capacity(id, self.max_calls, waited, retry)
     }
 
     fn refuse_expired(&mut self) -> Vec<Value> {
         let mut replies = Vec::new();
         while let Some(call) = self.queue.pop_expired() {
-            replies.push(self.refusal(call.id));
+            replies.push(self.refusal(call.id, self.queue.wait()));
         }
         replies
     }

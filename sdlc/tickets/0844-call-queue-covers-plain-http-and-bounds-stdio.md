@@ -1,6 +1,7 @@
 # 0844 — call-queue-covers-plain-http-and-bounds-stdio
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2bc8174541e2f53b2089c61bea32fbe34e759093
 
 Milestone: 7
 
