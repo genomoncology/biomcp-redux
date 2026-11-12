@@ -21,6 +21,8 @@ pub(super) struct Waiting {
 pub(super) struct Queue {
     waiting: VecDeque<Waiting>,
     wait: Duration,
+    /// Waiting calls hold their work in memory, so the queue refuses past this length.
+    length: usize,
     /// A running call ends within the command budget, which bounds the retry advice.
     pub(super) budget: Duration,
 }
@@ -31,11 +33,16 @@ impl Queue {
         Self {
             waiting: VecDeque::new(),
             wait: crate::config::queue_wait(settings).min(budget),
+            length: crate::config::queue_length(settings),
             budget,
         }
     }
     pub(super) fn wait(&self) -> Duration {
         self.wait
+    }
+    /// No call can wait: waiting is off, or the queue is at its length.
+    pub(super) fn closed(&self) -> bool {
+        self.wait.is_zero() || self.waiting.len() >= self.length
     }
     pub(super) fn push(
         &mut self,

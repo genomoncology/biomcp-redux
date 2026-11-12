@@ -1,5 +1,5 @@
 //! Feature mcp-call-queue: calls over the concurrency limit wait their turn and then run.
-//! The timed refusals live with the fixtures that hold calls: the held proxy and HTTP limits.
+//! A blocked settings read holds a slot: every call rereads its credentials from that file.
 use super::{launch::Environment, mcp::request};
 use crate::runner::transcript::trial as transcript_trial;
 use libtest_mimic::Trial;
@@ -14,9 +14,26 @@ pub(super) fn trials() -> Vec<Trial> {
             burst().map_err(Into::into)
         }),
         #[cfg(unix)]
-        transcript_trial("mcp-call-queue/hosted-call-waits-for-held-slot", || {
-            hosted_turn().map_err(Into::into)
+        transcript_trial("mcp-call-queue/stdio-full-queue-refuses-at-once", || {
+            stdio_full().map_err(Into::into)
         }),
+        #[cfg(unix)]
+        transcript_trial("mcp-call-queue/stdio-wait-ends-at-call-deadline", || {
+            stdio_deadline().map_err(Into::into)
+        }),
+        #[cfg(unix)]
+        transcript_trial("mcp-call-queue/hosted-call-waits-for-held-slot", || {
+            turn(true).map_err(Into::into)
+        }),
+        #[cfg(unix)]
+        transcript_trial("mcp-call-queue/plain-http-call-waits-for-held-slot", || {
+            turn(false).map_err(Into::into)
+        }),
+        #[cfg(unix)]
+        transcript_trial(
+            "mcp-call-queue/hosted-client-that-leaves-gives-up-its-place",
+            || hosted_left().map_err(Into::into),
+        ),
         #[cfg(unix)]
         transcript_trial("mcp-call-queue/hosted-wait-ends-at-call-deadline", || {
             hosted_deadline().map_err(Into::into)
@@ -98,21 +115,26 @@ fn send(address: std::net::SocketAddr, body: &str) -> Result<std::net::TcpStream
 
 /// One call holds the only slot; the next gets no answer until that slot frees, then runs.
 #[cfg(unix)]
-fn hosted_turn() -> Result<(), String> {
+fn turn(hosted: bool) -> Result<(), String> {
     use std::{
         io::{Read, Write},
         time::Duration,
     };
-    // No connection setting: the hosted default must leave the waiting call a connection.
+    // No connection setting: the default must leave the waiting call a connection.
     let config = json!({"http_max_calls":1, "mcp_queue_wait_seconds":60,
         "command_timeout_seconds":60});
+    let globals = if hosted {
+        vec!["--hosted".into()]
+    } else {
+        Vec::new()
+    };
     let server = super::http::Server::configured_globals(
         "127.0.0.1:0",
         Some(config.clone()),
         None,
         None,
         None,
-        &["--hosted".into()],
+        &globals,
     )?;
     let call = |id: u64, args: Value| {
         request(
@@ -223,5 +245,246 @@ fn hosted_deadline() -> Result<(), String> {
             "the call waited {waited:?}, past its two-second deadline"
         ));
     }
+    Ok(())
+}
+
+/// A client that closes its connection while it waits is sent away at once, not at its deadline.
+#[cfg(unix)]
+fn hosted_left() -> Result<(), String> {
+    let config = json!({"http_max_calls":1, "mcp_queue_wait_seconds":120,
+        "command_timeout_seconds":120});
+    let server = super::http::Server::configured_globals(
+        "127.0.0.1:0",
+        Some(config),
+        None,
+        None,
+        None,
+        &["--hosted".into()],
+    )?;
+    let call = |id: u64, args: Value| {
+        request(
+            json!(id),
+            "tools/call",
+            json!({"name":"biomcp", "arguments":{"args":args}}),
+        )
+        .to_string()
+    };
+    let (_held, _writer) = super::http_limits::hold_settings_reader(
+        &server,
+        &call(1, json!(["get", "gene", "KRAS", "--offline"])),
+    )?;
+    drop(send(server.address, &call(2, json!(["help"])))?);
+    // The server logs each finished tool call; the held call cannot finish, so the first line
+    // is the call that left. Kept waiting, it would log nothing until its two-minute deadline.
+    let diagnostics = server
+        .diagnostics
+        .lock()
+        .map_err(|_| "diagnostic receiver poisoned")?;
+    let line = diagnostics
+        .recv_timeout(std::time::Duration::from_secs(60))
+        .map_err(|_| "the call whose client left kept its place")?;
+    let event: Value = serde_json::from_str(&line).map_err(|e| format!("{e}: {line}"))?;
+    if event.get("event") != Some(&json!("mcp_call"))
+        || event.get("status") != Some(&json!("error"))
+    {
+        return Err(format!(
+            "the call whose client left was not sent away: {event}"
+        ));
+    }
+    Ok(())
+}
+
+/// A stdio server whose calls block reading settings until the test writes them.
+#[cfg(unix)]
+struct Stdio {
+    environment: Environment,
+    config: Value,
+    stdin: std::process::ChildStdin,
+    replies: std::sync::mpsc::Receiver<Result<Value, String>>,
+    process: super::process::Process,
+    reader: std::thread::JoinHandle<()>,
+}
+
+#[cfg(unix)]
+impl Stdio {
+    fn start(config: Value) -> Result<Self, String> {
+        use std::io::BufRead;
+        let environment = Environment::new().map_err(|e| e.to_string())?;
+        environment.config(&config).map_err(|e| e.to_string())?;
+        let mut child = environment
+            .command(env!("CARGO_BIN_EXE_biomcp"), &["serve".into()])
+            .stdin(std::process::Stdio::piped())
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        let stdin = child.stdin.take().ok_or("missing stdin")?;
+        let stdout = child.stdout.take().ok_or("missing stdout")?;
+        let process = super::process::Process::new(child)?;
+        let (sender, replies) = std::sync::mpsc::channel();
+        let reader = std::thread::spawn(move || {
+            for line in std::io::BufReader::new(stdout).lines() {
+                let reply = line
+                    .map_err(|e| e.to_string())
+                    .and_then(|line| serde_json::from_str(&line).map_err(|e| e.to_string()));
+                if sender.send(reply).is_err() {
+                    break;
+                }
+            }
+        });
+        Ok(Self {
+            environment,
+            config,
+            stdin,
+            replies,
+            process,
+            reader,
+        })
+    }
+    fn send(&mut self, id: &str, args: Value) -> Result<(), String> {
+        use std::io::Write;
+        let frame = request(
+            json!(id),
+            "tools/call",
+            json!({"name":"biomcp", "arguments":{"args":args}}),
+        );
+        let mut bytes = serde_json::to_vec(&frame).map_err(|e| e.to_string())?;
+        bytes.push(b'\n');
+        self.stdin.write_all(&bytes).map_err(|e| e.to_string())?;
+        self.stdin.flush().map_err(|e| e.to_string())
+    }
+    fn reply(&self) -> Result<Value, String> {
+        self.replies
+            .recv_timeout(std::time::Duration::from_secs(90))
+            .map_err(|_| "no reply from the stdio server".to_string())?
+    }
+    /// Send a call that blocks reading settings, and return once it holds its slot.
+    fn hold(&mut self) -> Result<std::fs::File, String> {
+        use std::os::unix::fs::OpenOptionsExt;
+        // A ping answers only after startup, so startup has read the ordinary settings.
+        {
+            use std::io::Write;
+            let ping = request(json!("ping"), "ping", json!({}));
+            writeln!(self.stdin, "{ping}").map_err(|e| e.to_string())?;
+            self.stdin.flush().map_err(|e| e.to_string())?;
+        }
+        let pong = self.reply()?;
+        if pong.get("id") != Some(&json!("ping")) {
+            return Err(format!("no ping reply: {pong}"));
+        }
+        let path = self.settings_path();
+        std::fs::remove_file(&path).map_err(|e| e.to_string())?;
+        nix::unistd::mkfifo(
+            &path,
+            nix::sys::stat::Mode::S_IRUSR | nix::sys::stat::Mode::S_IWUSR,
+        )
+        .map_err(|e| e.to_string())?;
+        self.send("held", json!(["get", "gene", "KRAS", "--offline"]))?;
+        // A writer cannot open until the held call has opened the FIFO for reading.
+        let end = std::time::Instant::now() + std::time::Duration::from_secs(60);
+        loop {
+            match std::fs::OpenOptions::new()
+                .write(true)
+                .custom_flags(nix::libc::O_NONBLOCK)
+                .open(&path)
+            {
+                Ok(writer) => return Ok(writer),
+                Err(error)
+                    if error.raw_os_error() == Some(nix::libc::ENXIO)
+                        && std::time::Instant::now() < end =>
+                {
+                    std::thread::yield_now();
+                }
+                Err(error) => return Err(format!("the held call did not read settings: {error}")),
+            }
+        }
+    }
+    fn settings_path(&self) -> std::path::PathBuf {
+        self.environment.root().join("config/biomcp/config.json")
+    }
+    /// Restore ordinary settings, free the held call, and stop the server.
+    fn release(self, writer: std::fs::File) -> Result<Vec<Value>, String> {
+        use std::io::Write;
+        std::fs::remove_file(self.settings_path()).map_err(|e| e.to_string())?;
+        self.environment
+            .config(&self.config)
+            .map_err(|e| e.to_string())?;
+        let mut writer = writer;
+        writer.write_all(b"{}").map_err(|e| e.to_string())?;
+        drop(writer);
+        drop(self.stdin);
+        let (status, _, stderr) = self.process.finish()?;
+        self.reader.join().map_err(|_| "reply reader panicked")?;
+        if !status.success() {
+            return Err(format!(
+                "stdio server failed: {status} {}",
+                String::from_utf8_lossy(&stderr)
+            ));
+        }
+        self.replies.try_iter().collect()
+    }
+}
+
+/// With the only slot held and the one queue place taken, the next call is refused at once.
+#[cfg(unix)]
+fn stdio_full() -> Result<(), String> {
+    // Neither wait nor deadline can end before the test frees the held call.
+    let mut server = Stdio::start(json!({"mcp_max_calls":1, "mcp_queue_max_calls":1,
+        "mcp_queue_wait_seconds":120, "command_timeout_seconds":120}))?;
+    let writer = server.hold()?;
+    server.send("queued", json!(["help"]))?;
+    server.send("over", json!(["help"]))?;
+    let refused = server.reply()?;
+    if refused.get("id") != Some(&json!("over"))
+        || refused.pointer("/error/code") != Some(&json!(-31000))
+        || !super::capacity_refusal(&refused, 1)
+        || !refused
+            .pointer("/error/message")
+            .and_then(Value::as_str)
+            .is_some_and(|message| message.contains("waited 0 seconds"))
+    {
+        return Err(format!(
+            "no refusal at once past the queue length: {refused}"
+        ));
+    }
+    let replies = server.release(writer)?;
+    // The queued call kept its place and ran once the held call finished.
+    let queued = replies
+        .iter()
+        .find(|reply| reply.get("id") == Some(&json!("queued")))
+        .ok_or_else(|| format!("the queued call got no reply: {replies:?}"))?;
+    if queued.pointer("/result/isError") != Some(&json!(false)) {
+        return Err(format!("the queued call did not run: {queued}"));
+    }
+    Ok(())
+}
+
+/// The command deadline is far shorter than the queue wait, so the refusal comes at the deadline.
+#[cfg(unix)]
+fn stdio_deadline() -> Result<(), String> {
+    let mut server = Stdio::start(json!({"mcp_max_calls":1, "mcp_queue_wait_seconds":120,
+        "command_timeout_seconds":2}))?;
+    let writer = server.hold()?;
+    let sent = std::time::Instant::now();
+    server.send("queued", json!(["help"]))?;
+    let refused = server.reply()?;
+    let waited = sent.elapsed();
+    if refused.get("id") != Some(&json!("queued"))
+        || refused.pointer("/error/code") != Some(&json!(-31000))
+        || !super::capacity_refusal(&refused, 1)
+        || !refused
+            .pointer("/error/message")
+            .and_then(Value::as_str)
+            .is_some_and(|message| message.contains("waited 2 seconds"))
+    {
+        return Err(format!("no timed refusal at the call deadline: {refused}"));
+    }
+    // The server refuses only once the wait has run, so this bound cannot race.
+    if waited < std::time::Duration::from_secs(2) || waited >= std::time::Duration::from_secs(60) {
+        return Err(format!(
+            "the queued call waited {waited:?}, not its two-second deadline"
+        ));
+    }
+    server.release(writer)?;
     Ok(())
 }

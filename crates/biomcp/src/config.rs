@@ -48,9 +48,21 @@ pub(crate) fn queue_wait(settings: &Settings) -> Duration {
         })
 }
 
-/// A waiting hosted call keeps its connection, so the hosted default leaves one
-/// connection to wait behind each running call. Plain HTTP runs each call on its
-/// connection and has no queue, so its default stays at the call default.
+/// A stdio call over the limit waits in memory, so the queue holds at most this
+/// many: four times the default call limit takes a burst of 160 calls at once.
+pub(crate) const DEFAULT_QUEUE_LENGTH: usize = 128;
+
+pub(crate) fn queue_length(settings: &Settings) -> usize {
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.mcp_queue_max_calls)
+        .unwrap_or(DEFAULT_QUEUE_LENGTH)
+}
+
+/// A waiting HTTP call keeps its connection, so the default leaves one
+/// connection to wait behind each running call.
 pub(crate) fn http_capacity(
     globals: &Globals,
     settings: &Settings,
@@ -65,11 +77,7 @@ pub(crate) fn http_capacity(
         .http_max_connections
         .or_else(|| file.and_then(|f| f.http_max_connections))
         .map(std::num::NonZeroUsize::get)
-        .unwrap_or(if globals.hosted {
-            calls.saturating_mul(2)
-        } else {
-            DEFAULT_HTTP_CAPACITY
-        });
+        .unwrap_or(calls.saturating_mul(2));
     if connections < calls || connections > (usize::MAX - 1) / 2 {
         return Err(ConfigError::field("http_max_connections"));
     }

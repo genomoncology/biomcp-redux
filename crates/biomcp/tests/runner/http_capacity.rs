@@ -38,7 +38,7 @@ pub(super) fn check() -> Result<(), String> {
             "http_max_connection",
         ),
         (
-            json!({}),
+            json!({"http_max_connections":8}),
             vec!["--http_max_calls".into(), "9".into()],
             "http_max_connections",
         ),
