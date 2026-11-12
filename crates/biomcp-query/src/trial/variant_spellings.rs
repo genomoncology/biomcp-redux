@@ -90,15 +90,18 @@ fn notice(typed: &Text, spellings: Option<&VariantSpellings>, general: bool) -> 
     }
 }
 
-/// Name each returned trial that matched only through a codon form.
+/// Name each returned trial that matched only through a codon form, or that may have when the
+/// registry did not answer the check.
 pub(super) fn codon_notice(
     sent: &TrialSearch,
     rows: &[biodata::NctId],
+    unconfirmed: bool,
     source: &mut SourceOutcome,
 ) {
-    let Some((exact, codon)) = sent
-        .variant()
-        .and_then(|variant| biomcp_types::codon_split(variant.as_str()))
+    let Some((exact, codon)) = [sent.variant(), sent.criteria()]
+        .into_iter()
+        .flatten()
+        .find_map(|terms| biomcp_types::codon_split(terms.as_str()))
     else {
         return;
     };
@@ -113,15 +116,22 @@ pub(super) fn codon_notice(
         })
         .or(exact.first())
         .map_or("", String::as_str);
+    let (codon, ids) = (codon.join(" or "), ids.join(", "));
+    let message = if unconfirmed {
+        format!(
+            "May have matched only by codon form {codon}: {ids}. Their returned text writes no \
+             spelling of {change}, and ClinicalTrials.gov did not answer the check of their other \
+             fields; check each trial's allele."
+        )
+    } else {
+        format!(
+            "Matched only by codon form {codon}: {ids}. ClinicalTrials.gov finds no spelling of \
+             {change} in them; check each trial's allele."
+        )
+    };
     source.notices.push(SourceNotice::RequestGuidance {
         data_date: None,
-        message: format!(
-            "Matched only by codon form {}: {}. ClinicalTrials.gov finds no spelling of {change} in \
-             them; check each trial's allele.",
-            codon.join(" or "),
-            ids.join(", ")
-        )
-        .into(),
+        message: message.into(),
         retry_after_seconds: None,
     });
 }

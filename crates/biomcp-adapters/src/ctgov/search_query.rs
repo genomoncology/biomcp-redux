@@ -32,9 +32,10 @@ pub fn search_query(
         params.insert("query.cond".into(), format!("({condition})"));
     }
     let context_gene = gene.filter(|_| !query.count_only());
-    let exact = query
-        .variant()
-        .and_then(|variant| biomcp_types::codon_split(variant.as_str()))
+    let exact = [query.variant(), query.criteria()]
+        .into_iter()
+        .flatten()
+        .find_map(|terms| biomcp_types::codon_split(terms.as_str()))
         .map(|(exact, _)| exact)
         .unwrap_or_default();
     let mut result = ctgov::search_with_gene(

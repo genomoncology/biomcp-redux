@@ -121,7 +121,7 @@ impl ProteinQuery {
     /// Whether this is a change to another amino acid, not a stop or an unchanged residue.
     pub(crate) fn is_missense(&self) -> bool {
         self.to
-            .is_some_and(|to| AMINO.get(to).is_some_and(|(one, _)| *one != "*"))
+            .is_some_and(|to| to != self.from && AMINO.get(to).is_some_and(|(one, _)| *one != "*"))
     }
     /// The codon written without its change, and the same codon with any change (`X`).
     pub(crate) fn codon_forms(&self) -> [String; 2] {

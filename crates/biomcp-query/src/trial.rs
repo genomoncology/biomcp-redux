@@ -84,7 +84,8 @@ fn search<'a>(
         .err()
         .or(version.as_ref().err())
         .copied()
-        .or_else(|| result.as_ref().ok().and_then(|page| page.count_error));
+        .or_else(|| result.as_ref().ok().and_then(|page| page.count_error))
+        .or_else(|| result.as_ref().ok().and_then(|page| page.codon_error));
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
@@ -102,7 +103,8 @@ fn search<'a>(
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
         }
         page_notices(query, gene.as_deref(), &page, &mut source);
-        variant_spellings::codon_notice(searched, &page.codon_only, &mut source);
+        let unconfirmed = page.codon_error.is_some();
+        variant_spellings::codon_notice(searched, &page.codon_only, unconfirmed, &mut source);
         // The registry's token belongs to the request that was sent, so the next page repeats it.
         let sent = (changed && !typed_only).then(|| searched.exact());
         let sent = sent.as_ref().unwrap_or(query);

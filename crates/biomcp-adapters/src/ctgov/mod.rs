@@ -52,6 +52,8 @@ pub struct SearchPage {
     pub gene_contexts: Vec<GeneContext>,
     /// Rows whose returned text writes no exact spelling of a widened change, only its codon.
     pub codon_only: Vec<biodata::NctId>,
+    /// Codon check failure; `codon_only` then holds the unconfirmed local candidates.
+    pub codon_error: Option<RequestError>,
     /// Exact native total.
     pub total: Option<u64>,
     /// Native count lookup failure while page rows remain usable.
@@ -193,10 +195,14 @@ pub(super) fn search_with_gene(
     }
     let (condition_word_mismatch, gene_contexts) = raw.search_contexts(conditions, gene);
     // Without the gene's protocol text in the reply, no row can be checked.
-    let codon_only = if gene.is_some() && !exact.is_empty() {
-        search_query::confirm_codon_only(leg, exact, raw.codon_only(exact))?
+    let (codon_only, codon_error) = if gene.is_some() && !exact.is_empty() {
+        let candidates = raw.codon_only(exact);
+        match search_query::confirm_codon_only(leg, exact, candidates.clone()) {
+            Ok(rows) => (rows, None),
+            Err(error) => (candidates, Some(error)),
+        }
     } else {
-        Vec::new()
+        (Vec::new(), None)
     };
     let received = raw.studies.as_ref().map_or(0, |rows| rows.len() as u32);
     let mut rejected = Vec::new();
@@ -230,6 +236,7 @@ pub(super) fn search_with_gene(
         condition_word_mismatch,
         gene_contexts,
         codon_only,
+        codon_error,
         items,
         total,
         count_error,
