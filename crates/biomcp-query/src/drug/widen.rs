@@ -35,32 +35,41 @@ fn namespace(query: &DrugSearch) -> String {
     format!("{}-drug-names", query.source())
 }
 
-/// Start a widened search when the query widens and its source can run: `Ok(None)` searches
-/// the typed name as before, and `Err(())` means the reply in `out` is already final.
+/// How a drug search starts.
+pub(super) enum Start<S> {
+    /// Search the typed name as before.
+    Typed,
+    /// Search these names.
+    Widened(Saved<S>),
+    /// The reply is already final.
+    Answered,
+}
+
+/// Start a widened search when the query widens and its source can run.
 pub(super) fn begin<'a, S: Serialize + DeserializeOwned>(
     cx: &Ctx<'a>,
     query: &DrugSearch,
     deadline: &mut Deadline<'a>,
     fits: impl Fn(&[Text]) -> bool,
     out: &mut Outcome,
-) -> Result<Option<Saved<S>>, ()> {
+) -> Start<S> {
     if !query.widens_drug_names()
         || (query.name_snapshot().is_none() && cx.fetch.disabled(query.source().source()))
         || !query
             .query()
             .is_some_and(|typed| fits(std::slice::from_ref(typed)))
     {
-        return Ok(None);
+        return Start::Typed;
     }
     match prepare(cx, query, deadline, fits) {
-        Ok(Some(saved)) => Ok(Some(saved)),
+        Ok(Some(saved)) => Start::Widened(saved),
         Ok(None) => {
             missing(query, out);
-            Err(())
+            Start::Answered
         }
         Err(error) => {
             out.local = Some(error);
-            Err(())
+            Start::Answered
         }
     }
 }

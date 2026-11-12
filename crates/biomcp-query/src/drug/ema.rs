@@ -22,8 +22,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut deadline = command.deadline();
     // Each EMA name is its own local lookup, so no request bound limits the group.
     let widened = match super::widen::begin::<()>(cx, query, &mut deadline, |_| true, &mut out) {
-        Ok(widened) => widened,
-        Err(()) => return out,
+        super::widen::Start::Typed => None,
+        super::widen::Start::Widened(saved) => Some(saved),
+        super::widen::Start::Answered => return out,
     };
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
     let result = match &widened {

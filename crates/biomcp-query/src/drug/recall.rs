@@ -23,8 +23,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     let query = q;
     let fits = |names: &[biodata::Text]| source::names_fit(q, names);
     let mut widened = match super::widen::begin(cx, q, &mut deadline, fits, &mut out) {
-        Ok(widened) => widened,
-        Err(()) => return out,
+        super::widen::Start::Typed => None,
+        super::widen::Start::Widened(saved) => Some(saved),
+        super::widen::Start::Answered => return out,
     };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result = match widened.as_mut() {
