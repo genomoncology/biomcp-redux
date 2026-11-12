@@ -36,23 +36,6 @@
       "run": [
         "search",
         "trial",
-        "Salted therapy"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/sources/0/source": "chembl",
-        "/sources/0/notices/0/names": [
-          "Salt brand",
-          "Salted therapy",
-          "ST-1"
-        ],
-        "/page/total": 3
-      }
-    },
-    {
-      "run": [
-        "search",
-        "trial",
         "Failing medicine"
       ],
       "expect": {

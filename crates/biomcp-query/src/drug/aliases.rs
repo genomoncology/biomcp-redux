@@ -199,7 +199,7 @@ fn with_aliases(
     (None, alternatives, evidence)
 }
 
-pub(super) fn ambiguous(card: &DrugCard) -> bool {
+fn ambiguous(card: &DrugCard) -> bool {
     card.header
         .name_resolution
         .as_ref()

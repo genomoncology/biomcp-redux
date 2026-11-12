@@ -1,0 +1,68 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22Worldname%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22Worldname%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
+  "exchanges": [
+    {
+      "fetched": 1793329799,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "total": 1,
+          "hits": [
+            {
+              "_id": "CHEMBL900002",
+              "_version": 1,
+              "chembl": {
+                "molecule_chembl_id": "CHEMBL900002",
+                "pref_name": "OFFICIAL THERAPY",
+                "molecule_synonyms": [
+                  {
+                    "molecule_synonym": "Ab",
+                    "syn_type": "TRADE_NAME"
+                  },
+                  {
+                    "molecule_synonym": "Bc",
+                    "syn_type": "TRADE_NAME"
+                  },
+                  {
+                    "molecule_synonym": "Cd",
+                    "syn_type": "TRADE_NAME"
+                  },
+                  {
+                    "molecule_synonym": "Official therapy",
+                    "syn_type": "FDA"
+                  },
+                  {
+                    "molecule_synonym": "Official therapy",
+                    "syn_type": "MERCK_INDEX"
+                  },
+                  {
+                    "molecule_synonym": "Worldname",
+                    "syn_type": "ATC"
+                  },
+                  {
+                    "molecule_synonym": "Worldname",
+                    "syn_type": "BNF"
+                  },
+                  {
+                    "molecule_synonym": "Worldname",
+                    "syn_type": "INN"
+                  },
+                  {
+                    "molecule_synonym": "Mundonombre",
+                    "syn_type": "INN_SPANISH"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
