@@ -81,7 +81,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     } else {
         selected_get(cx, query)
     };
-    bad_reply(query, &mut out);
+    mark_bad_reply(query, &mut out);
     out
 }
 /// Get each part of a several-section request; label headings of one SPL record share one read.
@@ -90,15 +90,15 @@ pub(crate) fn get_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
         .iter()
         .all(|part| part.source() == DrugSource::OpenfdaLabel && !part.is_name())
     {
-        let mut outcomes = openfda_label::get_many(cx, parts);
+        let mut outcomes = openfda_label::get(cx, parts);
         for (part, out) in parts.iter().zip(&mut outcomes) {
-            bad_reply(part, out);
+            mark_bad_reply(part, out);
         }
         return outcomes;
     }
     parts.iter().map(|part| get(cx, part)).collect()
 }
-fn bad_reply(query: &DrugGet, out: &mut Outcome) {
+fn mark_bad_reply(query: &DrugGet, out: &mut Outcome) {
     let source = query.source().source();
     if out.sources.iter().any(|outcome| {
         outcome.source == source && outcome.reason == Some(biomcp_types::Reason::BadReply)
@@ -122,7 +122,9 @@ fn selected_get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         return native::get(cx, query);
     }
     if query.source() == DrugSource::OpenfdaLabel {
-        return openfda_label::get(cx, query);
+        return openfda_label::get(cx, std::slice::from_ref(query))
+            .pop()
+            .unwrap_or_else(|| empty(biomcp_types::DrugCard::into_reply(query.clone(), None)));
     }
     if query.source() == DrugSource::Civic {
         return civic::get(cx, query);

@@ -93,23 +93,12 @@ fn disclosure(out: &mut Outcome, selector: Option<biodata::Text>) {
         });
     }
 }
-pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    get_many(cx, std::slice::from_ref(query))
-        .pop()
-        .unwrap_or_else(|| super::empty(biomcp_types::DrugCard::into_reply(query.clone(), None)))
-}
 /// Read one SPL record once and answer each query that names it, such as one per label heading.
-pub(super) fn get_many(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let Some(first) = queries.first() else {
         return Vec::new();
     };
-    let empty = |query: &DrugGet| {
-        super::empty(if matches!(query.sections(), [DrugSection::Label]) {
-            biomcp_types::DrugLabel::into_reply(query.clone(), None)
-        } else {
-            biomcp_types::DrugCard::into_reply(query.clone(), None)
-        })
-    };
+    let mut out = empty(first);
     if !first.supports_sections() {
         return queries
             .iter()
@@ -130,36 +119,56 @@ pub(super) fn get_many(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result = source::get(&leg, &id);
     let error = result.as_ref().err().copied();
+    out.local = error.and_then(status::local);
     let remaining = leg.remaining();
-    let observed = status::source(SOURCE, leg.finish(), error);
-    let outcomes = queries
-        .iter()
-        .map(|query| {
-            let mut out = empty(query);
-            out.local = error.and_then(status::local);
-            out.sources.push(observed.clone());
-            if let Ok(page) = &result {
-                out.problems.extend(page.problems.iter().cloned());
-                out.include_refusals(page.window.refusals());
-                crate::status::item(&mut out, true, false, false);
-                if let Some(source) = out.sources.first_mut() {
-                    source.count = Some(page.window.total().unwrap_or(0));
-                    source.retrieved_count = Some(page.window.rows.len() as u32);
-                }
+    out.sources
+        .push(status::source(SOURCE, leg.finish(), error));
+    if let Ok(page) = result {
+        out.problems.extend(page.problems);
+        out.include_refusals(page.window.refusals());
+        crate::status::item(&mut out, true, false, false);
+        if let Some(source) = out.sources.first_mut() {
+            source.count = Some(page.window.total().unwrap_or(0));
+            source.retrieved_count = Some(page.window.rows.len() as u32);
+        }
+        let outcomes = queries
+            .iter()
+            .map(|query| {
+                let mut part = fork(&out, query);
                 if let Some(record) = page.window.rows.first() {
-                    if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
-                        crate::status::item(&mut out, false, true, false);
-                        out.local = status::local(error);
+                    if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut part)
+                    {
+                        crate::status::item(&mut part, false, true, false);
+                        part.local = status::local(error);
                     }
                 } else {
-                    crate::status::item(&mut out, false, false, false);
+                    crate::status::item(&mut part, false, false, false);
                 }
-            }
-            out
-        })
-        .collect();
+                part
+            })
+            .collect();
+        command.finish(remaining);
+        return outcomes;
+    }
     command.finish(remaining);
-    outcomes
+    queries.iter().map(|query| fork(&out, query)).collect()
+}
+fn empty(query: &DrugGet) -> Outcome {
+    super::empty(if matches!(query.sections(), [DrugSection::Label]) {
+        biomcp_types::DrugLabel::into_reply(query.clone(), None)
+    } else {
+        biomcp_types::DrugCard::into_reply(query.clone(), None)
+    })
+}
+/// One query's outcome carrying the shared record read.
+fn fork(read: &Outcome, query: &DrugGet) -> Outcome {
+    let mut out = empty(query);
+    out.local = read.local;
+    out.sources = read.sources.clone();
+    out.problems = read.problems.clone();
+    out.dropped = read.dropped;
+    crate::status::restored(&mut out, read.status());
+    out
 }
 fn select(
     cx: &Ctx<'_>,
