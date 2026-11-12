@@ -8,12 +8,6 @@
       "retrieved": "2026-11-11"
     },
     {
-      "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22imatinib%22%20OR%20openfda.generic_name%3A%22imatinib%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22IMATINIB%22%20OR%20openfda.generic_name.exact%3A%22IMATINIB%22%20OR%20openfda.brand_name.exact%3A%22Imatinib%22%20OR%20openfda.generic_name.exact%3A%22Imatinib%22%20OR%20openfda.brand_name.exact%3A%22imatinib%22%20OR%20openfda.generic_name.exact%3A%22imatinib%22%29&limit=0&sort=effective_time%3Adesc",
-      "sha256": "449078d66e93b4709a4c36616f6fdf7ac44f39fb6b1ff80974e019d891c845a1",
-      "status": 200,
-      "retrieved": "2026-11-11"
-    },
-    {
       "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22IMATINIB%22%20OR%20openfda.generic_name.exact%3A%22IMATINIB%22%20OR%20openfda.brand_name.exact%3A%22Imatinib%22%20OR%20openfda.generic_name.exact%3A%22Imatinib%22%20OR%20openfda.brand_name.exact%3A%22imatinib%22%20OR%20openfda.generic_name.exact%3A%22imatinib%22&limit=10&sort=effective_time%3Adesc",
       "sha256": "c61d4ba58ed78f8f0030d64b663f86439969a8d90f637cb4a445f9baa6aadb03",
       "status": 200,

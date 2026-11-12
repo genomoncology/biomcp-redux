@@ -72,7 +72,9 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             let lookup = limit != 1;
             let expanded = selector.starts_with("((");
             let exact = selector.contains("brand_name.exact");
-            let total = if lookup || mode == 7 && expanded && exact && offset == 0 {
+            // Literal searches ask for word-only matches beyond the exact hits; there are none here.
+            let word_only = selector.contains(" AND NOT ");
+            let total = if lookup || word_only || mode == 7 && expanded && exact && offset == 0 {
                 0
             } else if expanded && selector.contains("Brand") {
                 2

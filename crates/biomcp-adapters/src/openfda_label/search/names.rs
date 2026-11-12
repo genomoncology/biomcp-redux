@@ -45,30 +45,31 @@ pub(super) fn union(
     if exact_total == 0 {
         return candidates(leg, words, limit, offset);
     }
-    let taken = first.window.received();
+    let mut taken = first.window.received();
     let rest_selector = format!("({words}) AND NOT ({exact})");
-    let rest = if taken < limit {
+    let mut rows = first.window.rows;
+    let mut problems = first.problems;
+    let rest_total = if taken < limit {
         let skip = u64::from(offset).saturating_sub(exact_total);
         let skip = u32::try_from(skip)
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?;
-        candidates(leg, &rest_selector, limit - taken, skip)?
+        let rest = candidates(leg, &rest_selector, limit - taken, skip)?;
+        taken += rest.window.received();
+        rows.extend(rest.window.rows);
+        problems.extend(rest.problems);
+        rest.window.total()
     } else {
-        // A full exact page still needs the word-only total; a zero-row page reads only it.
-        candidates(leg, &rest_selector, 0, 0)?
+        // A full exact page still needs the word-only total; its one probe row is not shown.
+        candidates(leg, &rest_selector, 1, 0)?.window.total()
     };
-    let total = exact_total + rest.window.total().unwrap_or(0);
-    let received = taken + rest.window.received();
-    let mut problems = first.problems;
-    problems.extend(rest.problems);
-    let mut rows = first.window.rows;
-    rows.extend(rest.window.rows);
+    let total = exact_total + rest_total.unwrap_or(0);
     Ok(Page {
         window: crate::NativeWindow::new(
             rows,
             offset,
             limit,
             Some(total),
-            received,
+            taken,
             crate::Refusal::None,
         ),
         problems,
