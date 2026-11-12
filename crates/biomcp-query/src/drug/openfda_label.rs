@@ -28,7 +28,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         match names::prepare(cx, query, &mut deadline) {
             Ok(Some(saved)) => Some(saved),
             Ok(None) => {
-                names::missing(query, &mut out);
+                super::widen::missing(query, &mut out);
                 return out;
             }
             Err(error) => {
@@ -61,7 +61,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let remaining = leg.remaining();
     out.sources
         .push(status::source(SOURCE, leg.finish(), error));
-    let sent = names::retain(
+    let sent = super::widen::retain(
         cx,
         query,
         expanded.as_ref(),

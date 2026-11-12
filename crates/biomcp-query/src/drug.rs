@@ -11,6 +11,7 @@ mod next;
 mod openfda_label;
 mod recall;
 mod resolve;
+mod widen;
 pub(crate) mod search_names;
 pub(crate) mod who;
 use crate::{Ctx, Outcome, status};
