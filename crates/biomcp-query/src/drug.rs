@@ -85,19 +85,40 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     mark_bad_reply(query, &mut out);
     out
 }
-/// Get each part of a several-section request; label headings of one SPL record share one read.
+/// Get each part of a several-section request. A name resolves once for every part, and label
+/// headings of one SPL record share one read. A name that resolves to no record answers with
+/// one outcome for all parts.
 pub(crate) fn get_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
-    if parts
-        .iter()
-        .all(|part| part.source() == DrugSource::OpenfdaLabel && !part.is_name())
-    {
-        let mut outcomes = openfda_label::get(cx, parts);
-        for (part, out) in parts.iter().zip(&mut outcomes) {
-            mark_bad_reply(part, out);
-        }
-        return outcomes;
+    let mut outcomes = if parts.first().is_some_and(DrugGet::is_name) {
+        aliases::get_parts(cx, parts)
+    } else {
+        selected_parts(cx, parts)
+    };
+    for (part, out) in parts.iter().zip(&mut outcomes) {
+        mark_bad_reply(part, out);
     }
-    parts.iter().map(|part| get(cx, part)).collect()
+    outcomes
+}
+/// Get each native-ID part; label headings of one SPL record share one read.
+fn selected_parts(cx: &Ctx<'_>, parts: &[DrugGet]) -> Vec<Outcome> {
+    if parts.len() > 1
+        && parts
+            .iter()
+            .all(|part| part.source() == DrugSource::OpenfdaLabel)
+    {
+        return openfda_label::get(cx, parts);
+    }
+    parts.iter().map(|part| selected_get(cx, part)).collect()
+}
+/// A new outcome with `body` that carries another's source reads, problems and status.
+fn fork(read: &Outcome, body: biomcp_types::ReplyData) -> Outcome {
+    let mut out = empty(body);
+    out.local = read.local;
+    out.sources = read.sources.clone();
+    out.problems = read.problems.clone();
+    out.dropped = read.dropped;
+    crate::status::restored(&mut out, read.status());
+    out
 }
 fn mark_bad_reply(query: &DrugGet, out: &mut Outcome) {
     let source = query.source().source();

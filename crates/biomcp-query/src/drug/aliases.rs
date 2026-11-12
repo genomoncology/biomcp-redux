@@ -44,7 +44,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             Some(found)
         },
     );
-    if let Some(found) = found {
+    if let Some(mut found) = found {
+        evidence.append(&mut found, query.source());
         return found;
     }
     evidence.append(&mut out, query.source());
@@ -59,10 +60,27 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let mut out = get_parts(cx, std::slice::from_ref(query));
+    out.pop().unwrap_or_else(|| {
+        status::empty(ReplyData::Usage(biomcp_types::UsageError::argument(
+            "input".into(),
+        )))
+    })
+}
+
+/// Get every part of one drug name, resolving the name once; a name that resolves to no
+/// record answers with one outcome for all parts.
+pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     let deadline = cx.fetch.deadline(cx.budget);
-    let mut out = super::resolve::get(cx, query);
-    if !matches!(out.body, ReplyData::Usage(_)) || !usable(&out, query.source()) {
-        return out;
+    let mut outcomes = super::resolve::get_parts(cx, queries);
+    let Some(query) = queries.first() else {
+        return outcomes;
+    };
+    let [out] = outcomes.as_slice() else {
+        return outcomes;
+    };
+    if !matches!(out.body, ReplyData::Usage(_)) || !usable(out, query.source()) {
+        return outcomes;
     }
     let input = query.input();
     let (found, card, evidence) = with_aliases(
@@ -70,40 +88,61 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         input,
         query.source(),
         |card, name, evidence| {
-            let retry = crate::next::checked(
-                query.with_name(name.clone()),
-                card.header.source.source(),
-                &mut evidence.problems,
-            )?;
-            let mut found = super::resolve::get(&within(cx, deadline.remaining()), &retry);
-            if matches!(found.body, ReplyData::Usage(_)) {
+            let retries = queries
+                .iter()
+                .map(|query| {
+                    crate::next::checked(
+                        query.with_name(name.clone()),
+                        card.header.source.source(),
+                        &mut evidence.problems,
+                    )
+                })
+                .collect::<Option<Vec<_>>>()?;
+            let mut found = super::resolve::get_parts(&within(cx, deadline.remaining()), &retries);
+            if found
+                .first()
+                .is_none_or(|found| matches!(found.body, ReplyData::Usage(_)))
+            {
                 return None;
             }
-            notice(
-                &mut found,
-                query.source(),
-                format!(
-                    "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; \
-                     tried resolving that name in the selected source. \
-                     Only that source can supply its own record.",
-                    card.header.source, card.header.id
-                ),
-            );
+            for found in &mut found {
+                notice(
+                    found,
+                    query.source(),
+                    format!(
+                        "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; \
+                         tried resolving that name in the selected source. \
+                         Only that source can supply its own record.",
+                        card.header.source, card.header.id
+                    ),
+                );
+            }
             Some(found)
         },
     );
-    if let Some(found) = found {
+    if let Some(mut found) = found {
+        for found in &mut found {
+            evidence.append(found, query.source());
+        }
         return found;
     }
+    let Some(mut out) = outcomes.pop() else {
+        return outcomes;
+    };
     evidence.append(&mut out, query.source());
-    if let Some(card) = card {
-        // A Usage reply discards source metadata, including the other-source hint.
-        out.body = DrugCard::into_reply(query.clone(), None);
-        out.page = None;
-        hint(&mut out, &card, input, query.source(), cx.fresh);
-        status::item(&mut out, false, false, false);
-    }
-    out
+    let Some(card) = card else {
+        return vec![out];
+    };
+    // A Usage reply discards source metadata, including the other-source hint.
+    queries
+        .iter()
+        .map(|query| {
+            let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
+            hint(&mut part, &card, input, query.source(), cx.fresh);
+            status::item(&mut part, false, false, false);
+            part
+        })
+        .collect()
 }
 
 #[derive(Default)]
@@ -134,12 +173,14 @@ impl Evidence {
     }
 }
 
-fn with_aliases(
+/// Try each exact name another source states for `input`; the caller adds the evidence to
+/// what `attempt` found.
+fn with_aliases<T>(
     cx: &Ctx<'_>,
     input: &Text,
     selected: DrugSource,
-    mut attempt: impl FnMut(&DrugCard, &Text, &mut Evidence) -> Option<Outcome>,
-) -> (Option<Outcome>, Option<DrugCard>, Evidence) {
+    mut attempt: impl FnMut(&DrugCard, &Text, &mut Evidence) -> Option<T>,
+) -> (Option<T>, Option<DrugCard>, Evidence) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut evidence = Evidence::default();
     let mut alternatives = None;
@@ -182,8 +223,7 @@ fn with_aliases(
                     if !tried.insert(name.as_str().to_lowercase()) {
                         continue;
                     }
-                    if let Some(mut found) = attempt(&card, name, &mut evidence) {
-                        evidence.append(&mut found, selected);
+                    if let Some(found) = attempt(&card, name, &mut evidence) {
                         return (Some(found), None, evidence);
                     }
                 }

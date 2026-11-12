@@ -164,13 +164,7 @@ fn empty(query: &DrugGet) -> Outcome {
 }
 /// One query's outcome carrying the shared record read.
 fn fork(read: &Outcome, query: &DrugGet) -> Outcome {
-    let mut out = empty(query);
-    out.local = read.local;
-    out.sources = read.sources.clone();
-    out.problems = read.problems.clone();
-    out.dropped = read.dropped;
-    crate::status::restored(&mut out, read.status());
-    out
+    super::fork(read, empty(query).body)
 }
 fn select(
     cx: &Ctx<'_>,

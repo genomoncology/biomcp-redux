@@ -25,7 +25,11 @@ pub use response::{
 };
 pub use search::DrugSearch;
 mod sections;
-pub use sections::{DrugSectionPart, DrugSections};
+pub use sections::{
+    DrugApprovalsPart, DrugCivicPart, DrugIndicationsPart, DrugInteractionsPart, DrugLabelPart,
+    DrugRegulatoryPart, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
+    DrugTargetsPart, DrugXrefsPart,
+};
 
 pub use source::DrugSource;
 

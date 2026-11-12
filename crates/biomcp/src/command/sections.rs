@@ -1,10 +1,12 @@
 //! A drug get that names several sections or label headings runs each as the call for that
-//! section alone and answers once, one part per section, each with its own paging.
+//! section alone and answers once: the drug's identity once, then one part per section, each
+//! with its own status, paging and next calls.
 //! A part that is not a section reply, such as a refused name or heading, answers alone.
 use super::{Encoding, Outcome, ResponseMeta};
 use biomcp_types::{
-    DrugGet, DrugSection, DrugSectionPart, DrugSections, Envelope, Reply, ReplyBody, ReplyData,
-    Status, UsageError,
+    DrugApprovals, DrugCivic, DrugGet, DrugHeader, DrugIndications, DrugInteractions, DrugLabel,
+    DrugRegulatory, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
+    DrugTargets, DrugXrefs, Envelope, Reply, ReplyBody, ReplyData, Status, UsageError,
 };
 use std::io;
 
@@ -17,6 +19,7 @@ pub(super) fn run(
     encoding: Encoding,
 ) -> io::Result<Outcome> {
     let mut parts = Vec::new();
+    let mut identity = None;
     let mut statuses = Vec::new();
     let mut local = false;
     let requested = query.parts().map_err(io::Error::other)?;
@@ -28,8 +31,11 @@ pub(super) fn run(
         statuses.push(result.status());
         let (meta, body) = super::finished(fetch, &request, result, fresh, globals, encoding)?;
         parts.push(
-            body.visit(Part(meta))
-                .ok_or_else(|| io::Error::other("drug section reply"))?,
+            body.visit(Part {
+                meta,
+                identity: &mut identity,
+            })
+            .ok_or_else(|| io::Error::other("drug section reply"))?,
         );
     }
     let status = combined(&statuses);
@@ -39,6 +45,7 @@ pub(super) fn run(
         crate::exit::Status::from(status)
     };
     let body = DrugSections {
+        identity,
         parts: parts.into(),
     };
     encoding.encode(Envelope::new(status, query.clone(), Some(body)), exit)
@@ -75,19 +82,48 @@ fn sectioned(body: &ReplyData) -> bool {
     )
 }
 
-/// Build one part's envelope from a drug section reply.
-struct Part(ResponseMeta);
-impl Part {
-    fn wrap<B: ReplyBody>(
+/// Build one part from a drug section reply. The first identity found becomes the reply's;
+/// a part states its own identity only when it differs.
+struct Part<'a> {
+    meta: ResponseMeta,
+    identity: &'a mut Option<DrugHeader>,
+}
+impl Part<'_> {
+    fn wrap<B, P>(
         self,
-        query: B::Query,
+        query: DrugGet,
         body: Option<B>,
-        variant: fn(Box<Envelope<B>>) -> DrugSectionPart,
-    ) -> Option<DrugSectionPart> {
-        Some(variant(Box::new(self.0.envelope(query, body))))
+        variant: fn(Box<DrugSectionReply<P>>) -> DrugSectionPart,
+    ) -> Option<DrugSectionPart>
+    where
+        B: ReplyBody<Query = DrugGet> + DrugSectionBody<Part = P>,
+    {
+        let envelope = self.meta.envelope(query.clone(), body);
+        let (identity, result) = match envelope.result.map(|body| body.split(&query)) {
+            Some((identity, part)) => (Some(identity), Some(part)),
+            None => (None, None),
+        };
+        let identity = match (identity, self.identity.as_ref()) {
+            (Some(identity), None) => {
+                *self.identity = Some(identity);
+                None
+            }
+            (Some(identity), Some(top)) if identity == *top => None,
+            (identity, _) => identity,
+        };
+        Some(variant(Box::new(DrugSectionReply {
+            status: envelope.status,
+            local_error: envelope.local_error,
+            identity,
+            result,
+            page: envelope.page,
+            sources: envelope.sources,
+            problems: envelope.problems,
+            next: envelope.next,
+        })))
     }
 }
-impl Reply for Part {
+impl Reply for Part<'_> {
     type Output = Option<DrugSectionPart>;
     fn reply<B: ReplyBody>(self, _: B::Query, _: Option<B>) -> Self::Output {
         None
@@ -105,54 +141,48 @@ impl Reply for Part {
             return None;
         }
         match query.sections().first()? {
-            DrugSection::Xrefs => self.wrap(query, None, DrugSectionPart::Xrefs),
-            DrugSection::Targets => self.wrap(query, None, DrugSectionPart::Targets),
-            DrugSection::Indications => self.wrap(query, None, DrugSectionPart::Indications),
-            DrugSection::Civic => self.wrap(query, None, DrugSectionPart::Civic),
-            DrugSection::Label => self.wrap(query, None, DrugSectionPart::Label),
-            DrugSection::Approvals => self.wrap(query, None, DrugSectionPart::Approvals),
-            DrugSection::Regulatory => self.wrap(query, None, DrugSectionPart::Regulatory),
-            DrugSection::Interactions => self.wrap(query, None, DrugSectionPart::Interactions),
+            DrugSection::Xrefs => self.wrap::<DrugXrefs, _>(query, None, DrugSectionPart::Xrefs),
+            DrugSection::Targets => {
+                self.wrap::<DrugTargets, _>(query, None, DrugSectionPart::Targets)
+            }
+            DrugSection::Indications => {
+                self.wrap::<DrugIndications, _>(query, None, DrugSectionPart::Indications)
+            }
+            DrugSection::Civic => self.wrap::<DrugCivic, _>(query, None, DrugSectionPart::Civic),
+            DrugSection::Label => self.wrap::<DrugLabel, _>(query, None, DrugSectionPart::Label),
+            DrugSection::Approvals => {
+                self.wrap::<DrugApprovals, _>(query, None, DrugSectionPart::Approvals)
+            }
+            DrugSection::Regulatory => {
+                self.wrap::<DrugRegulatory, _>(query, None, DrugSectionPart::Regulatory)
+            }
+            DrugSection::Interactions => {
+                self.wrap::<DrugInteractions, _>(query, None, DrugSectionPart::Interactions)
+            }
         }
     }
-    fn drug_xrefs(self, query: DrugGet, body: Option<biomcp_types::DrugXrefs>) -> Self::Output {
+    fn drug_xrefs(self, query: DrugGet, body: Option<DrugXrefs>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Xrefs)
     }
-    fn drug_targets(self, query: DrugGet, body: Option<biomcp_types::DrugTargets>) -> Self::Output {
+    fn drug_targets(self, query: DrugGet, body: Option<DrugTargets>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Targets)
     }
-    fn drug_indications(
-        self,
-        query: DrugGet,
-        body: Option<biomcp_types::DrugIndications>,
-    ) -> Self::Output {
+    fn drug_indications(self, query: DrugGet, body: Option<DrugIndications>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Indications)
     }
-    fn drug_civic(self, query: DrugGet, body: Option<biomcp_types::DrugCivic>) -> Self::Output {
+    fn drug_civic(self, query: DrugGet, body: Option<DrugCivic>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Civic)
     }
-    fn drug_label(self, query: DrugGet, body: Option<biomcp_types::DrugLabel>) -> Self::Output {
+    fn drug_label(self, query: DrugGet, body: Option<DrugLabel>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Label)
     }
-    fn drug_approvals(
-        self,
-        query: DrugGet,
-        body: Option<biomcp_types::DrugApprovals>,
-    ) -> Self::Output {
+    fn drug_approvals(self, query: DrugGet, body: Option<DrugApprovals>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Approvals)
     }
-    fn drug_regulatory(
-        self,
-        query: DrugGet,
-        body: Option<biomcp_types::DrugRegulatory>,
-    ) -> Self::Output {
+    fn drug_regulatory(self, query: DrugGet, body: Option<DrugRegulatory>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Regulatory)
     }
-    fn drug_interactions(
-        self,
-        query: DrugGet,
-        body: Option<biomcp_types::DrugInteractions>,
-    ) -> Self::Output {
+    fn drug_interactions(self, query: DrugGet, body: Option<DrugInteractions>) -> Self::Output {
         self.wrap(query, body, DrugSectionPart::Interactions)
     }
 }
