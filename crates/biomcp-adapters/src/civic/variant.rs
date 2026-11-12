@@ -6,7 +6,8 @@ use biomcp_fetch::Input;
 
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    CivicClaimKind, PageInfo, Reason, Source, VariantCivic, VariantGet, VariantHeader,
+    CivicClaimKind, CivicMembership, PageInfo, Reason, Source, VariantCivic, VariantGet,
+    VariantHeader,
 };
 use serde::Serialize;
 
@@ -25,6 +26,10 @@ struct Variables<'a> {
     assertion_after: Option<&'a Text>,
 }
 /// Read one bounded profile page or a selected native evidence/assertion cursor page.
+///
+/// When no CIViC profile carries the requested allele, CIViC variants that state the same
+/// protein change on the same transcript are joined instead, marked by protein membership;
+/// their continuations name CIViC's allele.
 pub fn variant(
     leg: &Leg<'_>,
     query: &VariantGet,
@@ -41,19 +46,44 @@ pub fn variant(
     let exact_query = query
         .for_candidate(allele.parse().map_err(|_| failure(Reason::BadReply))?)
         .map_err(|_| failure(Reason::BadReply))?;
-    let query = &exact_query;
+    let exact = profiles(leg, &exact_query, &allele)?;
+    if exact.value.page.total > 0 {
+        return Ok(exact);
+    }
+    for other in super::variant_protein::alleles(leg, candidate, &allele)? {
+        // Continuations name CIViC's own allele, whose exact join reaches the same profile.
+        let other_query = query
+            .for_candidate(other.parse().map_err(|_| failure(Reason::BadReply))?)
+            .map_err(|_| failure(Reason::BadReply))?;
+        let mut found = profiles(leg, &other_query, &other)?;
+        if found.value.page.total > 0 {
+            for profile in found.value.profiles.iter_mut() {
+                if matches!(profile.membership, CivicMembership::Exact) {
+                    profile.membership = CivicMembership::Protein;
+                }
+            }
+            return Ok(found);
+        }
+    }
+    Ok(exact)
+}
+fn profiles(
+    leg: &Leg<'_>,
+    query: &VariantGet,
+    allele: &str,
+) -> Result<Mapped<VariantCivic>, RequestError> {
     let mut after = None;
     let mut offset = 0;
     let mut partial = false;
     loop {
-        let body = request(query, &allele, after.as_ref());
+        let body = request(query, allele, after.as_ref());
         let reply: raw::Profiles = leg
             .call(
                 &GENES,
                 Input::json(&[], &body),
                 biomcp_fetch::Read::json().cache_if(&|page: &raw::Profiles| {
                     !page.has_errors()
-                        && page.matches(&allele, query.civic_profile())
+                        && page.matches(allele, query.civic_profile())
                         && page.progresses(query, after.as_ref())
                 }),
             )?
@@ -68,10 +98,10 @@ pub fn variant(
             || !connection.page_info.has_next_page
         {
             let mut connection = connection;
-            if !query.evidence_filter().is_empty() {
+            if evidence_filtered(query) {
                 super::variant_filter::apply(leg, query, &mut connection)?;
             }
-            let mut mapped = map::page(connection, query, &allele)?;
+            let mut mapped = map::page(connection, query, allele)?;
             if partial {
                 mapped.problems.push(biomcp_types::Problem {
                     source: Source::Civic,
@@ -90,17 +120,13 @@ pub fn variant(
     }
 }
 fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) -> Query<'a> {
-    let limit = query.section_limit();
-    let (evidence, assertions) = match query.civic_kind() {
-        Some(CivicClaimKind::Evidence) => (limit, 0),
-        Some(CivicClaimKind::Assertions) => (0, limit),
-        None => (limit.min(2), 1),
-    };
-    let evidence = if query.evidence_filter().is_empty() {
-        evidence
-    } else {
+    let (evidence, assertions) = claim_counts(query);
+    let evidence = if evidence_filtered(query) {
         0
+    } else {
+        evidence
     };
+    let assertions = if names_filtered(query) { 0 } else { assertions };
     let (ids_variable, ids_argument) = if query.civic_profile().is_some() {
         (",$ids:[Int!]", ",ids:$ids")
     } else {
@@ -123,20 +149,41 @@ fn request<'a>(query: &'a VariantGet, allele: &'a str, after: Option<&'a Text>) 
             allele,
             after,
             ids: query.civic_profile().map(|id| [id]),
-            evidence_after: if query.evidence_filter().is_empty()
+            evidence_after: if !evidence_filtered(query)
                 && query.civic_kind() == Some(CivicClaimKind::Evidence)
             {
                 query.civic_cursor()
             } else {
                 None
             },
-            assertion_after: if query.civic_kind() == Some(CivicClaimKind::Assertions) {
+            assertion_after: if !names_filtered(query)
+                && query.civic_kind() == Some(CivicClaimKind::Assertions)
+            {
                 query.civic_cursor()
             } else {
                 None
             },
         },
     }
+}
+/// Evidence and assertion rows per page; an omitted section limit keeps the compact overview.
+pub(super) fn claim_counts(query: &VariantGet) -> (u32, u32) {
+    let limit = query.section_limit();
+    match query.civic_kind() {
+        Some(CivicClaimKind::Evidence) => (limit, 0),
+        Some(CivicClaimKind::Assertions) => (0, limit),
+        None => query
+            .requested_section_limit()
+            .map_or((2, 1), |limit| (limit, limit)),
+    }
+}
+/// Disease or drug text restricts both claim collections through CIViC's root queries.
+pub(super) fn names_filtered(query: &VariantGet) -> bool {
+    query.disease().is_some() || query.drug().is_some()
+}
+/// Evidence selectors that CIViC applies only on its root evidence query.
+pub(super) fn evidence_filtered(query: &VariantGet) -> bool {
+    !query.evidence_filter().is_empty() || names_filtered(query)
 }
 pub(super) fn bounds(offset: u32, returned: usize, total: u64) -> PageInfo {
     PageInfo {

@@ -13,6 +13,7 @@ mod variant;
 mod variant_claims;
 mod variant_filter;
 mod variant_map;
+mod variant_protein;
 mod variant_raw;
 mod variant_subject;
 use crate::{Mapped, quotas, raw::Field};

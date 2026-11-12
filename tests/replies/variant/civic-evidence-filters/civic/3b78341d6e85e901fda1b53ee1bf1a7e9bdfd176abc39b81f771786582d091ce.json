@@ -4,7 +4,7 @@
   "url": "https://civicdb.org/api/graphql",
   "post": {
     "request_content_type": "application/json",
-    "request_body_sha256": "499ca059c51f686ad3b5bbf4405be2efbb3e280f21ac1f1cb119c26fbfdc17d5"
+    "request_body_sha256": "adc2d12dee7dce22c15cc82269f4d75c636e98326bb85a8da94f0a9c5637d549"
   },
   "exchanges": [
     {

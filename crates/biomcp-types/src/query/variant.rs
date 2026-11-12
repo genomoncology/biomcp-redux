@@ -60,6 +60,12 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     civic_cursor: Option<crate::Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
+    #[doc = "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    disease: Option<crate::Text>,
+    #[doc = "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    drug: Option<crate::Text>,
     #[doc = "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."]
     #[serde(
         default = "R::default_resolver",
@@ -129,6 +135,8 @@ impl VariantGet {
             civic_kind: v.civic_kind,
             civic_cursor: v.civic_cursor,
             evidence_filter: v.evidence_filter,
+            disease: v.disease,
+            drug: v.drug,
             resolver: VariantResolver::answered(outcome),
             build: v.build,
             limit: v.limit,
@@ -141,7 +149,9 @@ crate::query::validation::checked_query!(VariantGet, Fields);
 impl TryFrom<Fields> for VariantGet {
     type Error = super::gene::QueryInvalid;
     fn try_from(fields: Fields) -> Result<Self, Self::Error> {
-        if !fields.evidence_filter.is_empty()
+        let civic_filtered =
+            !fields.evidence_filter.is_empty() || fields.disease.is_some() || fields.drug.is_some();
+        if civic_filtered
             && !fields
                 .section
                 .iter()
@@ -150,6 +160,8 @@ impl TryFrom<Fields> for VariantGet {
             return Err(super::gene::QueryInvalid::new(&[
                 "evidence_level",
                 "evidence_status",
+                "disease",
+                "drug",
                 "civic_kind",
                 "section",
             ]));
@@ -204,6 +216,8 @@ impl TryFrom<Fields> for VariantGet {
         query.0.civic_kind = fields.civic_kind;
         query.0.civic_cursor = fields.civic_cursor;
         query.0.evidence_filter = fields.evidence_filter;
+        query.0.disease = fields.disease;
+        query.0.drug = fields.drug;
         query.0.section_limit = fields.section_limit;
         query.0.section_offset = fields.section_offset;
         query.0.section = fields.section;
@@ -244,6 +258,8 @@ impl VariantGet {
             civic_kind: None,
             civic_cursor: None,
             evidence_filter: Default::default(),
+            disease: None,
+            drug: None,
             resolver,
             build,
             limit: default_limit(),
@@ -283,6 +299,14 @@ impl VariantGet {
     pub fn evidence_filter(&self) -> &crate::CivicEvidenceFilter {
         &self.0.evidence_filter
     }
+    /// CIViC disease name text matched natively by the source.
+    pub fn disease(&self) -> Option<&crate::Text> {
+        self.0.disease.as_ref()
+    }
+    /// CIViC therapy name text matched natively by the source.
+    pub fn drug(&self) -> Option<&crate::Text> {
+        self.0.drug.as_ref()
+    }
     /// Selected native CIViC cursor.
     pub fn civic_cursor(&self) -> Option<&crate::Text> {
         self.0.civic_cursor.as_ref()
@@ -316,6 +340,10 @@ impl VariantGet {
     /// Named section rows per page.
     pub fn section_limit(&self) -> u32 {
         self.0.section_limit.unwrap_or_else(default_section_limit)
+    }
+    /// Named section rows per page when the caller chose them.
+    pub fn requested_section_limit(&self) -> Option<u32> {
+        self.0.section_limit
     }
     /// Assertion rows per page, using the selected source's default when omitted.
     pub fn assertion_limit(&self, source: crate::AssertionSource) -> u32 {
