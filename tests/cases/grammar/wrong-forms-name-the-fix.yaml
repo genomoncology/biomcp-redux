@@ -1,0 +1,365 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "Wrong forms agents typed in the baseline are refused with the argument at fault and the call that works: a section under another name, a label heading or source typed as a section, a record word in the section's place, words split from one value, text where the command takes none, a source typed as an option, and a section the default source lacks.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "article",
+        "24996524",
+        "text"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--section",
+        "/next/0/args": [
+          "get",
+          "article",
+          "24996524",
+          "fulltext"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "ADZYNMA",
+        "label",
+        "boxed_warning"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "section",
+        "/next/0/args": [
+          "get",
+          "drug",
+          "ADZYNMA",
+          "label",
+          "--label-section",
+          "boxed_warning",
+          "--source",
+          "openfda-label"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "iberdomide",
+        "label",
+        "indications"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "label",
+            "--label-section",
+            "indications_and_usage"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "primaquine",
+        "who-pq"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "section",
+        "/next/0/args": [
+          "get",
+          "drug",
+          "primaquine",
+          "--source",
+          "who-pq"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "2-219088867-C-T",
+        "gnomad"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "section",
+        "/next/0/args": [
+          "get",
+          "variant",
+          "2-219088867-C-T",
+          "population",
+          "--build",
+          "GRCh38"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "G6PD",
+        "recommendations"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "section",
+        "/next/0/args": {
+          "includes_all_of": [
+            "recommendations",
+            "--gene",
+            "G6PD"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "STOMP",
+        "tecovirimat",
+        "--limit",
+        "5"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "query",
+        "/next/0/args": {
+          "includes_all_of": [
+            "STOMP tecovirimat"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "thiopurine",
+        "2026"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "text",
+        "/next/0/args": {
+          "includes_all_of": [
+            "thiopurine 2026"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "colorectal",
+        "--limit",
+        "30"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--name",
+        "/next/0/args": {
+          "includes_all_of": [
+            "--name",
+            "colorectal",
+            "--source",
+            "fda-pma"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "G6PD",
+        "--source",
+        "who-ivd",
+        "--limit",
+        "50"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/next/0/args": {
+          "includes_all_of": [
+            "G6PD",
+            "--source",
+            "who-ivd"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "2:219088867"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "OMIM:621585",
+        "genes"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "-q",
+        "colorectal"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "-q",
+        "/next/0/args": {
+          "includes_all_of": [
+            "--name",
+            "colorectal"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "primaquine",
+        "--who-pq",
+        "--limit",
+        "50"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--who-pq",
+        "/next/0/args": {
+          "includes_all_of": [
+            "--source",
+            "who-pq"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "gene",
+        "MSTN",
+        "--source",
+        "hgnc"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/next/0/args": [
+          "get",
+          "gene",
+          "MSTN"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "apitegromab",
+        "targets"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "source",
+        "/error/valid_values": [
+          "chembl",
+          "opentargets"
+        ],
+        "/next/0/args": [
+          "get",
+          "drug",
+          "apitegromab",
+          "targets",
+          "--source",
+          "chembl"
+        ],
+        "/next/1/args": [
+          "get",
+          "drug",
+          "apitegromab",
+          "targets",
+          "--source",
+          "opentargets"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "A paper PubMed ranks first and Europe PMC finds too folds into one row that keeps the open-access flag only Europe PMC states.",
+  "replay": "article/search/access-rights-merged",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--source",
+        "pubmed,europepmc",
+        "--exact-term",
+        "--offset",
+        "12",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/key/namespace": "pubmed",
+        "/result/items/0/key/id": "42162665",
+        "/result/items/0/found_by/pubmed": 7,
+        "/result/items/0/found_by/europepmc": 18,
+        "/result/items/0/open_access": false,
+        "/result/items/0": {
+          "omits": [
+            "license"
+          ]
+        }
+      },
+      "max_bytes": 2001
+    }
+  ],
+  "verified": "2026-11-11 capture with biomcp --record of the PubMed search, the Europe PMC lite page and the PubMed summary for the selected row. PMID 42162665 is PubMed rank 7 and Europe PMC rank 18 with isOpenAccess N, so the PubMed row comes first and takes the flag in the merge. The ceiling is the measured 1,740-byte page plus 15 percent.",
+  "harvest": "biomed-agent-bench msl persona: which papers may be shared"
+}

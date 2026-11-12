@@ -173,6 +173,7 @@ fn create<'a>(
             pmid: Some(id),
             header: None,
             cited_by: None,
+            open_access: None,
             intents: None,
             influential: None,
             contexts: None,

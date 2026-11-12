@@ -127,7 +127,8 @@ fn parse_arguments(
             let outcome = if !cause.prefer_argument_error
                 && let Some(message) = retired
             {
-                usage_envelope(UsageError::Retired(message), encoding)
+                let next = crate::retired::steps(root, canonical.as_deref().unwrap_or(args));
+                usage_envelope(UsageError::Retired(message, next), encoding)
             } else {
                 parse_refusal(root, args, cause, encoding)
             };
@@ -135,7 +136,13 @@ fn parse_arguments(
         }
     };
     match retired {
-        Some(message) => Ok(Err(usage_envelope(UsageError::Retired(message), encoding)?)),
+        Some(message) => {
+            let next = crate::retired::steps(root, canonical.as_deref().unwrap_or(args));
+            Ok(Err(usage_envelope(
+                UsageError::Retired(message, next),
+                encoding,
+            )?))
+        }
         None => Ok(Ok(parsed)),
     }
 }
@@ -272,12 +279,13 @@ pub(crate) fn tool_http(args: &[OsString], context: Context<'_>) -> io::Result<O
     tool_using(args, context, false)
 }
 fn tool_using(args: &[OsString], context: Context<'_>, allow_save: bool) -> io::Result<Outcome> {
-    if args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
+    let refused = args.iter().filter_map(|arg| arg.to_str()).find_map(|arg| {
         ["--record", "--replay", "--case-cache"]
-            .iter()
-            .any(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
-    }) {
-        return usage_envelope(UsageError::arguments(), Encoding::Mcp);
+            .into_iter()
+            .find(|flag| arg == *flag || arg.starts_with(&format!("{flag}=")))
+    });
+    if let Some(flag) = refused {
+        return usage_envelope(UsageError::argument(flag.into()), Encoding::Mcp);
     }
     dispatch_using(
         context.root,

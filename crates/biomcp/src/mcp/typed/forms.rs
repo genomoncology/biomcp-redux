@@ -120,6 +120,15 @@ fn listed(fields: &mut Map<String, Value>) {
     fields.insert("items".into(), item);
 }
 
+/// Section words are plain text: the action's description lists them, and a wrong one
+/// reaches the server, which answers with the call that works.
+fn plain(fields: &mut Map<String, Value>) {
+    fields.remove("enum");
+    if let Some(item) = fields.get_mut("items").and_then(Value::as_object_mut) {
+        item.remove("enum");
+    }
+}
+
 /// Rewrite one action's compact schema to its advertised names. The schema stops forbidding
 /// other names, so a guessed one reaches the server.
 pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
@@ -141,6 +150,9 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
             continue;
         };
         if let Some(fields) = node.as_object_mut() {
+            if form.advertised == "section" {
+                plain(fields);
+            }
             if !form.phrase {
                 listed(fields);
             }

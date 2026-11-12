@@ -14,6 +14,8 @@ mod study;
 use biomcp_types::{ArticleSectionWord, ErrorMessage, GeneSectionWord, VariantSection};
 use std::ffi::OsString;
 mod disease;
+mod next;
+pub(crate) use next::steps;
 
 const GENE: &[(&str, ErrorMessage)] = &[
     ("search", ErrorMessage::GeneSearch),
@@ -102,6 +104,14 @@ fn find(table: &[(&str, ErrorMessage)], word: &str) -> Option<ErrorMessage> {
 }
 
 pub(crate) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
+    // Help for a command is answered even where its options are retired.
+    if args
+        .iter()
+        .take_while(|word| word.to_str() != Some("--"))
+        .any(|word| matches!(word.to_str(), Some("-h" | "--help")))
+    {
+        return None;
+    }
     if let Some(message) = author::message(root, args) {
         return Some(message);
     }

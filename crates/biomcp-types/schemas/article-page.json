@@ -224,6 +224,13 @@
           "$ref": "#/$defs/Reply_ArticleKey",
           "description": "Stable checked paper identity when the provider supplies one."
         },
+        "open_access": {
+          "description": "Europe PMC open-access flag; absent when no source states one. Not a licence.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "pmid": {
           "$ref": "#/$defs/Reply_Pmid",
           "description": "The selected PMID, retained when summary mapping fails."

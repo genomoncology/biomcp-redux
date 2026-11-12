@@ -123,6 +123,7 @@ fn parser_usage(command: &Command, path: &[&str], error: &clap::Error) -> Option
         }
         let values = command
             .get_arguments()
+            .filter(|argument| !argument.is_hide_set())
             .filter_map(|argument| argument.get_long())
             .map(|name| biodata::Text::new(&format!("--{name}")).ok())
             .collect::<Option<Vec<_>>>()?;
@@ -164,25 +165,35 @@ fn parser_correction(
     {
         args.remove(index);
     }
-    let parser = if error.kind() == ErrorKind::MissingRequiredArgument {
-        root.clone()
-            .ignore_errors(true)
-            .mut_subcommand(*verb, |command| {
-                command
-                    .ignore_errors(true)
-                    .mut_subcommand(*entity, |command| command.ignore_errors(true))
-            })
-    } else {
-        root.clone()
+    // An unknown word is corrected only from a strict parse, except a section word typed
+    // after a record word, which is read leniently because the record option is missing.
+    let missing = error.kind() == ErrorKind::MissingRequiredArgument;
+    let spelling = match error.get(ContextKind::InvalidArg) {
+        Some(ContextValue::String(spelling)) => Some(spelling.as_str()),
+        _ => None,
     };
-    let matches = parser
-        .try_get_matches_from(std::iter::once(std::ffi::OsString::from("biomcp")).chain(args))
-        .ok()?;
-    let matches = matches
-        .subcommand_matches(verb)?
-        .subcommand_matches(entity)?;
-    let value = super::request_arguments(verb, entity, matches).ok()?;
     let schema = super::validation::schema(verb, entity)?;
+    let read = |strict: bool| {
+        let matches = lenient(root, path, strict)
+            .try_get_matches_from(
+                std::iter::once(std::ffi::OsString::from("biomcp")).chain(args.iter().cloned()),
+            )
+            .ok()?;
+        let matches = matches
+            .subcommand_matches(verb)?
+            .subcommand_matches(entity)?;
+        super::request_arguments(verb, entity, matches).ok()
+    };
+    let value = read(!missing);
+    let misplaced = |value: &serde_json::Value| {
+        super::sections::misplaced((verb, entity), &schema, value, spelling?)
+    };
+    if let Some(step) = value.as_ref().and_then(misplaced) {
+        return Some(step);
+    }
+    let Some(value) = value else {
+        return read(false).as_ref().and_then(misplaced);
+    };
     let declaration = biomcp_types::COMMANDS
         .iter()
         .find(|command| (command.verb, command.entity) == (*verb, *entity))?;
@@ -203,15 +214,41 @@ pub(super) fn parse_invalid(
     args: &[std::ffi::OsString],
 ) -> super::ParseInvalid {
     let (command, path) = command_context(root, error);
+    let spelling = match error.get(ContextKind::InvalidArg) {
+        Some(ContextValue::String(spelling)) if error.kind() == ErrorKind::UnknownArgument => {
+            Some(spelling.as_str())
+        }
+        _ => None,
+    };
     if let Some(mut arguments) = parser_usage(command, &path, error) {
         let registered_argument = invalid_argument(command, &path, error).is_some();
-        if registered_argument {
-            super::recovery::next(&mut arguments, parser_correction(root, &path, error, args));
-        }
+        let corrected = if registered_argument {
+            parser_correction(root, &path, error, args)
+        } else {
+            spelling.and_then(|spelling| flag_fix(root, &path, spelling, args))
+        };
+        super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
             prefer_argument_error: registered_argument,
+        };
+    }
+    if let Some(spelling) = spelling
+        && let Some(arguments) = super::positional::fix(root, &path, args)
+            .or_else(|| super::positional::unplaced(command, &path))
+    {
+        let mut arguments = arguments;
+        if spelling.starts_with('-')
+            && let Some(step) = flag_fix(root, &path, spelling, args)
+        {
+            arguments.argument = Some(spelling.into());
+            super::recovery::next(&mut arguments, Some(step));
+        }
+        return super::ParseInvalid {
+            argument: None,
+            usage: Some(UsageError::Arguments(arguments)),
+            prefer_argument_error: false,
         };
     }
     let message = match path.as_slice() {
@@ -221,7 +258,13 @@ pub(super) fn parse_invalid(
     };
     super::ParseInvalid {
         argument: None,
-        usage: message.map(UsageError::message),
+        // A command group answers a word it does not name with its commands.
+        usage: message.map(UsageError::message).or_else(|| {
+            (command.has_subcommands() && !path.is_empty())
+                .then(|| super::positional::unplaced(command, &path))
+                .flatten()
+                .map(UsageError::Arguments)
+        }),
         prefer_argument_error: false,
     }
 }
@@ -466,4 +509,33 @@ fn replacement_step(
         kind: biomcp_types::StepKind::Configure,
         args: args.into(),
     })
+}
+
+/// An option spelling this command lacks: the call with it spelled as this command takes it.
+fn flag_fix(
+    root: &Command,
+    path: &[&str],
+    spelling: &str,
+    args: &[std::ffi::OsString],
+) -> Option<biomcp_types::Step> {
+    super::positional::text_flag(root, path, spelling, args)
+        .or_else(|| super::positional::source_flag(root, path, spelling, args))
+        .or_else(|| super::positional::respelled(root, path, spelling, args))
+}
+
+/// The root parser, with errors ignored along the command path unless `strict`.
+fn lenient(root: &Command, path: &[&str], strict: bool) -> Command {
+    let &[verb, entity] = path else {
+        return root.clone();
+    };
+    if strict {
+        return root.clone();
+    }
+    root.clone()
+        .ignore_errors(true)
+        .mut_subcommand(verb, |command| {
+            command
+                .ignore_errors(true)
+                .mut_subcommand(entity, |command| command.ignore_errors(true))
+        })
 }

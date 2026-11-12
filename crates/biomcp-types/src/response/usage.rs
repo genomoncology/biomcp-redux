@@ -30,8 +30,8 @@ pub enum UsageError {
         /// Checked article filter.
         option: crate::ArticleFilter,
     },
-    /// A body position is invalid.
-    TextPositionError,
+    /// A body position or selector is invalid; names the option at fault.
+    TextPositionError(&'static str),
     /// ClinicalTrials.gov rejected a request carrying a registry continuation.
     TrialContinuationRejected,
     /// A retained registry continuation cannot establish its position and selectors.
@@ -57,8 +57,8 @@ pub enum UsageError {
         /// Grammar-owned help command.
         next: crate::Step,
     },
-    /// Fixed migration guidance.
-    Retired(crate::ErrorMessage),
+    /// Fixed migration guidance and the replacement call for this request, when one checks.
+    Retired(crate::ErrorMessage, Vec<crate::Step>),
     /// A transport cannot execute this command.
     McpUnavailable(crate::ErrorMessage),
     /// A hosted source key belongs in account settings.

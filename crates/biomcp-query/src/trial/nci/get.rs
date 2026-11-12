@@ -126,7 +126,7 @@ fn restore(
         return Err(CacheError::Internal.into());
     }
     if !page::valid(q, &snapshot) {
-        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError);
+        out.body = ReplyData::Usage(biomcp_types::UsageError::TextPositionError("--offset"));
         return Ok(());
     }
     out.sources = snapshot.sources.clone();

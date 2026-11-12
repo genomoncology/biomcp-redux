@@ -1,7 +1,7 @@
 {
   "feature": "drug-label",
   "live_check": "public",
-  "story": "Label source pages preserve word matches, complete native pagination and native display names.",
+  "story": "Label source pages rank exact name matches in any letter case before word matches, with complete native pagination and native display names.",
   "replay": "drug/openfda-label-page",
   "steps": [
     {
@@ -17,12 +17,12 @@
       "expect": {
         "/status": "complete",
         "/page/returned": 3,
-        "/page/total": 18,
-        "/result/total": 18,
+        "/page/total": 24,
+        "/result/total": 24,
         "/result/items/*/id": [
-          "0291eca5-7a1d-4a79-30be-252224d96509",
-          "a819a954-41c9-4d49-a74e-c8c4b338b22a",
-          "7c037022-7fc8-4b6e-9db3-427206c572b4"
+          "9131b2ce-752d-3a30-e053-2a95a90adaab",
+          "a1787fad-3612-43e1-98fa-ce62361e0b3c",
+          "f4acacbd-13f8-4a46-b615-b639a17f331f"
         ],
         "/result/items/*/name": {
           "count": 3
@@ -42,19 +42,19 @@
       "expect": {
         "/status": "complete",
         "/page/returned": 10,
-        "/page/total": 18,
-        "/result/total": 18,
+        "/page/total": 24,
+        "/result/total": 24,
         "/result/items/*/id": [
-          "0291eca5-7a1d-4a79-30be-252224d96509",
-          "a819a954-41c9-4d49-a74e-c8c4b338b22a",
-          "7c037022-7fc8-4b6e-9db3-427206c572b4",
-          "a4e409f7-20b4-4c80-8a6a-f95995ffad78",
-          "211ef2da-2868-4a77-8055-1cb2cd78e24b",
-          "9fc5ec7b-98c4-4b1a-890c-be1343177dbd",
-          "07764bf9-21b4-4e32-9d7e-e348f8e4291f",
+          "9131b2ce-752d-3a30-e053-2a95a90adaab",
+          "a1787fad-3612-43e1-98fa-ce62361e0b3c",
           "f4acacbd-13f8-4a46-b615-b639a17f331f",
-          "5d07ac08-962e-41a8-8a3c-50febc8c5f34",
-          "65b4d8a6-349d-4fb1-9818-dad6b4ad4fa1"
+          "1debf3a0-7587-47d7-8ea6-e739698d7297",
+          "6e7ed4ef-24e3-4545-9a99-2e34c946e8e7",
+          "26658bb7-9ba1-a10e-e063-6394a90a172e",
+          "a9cfc301-3c7f-4910-8813-41dcb0b4ca69",
+          "0291eca5-7a1d-4a79-30be-252224d96509",
+          "c0611fc0-b217-4988-acd4-b8c629ce489b",
+          "a819a954-41c9-4d49-a74e-c8c4b338b22a"
         ],
         "/result/items/*/name": {
           "count": 10
@@ -75,21 +75,23 @@
       ],
       "expect": {
         "/status": "complete",
-        "/page/returned": 8,
-        "/page/total": 18,
-        "/result/total": 18,
+        "/page/returned": 10,
+        "/page/total": 24,
+        "/result/total": 24,
         "/result/items/*/id": [
+          "7c037022-7fc8-4b6e-9db3-427206c572b4",
+          "a4e409f7-20b4-4c80-8a6a-f95995ffad78",
+          "211ef2da-2868-4a77-8055-1cb2cd78e24b",
+          "9fc5ec7b-98c4-4b1a-890c-be1343177dbd",
+          "07764bf9-21b4-4e32-9d7e-e348f8e4291f",
+          "5d07ac08-962e-41a8-8a3c-50febc8c5f34",
+          "65b4d8a6-349d-4fb1-9818-dad6b4ad4fa1",
           "e97f0238-b9da-46af-83a3-0826e39893e8",
-          "1debf3a0-7587-47d7-8ea6-e739698d7297",
           "82eb01e0-8685-4f06-8a72-7663e8ded38f",
-          "9de8d8b9-cf88-4960-82b7-89e5ceb7720e",
-          "be5b9047-155b-59ca-e053-2995a90ad3dc",
-          "7b7cc194-29e4-4484-a364-a1ac7d7d6cf5",
-          "2e931c49-6c9f-41e2-a34b-5f01cd295b56",
-          "7579620e-3748-46fa-8295-f9b47d0aa5b8"
+          "9de8d8b9-cf88-4960-82b7-89e5ceb7720e"
         ],
         "/result/items/*/name": {
-          "count": 8
+          "count": 10
         }
       }
     },
@@ -103,13 +105,13 @@
         "--limit",
         "10",
         "--offset",
-        "18"
+        "24"
       ],
       "expect": {
         "/status": "complete",
         "/page/returned": 0,
-        "/page/total": 18,
-        "/result/total": 18,
+        "/page/total": 24,
+        "/result/total": 24,
         "/result": {
           "omits": [
             "items"

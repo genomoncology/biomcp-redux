@@ -85,6 +85,8 @@ EMA's medicines file holds some `?` characters where a symbol such as `≥` was 
 
 Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
+`--name` matches literal text inside the native `lab_test_name`, ignoring letter case, across every stored version row, including tests with no gene or condition link. It counts current cards and conflicting identities before paging; a test whose only card is not current is left out. A name match has no matched relation unless a relation selector is also given. There is no fuzzy matching or ranking.
+
 ## GTR cards
 
 The `genes`, `conditions` and `methods` sections page independent native rows with `--section-limit` and `--section-offset`. Relation pages distinguish native row totals from distinct identifier totals. A GTR listing states source membership and laboratory submission facts; it does not establish variant coverage, clinical availability, FDA authorization or NIH endorsement.

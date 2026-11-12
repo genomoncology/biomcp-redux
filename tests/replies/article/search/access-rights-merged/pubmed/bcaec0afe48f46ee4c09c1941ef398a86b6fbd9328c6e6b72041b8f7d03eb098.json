@@ -1,0 +1,278 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "538184ecbc92b0609734c6e8683a05005f8685e57aaadaa7989d83f3a5346e34"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794442696,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "42162665"
+            ],
+            "42162665": {
+              "uid": "42162665",
+              "pubdate": "2026 Sep",
+              "epubdate": "2026 May 19",
+              "source": "Ann Oncol",
+              "authors": [
+                {
+                  "name": "Piperno-Neumann S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Rutkowski P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hassel JC",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Butler MO",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Schlaak M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sullivan RJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Dummer R",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kirkwood JM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sacco JJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Shoushtari AN",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Piulats JM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Salama AKS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Orloff MM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Joshua AM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ochsenreither S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gastaud L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Curti BD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Demidov LV",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Milhem MM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chmielowski B",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Kendra KL",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ascierto PA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bernicker EH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Carvajal RD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Collins L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lockwood S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Patel JM",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Hamid OA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Baurain JF",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Nathan PD",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Nathan PD",
+              "title": "Five-year survival with tebentafusp in metastatic uveal melanoma.",
+              "sorttitle": "five year survival with tebentafusp in metastatic uveal melanoma",
+              "volume": "37",
+              "issue": "9",
+              "pages": "1266-1277",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "9007735",
+              "issn": "0923-7534",
+              "essn": "1569-8041",
+              "pubtype": [
+                "Journal Article",
+                "Randomized Controlled Trial",
+                "Clinical Trial, Phase III",
+                "Multicenter Study"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "42162665"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.annonc.2026.05.695"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0923-7534(26)00879-3"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2026/03/02 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2026/05/13 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2026/05/13 00:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2026/08/18 23:36"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2026/05/21 05:33"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2026/05/20 23:54"
+                }
+              ],
+              "references": [],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": "",
+              "fulljournalname": "Annals of oncology : official journal of the European Society for Medical Oncology",
+              "elocationid": "doi: 10.1016/j.annonc.2026.05.695",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2026/09/01 00:00",
+              "sortfirstauthor": "Piperno-Neumann S",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ]
+}
