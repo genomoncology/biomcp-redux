@@ -100,7 +100,6 @@
         "--p-value threshold must be a positive probability in scientific notation",
         "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
         "choose one of the source selector values",
-        "choose one section per call from valid_values; call again for another section",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
         "MCP tool result exceeds the character cap in error.count; narrow --limit or --section-limit, select one source or section, or fetch one exact record",
