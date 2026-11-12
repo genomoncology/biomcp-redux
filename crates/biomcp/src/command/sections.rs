@@ -44,11 +44,17 @@ pub(super) fn run(
     } else {
         crate::exit::Status::from(status)
     };
+    // A name echoes as the native ID it resolved to, as a single section's reply does.
+    let echoed = identity
+        .as_ref()
+        .filter(|_| query.is_name())
+        .and_then(|identity| query.with_native_id(identity.id.clone()).ok())
+        .unwrap_or_else(|| query.clone());
     let body = DrugSections {
         identity,
         parts: parts.into(),
     };
-    encoding.encode(Envelope::new(status, query.clone(), Some(body)), exit)
+    encoding.encode(Envelope::new(status, echoed, Some(body)), exit)
 }
 
 /// Absent or failed only when every part is; partial when any part failed or is partial.

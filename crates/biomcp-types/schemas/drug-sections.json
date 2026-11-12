@@ -1095,21 +1095,39 @@
       ],
       "type": "object"
     },
-    "Reply_DrugCivic": {
-      "description": "Complete CIViC therapy/profile context with independent native claim continuations.",
+    "Reply_DrugApprovalsPart": {
+      "description": "Approvals without the identity.",
       "properties": {
-        "civic": {
-          "$ref": "#/$defs/Reply_Section_DrugCivicStreams",
+        "approvals": {
+          "$ref": "#/$defs/Reply_Section_DrugRecords_DrugFdaSubmission",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         },
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Selected native identity, checked independently of section facts."
+        "order": {
+          "description": "Presentation order of application submissions, without interpreting their statuses.",
+          "type": "string"
+        },
+        "products": {
+          "description": "Native products, filtered only by an explicit product number; independent of submissions.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugFdaProduct"
+          },
+          "type": "array"
+        },
+        "source_updated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_SourceUpdated"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native FDA dataset last_updated date, independent of submission dates and retrieval."
         }
       },
       "required": [
-        "identity",
-        "civic"
+        "approvals",
+        "order"
       ],
       "type": "object"
     },
@@ -1265,6 +1283,19 @@
       },
       "required": [
         "page"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugCivicPart": {
+      "description": "CIViC context without the identity.",
+      "properties": {
+        "civic": {
+          "$ref": "#/$defs/Reply_Section_DrugCivicStreams",
+          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+        }
+      },
+      "required": [
+        "civic"
       ],
       "type": "object"
     },
@@ -2142,13 +2173,9 @@
       ],
       "type": "object"
     },
-    "Reply_DrugIndications": {
-      "description": "Source-native indication wording, populations and combinations.",
+    "Reply_DrugIndicationsPart": {
+      "description": "Indications without the identity.",
       "properties": {
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Selected native identity, checked independently of section facts."
-        },
         "indications": {
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugIndicationClaim",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
@@ -2166,7 +2193,6 @@
         }
       },
       "required": [
-        "identity",
         "indications"
       ],
       "type": "object"
@@ -2213,57 +2239,16 @@
       ],
       "type": "object"
     },
-    "Reply_DrugInteractions": {
-      "description": "Native DDInter partner rows and levels without invented management text.",
+    "Reply_DrugInteractionsPart": {
+      "description": "Interactions without the identity.",
       "properties": {
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Selected native identity, checked independently of section facts."
-        },
         "interactions": {
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugInteractionClaim",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         }
       },
       "required": [
-        "identity",
         "interactions"
-      ],
-      "type": "object"
-    },
-    "Reply_DrugLabel": {
-      "description": "One explicit native label heading and text continuation.",
-      "properties": {
-        "hint": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "How to read one of those sections."
-        },
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Selected native identity, checked independently of section facts."
-        },
-        "label": {
-          "$ref": "#/$defs/Reply_Section_DrugLabelText",
-          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
-        },
-        "sections": {
-          "description": "Label section names present for this record, listed when no label_section was given.",
-          "items": {
-            "$ref": "#/$defs/Reply_Text"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "identity",
-        "label"
       ],
       "type": "object"
     },
@@ -2293,6 +2278,48 @@
         "source_part",
         "source_offset",
         "characters"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugLabelPart": {
+      "description": "One label heading without the identity.",
+      "properties": {
+        "hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "How to read one of those sections."
+        },
+        "label": {
+          "$ref": "#/$defs/Reply_Section_DrugLabelText",
+          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+        },
+        "label_section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The requested label heading, as given."
+        },
+        "sections": {
+          "description": "Label section names present for this record, listed when no label_section was given.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "label"
       ],
       "type": "object"
     },
@@ -2927,31 +2954,6 @@
       ],
       "type": "object"
     },
-    "Reply_DrugRegulatory": {
-      "description": "Source-scoped regulator events preserving date roles and original status.",
-      "properties": {
-        "date_roles": {
-          "description": "The source's own published description of each date role in these records.",
-          "items": {
-            "$ref": "#/$defs/Reply_DateRoleLabel"
-          },
-          "type": "array"
-        },
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Selected native identity, checked independently of section facts."
-        },
-        "regulatory": {
-          "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent",
-          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
-        }
-      },
-      "required": [
-        "identity",
-        "regulatory"
-      ],
-      "type": "object"
-    },
     "Reply_DrugRegulatoryContext": {
       "description": "Native FDA events beside phase facts, without an indication-level assertion.",
       "properties": {
@@ -2985,6 +2987,26 @@
       ],
       "type": "object"
     },
+    "Reply_DrugRegulatoryPart": {
+      "description": "Regulator events without the identity.",
+      "properties": {
+        "date_roles": {
+          "description": "The source's own published description of each date role in these records.",
+          "items": {
+            "$ref": "#/$defs/Reply_DateRoleLabel"
+          },
+          "type": "array"
+        },
+        "regulatory": {
+          "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent",
+          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+        }
+      },
+      "required": [
+        "regulatory"
+      ],
+      "type": "object"
+    },
     "Reply_DrugSection": {
       "description": "Explicit drug disclosures; identity cards never expand into these sections.",
       "type": "string",
@@ -3010,13 +3032,13 @@
       ]
     },
     "Reply_DrugSectionPart": {
-      "description": "One requested section, named by `section`, and the reply a call for it alone gives in\n`reply`, with its own status, sources, paging and next calls.",
+      "description": "One requested section, named by `section`, and what a call for it alone answers in `reply`,\nless the drug identity the reply states once.",
       "oneOf": [
         {
           "description": "Cross-references.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugXrefsPart"
             },
             "section": {
               "const": "xrefs",
@@ -3033,7 +3055,7 @@
           "description": "Targets.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope2"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugTargetsPart"
             },
             "section": {
               "const": "targets",
@@ -3050,7 +3072,7 @@
           "description": "Indications.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope3"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugIndicationsPart"
             },
             "section": {
               "const": "indications",
@@ -3067,7 +3089,7 @@
           "description": "CIViC context.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope4"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugCivicPart"
             },
             "section": {
               "const": "civic",
@@ -3084,7 +3106,7 @@
           "description": "One label heading.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope5"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugLabelPart"
             },
             "section": {
               "const": "label",
@@ -3101,7 +3123,7 @@
           "description": "Approvals.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope6"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugApprovalsPart"
             },
             "section": {
               "const": "approvals",
@@ -3118,7 +3140,7 @@
           "description": "Regulator events.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope7"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugRegulatoryPart"
             },
             "section": {
               "const": "regulatory",
@@ -3135,7 +3157,7 @@
           "description": "Interactions.",
           "properties": {
             "reply": {
-              "$ref": "#/$defs/Reply_Envelope8"
+              "$ref": "#/$defs/Reply_DrugSectionReply_DrugInteractionsPart"
             },
             "section": {
               "const": "interactions",
@@ -3150,9 +3172,644 @@
         }
       ]
     },
-    "Reply_DrugSections": {
-      "description": "Several sections of one drug record in one reply, one part per section and label heading.",
+    "Reply_DrugSectionReply_DrugApprovalsPart": {
+      "description": "One part's own outcome, paging and next calls.",
       "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugApprovalsPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugCivicPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugCivicPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugIndicationsPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugIndicationsPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugInteractionsPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugInteractionsPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugLabelPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugLabelPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugRegulatoryPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugRegulatoryPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugTargetsPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugTargetsPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSectionReply_DrugXrefsPart": {
+      "description": "One part's own outcome, paging and next calls.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug this part describes, only when it differs from the reply's identity."
+        },
+        "local_error": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_CacheProblem"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Bounded local cache failure, independent of provider outcomes."
+        },
+        "next": {
+          "description": "Available next commands for this part.",
+          "items": {
+            "$ref": "#/$defs/Reply_Step"
+          },
+          "type": "array"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PageInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Section page metadata."
+        },
+        "problems": {
+          "description": "Rejected source fields.",
+          "items": {
+            "$ref": "#/$defs/Reply_Problem"
+          },
+          "type": "array"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugXrefsPart"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Answer when available."
+        },
+        "sources": {
+          "description": "Sources actually asked.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceOutcome"
+          },
+          "type": "array"
+        },
+        "status": {
+          "$ref": "#/$defs/Reply_Status",
+          "description": "This part's outcome."
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugSections": {
+      "description": "Several sections of one drug record in one reply: the drug once, then one part per section\nand label heading.",
+      "properties": {
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugHeader"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The drug every part describes, with its name lookup; absent when no part found it."
+        },
         "parts": {
           "description": "Parts in the caller's order.",
           "items": {
@@ -3267,38 +3924,28 @@
       ],
       "type": "object"
     },
-    "Reply_DrugTargets": {
-      "description": "Native target and mechanism relations, without a clinical indication inference.",
+    "Reply_DrugTargetsPart": {
+      "description": "Targets without the identity.",
       "properties": {
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Selected native identity, checked independently of section facts."
-        },
         "targets": {
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugTargetRelation",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         }
       },
       "required": [
-        "identity",
         "targets"
       ],
       "type": "object"
     },
-    "Reply_DrugXrefs": {
-      "description": "A mechanical page of the selected document's complete checked native links.",
+    "Reply_DrugXrefsPart": {
+      "description": "Cross-references without the identity.",
       "properties": {
-        "identity": {
-          "$ref": "#/$defs/Reply_DrugHeader",
-          "description": "Exact source-selected identity, without choosing any linked product."
-        },
         "xrefs": {
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugIdentityRelation",
           "description": "Native links with an exact link count, original version and retrieval date."
         }
       },
       "required": [
-        "identity",
         "xrefs"
       ],
       "type": "object"
@@ -3307,622 +3954,6 @@
       "description": " A human Ensembl gene stable identifier with a separately retained version.",
       "pattern": "^ENSG[0-9]{11}(\\.(?:4294967295|[1-9][0-9]{0,8}|[1-3][0-9]{9}|4[0-1][0-9]{8}|42[0-8][0-9]{7}|429[0-3][0-9]{6}|4294[0-8][0-9]{5}|42949[0-5][0-9]{4}|429496[0-6][0-9]{3}|4294967[0-1][0-9]{2}|42949672[0-8][0-9]{1}|429496729[0-4][0-9]{0}))?$",
       "type": "string"
-    },
-    "Reply_Envelope": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugXrefs"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-xrefs/5",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope2": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugTargets"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-targets/8",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope3": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugIndications"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-indications/8",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope4": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugCivic"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-civic/11",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope5": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugLabel"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-label/7",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope6": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugApprovals"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-approvals/8",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope7": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugRegulatory"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-regulatory/6",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
-    },
-    "Reply_Envelope8": {
-      "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
-      "properties": {
-        "local_error": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_CacheProblem"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Bounded local cache failure, independent of provider outcomes."
-        },
-        "next": {
-          "description": "Available next commands.",
-          "items": {
-            "$ref": "#/$defs/Reply_Step"
-          },
-          "type": "array"
-        },
-        "page": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_PageInfo"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Search page metadata."
-        },
-        "problems": {
-          "description": "Rejected source fields.",
-          "items": {
-            "$ref": "#/$defs/Reply_Problem"
-          },
-          "type": "array"
-        },
-        "query": {
-          "$ref": "#/$defs/Reply_DrugGet",
-          "description": "Parsed query."
-        },
-        "result": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_DrugInteractions"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Answer when available."
-        },
-        "schema": {
-          "const": "biomcp.drug-interactions/8",
-          "type": "string"
-        },
-        "sources": {
-          "description": "Sources actually asked.",
-          "items": {
-            "$ref": "#/$defs/Reply_SourceOutcome"
-          },
-          "type": "array"
-        },
-        "status": {
-          "$ref": "#/$defs/Reply_Status",
-          "description": "Overall outcome."
-        }
-      },
-      "required": [
-        "schema",
-        "status",
-        "query"
-      ],
-      "type": "object"
     },
     "Reply_GeneLevel": {
       "enum": [
