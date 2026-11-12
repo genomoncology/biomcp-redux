@@ -48,3 +48,9 @@ The drug-name lookup ticket (0832) made an unfinished lookup harmless to the rep
 ## Changes
 
 - Changes: `crates/biomcp-query/src/drug/`, `crates/biomcp-fetch/src/`, `tests/cases/search/drug-names/`
+
+## Amendment, 2026-11-12
+
+- PM decision: 2026-11-12. Accept the fourth route, reading ChEMBL's molecule records from MyChem's copy of them, because it is simpler than the three listed candidates and adds no data asset.
+- PM decision: 2026-11-12. Accept about 1 s on names for a drug that needs ChEMBL's record as meeting the outcome for now, against 6.4 s and no widening before.
+- PM decision: 2026-11-12. The two routes to well under a second, loosening MyChem's pacing for small name queries and reading ChEMBL's fields from the first MyChem reply, are deferred to a later ticket.
