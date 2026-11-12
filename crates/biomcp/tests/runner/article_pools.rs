@@ -355,13 +355,18 @@ fn accept_exchanges(record: &mut Value) -> Result<(), String> {
     Ok(())
 }
 
-/// Unseen or refused candidates cannot establish one structure, but a complete fallback can.
+/// Unseen or refused candidates cannot establish one structure, but a complete fallback can:
+/// ChEMBL's record, read from MyChem's copy of ChEMBL.
 fn incomplete_names(entity: &str, mode: &str) -> Result<(), String> {
     let env = Environment::new().map_err(|e| e.to_string())?;
     let cache = env.root().join("name-cache");
     let replay = env.root().join("replay");
     copy_capture("search/drug-names", &replay, |source, record| {
-        if source == "mychem" {
+        let chembl_copy = record
+            .get("url")
+            .and_then(Value::as_str)
+            .is_some_and(|url| url.contains("q=chembl.pref_name%3A"));
+        if source == "mychem" && (mode != "fallback" || !chembl_copy) {
             for exchange in record
                 .get_mut("exchanges")
                 .and_then(Value::as_array_mut)
@@ -378,7 +383,7 @@ fn incomplete_names(entity: &str, mode: &str) -> Result<(), String> {
                     *body.get_mut("total").ok_or("total")? = json!(total);
                 }
             }
-        } else if source == "openfda-label" || source == "chembl" && mode != "fallback" {
+        } else if source == "openfda-label" {
             fail_exchanges(record)?;
         }
         Ok(())
