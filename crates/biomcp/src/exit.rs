@@ -1,6 +1,7 @@
 //! Consumed command outcomes and their process exit codes.
 use std::{io, process::ExitCode};
 
+#[derive(Clone, Copy)]
 pub(crate) enum Status {
     Success,
     Usage,
