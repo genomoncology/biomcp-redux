@@ -15,7 +15,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/sources/0/source": "chembl",
+        "/sources/0/source": "mychem",
+        "/sources/1/source": "chembl",
         "/sources/0/notices/0/names": [
           "Official therapy",
           "Worldname"
@@ -63,7 +64,8 @@
       ],
       "expect": {
         "/status": "complete",
-        "/sources/0/source": "chembl",
+        "/sources/0/source": "mychem",
+        "/sources/1/source": "chembl",
         "/sources/0/notices/0/names": [
           "Many therapy",
           "O-01",

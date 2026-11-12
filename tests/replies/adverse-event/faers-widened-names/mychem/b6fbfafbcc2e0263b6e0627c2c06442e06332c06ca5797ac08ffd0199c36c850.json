@@ -1,0 +1,180 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22valsartan%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22valsartan%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
+  "exchanges": [
+    {
+      "fetched": 1794487695,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 13,
+          "total": 1,
+          "max_score": 26.345818,
+          "hits": [
+            {
+              "_id": "ACWBQPMHZXGDFX-QFIPXVFZSA-N",
+              "_score": 26.345818,
+              "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
+                "molecule_chembl_id": "CHEMBL1069",
+                "molecule_synonyms": [
+                  {
+                    "molecule_synonym": "CGP 48933",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "CGP 48933"
+                  },
+                  {
+                    "molecule_synonym": "CGP-48933",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "CGP-48933"
+                  },
+                  {
+                    "molecule_synonym": "Diovan",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "DIOVAN"
+                  },
+                  {
+                    "molecule_synonym": "NSC-758927",
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "NSC-758927"
+                  },
+                  {
+                    "molecule_synonym": "Prexxartan",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "PREXXARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "ATC",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "BAN",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "BNF",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "FDA",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "INN",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "JAN",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "MERCK_INDEX",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "OTHER",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "USAN",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan",
+                    "syn_type": "USP",
+                    "synonyms": "VALSARTAN"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of agsav301",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF AGSAV301"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of byvalson",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF BYVALSON"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of copalia",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF COPALIA"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of copalia-hct",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF COPALIA-HCT"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of dafiro",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF DAFIRO"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of dafiro-hct",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF DAFIRO-HCT"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of diovan hct",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF DIOVAN HCT"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of entresto",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF ENTRESTO"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of exforge",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF EXFORGE"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of exforge hct",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF EXFORGE HCT"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of imprida",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF IMPRIDA"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of imprida-hct",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF IMPRIDA-HCT"
+                  },
+                  {
+                    "molecule_synonym": "Valsartan component of valturna",
+                    "syn_type": "TRADE_NAME",
+                    "synonyms": "VALSARTAN COMPONENT OF VALTURNA"
+                  }
+                ],
+                "pref_name": "VALSARTAN"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

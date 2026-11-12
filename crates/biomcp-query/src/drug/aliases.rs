@@ -199,13 +199,6 @@ fn with_aliases(
     (None, alternatives, evidence)
 }
 
-pub(super) fn ambiguous(card: &DrugCard) -> bool {
-    card.header
-        .name_resolution
-        .as_ref()
-        .is_none_or(|r| r.total != 1)
-}
-
 pub(super) fn literal_name(card: &DrugCard, input: &Text) -> bool {
     names(card)
         .iter()

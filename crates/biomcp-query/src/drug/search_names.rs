@@ -67,8 +67,9 @@ pub(crate) fn bounded<'a, T>(
 /// Walk the sources until one states the drug's names. A source with several structures, or
 /// nothing more to give, passes to the next; a failed source is never read as an empty one.
 /// ChEMBL comes before the label because a molecule record carries more names than one product.
-/// ChEMBL is not asked for a name MyChem has no row for: MyChem's query reads its copy of
-/// ChEMBL's preferred names and synonyms, and ChEMBL's exact-name requests take seconds each.
+/// ChEMBL's records are read from MyChem's copy of ChEMBL, in one request of a fraction of a
+/// second, where ChEMBL's own API takes two searches and a molecule read of seconds each, and
+/// stalls for whole lookups when it is unwell. They are not read for a name MyChem has no row for.
 /// `fit` says which names the searching provider can take, and why it cannot take the others.
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
@@ -86,7 +87,10 @@ pub(crate) fn resolve<'a>(
         DrugSource::Chembl,
         DrugSource::OpenfdaLabel,
     ] {
-        if cx.fetch.disabled(source.source()) || (unknown && source == DrugSource::Chembl) {
+        if cx.fetch.disabled(source.source())
+            || (source == DrugSource::Chembl
+                && (unknown || cx.fetch.disabled(DrugSource::Mychem.source())))
+        {
             continue;
         }
         if deadline.remaining().is_zero() {
@@ -101,6 +105,8 @@ pub(crate) fn resolve<'a>(
         let lookup = super::resolve::within(cx, deadline.remaining());
         let found = if source == DrugSource::Mychem {
             mychem(&lookup, input)
+        } else if source == DrugSource::Chembl {
+            chembl(&lookup, input)
         } else {
             card(&lookup, source, input, out)
         };
@@ -243,7 +249,47 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     )
 }
 
-/// Read one exact source record through the get drug path.
+/// Read the ChEMBL molecule stating the name from MyChem's copy of ChEMBL. Like ChEMBL's own
+/// exact-name filters, a name two molecules state gives no names.
+fn chembl(cx: &Ctx<'_>, input: &Text) -> Found {
+    let command = cx.fetch.command_deadline(cx.budget);
+    let leg = cx
+        .fetch
+        .leg(&biomcp_adapters::mychem::SPEC, command.deadline())
+        .fresh(cx.fresh);
+    let result = biomcp_adapters::mychem::chembl_names(&leg, input.as_str(), NAME_ROWS);
+    let error = result.as_ref().err().copied();
+    let remaining = leg.remaining();
+    let parent = status::source(DrugSource::Mychem.source(), leg.finish(), error);
+    command.finish(remaining);
+    let copied = biomcp_adapters::registry::outcome(DrugSource::Chembl.source(), parent.status());
+    let evidence = vec![parent, copied];
+    let mapped = match result {
+        Ok(mapped) => mapped,
+        Err(_) => return failure(error, evidence),
+    };
+    if mapped.refusals == biomcp_adapters::Refusal::Refused
+        || u64::from(mapped.value.received) != mapped.value.total
+    {
+        return Found::Failed(evidence);
+    }
+    let mut molecules = mapped.value.molecules;
+    if molecules.len() > 1 {
+        return Found::Ambiguous(evidence);
+    }
+    let Some(molecule) = molecules.pop() else {
+        return Found::Nothing;
+    };
+    with_other_names(
+        (molecule.names, molecule.preferred, molecule.official),
+        input,
+        molecule.id,
+        evidence,
+        mapped.problems,
+    )
+}
+
+/// Read one exact label record through the get drug path; label rows are products of one drug.
 fn card(cx: &Ctx<'_>, source: DrugSource, input: &Text, out: &mut Outcome) -> Found {
     let Some(query) = crate::next::checked(
         DrugGet::named(input.clone(), source),
@@ -276,10 +322,6 @@ fn card(cx: &Ctx<'_>, source: DrugSource, input: &Text, out: &mut Outcome) -> Fo
         .any(|name| DrugNameMatch::same_identity(name.as_str(), input.as_str()))
     {
         return Found::Nothing;
-    }
-    // A ChEMBL record is one molecule; label rows are products of one drug and do not count.
-    if source == DrugSource::Chembl && super::aliases::ambiguous(card) {
-        return Found::Ambiguous(found.sources);
     }
     let preferred = names
         .first()

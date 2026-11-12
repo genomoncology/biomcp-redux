@@ -1,0 +1,32 @@
+{
+  "feature": "drug-name-search",
+  "live_check": "synthetic names in real source reply shapes; no clinical or live completeness claim",
+  "story": "A drug MyChem cannot settle to one structure gets its names from MyChem's copy of ChEMBL's record, so the search widens without waiting on ChEMBL's own API while that API stalls.",
+  "replay": "search/drug-names",
+  "config": {
+    "command_timeout_seconds": 9
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "Salted therapy"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/source": "mychem",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/0/names": [
+          "Salt brand",
+          "Salted therapy",
+          "ST-1"
+        ],
+        "/sources/0/notices/0/message": "Searched the names stated by chembl record CHEMBL900001.",
+        "/sources/1/source": "chembl",
+        "/sources/1/state": "ok",
+        "/page/total": 3
+      }
+    }
+  ]
+}

@@ -95,6 +95,84 @@ pub struct NamePage {
     /// Admitted rows stating the requested name.
     pub records: Vec<NameRecord>,
 }
+/// One ChEMBL molecule stating a name, from MyChem's copy of ChEMBL.
+#[derive(Debug)]
+pub struct ChemblRecord {
+    /// ChEMBL molecule identifier.
+    pub id: String,
+    /// The preferred name, then the synonyms, each name once.
+    pub names: Vec<biodata::Text>,
+    /// ChEMBL's preferred name.
+    pub preferred: Vec<String>,
+    /// The synonyms ChEMBL types as official.
+    pub official: Vec<String>,
+}
+/// The ChEMBL molecules stating one name, with the native window they came from.
+#[derive(Debug)]
+pub struct ChemblNames {
+    /// Native matching count, including candidates outside this window.
+    pub total: u64,
+    /// Native rows consumed before refusal or exact-name filtering.
+    pub received: u32,
+    /// Molecules whose preferred name or a synonym is the name.
+    pub molecules: Vec<ChemblRecord>,
+}
+/// ChEMBL's name fields in MyChem: the ones ChEMBL's exact-name filters read.
+const CHEMBL_NAME_FIELDS: &str = "chembl.pref_name,chembl.molecule_synonyms.molecule_synonym";
+const CHEMBL_READ_FIELDS: &str =
+    "chembl.molecule_chembl_id,chembl.pref_name,chembl.molecule_synonyms";
+/// Read the ChEMBL molecules stating one name from MyChem's copy of ChEMBL, which answers in one
+/// request where ChEMBL's own API takes two searches and a molecule read, each taking seconds.
+pub fn chembl_names(
+    leg: &Leg<'_>,
+    query: &str,
+    limit: u32,
+) -> Result<crate::Mapped<ChemblNames>, RequestError> {
+    let phrase = format!("\"{}\"", query.replace('\\', "\\\\").replace('"', "\\\""));
+    let q = crate::drug_sources::components::allowed_fields(leg, CHEMBL_NAME_FIELDS)
+        .split(',')
+        .filter(|field| !field.is_empty())
+        .map(|field| format!("{field}:{phrase}"))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    if q.is_empty() {
+        return Ok(crate::Mapped {
+            refusals: crate::Refusal::None,
+            value: ChemblNames {
+                total: 0,
+                received: 0,
+                molecules: Vec::new(),
+            },
+            problems: Vec::new(),
+        });
+    }
+    let fields = crate::drug_sources::components::allowed_fields(leg, CHEMBL_READ_FIELDS);
+    let reply = leg
+        .call(
+            &SEARCH,
+            biomcp_fetch::Input::Params(&[
+                ("q", Arg::Text(&q)),
+                ("size", Arg::Num(limit as u64)),
+                ("fields", Arg::Text(&fields)),
+            ]),
+            Read::<raw::Page>::json()
+                .check(&|_| Ok(()))
+                .cache_if(&raw::Page::identities_admitted),
+        )?
+        .value;
+    let total = reply.total;
+    let received = reply.hits.len() as u32;
+    let mapped = names::chembl_records(reply, leg, query);
+    Ok(crate::Mapped {
+        refusals: mapped.refusals,
+        value: ChemblNames {
+            total,
+            received,
+            molecules: mapped.value,
+        },
+        problems: mapped.problems,
+    })
+}
 /// Read the first rows stating one name, across free text and the synonym fields.
 pub fn name_records(
     leg: &Leg<'_>,
