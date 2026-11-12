@@ -11,11 +11,27 @@ type Rank = (u8, u8, String);
 const MYCHEM_NAME_CAP: u32 = 250;
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
+    let mut out = get_parts(cx, std::slice::from_ref(query));
+    out.pop()
+        .unwrap_or_else(|| status::empty(ReplyData::Usage(UsageError::argument("input".into()))))
+}
+
+/// Resolve the name of the first query once and get every query for the chosen record, so
+/// label headings of one name share one record read. A name that resolves to no record
+/// answers with one outcome for all.
+pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+    let Some(query) = queries.first() else {
+        return Vec::new();
+    };
     let deadline = cx.fetch.deadline(cx.budget);
     let name = query.input().to_string();
     let search = match DrugSearch::named(query.input().clone(), query.source(), 50) {
         Ok(search) => search,
-        Err(_) => return status::empty(ReplyData::Usage(UsageError::argument("input".into()))),
+        Err(_) => {
+            return vec![status::empty(ReplyData::Usage(UsageError::argument(
+                "input".into(),
+            )))];
+        }
     };
     let mut unsettled = false;
     let (mut discovery, mut candidates) = if query.source() == DrugSource::Drugsfda {
@@ -40,7 +56,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             .any(|s| s.state != biomcp_types::SourceState::Ok)
     {
         status::item(&mut discovery, false, true, false);
-        return discovery;
+        return vec![discovery];
     }
     candidates.sort_by(|a, b| a.0.cmp(&b.0));
     let mut seen = std::collections::BTreeSet::new();
@@ -61,26 +77,34 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             }],
             ..Default::default()
         }));
-        return discovery;
+        return vec![discovery];
     };
-    let resolved = match query.with_native_id(selected.id.clone()) {
+    let resolved = match queries
+        .iter()
+        .map(|query| query.with_native_id(selected.id.clone()))
+        .collect::<Result<Vec<_>, _>>()
+    {
         Ok(resolved) => resolved,
-        Err(_) => return super::rejected_input(query.source(), "input", discovery),
+        Err(_) => return vec![super::rejected_input(query.source(), "input", discovery)],
     };
-    let out = super::selected_get(&within(cx, deadline.remaining()), &resolved);
-    let mut out = chosen_name(query, rank.0, &candidates, discovery, out);
-    if unsettled && out.status() == biomcp_types::Status::Complete {
-        // A product-only answer, while later matches may hold the drug itself.
-        status::item(&mut out, true, false, true);
-    }
-    out
+    super::selected_parts(&within(cx, deadline.remaining()), &resolved)
+        .into_iter()
+        .map(|out| {
+            let mut out = chosen_name(query, rank.0, &candidates, &discovery, out);
+            if unsettled && out.status() == biomcp_types::Status::Complete {
+                // A product-only answer, while later matches may hold the drug itself.
+                status::item(&mut out, true, false, true);
+            }
+            out
+        })
+        .collect()
 }
 
 fn chosen_name(
     query: &DrugGet,
     rank: u8,
     candidates: &[(Rank, DrugHeader)],
-    discovery: Outcome,
+    discovery: &Outcome,
     mut out: Outcome,
 ) -> Outcome {
     let ranking = (if query.source() == DrugSource::Drugsfda {
@@ -116,12 +140,12 @@ fn chosen_name(
             .collect(),
     };
     annotate(&mut out.body, resolution);
-    out.problems.extend(discovery.problems);
-    for source in discovery.sources {
+    out.problems.extend(discovery.problems.iter().cloned());
+    for source in &discovery.sources {
         if let Some(existing) = out.sources.iter_mut().find(|s| s.source == source.source) {
-            status::retain_source_state(existing, &source);
+            status::retain_source_state(existing, source);
         } else {
-            out.sources.push(source);
+            out.sources.push(source.clone());
         }
     }
     out

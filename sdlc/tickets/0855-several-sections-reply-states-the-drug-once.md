@@ -1,6 +1,7 @@
 # 0855 — several-sections-reply-states-the-drug-once
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2f9af0affa023aa8cac3bc75413ec54ac816e5db
 
 Milestone: 7
 
@@ -31,3 +32,7 @@ A several-sections drug reply (`biomcp.drug-sections/1`, from 0846) states the d
 ## Changes
 
 - Changes: `crates/biomcp-query/src/drug/`, the drug-sections schema, `tests/cases/drug/`
+
+## Notes
+
+- Review: `crates/biomcp-types/schemas/drug-sections.json` was deleted and regenerated at `biomcp.drug-sections/1` rather than moved to /2. Deleting the file skips the schema compatibility check in `crates/biomcp-types/tests/schemas.rs`, which is right only because /1 came from 0846, has never been released, and is not in `release/schema-baseline.json` (1.0.0 release candidate). A schema already in a released baseline must not be changed this way.
