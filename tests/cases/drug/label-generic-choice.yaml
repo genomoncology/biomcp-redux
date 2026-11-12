@@ -1,0 +1,40 @@
+{
+  "verified": "tests/replies/drug/label-generic-choice/provenance.json records the live openFDA replies of 2026-11-12 (job j38722) and their body hashes.",
+  "live_check": "public",
+  "feature": "drug-name-get",
+  "story": "A label read by generic name chooses the brand holder's current label: rivaroxaban matches 27 labels, and the reply reads the newest XARELTO label with all 10 numbered indications rather than the newest generic label, which lists 2, and says which label it chose, why, and how many others of each kind share the name.",
+  "replay": "drug/label-generic-choice",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "rivaroxaban",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/result/identity/id": "10db92f9-2300-4a80-836b-673e1ae91610",
+        "/result/identity/name": "Xarelto",
+        "/result/identity/name_resolution/basis": "generic",
+        "/result/identity/name_resolution/total": 27,
+        "/result/identity/name_resolution/reason": "chose Xarelto (10db92f9-2300-4a80-836b-673e1ae91610), a brand-name NDA/BLA label listing 10 numbered indications; 26 other labels share this name: 6 brand-name NDA/BLA labels, 20 generic or other labels",
+        "/result/identity/name_resolution/alternatives": {
+          "count": 5
+        },
+        "/result/identity/name_resolution/alternatives/0/args": [
+          "get",
+          "drug",
+          "d0e105f6-28f3-45ee-83bd-7d458835242b",
+          "--source",
+          "openfda-label"
+        ]
+      },
+      "max_bytes": 12000
+    }
+  ]
+}

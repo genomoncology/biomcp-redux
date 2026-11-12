@@ -1,0 +1,18 @@
+{
+  "projection": "Native identity, harmonized fields, product data and the indications section only (effective_time, id, openfda, set_id, spl_product_data_elements, version, indications_and_usage); meta and request identity are the original live reply's.",
+  "job": "j38722",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22rivaroxaban%22%20OR%20openfda.generic_name%3A%22rivaroxaban%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "bddd10fb65d0bc7c3752ec69460edf1966df8cae6c9ced03bb3e6b213df1d865",
+      "status": 200,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%2210db92f9-2300-4a80-836b-673e1ae91610%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "c957954f7af632025e4d29a47c71169394bf73dd2c819b422326613cf3285737",
+      "status": 200,
+      "retrieved": "2026-11-12"
+    }
+  ]
+}
