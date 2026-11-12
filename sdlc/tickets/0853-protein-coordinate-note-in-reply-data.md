@@ -32,3 +32,8 @@ Protein replies that carry coordinate ranges hold the note on how to read them (
 ## Changes
 
 - Changes: `crates/biomcp-query/src/protein/`, protein reply schemas, `tests/cases/protein/`
+
+## Progress
+
+- 2026-11-12, developer: the note is now a `coordinate_note` string in the reply data of protein features, protein domains and protein cards, present only when the reply holds a span (a card states it once at the top, not again inside its domains section). Schema majors: `biomcp.protein-features/5`, `biomcp.protein-domains/8`, `biomcp.protein-card/11`. The MCP text note and its special case in reply building are gone; every reply form now carries the note inside the JSON. Markdown still leads with the note as prose, read from the same field.
+- Other text-only notes 0837 drops: none found. Before 0837, reply text added only the protein coordinate note and the typed status/next summary line; status and next are already in the JSON, and 0837 moved the typed correction into `next`. Markdown-only lines (no data, failed source with reason, PubMed and LitVar notices) are rendered from fields already in the JSON, so MCP clients see the same facts.
