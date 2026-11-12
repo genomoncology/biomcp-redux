@@ -42,3 +42,17 @@ Candidates only. Rights are unchecked, and Ian decides after the evaluation.
 - Author and institution data with commercial-safe terms, such as OpenAlex, for key opinion leader work if PubMed and Europe PMC fall short (0722).
 - A drug name service such as RxNorm or the NCI Thesaurus, if names from current drug sources leave gaps (0717).
 - Cell line mutation data, such as DepMap, if Cellosaurus does not carry it (0726).
+
+## From the 1.0 persona review of 2026-11-12
+
+From bench ticket 0039's review of the eleven blind-graded persona runs (`personas/<slug>/runs/2026-11-12/review.md` in biomed-agent-bench). None was on this list.
+
+| Source | What it answers | Asked by |
+|---|---|---|
+| WHO Essential Medicines List | Whether a drug is on the WHO core or complementary list | P&T committee |
+| g:Profiler enrichment; STRING interactions | Gene-set enrichment and protein interaction partners | Computational biology |
+| NIH RePORTER; CMS Open Payments | Grants and industry payments to investigators | Medical science liaison |
+| EudraVigilance, VigiBase, JADER | Non-US adverse-event reports | Pharmacovigilance |
+| Orphanet, GARD/NORD, GeneReviews, PanelApp | Rare-disease prevalence, summaries and gene panels | Rare disease |
+| NMPA (China) approvals | Approvals outside the US and EU | Life-sciences competitive intelligence |
+| CPT codes, CLIA documents, proficiency testing, interference data | Lab test billing and validation | Diagnostics lab director |
