@@ -433,6 +433,47 @@ fn key_help(name: biomcp_fetch::SecretName, encoding: Encoding) -> io::Result<Ou
     )
 }
 
+fn query_context<'a>(
+    fetch: &'a biomcp_fetch::Fetch,
+    fresh: bool,
+    settings: &crate::config::Settings,
+) -> io::Result<biomcp_query::Ctx<'a>> {
+    Ok(biomcp_query::Ctx {
+        ncbi_email: crate::config::ncbi_email(settings)
+            .map_err(|_| io::Error::other("local configuration failed"))?,
+        fetch,
+        budget: crate::config::budget(settings),
+        fresh,
+        drug_name_limit: crate::config::drug_name_limit(settings),
+    })
+}
+
+/// Run each part of a several-section drug get with the configured defaults.
+fn run_parts(
+    fetch: &biomcp_fetch::Fetch,
+    parts: &[biomcp_types::DrugGet],
+    fresh: bool,
+    settings: &crate::config::Settings,
+) -> io::Result<Vec<(Request, biomcp_query::Outcome)>> {
+    let requests = parts
+        .iter()
+        .map(|part| crate::config::request_defaults(settings, &Request::GetDrug(part.clone())))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| io::Error::other("local configuration failed"))?;
+    let parts = requests
+        .iter()
+        .map(|request| match request {
+            Request::GetDrug(part) => Ok(part.clone()),
+            _ => Err(io::Error::other("drug section part")),
+        })
+        .collect::<io::Result<Vec<_>>>()?;
+    let cx = query_context(fetch, fresh, settings)?;
+    Ok(requests
+        .into_iter()
+        .zip(biomcp_query::run_drug_parts(&cx, &parts))
+        .collect())
+}
+
 fn run_request(
     fetch: &biomcp_fetch::Fetch,
     request: &Request,
@@ -443,14 +484,7 @@ fn run_request(
     let configured_request = crate::config::request_defaults(settings, request)
         .map_err(|_| io::Error::other("local configuration failed"))?;
     let request = &configured_request;
-    let cx = biomcp_query::Ctx {
-        ncbi_email: crate::config::ncbi_email(settings)
-            .map_err(|_| io::Error::other("local configuration failed"))?,
-        fetch,
-        budget: crate::config::budget(settings),
-        fresh,
-        drug_name_limit: crate::config::drug_name_limit(settings),
-    };
+    let cx = query_context(fetch, fresh, settings)?;
     Ok(match request {
         Request::TrialDocument(query) => crate::save::trial::document(&cx, query, allow_save),
         Request::ArticlePdf(query) => crate::save::run(&cx, query, allow_save),

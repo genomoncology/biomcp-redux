@@ -4,7 +4,7 @@
 use super::{Encoding, Outcome, ResponseMeta};
 use biomcp_types::{
     DrugGet, DrugSection, DrugSectionPart, DrugSections, Envelope, Reply, ReplyBody, ReplyData,
-    Request, Status, UsageError,
+    Status, UsageError,
 };
 use std::io;
 
@@ -19,9 +19,8 @@ pub(super) fn run(
     let mut parts = Vec::new();
     let mut statuses = Vec::new();
     let mut local = false;
-    for part in query.parts().map_err(io::Error::other)? {
-        let request = Request::GetDrug(part.clone());
-        let result = super::run_request(fetch, &request, fresh, settings, false)?;
+    let requested = query.parts().map_err(io::Error::other)?;
+    for (request, result) in super::run_parts(fetch, &requested, fresh, settings)? {
         if !sectioned(&result.body) {
             return super::response(fetch, request, result, fresh, globals, encoding);
         }

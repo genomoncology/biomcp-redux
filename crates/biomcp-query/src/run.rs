@@ -105,3 +105,11 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
     crate::publish::finish(&mut out, request);
     out
 }
+/// Run the parts of a several-section drug get, in order; parts that read one record share it.
+pub fn run_drug_parts(cx: &Ctx<'_>, parts: &[biomcp_types::DrugGet]) -> Vec<Outcome> {
+    let mut outcomes = crate::drug::get_parts(cx, parts);
+    for (part, out) in parts.iter().zip(&mut outcomes) {
+        crate::publish::finish(out, &Request::GetDrug(part.clone()));
+    }
+    outcomes
+}

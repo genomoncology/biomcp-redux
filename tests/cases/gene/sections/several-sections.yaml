@@ -4,7 +4,8 @@
   "story": "A typed gene get with a list of two sections answers both in one reply, as the command line does in protein-mir21.",
   "replay": "gene/constraint",
   "config": {
-    "mcp_tool_mode": "typed"
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
   },
   "steps": [
     {

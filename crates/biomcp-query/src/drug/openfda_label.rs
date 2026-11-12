@@ -94,47 +94,72 @@ fn disclosure(out: &mut Outcome, selector: Option<biodata::Text>) {
     }
 }
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let label = matches!(query.sections(), [DrugSection::Label]);
-    let mut out = super::empty(if label {
-        biomcp_types::DrugLabel::into_reply(query.clone(), None)
-    } else {
-        biomcp_types::DrugCard::into_reply(query.clone(), None)
-    });
-    if !query.supports_sections() {
-        return super::unsupported(DrugSource::OpenfdaLabel, out);
+    get_many(cx, std::slice::from_ref(query))
+        .pop()
+        .unwrap_or_else(|| super::empty(biomcp_types::DrugCard::into_reply(query.clone(), None)))
+}
+/// Read one SPL record once and answer each query that names it, such as one per label heading.
+pub(super) fn get_many(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+    let Some(first) = queries.first() else {
+        return Vec::new();
+    };
+    let empty = |query: &DrugGet| {
+        super::empty(if matches!(query.sections(), [DrugSection::Label]) {
+            biomcp_types::DrugLabel::into_reply(query.clone(), None)
+        } else {
+            biomcp_types::DrugCard::into_reply(query.clone(), None)
+        })
+    };
+    if !first.supports_sections() {
+        return queries
+            .iter()
+            .map(|query| super::unsupported(DrugSource::OpenfdaLabel, empty(query)))
+            .collect();
     }
-    let id = match query.native_input() {
+    let id = match first.native_input() {
         Ok(id) => id,
-        Err(_) => return super::rejected_input(query.source(), "input", out),
+        Err(_) => {
+            return queries
+                .iter()
+                .map(|query| super::rejected_input(query.source(), "input", empty(query)))
+                .collect();
+        }
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result = source::get(&leg, &id);
     let error = result.as_ref().err().copied();
-    out.local = error.and_then(status::local);
     let remaining = leg.remaining();
-    out.sources
-        .push(status::source(SOURCE, leg.finish(), error));
-    if let Ok(page) = result {
-        out.problems.extend(page.problems);
-        out.include_refusals(page.window.refusals());
-        crate::status::item(&mut out, true, false, false);
-        if let Some(source) = out.sources.first_mut() {
-            source.count = Some(page.window.total().unwrap_or(0));
-            source.retrieved_count = Some(page.window.rows.len() as u32);
-        }
-        if let Some(record) = page.window.rows.first() {
-            if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
-                crate::status::item(&mut out, false, true, false);
-                out.local = status::local(error);
+    let observed = status::source(SOURCE, leg.finish(), error);
+    let outcomes = queries
+        .iter()
+        .map(|query| {
+            let mut out = empty(query);
+            out.local = error.and_then(status::local);
+            out.sources.push(observed.clone());
+            if let Ok(page) = &result {
+                out.problems.extend(page.problems.iter().cloned());
+                out.include_refusals(page.window.refusals());
+                crate::status::item(&mut out, true, false, false);
+                if let Some(source) = out.sources.first_mut() {
+                    source.count = Some(page.window.total().unwrap_or(0));
+                    source.retrieved_count = Some(page.window.rows.len() as u32);
+                }
+                if let Some(record) = page.window.rows.first() {
+                    if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
+                        crate::status::item(&mut out, false, true, false);
+                        out.local = status::local(error);
+                    }
+                } else {
+                    crate::status::item(&mut out, false, false, false);
+                }
             }
-        } else {
-            crate::status::item(&mut out, false, false, false);
-        }
-    }
+            out
+        })
+        .collect();
     command.finish(remaining);
-    out
+    outcomes
 }
 fn select(
     cx: &Ctx<'_>,
