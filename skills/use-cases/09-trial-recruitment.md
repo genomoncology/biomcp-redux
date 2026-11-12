@@ -7,12 +7,12 @@ Which registry trials match the stated KIT L576P and gastrointestinal stromal tu
 ## 1. Retrieve and inspect
 
 ```sh
-biomcp search trial --gene KIT --variant L576P --condition 'gastrointestinal stromal tumor' --limit 100
+biomcp search trial --gene KIT --variant L576P --condition 'gastrointestinal stromal tumor' --limit 100 --exact-term
 ```
 
-Typed tool: `trial` `{"action":"search","search":{"gene":"KIT","variant":"L576P","condition":["gastrointestinal stromal tumor"],"limit":100}}`.
+Typed tool: `trial` `{"action":"search","search":{"gene":"KIT","variant":"L576P","condition":["gastrointestinal stromal tumor"],"limit":100,"exact_term":true}}`.
 
-Read each registry identifier, recruitment status, condition text and source problems. Follow page commands to inspect the remaining results.
+`--exact-term` searches the variant as typed, in general registry text only. Without it, BioMCP also searches the variant's other spellings, eligibility criteria and, with `--gene`, its codon, and lists them in a source notice. Read each registry identifier, recruitment status, condition text and source problems. Follow page commands to inspect the remaining results.
 
 ## 2. Retrieve and inspect
 

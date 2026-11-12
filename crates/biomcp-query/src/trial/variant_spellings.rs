@@ -1,0 +1,156 @@
+//! Search a typed variant's other spellings, and its general text with its eligibility criteria.
+use biodata::Text;
+use biomcp_types::{SourceNotice, SourceOutcome, TrialSearch, VariantSpellings, variant_terms};
+
+/// The registry request, and one notice per widened term.
+pub(super) struct Widened {
+    pub query: TrialSearch,
+    pub notices: Vec<SourceNotice>,
+}
+
+/// A page token already belongs to one registry query, so continuing never widens again.
+pub(super) fn widen(query: &TrialSearch, gene: bool) -> Widened {
+    let mut notices = Vec::new();
+    if query.exact_term() || query.next_page().is_some() {
+        return Widened {
+            query: query.clone(),
+            notices,
+        };
+    }
+    let variant = query.variant().map(|typed| {
+        let spellings = VariantSpellings::of(typed.as_str(), gene);
+        match Text::new(&variant_terms(typed.as_str(), spellings.as_ref())) {
+            Ok(terms) => {
+                notices.push(notice(typed, spellings.as_ref(), true));
+                terms
+            }
+            Err(_) => typed.clone(),
+        }
+    });
+    let criteria = query.criteria().map(|typed| {
+        let Some(spellings) = VariantSpellings::of(typed.as_str(), gene) else {
+            return typed.clone();
+        };
+        match Text::new(&spellings.criteria_terms(typed.as_str())) {
+            Ok(terms) => {
+                notices.push(notice(typed, Some(&spellings), false));
+                terms
+            }
+            Err(_) => typed.clone(),
+        }
+    });
+    Widened {
+        query: query.with_variant_terms(variant, criteria),
+        notices,
+    }
+}
+
+fn notice(typed: &Text, spellings: Option<&VariantSpellings>, general: bool) -> SourceNotice {
+    let place = if general {
+        "general text and eligibility criteria"
+    } else {
+        "eligibility criteria"
+    };
+    let exact = if general {
+        "--exact-term searches the typed text in general text only."
+    } else {
+        "--exact-term searches the typed text only."
+    };
+    let Some(spellings) = spellings else {
+        return SourceNotice::VariantSearch {
+            input: typed.clone(),
+            spellings: vec![typed.clone()].into(),
+            codon: Box::default(),
+            message: format!(
+                "Searched {place} for the typed text; BioMCP knows no other spellings for it. {exact}"
+            )
+            .into(),
+        };
+    };
+    let mut message = format!("Searched {place} for {}", spellings.spellings.join(", "));
+    if !spellings.codon.is_empty() {
+        message.push_str(&format!(
+            " and codon forms {} (any change at this position; check each trial's allele)",
+            spellings.codon.join(", ")
+        ));
+    }
+    if !spellings.codon_without_gene.is_empty() {
+        message.push_str(&format!(
+            "; add --gene to also search codon forms {}",
+            spellings.codon_without_gene.join(", ")
+        ));
+    }
+    message.push_str(&format!(". {exact}"));
+    let (spellings_text, codon) = spellings.texts();
+    SourceNotice::VariantSearch {
+        input: typed.clone(),
+        spellings: spellings_text,
+        codon,
+        message: message.into(),
+    }
+}
+
+/// Name each returned trial that matched only through a codon form, or that may have when the
+/// registry did not answer the check.
+pub(super) fn codon_notice(
+    sent: &TrialSearch,
+    rows: &[biodata::NctId],
+    unconfirmed: bool,
+    source: &mut SourceOutcome,
+) {
+    let Some((exact, codon)) = [sent.variant(), sent.criteria()]
+        .into_iter()
+        .flatten()
+        .find_map(|terms| biomcp_types::codon_split(terms.as_str()))
+    else {
+        return;
+    };
+    if rows.is_empty() {
+        return;
+    }
+    let ids: Vec<_> = rows.iter().map(ToString::to_string).collect();
+    let change = exact
+        .iter()
+        .find(|value| {
+            !value.starts_with("p.") && value.chars().nth(1).is_some_and(|c| c.is_ascii_digit())
+        })
+        .or(exact.first())
+        .map_or("", String::as_str);
+    let (codon, ids) = (codon.join(" or "), ids.join(", "));
+    let message = if unconfirmed {
+        format!(
+            "May have matched only by codon form {codon}: {ids}. Their returned text writes no \
+             spelling of {change}, and ClinicalTrials.gov did not answer the check of their other \
+             fields; check each trial's allele."
+        )
+    } else {
+        format!(
+            "Matched only by codon form {codon}: {ids}. ClinicalTrials.gov finds no spelling of \
+             {change} in them; check each trial's allele."
+        )
+    };
+    source.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: message.into(),
+        retry_after_seconds: None,
+    });
+}
+
+/// Say the registry searched only the typed text after refusing the widened request.
+pub(super) fn retract(source: &mut SourceOutcome) {
+    for notice in &mut source.notices {
+        if let SourceNotice::VariantSearch {
+            input,
+            spellings,
+            codon,
+            message,
+        } = notice
+        {
+            *spellings = vec![input.clone()].into();
+            *codon = Box::default();
+            *message =
+                "ClinicalTrials.gov rejected the widened request; searched the typed text as written."
+                    .into();
+        }
+    }
+}

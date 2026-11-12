@@ -4627,7 +4627,7 @@
         },
         "criteria": {
           "$ref": "#/$defs/Text",
-          "description": "Criteria text.\nClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment."
+          "description": "Criteria text.\nClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment."
         },
         "distance": {
           "$ref": "#/$defs/Text",
@@ -4638,7 +4638,7 @@
           "type": "boolean"
         },
         "exact_term": {
-          "description": "Search typed treatment terms without resolving their other names.",
+          "description": "Search typed drug names and variant text as written, without other names or spellings.",
           "type": "boolean"
         },
         "facility": {
@@ -4743,7 +4743,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Text",
-          "description": "Variant text.\nClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment."
+          "description": "Variant text.\nClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment."
         }
       },
       "required": [

@@ -1,0 +1,66 @@
+{
+  "feature": "trial-search",
+  "story": "Trial search widens G12C to Gly12Cys, p.G12C and p.Gly12Cys for --variant and --criteria; --exact-term returns the literal general-text count.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from ClinicalTrials.gov on 2026-11-12 with --record (job j38593). G12C finds 303 trials widened, 202 as typed, and 240 in eligibility criteria widened.",
+  "replay": "trial/variant-g12c",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "G12C",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 303,
+        "/sources/0/notices/1/kind": "variant-search",
+        "/sources/0/notices/1/spellings": [
+          "G12C",
+          "Gly12Cys",
+          "p.G12C",
+          "p.Gly12Cys"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "G12C",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 202,
+        "/sources/0/notices/*/kind": {
+          "equals": [
+            "request-guidance",
+            "request-guidance"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--criteria",
+        "G12C",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 240,
+        "/sources/0/notices/1/message": "Searched eligibility criteria for G12C, Gly12Cys, p.G12C, p.Gly12Cys; add --gene to also search codon forms G12, G12X. --exact-term searches the typed text only."
+      }
+    }
+  ]
+}

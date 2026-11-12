@@ -1,0 +1,78 @@
+{
+  "feature": "trial-search",
+  "story": "Trial search widens a protein change to its other spellings in general text and eligibility criteria in one registry query, names them in one notice, suggests --gene for the codon, keeps page 1's query on page 2, and --exact-term searches the typed text in general text only.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from ClinicalTrials.gov on 2026-11-12 with --record (job j38593). V600E finds 631 trials widened and 260 as typed.",
+  "replay": "trial/variant-spellings",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "V600E",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 631,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT07221357",
+            "NCT01744171",
+            "NCT05900219"
+          ]
+        },
+        "/sources/0/notices/1/kind": "variant-search",
+        "/sources/0/notices/1/spellings": [
+          "p.V600E",
+          "p.Val600Glu",
+          "V600E",
+          "Val600Glu"
+        ],
+        "/sources/0/notices/1/message": "Searched general text and eligibility criteria for p.V600E, p.Val600Glu, V600E, Val600Glu; add --gene to also search codon forms V600, V600X. --exact-term searches the typed text in general text only.",
+        "/sources/0/notices/1": {
+          "omits": [
+            "codon"
+          ]
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/page/total": 631,
+        "/page/offset": 3,
+        "/query/variant": "((V600E) OR \"p.V600E\" OR \"p.Val600Glu\" OR \"V600E\" OR \"Val600Glu\" OR AREA[EligibilityCriteria](\"p.V600E\" OR \"p.Val600Glu\" OR \"V600E\" OR \"Val600Glu\"))",
+        "/query/exact_term": true,
+        "/result/items/*/nct_id": {
+          "equals": [
+            "NCT03189030",
+            "NCT01543698",
+            "NCT01875653"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "V600E",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 260,
+        "/sources/0/notices": {
+          "count": 1
+        }
+      }
+    }
+  ]
+}

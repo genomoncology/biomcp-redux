@@ -16,7 +16,8 @@
         "--condition",
         "gastrointestinal stromal tumor",
         "--limit",
-        "100"
+        "100",
+        "--exact-term"
       ],
       "expect": {
         "/status": "complete",
@@ -29,6 +30,7 @@
               "trial",
               "--condition",
               "gastrointestinal stromal tumor",
+              "--exact-term",
               "--gene",
               "KIT",
               "--limit",
@@ -44,6 +46,7 @@
               "gastrointestinal stromal tumor",
               "--criteria",
               "KIT",
+              "--exact-term",
               "--limit",
               "100",
               "--variant",

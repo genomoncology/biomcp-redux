@@ -50,6 +50,10 @@ pub struct SearchPage {
     pub condition_word_mismatch: bool,
     /// Literal gene context in retained source records, without an eligibility assessment.
     pub gene_contexts: Vec<GeneContext>,
+    /// Rows whose returned text writes no exact spelling of a widened change, only its codon.
+    pub codon_only: Vec<biodata::NctId>,
+    /// Codon check failure; `codon_only` then holds the unconfirmed local candidates.
+    pub codon_error: Option<RequestError>,
     /// Exact native total.
     pub total: Option<u64>,
     /// Native count lookup failure while page rows remain usable.
@@ -58,6 +62,12 @@ pub struct SearchPage {
     pub count_request: Option<BTreeMap<String, String>>,
     /// Opaque next page.
     pub next: Option<Text>,
+}
+impl SearchPage {
+    /// A count or codon check failure while the page rows remain usable.
+    pub fn side_error(&self) -> Option<RequestError> {
+        self.count_error.or(self.codon_error)
+    }
 }
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
@@ -150,7 +160,7 @@ pub fn search(
     conditions: &[Text],
     countries: &[Box<str>],
 ) -> Result<SearchPage, RequestError> {
-    search_with_gene(leg, params, conditions, countries, None)
+    search_with_gene(leg, params, conditions, countries, None, &[])
 }
 
 pub(super) fn search_with_gene(
@@ -159,6 +169,7 @@ pub(super) fn search_with_gene(
     conditions: &[Text],
     countries: &[Box<str>],
     gene: Option<&str>,
+    exact: &[String],
 ) -> Result<SearchPage, RequestError> {
     let raw = fetch_page(leg, params)?;
     if !countries.is_empty()
@@ -189,6 +200,16 @@ pub(super) fn search_with_gene(
         count_request = Some(count);
     }
     let (condition_word_mismatch, gene_contexts) = raw.search_contexts(conditions, gene);
+    // Without the gene's protocol text in the reply, no row can be checked.
+    let (codon_only, codon_error) = if gene.is_some() && !exact.is_empty() {
+        let candidates = raw.codon_only(exact);
+        match search_query::confirm_codon_only(leg, exact, candidates.clone()) {
+            Ok(rows) => (rows, None),
+            Err(error) => (candidates, Some(error)),
+        }
+    } else {
+        (Vec::new(), None)
+    };
     let received = raw.studies.as_ref().map_or(0, |rows| rows.len() as u32);
     let mut rejected = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -220,6 +241,8 @@ pub(super) fn search_with_gene(
         problems: rejected,
         condition_word_mismatch,
         gene_contexts,
+        codon_only,
+        codon_error,
         items,
         total,
         count_error,

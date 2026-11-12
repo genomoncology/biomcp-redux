@@ -117,6 +117,20 @@ impl ProteinQuery {
     }
 }
 
+impl ProteinQuery {
+    /// Whether this is a change to another amino acid, not a stop or an unchanged residue.
+    pub(crate) fn is_missense(&self) -> bool {
+        self.to
+            .is_some_and(|to| to != self.from && AMINO.get(to).is_some_and(|(one, _)| *one != "*"))
+    }
+    /// The codon written without its change, and the same codon with any change (`X`).
+    pub(crate) fn codon_forms(&self) -> [String; 2] {
+        let from = AMINO.get(self.from).map_or("", |(one, _)| *one);
+        let codon = format!("{from}{}", self.position);
+        [codon.clone(), format!("{codon}X")]
+    }
+}
+
 impl std::fmt::Display for ProteinQuery {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.original)

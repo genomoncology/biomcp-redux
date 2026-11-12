@@ -41,6 +41,10 @@ pub use trial::{
     NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorType, TrialFilter, TrialPhaseFilter,
     TrialSearch, TrialSource, TrialStatusFilter,
 };
+mod variant_terms;
+pub use variant_terms::{
+    VariantSpellings, codon_split, exact_terms, is_criteria_group, variant_terms,
+};
 
 mod trial_get;
 pub use trial_get::{TrialGet, TrialSection};

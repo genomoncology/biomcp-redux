@@ -80,7 +80,12 @@ pub(super) fn advanced(query: &TrialSearch, broader_names: bool) -> String {
         ),
     ] {
         if let Some(value) = value {
-            advanced.push(format!("AREA[{field}]{}", quote(value.as_str())));
+            // A group of quoted spellings BioMCP wrote is already registry syntax.
+            if field == "EligibilityCriteria" && biomcp_types::is_criteria_group(value.as_str()) {
+                advanced.push(format!("AREA[{field}]{value}"));
+            } else {
+                advanced.push(format!("AREA[{field}]{}", quote(value.as_str())));
+            }
         }
     }
     if let Some(study_type) = query.study_type() {

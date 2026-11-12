@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=3&query.term=%28%28V600E%29%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20%22V600E%22%20OR%20%22Val600Glu%22%20OR%20AREA%5BEligibilityCriteria%5D%28%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20%22V600E%22%20OR%20%22Val600Glu%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1794508765,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 155,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":631,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT07221357","briefTitle":"A Study to Evaluate the Safety and Efficacy of Pumitamig in Combination With Chemotherapy Versus Bevacizumab in Combination With Chemotherapy in Participants With Previously Untreated, Unresectable, or Metastatic Colorectal Cancer"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2025-12-31","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2030-02-02","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-10-23"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Bristol-Myers Squibb"}},"conditionsModule":{"conditions":["Untreated, Unresectable, or Metastatic Colorectal Cancer"]},"designModule":{"phases":["PHASE2","PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Pumitamig"},{"name":"FOLFOX"},{"name":"FOLFIRI"},{"name":"Bevacizumab"},{"name":"CAPOX"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01744171","briefTitle":"Vaccine Therapy in Treating Patients With Advanced Stage III-IV Melanoma"},"statusModule":{"overallStatus":"TERMINATED","startDateStruct":{"date":"2013-03-26","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2018-06-11","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2022-07-22"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Roswell Park Cancer Institute"}},"conditionsModule":{"conditions":["Recurrent Melanoma","Stage IIIB Skin Melanoma","Stage IIIC Skin Melanoma","Stage IV Skin Melanoma"]},"designModule":{"phases":["PHASE1"]},"armsInterventionsModule":{"interventions":[{"name":"Recombinant Human Hsp110-gp100 Chaperone Complex Vaccine"},{"name":"Laboratory Biomarker Analysis"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT05900219","briefTitle":"Efficacy and Safety of HL-085 Combined With Vemurafenib in BRAF V600E Patients With Non-small Cell Lung Cancer: a Phase II Clinical Study"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"2023-09-24","type":"ESTIMATED"},"primaryCompletionDateStruct":{"date":"2025-09-24","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2023-06-12"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Shanghai Kechow Pharma, Inc."}},"conditionsModule":{"conditions":["Non-small-cell Lung Cancer"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"HL-085+Vemurafenib"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxuY_Si2Pg"}
+      }
+    }
+  ]
+}

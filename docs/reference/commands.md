@@ -1781,7 +1781,7 @@ Options:
 
       --criteria <criteria>
           Criteria text.
-          ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment.
+          ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment.
 
       --distance <distance>
           Radius, mi or km.
@@ -1807,7 +1807,7 @@ Options:
           [possible values: true, false]
 
       --exact-term[=<exact_term>]
-          Search typed treatment terms without resolving their other names.
+          Search typed drug names and variant text as written, without other names or spellings.
 
           [default: false]
           [possible values: true, false]
@@ -1902,7 +1902,7 @@ Options:
 
       --variant <variant>
           Variant text.
-          ClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment.
+          ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment.
 
 ```
 
@@ -1927,12 +1927,12 @@ Country label.
 Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--criteria`: Criteria text.
-ClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--distance`: Radius, mi or km.
 ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--exact-condition`: Exact condition.
 Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean. Example: --exact-condition. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--exact-term`: Search typed treatment terms without resolving their other names. Value form: boolean. Example: --exact-term. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--exact-term`: Search typed drug names and variant text as written, without other names or spellings. Value form: boolean. Example: --exact-term. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--facility`: Facility.
 Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string. Example: --facility 'Dana-Farber Cancer Institute'. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--gene`: Gene symbol/ID.
@@ -1987,7 +1987,7 @@ ClinicalTrials.gov only: first included registry update date. Value form: string
 - `--updated-until`: Last date.
 ClinicalTrials.gov only: last included registry update date. Value form: string. Example: --updated-until <updated-until> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--variant`: Variant text.
-ClinicalTrials.gov only: exact variant text for registry discovery; no eligibility judgment. Value form: string. Example: --variant L576P. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment. Value form: string. Example: --variant V600E. Command sources: ctgov, nci; source restrictions in the field description apply.
 
 ## biomcp search variant
 

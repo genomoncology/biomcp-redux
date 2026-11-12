@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=3&query.term=%28%28E746_A750del%29%20OR%20%22E746_A750del%22%20OR%20AREA%5BEligibilityCriteria%5D%28%22E746_A750del%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1794508808,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 128,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":1,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT04172597","briefTitle":"A Study of Poziotinib in Patients With Epidermal Growth Factor Receptor (EGFR) or Human Epidermal Growth Factor Receptor 2 (HER2) Activating Mutations in Advanced Malignancies"},"statusModule":{"overallStatus":"TERMINATED","startDateStruct":{"date":"2019-12-23","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2022-03-29","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2024-03-13"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Spectrum Pharmaceuticals, Inc"}},"conditionsModule":{"conditions":["Breast Cancer","Colorectal Cancer","Solid Tumor","Glioblastome Multiforme"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Poziotinib Hydrochloride"},{"name":"Loperamide"}]}},"hasResults":true}
+]}
+      }
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=3&pageToken=ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxuY_Si2Pg&query.term=%28%28V600E%29%20OR%20%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20%22V600E%22%20OR%20%22Val600Glu%22%20OR%20AREA%5BEligibilityCriteria%5D%28%22p.V600E%22%20OR%20%22p.Val600Glu%22%20OR%20%22V600E%22%20OR%20%22Val600Glu%22%29%29",
+  "exchanges": [
+    {
+      "fetched": 1794508766,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 138,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT03189030","briefTitle":"Study of Personalized Immunotherapy in Adults With Metastatic Colorectal Cancer"},"statusModule":{"overallStatus":"TERMINATED","startDateStruct":{"date":"2017-05-02","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2019-10-15","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2020-10-01"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Aduro Biotech, Inc."}},"conditionsModule":{"conditions":["Colorectal Neoplasms"]},"designModule":{"phases":["PHASE1"]},"armsInterventionsModule":{"interventions":[{"name":"pLADD"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01543698","briefTitle":"A Phase Ib/II Study of LGX818 in Combination With MEK162 in Adult Patients With BRAF Dependent Advanced Solid Tumors"},"statusModule":{"overallStatus":"COMPLETED","startDateStruct":{"date":"2012-05-28","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2023-03-09","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2024-03-13"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Pfizer"}},"conditionsModule":{"conditions":["Solid Tumors Harboring a BRAF V600 Mutation"]},"designModule":{"phases":["PHASE1","PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"LGX818"},{"name":"MEK162"},{"name":"LEE011"}]}},"hasResults":true},
+{"protocolSection":{"identificationModule":{"nctId":"NCT01875653","briefTitle":"Autologous Dendritic Cell-Tumor Cell Immunotherapy for Metastatic Melanoma"},"statusModule":{"overallStatus":"TERMINATED","startDateStruct":{"date":"2014-10"},"primaryCompletionDateStruct":{"date":"2016-01","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2019-05-10"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Lisata Therapeutics, Inc."}},"conditionsModule":{"conditions":["Stage IV Melanoma","Stage III Melanoma"]},"designModule":{"phases":["PHASE3"]},"armsInterventionsModule":{"interventions":[{"name":"Autologous Dendritic Cell-Tumor Cell Immunotherapy (DC-TC)"},{"name":"Autologous PBMCs in GM-CSF (MC)"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxtZ_Ok3fg"}
+      }
+    }
+  ]
+}

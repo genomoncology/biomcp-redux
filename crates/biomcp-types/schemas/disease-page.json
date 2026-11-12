@@ -662,6 +662,44 @@
           "type": "object"
         },
         {
+          "description": "Variant spellings and registry fields actually searched.",
+          "properties": {
+            "codon": {
+              "description": "Codon forms searched, which match trials written for any change at that position.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            },
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied variant or criteria text."
+            },
+            "kind": {
+              "const": "variant-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "What was searched, where, and how to search the typed text only.",
+              "type": "string"
+            },
+            "spellings": {
+              "description": "Spellings of the same change actually searched, including the typed text.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "spellings",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
           "description": "Local request limits, source observations and recovery guidance.",
           "properties": {
             "data_date": {

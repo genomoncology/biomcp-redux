@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "ctgov",
+  "url": "https://clinicaltrials.gov/api/v2/studies?countTotal=true&fields=NCTId%2CBriefTitle%2COverallStatus%2CPhase%2CCondition%2CInterventionName%2CLastUpdatePostDate%2CHasResults%2CLeadSponsorName%2CStartDate%2CStartDateType%2CPrimaryCompletionDate%2CPrimaryCompletionDateType&pageSize=3&query.term=exon%2019%20deletion",
+  "exchanges": [
+    {
+      "fetched": 1794508805,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 137,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"totalCount":80,"studies":[
+{"protocolSection":{"identificationModule":{"nctId":"NCT06296745","briefTitle":"Intrathecal Pemetrexed for Leptomeningeal Metastasis From Lung Adenocarcinoma That Progressed After Osimertinib."},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2025-09-01","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2026-01-20","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-01-30"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Guangzhou Medical University"}},"conditionsModule":{"conditions":["Leptomeningeal Metastasis"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Pemetrexed"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT03424759","briefTitle":"Uncommon EGFR AZD9291"},"statusModule":{"overallStatus":"UNKNOWN","startDateStruct":{"date":"2016-01-01","type":"ACTUAL"},"primaryCompletionDateStruct":{"date":"2017-12-31","type":"ACTUAL"},"lastUpdatePostDateStruct":{"date":"2018-02-07"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Samsung Medical Center"}},"conditionsModule":{"conditions":["Non Small Cell Lung Cancer"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"AZD9291"}]}},"hasResults":false},
+{"protocolSection":{"identificationModule":{"nctId":"NCT07709585","briefTitle":"Befotertinib Plus Chemotherapy With an MRD-guided Adaptive Strategy for Treatment Escalation and Response Optimization in EGFR-mutated NSCLC Patients"},"statusModule":{"overallStatus":"RECRUITING","startDateStruct":{"date":"2026-11-30","type":"ESTIMATED"},"primaryCompletionDateStruct":{"date":"2030-07-31","type":"ESTIMATED"},"lastUpdatePostDateStruct":{"date":"2026-11-04"}},"sponsorCollaboratorsModule":{"leadSponsor":{"name":"Guangzhou University of Traditional Chinese Medicine"}},"conditionsModule":{"conditions":["Advanced Non-small Cell Lung Cancer (NSCLC)","EGFR Exon 19 Deletion Mutation","EGFR Exon 21 Mutation","EGFR Exon 21 L858R Mutation"]},"designModule":{"phases":["PHASE2"]},"armsInterventionsModule":{"interventions":[{"name":"Befotinib"},{"name":"Pemetrexed + Cisplatin /Carboplatin"}]}},"hasResults":false}
+],"nextPageToken":"ZVNj7o2Elu8o3lpyWN2mp7LumpOQJJxuZPCs3fwW"}
+      }
+    }
+  ]
+}

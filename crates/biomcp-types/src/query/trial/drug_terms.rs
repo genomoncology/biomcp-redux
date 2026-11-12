@@ -20,6 +20,13 @@ impl TrialSearch {
         next.0.keyword = keywords;
         next
     }
+    /// Substitute the variant and criteria terms the registry is sent.
+    pub fn with_variant_terms(&self, variant: Option<Text>, criteria: Option<Text>) -> Self {
+        let mut next = self.clone();
+        next.0.variant = variant;
+        next.0.criteria = criteria;
+        next
+    }
     /// The same request, with its terms searched as written.
     pub fn exact(&self) -> Self {
         let mut next = self.clone();

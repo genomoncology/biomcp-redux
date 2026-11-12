@@ -1,0 +1,82 @@
+{
+  "feature": "trial-search",
+  "story": "Trial search widens an exon 19 deletion to its fixed short forms in general text and eligibility criteria; --exact-term returns the literal count, and text with no known spellings is searched as typed in both places with a notice saying so.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from ClinicalTrials.gov on 2026-11-12 with --record (job j38593). exon 19 deletion finds 663 trials widened, 80 as typed, and 605 in eligibility criteria widened; E746_A750del finds 1 trial in both places.",
+  "replay": "trial/variant-exon19",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "exon 19 deletion",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 663,
+        "/sources/0/notices/1/spellings": [
+          "19del",
+          "del19",
+          "ex19del",
+          "exon 19 del",
+          "exon 19 deletion",
+          "exon 19 deletions"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "exon 19 deletion",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 80,
+        "/sources/0/notices": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--criteria",
+        "exon 19 deletion",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 605,
+        "/sources/0/notices/1/kind": "variant-search"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--variant",
+        "E746_A750del",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/sources/0/notices/1/spellings": [
+          "E746_A750del"
+        ],
+        "/sources/0/notices/1/message": "Searched general text and eligibility criteria for the typed text; BioMCP knows no other spellings for it. --exact-term searches the typed text in general text only."
+      }
+    }
+  ]
+}
