@@ -35,6 +35,10 @@ Scope: FAERS first, then labels, then Drugs@FDA, recalls and EMA. MAUDE and VAER
 
 Proof per slice: pembrolizumab finds 704 with its names listed; `--exact-term` finds 292; apixaban finds about 282k rather than failing; dabigatran on labels stays at or above 23 sets.
 
+## Amendment, 2026-11-12
+
+0850's review (accepted at 79c044c19) found widened label search still matches names case-sensitively: `apixaban --expand-drug-names` finds 1 label set while plain `apixaban` finds 10 since 0851. 0851 left widened names to this ticket. Fix it here before widening becomes the default, by applying 0851's rule (exact hits, then word hits, exact first, no threshold) to the OR query over the names, within the single-query size limit and with the chosen step carried to later pages. Proof adds: widened apixaban on labels finds at least plain apixaban's 10 sets; re-record 0850's label case, which today expects 1.
+
 ## Keeps
 
 - Keeps: every existing field, schema ID rule (a changed reply schema takes a new major), source attribution and page behavior; no new source, key or dependency. Bounded name lists, frozen across pages, native totals never summed per name, resolver failure reported and not hidden, source exclusions honored.
