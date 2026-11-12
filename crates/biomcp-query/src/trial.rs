@@ -88,12 +88,9 @@ fn search<'a>(
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
-    source.notices.extend(widened.notices.iter().cloned());
+    source.notices.extend(widened.notices);
     if typed_only {
-        if !expanded.inputs.is_empty() {
-            retract_names(&expanded.inputs, &mut source, &mut outcome);
-        }
-        variant_spellings::retract(&mut source);
+        retract(&expanded.inputs, &mut source, &mut outcome);
     }
     {
         let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
@@ -107,12 +104,9 @@ fn search<'a>(
         page_notices(query, gene.as_deref(), &page, &mut source);
         variant_spellings::codon_notice(searched, &page.codon_only, &mut source);
         // The registry's token belongs to the request that was sent, so the next page repeats it.
-        let sent = if changed && !typed_only {
-            searched.exact()
-        } else {
-            query.clone()
-        };
-        apply_page(query, &sent, cx.fresh, gene.as_deref(), &mut outcome, page);
+        let sent = (changed && !typed_only).then(|| searched.exact());
+        let sent = sent.as_ref().unwrap_or(query);
+        apply_page(query, sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let Ok(version) = version {
         outcome.problems.extend(version.problems);
@@ -135,6 +129,17 @@ fn search<'a>(
 /// The found, identity-failed and unavailable states, counting earlier source outcomes.
 fn item_state(earlier: bool, answered: bool, missing: bool) -> (bool, bool, bool) {
     (answered, !answered, answered && (missing || earlier))
+}
+/// Say the registry searched only the typed terms after refusing the widened request.
+fn retract(
+    inputs: &[biodata::Text],
+    source: &mut biomcp_types::SourceOutcome,
+    outcome: &mut Outcome,
+) {
+    if !inputs.is_empty() {
+        retract_names(inputs, source, outcome);
+    }
+    variant_spellings::retract(source);
 }
 /// Say the registry searched only the typed terms after refusing the expanded names.
 fn retract_names(

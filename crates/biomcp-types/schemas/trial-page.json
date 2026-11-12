@@ -1227,6 +1227,44 @@
           "type": "object"
         },
         {
+          "description": "Variant spellings and registry fields actually searched.",
+          "properties": {
+            "codon": {
+              "description": "Codon forms searched, which match trials written for any change at that position.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            },
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied variant or criteria text."
+            },
+            "kind": {
+              "const": "variant-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "What was searched, where, and how to search the typed text only.",
+              "type": "string"
+            },
+            "spellings": {
+              "description": "Spellings of the same change actually searched, including the typed text.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "spellings",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
           "description": "Local request limits, source observations and recovery guidance.",
           "properties": {
             "data_date": {
@@ -2267,7 +2305,7 @@
         },
         "criteria": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Criteria text.\nClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment."
+          "description": "Criteria text.\nClinicalTrials.gov only: search registry eligibility text; a protein change or exon deletion/insertion adds its other spellings; no eligibility judgment."
         },
         "distance": {
           "$ref": "#/$defs/Reply_Text",
@@ -2278,7 +2316,7 @@
           "type": "boolean"
         },
         "exact_term": {
-          "description": "Search typed treatment terms without resolving their other names.",
+          "description": "Search typed drug names and variant text as written, without other names or spellings.",
           "type": "boolean"
         },
         "facility": {
@@ -2383,7 +2421,7 @@
         },
         "variant": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Variant text.\nClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment."
+          "description": "Variant text.\nClinicalTrials.gov only: general text or eligibility criteria; a protein change or exon deletion/insertion adds its other spellings, and its codon with --gene; no eligibility judgment."
         }
       },
       "type": "object"
@@ -2507,7 +2545,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-page/15",
+  "$id": "biomcp.trial-page/16",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -2563,7 +2601,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.trial-page/15",
+      "const": "biomcp.trial-page/16",
       "type": "string"
     },
     "sources": {
