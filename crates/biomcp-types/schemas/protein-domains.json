@@ -406,6 +406,13 @@
     "Reply_ProteinDomains": {
       "description": "Whole native rows with the independent unfiltered source count.",
       "properties": {
+        "coordinate_note": {
+          "description": "How to read the spans above; present when any row has a fragment, but not inside a card.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "items": {
           "description": "Bounded retained rows in source order.",
           "items": {
@@ -1057,7 +1064,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-domains/7",
+  "$id": "biomcp.protein-domains/8",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1113,7 +1120,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-domains/7",
+      "const": "biomcp.protein-domains/8",
       "type": "string"
     },
     "sources": {

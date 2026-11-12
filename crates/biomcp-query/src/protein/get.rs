@@ -5,8 +5,8 @@ use biomcp_adapters::{hgnc, uniprot};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, Request, Source, SourceState, Status,
-    StepKind,
+    ProteinCard, ProteinCardItem, ProteinGet, ProteinInput, Request, Section, Source, SourceState,
+    Status, StepKind,
 };
 /// Exact accessions resolve independently and remain in caller order.
 pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
@@ -17,6 +17,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     let mut out = super::empty(
         (ProteinCard {
             items: Box::default(),
+            coordinate_note: None,
         })
         .with_query(q.clone()),
     );
@@ -72,8 +73,16 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &ProteinGet) -> Outcome {
     let steps = next::unread(cx, q, &unread, &mut out.problems);
     out.next.extend(steps);
     recovery(q, &mut out);
+    let spans = items
+        .iter()
+        .filter_map(|item| item.sections.as_ref())
+        .any(|sections| {
+            matches!(&sections.features, Some(Section::Data { data, .. }) if !data.items.is_empty())
+                || matches!(&sections.domains, Some(Section::Data { data, .. }) if super::source_relations::spans(&data.items))
+        });
     out.body = (ProteinCard {
         items: items.into(),
+        coordinate_note: biomcp_types::coordinate_note(spans),
     })
     .with_query(q.clone());
     command.finish(deadline.remaining());

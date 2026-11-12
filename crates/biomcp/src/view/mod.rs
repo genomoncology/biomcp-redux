@@ -21,7 +21,7 @@ pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
     let hint = hints::find(identity);
     let mut out = String::new();
     if let Some(note) = protein::note(value) {
-        out.push_str(&note);
+        out.push_str(note);
         out.push_str("\n\n");
     }
     if value.get("status").and_then(Value::as_str) == Some("absent") {
@@ -92,7 +92,9 @@ impl View<'_> {
         };
         state_note(value, out);
         for (name, value) in fields {
+            // The coordinate note already leads the text as prose.
             if name == "schema"
+                || name == "coordinate_note"
                 || (name == "query"
                     && (value.is_null()
                         || value.as_object().is_some_and(serde_json::Map::is_empty)))

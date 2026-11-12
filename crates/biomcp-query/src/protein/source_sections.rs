@@ -54,6 +54,11 @@ fn apply(item: &mut ProteinCardItem, out: &mut Outcome, result: Outcome) {
     if let Some(sections) = &mut item.sections {
         match result.body {
             ReplyData::ProteinDomains { body: data, .. } => {
+                // The card states the note once for all its spans.
+                let data = data.map(|mut data| {
+                    data.coordinate_note = None;
+                    data
+                });
                 sections.domains = Some(match data {
                     Some(data) if data.items.is_empty() => Section::Empty {
                         source: Source::InterPro,

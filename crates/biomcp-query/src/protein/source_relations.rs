@@ -11,6 +11,13 @@ use biomcp_types::{
 };
 mod saved;
 use saved::Saved;
+/// Whether any domain row carries a span, so its reply needs the coordinate note.
+pub(super) fn spans(items: &[biodata::ProteinDomainMatch]) -> bool {
+    items
+        .iter()
+        .flat_map(|item| item.locations.iter())
+        .any(|location| !location.fragments.is_empty())
+}
 #[derive(Clone)]
 pub(super) enum Selection {
     Domains(ProteinDomainsQuery),
