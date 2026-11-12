@@ -15,14 +15,9 @@ pub(super) fn contains(name: &str, query: &str) -> bool {
 fn whole_word(name: &str, needle: &str) -> bool {
     let name = name.to_lowercase();
     name.match_indices(needle).any(|(at, _)| {
-        !name[..at]
-            .chars()
-            .next_back()
-            .is_some_and(char::is_alphanumeric)
-            && !name[at + needle.len()..]
-                .chars()
-                .next()
-                .is_some_and(char::is_alphanumeric)
+        let before = name.get(..at).and_then(|v| v.chars().next_back());
+        let after = name.get(at + needle.len()..).and_then(|v| v.chars().next());
+        !before.is_some_and(char::is_alphanumeric) && !after.is_some_and(char::is_alphanumeric)
     })
 }
 
