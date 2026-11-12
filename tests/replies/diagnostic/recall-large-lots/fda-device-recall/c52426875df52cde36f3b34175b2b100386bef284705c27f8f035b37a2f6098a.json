@@ -1,0 +1,68 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=recalling_firm%3A%22Large%20lot%20maker%22&limit=10&skip=20&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1792921798,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 20,
+              "limit": 10,
+              "total": 25
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-0120-2025",
+              "res_event_number": "910",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-06-26"
+            },
+            {
+              "product_res_number": "Z-0121-2025",
+              "res_event_number": "910",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-05-28"
+            },
+            {
+              "product_res_number": "Z-0122-2025",
+              "res_event_number": "911",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-05-27"
+            },
+            {
+              "product_res_number": "Z-0123-2025",
+              "res_event_number": "911",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-05-26"
+            },
+            {
+              "product_res_number": "Z-0124-2025",
+              "res_event_number": "912",
+              "recalling_firm": "Large lot maker",
+              "product_code": "FRN",
+              "recall_status": "Ongoing",
+              "event_date_initiated": "2025-04-28"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -73,10 +73,14 @@ fn expression(q: &DiagnosticSearch) -> String {
     }
     terms.join(" AND ")
 }
+/// Native lot lists (`code_info`, `more_code_info`) reach 9.9 MB in one record and
+/// 19 MB across a 50-record page (openFDA bulk export, 2026-11-10), so a smaller
+/// bound fails whole pages; a larger page still fails as too-large, never trimmed.
+const PAGE_BYTES: u64 = 32 * 1024 * 1024;
 fn endpoint(path: &'static str) -> Endpoint {
     SPEC.get(path)
         .fresh(Freshness::Days(1))
-        .bytes(2 * 1024 * 1024)
+        .bytes(PAGE_BYTES)
         .json_absence()
 }
 fn selected<T: crate::openfda::Item>(

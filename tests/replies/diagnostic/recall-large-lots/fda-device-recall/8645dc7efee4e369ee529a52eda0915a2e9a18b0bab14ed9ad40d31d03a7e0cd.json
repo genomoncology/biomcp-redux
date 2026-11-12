@@ -1,0 +1,48 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%28%22Z-0120-2025%22%20OR%20%22Z-0121-2025%22%20OR%20%22Z-0122-2025%22%20OR%20%22Z-0123-2025%22%20OR%20%22Z-0124-2025%22%29&limit=5&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1792921798,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 5
+            }
+          },
+          "results": [
+            {
+              "recall_number": "Z-0120-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0121-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0122-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0123-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0124-2025",
+              "classification": "Class II"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
