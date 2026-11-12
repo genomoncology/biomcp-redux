@@ -18,7 +18,7 @@
             "--offset"
           ]
         },
-        "/result/commands/0/description": "Search human phenotypes in HPO. Sources: hpo, monarch.",
+        "/result/commands/0/description": "Search human phenotypes in HPO. Sources: hpo, monarch.\nFields: attribution, id, label, match_score, match_type, matched_field. Choose some with --fields a,b (typed: fields list); always kept: attribution, id.",
         "/result/commands/0/examples": {
           "count": 1
         },
