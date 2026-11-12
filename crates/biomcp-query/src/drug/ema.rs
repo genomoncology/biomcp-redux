@@ -19,15 +19,26 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         return super::unsupported(query.source(), out);
     };
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
+    // Each EMA name is its own local lookup, so no request bound limits the group.
+    let widened = match super::widen::begin::<()>(cx, query, &mut deadline, |_| true, &mut out) {
+        super::widen::Start::Typed => None,
+        super::widen::Start::Widened(saved) => Some(saved),
+        super::widen::Start::Answered => return out,
+    };
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
-    let result = ema::search(&leg, name.as_str());
+    let result = match &widened {
+        Some(saved) => union(&leg, &saved.names),
+        None => ema::search(&leg, name.as_str()),
+    };
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ema, leg.finish(), error));
     if let Ok(rows) = result {
         out.include_refusals(rows.refusals);
+        // Later pages keep this page's names, so the snapshot is kept only for an answer.
+        let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(rows.problems);
         let rows = rows.value;
         let total = rows.len() as u64;
@@ -39,11 +50,46 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 .collect(),
             total: Some(total),
         };
-        searched(query, cx.fresh, page, &mut out);
+        searched(&sent, cx.fresh, page, &mut out);
+    }
+    if let Some(saved) = widened {
+        super::widen::finish(query, saved, SEARCHED, &mut out);
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
+}
+
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "each name; medicines once";
+
+/// Each name's medicines in turn, the typed name's first, each medicine once by its EMA ID.
+fn union(
+    leg: &biomcp_fetch::Leg<'_>,
+    names: &[biodata::Text],
+) -> Result<biomcp_adapters::Mapped<Vec<biomcp_types::DrugHeader>>, biomcp_fetch::RequestError> {
+    let mut seen = std::collections::BTreeSet::new();
+    let mut all = biomcp_adapters::Mapped {
+        refusals: biomcp_adapters::Refusal::None,
+        value: Vec::new(),
+        problems: Vec::new(),
+    };
+    for name in names {
+        let found = ema::search(leg, name.as_str())?;
+        all.refusals.include(found.refusals);
+        for problem in found.problems {
+            if !all.problems.contains(&problem) {
+                all.problems.push(problem);
+            }
+        }
+        all.value.extend(
+            found
+                .value
+                .into_iter()
+                .filter(|row| seen.insert(row.id.to_string())),
+        );
+    }
+    Ok(all)
 }
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {

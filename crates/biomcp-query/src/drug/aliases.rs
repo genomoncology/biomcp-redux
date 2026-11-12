@@ -1,4 +1,5 @@
 //! Source-stated aliases may recover an empty source lookup, never substitute its records.
+//! A search that widened its name and still found nothing tries them the same way.
 use super::resolve::within;
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
@@ -8,12 +9,10 @@ use biomcp_types::{
 };
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    if query.expand_drug_names() {
-        return super::search(cx, query);
-    }
     let deadline = cx.fetch.deadline(cx.budget);
     let mut out = search_spelling(cx, query);
-    if query.offset() != 0 || !zero(&out, query.source()) {
+    // --exact-term searches the typed text only, so no other source's name stands in for it.
+    if query.exact_term() || query.offset() != 0 || !zero(&out, query.source()) {
         return out;
     }
     let Some(input) = query.query() else {

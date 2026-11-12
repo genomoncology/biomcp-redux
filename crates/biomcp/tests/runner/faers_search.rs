@@ -40,10 +40,16 @@ fn expression() -> &'static str {
         patient.drug.openfda.brand_name:\"Synthetic \\\"A\\\\B\" OR \
         patient.drug.medicinalproduct:\"Synthetic \\\"A\\\\B\")"
 }
+/// The typed name alone, so the selector under test is the only request.
 fn args() -> Vec<String> {
-    ["search", "adverse-event", "Synthetic \"A\\B"]
-        .map(str::to_owned)
-        .to_vec()
+    [
+        "search",
+        "adverse-event",
+        "Synthetic \"A\\B",
+        "--exact-term",
+    ]
+    .map(str::to_owned)
+    .to_vec()
 }
 fn encoded(value: &str) -> String {
     value

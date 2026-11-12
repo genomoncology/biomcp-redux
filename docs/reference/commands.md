@@ -1075,7 +1075,7 @@ Usage: biomcp search adverse-event [OPTIONS] [text] [section]
 Arguments:
   [text]
           Drug, device or vaccine.
-          Literal drug text, MAUDE device phrase or exact supported VAERS vaccine.
+          FAERS drug name, searched with the drug's other names unless --exact-term; MAUDE device phrase or exact supported VAERS vaccine, both searched as typed.
 
   [section]
           VAERS table; help search adverse-event
@@ -1097,10 +1097,11 @@ Options:
 
       --drug <drug>...
           FAERS drug names; OR.
-          FAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
+          FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 
-      --expand-drug-names[=<expand_drug_names>]
-          FAERS only: explicitly search bounded source-stated aliases; literal search remains the default.
+      --exact-term[=<exact_term>]
+          Search typed drug names only.
+          FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.
 
           [default: false]
           [possible values: true, false]
@@ -1110,6 +1111,12 @@ Options:
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --expand-drug-names[=<expand_drug_names>]
+          FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
+
+          [default: false]
+          [possible values: true, false]
 
       --limit <limit>
           Native report headers, counted FAERS reaction terms or VAERS rows; default five.
@@ -1124,12 +1131,18 @@ Options:
       --offset <offset>
           Native report row offset; reaction counts require zero. VAERS needs its snapshot.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --problem <problem>
           MAUDE product problem.
           MAUDE phrase on native product_problems.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1137,12 +1150,6 @@ Options:
       --product-code <product_code>...
           MAUDE product codes; OR.
           MAUDE exact native device.device_report_product_code; repeated codes join with OR.
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --reaction <reaction>
           FAERS MedDRA phrase.
@@ -1179,8 +1186,10 @@ FAERS reaction counts.
 Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
-FAERS exact drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--expand-drug-names`: FAERS only: explicitly search bounded source-stated aliases; exact search remains the default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--exact-term`: Search typed drug names only.
+FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--expand-drug-names`: FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1209,7 +1218,7 @@ Source; default FAERS.
 FAERS by default; VAERS accepts only exact supported vaccine names.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source maude. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `text`: Drug, device or vaccine.
-Exact drug text, MAUDE device phrase or exact supported VAERS vaccine.
+FAERS drug name, searched with the drug's other names unless --exact-term; MAUDE device phrase or exact supported VAERS vaccine, both searched as typed.
 
 Independent VAERS table; omitted means reported symptoms.
 
@@ -1319,9 +1328,10 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --expand-drug-names[=<expand_drug_names>]
-          Expand openFDA label aliases.
-          Uses bounded source-stated names. Literal search is the default.
+      --exact-term[=<exact_term>]
+          Search the typed name only.
+          openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+          the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
 
           [default: false]
           [possible values: true, false]
@@ -1331,6 +1341,13 @@ Options:
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --expand-drug-names[=<expand_drug_names>]
+          Accepted for one release; changes nothing.
+          Sources that widen drug names do so by default.
+
+          [default: false]
+          [possible values: true, false]
 
       --firm <firm>
           Recall firm phrase.
@@ -1350,11 +1367,6 @@ Options:
       --limit <limit>
           Native candidate rows per page.
 
-      --name-selector <name_selector>
-          ChEMBL name selector; help search drug
-          ChEMBL name selector.
-          Omit to search the preferred name.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1367,9 +1379,14 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --name-selector <name_selector>
+          ChEMBL name selector; help search drug
+          ChEMBL name selector.
+          Omit to search the preferred name.
+
       --name-snapshot <name_snapshot>
-          Label alias page token.
-          Follow the returned command with unchanged filters to retain aliases and matching tier.
+          Label name page token.
+          Follow the returned command with unchanged filters to keep the first page's names and step.
 
       --offset <offset>
           Native rows to skip.
@@ -1404,8 +1421,11 @@ no company-family or subsidiary inference. An optional name narrows the same sea
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--expand-drug-names`: Expand openFDA label aliases.
-Uses bounded source-stated names. Exact search is the default. Value form: boolean. Example: --expand-drug-names. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--exact-term`: Search the typed name only.
+openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean. Example: --exact-term. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--expand-drug-names`: Accepted for one release; changes nothing.
+Sources that widen drug names do so by default. Value form: boolean. Example: --expand-drug-names. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--firm`: Recall firm phrase.
 Matches the published firm literally. Value form: string. Example: --firm Apotex. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--indication`: Exact label indication; openFDA labels only.
@@ -1418,8 +1438,8 @@ An optional name query further narrows the same source search. Value form: strin
 ChEMBL name selector.
 Omit to search the preferred name.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--name-snapshot`: Label alias page token.
-Follow the returned command with unchanged filters to retain aliases and matching tier. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--name-snapshot`: Label name page token.
+Follow the returned command with unchanged filters to keep the first page's names and step. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--prequalified-from`: WHO PQ start date, inclusive.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.

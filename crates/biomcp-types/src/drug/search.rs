@@ -36,12 +36,17 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     query: Option<Text>,
-    /// Expand openFDA label aliases.
-    /// Uses bounded source-stated names. Literal search is the default.
+    /// Accepted for one release; changes nothing.
+    /// Sources that widen drug names do so by default.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
-    /// Label alias page token.
-    /// Follow the returned command with unchanged filters to retain aliases and matching tier.
+    /// Search the typed name only.
+    /// openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+    /// the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    exact_term: bool,
+    /// Label name page token.
+    /// Follow the returned command with unchanged filters to keep the first page's names and step.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     /// Literal label indication; openFDA labels only.
@@ -214,6 +219,7 @@ impl DrugSearch {
         SearchFields {
             query: Some(query),
             expand_drug_names: false,
+            exact_term: false,
             name_snapshot: None,
             indication: None,
             source,
@@ -309,76 +315,58 @@ impl crate::Paged for DrugSearch {
     }
 }
 
-const LABEL_NAME_QUERY_MAX_BYTES: usize = 4096;
+/// Sources that search a typed drug name together with the drug's other names by default.
+const WIDENING: [DrugSource; 4] = [
+    DrugSource::OpenfdaLabel,
+    DrugSource::Drugsfda,
+    DrugSource::FdaDrugRecall,
+    DrugSource::Ema,
+];
+
+fn widens(fields: &SearchFields) -> bool {
+    !fields.exact_term
+        && WIDENING.contains(&fields.source)
+        && fields.query.as_ref().is_some_and(|name| {
+            // A native record identifier names one record, never a drug with other names.
+            match name.as_str().parse::<biodata::DrugId>() {
+                Ok(id) => !DrugSource::Drugsfda.accepts(&id) && !fields.source.accepts(&id),
+                Err(_) => true,
+            }
+        })
+}
 
 fn validate_names(query: &DrugSearch) -> Result<(), QueryInvalid> {
     let fields = &query.0;
-    if fields.expand_drug_names {
-        let Some(name) = query.query() else {
-            return Err(QueryInvalid::new(&["query", "expand_drug_names"]));
-        };
-        if query.source() != DrugSource::OpenfdaLabel
-            || name.as_str().parse::<biodata::DrugId>().is_ok_and(|id| {
-                DrugSource::Drugsfda.accepts(&id) || DrugSource::OpenfdaLabel.accepts(&id)
-            })
-        {
-            return Err(QueryInvalid::new(&["source", "query", "expand_drug_names"]));
-        }
-        query.label_name_selector(std::slice::from_ref(name), true)?;
-        if fields.offset != 0 && fields.name_snapshot.is_none() {
-            return Err(QueryInvalid::new(&["offset", "name_snapshot"]));
-        }
-    } else if fields.name_snapshot.is_some() {
-        return Err(QueryInvalid::new(&["expand_drug_names", "name_snapshot"]));
+    if fields.expand_drug_names && fields.exact_term {
+        return Err(QueryInvalid::new(&["expand_drug_names", "exact_term"]));
+    }
+    if fields.expand_drug_names && !widens(fields) {
+        return Err(QueryInvalid::new(&["source", "query", "expand_drug_names"]));
+    }
+    if fields.name_snapshot.is_some() && !widens(fields) {
+        return Err(QueryInvalid::new(&["exact_term", "name_snapshot"]));
     }
     Ok(())
 }
 
-fn label_name_literal(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
-
 impl DrugSearch {
-    /// Explicit label-name expansion, without changing the default lookup contract.
-    pub fn expand_drug_names(&self) -> bool {
-        self.0.expand_drug_names
+    /// Whether the caller asked for the typed name only.
+    pub fn exact_term(&self) -> bool {
+        self.0.exact_term
     }
-    /// Caller-authorized retained spellings and native matching tier.
+    /// Whether this search takes the typed name together with the drug's other names, as the
+    /// widening sources do unless the caller asked for the typed name only.
+    pub fn widens_drug_names(&self) -> bool {
+        widens(&self.0)
+    }
+    /// Caller-authorized retained names and native discovery step.
     pub fn name_snapshot(&self) -> Option<&Text> {
         self.0.name_snapshot.as_ref()
     }
-    /// Freeze the resolved names and matching tier in subsequent native pages.
+    /// Freeze the resolved names and discovery step in subsequent native pages.
     pub fn with_name_snapshot(&self, snapshot: Text) -> Self {
         let mut query = self.clone();
         query.0.name_snapshot = Some(snapshot);
         query
-    }
-    /// One escaped provider name union AND the unchanged literal indication phrase.
-    pub fn label_name_selector(&self, names: &[Text], exact: bool) -> Result<Text, QueryInvalid> {
-        let suffix = if exact { ".exact" } else { "" };
-        let names: Vec<_> = names
-            .iter()
-            .map(|name| {
-                let name = label_name_literal(name.as_str());
-                format!(
-                    "(openfda.brand_name{suffix}:{name} OR openfda.generic_name{suffix}:{name})"
-                )
-            })
-            .collect();
-        let mut selector = format!("({})", names.join(" OR "));
-        if let Some(indication) = self.indication() {
-            selector.push_str(&format!(
-                " AND indications_and_usage:{}",
-                label_name_literal(indication.as_str())
-            ));
-        }
-        if names.is_empty() || selector.len() > LABEL_NAME_QUERY_MAX_BYTES {
-            return Err(QueryInvalid::new(&[
-                "query",
-                "indication",
-                "expand_drug_names",
-            ]));
-        }
-        Text::new(&selector).map_err(|_| QueryInvalid::new(&["query", "indication"]))
     }
 }

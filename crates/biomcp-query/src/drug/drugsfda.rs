@@ -1,6 +1,7 @@
 //! Native FDA application discovery; product and submission scope remain separate.
 use super::{empty, searched, unsupported};
 use crate::{Ctx, Outcome, status};
+use biodata::Text;
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
@@ -10,6 +11,9 @@ use biomcp_types::{
 mod approvals;
 mod letter;
 mod purpose;
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "one query at the typed name's step";
+
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(
         (DrugFdaPage {
@@ -20,24 +24,35 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         .with_query(query.clone()),
     );
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
+    let fits = |names: &[Text]| source::names_fit(names, query.applicant());
+    let mut widened = match super::widen::begin(cx, query, &mut deadline, fits, &mut out) {
+        super::widen::Start::Typed => None,
+        super::widen::Start::Widened(saved) => Some(saved),
+        super::widen::Start::Answered => return out,
+    };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let result = source::search(
-        &leg,
-        query.query(),
-        query.applicant(),
-        query.limit(),
-        query.offset(),
-    );
+    let result = match (widened.as_mut(), query.query()) {
+        (Some(saved), Some(typed)) => widened_page(&leg, query, typed, saved),
+        _ => source::search(
+            &leg,
+            query.query(),
+            query.applicant(),
+            query.limit(),
+            query.offset(),
+        ),
+    };
     let error = result.as_ref().err().copied();
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
         out.include_refusals(page.refusals);
+        // Later pages keep this page's names, so the snapshot is kept only for an answer.
+        let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(page.problems);
         searched(
-            query,
+            &sent,
             cx.fresh,
             DrugPage {
                 items: page.records.iter().map(|r| r.header()).collect(),
@@ -54,7 +69,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             total: page.total,
             source_updated: page.updated.map(Into::into),
         })
-        .with_query(query.clone());
+        .with_query(sent.clone());
     }
     if let Some(applicant) = query.applicant()
         && let Some(report) = out.sources.first_mut()
@@ -71,8 +86,37 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 retry_after_seconds: None,
             });
     }
+    if let Some(saved) = widened {
+        super::widen::finish(query, saved, SEARCHED, &mut out);
+    }
     command.finish(deadline.remaining());
     out
+}
+
+/// Search the name group at its step; after a refusal, search the typed name alone and keep it.
+fn widened_page(
+    leg: &biomcp_fetch::Leg<'_>,
+    query: &DrugSearch,
+    typed: &Text,
+    saved: &mut super::widen::Saved<source::NameStep>,
+) -> Result<source::Page, biomcp_fetch::RequestError> {
+    let page = (query.limit(), query.offset());
+    let (result, step) = source::search_widened(
+        leg,
+        (&saved.names, typed),
+        query.applicant(),
+        page,
+        saved.step,
+    );
+    saved.step = Some(step);
+    if saved.names.len() < 2 || !super::search_names::rejected(result.as_ref().err()) {
+        return result;
+    }
+    saved.reject(query);
+    let (result, step) =
+        source::search_widened(leg, (&saved.names, typed), query.applicant(), page, None);
+    saved.step = Some(step);
+    result
 }
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let (is_approvals, mut out) = empty_get(query);

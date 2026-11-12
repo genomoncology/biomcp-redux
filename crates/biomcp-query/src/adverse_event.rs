@@ -1,4 +1,4 @@
-//! Explicit adverse-event sources and optional bounded FAERS name discovery.
+//! Explicit adverse-event sources; FAERS widens drug names by default, MAUDE and VAERS stay literal.
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod counts;
@@ -18,7 +18,7 @@ pub(crate) fn search_command(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcom
     }
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
-    let out = if query.expand_drug_names()
+    let out = if query.widens_drug_names()
         && !cx.fetch.disabled(Source::Faers)
         && !(cx.fetch.disabled(Source::Meddra)
             && (query.reaction().is_some() || query.aggregate().is_some()))

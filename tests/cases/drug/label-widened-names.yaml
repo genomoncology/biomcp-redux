@@ -1,8 +1,8 @@
 {
   "feature": "drug-label",
-  "story": "Widening a drug name for label search leaves out the names openFDA cannot take or that carry a bracketed qualifier, lists each with its reason, and the search completes.",
+  "story": "Label search widens a drug name by default, matches every name's exact form in any letter case before word matches, never finds fewer label sets than the typed name alone, and leaves out the names openFDA cannot take with their reasons.",
   "live_check": "public",
-  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-11 with --record (job j38138). Before this change the apixaban label search failed outright because openFDA rejected the query holding \"apixabán\" and \"Eliquis&reg;\". Label rows keep only identity, version, effective time and the openfda name block; totals are unchanged. Dabigatran's widened search keeps the 23 label sets its literal search finds.",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-12 with --record (job j38466). Widened apixaban finds 10 label sets, the same 10 the typed name finds since 0851 (it found 1 before the widened exact names ignored letter case); dabigatran keeps its 23 sets and rivaroxaban its 28. Label rows keep only identity, version, effective time and the openfda name block; totals are unchanged.",
   "replay": "drug/label-widened-names",
   "steps": [
     {
@@ -13,12 +13,11 @@
         "--source",
         "openfda-label",
         "--limit",
-        "3",
-        "--expand-drug-names"
+        "3"
       ],
       "expect": {
         "/status": "complete",
-        "/page/total": 1,
+        "/page/total": 10,
         "/sources/0/notices/1/names": [
           "apixaban",
           "Eliquis",
@@ -28,7 +27,47 @@
           "BMS-562247-01",
           "Apixaban accord"
         ],
-        "/sources/1/notices/0/message": "Searched the names stated by mychem record QNZCBYKSOIHPEH-UHFFFAOYSA-N. Left out 2 of 9 names the provider cannot search: \"apixabán\" (non-ASCII characters), \"Eliquis&reg;\" (markup or an HTML entity)."
+        "/sources/0/notices/1/message": "one label query, exact names first; skipped non-ascii: apixabán; skipped markup: Eliquis&reg;"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "apixaban",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 10,
+        "/sources/0/notices": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "dabigatran",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 23,
+        "/sources/0/notices/1/names": [
+          "dabigatran",
+          "BIBR-953",
+          "BIBR 953 ZW",
+          "BIBR-953-ZW"
+        ]
       }
     },
     {
@@ -40,18 +79,43 @@
         "openfda-label",
         "--limit",
         "3",
-        "--expand-drug-names"
+        "--exact-term"
       ],
       "expect": {
         "/status": "complete",
-        "/page/total": 23,
-        "/sources/0/notices/1/names": [
-          "dabigatran",
-          "BIBR-953",
-          "BIBR 953 ZW",
-          "BIBR-953-ZW"
-        ],
-        "/sources/1/notices/0/message": "Searched the names stated by mychem record YBSJFWOBGCMAKL-UHFFFAOYSA-N. Left out 1 of 5 names the provider cannot search: \"Pradaxa (dabigatran)\" (a bracketed qualifier)."
+        "/page/total": 23
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "rivaroxaban",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 28,
+        "/sources/0/notices/1/kind": "drug-name-search"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "rivaroxaban",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 28
       }
     }
   ]

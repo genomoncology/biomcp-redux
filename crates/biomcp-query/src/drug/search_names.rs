@@ -24,6 +24,10 @@ pub(crate) struct Resolved {
     pub names: Vec<Text>,
     /// A lookup failed and none gave names, so the search may be missing names.
     pub failed: bool,
+    /// Why the term stayed as typed, as a short phrase, when a lookup did not settle it.
+    pub unsettled: Option<&'static str>,
+    /// Each stated name left out, as `name (reason)`, and counts past a limit.
+    pub left_out: Vec<String>,
 }
 
 enum Found {
@@ -40,16 +44,6 @@ enum Found {
     Nothing,
     /// MyChem holds no row for the name at all.
     Unknown,
-}
-
-/// What a lookup that did not finish costs the search that asked for it.
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub(crate) enum Unfinished {
-    /// A name source is also the searched source, so the caller marks its reply partial.
-    Partial,
-    /// The search has its own source, so the lookup's failed sources are listed as skipped and
-    /// the reply stays complete, with the notice naming the term searched as typed.
-    Skipped,
 }
 
 /// Run lookups under a bounded share of the command, charging only what they spent.
@@ -71,13 +65,14 @@ pub(crate) fn bounded<'a, T>(
 /// second, where ChEMBL's own API takes two searches and a molecule read of seconds each, and
 /// stalls for whole lookups when it is unwell. They are not read for a name MyChem has no row for.
 /// `fit` says which names the searching provider can take, and why it cannot take the others.
+/// A lookup that does not finish never counts against the search: its sources are listed as
+/// skipped, and the notice names the term searched as typed.
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
     input: &Text,
     out: &mut Outcome,
     deadline: &mut Deadline<'a>,
     fit: Fit,
-    unfinished: Unfinished,
 ) -> Resolved {
     let mut ambiguous = None;
     let mut failed = Vec::new();
@@ -128,8 +123,10 @@ pub(crate) fn resolve<'a>(
                 record_evidence(out, evidence, input, &listed, message);
                 out.problems.extend(problems);
                 return Resolved {
+                    left_out: kept.left_out(),
                     names: kept.names,
                     failed: false,
+                    unsettled: None,
                 };
             }
             Found::Ambiguous(evidence) => ambiguous = ambiguous.or(Some(evidence)),
@@ -138,7 +135,7 @@ pub(crate) fn resolve<'a>(
             Found::Unknown => unknown = true,
         }
     }
-    unexpanded(out, input, (failed, ambiguous), unfinished)
+    unexpanded(out, input, (failed, ambiguous))
 }
 
 /// Say why the term stayed as typed, when a source failed or stated several structures.
@@ -146,12 +143,11 @@ fn unexpanded(
     out: &mut Outcome,
     input: &Text,
     (mut failed, ambiguous): (Vec<SourceOutcome>, Option<Vec<SourceOutcome>>),
-    unfinished: Unfinished,
 ) -> Resolved {
     let typed = vec![input.clone()];
     if !failed.is_empty() {
         for source in &mut failed {
-            if unfinished == Unfinished::Skipped && source.state == SourceState::Failed {
+            if source.state == SourceState::Failed {
                 source.set_status(SourceStatus::Skipped(source.reason));
             }
         }
@@ -163,6 +159,8 @@ fn unexpanded(
         return Resolved {
             names: Vec::new(),
             failed: true,
+            unsettled: Some("name lookup unfinished"),
+            left_out: Vec::new(),
         };
     }
     if let Some(evidence) = ambiguous {
@@ -173,6 +171,8 @@ fn unexpanded(
         return Resolved {
             names: typed,
             failed: false,
+            unsettled: Some("name fits several drugs"),
+            left_out: Vec::new(),
         };
     }
     Resolved::default()
@@ -405,6 +405,39 @@ fn record_evidence(
     }
 }
 
+/// One compact disclosure for a search that widened its names: how the names were searched, why
+/// the term stayed as typed, then each stated name left out with its short reason.
+pub(crate) fn compact(
+    searched: &str,
+    (widened, rejected): (bool, bool),
+    unsettled: &[String],
+    left_out: &[String],
+) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    if rejected {
+        parts.push("provider rejected the other names; typed only".into());
+    } else if widened {
+        parts.push(searched.into());
+    } else if unsettled.is_empty() {
+        parts.push("no other names".into());
+    }
+    if !rejected {
+        parts.extend(unsettled.iter().map(|note| format!("{note}; typed only")));
+        parts.extend(left_out.iter().cloned());
+    }
+    parts.join("; ")
+}
+
+/// Drop the lookups' name notices from their sources, so the searched source can carry the one
+/// notice that says what was searched.
+pub(crate) fn drop_notices(sources: &mut [SourceOutcome]) {
+    for source in sources {
+        source
+            .notices
+            .retain(|notice| !matches!(notice, SourceNotice::DrugNameSearch { .. }));
+    }
+}
+
 /// Keep disabled article providers and exact terms outside drug-name resolution.
 pub(crate) fn article<'a>(
     cx: &Ctx<'a>,
@@ -422,9 +455,7 @@ pub(crate) fn article<'a>(
     query
         .drug_name_input()
         .map_or_else(Resolved::default, |input| {
-            bounded(deadline, |lookup| {
-                resolve(cx, input, out, lookup, any, Unfinished::Skipped)
-            })
+            bounded(deadline, |lookup| resolve(cx, input, out, lookup, any))
         })
 }
 

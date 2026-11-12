@@ -156,11 +156,13 @@ pub(crate) const FAERS_REACTION: (&str, &[&str]) = (
     &["option search adverse-event --reaction"],
 );
 
-// Explicit aliases and their retained continuation are checked through synthetic source replies.
+// Default name widening, its opt-out and their retained continuation are checked through
+// synthetic source replies.
 pub(crate) const FAERS_NAMES: (&str, &[&str]) = (
     "adverse-event-search/explicit-aliases-and-frozen-pages",
     &[
         "option search adverse-event --expand-drug-names",
+        "option search adverse-event --exact-term",
         "option search adverse-event --name-snapshot",
     ],
 );
@@ -212,6 +214,7 @@ pub(crate) const LABEL_NAMES: (&str, &[&str]) = (
     "drug-label/explicit-alias-native-union",
     &[
         "option search drug --expand-drug-names",
+        "option search drug --exact-term",
         "option search drug --name-snapshot",
     ],
 );

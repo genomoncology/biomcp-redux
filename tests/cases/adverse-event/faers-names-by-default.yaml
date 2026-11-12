@@ -1,0 +1,99 @@
+{
+  "feature": "adverse-event-search",
+  "story": "A FAERS drug name searches the drug's other names by default in one native query, so the generic name finds the brand's reports; --exact-term searches the typed names only.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-12 with --record (job j38466). Fatal pembrolizumab myocarditis reports: 704 widened, 292 for the generic name alone, 703 for the generic and brand typed together. Apixaban as typed finds 69,029 reports; widened it finds 282,308 (faers-widened-names.yaml). FAERS rows keep only report identity, version, seriousness and receipt date; totals and metadata are unchanged.",
+  "replay": "adverse-event/faers-names-by-default",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--source",
+        "faers",
+        "--reaction",
+        "myocarditis",
+        "--serious",
+        "death",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 704,
+        "/sources/0/notices/1/names": [
+          "pembrolizumab",
+          "Lambrolizumab",
+          "MK-3475",
+          "Keytruda",
+          "SCH-900475"
+        ],
+        "/sources/0/notices/1/kind": "drug-name-search",
+        "/sources/1/source": "mychem",
+        "/sources/2/source": "chembl"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--source",
+        "faers",
+        "--reaction",
+        "myocarditis",
+        "--serious",
+        "death",
+        "--limit",
+        "1",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 292,
+        "/sources/0/notices": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--drug",
+        "KEYTRUDA",
+        "--source",
+        "faers",
+        "--reaction",
+        "myocarditis",
+        "--serious",
+        "death",
+        "--limit",
+        "1",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 703
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "apixaban",
+        "--source",
+        "faers",
+        "--limit",
+        "1",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 69029
+      }
+    }
+  ]
+}

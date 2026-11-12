@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name.exact%3A%22apixaban%22%20OR%20products.active_ingredients.name.exact%3A%22apixaban%22&limit=3",
+  "exchanges": [
+    {
+      "fetched": 1794498108,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 329,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": {
+            "code": "NOT_FOUND",
+            "message": "No matches found!"
+          }
+        }
+      }
+    }
+  ]
+}

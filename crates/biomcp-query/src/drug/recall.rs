@@ -19,35 +19,31 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         .with_query(q.clone()),
     );
     let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
+    let mut deadline = command.deadline();
+    let query = q;
+    let fits = |names: &[biodata::Text]| source::names_fit(q, names);
+    let mut widened = match super::widen::begin(cx, q, &mut deadline, fits, &mut out) {
+        super::widen::Start::Typed => None,
+        super::widen::Start::Widened(saved) => Some(saved),
+        super::widen::Start::Answered => return out,
+    };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
-    let result = source::search(&leg, q);
+    let result = match widened.as_mut() {
+        Some(saved) => widened_page(&leg, q, saved),
+        None => source::search(&leg, q),
+    };
     let error = result.as_ref().err().copied();
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
+        // Later pages keep this page's names, so the snapshot is kept only for an answer.
+        let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, true, &mut out);
+        let q = &sent;
         {
             let found = returned != 0;
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
-        for item in &page.items {
-            if let Some(id) = crate::next::checked(
-                item.recall_number.to_string().parse(),
-                biomcp_types::Source::FdaDrugRecall,
-                &mut out.problems,
-            ) && let Some(get) = crate::next::checked(
-                DrugGet::new(id, DrugSource::FdaDrugRecall),
-                biomcp_types::Source::FdaDrugRecall,
-                &mut out.problems,
-            ) {
-                out.next.push(crate::next::Step::run(
-                    StepKind::Disambiguate,
-                    &[biomcp_types::Source::FdaDrugRecall],
-                    Request::GetDrug(get),
-                    cx.fresh,
-                ));
-            }
-        }
+        record_steps(cx.fresh, &page.items, &mut out);
         if let Some(offset) = q
             .offset()
             .checked_add(returned)
@@ -76,8 +72,50 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     }
     finish(&mut out, leg, error);
     status::search(&mut out);
+    if let Some(saved) = widened {
+        super::widen::finish(query, saved, SEARCHED, &mut out);
+    }
     command.finish(deadline.remaining());
     out
+}
+
+/// One exact read per returned recall record.
+fn record_steps(fresh: bool, items: &[biomcp_types::DrugRecallHeader], out: &mut Outcome) {
+    for item in items {
+        if let Some(id) = crate::next::checked(
+            item.recall_number.to_string().parse(),
+            biomcp_types::Source::FdaDrugRecall,
+            &mut out.problems,
+        ) && let Some(get) = crate::next::checked(
+            DrugGet::new(id, DrugSource::FdaDrugRecall),
+            biomcp_types::Source::FdaDrugRecall,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::FdaDrugRecall],
+                Request::GetDrug(get),
+                fresh,
+            ));
+        }
+    }
+}
+
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "one recall query";
+
+/// Search the name group; after a refusal, search the typed name alone and keep it.
+fn widened_page(
+    leg: &Leg<'_>,
+    q: &DrugSearch,
+    saved: &mut super::widen::Saved<()>,
+) -> Result<source::Page, RequestError> {
+    let result = source::search_names(leg, q, &saved.names);
+    if saved.names.len() < 2 || !super::search_names::rejected(result.as_ref().err()) {
+        return result;
+    }
+    saved.reject(q);
+    source::search_names(leg, q, &saved.names)
 }
 pub(super) fn get(cx: &Ctx<'_>, q: &DrugGet) -> Outcome {
     let mut out = empty(biomcp_types::DrugRecallCard::into_reply(q.clone(), None));

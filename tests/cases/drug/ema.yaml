@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "drug-ema",
-  "story": "Synthetic medicines preserve exact EMA records, native date roles, separate Tibsovo applications and local-only bounded reads after one explicit sync",
+  "story": "Synthetic medicines preserve exact EMA records, native date roles, separate Tibsovo applications and local-only bounded reads after one explicit sync; a generic name finds its brand's medicines by default, each medicine once, and --exact-term searches the typed name only",
   "replay": "drug/ema-synthetic",
   "steps": [
     {
@@ -33,7 +33,7 @@
         "/page/returned": 1,
         "/page/offset": 0
       },
-      "max_bytes": 930
+      "max_bytes": 1087
     },
     {
       "run": [
@@ -54,7 +54,7 @@
         "/result/items/0/id": "EMEA/H/C/005056",
         "/page/offset": 1
       },
-      "max_bytes": 830
+      "max_bytes": 915
     },
     {
       "run": [
@@ -95,6 +95,54 @@
         "/result/regulatory/data/records/0/dates/1/date": "2001-11-07"
       },
       "max_bytes": 1227
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "ivosidenib",
+        "--source",
+        "ema",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 2,
+        "/result/items/0/id": "EMEA/H/C/005936",
+        "/sources/0/notices/1/names": [
+          "ivosidenib",
+          "AG120",
+          "AG-120",
+          "Tibsovo"
+        ],
+        "/sources/0/notices/1/kind": "drug-name-search"
+      }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/status": "complete",
+        "/result/total": 2,
+        "/result/items/0/id": "EMEA/H/C/005056",
+        "/page/offset": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "ivosidenib",
+        "--source",
+        "ema",
+        "--limit",
+        "5",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 0
+      }
     }
   ]
 }

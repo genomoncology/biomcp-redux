@@ -1,4 +1,5 @@
-//! Explicit FAERS aliases retain native counts and frozen, caller-authorized membership.
+//! FAERS widens drug names by default, keeps native counts and frozen membership, and
+//! searches the typed names alone with --exact-term.
 use super::{configuration::invoke, launch::Environment, network_stub::Stub};
 use serde_json::{Value, json};
 use std::sync::mpsc;
@@ -117,9 +118,15 @@ fn args(expand: bool) -> Vec<String> {
     let mut words = ["search", "adverse-event", "Typed drug", "--limit", "1"]
         .map(str::to_owned)
         .to_vec();
-    if expand {
-        words.push("--expand-drug-names".into());
-    }
+    // The retired opt-in is still accepted and changes nothing; the opt-out searches as typed.
+    words.push(
+        if expand {
+            "--expand-drug-names"
+        } else {
+            "--exact-term"
+        }
+        .into(),
+    );
     words
 }
 
@@ -134,7 +141,7 @@ fn complete() -> Check {
     let (env, stub, no_lookup) = setup(0, json!({}))?;
     let literal = invoke(&env, args(false), 0)?;
     if query(&literal)?.contains("Brand name") {
-        return Err("literal default expanded names".into());
+        return Err("--exact-term expanded names".into());
     }
     let mut words = args(true);
     words.extend(
@@ -220,9 +227,11 @@ fn uncertainty() -> Check {
     for mode in [1, 2, 3] {
         let (env, stub, _) = setup(mode, json!({}))?;
         let reply = invoke(&env, args(true), 0)?;
+        // A lookup that does not finish is listed as skipped and leaves the search complete.
         if query(&reply)?.contains("Brand name")
             || !reply.to_string().contains("drug-name-search")
-            || mode != 2 && reply.get("status") != Some(&json!("partial"))
+            || reply.get("status") != Some(&json!("complete"))
+            || mode != 2 && !reply.to_string().contains("\"skipped\"")
         {
             return Err(format!(
                 "uncertain aliases claimed complete expansion: {reply}"
@@ -244,7 +253,7 @@ fn controls() -> Check {
         json!({"disable_sources":["mychem","chembl","openfda-label"]}),
     )?;
     let reply = invoke(&env, args(true), 0)?;
-    if query(&reply)?.contains("Brand name") || reply.get("status") != Some(&json!("partial")) {
+    if query(&reply)?.contains("Brand name") || reply.get("status") != Some(&json!("complete")) {
         return Err("disabled lookup sources silently satisfied expansion".into());
     }
     if stub
@@ -279,7 +288,7 @@ fn bounds() -> Check {
         let reply = invoke(&env, args(true), 0)?;
         if query(&reply)?.len() > 4096
             || mode == 4 && query(&reply)?.contains("Long alias")
-            || mode == 4 && !reply.to_string().contains("Left out 1 additional names")
+            || mode == 4 && !reply.to_string().contains("1 past query size")
             || mode == 5 && !query(&reply)?.contains(r#"Brand \"quoted\" \\name"#)
         {
             return Err(format!(
@@ -305,9 +314,15 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
         .iter()
         .position(|word| word == "--name-snapshot")
         .ok_or("missing name snapshot")?;
+    // A later page typed without its snapshot looks the names up again.
     let mut missing = next.clone();
     missing.drain(index..=index + 1);
-    invoke(env, missing, 2)?;
+    let fresh = invoke(env, missing, 0)?;
+    if query(&fresh)? != query(first)? {
+        return Err(format!(
+            "a page without its snapshot searched other names: {fresh}"
+        ));
+    }
     let mut tampered = next.clone();
     *tampered.get_mut(index + 1).ok_or("snapshot value")? = "synthetic-missing".into();
     let reply = invoke(env, tampered, 3)?;
@@ -366,11 +381,10 @@ fn provider_names() -> Check {
         || UNFIT
             .iter()
             .any(|name| query(&reply).is_ok_and(|q| q.contains(name)))
-        || !text.contains("Left out 4 of 6 names the provider cannot search")
-        || !text.contains("(non-ASCII characters)")
-        || !text.contains("(markup or an HTML entity)")
-        || !text.contains("(names a component of another product)")
-        || !text.contains("(a bracketed qualifier)")
+        || !text.contains("skipped non-ascii: Typed drüg")
+        || !text.contains("skipped markup: Brand&reg;")
+        || !text.contains("skipped component of another product: Typed drug component")
+        || !text.contains("skipped bracketed: Brand (typed drug)")
     {
         return Err(format!(
             "unfit names reached FAERS or went unlisted: {reply}"
@@ -384,7 +398,7 @@ fn provider_names() -> Check {
         || reply.pointer("/page/total") != Some(&json!(2))
         || !reply
             .to_string()
-            .contains("faers rejected the expanded request; searched the typed term.")
+            .contains("provider rejected the other names; typed only")
     {
         return Err(format!(
             "refused widening did not fall back to the typed name: {reply}"

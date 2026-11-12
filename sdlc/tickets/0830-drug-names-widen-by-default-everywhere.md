@@ -1,6 +1,7 @@
 # 0830 — drug-names-widen-by-default-everywhere
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3c42cc3e5222938474467770b54a6164495da638
 
 Milestone: 8
 

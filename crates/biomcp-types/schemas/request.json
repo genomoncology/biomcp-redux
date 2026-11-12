@@ -3027,14 +3027,18 @@
           "type": "string"
         },
         "drug": {
-          "description": "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
+          "description": "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
           "items": {
             "$ref": "#/$defs/Text"
           },
           "type": "array"
         },
+        "exact_term": {
+          "description": "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.",
+          "type": "boolean"
+        },
         "expand_drug_names": {
-          "description": "FAERS only: explicitly search bounded source-stated aliases; literal search remains the default.",
+          "description": "FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.",
           "type": "boolean"
         },
         "limit": {
@@ -3176,7 +3180,7 @@
         },
         "text": {
           "$ref": "#/$defs/Text",
-          "description": "Drug, device or vaccine.\nLiteral drug text, MAUDE device phrase or exact supported VAERS vaccine.",
+          "description": "Drug, device or vaccine.\nFAERS drug name, searched with the drug's other names unless --exact-term; MAUDE device phrase or exact supported VAERS vaccine, both searched as typed.",
           "x-positional": 0
         }
       },
@@ -3466,8 +3470,12 @@
           "const": "search-drug",
           "type": "string"
         },
+        "exact_term": {
+          "description": "Search the typed name only.\nopenFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with\nthe drug's other names by default; this searches only the name as typed. Other sources search the name as typed.",
+          "type": "boolean"
+        },
         "expand_drug_names": {
-          "description": "Expand openFDA label aliases.\nUses bounded source-stated names. Literal search is the default.",
+          "description": "Accepted for one release; changes nothing.\nSources that widen drug names do so by default.",
           "type": "boolean"
         },
         "firm": {
@@ -3533,7 +3541,7 @@
               "type": "null"
             }
           ],
-          "description": "Label alias page token.\nFollow the returned command with unchanged filters to retain aliases and matching tier."
+          "description": "Label name page token.\nFollow the returned command with unchanged filters to keep the first page's names and step."
         },
         "offset": {
           "default": 0,

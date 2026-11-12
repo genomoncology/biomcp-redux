@@ -17,15 +17,15 @@ pub(crate) fn any(_: &str) -> Option<&'static str> {
 pub(crate) fn openfda(name: &str) -> Option<&'static str> {
     let lowered = name.to_ascii_lowercase();
     if !name.is_ascii() {
-        Some("non-ASCII characters")
+        Some("non-ascii")
     } else if name.contains(['&', '<', '>']) {
-        Some("markup or an HTML entity")
+        Some("markup")
     } else if lowered.contains(" component of ") {
-        Some("names a component of another product")
+        Some("component of another product")
     } else if name.contains(['(', ')', '[', ']']) {
-        Some("a bracketed qualifier")
+        Some("bracketed")
     } else if lowered.split_whitespace().any(|word| word == "or") {
-        Some("a Boolean operator")
+        Some("boolean")
     } else {
         None
     }
@@ -46,6 +46,31 @@ pub(crate) struct Capped {
 }
 
 impl Capped {
+    /// The names left out, grouped by reason in first-seen order, then the counts past each
+    /// limit, for a compact notice.
+    pub(crate) fn left_out(&self) -> Vec<String> {
+        let mut groups: Vec<(&str, Vec<&str>)> = Vec::new();
+        for (name, reason) in &self.unfit {
+            match groups.iter_mut().find(|(seen, _)| seen == reason) {
+                Some((_, names)) => names.push(name.as_str()),
+                None => groups.push((reason, vec![name.as_str()])),
+            }
+        }
+        let mut out: Vec<String> = groups
+            .into_iter()
+            .map(|(reason, names)| format!("skipped {reason}: {}", names.join(", ")))
+            .collect();
+        if self.left_out > 0 {
+            out.push(format!("{} past drug_search_name_limit", self.left_out));
+        }
+        if !self.official_left_out.is_empty() {
+            out.push(format!(
+                "{} official past {OFFICIAL_NAME_CEILING}",
+                self.official_left_out.len()
+            ));
+        }
+        out
+    }
     pub(crate) fn message(&self, source: biomcp_types::Source, record: &str) -> String {
         let total = self.names.len() + self.left_out + self.unfit.len();
         let mut message = format!("Searched the names stated by {source} record {record}.");

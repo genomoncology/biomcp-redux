@@ -26,7 +26,8 @@ pub struct AdverseEventSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    #[doc = "Drug, device or vaccine.\nLiteral drug text, MAUDE device phrase or exact supported VAERS vaccine."]
+    #[doc = "Drug, device or vaccine.\nFAERS drug name, searched with the drug's other names unless --exact-term; \
+        MAUDE device phrase or exact supported VAERS vaccine, both searched as typed."]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[serde(
         default,
@@ -35,14 +36,19 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
-    #[doc = "FAERS drug names; OR.\nFAERS literal drug name; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. \
+    #[doc = "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. \
+        A standalone OR joining names inside one --drug value is refused. \
         Other filters AND with the names. BioMCP caps the escaped native query, including filters, \
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
-    /// FAERS only: explicitly search bounded source-stated aliases; literal search remains the default.
+    /// FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
+    #[doc = "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; \
+        this searches only the names as typed. MAUDE and VAERS always search the text as typed."]
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    exact_term: bool,
     /// Retained FAERS name resolution; follow the returned command without changing filters.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
@@ -237,6 +243,7 @@ impl AdverseEventSearch {
             text: None,
             drug: Vec::new(),
             expand_drug_names: false,
+            exact_term: false,
             name_snapshot: None,
             manufacturer: None,
             product_code: vec![code],

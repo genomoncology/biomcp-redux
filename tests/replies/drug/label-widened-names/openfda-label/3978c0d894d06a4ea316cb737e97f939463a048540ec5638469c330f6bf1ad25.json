@@ -1,0 +1,92 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22APIXABAN%22%20OR%20openfda.generic_name.exact%3A%22APIXABAN%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%22%20OR%20openfda.brand_name.exact%3A%22apixaban%22%20OR%20openfda.generic_name.exact%3A%22apixaban%22&limit=3&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794498102,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 559,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 10
+            }
+          },
+          "results": [
+            {
+              "id": "5c3dd175-ba67-d91d-e063-6294a90a045d",
+              "set_id": "41a133ef-e461-48ad-8221-b735bdd0ec25",
+              "version": "5",
+              "effective_time": "20260924",
+              "openfda": {
+                "brand_name": [
+                  "ELIQUIS"
+                ],
+                "generic_name": [
+                  "APIXABAN"
+                ],
+                "spl_set_id": [
+                  "41a133ef-e461-48ad-8221-b735bdd0ec25"
+                ],
+                "application_number": [
+                  "NDA202155"
+                ]
+              }
+            },
+            {
+              "id": "5b37eaab-1b6f-d2c7-e063-6394a90a9ea4",
+              "set_id": "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+              "version": "2",
+              "effective_time": "20260911",
+              "openfda": {
+                "brand_name": [
+                  "ELIQUIS"
+                ],
+                "generic_name": [
+                  "APIXABAN"
+                ],
+                "spl_set_id": [
+                  "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e"
+                ],
+                "application_number": [
+                  "NDA202155"
+                ]
+              }
+            },
+            {
+              "id": "35ab1342-e927-4bd0-9020-628b859dfb38",
+              "set_id": "a454cd24-0c6d-46e8-b1e4-197388606175",
+              "version": "38",
+              "effective_time": "20260424",
+              "openfda": {
+                "brand_name": [
+                  "ELIQUIS"
+                ],
+                "generic_name": [
+                  "APIXABAN"
+                ],
+                "spl_set_id": [
+                  "a454cd24-0c6d-46e8-b1e4-197388606175"
+                ],
+                "application_number": [
+                  "NDA202155"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -60,34 +60,117 @@ pub fn search(
     limit: u32,
     offset: u32,
 ) -> Result<Page, RequestError> {
-    let sponsor = applicant.map(|v| {
-        let mut term = String::from("sponsor_name:");
-        for c in applicant_prefix(v).chars() {
-            if !c.is_alphanumeric() {
-                term.push('\\');
-            }
-            term.push(c);
-        }
-        term.push('*');
-        term
-    });
-    let selector = |suffix: &str| {
-        let names = text.map(|text| {
-            let name = literal(text.as_str());
-            format!(
-                "products.brand_name{suffix}:{name} OR products.active_ingredients.name{suffix}:{name}"
-            )
-        });
-        match (names, &sponsor) {
-            (Some(names), Some(sponsor)) => format!("({names}) AND {sponsor}"),
-            (names, sponsor) => names.or_else(|| sponsor.clone()).unwrap_or_default(),
-        }
-    };
-    let exact = page(leg, &selector(".exact"), limit, offset, None)?;
+    let names: Vec<Text> = text.cloned().into_iter().collect();
+    let exact = page(
+        leg,
+        &selector(&names, applicant, NameStep::Exact),
+        limit,
+        offset,
+        None,
+    )?;
     if exact.total > 0 || text.is_none() {
         return Ok(exact);
     }
-    page(leg, &selector(""), limit, offset, None)
+    page(
+        leg,
+        &selector(&names, applicant, NameStep::Words),
+        limit,
+        offset,
+        None,
+    )
+}
+
+/// BioMCP's own bound on one native Drugs@FDA request, so a name group stays one request.
+const NAME_QUERY_MAX_BYTES: usize = 4096;
+
+/// Which name step a Drugs@FDA search pages, chosen on its first page as the typed name's own
+/// search would choose it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum NameStep {
+    /// Exact brand and ingredient names.
+    Exact,
+    /// Word matches, after the typed name has no exact match.
+    Words,
+}
+
+fn sponsor(applicant: &Text) -> String {
+    let mut term = String::from("sponsor_name:");
+    for c in applicant_prefix(applicant).chars() {
+        if !c.is_alphanumeric() {
+            term.push('\\');
+        }
+        term.push(c);
+    }
+    term.push('*');
+    term
+}
+
+/// One native selector for a name group at one step, narrowed by the applicant prefix.
+fn selector(names: &[Text], applicant: Option<&Text>, step: NameStep) -> String {
+    let suffix = if step == NameStep::Exact {
+        ".exact"
+    } else {
+        ""
+    };
+    let names = (!names.is_empty()).then(|| {
+        names
+            .iter()
+            .map(|name| {
+                let name = literal(name.as_str());
+                format!(
+                    "products.brand_name{suffix}:{name} OR products.active_ingredients.name{suffix}:{name}"
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(" OR ")
+    });
+    match (names, applicant.map(sponsor)) {
+        (Some(names), Some(sponsor)) => format!("({names}) AND {sponsor}"),
+        (names, sponsor) => names.or(sponsor).unwrap_or_default(),
+    }
+}
+
+/// Whether one request can carry this name group.
+pub fn names_fit(names: &[Text], applicant: Option<&Text>) -> bool {
+    selector(names, applicant, NameStep::Exact).len() <= NAME_QUERY_MAX_BYTES
+}
+
+/// Search one bounded name group in one native request; never combine per-name totals.
+/// The first page takes the step the typed name alone would reach, so the group finds at least
+/// what the typed name finds.
+pub fn search_widened(
+    leg: &Leg<'_>,
+    (names, typed): (&[Text], &Text),
+    applicant: Option<&Text>,
+    (limit, offset): (u32, u32),
+    selected: Option<NameStep>,
+) -> (Result<Page, RequestError>, NameStep) {
+    let at = |step| page(leg, &selector(names, applicant, step), limit, offset, None);
+    if let Some(step) = selected {
+        return (at(step), step);
+    }
+    let exact = at(NameStep::Exact);
+    let found = match &exact {
+        Err(_) => return (exact, NameStep::Exact),
+        Ok(page) => page.total > 0,
+    };
+    if found && names.len() > 1 {
+        let typed = std::slice::from_ref(typed);
+        match page(
+            leg,
+            &selector(typed, applicant, NameStep::Exact),
+            1,
+            0,
+            None,
+        ) {
+            Ok(page) if page.total > 0 => return (exact, NameStep::Exact),
+            Ok(_) => {}
+            Err(error) => return (Err(error), NameStep::Exact),
+        }
+    } else if found {
+        return (exact, NameStep::Exact);
+    }
+    (at(NameStep::Words), NameStep::Words)
 }
 /// Name resolution uses the existing word selector to retain all exact and approved single-term generic forms.
 pub fn search_names(

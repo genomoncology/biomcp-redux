@@ -1,134 +1,72 @@
-//! Retain the authorized spelling union and the provider tier selected on its first page.
-use crate::{Ctx, Outcome, drug::search_names, source_snapshot, status};
-use biodata::Text;
-use biomcp_adapters::openfda_label::NameTier;
+//! Search a widened label name group at the step its typed name selects.
+use crate::{Ctx, Outcome, drug::search_names, drug::widen};
+use biomcp_adapters::openfda_label::{NameGroup, NameStep, Search};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{DrugSearch, Paged, ReplyData, Request, SourceNotice, StepKind};
-use serde::{Deserialize, Serialize};
-mod resolve;
-#[derive(Serialize, Deserialize)]
-pub(super) struct Saved {
-    names: Vec<Text>,
-    sources: Vec<biomcp_types::SourceOutcome>,
-    problems: Vec<biomcp_types::Problem>,
-    incomplete: bool,
-    omitted: usize,
-    tier: Option<NameTier>,
-    /// The provider refused the widened request, so the search kept the typed name alone.
-    #[serde(default)]
-    rejected: bool,
-}
+use biomcp_types::DrugSearch;
+
+pub(super) type Saved = widen::Saved<NameStep>;
+
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "one label query, exact names first";
+
 pub(super) fn prepare<'a>(
     cx: &Ctx<'a>,
     query: &DrugSearch,
     deadline: &mut Deadline<'a>,
 ) -> Result<Option<Saved>, RequestError> {
-    if let Some(token) = query.name_snapshot() {
-        let key = source_snapshot::key("label-drug-names", &query.restart())?;
-        let saved: Option<Saved> = source_snapshot::read(cx, &key, token.as_str(), *deadline)?;
-        return Ok(saved.filter(|saved| {
-            saved.tier.is_some() && query.label_name_selector(&saved.names, true).is_ok()
-        }));
-    }
-    Ok(Some(resolve::resolve(cx, query, deadline)))
+    widen::prepare(cx, query, deadline, |names| {
+        NameGroup::new(names, query.indication()).is_some()
+    })
 }
-pub(super) fn search(
-    leg: &biomcp_fetch::Leg<'_>,
-    query: &DrugSearch,
-    saved: &mut Saved,
-) -> biomcp_adapters::openfda_label::Search {
-    let (result, tier) =
-        biomcp_adapters::openfda_label::search_expanded(leg, query, &saved.names, saved.tier);
-    saved.tier = Some(tier);
-    let Some(input) = query.query() else {
-        return result;
+
+/// The typed name's own group, which the search falls back to and steps by.
+pub(super) fn typed(query: &DrugSearch) -> Option<NameGroup> {
+    let input = query.query()?;
+    NameGroup::new(std::slice::from_ref(input), query.indication())
+}
+
+pub(super) fn search(leg: &biomcp_fetch::Leg<'_>, query: &DrugSearch, saved: &mut Saved) -> Search {
+    let page = (query.limit(), query.offset());
+    let (Some(typed), Some(group)) = (
+        typed(query),
+        NameGroup::new(&saved.names, query.indication()),
+    ) else {
+        // Both were checked before the search, so only a damaged snapshot reaches this.
+        return Search {
+            page: Err(biomcp_fetch::CacheError::Snapshot.into()),
+            free_text: None,
+        };
     };
+    let widened = (saved.names.len() > 1).then_some(&typed);
+    let (result, step) =
+        biomcp_adapters::openfda_label::search_expanded(leg, &group, widened, page, saved.step);
+    saved.step = Some(step);
     if saved.names.len() < 2 || !search_names::rejected(result.page.as_ref().err()) {
         return result;
     }
-    // The typed name alone is searched and kept for later pages, in place of the refused union.
-    saved.names = vec![input.clone()];
-    saved.omitted = 0;
-    saved.rejected = true;
-    search_names::retract_sources(&mut saved.sources);
-    let (result, tier) =
-        biomcp_adapters::openfda_label::search_expanded(leg, query, &saved.names, None);
-    saved.tier = Some(tier);
+    // The typed name alone is searched and kept for later pages, in place of the refused group.
+    saved.reject(query);
+    let (result, step) =
+        biomcp_adapters::openfda_label::search_expanded(leg, &typed, None, page, None);
+    saved.step = Some(step);
     result
 }
-pub(super) fn retain(
-    cx: &Ctx<'_>,
-    query: &DrugSearch,
-    saved: Option<&Saved>,
-    deadline: Deadline<'_>,
-    success: bool,
-    out: &mut Outcome,
-) -> DrugSearch {
-    let Some(saved) = saved.filter(|_| success && query.name_snapshot().is_none()) else {
-        return query.clone();
-    };
-    let result = source_snapshot::key("label-drug-names", &query.restart()).and_then(|key| {
-        let mut admitted: Vec<_> = saved
-            .sources
-            .iter()
-            .filter(|source| source.state != biomcp_types::SourceState::Skipped)
-            .cloned()
-            .collect();
-        admitted.extend(out.sources.iter().cloned());
-        source_snapshot::write(cx, &key, saved, &admitted, deadline)
-    });
-    match crate::publish::keep(result, out) {
-        Ok(Some(token)) => query.with_name_snapshot(token),
-        Ok(None) => query.clone(),
-        Err(error) => {
-            out.local = Some(error);
-            query.clone()
-        }
-    }
-}
-pub(super) fn missing(query: &DrugSearch, out: &mut Outcome) {
-    out.body = ReplyData::PoolError { mismatch: false };
-    out.next.push(crate::next::Step::run(
-        StepKind::Restart,
-        &[],
-        Request::SearchDrug(query.restart()),
-        false,
-    ));
-}
+
+/// Show the name selector searched and the one notice naming the names.
 pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome) {
     let Some(saved) = saved else { return };
-    if let Some(source) = out.sources.first_mut() {
-        source.term = match saved.tier {
-            Some(tier) => match query.label_name_selector(&saved.names, tier.exact()) {
-                Ok(selector) => Some(selector),
-                Err(_) => {
-                    out.local = Some(biomcp_fetch::CacheError::Snapshot.into());
-                    None
-                }
-            },
-            None => None,
-        };
-        if let Some(input) = query.query() {
-            source.notices.push(SourceNotice::DrugNameSearch {
-                input: input.clone(), names: saved.names.clone().into(),
-                message: format!(
-                    "Searched these literal spellings in one native label name union; counts are native label records, not sums. \
-                     Name discovery is bounded and does not establish drug-wide completeness. \
-                     Left out {} additional names at the whole-query bound.", saved.omitted
-                ).into(),
-            });
-            if saved.rejected {
-                source.notices.push(search_names::typed_only(
-                    input,
-                    biomcp_types::Source::OpenfdaLabel,
-                ));
+    if saved.step == Some(NameStep::Names)
+        && let Some(group) = NameGroup::new(&saved.names, query.indication())
+        && let Some(source) = out.sources.first_mut()
+    {
+        source.term = match group.term(NameStep::Names).parse() {
+            Ok(term) => Some(term),
+            // The selector was built from checked names, so only a local fault reaches this.
+            Err(_) => {
+                out.local = Some(biomcp_fetch::CacheError::Snapshot.into());
+                None
             }
-        }
+        };
     }
-    // Classify the primary provider before adding discovery evidence, which can name this provider too.
-    if out.status() == biomcp_types::Status::Complete && saved.incomplete {
-        status::item(out, true, false, true);
-    }
-    out.sources.extend(saved.sources);
-    out.problems.extend(saved.problems);
+    widen::finish(query, saved, SEARCHED, out);
 }

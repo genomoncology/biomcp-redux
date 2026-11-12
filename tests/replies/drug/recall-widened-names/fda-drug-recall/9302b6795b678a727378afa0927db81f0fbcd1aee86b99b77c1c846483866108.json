@@ -1,0 +1,154 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=%28product_description%3A%22metformin%22%20OR%20openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22%20OR%20product_description%3A%22LA-6023%22%20OR%20openfda.brand_name%3A%22LA-6023%22%20OR%20openfda.generic_name%3A%22LA-6023%22%20OR%20product_description%3A%22Metformina%22%20OR%20openfda.brand_name%3A%22Metformina%22%20OR%20openfda.generic_name%3A%22Metformina%22%20OR%20product_description%3A%22Metformine%22%20OR%20openfda.brand_name%3A%22Metformine%22%20OR%20openfda.generic_name%3A%22Metformine%22%20OR%20product_description%3A%22Metformin%20extended%20release%22%20OR%20openfda.brand_name%3A%22Metformin%20extended%20release%22%20OR%20openfda.generic_name%3A%22Metformin%20extended%20release%22%29&limit=3&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794498110,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 345,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 91
+            }
+          },
+          "results": [
+            {
+              "status": "Ongoing",
+              "city": "Ridgefield",
+              "state": "CT",
+              "country": "United States",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Drugs",
+              "event_id": "99233",
+              "recalling_firm": "Boehringer Ingelheim Pharmaceuticals, Inc.",
+              "address_1": "900 Ridgebury Rd",
+              "address_2": "N/A",
+              "postal_code": "06877-1058",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "OH",
+              "recall_number": "D-0657-2026",
+              "product_description": "Synjardy XR Tablets (empagliflozin and metformin hydrochloride extended-release tablets), 12.5/1000 mg, 60 Tablets per Bottle, Rx only, Distributed by: Boehringer Ingelheim Pharmaceuticals, Inc., Ridgefield, CT 06877 USA.  NDC: 00597-0300-45",
+              "product_quantity": "560 bottles",
+              "reason_for_recall": "CGMP Deviations: An incorrect detergent was used and the required swab sampling was not performed on a production hopper that had previously been used for a different product.",
+              "recall_initiation_date": "20260612",
+              "center_classification_date": "20260630",
+              "report_date": "20260708",
+              "code_info": "Lot 3244413; Exp. 12/31/2028"
+            },
+            {
+              "status": "Ongoing",
+              "city": "Mahwah",
+              "state": "NJ",
+              "country": "United States",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Drugs",
+              "event_id": "96474",
+              "recalling_firm": "Glenmark Pharmaceuticals Inc., USA",
+              "address_1": "750 Corporate Dr",
+              "address_2": "N/A",
+              "postal_code": "07430-2009",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "U.S. Nationwide",
+              "recall_number": "D-0328-2025",
+              "product_description": "Metformin Hydrochloride Extended-Release Tablets 1000mg, 90-count bottle. Manufactured by: Glenmark Pharmaceuticals Limited, Pithampur, Madhya Pradesh 454775, India, Manufactured for: Glenmark Pharmaceuticals Inc. USA, Mahwah, NJ 07430. NDC 68462-521-90.",
+              "product_quantity": "N/A",
+              "reason_for_recall": "CGMP Deviations",
+              "recall_initiation_date": "20250313",
+              "center_classification_date": "20250408",
+              "report_date": "20250416",
+              "code_info": "Lot #  17232088, exp. date Sep-25 17232093, exp. date Sep-25"
+            },
+            {
+              "status": "Completed",
+              "city": "Libertyville",
+              "state": "IL",
+              "country": "United States",
+              "classification": "Class II",
+              "openfda": {
+                "application_number": [
+                  "ANDA201991"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-1494"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860975"
+                ],
+                "spl_id": [
+                  "c83706bb-e844-4e62-b4f4-c48536ea707d"
+                ],
+                "spl_set_id": [
+                  "0cd086d6-3ae2-476e-b93e-29055e67e8fc"
+                ],
+                "package_ndc": [
+                  "50090-1494-3",
+                  "50090-1494-4",
+                  "50090-1494-0",
+                  "50090-1494-1",
+                  "50090-1494-2"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-159"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "96313",
+              "recalling_firm": "A-S Medication Solutions LLC",
+              "address_1": "2401 Commerce Dr",
+              "address_2": "N/A",
+              "postal_code": "60048-4464",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide in U.S.",
+              "recall_number": "D-0292-2025",
+              "product_description": "METFORMIN HYDROCHLORIDE EXTENDED- RELEASE 500MG, 180 TABLETS, Packaged BY: A-S Medication Solutions, Libertyville, IL 60048 NDC 50090-1494-3.",
+              "product_quantity": "411 180-count bottles",
+              "reason_for_recall": "Presence of Foreign Tablets/Capsules.",
+              "recall_initiation_date": "20250225",
+              "center_classification_date": "20250321",
+              "report_date": "20250402",
+              "code_info": "Lot# 4260340; Exp.12/31/2025."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

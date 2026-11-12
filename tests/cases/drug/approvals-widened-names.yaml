@@ -1,0 +1,69 @@
+{
+  "feature": "drug-approvals",
+  "story": "Drugs@FDA search widens a drug name by default at the step the typed name reaches, in one native query, and --exact-term searches the typed name only.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-12 with --record (job j38466). Apixaban finds 27 applications widened and 27 as typed; the brand Eliquis typed alone finds 2, all among them. Totals are the native application totals.",
+  "replay": "drug/approvals-widened-names",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "apixaban",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 27,
+        "/sources/0/notices/1/kind": "drug-name-search",
+        "/sources/0/notices/1/names": [
+          "apixaban",
+          "Eliquis",
+          "apixabanum",
+          "BMS 562247",
+          "BMS-562247",
+          "BMS-562247-01",
+          "Apixaban accord"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "apixaban",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 27,
+        "/sources/0/notices": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "Eliquis",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/total": 2
+      }
+    }
+  ]
+}

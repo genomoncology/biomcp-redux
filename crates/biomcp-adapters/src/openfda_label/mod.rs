@@ -43,7 +43,9 @@ fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
 }
 mod search;
-pub use search::{NameTier, Search, search, search_expanded, search_indication, search_names};
+pub use search::{
+    NameGroup, NameStep, Search, search, search_expanded, search_indication, search_names,
+};
 fn normalize_name(value: &str) -> String {
     value
         .chars()
