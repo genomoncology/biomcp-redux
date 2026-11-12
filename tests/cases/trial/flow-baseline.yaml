@@ -52,7 +52,7 @@
         "/result/items/0/sections/flow/data/total": 5,
         "/result/items/0/sections/baseline/data/total": 8
       },
-      "max_bytes": 1
+      "max_bytes": 9102
     }
   ],
   "harvest": "biomed-agent-bench trial-results paging (sdlc/records/2026-11-11-token-gap-root-cause.md): an agent paged one trial's results looking for participant-flow counts"
