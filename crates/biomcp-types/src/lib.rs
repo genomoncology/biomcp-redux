@@ -183,8 +183,8 @@ pub use drug::{
     DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing, DrugPage,
     DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
     DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugSearch, DrugSection,
-    DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs,
-    OPENFDA_LABEL_HEADINGS,
+    DrugSectionPart, DrugSections, DrugSource, DrugTargets, DrugWhoCard, DrugWhoGet, DrugWhoPage,
+    DrugWhoRow, DrugXrefs, OPENFDA_LABEL_HEADINGS,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};

@@ -1,7 +1,7 @@
 {
   "live_check": "local-only validation; no source requests",
   "feature": "query-validation",
-  "story": "Schemas and errors state what each filter takes: one drug section per call for every source, NCI disease input as NCIt codes, and one advertised Semantic Scholar spelling.",
+  "story": "Schemas and errors state what each filter takes: drug sections the selected source serves, NCI disease input as NCIt codes, and one advertised Semantic Scholar spelling.",
   "steps": [
     {
       "run": [
@@ -9,7 +9,7 @@
         "drug",
         "imatinib",
         "targets",
-        "indications",
+        "approvals",
         "--source",
         "opentargets"
       ],
@@ -19,7 +19,7 @@
         "/error/code": "usage.arguments",
         "/error/option": "section",
         "/error/source": "opentargets",
-        "/error/message": "choose one section per call from valid_values; call again for another section",
+        "/error/message": "choose one of the source selector values",
         "/error/valid_values/*": {
           "includes_all_of": [
             "targets",
@@ -30,27 +30,11 @@
     },
     {
       "run": [
-        "get",
-        "drug",
-        "imatinib",
-        "xrefs",
-        "targets",
-        "--source",
-        "chembl"
-      ],
-      "exit": 2,
-      "is_error": true,
-      "expect": {
-        "/error/message": "choose one section per call from valid_values; call again for another section"
-      }
-    },
-    {
-      "run": [
         "schema",
         "biomcp.drug-get-command/2"
       ],
       "expect": {
-        "/properties/section/x-section-rule": "One named disclosure per call for every source; empty means identity only."
+        "/properties/section/x-section-rule": "Named disclosures of the selected source, each its own part of one reply; empty means identity only."
       }
     },
     {

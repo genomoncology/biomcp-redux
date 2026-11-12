@@ -1,0 +1,115 @@
+{
+  "feature": "several-sections",
+  "live_check": "recorded only; reuses the label-discovery replay",
+  "story": "One drug read names three label sections and gets one reply with a part per section, each with its own paging, on the command line and as a typed list; an unknown section in the list is refused with the valid ones.",
+  "replay": "drug/label-discovery",
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "chembl"
+    ],
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "98b197ea-bca4-427e-8737-97f70a3262bc",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "spl_product_data_elements,package_label_principal_display_panel,warnings_and_cautions",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/schema": "biomcp.drug-sections/1",
+        "/status": "complete",
+        "/result/parts/*/section": [
+          "label",
+          "label",
+          "label"
+        ],
+        "/result/parts/*/reply/query/label_section": [
+          "spl_product_data_elements",
+          "package_label_principal_display_panel",
+          "warnings_and_cautions"
+        ],
+        "/result/parts/0/reply/result/label/data/heading": "spl_product_data_elements",
+        "/result/parts/0/reply/page/total": 1,
+        "/result/parts/1/reply/page/returned": 1,
+        "/result/parts/1/reply/next/*/kind": {
+          "includes": "page"
+        },
+        "/result/parts/2/reply/result/label/state": "empty"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "98b197ea-bca4-427e-8737-97f70a3262bc",
+            "source": "openfda-label",
+            "section": "label",
+            "label_section": [
+              "spl_product_data_elements",
+              "package_label_principal_display_panel",
+              "warnings_and_cautions"
+            ],
+            "section_limit": 1
+          }
+        }
+      },
+      "expect": {
+        "/schema": "biomcp.drug-sections/1",
+        "/status": "complete",
+        "/result/parts/*/section": [
+          "label",
+          "label",
+          "label"
+        ],
+        "/result/parts/*/reply/query/label_section": [
+          "spl_product_data_elements",
+          "package_label_principal_display_panel",
+          "warnings_and_cautions"
+        ],
+        "/result/parts/0/reply/result/label/data/heading": "spl_product_data_elements",
+        "/result/parts/0/reply/page/total": 1,
+        "/result/parts/1/reply/page/returned": 1,
+        "/result/parts/2/reply/result/label/state": "empty",
+        "/result/parts/1/reply/next/*/name": {
+          "includes": "drug"
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "CHEMBL941",
+        "targets",
+        "notasection",
+        "--source",
+        "opentargets"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "section",
+        "/error/valid_values/*": {
+          "includes_all_of": [
+            "targets",
+            "indications",
+            "label"
+          ]
+        }
+      }
+    }
+  ]
+}

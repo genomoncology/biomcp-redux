@@ -128,11 +128,13 @@ fn fields(schema: &Value, query: &Value, args: &mut Vec<String>) -> Vec<String> 
                 args.push(format!("--{}", name.replace('_', "-")));
             }
             if property.get("x-comma-separated") == Some(&Value::Bool(true)) {
+                // A list is joined; comma-separated text is already one word.
                 args.push(
                     value
                         .as_array()
-                        .into_iter()
-                        .flatten()
+                        .map(Vec::as_slice)
+                        .unwrap_or(std::slice::from_ref(value))
+                        .iter()
                         .filter_map(Value::as_str)
                         .collect::<Vec<_>>()
                         .join(","),

@@ -125,6 +125,14 @@ pub(super) fn input_with_limit(schema: &Value, enum_limit: usize) -> Value {
                     .and_then(Value::as_array)
                     .is_some_and(|v| v.contains(&json!(key)));
                 let mut property = compact(node, schema, optional, enum_limit);
+                // Comma-separated text also takes a list, which the call joins with commas.
+                if node.get("x-comma-separated") == Some(&json!(true))
+                    && property.get("type") == Some(&json!("string"))
+                    && let Some(fields) = property.as_object_mut()
+                {
+                    fields.insert("type".into(), json!(["string", "array"]));
+                    fields.insert("items".into(), json!({"type": "string"}));
+                }
                 if let Some(text) = description
                     && let Some(fields) = property.as_object_mut()
                 {

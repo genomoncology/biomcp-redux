@@ -749,7 +749,8 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields. Omit it to list names."
+          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.",
+          "x-comma-separated": true
         },
         "product_number": {
           "anyOf": [
@@ -763,7 +764,7 @@
           "description": "FDA product number.\nExplicit native application product number, only for approvals."
         },
         "section": {
-          "description": "One named disclosure per call for every source; empty means identity only.",
+          "description": "Named disclosures of the selected source, each its own part of one reply; empty means identity only.",
           "items": {
             "$ref": "#/$defs/Reply_DrugSection"
           },

@@ -93,19 +93,26 @@ fn disclosure(out: &mut Outcome, selector: Option<biodata::Text>) {
         });
     }
 }
-pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
-    let label = matches!(query.sections(), [DrugSection::Label]);
-    let mut out = super::empty(if label {
-        biomcp_types::DrugLabel::into_reply(query.clone(), None)
-    } else {
-        biomcp_types::DrugCard::into_reply(query.clone(), None)
-    });
-    if !query.supports_sections() {
-        return super::unsupported(DrugSource::OpenfdaLabel, out);
+/// Read one SPL record once and answer each query that names it, such as one per label heading.
+pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
+    let Some(first) = queries.first() else {
+        return Vec::new();
+    };
+    let mut out = empty(first);
+    if !first.supports_sections() {
+        return queries
+            .iter()
+            .map(|query| super::unsupported(DrugSource::OpenfdaLabel, empty(query)))
+            .collect();
     }
-    let id = match query.native_input() {
+    let id = match first.native_input() {
         Ok(id) => id,
-        Err(_) => return super::rejected_input(query.source(), "input", out),
+        Err(_) => {
+            return queries
+                .iter()
+                .map(|query| super::rejected_input(query.source(), "input", empty(query)))
+                .collect();
+        }
     };
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -124,16 +131,43 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             source.count = Some(page.window.total().unwrap_or(0));
             source.retrieved_count = Some(page.window.rows.len() as u32);
         }
-        if let Some(record) = page.window.rows.first() {
-            if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut out) {
-                crate::status::item(&mut out, false, true, false);
-                out.local = status::local(error);
-            }
-        } else {
-            crate::status::item(&mut out, false, false, false);
-        }
+        let outcomes = queries
+            .iter()
+            .map(|query| {
+                let mut part = fork(&out, query);
+                if let Some(record) = page.window.rows.first() {
+                    if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut part)
+                    {
+                        crate::status::item(&mut part, false, true, false);
+                        part.local = status::local(error);
+                    }
+                } else {
+                    crate::status::item(&mut part, false, false, false);
+                }
+                part
+            })
+            .collect();
+        command.finish(remaining);
+        return outcomes;
     }
     command.finish(remaining);
+    queries.iter().map(|query| fork(&out, query)).collect()
+}
+fn empty(query: &DrugGet) -> Outcome {
+    super::empty(if matches!(query.sections(), [DrugSection::Label]) {
+        biomcp_types::DrugLabel::into_reply(query.clone(), None)
+    } else {
+        biomcp_types::DrugCard::into_reply(query.clone(), None)
+    })
+}
+/// One query's outcome carrying the shared record read.
+fn fork(read: &Outcome, query: &DrugGet) -> Outcome {
+    let mut out = empty(query);
+    out.local = read.local;
+    out.sources = read.sources.clone();
+    out.problems = read.problems.clone();
+    out.dropped = read.dropped;
+    crate::status::restored(&mut out, read.status());
     out
 }
 fn select(
@@ -243,7 +277,7 @@ fn section_names(
         },
         sections: headings(record)?,
         hint: Some(
-            "pass one of sections as label_section (--label-section on the command line) to read its text"
+            "pass sections as label_section (--label-section on the command line), several separated by commas, to read their text"
                 .parse()
                 .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
         ),

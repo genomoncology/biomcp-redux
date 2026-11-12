@@ -2,6 +2,7 @@
 mod context;
 mod encoding;
 mod reply;
+mod sections;
 pub(crate) use context::Context;
 pub(crate) use encoding::{Encoding, Outcome};
 mod hosted_keys;
@@ -211,6 +212,12 @@ pub(crate) fn execute(
         Action::Health => maintenance::health(fetch, crate::config::budget(settings), encoding),
         Action::KeyHelp(source) => key_help(source, encoding),
         Action::Sync { bundle } => sync::run(fetch, bundle, encoding),
+        Action::Run {
+            request: Request::GetDrug(query),
+            fresh,
+        } if query.parts().is_ok_and(|parts| parts.len() > 1) => {
+            sections::run(fetch, settings, &query, fresh, globals, encoding)
+        }
         Action::Run { request, fresh } => {
             let result = run_request(fetch, &request, fresh, settings, allow_save)?;
             response(fetch, request, result, fresh, globals, encoding)
@@ -234,6 +241,14 @@ impl ResponseMeta {
         query: B::Query,
         body: Option<B>,
     ) -> io::Result<Outcome> {
+        let (encoding, exit) = (self.encoding, self.exit);
+        encoding.encode(self.envelope(query, body), exit)
+    }
+    fn envelope<B: biomcp_types::ResponseBody>(
+        self,
+        query: B::Query,
+        body: Option<B>,
+    ) -> Envelope<B> {
         let mut envelope = Envelope::new(self.status, query, body.filter(|_| self.body_visible));
         envelope.sources = self
             .sources
@@ -244,19 +259,31 @@ impl ResponseMeta {
         envelope.next = self.next;
         envelope.page = self.page;
         envelope.local_error = self.local_error;
-        self.encoding.encode(envelope, self.exit)
+        envelope
     }
 }
 fn response(
     fetch: &biomcp_fetch::Fetch,
     request: Request,
-    mut result: biomcp_query::Outcome,
+    result: biomcp_query::Outcome,
     fresh: bool,
     globals: &crate::grammar::Globals,
     encoding: Encoding,
 ) -> io::Result<Outcome> {
+    let (meta, body) = finished(fetch, &request, result, fresh, globals, encoding)?;
+    body.visit(meta)
+}
+/// Complete paging and next calls, and split the body from what the envelope carries.
+fn finished(
+    fetch: &biomcp_fetch::Fetch,
+    request: &Request,
+    mut result: biomcp_query::Outcome,
+    fresh: bool,
+    globals: &crate::grammar::Globals,
+    encoding: Encoding,
+) -> io::Result<(ResponseMeta, biomcp_types::ReplyData)> {
     result
-        .finish(fetch, &request, fresh)
+        .finish(fetch, request, fresh)
         .map_err(io::Error::other)?;
     let steps = steps::next(&result, globals)?;
     let meta = ResponseMeta {
@@ -270,7 +297,7 @@ fn response(
         sources: result.sources,
         problems: result.problems,
     };
-    result.body.visit(meta)
+    Ok((meta, result.body))
 }
 pub(crate) fn tool(args: &[OsString], context: Context<'_>) -> io::Result<Outcome> {
     tool_using(args, context, true)
@@ -406,6 +433,47 @@ fn key_help(name: biomcp_fetch::SecretName, encoding: Encoding) -> io::Result<Ou
     )
 }
 
+fn query_context<'a>(
+    fetch: &'a biomcp_fetch::Fetch,
+    fresh: bool,
+    settings: &crate::config::Settings,
+) -> io::Result<biomcp_query::Ctx<'a>> {
+    Ok(biomcp_query::Ctx {
+        ncbi_email: crate::config::ncbi_email(settings)
+            .map_err(|_| io::Error::other("local configuration failed"))?,
+        fetch,
+        budget: crate::config::budget(settings),
+        fresh,
+        drug_name_limit: crate::config::drug_name_limit(settings),
+    })
+}
+
+/// Run each part of a several-section drug get with the configured defaults.
+fn run_parts(
+    fetch: &biomcp_fetch::Fetch,
+    parts: &[biomcp_types::DrugGet],
+    fresh: bool,
+    settings: &crate::config::Settings,
+) -> io::Result<Vec<(Request, biomcp_query::Outcome)>> {
+    let requests = parts
+        .iter()
+        .map(|part| crate::config::request_defaults(settings, &Request::GetDrug(part.clone())))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| io::Error::other("local configuration failed"))?;
+    let parts = requests
+        .iter()
+        .map(|request| match request {
+            Request::GetDrug(part) => Ok(part.clone()),
+            _ => Err(io::Error::other("drug section part")),
+        })
+        .collect::<io::Result<Vec<_>>>()?;
+    let cx = query_context(fetch, fresh, settings)?;
+    Ok(requests
+        .into_iter()
+        .zip(biomcp_query::run_drug_parts(&cx, &parts))
+        .collect())
+}
+
 fn run_request(
     fetch: &biomcp_fetch::Fetch,
     request: &Request,
@@ -416,14 +484,7 @@ fn run_request(
     let configured_request = crate::config::request_defaults(settings, request)
         .map_err(|_| io::Error::other("local configuration failed"))?;
     let request = &configured_request;
-    let cx = biomcp_query::Ctx {
-        ncbi_email: crate::config::ncbi_email(settings)
-            .map_err(|_| io::Error::other("local configuration failed"))?,
-        fetch,
-        budget: crate::config::budget(settings),
-        fresh,
-        drug_name_limit: crate::config::drug_name_limit(settings),
-    };
+    let cx = query_context(fetch, fresh, settings)?;
     Ok(match request {
         Request::TrialDocument(query) => crate::save::trial::document(&cx, query, allow_save),
         Request::ArticlePdf(query) => crate::save::run(&cx, query, allow_save),

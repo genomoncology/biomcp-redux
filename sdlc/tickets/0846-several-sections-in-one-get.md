@@ -1,6 +1,7 @@
 # 0846 — several-sections-in-one-get
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 709d6152fab0e81ff12ad98cc74ac0e1fd17c180
 
 Milestone: 7
 

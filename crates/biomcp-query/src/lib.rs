@@ -8,7 +8,7 @@ mod next;
 mod run;
 mod status;
 pub use context::{Ctx, DRUG_NAME_LIMIT};
-pub use run::{Action, Bundle, run};
+pub use run::{Action, Bundle, run, run_drug_parts};
 pub use status::{Outcome, sync_status};
 
 mod fan_out;
