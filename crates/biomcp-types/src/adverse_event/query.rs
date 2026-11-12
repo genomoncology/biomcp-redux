@@ -36,7 +36,8 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text"))]
     text: Option<Text>,
-    #[doc = "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. \
+    #[doc = "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. \
+        A standalone OR joining names inside one --drug value is refused. \
         Other filters AND with the names. BioMCP caps the escaped native query, including filters, \
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

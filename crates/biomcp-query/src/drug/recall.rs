@@ -20,9 +20,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
     );
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
+    let query = q;
     let fits = |names: &[biodata::Text]| source::names_fit(q, names);
-    let Ok(mut widened) = super::widen::begin(cx, q, &mut deadline, fits, &mut out) else {
-        return out;
+    let mut widened = match super::widen::begin(cx, q, &mut deadline, fits, &mut out) {
+        Ok(widened) => widened,
+        Err(()) => return out,
     };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result = match widened.as_mut() {
@@ -30,36 +32,17 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         None => source::search(&leg, q),
     };
     let error = result.as_ref().err().copied();
-    // The search status comes from the source outcomes below, so the outcome can come first.
-    finish(&mut out, leg, error);
-    let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, result.is_ok(), &mut out);
-    let query = q;
-    let q = &sent;
     if let Ok(page) = result {
         let returned = page.items.len() as u32;
+        // Later pages keep this page's names, so the snapshot is kept only for an answer.
+        let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, true, &mut out);
+        let q = &sent;
         {
             let found = returned != 0;
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
-        for item in &page.items {
-            if let Some(id) = crate::next::checked(
-                item.recall_number.to_string().parse(),
-                biomcp_types::Source::FdaDrugRecall,
-                &mut out.problems,
-            ) && let Some(get) = crate::next::checked(
-                DrugGet::new(id, DrugSource::FdaDrugRecall),
-                biomcp_types::Source::FdaDrugRecall,
-                &mut out.problems,
-            ) {
-                out.next.push(crate::next::Step::run(
-                    StepKind::Disambiguate,
-                    &[biomcp_types::Source::FdaDrugRecall],
-                    Request::GetDrug(get),
-                    cx.fresh,
-                ));
-            }
-        }
+        record_steps(cx.fresh, &page.items, &mut out);
         if let Some(offset) = q
             .offset()
             .checked_add(returned)
@@ -86,12 +69,35 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         })
         .with_query(q.clone());
     }
+    finish(&mut out, leg, error);
     status::search(&mut out);
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
     command.finish(deadline.remaining());
     out
+}
+
+/// One exact read per returned recall record.
+fn record_steps(fresh: bool, items: &[biomcp_types::DrugRecallHeader], out: &mut Outcome) {
+    for item in items {
+        if let Some(id) = crate::next::checked(
+            item.recall_number.to_string().parse(),
+            biomcp_types::Source::FdaDrugRecall,
+            &mut out.problems,
+        ) && let Some(get) = crate::next::checked(
+            DrugGet::new(id, DrugSource::FdaDrugRecall),
+            biomcp_types::Source::FdaDrugRecall,
+            &mut out.problems,
+        ) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Disambiguate,
+                &[biomcp_types::Source::FdaDrugRecall],
+                Request::GetDrug(get),
+                fresh,
+            ));
+        }
+    }
 }
 
 const SEARCHED: &str = "Searched these names in one recall query; the total is openFDA's own \

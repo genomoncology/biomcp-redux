@@ -21,9 +21,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     // Each EMA name is its own local lookup, so no request bound limits the group.
-    let Ok(widened) = super::widen::begin::<()>(cx, query, &mut deadline, |_| true, &mut out)
-    else {
-        return out;
+    let widened = match super::widen::begin::<()>(cx, query, &mut deadline, |_| true, &mut out) {
+        Ok(widened) => widened,
+        Err(()) => return out,
     };
     let leg = cx.fetch.leg(&ema::SPEC, deadline).fresh(cx.fresh);
     let result = match &widened {
@@ -34,16 +34,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ema, leg.finish(), error));
-    let sent = super::widen::retain(
-        cx,
-        query,
-        widened.as_ref(),
-        deadline,
-        result.is_ok(),
-        &mut out,
-    );
     if let Ok(rows) = result {
         out.include_refusals(rows.refusals);
+        // Later pages keep this page's names, so the snapshot is kept only for an answer.
+        let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(rows.problems);
         let rows = rows.value;
         let total = rows.len() as u64;

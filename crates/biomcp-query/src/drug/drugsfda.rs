@@ -27,8 +27,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let mut deadline = command.deadline();
     let fits = |names: &[Text]| source::names_fit(names, query.applicant());
-    let Ok(mut widened) = super::widen::begin(cx, query, &mut deadline, fits, &mut out) else {
-        return out;
+    let mut widened = match super::widen::begin(cx, query, &mut deadline, fits, &mut out) {
+        Ok(widened) => widened,
+        Err(()) => return out,
     };
     let leg = cx.fetch.leg(&source::SPEC, deadline).fresh(cx.fresh);
     let result = match (widened.as_mut(), query.query()) {
@@ -45,16 +46,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
-    let sent = super::widen::retain(
-        cx,
-        query,
-        widened.as_ref(),
-        deadline,
-        result.is_ok(),
-        &mut out,
-    );
     if let Ok(page) = result {
         out.include_refusals(page.refusals);
+        // Later pages keep this page's names, so the snapshot is kept only for an answer.
+        let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(page.problems);
         searched(
             &sent,

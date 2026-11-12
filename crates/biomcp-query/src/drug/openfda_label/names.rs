@@ -59,7 +59,14 @@ pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome
         && let Some(group) = NameGroup::new(&saved.names, query.indication())
         && let Some(source) = out.sources.first_mut()
     {
-        source.term = group.term(NameStep::Names).parse().ok();
+        source.term = match group.term(NameStep::Names).parse() {
+            Ok(term) => Some(term),
+            // The selector was built from checked names, so only a local fault reaches this.
+            Err(_) => {
+                out.local = Some(biomcp_fetch::CacheError::Snapshot.into());
+                None
+            }
+        };
     }
     widen::finish(query, saved, SEARCHED, out);
 }

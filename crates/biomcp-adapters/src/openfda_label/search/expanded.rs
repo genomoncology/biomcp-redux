@@ -117,12 +117,29 @@ pub fn search_expanded(
     selected: Option<NameStep>,
 ) -> (Search, NameStep) {
     let found = |step: NameStep, page: Result<super::Page, RequestError>| {
-        let free_text = if step == NameStep::Names {
-            None
-        } else {
-            group.term(step).parse().ok()
+        if step == NameStep::Names {
+            return (
+                Search {
+                    page,
+                    free_text: None,
+                },
+                step,
+            );
+        }
+        let search = match group.term(step).parse() {
+            Ok(term) => Search {
+                page,
+                free_text: Some(term),
+            },
+            Err(_) => Search {
+                page: Err(biomcp_fetch::bad_reply(
+                    biomcp_types::Source::OpenfdaLabel,
+                    Some(200),
+                )),
+                free_text: None,
+            },
         };
-        (Search { page, free_text }, step)
+        (search, step)
     };
     if let Some(step) = selected {
         return found(step, group.page(leg, step, limit, offset));
