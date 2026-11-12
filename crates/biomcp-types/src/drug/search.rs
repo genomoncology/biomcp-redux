@@ -350,6 +350,10 @@ fn validate_names(query: &DrugSearch) -> Result<(), QueryInvalid> {
 }
 
 impl DrugSearch {
+    /// Whether the caller asked for the typed name only.
+    pub fn exact_term(&self) -> bool {
+        self.0.exact_term
+    }
     /// Whether this search takes the typed name together with the drug's other names, as the
     /// widening sources do unless the caller asked for the typed name only.
     pub fn widens_drug_names(&self) -> bool {

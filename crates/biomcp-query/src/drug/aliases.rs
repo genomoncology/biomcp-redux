@@ -11,7 +11,8 @@ use biomcp_types::{
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut out = search_spelling(cx, query);
-    if query.offset() != 0 || !zero(&out, query.source()) {
+    // --exact-term searches the typed text only, so no other source's name stands in for it.
+    if query.exact_term() || query.offset() != 0 || !zero(&out, query.source()) {
         return out;
     }
     let Some(input) = query.query() else {
