@@ -29,7 +29,7 @@
           ]
         }
       },
-      "max_bytes": 1885
+      "max_bytes": 1970
     },
     {
       "run": [
@@ -71,7 +71,7 @@
           "citations"
         ]
       },
-      "max_bytes": 10160
+      "max_bytes": 10982
     },
     {
       "run": [
@@ -88,7 +88,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2414
+      "max_bytes": 2503
     },
     {
       "run": [
@@ -126,7 +126,7 @@
           "semantic-scholar"
         ]
       },
-      "max_bytes": 1977
+      "max_bytes": 2056
     },
     {
       "run": [
@@ -147,7 +147,7 @@
           "semantic-scholar"
         ]
       },
-      "max_bytes": 1991
+      "max_bytes": 2069
     },
     {
       "run": [

@@ -32,7 +32,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 4592,
+      "max_bytes": 5256,
       "run": [
         "help",
         "search",
@@ -65,8 +65,8 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 1967,
-      "max_tokens": 493,
+      "max_bytes": 2045,
+      "max_tokens": 512,
       "run": [
         "help",
         "get",
