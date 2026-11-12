@@ -212,7 +212,7 @@ pub use response::{
     DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
     DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
     DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
-    DiagnosticSupplements, GtrCard, GtrHeader, GtrNativeStatus,
+    DiagnosticSupplements, GtrCard, GtrHeader, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{

@@ -1,6 +1,7 @@
 # 0854 — gtr-test-name-matches-whole-words
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: db761916e83ceeff8e423467d6b47c33ca3b5298
 
 Milestone: 7
 
