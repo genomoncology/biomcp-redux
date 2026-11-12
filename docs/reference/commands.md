@@ -3433,6 +3433,14 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --disease <disease>
+          Disease
+          CIViC disease name text; CIViC matches it natively against evidence and assertion diseases.
+
+      --drug <drug>
+          Drug
+          CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies.
+
       --evidence-level <evidence_level>...
           A–E; help get variant
           A–E
@@ -3446,25 +3454,25 @@ Options:
       --limit <limit>
           Candidate rows per page; more remain reachable through typed next commands.
 
-      --offset <offset>
-          Candidate rows to skip in source order.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --resolver <resolver>
-          Resolver; help get variant
-          Resolver.
-          Resolver for reference-qualified notation; never repairs the input locally.
-
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --offset <offset>
+          Candidate rows to skip in source order.
+
+      --resolver <resolver>
+          Resolver; help get variant
+          Resolver.
+          Resolver for reference-qualified notation; never repairs the input locally.
 
       --section-limit <section_limit>
           Rows per named source section page; omitted uses the native source default.
@@ -3491,6 +3499,10 @@ Claims
 Source CIViC claim collection within the selected profile.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer. Example: --civic-profile 12. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--disease`: Disease
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string. Example: --disease <disease> (syntax; replace the placeholder with your retained value). Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--drug`: Drug
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string. Example: --drug <drug> (syntax; replace the placeholder with your retained value). Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get variant
 A–E
 Source CIViC evidence levels; repeat to include several levels.

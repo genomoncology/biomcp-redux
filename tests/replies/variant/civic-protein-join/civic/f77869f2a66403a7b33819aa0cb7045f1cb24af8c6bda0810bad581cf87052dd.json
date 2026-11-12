@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "6bfda00b85e7f911d5d9576e381bfd9ce5177d44dee37dc9be9e8c942b4a10c2"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794520328,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 84,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"molecularProfiles":{"totalCount":2,"pageInfo":{"hasNextPage":true,"endCursor":"MQ"},"nodes":[{"id":411,"name":"EGFR C797S","rawName":"#VID415","link":"/molecular-profiles/411","isComplex":false,"variants":[{"id":415,"name":"C797S","link":"/variants/415","feature":{"id":19,"name":"EGFR"},"alleleRegistryId":"CA16602785","hgvsDescriptions":["NC_000007.13:g.55249091T\u003eA","ENST00000275493.2:c.2389T\u003eA","NM_005228.4:c.2389T\u003eA","NP_005219.2:p.Cys797Ser"]}],"evidenceItems":{"totalCount":7,"pageInfo":{"hasNextPage":true,"endCursor":"Mg"},"nodes":[{"id":964,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"B","evidenceDirection":"SUPPORTS","significance":"RESISTANCE","disease":{"name":"Lung Non-small Cell Carcinoma","doid":"3908"},"therapies":[{"name":"Osimertinib"}],"therapyInteractionType":null,"source":{"citationId":"25939061","sourceType":"PUBMED"}},{"id":8028,"status":"SUBMITTED","evidenceType":"PREDICTIVE","evidenceLevel":"D","evidenceDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","disease":{"name":"Lung Non-small Cell Carcinoma","doid":"3908"},"therapies":[{"name":"Cetuximab"},{"name":"Brigatinib"}],"therapyInteractionType":"COMBINATION","source":{"citationId":"28287083","sourceType":"PUBMED"}}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}]}}}
+      }
+    }
+  ]
+}

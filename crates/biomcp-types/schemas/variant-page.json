@@ -1264,6 +1264,7 @@
       "description": "Identity strength of a CIViC profile lookup.",
       "enum": [
         "exact",
+        "protein",
         "candidate"
       ],
       "type": "string"
@@ -7329,6 +7330,28 @@
             "integer",
             "null"
           ]
+        },
+        "disease": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases."
+        },
+        "drug": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies."
         },
         "evidence_level": {
           "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.",

@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "civic",
+  "url": "https://civicdb.org/api/graphql",
+  "post": {
+    "request_content_type": "application/json",
+    "request_body_sha256": "febde299980780448385c768cdd23285968f47962a18ea4a634d769656304a1a"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794520328,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 81,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"data":{"molecularProfiles":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":"MQ"},"nodes":[{"id":1482,"name":"EGFR C797Y","rawName":"#VID1574","link":"/molecular-profiles/1482","isComplex":false,"variants":[{"id":1574,"name":"C797Y","link":"/variants/1574","feature":{"id":19,"name":"EGFR"},"alleleRegistryId":"CA367578897","hgvsDescriptions":["ENST00000275493.2:c.2390G\u003eA","NM_005228.3:c.2390G\u003eA","NC_000007.13:g.55249092G\u003eA","NP_005219.2:p.Cys797Tyr"]}],"evidenceItems":{"totalCount":1,"pageInfo":{"hasNextPage":false,"endCursor":"MQ"},"nodes":[{"id":4658,"status":"ACCEPTED","evidenceType":"PREDICTIVE","evidenceLevel":"D","evidenceDirection":"SUPPORTS","significance":"SENSITIVITYRESPONSE","disease":{"name":"Cancer","doid":"162"},"therapies":[{"name":"Erlotinib"}],"therapyInteractionType":null,"source":{"citationId":"20942962","sourceType":"PUBMED"}}]},"assertions":{"totalCount":0,"pageInfo":{"hasNextPage":false,"endCursor":null},"nodes":[]}}]}}}
+      }
+    }
+  ]
+}
