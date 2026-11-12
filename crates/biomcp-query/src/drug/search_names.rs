@@ -24,6 +24,10 @@ pub(crate) struct Resolved {
     pub names: Vec<Text>,
     /// A lookup failed and none gave names, so the search may be missing names.
     pub failed: bool,
+    /// Why the term stayed as typed, as a short phrase, when a lookup did not settle it.
+    pub unsettled: Option<&'static str>,
+    /// Each stated name left out, as `name (reason)`, and counts past a limit.
+    pub left_out: Vec<String>,
 }
 
 enum Found {
@@ -119,8 +123,10 @@ pub(crate) fn resolve<'a>(
                 record_evidence(out, evidence, input, &listed, message);
                 out.problems.extend(problems);
                 return Resolved {
+                    left_out: kept.left_out(),
                     names: kept.names,
                     failed: false,
+                    unsettled: None,
                 };
             }
             Found::Ambiguous(evidence) => ambiguous = ambiguous.or(Some(evidence)),
@@ -153,6 +159,8 @@ fn unexpanded(
         return Resolved {
             names: Vec::new(),
             failed: true,
+            unsettled: Some("name lookup unfinished"),
+            left_out: Vec::new(),
         };
     }
     if let Some(evidence) = ambiguous {
@@ -163,6 +171,8 @@ fn unexpanded(
         return Resolved {
             names: typed,
             failed: false,
+            unsettled: Some("name fits several drugs"),
+            left_out: Vec::new(),
         };
     }
     Resolved::default()
@@ -395,20 +405,37 @@ fn record_evidence(
     }
 }
 
-/// Take the lookups' name notices off their sources, so the searched source can carry the one
-/// notice that says what was searched.
-pub(crate) fn take_messages(sources: &mut [SourceOutcome]) -> Vec<String> {
-    let mut messages = Vec::new();
-    for source in sources {
-        source.notices.retain(|notice| match notice {
-            SourceNotice::DrugNameSearch { message, .. } => {
-                messages.push(message.to_string());
-                false
-            }
-            _ => true,
-        });
+/// One compact disclosure for a search that widened its names: how the names were searched, why
+/// the term stayed as typed, then each stated name left out with its short reason.
+pub(crate) fn compact(
+    searched: &str,
+    (widened, rejected): (bool, bool),
+    unsettled: &[String],
+    left_out: &[String],
+) -> String {
+    let mut parts: Vec<String> = Vec::new();
+    if rejected {
+        parts.push("provider rejected the other names; typed only".into());
+    } else if widened {
+        parts.push(searched.into());
+    } else if unsettled.is_empty() {
+        parts.push("no other names".into());
     }
-    messages
+    if !rejected {
+        parts.extend(unsettled.iter().map(|note| format!("{note}; typed only")));
+        parts.extend(left_out.iter().cloned());
+    }
+    parts.join("; ")
+}
+
+/// Drop the lookups' name notices from their sources, so the searched source can carry the one
+/// notice that says what was searched.
+pub(crate) fn drop_notices(sources: &mut [SourceOutcome]) {
+    for source in sources {
+        source
+            .notices
+            .retain(|notice| !matches!(notice, SourceNotice::DrugNameSearch { .. }));
+    }
 }
 
 /// Keep disabled article providers and exact terms outside drug-name resolution.

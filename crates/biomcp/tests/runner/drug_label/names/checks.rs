@@ -274,7 +274,7 @@ pub(super) fn refused() -> Check {
         || selector(&first)?.contains("Brand name")
         || !first
             .to_string()
-            .contains("openfda-label rejected the query holding the drug's other names")
+            .contains("provider rejected the other names; typed only")
     {
         return Err(format!(
             "refused widening did not fall back to the typed name {first}"

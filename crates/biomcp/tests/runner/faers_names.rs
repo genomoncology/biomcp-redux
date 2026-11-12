@@ -288,7 +288,7 @@ fn bounds() -> Check {
         let reply = invoke(&env, args(true), 0)?;
         if query(&reply)?.len() > 4096
             || mode == 4 && query(&reply)?.contains("Long alias")
-            || mode == 4 && !reply.to_string().contains("Left out 1 more name ")
+            || mode == 4 && !reply.to_string().contains("1 past query size")
             || mode == 5 && !query(&reply)?.contains(r#"Brand \"quoted\" \\name"#)
         {
             return Err(format!(
@@ -381,11 +381,10 @@ fn provider_names() -> Check {
         || UNFIT
             .iter()
             .any(|name| query(&reply).is_ok_and(|q| q.contains(name)))
-        || !text.contains("Left out 4 of 6 names the provider cannot search")
-        || !text.contains("(non-ASCII characters)")
-        || !text.contains("(markup or an HTML entity)")
-        || !text.contains("(names a component of another product)")
-        || !text.contains("(a bracketed qualifier)")
+        || !text.contains("skipped non-ascii: Typed drüg")
+        || !text.contains("skipped markup: Brand&reg;")
+        || !text.contains("skipped component of another product: Typed drug component")
+        || !text.contains("skipped bracketed: Brand (typed drug)")
     {
         return Err(format!(
             "unfit names reached FAERS or went unlisted: {reply}"
@@ -399,7 +398,7 @@ fn provider_names() -> Check {
         || reply.pointer("/page/total") != Some(&json!(2))
         || !reply
             .to_string()
-            .contains("FAERS rejected the query holding the drug's other names")
+            .contains("provider rejected the other names; typed only")
     {
         return Err(format!(
             "refused widening did not fall back to the typed name: {reply}"

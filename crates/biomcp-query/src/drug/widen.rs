@@ -12,9 +12,10 @@ pub(super) struct Saved<S> {
     pub(super) names: Vec<Text>,
     sources: Vec<biomcp_types::SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
-    /// What the name lookups said, for the one notice on the searched source.
-    found: Vec<String>,
-    omitted: usize,
+    /// Why the typed name stayed as typed, for the one notice on the searched source.
+    unsettled: Vec<String>,
+    /// Each stated name left out with its short reason, for the same notice.
+    left_out: Vec<String>,
     /// The discovery step chosen on the first page, for sources with more than one.
     pub(super) step: Option<S>,
     /// The provider refused the widened request, so the search kept the typed name alone.
@@ -25,7 +26,6 @@ impl<S> Saved<S> {
     /// Keep the typed name alone for this and later pages, after the provider refused the group.
     pub(super) fn reject(&mut self, query: &DrugSearch) {
         self.names = query.query().cloned().into_iter().collect();
-        self.omitted = 0;
         self.rejected = true;
         self.step = None;
     }
@@ -99,9 +99,13 @@ fn resolve<'a, S>(
     let mut out = status::empty(ReplyData::PoolError { mismatch: false });
     let mut names: Vec<Text> = query.query().cloned().into_iter().collect();
     let mut omitted = 0;
+    let mut unsettled = Vec::new();
+    let mut left_out = Vec::new();
     search_names::bounded(deadline, |lookup| {
         if let Some(input) = query.query() {
             let found = search_names::resolve(cx, input, &mut out, lookup, search_names::openfda);
+            unsettled.extend(found.unsettled.map(str::to_owned));
+            left_out.extend(found.left_out);
             for name in found.names {
                 if names
                     .iter()
@@ -119,13 +123,17 @@ fn resolve<'a, S>(
             }
         }
     });
-    let found = search_names::take_messages(&mut out.sources);
+    // The one notice on the searched source says what the lookups found, so theirs are dropped.
+    search_names::drop_notices(&mut out.sources);
+    if omitted != 0 {
+        left_out.push(format!("{omitted} past query size"));
+    }
     Saved {
         names,
         sources: out.sources,
         problems: out.problems,
-        found,
-        omitted,
+        unsettled,
+        left_out,
         step: None,
         rejected: false,
     }
@@ -184,7 +192,13 @@ pub(super) fn finish<S>(query: &DrugSearch, saved: Saved<S>, searched: &str, out
         outcome.notices.push(SourceNotice::DrugNameSearch {
             input: input.clone(),
             names: saved.names.clone().into(),
-            message: message(&saved, query, searched).into(),
+            message: search_names::compact(
+                searched,
+                (saved.names.len() > 1, saved.rejected),
+                &saved.unsettled,
+                &saved.left_out,
+            )
+            .into(),
         });
     }
     // The searched source's own outcome stands; a lookup that read it stays out of the reply.
@@ -195,34 +209,4 @@ pub(super) fn finish<S>(query: &DrugSearch, saved: Saved<S>, searched: &str, out
             .filter(|lookup| lookup.source != source),
     );
     out.problems.extend(saved.problems);
-}
-
-fn message<S>(saved: &Saved<S>, query: &DrugSearch, searched: &str) -> String {
-    let mut message = if saved.rejected {
-        format!(
-            "{} rejected the query holding the drug's other names; searched the typed name only.",
-            query.source()
-        )
-    } else if saved.names.len() > 1 {
-        searched.to_owned()
-    } else if saved.found.is_empty() {
-        "Found no other names to search; searched the typed name.".to_owned()
-    } else {
-        "Searched the typed name.".to_owned()
-    };
-    if !saved.rejected {
-        for found in &saved.found {
-            message.push(' ');
-            message.push_str(found);
-        }
-        if saved.omitted != 0 {
-            let noun = if saved.omitted == 1 { "name" } else { "names" };
-            message.push_str(&format!(
-                " Left out {} more {noun} to keep the query within its size limit.",
-                saved.omitted
-            ));
-        }
-    }
-    message.push_str(" Use --exact-term to search only the typed name.");
-    message
 }

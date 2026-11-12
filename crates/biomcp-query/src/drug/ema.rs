@@ -60,8 +60,8 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 
-const SEARCHED: &str = "Searched each of these names in the EMA medicines list and kept each \
-    medicine once; the total counts medicines, not a sum per name.";
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "each name; medicines once";
 
 /// Each name's medicines in turn, the typed name's first, each medicine once by its EMA ID.
 fn union(

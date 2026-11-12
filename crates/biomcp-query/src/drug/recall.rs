@@ -101,8 +101,8 @@ fn record_steps(fresh: bool, items: &[biomcp_types::DrugRecallHeader], out: &mut
     }
 }
 
-const SEARCHED: &str = "Searched these names in one recall query; the total is openFDA's own \
-    count of matching recall records, not a sum per name.";
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "one recall query";
 
 /// Search the name group; after a refusal, search the typed name alone and keep it.
 fn widened_page(

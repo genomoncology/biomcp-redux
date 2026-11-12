@@ -12,10 +12,12 @@ struct Saved {
     names: Vec<Text>,
     sources: Vec<biomcp_types::SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
-    /// What the name lookups said, for the one notice on FAERS.
+    /// Why a typed name stayed as typed, for the one notice on FAERS.
     #[serde(default)]
-    found: Vec<String>,
-    omitted: usize,
+    unsettled: Vec<String>,
+    /// Each stated name left out with its short reason, for the same notice.
+    #[serde(default)]
+    left_out: Vec<String>,
     /// FAERS refused the query holding the other names, so only the typed names were searched.
     #[serde(default)]
     rejected: bool,
@@ -86,7 +88,6 @@ fn typed_only<'a>(
     };
     *result = super::search(cx, &native, sent, deadline);
     saved.names = typed;
-    saved.omitted = 0;
     saved.rejected = true;
 }
 
@@ -120,9 +121,13 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
     let mut out = status::empty(ReplyData::PoolError { mismatch: false });
     let mut names = typed(query);
     let mut omitted = 0;
+    let mut unsettled = Vec::new();
+    let mut left_out = Vec::new();
     search_names::bounded(deadline, |lookup| {
         for input in query.text().into_iter().chain(query.drug()) {
             let found = search_names::resolve(cx, input, &mut out, lookup, search_names::openfda);
+            unsettled.extend(found.unsettled.map(str::to_owned));
+            left_out.extend(found.left_out);
             for name in found.names {
                 if names
                     .iter()
@@ -140,13 +145,17 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
             }
         }
     });
-    let found = search_names::take_messages(&mut out.sources);
+    // The one notice on FAERS says what the lookups found, so theirs are dropped.
+    search_names::drop_notices(&mut out.sources);
+    if omitted != 0 {
+        left_out.push(format!("{omitted} past query size"));
+    }
     Saved {
         names,
         sources: out.sources,
         problems: out.problems,
-        found,
-        omitted,
+        unsettled,
+        left_out,
         rejected: false,
     }
 }
@@ -157,32 +166,12 @@ fn disclose(query: &AdverseEventSearch, saved: &Saved, out: &mut Outcome) {
         return;
     };
     let widened = saved.names.len() > typed(query).len();
-    let mut message = if saved.rejected {
-        "FAERS rejected the query holding the drug's other names; searched the typed names only."
-            .to_owned()
-    } else if widened {
-        "Searched these names in one FAERS query; the total is FAERS's own count of matching \
-         reports, not a sum per name."
-            .to_owned()
-    } else if saved.found.is_empty() {
-        "Found no other names to search; searched the typed names.".to_owned()
-    } else {
-        "Searched the typed names.".to_owned()
-    };
-    if !saved.rejected {
-        for found in &saved.found {
-            message.push(' ');
-            message.push_str(found);
-        }
-        if saved.omitted != 0 {
-            let noun = if saved.omitted == 1 { "name" } else { "names" };
-            message.push_str(&format!(
-                " Left out {} more {noun} to keep the FAERS query within its size limit.",
-                saved.omitted
-            ));
-        }
-    }
-    message.push_str(" Use --exact-term to search only the typed names.");
+    let message = search_names::compact(
+        "one FAERS query",
+        (widened, saved.rejected),
+        &saved.unsettled,
+        &saved.left_out,
+    );
     if let Some(source) = out
         .sources
         .iter_mut()

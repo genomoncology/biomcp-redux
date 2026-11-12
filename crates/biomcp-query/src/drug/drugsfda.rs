@@ -11,9 +11,8 @@ use biomcp_types::{
 mod approvals;
 mod letter;
 mod purpose;
-const SEARCHED: &str = "Searched these names in one Drugs@FDA query, at the exact or word step \
-    the typed name reaches; the total is openFDA's own count of matching applications, not a sum \
-    per name.";
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "one query at the typed name's step";
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(

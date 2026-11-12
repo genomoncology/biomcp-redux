@@ -6,8 +6,8 @@ use biomcp_types::DrugSearch;
 
 pub(super) type Saved = widen::Saved<NameStep>;
 
-const SEARCHED: &str = "Searched these names in one label query, exact names in any letter case \
-    first; the total is openFDA's own count of matching label sets, not a sum per name.";
+/// How the names were searched, for the one notice.
+const SEARCHED: &str = "one label query, exact names first";
 
 pub(super) fn prepare<'a>(
     cx: &Ctx<'a>,

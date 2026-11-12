@@ -27,7 +27,7 @@
           "BMS-562247-01",
           "Apixaban accord"
         ],
-        "/sources/0/notices/1/message": "Searched these names in one FAERS query; the total is FAERS's own count of matching reports, not a sum per name. Searched the names stated by mychem record QNZCBYKSOIHPEH-UHFFFAOYSA-N. Left out 2 of 9 names the provider cannot search: \"apixabán\" (non-ASCII characters), \"Eliquis&reg;\" (markup or an HTML entity). Use --exact-term to search only the typed names."
+        "/sources/0/notices/1/message": "one FAERS query; skipped non-ascii: apixabán; skipped markup: Eliquis&reg;"
       }
     },
     {
@@ -52,7 +52,7 @@
           "NSC-758927",
           "Prexxartan"
         ],
-        "/sources/0/notices/1/message": "Searched these names in one FAERS query; the total is FAERS's own count of matching reports, not a sum per name. Searched the names stated by chembl record CHEMBL1069. Left out 13 of 19 names the provider cannot search: \"Valsartan component of agsav301\" (names a component of another product), \"Valsartan component of byvalson\" (names a component of another product), \"Valsartan component of copalia\" (names a component of another product), \"Valsartan component of copalia-hct\" (names a component of another product), \"Valsartan component of dafiro\" (names a component of another product), \"Valsartan component of dafiro-hct\" (names a component of another product), \"Valsartan component of diovan hct\" (names a component of another product), \"Valsartan component of entresto\" (names a component of another product), \"Valsartan component of exforge\" (names a component of another product), \"Valsartan component of exforge hct\" (names a component of another product), \"Valsartan component of imprida\" (names a component of another product), \"Valsartan component of imprida-hct\" (names a component of another product), \"Valsartan component of valturna\" (names a component of another product). Use --exact-term to search only the typed names."
+        "/sources/0/notices/1/message": "one FAERS query; skipped component of another product: Valsartan component of agsav301, Valsartan component of byvalson, Valsartan component of copalia, Valsartan component of copalia-hct, Valsartan component of dafiro, Valsartan component of dafiro-hct, Valsartan component of diovan hct, Valsartan component of entresto, Valsartan component of exforge, Valsartan component of exforge hct, Valsartan component of imprida, Valsartan component of imprida-hct, Valsartan component of valturna"
       }
     }
   ]

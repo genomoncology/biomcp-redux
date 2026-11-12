@@ -27,7 +27,7 @@
           "BMS-562247-01",
           "Apixaban accord"
         ],
-        "/sources/0/notices/1/message": "Searched these names in one label query, exact names in any letter case first; the total is openFDA's own count of matching label sets, not a sum per name. Searched the names stated by mychem record QNZCBYKSOIHPEH-UHFFFAOYSA-N. Left out 2 of 9 names the provider cannot search: \"apixabán\" (non-ASCII characters), \"Eliquis&reg;\" (markup or an HTML entity). Use --exact-term to search only the typed name."
+        "/sources/0/notices/1/message": "one label query, exact names first; skipped non-ascii: apixabán; skipped markup: Eliquis&reg;"
       }
     },
     {
