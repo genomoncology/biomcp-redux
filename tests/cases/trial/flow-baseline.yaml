@@ -42,7 +42,7 @@
         "/result/items/0/sections/baseline/data/items/5/data/title": "Age, Continuous",
         "/result/items/0/sections/baseline/data/total": 8
       },
-      "max_bytes": 1
+      "max_bytes": 6289
     },
     {
       "run": ["get", "trial", "NCT01844505", "flow", "baseline"],
