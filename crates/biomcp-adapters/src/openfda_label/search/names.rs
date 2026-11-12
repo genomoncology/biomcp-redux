@@ -55,9 +55,10 @@ pub(super) fn union(
             .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200)))?;
         let rest = candidates(leg, &rest_selector, limit - taken, skip)?;
         taken += rest.window.received();
+        let rest_total = rest.window.total();
         rows.extend(rest.window.rows);
         problems.extend(rest.problems);
-        rest.window.total()
+        rest_total
     } else {
         // A full exact page still needs the word-only total; its one probe row is not shown.
         candidates(leg, &rest_selector, 1, 0)?.window.total()
