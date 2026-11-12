@@ -1,0 +1,48 @@
+{
+  "feature": "search-fields",
+  "live_check": "synthetic local TLS response",
+  "story": "Article rows have no required fields, so a caller who keeps only each row's header still gets the row's identifier key; the PMID beside it is dropped.",
+  "replay": "article/search/synthetic-four-term-short",
+  "verified": "Reuses the synthetic one-item PubMed pool (PMID 33123537); narrowing changes no source request.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "words",
+        "--gene",
+        "NF2",
+        "--variant",
+        "K322",
+        "--disease",
+        "meningioma",
+        "--drug",
+        "drug words",
+        "--author",
+        "author words",
+        "--journal",
+        "journal words",
+        "--since",
+        "2000",
+        "--until",
+        "2020",
+        "--type",
+        "review",
+        "--limit",
+        "7",
+        "--fields",
+        "header"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/key/namespace": "pubmed",
+        "/result/items/0/key/id": "33123537",
+        "/result/items/0": {
+          "omits": [
+            "pmid"
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -36,7 +36,11 @@ def refresh(binary, env):
             if step.get("run", [None])[0] != "help" or step.get("exit", 0) != 0:
                 continue
             raw = subprocess.check_output([binary, "--offline", *step["run"]], env=env)
-            output = json.loads(raw)
+            try:
+                output = json.loads(raw)
+            except ValueError:
+                # A Markdown help step keeps its text checks; only its limits refresh.
+                output = None
             for limit, actual in [("max_bytes", len(raw)), ("max_tokens", math.ceil(len(raw) / 4))]:
                 for limits in (step, step.get("expect", {}).get("", {})):
                     if isinstance(limits, dict) and limit in limits:
@@ -44,6 +48,8 @@ def refresh(binary, env):
                         changed |= limits[limit] != measured
                         limits[limit] = measured
             for key, expected in list(step.get("expect", {}).items()):
+                if output is None:
+                    break
                 if (key.endswith("/description") and isinstance(expected, str)) or key.endswith("/examples"):
                     actual = pointer(output, key)
                     if isinstance(expected, dict) and "count" in expected:

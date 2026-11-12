@@ -1,0 +1,68 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%28%22Z-0100-2025%22%20OR%20%22Z-0101-2025%22%20OR%20%22Z-0102-2025%22%20OR%20%22Z-0103-2025%22%20OR%20%22Z-0104-2025%22%20OR%20%22Z-0105-2025%22%20OR%20%22Z-0106-2025%22%20OR%20%22Z-0107-2025%22%20OR%20%22Z-0108-2025%22%20OR%20%22Z-0109-2025%22%29&limit=10&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1792921798,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "results": {
+              "skip": 0,
+              "limit": 10,
+              "total": 10
+            }
+          },
+          "results": [
+            {
+              "recall_number": "Z-0100-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0101-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0102-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0103-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0104-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0105-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0106-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0107-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0108-2025",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-0109-2025",
+              "classification": "Class II"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

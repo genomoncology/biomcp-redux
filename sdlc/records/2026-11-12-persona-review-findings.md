@@ -43,6 +43,7 @@ November 12, 2026. Bench ticket 0039 reviewed the eleven blind-graded persona ru
 - rs121913529 resolved to G12V, not G12D (patient-navigator log.md:634-636).
 - Trial rows show no sponsor though 0826 was in the build (msl log.md:97).
 - CIViC's first page ignores the limit (dx-lab-director log.md:62-64); folded into 0862.
+- 510(k) and other device searches keep a 2 MiB reply limit (`crates/biomcp-adapters/src/device_search.rs:64`). 0864 found single recall records up to 9.9 MB and raised only the recall limit; its reviewer flagged this as the same risk. No failure seen yet.
 
 ## Missing sources
 

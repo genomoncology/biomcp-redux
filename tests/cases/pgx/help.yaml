@@ -18,7 +18,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.",
+        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.\nFields: clinpgxlevel, cpiclevel, drugid, drugname, genesymbol, guidelinename, guidelineurl, pairid, pgxtesting, pmids, provisional, usedforrecommendation. Choose some with --fields a,b (typed: fields list); always kept: genesymbol, pairid.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
@@ -33,8 +33,8 @@
           "cpic"
         ]
       },
-      "max_bytes": 1850,
-      "max_tokens": 463
+      "max_bytes": 2213,
+      "max_tokens": 554
     },
     {
       "run": [
@@ -78,7 +78,7 @@
           "clinpgx"
         ]
       },
-      "max_bytes": 4242
+      "max_bytes": 4476
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

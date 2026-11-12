@@ -175,15 +175,37 @@ pub(super) fn parse(
         let section = action.and_then(|word| refusal::section(root, placed, word, &fields));
         return Some(Err(rejected("action", &actions, section, catalog)));
     };
-    if let Some(key) = fields.keys().find(|key| *key != "action" && *key != action) {
+    if let Some(key) = fields
+        .keys()
+        .find(|key| !matches!(key.as_str(), "action" | "fields") && *key != action)
+    {
         let valid = [String::from("action"), action.to_owned()];
         return Some(Err(rejected(key, &valid, None, catalog)));
     }
+    let chosen = match fields.get("fields").map(chosen_fields) {
+        Some(Some(chosen)) => chosen,
+        None => None,
+        Some(None) => return Some(Err(rejected("fields", &[], None, catalog))),
+    };
     let path = crate::grammar::command_paths()
         .into_iter()
         .find(|&(verb, entity, _)| name(verb, entity) == command)?;
     let values = fields.get(action).cloned().unwrap_or_else(|| json!({}));
-    command_call(root, path, action, &values, fresh, catalog)
+    let mut call = command_call(root, path, action, &values, fresh, catalog);
+    if let (Some(Ok(call)), Some(chosen)) = (&mut call, chosen) {
+        call.args.insert(0, format!("--fields={chosen}").into());
+    }
+    call
+}
+
+/// A typed `fields` list as one comma-joined option value; none when empty, refused unless text.
+fn chosen_fields(value: &Value) -> Option<Option<String>> {
+    let names = value
+        .as_array()?
+        .iter()
+        .map(|name| name.as_str().filter(|name| !name.contains(',')))
+        .collect::<Option<Vec<_>>>()?;
+    Some((!names.is_empty()).then(|| names.join(",")))
 }
 
 /// Check one action's object against its command's schema and spell its CLI call.

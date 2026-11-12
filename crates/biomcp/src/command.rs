@@ -144,7 +144,10 @@ fn parse_arguments(
                 encoding,
             )?))
         }
-        None => Ok(Ok(parsed)),
+        None => match crate::fields::check(&parsed) {
+            Ok(()) => Ok(Ok(parsed)),
+            Err(error) => Ok(Err(usage_envelope(error, encoding)?)),
+        },
     }
 }
 
@@ -234,15 +237,24 @@ struct ResponseMeta {
     next: Vec<biomcp_types::Step>,
     page: Option<biomcp_types::PageInfo>,
     exit: crate::exit::Status,
+    fields: Vec<String>,
 }
 impl ResponseMeta {
     fn encode<B: biomcp_types::ResponseBody>(
-        self,
+        mut self,
         query: B::Query,
         body: Option<B>,
     ) -> io::Result<Outcome> {
         let (encoding, exit) = (self.encoding, self.exit);
-        encoding.encode(self.envelope(query, body), exit)
+        let fields = std::mem::take(&mut self.fields);
+        let envelope = self.envelope(query, body);
+        if fields.is_empty() {
+            return encoding.encode(envelope, exit);
+        }
+        // Narrowing runs once on the finished reply, before Markdown and the MCP form.
+        let mut value = serde_json::to_value(envelope)?;
+        crate::fields::project(&mut value, &fields)?;
+        encoding.encode(value, exit)
     }
     fn envelope<B: biomcp_types::ResponseBody>(
         self,
@@ -296,6 +308,7 @@ fn finished(
         page: result.page,
         sources: result.sources,
         problems: result.problems,
+        fields: globals.fields.clone(),
     };
     Ok((meta, result.body))
 }

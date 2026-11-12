@@ -2,6 +2,7 @@
 mod command;
 mod config;
 mod exit;
+mod fields;
 mod grammar;
 mod help;
 mod housekeeping;

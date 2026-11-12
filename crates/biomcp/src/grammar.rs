@@ -60,6 +60,8 @@ pub(crate) struct Globals {
     pub(crate) rate_share: biomcp_fetch::RateShare,
     pub(crate) format: Option<Format>,
     pub(crate) disable_sources: Vec<String>,
+    /// Top-level search row fields to keep; empty keeps whole rows.
+    pub(crate) fields: Vec<String>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -343,6 +345,12 @@ fn globals(matches: &clap::ArgMatches) -> Result<Globals, ParseInvalid> {
         config: matches.get_one::<PathBuf>("config").cloned(),
         disable_sources: matches
             .get_many::<String>("disable-sources")
+            .into_iter()
+            .flatten()
+            .cloned()
+            .collect(),
+        fields: matches
+            .get_many::<String>("fields")
             .into_iter()
             .flatten()
             .cloned()

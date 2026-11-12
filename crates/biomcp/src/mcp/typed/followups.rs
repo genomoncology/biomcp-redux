@@ -18,8 +18,13 @@ pub(super) fn project(
         .rev()
     {
         let call = value.pointer(&path).and_then(|step| {
-            let args = without_globals(root, step.get("args")?.as_array()?)?;
+            let words = step.get("args")?.as_array()?;
+            let args = without_globals(root, words)?;
             let mut call = super::summary::translate(root, &args, tools)?;
+            if let Some(chosen) = chosen_fields(words) {
+                let arguments = call.get_mut("arguments")?.as_object_mut()?;
+                arguments.insert("fields".into(), chosen);
+            }
             if let Some(kind) = step.get("kind") {
                 call.as_object_mut()?.insert("kind".into(), kind.clone());
             }
@@ -36,6 +41,20 @@ pub(super) fn project(
     }
     calls.reverse();
     Ok(calls)
+}
+
+/// A carried `--fields=a,b` global becomes the typed call's `fields` list.
+fn chosen_fields(words: &[Value]) -> Option<Value> {
+    let chosen = words
+        .iter()
+        .filter_map(Value::as_str)
+        .find_map(|word| word.strip_prefix("--fields="))?;
+    Some(Value::Array(
+        chosen
+            .split(',')
+            .map(|name| Value::String(name.into()))
+            .collect(),
+    ))
 }
 
 fn without_globals(root: &crate::grammar::Root, args: &[Value]) -> Option<Vec<Value>> {

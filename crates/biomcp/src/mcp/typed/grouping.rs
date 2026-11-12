@@ -140,6 +140,16 @@ fn entity(
         }
         properties.insert((*action).into(), input);
     }
+    // A search action keeps only the named row fields; the help line lists them.
+    if actions
+        .iter()
+        .any(|(_, _, command)| command.path.0 == "search")
+    {
+        properties.insert(
+            "fields".into(),
+            json!({"type":"array","items":{"type":"string"}}),
+        );
+    }
     let sources = actions
         .iter()
         .flat_map(|(_, _, command)| command.sources.iter().cloned())

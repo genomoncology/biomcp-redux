@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 /// Small source-attributed trial discovery record.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(transform = narrowable))]
 pub struct TrialHeader {
     /// Exact registry identity.
     pub nct_id: NctId,
@@ -37,4 +38,16 @@ pub struct TrialHeader {
     /// Publisher's canonical record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
+}
+
+/// Default rows always carry these; a caller's chosen fields may leave them out.
+#[cfg(feature = "schema")]
+fn narrowable(schema: &mut schemars::Schema) {
+    if let Some(required) = schema
+        .get_mut("required")
+        .and_then(|required| required.as_array_mut())
+    {
+        required
+            .retain(|name| !matches!(name.as_str(), Some("conditions" | "interventions" | "url")));
+    }
 }
