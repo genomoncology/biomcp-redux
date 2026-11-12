@@ -1,8 +1,8 @@
 {
   "feature": "variant-civic",
   "live_check": "public",
-  "story": "An allele that CIViC does not register joins the CIViC variant stating the same protein change on the same transcript, marked as a protein-level match, while the exact allele keeps its exact profile.",
-  "verified": "CIViC CC0 https://civicdb.org/releases/licensing and MyVariant public replies recorded 2026-11-12 with biomcp --record for rs2128958701 (EGFR c.2390G>C and c.2390G>A). CIViC registers EGFR C797S under CA16602785 (c.2389T>A). No clinical meaning is inferred.",
+  "story": "An allele that CIViC does not register joins the CIViC variant stating the same protein change on the same transcript, marked as a protein-level match, while the exact allele keeps its exact profile. When neither join can be made, the empty section says why.",
+  "verified": "CIViC CC0 https://civicdb.org/releases/licensing and MyVariant public replies recorded 2026-11-12 with biomcp --record for rs2128958701 (EGFR c.2390G>C and c.2390G>A). CIViC registers EGFR C797S under CA16602785 (c.2389T>A). No clinical meaning is inferred. The bare CA367578899 step posts the same profile request directly; its reply holds no profile.",
   "replay": "variant/civic-protein-join",
   "steps": [
     {
@@ -19,6 +19,25 @@
         "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/next/input": "CA16602785",
         "/result/candidates/1/sections/civic/data/profiles/0/record/id": "1482",
         "/result/candidates/1/sections/civic/data/profiles/0/membership": "exact"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA367578899",
+        "civic",
+        "--disable-sources",
+        "myvariant"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/civic/state": "empty",
+        "/problems/*/field": {
+          "includes": "hgvs_p"
+        },
+        "/problems/*/code": {
+          "includes": "value.unknown"
+        }
       }
     }
   ]

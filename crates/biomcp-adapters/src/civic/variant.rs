@@ -29,7 +29,9 @@ struct Variables<'a> {
 ///
 /// When no CIViC profile carries the requested allele, CIViC variants that state the same
 /// protein change on the same transcript are joined instead, marked by protein membership;
-/// their continuations name CIViC's allele.
+/// their continuations name CIViC's allele. An empty join carries a problem: field `hgvs_p`
+/// when no protein change could be searched, `hgvs_p.civic_protein_search` when the search
+/// found no CIViC variant.
 pub fn variant(
     leg: &Leg<'_>,
     query: &VariantGet,
@@ -50,7 +52,8 @@ pub fn variant(
     if exact.value.page.total > 0 {
         return Ok(exact);
     }
-    for other in super::variant_protein::alleles(leg, candidate, &allele)? {
+    let (searched, others) = super::variant_protein::alleles(leg, candidate, &allele)?;
+    for other in others {
         // Continuations name CIViC's own allele, whose exact join reaches the same profile.
         let other_query = query
             .for_candidate(other.parse().map_err(|_| failure(Reason::BadReply))?)
@@ -65,6 +68,19 @@ pub fn variant(
             return Ok(found);
         }
     }
+    // An empty page alone would read as no CIViC evidence; say how far the join could look.
+    let mut exact = exact;
+    exact.problems.push(biomcp_types::Problem {
+        source: Source::Civic,
+        record: None,
+        field: if searched {
+            "hgvs_p.civic_protein_search"
+        } else {
+            "hgvs_p"
+        }
+        .into(),
+        code: biomcp_types::ProblemCode::ValueUnknown,
+    });
     Ok(exact)
 }
 fn profiles(

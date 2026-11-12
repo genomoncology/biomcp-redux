@@ -48,12 +48,14 @@ struct Change<'a> {
     protein: String,
 }
 
-/// CIViC allele registry IDs, other than `allele`, whose variants state the same change.
+/// Whether any protein change could be searched, and the CIViC allele registry IDs, other
+/// than `allele`, whose variants state the same change. Only the first allele that carries a
+/// profile is used by the caller.
 pub(super) fn alleles(
     leg: &Leg<'_>,
     candidate: &VariantHeader,
     allele: &str,
-) -> Result<Vec<String>, RequestError> {
+) -> Result<(bool, Vec<String>), RequestError> {
     let mut changes: Vec<Change<'_>> = candidate
         .transcripts
         .iter()
@@ -93,7 +95,7 @@ pub(super) fn alleles(
     }
     found.sort();
     found.dedup();
-    Ok(found)
+    Ok((!changes.is_empty(), found))
 }
 /// The CIViC allele when the variant's gene, transcript and protein notation all agree.
 fn states<'a>(node: &'a raw::Member, change: &Change<'_>) -> Option<&'a str> {
