@@ -31,7 +31,7 @@
         "sponsor"
       ],
       "expect": {
-        "/schema": "biomcp.trial-page/16",
+        "/schema": "biomcp.trial-page/17",
         "/status": "complete",
         "/page/total": 22,
         "/sources/*/source": {

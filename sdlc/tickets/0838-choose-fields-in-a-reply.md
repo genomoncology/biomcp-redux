@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-`--fields a,b,c` (comma-separated, repeatable) on any entity search, and a top-level `fields` list beside `action` on each typed entity tool, returns only those top-level keys of each search row, always keeping the row schema's required fields and the whole envelope (so identifiers and source attribution stay). An unknown or dotted name is a usage error listing the row's valid names; paging and sort steps carry the option; `help search <entity>` gains one "Fields:" line; the typed property is bare (no description). Trial rows' `conditions`, `interventions` and `url` become optional (trial-page/15) so trials can narrow. The research `search` and `fetch` tools refuse `fields`. Gets are not covered: `section` narrows them, extended by 0846.
+`--fields a,b,c` (comma-separated, repeatable) on any entity search, and a top-level `fields` list beside `action` on each typed entity tool, returns only those top-level keys of each search row, always keeping the row schema's required fields and the whole envelope (so identifiers and source attribution stay). An unknown or dotted name is a usage error listing the row's valid names; paging and sort steps carry the option; `help search <entity>` gains one "Fields:" line; the typed property is bare (no description). Trial rows' `conditions`, `interventions` and `url` become optional (trial-page/17, after 0856 took /16; trial-header/6) so trials can narrow. The research `search` and `fetch` tools refuse `fields`. Gets are not covered: `section` narrows them, extended by 0846.
 
 Design review 2026-11-11 (PM accepted): the original "any search or get" and "narrowing only removes optional fields" did not hold. A get's top level is the envelope, and trial rows' required fields are their bulkiest (narrowing a live 3-row trial search kept 95% of its bytes until those three became optional, then 67%). The opt-in option mainly helps clients with no shell, such as Amazon Quick; a smaller default envelope is ticket 0849.
 
@@ -25,11 +25,11 @@ Agents trim replies with `jq` or curl today; the baseline's default replies are 
 
 ## Keeps
 
-- Keeps: default replies are unchanged; schemas are unchanged except trial-page/15; narrowing keeps every required field. Projection runs once on the finished JSON reply after the cache, before Markdown and the MCP reply form.
+- Keeps: default replies are unchanged; schemas are unchanged except trial-page/17 and trial-header/6; narrowing keeps every required field and every identifier field. Projection runs once on the finished JSON reply after the cache, before Markdown and the MCP reply form.
 
 ## Defers
 
-- Defers: fields on gets, after 0846 is measured; dotted paths; CSV export builds on this in 1.1.
+- Defers: fields on gets, after 0846 is measured; dotted paths; CSV export builds on this in 1.1. The published Rust `TrialHeader` still requires `conditions`, `interventions` and `url`, so a narrowed trial reply validates against its schema but does not read into that type; follow up if a library user needs it (PM, 2026-11-12).
 
 ## Changes
 
