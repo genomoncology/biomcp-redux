@@ -91,9 +91,13 @@ impl NameGroup {
         }
     }
 
-    /// Whether any brand or generic name matches, exactly or by word.
-    fn names_match(&self, leg: &Leg<'_>) -> Result<bool, RequestError> {
-        let selector = format!("({}) OR ({})", self.exact, self.words);
+    /// Whether this group finds any label at a step, from a one-row request.
+    fn finds(&self, leg: &Leg<'_>, step: NameStep) -> Result<bool, RequestError> {
+        let selector = match step {
+            NameStep::Names => format!("({}) OR ({})", self.exact, self.words),
+            NameStep::Indication => self.indication.clone(),
+            NameStep::Text => self.scoped(&self.text),
+        };
         Ok(candidates(leg, &selector, 1, 0)?
             .window
             .total()
@@ -150,7 +154,7 @@ pub fn search_expanded(
         Ok(page) => page.window.total().is_some_and(|total| total > 0),
     };
     if names_found {
-        match typed.map_or(Ok(true), |typed| typed.names_match(leg)) {
+        match typed.map_or(Ok(true), |typed| typed.finds(leg, NameStep::Names)) {
             Ok(true) => return found(NameStep::Names, page),
             Ok(false) => {}
             Err(error) => return found(NameStep::Names, Err(error)),
@@ -161,8 +165,18 @@ pub fn search_expanded(
         Err(_) => true,
         Ok(page) => page.window.total().is_some_and(|total| total > 0),
     };
+    // Other names' indication hits stand only where the typed name's own search stops there too;
+    // otherwise it reaches label text, and so does the group.
     if settled {
-        return found(NameStep::Indication, page);
+        let typed_found = match (&page, typed) {
+            (Ok(_), Some(typed)) => typed.finds(leg, NameStep::Indication),
+            _ => Ok(true),
+        };
+        match typed_found {
+            Ok(true) => return found(NameStep::Indication, page),
+            Ok(false) => {}
+            Err(error) => return found(NameStep::Indication, Err(error)),
+        }
     }
     found(
         NameStep::Text,

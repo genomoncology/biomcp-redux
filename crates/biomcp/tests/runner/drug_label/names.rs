@@ -56,8 +56,11 @@ fn setup(mode: u8, extra: Value) -> Result<(Environment, Stub), String> {
             // Every name hit here is an exact hit, so no word-only rows follow them.
             let word_only = selector.contains(" AND NOT ");
             // Mode 7: no label states either name, so only label text matches.
-            let text_only = mode == 7
-                && (selector.contains("openfda.") || selector.contains("indications_and_usage:\""));
+            // Mode 9: as mode 7, except the brand's indication wording matches.
+            let indication = selector.contains("indications_and_usage:\"");
+            let text_only = (mode == 7 || mode == 9)
+                && (selector.contains("openfda.")
+                    || (indication && !(mode == 9 && selector.contains("Brand"))));
             let total = if lookup || word_only || text_only {
                 0
             } else if selector.contains("Brand") {

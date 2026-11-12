@@ -153,6 +153,18 @@ pub(super) fn tier() -> Check {
     {
         return Err("continuation re-resolved names".into());
     }
+    // Only the brand's indication wording matches, so the typed name's own search would still
+    // reach label text, and the widened search must not stop at the brand's indication hits.
+    let (env, stub) = setup(9, json!({}))?;
+    let first = invoke(&env, args(true), 0)?;
+    if selector(&first)?.contains("indications_and_usage")
+        || first.pointer("/page/total") != Some(&json!(2))
+    {
+        return Err(format!(
+            "other names' indication hits replaced the typed name's text step: {first}"
+        ));
+    }
+    stub.finish()?;
     Ok(())
 }
 
