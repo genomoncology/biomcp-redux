@@ -1,0 +1,121 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "feature": "diagnostic-gtr",
+  "story": "A lab director finds GTR tests by part of their name across the whole synced catalog, including tests with no gene or condition link, before counts and paging.",
+  "replay": "diagnostic/gtr-names",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 198,
+      "expect": {
+        "/schema": "biomcp.sync/7",
+        "/result/rows": 10,
+        "/result/duplicate_identities": 1
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "hereditary cancer"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "hereditary cancer"
+      ],
+      "max_bytes": 4080,
+      "expect": {
+        "/schema": "biomcp.diagnostic-page/6",
+        "/query/name": "hereditary cancer",
+        "/page/total": 3,
+        "/page/returned": 3,
+        "/result/items/0/header/id": "GTR000000101.1",
+        "/result/items/0/header/name": "BRCA1 Hereditary Cancer Panel",
+        "/result/items/1/header/id": "GTR000000102.1",
+        "/result/items/1/header/name": "Expanded hereditary CANCER panel",
+        "/result/items/2/identity_status": "conflict",
+        "/result/count_unit": "test-identities"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "Hereditary Cancer",
+        "--limit",
+        "1",
+        "--offset",
+        "1"
+      ],
+      "max_bytes": 2000,
+      "expect": {
+        "/page/total": 3,
+        "/page/returned": 1,
+        "/result/items/0/header/id": "GTR000000102.1"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "cancer panel",
+        "--gene",
+        "BRCA1"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/page/total": 2,
+        "/result/items/0/header/id": "GTR000000101.1",
+        "/result/items/0/matched/kind": "gene",
+        "/result/items/1/identity_status": "conflict"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "no such test"
+      ],
+      "max_bytes": 1500,
+      "expect": {
+        "/page/total": 0,
+        "/page/returned": 0
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "%%"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--name"
+      }
+    }
+  ]
+}

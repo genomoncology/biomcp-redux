@@ -67,6 +67,10 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             if oversized_enum(property, 30) {
                 failures.push(format!("{name}.{key}: oversized enum"));
             }
+            // Section words are listed in the description, so a wrong one reaches the server.
+            if key == "section" && oversized_enum(property, 0) {
+                failures.push(format!("{name}.{key}: section words fixed in the schema"));
+            }
         }
     }
     report(&tools)?;

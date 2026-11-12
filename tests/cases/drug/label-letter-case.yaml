@@ -1,0 +1,145 @@
+{
+  "verified": "tests/replies/drug/label-letter-case/provenance.json records the live openFDA replies of 2026-11-11 and their body hashes.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "Label name search ignores letter case and keeps word matches: apixaban finds the same sets as APIXABAN, including all eight ELIQUIS sets; a mixed-case brand finds its upper-case label; dabigatran ranks its six exact-name sets before seventeen word-only sets.",
+  "replay": "drug/label-letter-case",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "apixaban",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 10,
+        "/page/total": 10,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "19a60552-374d-4b8b-a8ce-ceae252ea5ba",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef",
+          "095a08ac-cf0e-497e-a682-ddef38d6b29c"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "APIXABAN",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 10,
+        "/page/total": 10,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "19a60552-374d-4b8b-a8ce-ceae252ea5ba",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef",
+          "095a08ac-cf0e-497e-a682-ddef38d6b29c"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "Eliquis",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 8,
+        "/page/total": 8,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "ELIQUIS",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 8,
+        "/page/total": 8,
+        "/result/items/*/id": [
+          "41a133ef-e461-48ad-8221-b735bdd0ec25",
+          "7be1f4c1-bb2f-4ded-ae9a-515d2a22f93e",
+          "a454cd24-0c6d-46e8-b1e4-197388606175",
+          "1523ab32-2c2c-6501-e063-6394a90aa0b3",
+          "33a9046a-41cc-46c1-becc-2ff4d7d71538",
+          "33752f5d-2ca7-45c0-8292-b54742219b97",
+          "2f47aa0e-0235-4220-85dd-dfcb8ad0d009",
+          "fd383ae7-1e34-44ef-b8f1-ca6906dfbcef"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "dabigatran",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 10,
+        "/page/total": 23,
+        "/result/items/*/id": [
+          "39ac558a-b375-f3c1-e063-6394a90aa901",
+          "e4e3b992-621a-43a5-be59-eeb5083fd2b4",
+          "f7ea7e2c-ca54-4ecc-9fc7-bd3571b0ebc2",
+          "6f79088b-b353-485a-9df4-6f5088f5bd0f",
+          "27e95caf-7938-ef8e-e063-6394a90a6a1a",
+          "bee57f1b-ee5f-4f81-ae6f-ea65ddf9a174",
+          "e7eff2fc-3fac-4ad5-985b-2b8cc28eb84a",
+          "c0379093-3e19-45ae-a616-0f24a1d255f4",
+          "3a8ec82a-c367-40dc-9302-e1896fcb05ea",
+          "dd47a015-ff90-d7a7-8dcb-4e6e31a68071"
+        ]
+      }
+    }
+  ]
+}

@@ -69,7 +69,7 @@ drug-retirements: Retired and unproved drug commands return fixed migration guid
 drug-failures: Every kept drug source reports synthetic transport and broken-body failures with publisher terms.
 drug-identity: Drug sources reject mismatched, conflicting and absent identity joins before cache admission or product selection.
 drug-help: Discover source-scoped drug sections, selectors and explicit bundle synchronization through generated help and executable case examples.
-diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, cards and relation pages without implicit synchronization or clinical inference.
+diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, literal test-name matches, cards and relation pages without implicit synchronization or clinical inference.
 adverse-event-search: Search literal FAERS names by default or explicitly expand bounded source-stated aliases with frozen continuations and disclosure; native report totals and reaction buckets never become derived rates or causal interpretation.
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
 maude-reports: Search native device phrases, manufacturer phrases, exact product codes and product problem phrases and read exact native cards, device rows and complete narratives with source terms and independent count units.

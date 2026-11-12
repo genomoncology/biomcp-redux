@@ -1,6 +1,7 @@
 # 0827 — article-search-rows-carry-access-rights
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 84443731d95267ef7742a4f6c7efd37a935d9ba9
 
 Milestone: 8
 
@@ -31,3 +32,8 @@ The liaison persona's sharing-rights question was answered from another service'
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/europepmc/`, `crates/biomcp-types/src/article/`, `crates/biomcp-query/src/article/`, `tests/cases/article/`
+
+## Amendment, 2026-11-11
+
+- Amendment (developer, 2026-11-11): rows carry `open_access` only. Europe PMC's `lite` search page, which BioMCP sends, has `isOpenAccess` on every row and `license` on none (100-row BRAF V600E page: 0 licences). Only `resultType=core` carries `license` (73 of 100 rows), but it also carries whole abstracts: about 8 times the bytes (770 KB against 87 KB a page) and, in eight cold samples, 1.2 to 32 seconds against about 1 second for `lite`, two of them past the 15-second Europe PMC deadline. Switching would break the Keeps on page behavior and would need an abstract-rights filter on search pages, so row licences wait with the OpenAlex deferral above.
+- Amendment (reviewer, 2026-11-11): the three article reply schemas gain an optional `open_access` property and keep their major. The schema check treats an optional addition as compatible within a major and requires a new major only for removals, renames, retyping or narrowing (`crates/biomcp-types/tests/schemas/compatibility.rs` `check_reviewed`, case "optional addition" in `compatibility_cases.rs`), so the Keeps phrase "a changed reply schema takes a new major" covers breaking changes only.

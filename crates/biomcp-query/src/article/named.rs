@@ -81,6 +81,7 @@ pub(super) fn pubtator<'a>(
                     pmid: Some(id),
                     found_by: Default::default(),
                     cited_by: None,
+                    open_access: None,
                     intents: None,
                     influential: None,
                     contexts: None,

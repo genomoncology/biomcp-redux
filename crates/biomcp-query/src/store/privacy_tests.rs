@@ -46,6 +46,7 @@ fn item() -> ArticleItem {
         pmid: None,
         found_by: Default::default(),
         cited_by: None,
+        open_access: None,
         sentence: None,
         intents: None,
         influential: None,

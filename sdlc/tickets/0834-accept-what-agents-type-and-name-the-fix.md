@@ -1,6 +1,7 @@
 # 0834 — accept-what-agents-type-and-name-the-fix
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3e21941a8ddfcc90f1f4bd06c3d76193e42a018e
 
 Milestone: 7
 

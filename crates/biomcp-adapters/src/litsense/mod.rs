@@ -72,6 +72,7 @@ pub fn search(leg: &Leg<'_>, term: &str) -> Result<Mapped<Vec<ArticleItem>>, Req
             pmid: Some(sentence.pmid.0),
             found_by: [(ArticleSource::Litsense, (index + 1) as u32)].into(),
             cited_by: None,
+            open_access: None,
             intents: None,
             influential: None,
             contexts: None,

@@ -22,6 +22,25 @@ pub struct Search {
 }
 /// Match only complete native relation fields, retaining the source relation that matched.
 pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, RequestError> {
+    let named = query
+        .name()
+        .map(|name| super::name::read(leg, query, name.as_str()))
+        .transpose()?;
+    let selected = query.gene().is_some()
+        || query.gene_id().is_some()
+        || query.condition_id().is_some()
+        || query.test_type().is_some();
+    match named {
+        Some(named) if !selected => super::name::page(named, query),
+        named => relations(leg, query, named.as_ref()),
+    }
+}
+/// Relation-selected tests, narrowed to name matches when a name is given.
+fn relations(
+    leg: &Leg<'_>,
+    query: &DiagnosticSearch,
+    named: Option<&super::name::Named>,
+) -> Result<Search, RequestError> {
     let key;
     let find = if let Some(symbol) = query.gene() {
         Find::Exact(KeyKind::Symbol, symbol.as_str())
@@ -37,14 +56,17 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
     };
     let (rows, info) = bundle::read(leg, find)?;
     super::revision(query.bundle_revision(), &info)?;
+    if named.is_some_and(|n| n.info.content_revision != info.content_revision) {
+        return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
+    }
     let mut seen = HashSet::new();
     let mut matched = Vec::new();
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
         record: None,
-        list: Vec::new(),
+        list: named.map(|n| n.problems.clone()).unwrap_or_default(),
     };
-    let mut refusals = crate::Refusal::None;
+    let mut refusals = named.map_or(crate::Refusal::None, |n| n.refusals);
     for row in rows {
         if let Native::Refused(r) = &row.value
             && r.matches(query)
@@ -55,6 +77,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         if let Native::Relation(r) = row.value
             && let Some(relation) = map::relation(&r, &mut cx, &mut refusals)
             && matches(&r, query)
+            && named.is_none_or(|n| n.contains(&r.id))
             && seen.insert(r.id.clone())
         {
             matched.push((r, relation));
@@ -66,6 +89,23 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
         .collect();
+    let mut problems = cx.list;
+    let items = cards(leg, &info, &page, &mut problems)?;
+    Ok(Search {
+        refusals,
+        items,
+        total,
+        info,
+        problems,
+    })
+}
+/// Look up only the page's version rows under the same snapshot.
+fn cards(
+    leg: &Leg<'_>,
+    info: &BundleInfo,
+    page: &[(Relation, biodata::GtrTestRelation)],
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Result<Box<[DiagnosticCandidate]>, RequestError> {
     let ids: Vec<_> = page.iter().map(|(r, _)| r.id.to_string()).collect();
     let keys: Vec<_> = ids.iter().map(String::as_str).collect();
     let (versions, other) = bundle::read(leg, Find::AnyExact(KeyKind::Id, &keys))?;
@@ -81,25 +121,16 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
                 .push(v);
         }
     }
-    let mut problems = cx.list;
-    let items = page
-        .iter()
+    page.iter()
         .map(|(r, relation)| {
             candidate(
                 r,
                 relation.clone(),
                 by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(),
-                &mut problems,
+                problems,
             )
         })
-        .collect::<Result<Box<[_]>, _>>()?;
-    Ok(Search {
-        refusals,
-        items,
-        total,
-        info,
-        problems,
-    })
+        .collect()
 }
 fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
     q.test_type()
