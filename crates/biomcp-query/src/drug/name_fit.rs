@@ -31,6 +31,30 @@ pub(crate) fn openfda(name: &str) -> Option<&'static str> {
     }
 }
 
+/// Labels a source states only in the context of one paper, such as "COMPOUND 20" or
+/// "compound 20 [PMID: 32250617]", name no drug on their own and match unrelated records in
+/// every provider, so no widened search takes them. Development codes such as "MRTX849" or
+/// "AMG 510" stay.
+fn context_only(name: &str) -> Option<&'static str> {
+    let lowered = name.to_ascii_lowercase();
+    if lowered.contains("pmid") || name.contains(['[', ']']) {
+        return Some("citation label");
+    }
+    let mut words = lowered.split([' ', '-', '#']).filter(|word| !word.is_empty());
+    match (words.next(), words.next(), words.next()) {
+        (Some(word), Some(number), None)
+            if PLACEHOLDER_WORDS.contains(&word)
+                && number.starts_with(|c: char| c.is_ascii_digit()) =>
+        {
+            Some("placeholder label")
+        }
+        _ => None,
+    }
+}
+
+/// Words a paper uses to number its own molecules, as in "compound 20" or "example 3".
+const PLACEHOLDER_WORDS: &[&str] = &["compound", "cpd", "example", "analog", "analogue"];
+
 fn lowered(name: &Text) -> String {
     name.as_str().to_lowercase()
 }
@@ -39,7 +63,8 @@ fn lowered(name: &Text) -> String {
 pub(crate) struct Capped {
     pub(crate) names: Vec<Text>,
     left_out: usize,
-    /// Names the provider cannot take, each with its reason.
+    /// Names left out because they are context-only labels or the provider cannot take them,
+    /// each with its reason.
     unfit: Vec<(Text, &'static str)>,
     /// Official names past [`OFFICIAL_NAME_CEILING`], named in the notice.
     official_left_out: Vec<Text>,
@@ -81,7 +106,7 @@ impl Capped {
                 .map(|(name, reason)| format!("{:?} ({reason})", name.as_str()))
                 .collect();
             message.push_str(&format!(
-                " Left out {} of {total} names the provider cannot search: {}.",
+                " Left out {} of {total} names: {}.",
                 self.unfit.len(),
                 names.join(", ")
             ));
@@ -118,7 +143,11 @@ pub(crate) fn capped(
     let mut names: Vec<_> = std::iter::once(input.clone())
         .chain(names)
         .filter(|name| seen.insert(lowered(name)))
-        .filter(|name| match fit(name.as_str()) {
+        .filter(|name| match (name != input)
+            .then(|| context_only(name.as_str()))
+            .flatten()
+            .or_else(|| fit(name.as_str()))
+        {
             Some(reason) => {
                 unfit.push((name.clone(), reason));
                 false

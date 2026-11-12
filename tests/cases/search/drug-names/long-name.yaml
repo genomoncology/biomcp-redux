@@ -16,7 +16,7 @@
           "Long therapy",
           "LT-5"
         ],
-        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names the provider cannot search: \"1-alpha-2-beta-3-gamma-4-delta-5-epsilon-6-zeta-7-eta-8-theta-9-iota-10-kappa\" (too long).",
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names: \"1-alpha-2-beta-3-gamma-4-delta-5-epsilon-6-zeta-7-eta-8-theta-9-iota-10-kappa\" (too long).",
         "/page/total": 2
       }
     },
@@ -32,7 +32,7 @@
           "Long therapy",
           "LT-5"
         ],
-        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names the provider cannot search: \"1-alpha-2-beta-3-gamma-4-delta-5-epsilon-6-zeta-7-eta-8-theta-9-iota-10-kappa\" (too long).",
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names: \"1-alpha-2-beta-3-gamma-4-delta-5-epsilon-6-zeta-7-eta-8-theta-9-iota-10-kappa\" (too long).",
         "/page/total": 2
       }
     },
@@ -48,7 +48,7 @@
           "Long therapy",
           "LT-5"
         ],
-        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names the provider cannot search: \"1-alpha-2-beta-3-gamma-4-delta-5-epsilon-6-zeta-7-eta-8-theta-9-iota-10-kappa\" (too long).",
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record LONGTHERAPYAAA-SFHVURJKSA-N. Left out 1 of 3 names: \"1-alpha-2-beta-3-gamma-4-delta-5-epsilon-6-zeta-7-eta-8-theta-9-iota-10-kappa\" (too long).",
         "/page/total": 2
       }
     }
