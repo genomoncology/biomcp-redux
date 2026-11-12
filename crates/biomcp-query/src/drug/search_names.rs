@@ -1,4 +1,6 @@
 //! Resolve one typed drug name to the names its sources state, for trial and article search.
+use super::name_fit::capped;
+pub(crate) use super::name_fit::{Fit, any, openfda};
 use crate::{Ctx, Outcome, status};
 use biodata::Text;
 use biomcp_fetch::{Deadline, RequestError};
@@ -14,8 +16,6 @@ pub(crate) const NAME_ROWS: u32 = 50;
 const LOOKUP_SHARE: u32 = 3;
 /// Most names sent to a provider that takes one request per name, under its request pacing.
 const NAME_REQUESTS: usize = 4;
-/// Most official names one search keeps past the name limit, so one OR group stays bounded.
-const OFFICIAL_NAME_CEILING: usize = 10;
 
 /// What one lookup settled about a typed name.
 #[derive(Debug, Default)]
@@ -69,13 +69,13 @@ pub(crate) fn bounded<'a, T>(
 /// ChEMBL comes before the label because a molecule record carries more names than one product.
 /// ChEMBL is not asked for a name MyChem has no row for: MyChem's query reads its copy of
 /// ChEMBL's preferred names and synonyms, and ChEMBL's exact-name requests take seconds each.
-/// `fits` says which names the searching provider can take.
+/// `fit` says which names the searching provider can take, and why it cannot take the others.
 pub(crate) fn resolve<'a>(
     cx: &Ctx<'a>,
     input: &Text,
     out: &mut Outcome,
     deadline: &mut Deadline<'a>,
-    fits: fn(&str) -> bool,
+    fit: Fit,
     unfinished: Unfinished,
 ) -> Resolved {
     let mut ambiguous = None;
@@ -115,7 +115,7 @@ pub(crate) fn resolve<'a>(
                 problems,
             } => {
                 let ranked = (preferred.as_slice(), official.as_slice());
-                let kept = capped(names, ranked, input, cx.drug_name_limit, fits);
+                let kept = capped(names, ranked, input, cx.drug_name_limit, fit);
                 let message = kept.message(source.source(), &record);
                 let mut listed = kept.names.clone();
                 listed.sort_by_key(lowered);
@@ -337,106 +337,6 @@ fn lowered(name: &Text) -> String {
     name.as_str().to_lowercase()
 }
 
-/// The names one provider will search, and how many the record stated beyond them.
-struct Capped {
-    names: Vec<Text>,
-    left_out: usize,
-    too_long: usize,
-    /// Official names past [`OFFICIAL_NAME_CEILING`], named in the notice.
-    official_left_out: Vec<Text>,
-}
-
-impl Capped {
-    fn message(&self, source: biomcp_types::Source, record: &str) -> String {
-        let total = self.names.len() + self.left_out + self.too_long;
-        let mut message = format!("Searched the names stated by {source} record {record}.");
-        if self.too_long > 0 {
-            message.push_str(&format!(
-                " Left out {} of {total} names too long for the provider to search.",
-                self.too_long
-            ));
-        }
-        if self.left_out > 0 {
-            message.push_str(&format!(
-                " Left out {} of {total} names, past the drug_search_name_limit setting.",
-                self.left_out
-            ));
-        }
-        if !self.official_left_out.is_empty() {
-            let names: Vec<_> = self.official_left_out.iter().map(Text::as_str).collect();
-            message.push_str(&format!(
-                " Left out official names past the ceiling of {OFFICIAL_NAME_CEILING}: {}.",
-                names.join(", ")
-            ));
-        }
-        message
-    }
-}
-
-/// One spelling per name, the typed one kept when the provider can take it. Official names
-/// pass the limit up to [`OFFICIAL_NAME_CEILING`]; the record's preferred names rank next and then the shortest, so the same
-/// drug keeps the same names whichever of them was typed.
-fn capped(
-    names: Vec<Text>,
-    (preferred, official): (&[String], &[String]),
-    input: &Text,
-    limit: usize,
-    fits: fn(&str) -> bool,
-) -> Capped {
-    let mut seen = std::collections::BTreeSet::new();
-    let stated: Vec<_> = std::iter::once(input.clone())
-        .chain(names)
-        .filter(|name| seen.insert(lowered(name)))
-        .collect();
-    let stated_count = stated.len();
-    let mut names: Vec<_> = stated
-        .into_iter()
-        .filter(|name| fits(name.as_str()))
-        .collect();
-    let too_long = stated_count - names.len();
-    let lowered_set = |names: &[String]| -> std::collections::BTreeSet<_> {
-        names.iter().map(|name| name.to_lowercase()).collect()
-    };
-    let preferred = lowered_set(preferred);
-    let official = lowered_set(official);
-    names.sort_by_key(|name| {
-        (
-            !official.contains(&lowered(name)),
-            !preferred.contains(&lowered(name)),
-            name.as_str().chars().count(),
-            lowered(name),
-        )
-    });
-    let kept_official = names
-        .iter()
-        .filter(|name| official.contains(&lowered(name)))
-        .count();
-    let limit = limit.max(kept_official.min(OFFICIAL_NAME_CEILING));
-    let left_out = names.len().saturating_sub(limit);
-    let mut cut = names.split_off(limit.min(names.len()));
-    // The typed name stays, in place of the last name that is not official, else the last one.
-    if let Some(at) = cut.iter().position(|name| name == input) {
-        let typed = cut.remove(at);
-        let slot = names
-            .iter()
-            .rposition(|name| !official.contains(&lowered(name)))
-            .or(names.len().checked_sub(1));
-        if let Some(kept) = slot.and_then(|slot| names.get_mut(slot)) {
-            cut.push(std::mem::replace(kept, typed));
-        }
-    }
-    let official_left_out = cut
-        .into_iter()
-        .filter(|name| official.contains(&lowered(name)))
-        .collect();
-    Capped {
-        names,
-        left_out,
-        too_long,
-        official_left_out,
-    }
-}
-
 fn record_evidence(
     out: &mut Outcome,
     evidence: Vec<SourceOutcome>,
@@ -481,7 +381,7 @@ pub(crate) fn article<'a>(
         .drug_name_input()
         .map_or_else(Resolved::default, |input| {
             bounded(deadline, |lookup| {
-                resolve(cx, input, out, lookup, |_| true, Unfinished::Skipped)
+                resolve(cx, input, out, lookup, any, Unfinished::Skipped)
             })
         })
 }
@@ -492,6 +392,13 @@ pub(crate) fn rejected(error: Option<&RequestError>) -> bool {
         error,
         Some(RequestError::Source(error)) if matches!(error.status, Some(400 | 413 | 414))
     )
+}
+
+/// Whether the searched provider refused the request itself, read from its reply.
+pub(crate) fn refused(out: &Outcome, source: biomcp_types::Source) -> bool {
+    out.sources.iter().any(|s| {
+        s.source == source && s.state == SourceState::Failed && s.reason == Some(Reason::Rejected)
+    })
 }
 
 /// The notice for a provider that searched only the typed term after refusing the names.
@@ -505,7 +412,12 @@ pub(crate) fn typed_only(input: &Text, source: biomcp_types::Source) -> SourceNo
 
 /// Stop claiming names no provider searched.
 pub(crate) fn retract(out: &mut Outcome) {
-    for notice in out.sources.iter_mut().flat_map(|s| &mut s.notices) {
+    retract_sources(&mut out.sources);
+}
+
+/// Stop claiming names no provider searched, in name-lookup evidence kept apart from a reply.
+pub(crate) fn retract_sources(sources: &mut [SourceOutcome]) {
+    for notice in sources.iter_mut().flat_map(|s| &mut s.notices) {
         if let SourceNotice::DrugNameSearch {
             input,
             names,

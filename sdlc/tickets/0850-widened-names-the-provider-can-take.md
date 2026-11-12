@@ -1,6 +1,7 @@
 # 0850 — widened-names-the-provider-can-take
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 79c044c19409154fb67d5411d1a3bb8804efb659
 
 Milestone: 7
 

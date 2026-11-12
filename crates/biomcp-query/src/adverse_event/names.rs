@@ -27,9 +27,10 @@ pub(super) fn search<'a>(
     ));
     let result = prepare(cx, query, deadline, &mut out);
     match result {
-        Ok(Some((saved, sent))) => match query.with_literal_drugs(saved.names.clone()) {
+        Ok(Some((mut saved, sent))) => match query.with_literal_drugs(saved.names.clone()) {
             Ok(native) => {
                 let mut result = super::search(cx, &native, &sent, *deadline);
+                typed_only(cx, query, (&sent, *deadline), &mut saved, &mut result);
                 result.sources.extend(saved.sources);
                 result.problems.extend(saved.problems);
                 disclose(query, &saved.names, saved.omitted, &mut result);
@@ -49,6 +50,53 @@ pub(super) fn search<'a>(
         Err(error) => out.local = Some(error),
     }
     out
+}
+
+/// The caller's own names, which every FAERS search keeps.
+fn typed(query: &AdverseEventSearch) -> Vec<Text> {
+    query
+        .text()
+        .into_iter()
+        .chain(query.drug())
+        .cloned()
+        .collect()
+}
+
+/// When FAERS refuses the widened request, search the typed names alone and say so.
+fn typed_only<'a>(
+    cx: &Ctx<'a>,
+    query: &AdverseEventSearch,
+    (sent, deadline): (&AdverseEventSearch, Deadline<'a>),
+    saved: &mut Saved,
+    result: &mut Outcome,
+) {
+    let typed = typed(query);
+    if saved.names.len() <= typed.len() || !search_names::refused(result, Source::Faers) {
+        return;
+    }
+    let native = match query.with_literal_drugs(typed.clone()) {
+        Ok(native) => native,
+        // The typed names alone formed the caller's valid query, so this is a local fault.
+        Err(_) => {
+            result.local = Some(biomcp_fetch::CacheError::Snapshot.into());
+            return;
+        }
+    };
+    *result = super::search(cx, &native, sent, deadline);
+    saved.names = typed;
+    saved.omitted = 0;
+    search_names::retract_sources(&mut saved.sources);
+    if let Some(source) = result
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::Faers)
+    {
+        for input in query.text().into_iter().chain(query.drug()) {
+            source
+                .notices
+                .push(search_names::typed_only(input, Source::Faers));
+        }
+    }
 }
 
 fn prepare<'a>(
@@ -80,17 +128,13 @@ fn prepare<'a>(
 
 fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline<'a>) -> Saved {
     let mut out = status::empty(ReplyData::PoolError { mismatch: false });
-    let mut names: Vec<Text> = query
-        .text()
-        .into_iter()
-        .chain(query.drug())
-        .cloned()
-        .collect();
+    let mut names = typed(query);
     let mut incomplete = false;
     let mut omitted = 0;
     search_names::bounded(deadline, |lookup| {
         for input in query.text().into_iter().chain(query.drug()) {
-            let found = search_names::resolve(cx, input, &mut out, lookup, fits, PARTIAL);
+            let found =
+                search_names::resolve(cx, input, &mut out, lookup, search_names::openfda, PARTIAL);
             incomplete |= found.failed;
             for name in found.names {
                 if names
@@ -122,13 +166,6 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
 }
 
 const PARTIAL: search_names::Unfinished = search_names::Unfinished::Partial;
-
-fn fits(name: &str) -> bool {
-    // A source alias stays a literal name, never a caller-supplied OR expression.
-    !name
-        .split_whitespace()
-        .any(|word| word.eq_ignore_ascii_case("OR"))
-}
 
 fn restrict_notices(saved: &mut Saved) {
     for source in &mut saved.sources {

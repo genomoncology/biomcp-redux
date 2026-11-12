@@ -1,5 +1,5 @@
 //! Retain the authorized spelling union and the provider tier selected on its first page.
-use crate::{Ctx, Outcome, source_snapshot, status};
+use crate::{Ctx, Outcome, drug::search_names, source_snapshot, status};
 use biodata::Text;
 use biomcp_adapters::openfda_label::NameTier;
 use biomcp_fetch::{Deadline, RequestError};
@@ -14,6 +14,9 @@ pub(super) struct Saved {
     incomplete: bool,
     omitted: usize,
     tier: Option<NameTier>,
+    /// The provider refused the widened request, so the search kept the typed name alone.
+    #[serde(default)]
+    rejected: bool,
 }
 pub(super) fn prepare<'a>(
     cx: &Ctx<'a>,
@@ -36,6 +39,20 @@ pub(super) fn search(
 ) -> biomcp_adapters::openfda_label::Search {
     let (result, tier) =
         biomcp_adapters::openfda_label::search_expanded(leg, query, &saved.names, saved.tier);
+    saved.tier = Some(tier);
+    let Some(input) = query.query() else {
+        return result;
+    };
+    if saved.names.len() < 2 || !search_names::rejected(result.page.as_ref().err()) {
+        return result;
+    }
+    // The typed name alone is searched and kept for later pages, in place of the refused union.
+    saved.names = vec![input.clone()];
+    saved.omitted = 0;
+    saved.rejected = true;
+    search_names::retract_sources(&mut saved.sources);
+    let (result, tier) =
+        biomcp_adapters::openfda_label::search_expanded(leg, query, &saved.names, None);
     saved.tier = Some(tier);
     result
 }
@@ -100,6 +117,12 @@ pub(super) fn finish(query: &DrugSearch, saved: Option<Saved>, out: &mut Outcome
                      Left out {} additional names at the whole-query bound.", saved.omitted
                 ).into(),
             });
+            if saved.rejected {
+                source.notices.push(search_names::typed_only(
+                    input,
+                    biomcp_types::Source::OpenfdaLabel,
+                ));
+            }
         }
     }
     // Classify the primary provider before adding discovery evidence, which can name this provider too.

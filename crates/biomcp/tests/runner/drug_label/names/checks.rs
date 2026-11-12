@@ -251,3 +251,19 @@ fn native(requests: &[(String, String)], expected: &str) -> Check {
     }
     Ok(())
 }
+pub(super) fn refused() -> Check {
+    let (env, stub) = setup(8, json!({}))?;
+    let first = invoke(&env, args(true), 0)?;
+    if first.get("status") != Some(&json!("complete"))
+        || selector(&first)?.contains("Brand name")
+        || !first
+            .to_string()
+            .contains("openfda-label rejected the expanded request; searched the typed term.")
+    {
+        return Err(format!(
+            "refused widening did not fall back to the typed name {first}"
+        ));
+    }
+    stub.finish()?;
+    Ok(())
+}

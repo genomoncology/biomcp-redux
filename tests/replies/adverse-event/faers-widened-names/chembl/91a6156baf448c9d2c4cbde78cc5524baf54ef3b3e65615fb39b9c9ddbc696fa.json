@@ -1,0 +1,243 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?molecule_synonyms__molecule_synonym__iexact=valsartan&limit=50&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794437688,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 131,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "molecules": [
+            {
+              "atc_classifications": [
+                "C09CA03"
+              ],
+              "availability_type": 1,
+              "biotherapeutic": null,
+              "black_box_warning": 1,
+              "chemical_probe": 0,
+              "chirality": 1,
+              "cross_references": [
+                {
+                  "xref_id": "valsartan",
+                  "xref_name": "valsartan",
+                  "xref_src": "DailyMed"
+                }
+              ],
+              "dosed_ingredient": true,
+              "first_approval": 1996,
+              "first_in_class": 0,
+              "helm_notation": null,
+              "inorganic_flag": 0,
+              "max_phase": "4.0",
+              "molecule_chembl_id": "CHEMBL1069",
+              "molecule_hierarchy": {
+                "active_chembl_id": "CHEMBL1069",
+                "molecule_chembl_id": "CHEMBL1069",
+                "parent_chembl_id": "CHEMBL1069"
+              },
+              "molecule_properties": {
+                "alogp": "4.16",
+                "aromatic_rings": 3,
+                "full_molformula": "C24H29N5O3",
+                "full_mwt": "435.53",
+                "hba": 5,
+                "hbd": 2,
+                "heavy_atoms": 32,
+                "mw_freebase": "435.53",
+                "np_likeness_score": "-0.98",
+                "num_ro5_violations": 0,
+                "psa": "112.07",
+                "qed_weighted": "0.49",
+                "ro3_pass": "N",
+                "rtb": 10
+              },
+              "molecule_structures": {
+                "canonical_smiles": "CCCCC(=O)N(Cc1ccc(-c2ccccc2-c2nnn[nH]2)cc1)[C@H](C(=O)O)C(C)C",
+                "molfile": "\n     RDKit          2D\n\n 32 34  0  0  1  0  0  0  0  0999 V2000\n    3.6875   -5.9667    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    6.7917   -7.3500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.4250   -6.2667    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    6.1917   -6.9417    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    7.1042   -6.2667    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    7.3250   -6.9292    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    6.7917   -8.0000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.0917   -5.6125    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2875   -5.6125    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.1750   -8.3667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.4875   -5.9667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.6875   -6.9375    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.5417   -8.0167    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.2875   -4.9667    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    2.4875   -6.6542    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    5.5417   -7.3042    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9125   -8.3792    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.3000   -7.3042    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.0917   -4.9000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    1.9000   -5.5917    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    4.3000   -8.0167    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9125   -6.9292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.3917   -8.3542    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.8917   -5.9667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.1750   -9.0625    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    2.4875   -4.5542    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    3.6875   -4.5375    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.4917   -5.5917    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.0792   -5.9667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.3917   -9.0625    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.7917   -9.4250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.6667   -5.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  2  7  1  0\n  3  4  1  0\n  4  2  2  0\n  5  6  1  0\n  6  2  1  0\n  7 10  2  0\n  8  1  1  0\n  9  1  1  0\n 10 13  1  0\n 11  8  1  0\n 12  1  1  0\n 13 16  2  0\n 14  9  2  0\n 15 11  2  0\n 16 22  1  0\n 17 21  2  0\n 18 12  1  0\n  8 19  1  6\n 20 11  1  0\n 21 18  1  0\n 22 18  2  0\n 23  7  1  0\n 24  9  1  0\n 25 10  1  0\n 26 19  1  0\n 27 19  1  0\n 28 24  1  0\n 29 28  1  0\n 30 31  1  0\n 31 25  2  0\n 32 29  1  0\n 17 13  1  0\n 30 23  2  0\n  3  5  2  0\nM  END\n> <chembl_id>\nCHEMBL1069\n\n> <chembl_pref_name>\nVALSARTAN",
+                "standard_inchi": "InChI=1S/C24H29N5O3/c1-4-5-10-21(30)29(22(16(2)3)24(31)32)15-17-11-13-18(14-12-17)19-8-6-7-9-20(19)23-25-27-28-26-23/h6-9,11-14,16,22H,4-5,10,15H2,1-3H3,(H,31,32)(H,25,26,27,28)/t22-/m0/s1",
+                "standard_inchi_key": "ACWBQPMHZXGDFX-QFIPXVFZSA-N"
+              },
+              "molecule_synonyms": [
+                {
+                  "molecule_synonym": "CGP 48933",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "CGP 48933"
+                },
+                {
+                  "molecule_synonym": "CGP-48933",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "CGP-48933"
+                },
+                {
+                  "molecule_synonym": "Diovan",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "DIOVAN"
+                },
+                {
+                  "molecule_synonym": "NSC-758927",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "NSC-758927"
+                },
+                {
+                  "molecule_synonym": "Prexxartan",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "PREXXARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "ATC",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "BAN",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "BNF",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "FDA",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "INN",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "JAN",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "MERCK_INDEX",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "OTHER",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "USAN",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan",
+                  "syn_type": "USP",
+                  "synonyms": "VALSARTAN"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of agsav301",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF AGSAV301"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of byvalson",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF BYVALSON"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of copalia",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF COPALIA"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of copalia-hct",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF COPALIA-HCT"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of dafiro",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF DAFIRO"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of dafiro-hct",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF DAFIRO-HCT"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of diovan hct",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF DIOVAN HCT"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of entresto",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF ENTRESTO"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of exforge",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF EXFORGE"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of exforge hct",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF EXFORGE HCT"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of imprida",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF IMPRIDA"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of imprida-hct",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF IMPRIDA-HCT"
+                },
+                {
+                  "molecule_synonym": "Valsartan component of valturna",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "VALSARTAN COMPONENT OF VALTURNA"
+                }
+              ],
+              "molecule_type": "Small molecule",
+              "natural_product": 1,
+              "oral": true,
+              "orphan": 0,
+              "parenteral": false,
+              "polymer_flag": 0,
+              "pref_name": "VALSARTAN",
+              "prodrug": 0,
+              "structure_type": "MOL",
+              "therapeutic_flag": true,
+              "topical": false,
+              "usan_stem": "-sartan",
+              "usan_stem_definition": "angiotensin II receptor antagonists",
+              "usan_substem": "-sartan",
+              "usan_year": 1995,
+              "veterinary": 0,
+              "withdrawn_flag": false
+            }
+          ],
+          "page_meta": {
+            "limit": 50,
+            "next": null,
+            "offset": 0,
+            "previous": null,
+            "total_count": 1
+          }
+        }
+      }
+    }
+  ]
+}

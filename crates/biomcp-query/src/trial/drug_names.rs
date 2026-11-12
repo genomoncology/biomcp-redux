@@ -30,9 +30,8 @@ pub(super) fn expand<'a>(
     }
     search_names::bounded(deadline, |lookup| {
         let mut term = |input: &Text| {
-            let fits = biomcp_adapters::ctgov::name_fits;
             let unfinished = search_names::Unfinished::Skipped;
-            let resolved = search_names::resolve(cx, input, out, lookup, fits, unfinished);
+            let resolved = search_names::resolve(cx, input, out, lookup, fit, unfinished);
             expanded.failed |= resolved.failed;
             if resolved.names.len() < 2 {
                 return input.clone();
@@ -46,6 +45,11 @@ pub(super) fn expand<'a>(
         expanded.query = query.with_drug_terms(text, interventions, keywords);
     });
     expanded
+}
+
+/// ClinicalTrials.gov takes a bounded number of words per name.
+fn fit(name: &str) -> Option<&'static str> {
+    (!biomcp_adapters::ctgov::name_fits(name)).then_some("too long")
 }
 
 /// NCI search takes no name group, so its reply says the terms stayed as typed.
