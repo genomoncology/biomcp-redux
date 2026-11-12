@@ -4,7 +4,7 @@ This plan covers milestone 5: a useful and accurate CLI/MCP interface, bounded a
 
 ## Current state
 
-Read [the November 11 handover](planning/handover-2026-11-11.md) first. Since this plan was written, Ian made agent tooling the content of 1.0, parked publication and the AWS rollout, and put one PM in charge. Sections 4 and 5 below are parked, not cancelled; milestones 7 and 8 in `planning/milestones.md` are the active work.
+Read [the November 11 handover](planning/handover-2026-11-11.md) first. Since this plan was written, Ian made agent tooling the content of 1.0, parked publication and the AWS rollout, and put one PM in charge. Sections 4 and 5 below are parked, not cancelled; milestones 7 and 8 in `planning/milestones.md` are the active work. On 2026-11-12 Ian set the bar for 1.0: efficient tools and all eleven personas at A- or better, judged by a top-model review of each persona's run ([decision](decisions/2026-11-12-1-0-is-done-when-tools-are-efficient-and-personas-reach-a-minus.md)); BioMCP need not beat curl.
 
 ## Immediate priority
 
