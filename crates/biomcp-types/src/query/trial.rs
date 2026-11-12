@@ -4,9 +4,11 @@ mod continuation;
 mod country;
 mod drug_terms;
 mod filters;
+mod variant_terms;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
 pub use filters::{NciStatusFilter, TrialPhaseFilter, TrialStatusFilter};
+pub use variant_terms::{VariantSpellings, codon_split, is_criteria_group, variant_terms};
 use serde::{Deserialize, Serialize};
 const MAX_ALTERNATIVES: usize = 5;
 biodata::wire_enum! {
@@ -55,7 +57,7 @@ struct Fields {
     #[doc = "Exact condition.\nAsk ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_condition: bool,
-    /// Search typed treatment terms without resolving their other names.
+    /// Search typed drug names and variant text as written, without other names or spellings.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
     #[doc = "MONDO/DOID/NCIT:C.\nExact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes."]
@@ -78,7 +80,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneInput"))]
     gene: Option<GeneInput>,
-    #[doc = "Variant text.\nClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment."]
+    #[doc = "Variant text.\nClinicalTrials.gov only: general text or eligibility criteria; a protein change or exon deletion/insertion adds its other spellings, and its codon with --gene; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -103,7 +105,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "NciBiomarkerUse"))]
     biomarker_use: Option<NciBiomarkerUse>,
-    #[doc = "Criteria text.\nClinicalTrials.gov only: search exact registry eligibility text for discovery; no eligibility judgment."]
+    #[doc = "Criteria text.\nClinicalTrials.gov only: search registry eligibility text; a protein change or exon deletion/insertion adds its other spellings; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -313,7 +315,7 @@ impl TrialSearch {
     pub fn gene(&self) -> Option<&GeneInput> {
         self.0.gene.as_ref()
     }
-    /// ClinicalTrials.gov only: literal variant text for registry discovery; no eligibility judgment.
+    /// ClinicalTrials.gov only: variant text or the registry expression it was widened to.
     pub fn variant(&self) -> Option<&Text> {
         self.0.variant.as_ref()
     }

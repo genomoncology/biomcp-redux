@@ -50,6 +50,8 @@ pub struct SearchPage {
     pub condition_word_mismatch: bool,
     /// Literal gene context in retained source records, without an eligibility assessment.
     pub gene_contexts: Vec<GeneContext>,
+    /// Rows whose returned text writes no exact spelling of a widened change, only its codon.
+    pub codon_only: Vec<biodata::NctId>,
     /// Exact native total.
     pub total: Option<u64>,
     /// Native count lookup failure while page rows remain usable.
@@ -150,7 +152,7 @@ pub fn search(
     conditions: &[Text],
     countries: &[Box<str>],
 ) -> Result<SearchPage, RequestError> {
-    search_with_gene(leg, params, conditions, countries, None)
+    search_with_gene(leg, params, conditions, countries, None, &[])
 }
 
 pub(super) fn search_with_gene(
@@ -159,6 +161,7 @@ pub(super) fn search_with_gene(
     conditions: &[Text],
     countries: &[Box<str>],
     gene: Option<&str>,
+    exact: &[String],
 ) -> Result<SearchPage, RequestError> {
     let raw = fetch_page(leg, params)?;
     if !countries.is_empty()
@@ -189,6 +192,12 @@ pub(super) fn search_with_gene(
         count_request = Some(count);
     }
     let (condition_word_mismatch, gene_contexts) = raw.search_contexts(conditions, gene);
+    // Without the gene's protocol text in the reply, no row can be checked.
+    let codon_only = if gene.is_some() && !exact.is_empty() {
+        raw.codon_only(exact)
+    } else {
+        Vec::new()
+    };
     let received = raw.studies.as_ref().map_or(0, |rows| rows.len() as u32);
     let mut rejected = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -220,6 +229,7 @@ pub(super) fn search_with_gene(
         problems: rejected,
         condition_word_mismatch,
         gene_contexts,
+        codon_only,
         items,
         total,
         count_error,

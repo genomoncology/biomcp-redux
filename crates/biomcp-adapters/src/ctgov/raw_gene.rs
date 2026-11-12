@@ -25,7 +25,40 @@ impl RawPage {
     }
 }
 
+impl RawPage {
+    /// Rows whose returned text writes none of the exact spellings, so only a codon form matched.
+    pub(in crate::ctgov) fn codon_only(&self, exact: &[String]) -> Vec<biodata::NctId> {
+        let exact: Vec<String> = exact
+            .iter()
+            .map(|value| value.strip_prefix("p.").unwrap_or(value).to_lowercase())
+            .collect();
+        self.studies
+            .iter()
+            .flatten()
+            .filter_map(Field::as_ref)
+            .map(|row| &row.protocol_section)
+            .filter(|protocol| !protocol.writes_any(&exact))
+            .map(|protocol| protocol.identification_module.nct_id)
+            .collect()
+    }
+}
+
 impl Protocol {
+    fn writes_any(&self, words: &[String]) -> bool {
+        let eligibility = self
+            .eligibility_module
+            .as_ref()
+            .and_then(Field::as_ref)
+            .and_then(|e| e.eligibility_criteria.as_ref())
+            .and_then(Field::as_ref);
+        self.gene_fields()
+            .into_iter()
+            .map(|(_, text)| text)
+            .chain(eligibility.map(AsRef::as_ref))
+            .flat_map(|text| text.split(|c: char| !c.is_alphanumeric()))
+            .any(|word| words.iter().any(|value| value.eq_ignore_ascii_case(word)))
+    }
+
     pub(in crate::ctgov) fn gene_context(&self, symbol: &str) -> Option<GeneContext> {
         let fields = self.gene_fields();
         let eligibility = self

@@ -8,6 +8,7 @@ mod gene_notice;
 pub(crate) mod get;
 mod nci;
 mod portable_continuation;
+mod variant_spellings;
 use crate::{Action, Ctx, Outcome, status};
 
 use biomcp_adapters::{ctgov, hgnc};
@@ -58,18 +59,20 @@ fn search<'a>(
         .iter()
         .any(|source| source.state != SourceState::Ok);
     let expanded = drug_names::expand(cx, query, &mut outcome, deadline);
+    let widened = variant_spellings::widen(&expanded.query, gene.is_some());
     let leg = cx.fetch.leg(&ctgov::SPEC, *deadline).fresh(cx.fresh);
     let started = leg.remaining();
     let conditions = condition
         .as_ref()
         .map_or(query.condition(), std::slice::from_ref);
     let (mut result, mut name_notice) =
-        ctgov::search_query(&leg, &expanded.query, gene.as_deref(), conditions);
-    let typed_only =
-        !expanded.inputs.is_empty() && crate::drug::search_names::rejected(result.as_ref().err());
+        ctgov::search_query(&leg, &widened.query, gene.as_deref(), conditions);
+    let changed = !expanded.inputs.is_empty() || !widened.notices.is_empty();
+    let typed_only = changed && crate::drug::search_names::rejected(result.as_ref().err());
     if typed_only {
         (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
     }
+    let searched = if typed_only { query } else { &widened.query };
     let rejected = request_rejected(result.as_ref().err());
     let generic_rejected = name_notice.is_none() && rejected;
     let version = match &result {
@@ -85,8 +88,12 @@ fn search<'a>(
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
     source.notices.extend(name_notice);
+    source.notices.extend(widened.notices.iter().cloned());
     if typed_only {
-        retract_names(&expanded.inputs, &mut source, &mut outcome);
+        if !expanded.inputs.is_empty() {
+            retract_names(&expanded.inputs, &mut source, &mut outcome);
+        }
+        variant_spellings::retract(&mut source);
     }
     {
         let missing = version.is_err() || error.is_some() || source.state == SourceState::Stale;
@@ -98,7 +105,13 @@ fn search<'a>(
             condition::word_notice(query, cx.fresh, &mut source, &mut outcome);
         }
         page_notices(query, gene.as_deref(), &page, &mut source);
-        let sent = sent_query(query, &expanded, typed_only);
+        variant_spellings::codon_notice(searched, &page.codon_only, &mut source);
+        // The registry's token belongs to the request that was sent, so the next page repeats it.
+        let sent = if changed && !typed_only {
+            searched.exact()
+        } else {
+            query.clone()
+        };
         apply_page(query, &sent, cx.fresh, gene.as_deref(), &mut outcome, page);
     }
     if let Ok(version) = version {
@@ -148,18 +161,6 @@ fn page_notices(
     intervention_notices(query, &page.items, source);
     source.count = page.total;
     source.retrieved_count = Some(page.items.len() as u32);
-}
-/// The registry's token belongs to the request that was sent, so the next page repeats it.
-fn sent_query(
-    query: &TrialSearch,
-    expanded: &drug_names::Expanded,
-    typed_only: bool,
-) -> TrialSearch {
-    if expanded.inputs.is_empty() || typed_only {
-        query.clone()
-    } else {
-        expanded.query.exact()
-    }
 }
 fn request_rejected(error: Option<&biomcp_fetch::RequestError>) -> bool {
     matches!(error, Some(biomcp_fetch::RequestError::Source(error)) if error.status == Some(400))

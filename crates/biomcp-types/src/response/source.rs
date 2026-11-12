@@ -115,6 +115,18 @@ pub enum SourceNotice {
         /// Why the names were expanded or retained.
         message: Box<str>,
     },
+    /// Variant spellings and registry fields actually searched.
+    VariantSearch {
+        /// Whole caller-supplied variant or criteria text.
+        input: crate::Text,
+        /// Spellings of the same change actually searched, including the typed text.
+        spellings: Box<[crate::Text]>,
+        /// Codon forms searched, which match trials written for any change at that position.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        codon: Box<[crate::Text]>,
+        /// What was searched, where, and how to search the typed text only.
+        message: Box<str>,
+    },
     /// Local request limits, source observations and recovery guidance.
     RequestGuidance {
         /// Retained publisher dataset date, independent of acquisition and record events.

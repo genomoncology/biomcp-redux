@@ -39,7 +39,8 @@ pub use variant_input::{VariantInput, VariantNamespace};
 mod trial;
 pub use trial::{
     NciBiomarkerUse, NciStatusFilter, PhaseFilter, SponsorType, TrialFilter, TrialPhaseFilter,
-    TrialSearch, TrialSource, TrialStatusFilter,
+    TrialSearch, TrialSource, TrialStatusFilter, VariantSpellings, codon_split, is_criteria_group,
+    variant_terms,
 };
 
 mod trial_get;
