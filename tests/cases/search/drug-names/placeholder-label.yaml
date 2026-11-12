@@ -1,0 +1,40 @@
+{
+  "feature": "drug-name-search",
+  "live_check": "synthetic names in real source reply shapes; no clinical or live completeness claim",
+  "story": "A source-stated label that names a compound only within one paper, such as \"COMPOUND 20\" or one carrying a PMID, stays out of the widened article and trial name groups and is named with its reason, while the development code stays in.",
+  "replay": "search/drug-names",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "Placeholder therapy"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/notices/0/names": [
+          "PH-7",
+          "Placeholder therapy"
+        ],
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record PLACEHOLDERAAA-SFHVURJKSA-N. Left out 3 of 5 names: \"COMPOUND 20\" (placeholder label), \"compound 20 [PMID: 99000009]\" (citation label), \"(R)-38\" (placeholder label).",
+        "/page/total": 3
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "Placeholder therapy"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/notices/0/names": [
+          "PH-7",
+          "Placeholder therapy"
+        ],
+        "/sources/0/notices/0/message": "Searched the names stated by mychem record PLACEHOLDERAAA-SFHVURJKSA-N. Left out 3 of 5 names: \"COMPOUND 20\" (placeholder label), \"compound 20 [PMID: 99000009]\" (citation label), \"(R)-38\" (placeholder label).",
+        "/page/total": 2
+      }
+    }
+  ]
+}

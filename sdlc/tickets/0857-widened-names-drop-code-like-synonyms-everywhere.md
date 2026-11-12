@@ -1,6 +1,7 @@
 # 0857 — widened-names-drop-code-like-synonyms-everywhere
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c6eb17d5aa651680623c91802c80d99db9d1ae02
 
 Milestone: 7
 
