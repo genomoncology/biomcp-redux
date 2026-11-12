@@ -585,7 +585,7 @@
       ]
     },
     "Reply_DrugNameResolution": {
-      "description": "Exact source name choice; brand before generic, original FDA application then earliest approval,\nfor labels the brand holder's label with the most numbered indications, otherwise source order.",
+      "description": "Exact source name choice; brand before generic, FDA application then earliest approval, labels by holder then indications, else source order.",
       "properties": {
         "alternatives": {
           "description": "Up to five other exact records as ready get commands.",

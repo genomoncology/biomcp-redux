@@ -309,8 +309,7 @@ impl ResponseBody for DrugXrefs {
     type Query = DrugGet;
 }
 
-/// Exact source name choice; brand before generic, original FDA application then earliest approval,
-/// for labels the brand holder's label with the most numbered indications, otherwise source order.
+/// Exact source name choice; brand before generic, FDA application then earliest approval, labels by holder then indications, else source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugNameResolution {
