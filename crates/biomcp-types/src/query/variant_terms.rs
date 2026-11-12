@@ -1,6 +1,5 @@
 //! Other spellings of a typed protein change or exon deletion/insertion, written as registry
 //! search expressions that later pages repeat unchanged.
-use super::TrialSearch;
 use crate::Text;
 use crate::query::ProteinQuery;
 
@@ -39,6 +38,12 @@ impl VariantSpellings {
             codon: Vec::new(),
             codon_without_gene: Vec::new(),
         })
+    }
+
+    /// The same-change spellings and the codon forms, as reply text.
+    pub fn texts(&self) -> (Box<[Text]>, Box<[Text]>) {
+        let texts = |values: &[String]| values.iter().filter_map(|v| Text::new(v).ok()).collect();
+        (texts(&self.spellings), texts(&self.codon))
     }
 
     /// The criteria alternatives: every spelling and codon form, and the typed text.
@@ -124,16 +129,6 @@ pub fn codon_split(expression: &str) -> Option<(Vec<String>, Vec<String>)> {
         values.dedup();
     }
     (!exact.is_empty() && !codon.is_empty()).then_some((exact, codon))
-}
-
-impl TrialSearch {
-    /// Substitute the variant and criteria terms the registry is sent.
-    pub fn with_variant_terms(&self, variant: Option<Text>, criteria: Option<Text>) -> Self {
-        let mut next = self.clone();
-        next.0.variant = variant;
-        next.0.criteria = criteria;
-        next
-    }
 }
 
 fn is_codon(value: &str) -> bool {

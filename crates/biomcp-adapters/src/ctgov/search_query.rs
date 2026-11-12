@@ -110,3 +110,32 @@ fn guidance(message: String) -> SourceNotice {
         retry_after_seconds: None,
     }
 }
+
+/// Rows the returned text did not show writing an exact spelling may write it in a field the
+/// search did not return, so the registry's own matching decides.
+pub(super) fn confirm_codon_only(
+    leg: &Leg<'_>,
+    exact: &[String],
+    candidates: Vec<biodata::NctId>,
+) -> Result<Vec<biodata::NctId>, RequestError> {
+    if candidates.is_empty() {
+        return Ok(candidates);
+    }
+    let ids = candidates
+        .iter()
+        .map(|id| format!("AREA[NCTId]{id}"))
+        .collect::<Vec<_>>()
+        .join(" OR ");
+    let params = std::collections::BTreeMap::from([
+        ("countTotal".to_owned(), "true".to_owned()),
+        ("pageSize".to_owned(), candidates.len().to_string()),
+        ("fields".to_owned(), "NCTId".to_owned()),
+        ("query.term".to_owned(), biomcp_types::exact_terms(exact)),
+        ("filter.advanced".to_owned(), format!("({ids})")),
+    ]);
+    let found = ctgov::fetch_page(leg, &params)?.ids();
+    Ok(candidates
+        .into_iter()
+        .filter(|id| !found.contains(id))
+        .collect())
+}

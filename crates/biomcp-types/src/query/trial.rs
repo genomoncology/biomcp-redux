@@ -4,14 +4,10 @@ mod continuation;
 mod country;
 mod drug_terms;
 mod filters;
-mod variant_terms;
 use crate::{GeneInput, NctId, PartialDate, StudyType, Text, TrialSex, TrialStatus};
 pub use biomarker::NciBiomarkerUse;
 pub use filters::{NciStatusFilter, TrialPhaseFilter, TrialStatusFilter};
 use serde::{Deserialize, Serialize};
-pub use variant_terms::{
-    VariantSpellings, codon_split, exact_terms, is_criteria_group, variant_terms,
-};
 const MAX_ALTERNATIVES: usize = 5;
 biodata::wire_enum! {
     /// Registry funding category facet.
@@ -82,7 +78,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "GeneInput"))]
     gene: Option<GeneInput>,
-    #[doc = "Variant text.\nClinicalTrials.gov only: general text or eligibility criteria; a protein change or exon deletion/insertion adds its other spellings, and its codon with --gene; no eligibility judgment."]
+    #[doc = "Variant text.\nClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",
@@ -107,7 +103,7 @@ struct Fields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "NciBiomarkerUse"))]
     biomarker_use: Option<NciBiomarkerUse>,
-    #[doc = "Criteria text.\nClinicalTrials.gov only: search registry eligibility text; a protein change or exon deletion/insertion adds its other spellings; no eligibility judgment."]
+    #[doc = "Criteria text.\nClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment."]
     #[serde(
         default,
         deserialize_with = "super::gene::present",

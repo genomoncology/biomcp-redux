@@ -81,16 +81,11 @@ fn notice(typed: &Text, spellings: Option<&VariantSpellings>, general: bool) -> 
         ));
     }
     message.push_str(&format!(". {exact}"));
-    let texts = |values: &[String]| -> Box<[Text]> {
-        values
-            .iter()
-            .filter_map(|value| Text::new(value).ok())
-            .collect()
-    };
+    let (spellings_text, codon) = spellings.texts();
     SourceNotice::VariantSearch {
         input: typed.clone(),
-        spellings: texts(&spellings.spellings),
-        codon: texts(&spellings.codon),
+        spellings: spellings_text,
+        codon,
         message: message.into(),
     }
 }
