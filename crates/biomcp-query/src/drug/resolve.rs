@@ -5,8 +5,10 @@ use biomcp_types::{
     DrugGet, DrugHeader, DrugNameMatch, DrugNameResolution, DrugSearch, DrugSource, ReplyData,
     Step, StepKind, UsageArguments, UsageError,
 };
+use std::cmp::Reverse;
 
-type Rank = (u8, u8, String);
+/// Name match, source tier, more numbered label indications first, then a source key.
+pub(super) type Rank = (u8, u8, Reverse<u32>, String);
 /// Most MyChem rows a name get reads while looking for a drug record with an exact name.
 const MYCHEM_NAME_CAP: u32 = 250;
 
@@ -110,9 +112,7 @@ fn chosen_name(
     let ranking = (if query.source() == DrugSource::Drugsfda {
         "exact brand before generic; NDA/BLA before ANDA, then earliest approval"
     } else if query.source() == DrugSource::OpenfdaLabel {
-        "exact brand before generic; then brand-name NDA/BLA labels, other \
-         NDA/BLA labels, then generic or other labels; then most numbered indications; then \
-         newest revision"
+        super::label_choice::RANKING
     } else {
         "exact brand before generic; source search order among equals"
     })
@@ -126,8 +126,8 @@ fn chosen_name(
         },
         ranking,
         total: candidates.len() as u64,
-        reason: (query.source() == DrugSource::OpenfdaLabel && candidates.len() > 1)
-            .then(|| label_reason(candidates))
+        reason: (query.source() == DrugSource::OpenfdaLabel)
+            .then(|| super::label_choice::reason(candidates))
             .flatten(),
         alternatives: candidates
             .iter()
@@ -156,60 +156,6 @@ fn chosen_name(
         }
     }
     out
-}
-
-/// Say which label a name chose and why, and how many others of each kind it passed over.
-fn label_reason(candidates: &[(Rank, DrugHeader)]) -> Option<biodata::Text> {
-    use biomcp_adapters::openfda_label::LabelHolder;
-    let ((_, holder, indications), chosen) = candidates.first()?;
-    let kind = |holder: u8| {
-        if holder == LabelHolder::Brand as u8 {
-            "a brand-name NDA/BLA label"
-        } else if holder == LabelHolder::Application as u8 {
-            "an NDA/BLA label under the generic name"
-        } else {
-            "a generic or other label"
-        }
-    };
-    let numbered = indications
-        .parse::<u32>()
-        .ok()
-        .map_or(0, |inverse| u32::MAX - inverse);
-    let listing = if numbered > 0 {
-        format!(" listing {numbered} numbered indications")
-    } else {
-        String::new()
-    };
-    let others = candidates.len() - 1;
-    let counts: Vec<String> = [
-        LabelHolder::Brand,
-        LabelHolder::Application,
-        LabelHolder::Other,
-    ]
-    .into_iter()
-    .filter_map(|each| {
-        let n = candidates[1..]
-            .iter()
-            .filter(|((_, holder, _), _)| *holder == each as u8)
-            .count();
-        (n > 0).then(|| {
-            let kind = kind(each as u8)
-                .split_once(' ')
-                .map_or("", |(_, rest)| rest);
-            format!("{n} {}", kind.replace("label", "labels"))
-        })
-    })
-    .collect();
-    let text = format!(
-        "chose {} ({}), {}{listing}; {others} other label{} share{} this name: {}",
-        chosen.name.as_ref().map_or("", |n| n.as_str()),
-        chosen.id,
-        kind(*holder),
-        if others == 1 { "" } else { "s" },
-        if others == 1 { "s" } else { "" },
-        counts.join(", "),
-    );
-    text.parse().ok()
 }
 
 fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
@@ -241,7 +187,7 @@ fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeade
                     _ => None,
                 };
                 if let Some(rank) = rank {
-                    candidates.push(((rank, 0, String::new()), header.clone()));
+                    candidates.push(((rank, 0, Reverse(0), String::new()), header.clone()));
                 }
             }
         }
@@ -360,7 +306,7 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
                         row.name_rank(get.input().as_str())
                             .map(|(name, app, date)| {
                                 (
-                                    (name, app, date.unwrap_or_else(|| "9999".into())),
+                                    (name, app, Reverse(0), date.unwrap_or_else(|| "9999".into())),
                                     row.header(),
                                 )
                             })
@@ -384,16 +330,7 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
             let mut candidates = Vec::new();
             for row in &page.window.rows {
                 if let Some(matched) = row.exact_name_match(get.input()) {
-                    let choice = row.choice();
-                    candidates.push((
-                        (
-                            u8::from(matched == DrugNameMatch::Generic),
-                            choice.holder as u8,
-                            // More numbered indications first; source order (newest) among equals.
-                            format!("{:010}", u32::MAX - choice.indications),
-                        ),
-                        row.header()?,
-                    ));
+                    candidates.push((super::label_choice::rank(matched, row), row.header()?));
                 }
             }
             Ok(NativePage {
@@ -430,11 +367,16 @@ fn mychem(
                 .filter_map(|(header, drug)| {
                     header.matched_name.map(|matched| {
                         let rank = u8::from(matched == DrugNameMatch::Generic);
-                        ((rank, u8::from(!drug), String::new()), header.clone())
+                        (
+                            (rank, u8::from(!drug), Reverse(0), String::new()),
+                            header.clone(),
+                        )
                     })
                 })
                 .collect();
-            let settled = candidates.iter().any(|((_, product, _), _)| *product == 0);
+            let settled = candidates
+                .iter()
+                .any(|((_, product, _, _), _)| *product == 0);
             let more = received > 0
                 && page
                     .value
@@ -453,8 +395,11 @@ fn mychem(
             })
         });
     // A product-only record answers only when no record with drug rows matched.
-    if candidates.iter().any(|((_, product, _), _)| *product == 0) {
-        candidates.retain(|((_, product, _), _)| *product == 0);
+    if candidates
+        .iter()
+        .any(|((_, product, _, _), _)| *product == 0)
+    {
+        candidates.retain(|((_, product, _, _), _)| *product == 0);
     }
     let Some(Read { rows, total, .. }) =
         examined.filter(|read| !read.settled && u64::from(read.rows) < read.total)
@@ -514,6 +459,7 @@ fn chembl(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Ran
                             (
                                 u8::from(matched == DrugNameMatch::Generic),
                                 0,
+                                Reverse(0),
                                 String::new(),
                             ),
                             header.value,
@@ -563,6 +509,7 @@ fn ema(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
                         (
                             u8::from(matched == DrugNameMatch::Generic),
                             0,
+                            Reverse(0),
                             String::new(),
                         ),
                         header,

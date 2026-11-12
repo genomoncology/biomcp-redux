@@ -126,21 +126,18 @@ pub struct LabelChoice {
 fn numbered_indications(parts: &[String]) -> u32 {
     let mut seen = std::collections::BTreeSet::new();
     for part in parts {
-        let text = part.as_bytes();
         for (at, _) in part.match_indices("1.") {
-            if at > 0 && (text[at - 1].is_ascii_digit() || text[at - 1] == b'.') {
+            let before = part.get(..at).and_then(|head| head.chars().next_back());
+            if before.is_some_and(|c| c.is_ascii_digit() || c == '.') {
                 continue;
             }
-            let start = at + 2;
-            let len = text[start..]
-                .iter()
-                .take_while(|c| c.is_ascii_digit())
-                .count();
-            let end = start + len;
+            let rest = part.get(at + 2..).unwrap_or("");
+            let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
+            let mut after = rest.chars().skip(digits.len());
             let longer =
-                text.get(end) == Some(&b'.') && text.get(end + 1).is_some_and(u8::is_ascii_digit);
-            if (1..=2).contains(&len) && text[start] != b'0' && !longer {
-                seen.insert(&part[start..end]);
+                after.next() == Some('.') && after.next().is_some_and(|c| c.is_ascii_digit());
+            if (1..=2).contains(&digits.len()) && !digits.starts_with('0') && !longer {
+                seen.insert(digits);
             }
         }
     }
@@ -203,9 +200,10 @@ impl Record {
                 (true, false) => LabelHolder::Application,
                 (false, _) => LabelHolder::Other,
             },
-            indications: numbered_indications(
-                self.0.parts("indications_and_usage").unwrap_or_default(),
-            ),
+            indications: self
+                .0
+                .parts("indications_and_usage")
+                .map_or(0, numbered_indications),
         }
     }
     /// Preserve search's existing complete-name and spacing normalization.
