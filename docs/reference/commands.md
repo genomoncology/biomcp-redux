@@ -3500,9 +3500,9 @@ Source CIViC claim collection within the selected profile.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer. Example: --civic-profile 12. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--disease`: Disease
-CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string. Example: --disease <disease> (syntax; replace the placeholder with your retained value). Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string. Example: --disease lung. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--drug`: Drug
-CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string. Example: --drug <drug> (syntax; replace the placeholder with your retained value). Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string. Example: --drug erlotinib. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get variant
 A–E
 Source CIViC evidence levels; repeat to include several levels.

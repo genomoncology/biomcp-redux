@@ -15,7 +15,7 @@
         },
         "/result/commands/0/description": "Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator."
       },
-      "max_bytes": 8251
+      "max_bytes": 8400
     },
     {
       "run": [
