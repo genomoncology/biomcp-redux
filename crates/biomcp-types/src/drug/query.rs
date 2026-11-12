@@ -52,7 +52,7 @@ struct GetFields {
     #[serde(default, deserialize_with = "selected_source")]
     #[cfg_attr(feature = "schema", schemars(with = "DrugSource", extend("default" = "mychem")))]
     source: Option<DrugSource>,
-    /// One named disclosure per call for every source; empty means identity only.
+    /// Named disclosures of the selected source, each its own part of one reply; empty means identity only.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
@@ -63,8 +63,9 @@ struct GetFields {
     /// Named section continuation, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
-    #[doc = "Exact openFDA SPL field.\nExact published openFDA SPL section field, including table fields. Omit it to list names."]
+    #[doc = "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
     #[doc = "FDA product number.\nExplicit native application product number, only for approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -331,13 +332,37 @@ impl DrugGet {
 }
 
 impl DrugGet {
-    /// Whether the selected source serves every requested disclosure in one call.
+    /// Whether the selected source serves every requested disclosure.
     pub fn supports_sections(&self) -> bool {
-        self.sections().len() <= 1
-            && self
-                .sections()
-                .iter()
-                .all(|section| self.source().sections().contains(section))
+        self.sections()
+            .iter()
+            .all(|section| self.source().sections().contains(section))
+    }
+    /// One request per named section and label heading, in caller order, each keeping this
+    /// request's source, identity and section paging; one part for a single section.
+    pub fn parts(&self) -> Result<Vec<Self>, QueryInvalid> {
+        let mut parts = Vec::new();
+        for section in self.sections() {
+            let headings = match (section, &self.fields.label_section) {
+                (DrugSection::Label, Some(headings)) => headings
+                    .as_str()
+                    .split(',')
+                    .map(|heading| Text::new(heading.trim()).map(Some))
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|_| QueryInvalid::new(&["label_section"]))?,
+                _ => vec![None],
+            };
+            for heading in headings {
+                let mut fields = self.fields.clone();
+                fields.section = vec![*section].into();
+                fields.label_section = heading;
+                parts.push(self.with_fields(fields)?);
+            }
+        }
+        if parts.len() <= 1 {
+            return Ok(vec![self.clone()]);
+        }
+        Ok(parts)
     }
     /// Explicit requested disclosures.
     pub fn sections(&self) -> &[DrugSection] {

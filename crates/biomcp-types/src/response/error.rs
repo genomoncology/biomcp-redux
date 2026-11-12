@@ -64,7 +64,6 @@ singleton! {
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
  SourceSelector => "choose one of the source selector values",
- OneSection => "choose one section per call from valid_values; call again for another section",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",
  McpResultTooBroad => "MCP tool result exceeds the character cap in error.count; narrow \

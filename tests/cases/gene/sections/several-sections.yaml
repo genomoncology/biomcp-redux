@@ -1,0 +1,31 @@
+{
+  "feature": "several-sections",
+  "live_check": "recorded only; reuses the gene constraint replay",
+  "story": "A typed gene get with a list of two sections answers both in one reply, as the command line does in protein-mir21.",
+  "replay": "gene/constraint",
+  "config": {
+    "mcp_tool_mode": "typed"
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "MIR21",
+            "section": [
+              "constraint",
+              "protein"
+            ]
+          }
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/constraint/state": "not-applicable",
+        "/result/items/0/sections/protein/state": "not-applicable"
+      }
+    }
+  ]
+}

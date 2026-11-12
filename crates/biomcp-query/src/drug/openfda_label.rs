@@ -243,7 +243,7 @@ fn section_names(
         },
         sections: headings(record)?,
         hint: Some(
-            "pass one of sections as label_section (--label-section on the command line) to read its text"
+            "pass sections as label_section (--label-section on the command line), several separated by commas, to read their text"
                 .parse()
                 .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
         ),
