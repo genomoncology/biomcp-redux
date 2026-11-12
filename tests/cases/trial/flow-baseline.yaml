@@ -1,0 +1,59 @@
+{
+  "live_check": "public",
+  "feature": "trial-results",
+  "story": "Asked only how many participants started, completed or dropped out, or only who was enrolled at baseline, the agent gets that part of the posted results alone, without paging through the posted outcomes that come first in results; both parts also answer together in one call.",
+  "replay": "trial/results/NCT01844505",
+  "verified": "tests/replies/trial/results/README.md identifies the unchanged public NCT01844505 reply. Its resultsSection.participantFlowModule has 3 groups and 2 periods (Pre-Treatment Period, Treatment Period); its baselineCharacteristicsModule has an analysis population, 4 groups and 3 measures (first Age, Continuous). In results the flow records start on page 12, after about 152 KB of outcomes. Each ceiling is the measured reply plus 15 percent.",
+  "steps": [
+    {
+      "run": ["get", "trial", "NCT01844505", "flow"],
+      "mcp": ["get", "trial", "NCT01844505", "flow"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/flow/data/items/*/record": {
+          "equals": ["flow-group", "flow-group", "flow-group", "flow-period", "flow-period"]
+        },
+        "/result/items/0/sections/flow/data/items/0/data/id": "FG000",
+        "/result/items/0/sections/flow/data/items/3/data/title": "Pre-Treatment Period",
+        "/result/items/0/sections/flow/data/total": 5,
+        "/result/items/0/sections": {
+          "omits": ["results", "baseline"]
+        }
+      },
+      "max_bytes": 5165
+    },
+    {
+      "run": ["get", "trial", "NCT01844505", "baseline"],
+      "mcp": ["get", "trial", "NCT01844505", "baseline"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/baseline/data/items/*/record": {
+          "equals": [
+            "baseline",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-group",
+            "baseline-measure",
+            "baseline-measure",
+            "baseline-measure"
+          ]
+        },
+        "/result/items/0/sections/baseline/data/items/5/data/title": "Age, Continuous",
+        "/result/items/0/sections/baseline/data/total": 8
+      },
+      "max_bytes": 6289
+    },
+    {
+      "run": ["get", "trial", "NCT01844505", "flow", "baseline"],
+      "mcp": ["get", "trial", "NCT01844505", "flow", "baseline"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/flow/data/total": 5,
+        "/result/items/0/sections/baseline/data/total": 8
+      },
+      "max_bytes": 9102
+    }
+  ],
+  "harvest": "biomed-agent-bench trial-results paging (sdlc/records/2026-11-11-token-gap-root-cause.md): an agent paged one trial's results looking for participant-flow counts"
+}

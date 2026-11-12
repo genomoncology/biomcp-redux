@@ -4184,6 +4184,8 @@
         "eligibility",
         "outcomes",
         "results",
+        "flow",
+        "baseline",
         "arms",
         "locations",
         "contacts",
@@ -4198,12 +4200,14 @@
         " Intact criteria and structured age/sex fields.",
         " Primary, secondary and other outcome records.",
         " Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).",
+        " Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).",
+        " Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).",
         " Arms and interventions with original relationships.",
         " Whole source sites with their attached contacts.",
         " Central contacts and overall officials in their original roles.",
         " Registry publication identities and native reference types.",
         " Posted document metadata and source URLs.",
-        " Every implemented trial section, each with independent continuations.",
+        " Every implemented trial section, each with independent continuations; flow and baseline stay within results.",
         " Native NCI disease concepts, including source enrichment metadata.",
         " Complete NCI summary, paged by original character offsets."
       ]
@@ -4221,6 +4225,17 @@
             }
           ],
           "description": "Whole source arm and intervention records."
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_TrialRecords_TrialResultRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Baseline-characteristics records from the posted results alone, in source order."
         },
         "contacts": {
           "anyOf": [
@@ -4254,6 +4269,17 @@
             }
           ],
           "description": "Source eligibility fields and exact text fragment."
+        },
+        "flow": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_TrialRecords_TrialResultRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Participant-flow records from the posted results alone, in source order."
         },
         "locations": {
           "anyOf": [

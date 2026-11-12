@@ -21,7 +21,9 @@ pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
             .and_then(|e| e.criteria.as_ref())
             .map_or(0, |s| s.as_str().chars().count()),
         Some(TrialSection::Outcomes) => d.outcomes.len(),
-        Some(TrialSection::Results) => d.results.len(),
+        Some(s @ (TrialSection::Results | TrialSection::Flow | TrialSection::Baseline)) => {
+            results::rows(*s, &d.results).len()
+        }
         Some(TrialSection::Arms) => d.arms.len() + d.interventions.len(),
         Some(TrialSection::References) => d.references.len(),
         Some(TrialSection::Documents) => d.documents.len(),

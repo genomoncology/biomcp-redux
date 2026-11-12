@@ -749,6 +749,13 @@
     "Reply_ProteinFeatures": {
       "description": "Native UniProt feature rows, preserving exact labels and uncertain bounds.",
       "properties": {
+        "coordinate_note": {
+          "description": "How to read the spans above; present when any row is returned.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "items": {
           "description": "Whole native rows in source order; totals apply only to this collection.",
           "items": {
@@ -1484,7 +1491,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.protein-features/4",
+  "$id": "biomcp.protein-features/5",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
   "properties": {
@@ -1540,7 +1547,7 @@
       "description": "Answer when available."
     },
     "schema": {
-      "const": "biomcp.protein-features/4",
+      "const": "biomcp.protein-features/5",
       "type": "string"
     },
     "sources": {

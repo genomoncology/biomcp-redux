@@ -277,6 +277,17 @@
                 }
               ],
               "description": "Complete native relation that matched the source selector."
+            },
+            "name_match": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_GtrNameMatch"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "How `--name` matched the test name; absent without `--name`."
             }
           },
           "required": [
@@ -318,6 +329,17 @@
             "identity_status": {
               "const": "conflict",
               "type": "string"
+            },
+            "name_match": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_GtrNameMatch"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "How `--name` matched any conflicting row's test name; absent without `--name`."
             },
             "problem": {
               "$ref": "#/$defs/Reply_Problem",
@@ -998,6 +1020,14 @@
         "method_categories",
         "methods",
         "platforms"
+      ],
+      "type": "string"
+    },
+    "Reply_GtrNameMatch": {
+      "description": "How `--name` text sits in a GTR test name; whole-word rows come first.",
+      "enum": [
+        "whole-word",
+        "partial-word"
       ],
       "type": "string"
     },

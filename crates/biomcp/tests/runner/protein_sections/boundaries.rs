@@ -147,6 +147,7 @@ fn section_context(env: &Environment) -> Result<(), String> {
         || all
             .pointer("/result/items/0/sections/structures/data/items/0/properties")
             .is_some()
+        || all.pointer("/result/coordinate_note").is_none()
     {
         return Err("native section facts were dropped or invented".into());
     }

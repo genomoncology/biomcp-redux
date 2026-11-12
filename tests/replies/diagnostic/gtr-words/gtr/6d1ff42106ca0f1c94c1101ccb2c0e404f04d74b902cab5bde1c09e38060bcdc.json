@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "gtr",
+  "url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/test_condition_gene.txt",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "text/plain",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "#accession_version\ttest_type\tobject\tGTR_identifier\tMIM_number\tobject_name\tgene_or_SNOMED_CT_ID\tgene_symbol\nGTR000000201.1\tClinical\tgene\tC0000001\t\tPTEN object name\t5728\tPTEN\nGTR000000202.1\tClinical\tgene\tC0000001\t\tPTEN object name\t5728\tPTEN\n"
+      }
+    }
+  ]
+}

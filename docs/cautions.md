@@ -85,7 +85,7 @@ EMA's medicines file holds some `?` characters where a symbol such as `≥` was 
 
 Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
-`--name` matches literal text inside the native `lab_test_name`, ignoring letter case, across every stored version row, including tests with no gene or condition link. It counts current cards and conflicting identities before paging; a test whose only card is not current is left out. A name match has no matched relation unless a relation selector is also given. There is no fuzzy matching or ranking.
+`--name` matches literal text inside the native `lab_test_name`, ignoring letter case, across every stored version row, including tests with no gene or condition link. It counts current cards and conflicting identities before paging; a test whose only card is not current is left out. A name match has no matched relation unless a relation selector is also given. Tests whose name holds the text as whole words, with no letter or digit touching either end, come first, then tests where it sits only inside a longer word, each group in source order; `name_match` says `whole-word` or `partial-word` on each row. There is no fuzzy matching.
 
 ## GTR cards
 

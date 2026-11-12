@@ -212,8 +212,9 @@ fn overload() -> Check {
     let mut held = Vec::new();
     // Held peers keep every reader busy only for the server's two-second read budget.
     let readers_free = std::time::Instant::now() + Duration::from_secs(2);
-    // Framing can use the full existing worker bound (twice the connection cap plus one).
-    for _ in 0..17 {
+    // Framing can use the full existing worker bound (twice the connection cap plus one). The
+    // default connection cap is twice the default call cap, so one call can wait behind each.
+    for _ in 0..33 {
         let mut socket = TcpStream::connect(server.address).map_err(|e| e.to_string())?;
         socket
             .write_all(b"GET /health HTTP/1.1\r\n")

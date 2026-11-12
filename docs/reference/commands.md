@@ -3374,12 +3374,14 @@ Optional intact source sections. Default cards only; diseases and summary requir
 - `eligibility`: Intact criteria and structured age/sex fields.
 - `outcomes`: Primary, secondary and other outcome records.
 - `results`: Posted outcome values and analyses, then participant flow, baseline and adverse-event tables (ClinicalTrials.gov).
+- `flow`: Participant flow alone: started, completed and not completed by arm and period, with dropout reasons (ClinicalTrials.gov).
+- `baseline`: Baseline characteristics alone: analysis population, groups and measures (ClinicalTrials.gov).
 - `arms`: Arms and interventions with original relationships.
 - `locations`: Whole source sites with their attached contacts.
 - `contacts`: Central contacts and overall officials in their original roles.
 - `references`: Registry publication identities and source reference types.
 - `documents`: Posted document metadata and source URLs.
-- `all`: Every implemented trial section, each with independent continuations.
+- `all`: Every implemented trial section, each with independent continuations; flow and baseline stay within results.
 - `diseases`: Source NCI disease concepts, including source enrichment metadata.
 - `summary`: Complete NCI summary, paged by original character offsets.
 
