@@ -41,8 +41,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
     /// Search the typed name only.
-    /// openFDA labels, Drugs@FDA and FDA drug recalls search the typed name together with the
-    /// drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
+    /// openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
+    /// the drug's other names by default; this searches only the name as typed. Other sources search the name as typed.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
     /// Label name page token.
@@ -316,10 +316,11 @@ impl crate::Paged for DrugSearch {
 }
 
 /// Sources that search a typed drug name together with the drug's other names by default.
-const WIDENING: [DrugSource; 3] = [
+const WIDENING: [DrugSource; 4] = [
     DrugSource::OpenfdaLabel,
     DrugSource::Drugsfda,
     DrugSource::FdaDrugRecall,
+    DrugSource::Ema,
 ];
 
 fn widens(fields: &SearchFields) -> bool {
