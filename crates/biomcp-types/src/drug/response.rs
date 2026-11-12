@@ -309,7 +309,7 @@ impl ResponseBody for DrugXrefs {
     type Query = DrugGet;
 }
 
-/// Exact source name choice; brand before generic, original FDA application then earliest approval, otherwise source order.
+/// Exact source name choice; brand before generic, original FDA application then earliest approval, for labels the brand holder's label with the most numbered indications, otherwise source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugNameResolution {
@@ -322,6 +322,9 @@ pub struct DrugNameResolution {
     pub ranking: Box<str>,
     /// Total exact source records, including the selected record.
     pub total: u64,
+    /// Which record was chosen and why, with counts of the others by kind; label names only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reason: Option<Text>,
     /// Up to five other exact records as ready get commands.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub alternatives: Box<[Step]>,

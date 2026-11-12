@@ -109,6 +109,10 @@ fn chosen_name(
 ) -> Outcome {
     let ranking = (if query.source() == DrugSource::Drugsfda {
         "exact brand before generic; NDA/BLA before ANDA, then earliest approval"
+    } else if query.source() == DrugSource::OpenfdaLabel {
+        "exact brand before generic; then brand-name NDA/BLA labels, other \
+         NDA/BLA labels, then generic or other labels; then most numbered indications; then \
+         newest revision"
     } else {
         "exact brand before generic; source search order among equals"
     })
@@ -122,6 +126,9 @@ fn chosen_name(
         },
         ranking,
         total: candidates.len() as u64,
+        reason: (query.source() == DrugSource::OpenfdaLabel && candidates.len() > 1)
+            .then(|| label_reason(candidates))
+            .flatten(),
         alternatives: candidates
             .iter()
             .skip(1)
@@ -149,6 +156,60 @@ fn chosen_name(
         }
     }
     out
+}
+
+/// Say which label a name chose and why, and how many others of each kind it passed over.
+fn label_reason(candidates: &[(Rank, DrugHeader)]) -> Option<biodata::Text> {
+    use biomcp_adapters::openfda_label::LabelHolder;
+    let ((_, holder, indications), chosen) = candidates.first()?;
+    let kind = |holder: u8| {
+        if holder == LabelHolder::Brand as u8 {
+            "a brand-name NDA/BLA label"
+        } else if holder == LabelHolder::Application as u8 {
+            "an NDA/BLA label under the generic name"
+        } else {
+            "a generic or other label"
+        }
+    };
+    let numbered = indications
+        .parse::<u32>()
+        .ok()
+        .map_or(0, |inverse| u32::MAX - inverse);
+    let listing = if numbered > 0 {
+        format!(" listing {numbered} numbered indications")
+    } else {
+        String::new()
+    };
+    let others = candidates.len() - 1;
+    let counts: Vec<String> = [
+        LabelHolder::Brand,
+        LabelHolder::Application,
+        LabelHolder::Other,
+    ]
+    .into_iter()
+    .filter_map(|each| {
+        let n = candidates[1..]
+            .iter()
+            .filter(|((_, holder, _), _)| *holder == each as u8)
+            .count();
+        (n > 0).then(|| {
+            let kind = kind(each as u8)
+                .split_once(' ')
+                .map_or("", |(_, rest)| rest);
+            format!("{n} {}", kind.replace("label", "labels"))
+        })
+    })
+    .collect();
+    let text = format!(
+        "chose {} ({}), {}{listing}; {others} other label{} share{} this name: {}",
+        chosen.name.as_ref().map_or("", |n| n.as_str()),
+        chosen.id,
+        kind(*holder),
+        if others == 1 { "" } else { "s" },
+        if others == 1 { "s" } else { "" },
+        counts.join(", "),
+    );
+    text.parse().ok()
 }
 
 fn discover(cx: &Ctx<'_>, search: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
@@ -323,11 +384,13 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
             let mut candidates = Vec::new();
             for row in &page.window.rows {
                 if let Some(matched) = row.exact_name_match(get.input()) {
+                    let choice = row.choice();
                     candidates.push((
                         (
                             u8::from(matched == DrugNameMatch::Generic),
-                            0,
-                            String::new(),
+                            choice.holder as u8,
+                            // More numbered indications first; source order (newest) among equals.
+                            format!("{:010}", u32::MAX - choice.indications),
                         ),
                         row.header()?,
                     ));
