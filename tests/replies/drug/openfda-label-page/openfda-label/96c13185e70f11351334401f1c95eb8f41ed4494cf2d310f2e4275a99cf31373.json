@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22imatinib%22%20OR%20openfda.generic_name%3A%22imatinib%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22IMATINIB%22%20OR%20openfda.generic_name.exact%3A%22IMATINIB%22%20OR%20openfda.brand_name.exact%3A%22Imatinib%22%20OR%20openfda.generic_name.exact%3A%22Imatinib%22%20OR%20openfda.brand_name.exact%3A%22imatinib%22%20OR%20openfda.generic_name.exact%3A%22imatinib%22%29&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "{\"meta\":{\"disclaimer\":\"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\"terms\":\"https://open.fda.gov/terms/\",\"license\":\"https://open.fda.gov/license/\",\"last_updated\":\"2026-11-11\",\"results\":{\"skip\":0,\"limit\":1,\"total\":20}},\"results\":[{\"effective_time\":\"20261023\",\"id\":\"5e84bba0-f1ce-884c-e063-6394a90a33d5\",\"openfda\":{\"application_number\":[\"ANDA079179\"],\"brand_name\":[\"Imatinib Mesylate\"],\"generic_name\":[\"IMATINIB MESYLATE\"],\"manufacturer_name\":[\"American Health Packaging\"],\"product_ndc\":[\"60687-882\"],\"product_type\":[\"HUMAN PRESCRIPTION DRUG\"],\"route\":[\"ORAL\"],\"substance_name\":[\"IMATINIB MESYLATE\"],\"rxcui\":[\"403878\"],\"spl_id\":[\"5e84bba0-f1ce-884c-e063-6394a90a33d5\"],\"spl_set_id\":[\"6e7ed4ef-24e3-4545-9a99-2e34c946e8e7\"],\"package_ndc\":[\"60687-882-11\",\"60687-882-21\"],\"original_packager_product_ndc\":[\"60505-2900\"],\"unii\":[\"8A1O1M485B\"]},\"set_id\":\"6e7ed4ef-24e3-4545-9a99-2e34c946e8e7\",\"spl_product_data_elements\":[\"Imatinib Mesylate Imatinib Mesylate IMATINIB MESYLATE IMATINIB SILICON DIOXIDE CROSPOVIDONE (120 .MU.M) MAGNESIUM STEARATE FERRIC OXIDE RED FERRIC OXIDE YELLOW HYPROMELLOSE 2910 (5 MPA.S) HYDROXYPROPYL CELLULOSE (90000 WAMW) POLYETHYLENE GLYCOL 8000 Brownish Orange IMA;100;APO\"],\"version\":\"3\"}]}"
+      }
+    }
+  ]
+}
