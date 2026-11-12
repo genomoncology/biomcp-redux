@@ -74,10 +74,10 @@ impl Calls {
                 return protocol::capacity(id, service.max_calls, waited, retry);
             }
         };
-        if scope
+        let expired = scope
             .as_ref()
-            .is_some_and(|scope| scope.remaining().is_zero())
-        {
+            .is_some_and(|scope| scope.remaining().is_zero());
+        if expired {
             return protocol::timeout(id);
         }
         let globals = service.globals.clone();
@@ -129,14 +129,7 @@ impl Calls {
             scope: held,
         });
         drop(state);
-        match scope {
-            Some(scope) => wait(&scope, receiver, id),
-            None => receiver
-                .recv()
-                .ok()
-                .and_then(Result::ok)
-                .unwrap_or_else(|| protocol::error(id, -32603, "Internal error")),
-        }
+        wait(scope.as_ref(), receiver, id)
     }
     /// Hold the lock with a free slot, or say how long this call waited and when to retry.
     fn turn(
@@ -232,10 +225,17 @@ impl Drop for Calls {
 }
 
 fn wait(
-    scope: &Cancellation,
+    scope: Option<&Cancellation>,
     receiver: mpsc::Receiver<std::io::Result<Value>>,
     id: Value,
 ) -> Value {
+    let Some(scope) = scope else {
+        // Plain HTTP has no whole-call deadline; the command's own budget ends its work.
+        let reply = receiver
+            .recv()
+            .unwrap_or_else(|_| Err(std::io::ErrorKind::Other.into()));
+        return reply.unwrap_or_else(|_| protocol::error(id, -32603, "Internal error"));
+    };
     loop {
         let remaining = scope.remaining();
         if remaining.is_zero() {
