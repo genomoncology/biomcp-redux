@@ -41,6 +41,17 @@ pub(crate) fn command() -> Command {
             .value_delimiter(',')
             .action(ArgAction::Append),
     );
+    // Search help names each row's fields; the option stays out of every command's help.
+    root = root.arg(
+        Arg::new("fields")
+            .long("fields")
+            .hide(true)
+            .help("Keep only these top-level fields of each search row. Example: --fields nct_id,title.")
+            .global(true)
+            .num_args(1)
+            .value_delimiter(',')
+            .action(ArgAction::Append),
+    );
     root = root.arg(
         Arg::new("source_pacing")
             .long("source_pacing")

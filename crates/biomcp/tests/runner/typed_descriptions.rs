@@ -184,6 +184,8 @@ fn standalone(tools: &[Value]) -> Result<(), String> {
                 .and_then(Value::as_object)
                 .into_iter()
                 .flatten()
+                // The chosen-fields list is bare by design; search help names the fields.
+                .filter(|(key, _)| *key != "fields")
                 .map(|(key, property)| (format!("{name}.{key}"), &property["description"])),
         );
         for (path, value) in descriptions {

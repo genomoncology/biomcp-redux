@@ -104,7 +104,7 @@
       "type": "string"
     }
   },
-  "$id": "biomcp.trial-header/5",
+  "$id": "biomcp.trial-header/6",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "description": "Small source-attributed trial discovery record.",
   "properties": {
@@ -207,10 +207,7 @@
     }
   },
   "required": [
-    "nct_id",
-    "conditions",
-    "interventions",
-    "url"
+    "nct_id"
   ],
   "title": "TrialHeader",
   "type": "object"

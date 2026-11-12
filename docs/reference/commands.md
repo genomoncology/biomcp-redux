@@ -187,14 +187,14 @@ Options:
       --offset <offset>
           Offset within the complete retained observation.
 
+      --pool <pool>
+          Snapshot identity retained by continuation commands.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Snapshot identity retained by continuation commands.
 
       --source <source>
           Explicit keyed NCI source; help search biomarker
@@ -254,16 +254,16 @@ Options:
       --pool <pool>
           Retained page identity.
 
+      --source <source>
+          Source; auto uses PubMed if Semantic Scholar is off; help search author
+          Source; auto uses PubMed if Semantic Scholar is off.
+          PubMed accepts names or topics and returns unresolved names on papers.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --source <source>
-          Source; auto uses PubMed if Semantic Scholar is off; help search author
-          Source; auto uses PubMed if Semantic Scholar is off.
-          PubMed accepts names or topics and returns unresolved names on papers.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -316,14 +316,14 @@ Options:
       --distance <distance>
           Positive radius with explicit mi or km units.
 
+      --family <family>
+          Native organization family.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --family <family>
-          Native organization family.
 
       --lat <lat>
           Radius center latitude in degrees; requires lon and distance.
@@ -337,23 +337,23 @@ Options:
       --name <name>
           NCI partial organization name; names are not unique.
 
+      --offset <offset>
+          Offset within the complete retained organization snapshot.
+
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --offset <offset>
-          Offset within the complete retained organization snapshot.
+      --pool <pool>
+          Snapshot identity retained by continuation commands.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
-
-      --pool <pool>
-          Snapshot identity retained by continuation commands.
 
       --postal-code <postal_code>
           Native postal code.
@@ -418,14 +418,14 @@ Options:
       --gene <gene>
           Cellosaurus variation gene, as the source writes it (for example KRAS).
 
+  -l, --limit <limit>
+          Native page size.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-  -l, --limit <limit>
-          Native page size.
 
       --mutation <mutation>
           Cellosaurus variation text, as the source writes it (for example p.Gly12Asp).
@@ -501,14 +501,14 @@ Options:
           [default: false]
           [possible values: true, false]
 
+  -l, --limit <limit>
+          Maximum association rows.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-  -l, --limit <limit>
-          Maximum association rows.
 
       --offset <offset>
           Native association offset.
@@ -522,26 +522,26 @@ Options:
       --pubmed <pubmed>
           Exact source publication identity.
 
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
       --studies[=<studies>]
           Return study records for the selected publication instead of associations.
 
           [default: false]
           [possible values: true, false]
 
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
+      --offline[=<offline>]
+          Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
       --study <study>
           Exact source study accession.
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --trait <trait>
           Literal native efo_trait label; never searches reported_trait prose.
@@ -602,14 +602,14 @@ Options:
       --offset <offset>
           Source/retained result offset.
 
+      --pool <pool>
+          Exact retained collection identity.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Exact retained collection identity.
 
       --reviewed[=<reviewed>]
           Reviewed human scope stays enabled; unreviewed search is deferred.
@@ -733,14 +733,14 @@ Options:
   -l, --limit <limit>
           Five rows by default, one to fifty. Reactome rows equals this limit without refill.
 
+      --offset <offset>
+          Native Reactome Start row or retained WikiPathways catalog offset.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --offset <offset>
-          Native Reactome Start row or retained WikiPathways catalog offset.
 
       --pool <pool>
           Retained snapshot identity for deterministic continuation.
@@ -806,14 +806,14 @@ Options:
       --offset <offset>
           Zero-based offset in the checked snapshot.
 
+      --pool <pool>
+          Opaque continuation retaining the catalog revision and selectors.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Opaque continuation retaining the catalog revision and selectors.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -863,14 +863,14 @@ Options:
       --limit <limit>
           Rows per native page.
 
+      --offset <offset>
+          Native source offset.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --offset <offset>
-          Native source offset.
 
       --source <source>
           Required CPIC source; ClinPGx is not supported for search; help search pgx
@@ -930,12 +930,12 @@ Options:
           FDA recall class.
           Native enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
       --condition-id <condition_id>
           Exact MedGen:CUI.
           Exact MedGen:CUI identifier only.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -960,6 +960,10 @@ Options:
           Exact gene symbol.
           Exact source gene_symbol field, without alias expansion.
 
+      --gene-id <gene_id>
+          Exact NCBI GeneID.
+          Exact source GeneID, exclusive with gene symbol.
+
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -971,10 +975,6 @@ Options:
 
           [default: false]
           [possible values: true, false]
-
-      --gene-id <gene_id>
-          Exact NCBI GeneID.
-          Exact source GeneID, exclusive with gene symbol.
 
       --initiated-from <initiated_from>
           First date, YYYY-MM-DD.
@@ -1106,17 +1106,17 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --expand-drug-names[=<expand_drug_names>]
           FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
 
           [default: false]
           [possible values: true, false]
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --limit <limit>
           Native report headers, counted FAERS reaction terms or VAERS rows; default five.
@@ -1131,18 +1131,12 @@ Options:
       --offset <offset>
           Native report row offset; reaction counts require zero. VAERS needs its snapshot.
 
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
       --problem <problem>
           MAUDE product problem.
           MAUDE phrase on native product_problems.
 
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
+      --offline[=<offline>]
+          Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
@@ -1150,6 +1144,12 @@ Options:
       --product-code <product_code>...
           MAUDE product codes; OR.
           MAUDE exact native device.device_report_product_code; repeated codes join with OR.
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --reaction <reaction>
           FAERS MedDRA phrase.
@@ -1257,15 +1257,15 @@ Options:
           Exactly one ontology, default MONDO; help search disease
           Exactly one ontology, default MONDO.
 
+      --source <source>
+          One explicit source, default OLS; help search disease
+          One explicit source, default OLS.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --source <source>
-          One explicit source, default OLS; help search disease
-          One explicit source, default OLS.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1336,18 +1336,18 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --expand-drug-names[=<expand_drug_names>]
           Accepted for one release; changes nothing.
           Sources that widen drug names do so by default.
 
           [default: false]
           [possible values: true, false]
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --firm <firm>
           Recall firm phrase.
@@ -1367,6 +1367,11 @@ Options:
       --limit <limit>
           Native candidate rows per page.
 
+      --name-selector <name_selector>
+          ChEMBL name selector; help search drug
+          ChEMBL name selector.
+          Omit to search the preferred name.
+
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1378,11 +1383,6 @@ Options:
 
           [default: false]
           [possible values: true, false]
-
-      --name-selector <name_selector>
-          ChEMBL name selector; help search drug
-          ChEMBL name selector.
-          Omit to search the preferred name.
 
       --name-snapshot <name_snapshot>
           Label name page token.
@@ -1490,14 +1490,14 @@ Options:
           Optional HGNC locus group intersected with the selector; help search gene
           Optional HGNC locus group intersected with the selector.
 
+      --offset <offset>
+          Number of results to skip.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --offset <offset>
-          Number of results to skip.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1557,17 +1557,17 @@ Options:
           Drug words.
           Available for command sources except LitVar.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --exact-term[=<exact_term>]
           Search the typed drug term without resolving its other names.
 
           [default: false]
           [possible values: true, false]
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --gene <gene>
           Gene symbol or ID.
@@ -1587,17 +1587,11 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
       --offset <offset>
           Number of pool items to skip.
 
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
+      --offline[=<offline>]
+          Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
@@ -1605,6 +1599,12 @@ Options:
       --open-access[=<open_access>]
           Native open access.
           PubMed, Europe PMC and Semantic Scholar only: require native open access; Semantic Scholar means a public PDF.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1753,19 +1753,19 @@ Options:
           NCI criterion.
           Filter by NCI's native inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
       --condition <condition>...
           Disease; NCI needs NCIt.
           Conditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers.
 
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --condition-id <condition_id>
           MONDO/DOID/NCIT:C.
           Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --count-only[=<count_only>]
           Total.
@@ -1787,12 +1787,6 @@ Options:
           Radius, mi or km.
           ClinicalTrials.gov only: source distance with explicit mi or km units.
 
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
       --exact-condition[=<exact_condition>]
           Exact condition.
           Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial.
@@ -1800,14 +1794,20 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
+      --offline[=<offline>]
+          Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
       --exact-term[=<exact_term>]
           Search typed drug names and variant text as written, without other names or spellings.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -2016,14 +2016,14 @@ Options:
       --condition <condition>
           Literal MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector.
 
+      --gene <gene>
+          Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --gene <gene>
-          Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector.
 
       --has <has>
           Require the selected component's identifier field. Only; help search variant
@@ -2038,23 +2038,23 @@ Options:
       --protein <protein>
           Explicit substitution or synonymous change using checked amino-acid codes.
 
+      --query <query>
+          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
+
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --query <query>
-          Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead.
+      --region <region>
+          Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
-
-      --region <region>
-          Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build.
 
       --review-status <review_status>
           Literal MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector.
@@ -2479,15 +2479,15 @@ Options:
       --snapshot <snapshot>
           Retained exact source reply for local text and link pages; unsupported for diseases and genes.
 
+      --source <source>
+          HPO or Monarch for cards, synonyms and xrefs; Monarch only; help get phenotype
+          HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --source <source>
-          HPO or Monarch for cards, synonyms and xrefs; Monarch only; help get phenotype
-          HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2559,14 +2559,14 @@ Options:
       --section-limit <section_limit>
           Bounded initial section size; each all section has its own first page.
 
+      --section-offset <section_offset>
+          Native relation offset for a selected genes or events section.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --section-offset <section_offset>
-          Native relation offset for a selected genes or events section.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2626,14 +2626,14 @@ Options:
       --section-limit <section_limit>
           Maximum records in each selected section.
 
+      --section-offset <section_offset>
+          Offset within one named section; all requires zero.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --section-offset <section_offset>
-          Offset within one named section; all requires zero.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -2698,14 +2698,14 @@ Options:
       --drug-id <drug_id>
           Exact published CPIC drug key; recommendations only.
 
+      --gene <gene>
+          Explicit source gene symbol.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --gene <gene>
-          Explicit source gene symbol.
 
       --kind <kind>
           One ClinPGx collection; clinical is the default only on; help get pgx
@@ -2720,15 +2720,15 @@ Options:
       --snapshot <snapshot>
           Retained collection for local continuation.
 
+      --source <source>
+          Required source, checked against the section; help get pgx
+          Required source, checked against the section.
+
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
-
-      --source <source>
-          Required source, checked against the section; help get pgx
-          Required source, checked against the section.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -2796,16 +2796,16 @@ Options:
       --section-offset <section_offset>
           Zero-based native row or fragment offset.
 
+      --source <source>
+          Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
+          Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+          510(k) K number or device recall Z-NNNN-YYYY.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --source <source>
-          Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
-          Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-          510(k) K number or device recall Z-NNNN-YYYY.
 
       --supplement <supplement>
           Exact native PMA supplement; absent selects the base row.
@@ -2881,14 +2881,14 @@ Options:
       --section-offset <section_offset>
           Offset within the selected native section.
 
+      --snapshot <snapshot>
+          Checked retained report snapshot for provider-free continuation.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --snapshot <snapshot>
-          Checked retained report snapshot for provider-free continuation.
 
       --source <source>
           FAERS by default; MAUDE is explicit; help get adverse-event
@@ -2968,15 +2968,15 @@ Options:
       --interval <interval>
           Survival-only interval code.
 
+      --ontology <ontology>
+          One OLS ontology; help get disease
+          One OLS ontology.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --ontology <ontology>
-          One OLS ontology; help get disease
-          One OLS ontology.
 
       --period <period>
           Incidence-only native period code.
@@ -2990,17 +2990,11 @@ Options:
       --section-offset <section_offset>
           Native row offset within the selected section.
 
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
       --sex <sex>
           Native sex code.
 
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
+      --offline[=<offline>]
+          Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
@@ -3008,6 +3002,12 @@ Options:
       --source <source>
           Default MyDisease; no automatic fallback; help get disease
           Default MyDisease; no automatic fallback.
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
 ```
 
@@ -3078,16 +3078,16 @@ Options:
       --civic-profile <civic_profile>
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
+      --document-id <document_id>
+          FDA letter document ID.
+          Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
+          and 6144 escaped bytes per fragment. No-text scans are explicit.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --document-id <document_id>
-          FDA letter document ID.
-          Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-          and 6144 escaped bytes per fragment. No-text scans are explicit.
 
       --evidence-level <evidence_level>...
           A–E; help get drug
@@ -3107,23 +3107,23 @@ Options:
           FDA product number.
           Explicit native application product number, only for approvals.
 
+      --section-limit <section_limit>
+          Named section page size, refused on an identity-only card.
+
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --section-limit <section_limit>
-          Named section page size, refused on an identity-only card.
+      --section-offset <section_offset>
+          Named section continuation, refused on an identity-only card.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
-
-      --section-offset <section_offset>
-          Named section continuation, refused on an identity-only card.
 
       --source <source>
           Omit to infer the source of an unambiguous section; identity or; help get drug
@@ -3330,14 +3330,14 @@ Options:
       --pool <pool>
           Checked stored source record, supplied by a continuation.
 
+      --section <section>
+          Optional intact source sections. Default cards only; diseases; help get trial
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --section <section>
-          Optional intact source sections. Default cards only; diseases; help get trial
 
       --source <source>
           Explicit provider; defaults to ClinicalTrials.gov and never; help get trial
@@ -3424,11 +3424,11 @@ Options:
           Claims
           Native CIViC claim collection within the selected profile.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
       --civic-profile <civic_profile>
           Selected CIViC molecular profile for native claim paging.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -3449,25 +3449,25 @@ Options:
       --offset <offset>
           Candidate rows to skip in source order.
 
+      --resolver <resolver>
+          Resolver; help get variant
+          Resolver.
+          Resolver for reference-qualified notation; never repairs the input locally.
+
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --resolver <resolver>
-          Resolver; help get variant
-          Resolver.
-          Resolver for reference-qualified notation; never repairs the input locally.
+      --section-limit <section_limit>
+          Rows per named source section page; omitted uses the native source default.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
-
-      --section-limit <section_limit>
-          Rows per named source section page; omitted uses the native source default.
 
       --section-offset <section_offset>
           Source rows to skip independently of identity candidate paging.
@@ -3608,14 +3608,14 @@ Options:
       --offset <offset>
           Native or retained collection offset.
 
+      --pool <pool>
+          Retained collection identity.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Retained collection identity.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3813,14 +3813,14 @@ Options:
       --pool <pool>
           Retained collection identity.
 
+      --position <position>
+          Native one-based residue; zero fails during deserialization.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --position <position>
-          Native one-based residue; zero fails during deserialization.
 
       --type <type>
           Exact UniProt native label, without an alias map.
@@ -3938,11 +3938,11 @@ Options:
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --type <type>
           Exact native InterPro type, not a normalized domain label.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4053,14 +4053,14 @@ Options:
       --offset <offset>
           Native or retained page offset.
 
+      --pool <pool>
+          Retained collection identity.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Retained collection identity.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4437,14 +4437,14 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --rows <rows>
+          Inclusive original row range.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --rows <rows>
-          Inclusive original row range.
 
       --save <save>
           Save the whole original document to an explicit file or existing folder. Example: --save article-output.
@@ -4567,17 +4567,17 @@ Options:
       --part <part>
           One-based outline part; omit reader selectors for the abstract card.
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --replace[=<replace>]
           Replace an existing destination only when explicitly requested with save.
 
           [default: false]
           [possible values: true, false]
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --save <save>
           Save the whole original document to an explicit file or existing folder. Example: --save article-output.
@@ -4639,15 +4639,15 @@ Options:
       --pool <pool>
           Fixed snapshot from an earlier page.
 
+      --source <source>
+          Graph provider; iCite remains the default; help article citations
+          Graph provider; iCite remains the default.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --source <source>
-          Graph provider; iCite remains the default; help article citations
-          Graph provider; iCite remains the default.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4703,15 +4703,15 @@ Options:
       --pool <pool>
           Fixed snapshot from an earlier page.
 
+      --source <source>
+          Graph provider; iCite remains the default; help article citations
+          Graph provider; iCite remains the default.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --source <source>
-          Graph provider; iCite remains the default; help article citations
-          Graph provider; iCite remains the default.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4773,14 +4773,14 @@ Options:
       --paragraph-offset <paragraph_offset>
           Full-text fragment position returned by the advancing step.
 
+      --pool <pool>
+          Stored checked source scan and original hit positions.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Stored checked source scan and original hit positions.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -4835,14 +4835,14 @@ Options:
       --offset <offset>
           Number of stored recommendations to skip.
 
+      --pool <pool>
+          Fixed recommendation pool.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --pool <pool>
-          Fixed recommendation pool.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -5046,14 +5046,14 @@ Options:
       --limit <limit>
           Assertions per page; omitted uses the native source default.
 
+      --offset <offset>
+          Assertions to skip in source order.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --offset <offset>
-          Assertions to skip in source order.
 
       --source <source>
           One native assertion source; shared identity; help variant assertions
@@ -5124,14 +5124,14 @@ Options:
       --limit <limit>
           Maximum rows per page.
 
+      --offset <offset>
+          Native rows to skip.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --offset <offset>
-          Native rows to skip.
 
       --resolver <resolver>
           Resolver for reference-qualified input; help variant population
@@ -5195,14 +5195,14 @@ Options:
       --limit <limit>
           Source mutation rows per page, including excluded alleles.
 
+      --page <page>
+          Zero-based native source page.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --page <page>
-          Zero-based native source page.
 
       --profile <profile>
           Explicit mutation molecular profile.
@@ -5275,14 +5275,14 @@ Options:
       --limit <limit>
           Source mapping rows per service, with typed continuation for remaining rows.
 
+      --offset <offset>
+          Source mapping rows to skip per service.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --offset <offset>
-          Source mapping rows to skip per service.
 
       --source <source>
           Explicit service; all preserves independent results; help variant normalize
@@ -6133,14 +6133,14 @@ Options:
 
           [default: 1]
 
+      --http [<http>]
+          Listen on an HTTP address; omit its value for the loopback default.
+
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --http [<http>]
-          Listen on an HTTP address; omit its value for the loopback default.
 
       --http_max_calls <http_max_calls>
           Limit tool calls in flight. Example: --http_max_calls 8.

@@ -26,13 +26,13 @@
           "search",
           "gwas"
         ],
-        "/result/commands/0/description": "Search genetic associations in GWAS Catalog. Sources: gwas.",
+        "/result/commands/0/description": "Search genetic associations in GWAS Catalog. Sources: gwas.\nFields: alleles, array_manufacturers, association_count, author, beta, ci_lower, ci_upper, discovery_ancestries, exact_p_value, genotyping_technologies, gxe, gxg, id, imputed, initial_sample_description, interval, license_url, locations, mapped_genes, odds_ratio, ontology_traits, p_value, platforms, pooled, publication, replication_ancestries, replication_sample_description, reported_traits, risk_frequency, snp_count, study, summary_statistics_available, summary_statistics_url, traits, user_requested. Choose some with --fields a,b (typed: fields list); always kept: id.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
-      "max_bytes": 4592,
+      "max_bytes": 5256,
       "run": [
         "help",
         "search",
@@ -65,8 +65,8 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 1967,
-      "max_tokens": 493,
+      "max_bytes": 2045,
+      "max_tokens": 512,
       "run": [
         "help",
         "get",

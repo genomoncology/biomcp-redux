@@ -199,7 +199,7 @@ fn trial_contracts() -> Vec<Contract> {
     contracts! {
         TrialConditionResolution => ("trial-condition-resolution", "biomcp.trial-condition-resolution/4"),
         NctId => ("nct-id", "biodata.nct-id/1"),
-        TrialHeader => ("trial-header", "biomcp.trial-header/5"),
+        TrialHeader => ("trial-header", "biomcp.trial-header/6"),
     }
 }
 

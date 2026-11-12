@@ -107,7 +107,19 @@ pub(super) fn execute(
     context: crate::command::Context<'_>,
     http: bool,
 ) -> io::Result<Completed> {
-    let mut outcome = if http {
+    // Research views have their own shape; chosen fields belong to entity searches.
+    let mut outcome = if !matches!(call.projection, Projection::Cli)
+        && call
+            .args
+            .iter()
+            .filter_map(|arg| arg.to_str())
+            .any(|arg| arg == "--fields" || arg.starts_with("--fields="))
+    {
+        crate::command::usage_envelope(
+            biomcp_types::UsageError::argument("--fields".into()),
+            crate::command::Encoding::Mcp,
+        )?
+    } else if http {
         crate::command::tool_http(&call.args, context)?
     } else {
         crate::command::tool(&call.args, context)?
