@@ -12,8 +12,13 @@ struct Saved {
     names: Vec<Text>,
     sources: Vec<biomcp_types::SourceOutcome>,
     problems: Vec<biomcp_types::Problem>,
-    incomplete: bool,
+    /// What the name lookups said, for the one notice on FAERS.
+    #[serde(default)]
+    found: Vec<String>,
     omitted: usize,
+    /// FAERS refused the query holding the other names, so only the typed names were searched.
+    #[serde(default)]
+    rejected: bool,
 }
 
 pub(super) fn search<'a>(
@@ -31,13 +36,10 @@ pub(super) fn search<'a>(
             Ok(native) => {
                 let mut result = super::search(cx, &native, &sent, *deadline);
                 typed_only(cx, query, (&sent, *deadline), &mut saved, &mut result);
+                disclose(query, &saved, &mut result);
                 result.sources.extend(saved.sources);
                 result.problems.extend(saved.problems);
-                disclose(query, &saved.names, saved.omitted, &mut result);
                 status::search_for(&mut result, &[Source::Faers]);
-                if result.status() == biomcp_types::Status::Complete {
-                    status::item(&mut result, true, false, saved.incomplete);
-                }
                 result.publish_error = out.publish_error;
                 out = result;
             }
@@ -85,18 +87,7 @@ fn typed_only<'a>(
     *result = super::search(cx, &native, sent, deadline);
     saved.names = typed;
     saved.omitted = 0;
-    search_names::retract_sources(&mut saved.sources);
-    if let Some(source) = result
-        .sources
-        .iter_mut()
-        .find(|s| s.source == Source::Faers)
-    {
-        for input in query.text().into_iter().chain(query.drug()) {
-            source
-                .notices
-                .push(search_names::typed_only(input, Source::Faers));
-        }
-    }
+    saved.rejected = true;
 }
 
 fn prepare<'a>(
@@ -110,8 +101,7 @@ fn prepare<'a>(
         return Ok(source_snapshot::read(cx, &key, token.as_str(), *deadline)?
             .map(|saved| (saved, query.clone())));
     }
-    let mut saved = resolve(cx, query, deadline);
-    restrict_notices(&mut saved);
+    let saved = resolve(cx, query, deadline);
     let admitted: Vec<_> = saved
         .sources
         .iter()
@@ -129,13 +119,11 @@ fn prepare<'a>(
 fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline<'a>) -> Saved {
     let mut out = status::empty(ReplyData::PoolError { mismatch: false });
     let mut names = typed(query);
-    let mut incomplete = false;
     let mut omitted = 0;
     search_names::bounded(deadline, |lookup| {
         for input in query.text().into_iter().chain(query.drug()) {
             let found =
-                search_names::resolve(cx, input, &mut out, lookup, search_names::openfda, PARTIAL);
-            incomplete |= found.failed;
+                search_names::resolve(cx, input, &mut out, lookup, search_names::openfda, SKIPPED);
             for name in found.names {
                 if names
                     .iter()
@@ -153,56 +141,61 @@ fn resolve<'a>(cx: &Ctx<'a>, query: &AdverseEventSearch, deadline: &mut Deadline
             }
         }
     });
-    incomplete |= [Source::Mychem, Source::Chembl, Source::OpenfdaLabel]
-        .iter()
-        .all(|source| cx.fetch.disabled(*source));
+    let found = search_names::take_messages(&mut out.sources);
     Saved {
         names,
         sources: out.sources,
         problems: out.problems,
-        incomplete,
+        found,
         omitted,
+        rejected: false,
     }
 }
 
-const PARTIAL: search_names::Unfinished = search_names::Unfinished::Partial;
+const SKIPPED: search_names::Unfinished = search_names::Unfinished::Skipped;
 
-fn restrict_notices(saved: &mut Saved) {
-    for source in &mut saved.sources {
-        for notice in &mut source.notices {
-            if let SourceNotice::DrugNameSearch { names, message, .. } = notice {
-                *names = names
-                    .iter()
-                    .filter(|name| saved.names.contains(name))
-                    .cloned()
-                    .collect();
-                if saved.omitted != 0 {
-                    *message = format!(
-                        "{message} Additional names exceeded the whole native query bound."
-                    )
-                    .into();
-                }
-            }
+/// One notice on FAERS names every name searched and why any other was not.
+fn disclose(query: &AdverseEventSearch, saved: &Saved, out: &mut Outcome) {
+    let Some(input) = query.text().into_iter().chain(query.drug()).next() else {
+        return;
+    };
+    let widened = saved.names.len() > typed(query).len();
+    let mut message = if saved.rejected {
+        "FAERS rejected the query holding the drug's other names; searched the typed names only."
+            .to_owned()
+    } else if widened {
+        "Searched these names in one FAERS query; the total is FAERS's own count of matching \
+         reports, not a sum per name."
+            .to_owned()
+    } else if saved.found.is_empty() {
+        "Found no other names to search; searched the typed names.".to_owned()
+    } else {
+        "Searched the typed names.".to_owned()
+    };
+    if !saved.rejected {
+        for found in &saved.found {
+            message.push(' ');
+            message.push_str(found);
+        }
+        if saved.omitted != 0 {
+            let noun = if saved.omitted == 1 { "name" } else { "names" };
+            message.push_str(&format!(
+                " Left out {} more {noun} to keep the FAERS query within its size limit.",
+                saved.omitted
+            ));
         }
     }
-}
-
-fn disclose(query: &AdverseEventSearch, names: &[Text], omitted: usize, out: &mut Outcome) {
+    message.push_str(" Use --exact-term to search only the typed names.");
     if let Some(source) = out
         .sources
         .iter_mut()
         .find(|source| source.source == Source::Faers)
     {
-        for input in query.text().into_iter().chain(query.drug()).take(1) {
-            source.notices.push(SourceNotice::DrugNameSearch {
-                input: input.clone(), names: names.to_vec().into(),
-                message: format!(
-                    "Searched these literal spellings in one native FAERS OR query; counts are native reports, not sums. \
-                     Name discovery is bounded and does not establish drug-wide completeness. \
-                     Left out {omitted} additional names at the whole-query bound."
-                ).into(),
-            });
-        }
+        source.notices.push(SourceNotice::DrugNameSearch {
+            input: input.clone(),
+            names: saved.names.clone().into(),
+            message: message.into(),
+        });
     }
 }
 

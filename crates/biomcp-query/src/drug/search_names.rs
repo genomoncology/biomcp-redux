@@ -405,6 +405,22 @@ fn record_evidence(
     }
 }
 
+/// Take the lookups' name notices off their sources, so the searched source can carry the one
+/// notice that says what was searched.
+pub(crate) fn take_messages(sources: &mut [SourceOutcome]) -> Vec<String> {
+    let mut messages = Vec::new();
+    for source in sources {
+        source.notices.retain(|notice| match notice {
+            SourceNotice::DrugNameSearch { message, .. } => {
+                messages.push(message.to_string());
+                false
+            }
+            _ => true,
+        });
+    }
+    messages
+}
+
 /// Keep disabled article providers and exact terms outside drug-name resolution.
 pub(crate) fn article<'a>(
     cx: &Ctx<'a>,

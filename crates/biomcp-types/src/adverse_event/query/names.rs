@@ -1,23 +1,28 @@
-//! Explicit FAERS alias lookup and a checked retained continuation identity.
+//! FAERS drug-name widening, its opt-out and a checked retained continuation identity.
 use super::{AdverseEventSearch, AdverseEventSource, QueryInvalid, SearchFields, Text};
 
 pub(super) fn validate(fields: &SearchFields) -> Result<(), QueryInvalid> {
     if fields.expand_drug_names && fields.source != AdverseEventSource::Faers {
         return Err(QueryInvalid::new(&["source", "expand_drug_names"]));
     }
-    if fields.name_snapshot.is_some() && !fields.expand_drug_names {
-        return Err(QueryInvalid::new(&["expand_drug_names", "name_snapshot"]));
+    if fields.expand_drug_names && fields.exact_term {
+        return Err(QueryInvalid::new(&["expand_drug_names", "exact_term"]));
     }
-    if fields.expand_drug_names && fields.offset != 0 && fields.name_snapshot.is_none() {
-        return Err(QueryInvalid::new(&["offset", "name_snapshot"]));
+    if fields.name_snapshot.is_some() && !widens(fields) {
+        return Err(QueryInvalid::new(&["exact_term", "name_snapshot"]));
     }
     Ok(())
 }
 
+fn widens(fields: &SearchFields) -> bool {
+    fields.source == AdverseEventSource::Faers && !fields.exact_term
+}
+
 impl AdverseEventSearch {
-    /// Explicitly requested alias lookup, never the default search behavior.
-    pub fn expand_drug_names(&self) -> bool {
-        self.0.expand_drug_names
+    /// Whether FAERS searches the typed drug names with the drugs' other names, as it does
+    /// unless the caller asked for the typed names only.
+    pub fn widens_drug_names(&self) -> bool {
+        widens(&self.0)
     }
     /// Retained searched spellings and the resolution evidence that produced them.
     pub fn name_snapshot(&self) -> Option<&Text> {
@@ -37,6 +42,7 @@ impl AdverseEventSearch {
             .filter(|name| fields.text.as_ref().is_none_or(|text| text != name))
             .collect();
         fields.expand_drug_names = false;
+        fields.exact_term = true;
         fields.name_snapshot = None;
         Self::try_from(fields)
     }
