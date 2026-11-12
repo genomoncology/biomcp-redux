@@ -33,8 +33,8 @@ fn source_steps(
             globals.disable_sources.join(",").into(),
         ]);
     }
-    let fields: Option<Box<str>> =
-        (!globals.fields.is_empty()).then(|| format!("--fields={}", globals.fields.join(",")).into());
+    let fields: Option<Box<str>> = (!globals.fields.is_empty())
+        .then(|| format!("--fields={}", globals.fields.join(",")).into());
     if prefix.is_empty() && fields.is_none() {
         return steps;
     }

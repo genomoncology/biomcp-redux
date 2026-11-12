@@ -43,12 +43,11 @@ pub struct TrialHeader {
 /// Default rows always carry these; a caller's chosen fields may leave them out.
 #[cfg(feature = "schema")]
 fn narrowable(schema: &mut schemars::Schema) {
-    if let Some(serde_json::Value::Array(required)) = schema.get_mut("required") {
-        required.retain(|name| {
-            !matches!(
-                name.as_str(),
-                Some("conditions" | "interventions" | "url")
-            )
-        });
+    if let Some(required) = schema
+        .get_mut("required")
+        .and_then(|required| required.as_array_mut())
+    {
+        required
+            .retain(|name| !matches!(name.as_str(), Some("conditions" | "interventions" | "url")));
     }
 }

@@ -50,7 +50,10 @@ fn chosen_fields(words: &[Value]) -> Option<Value> {
         .filter_map(Value::as_str)
         .find_map(|word| word.strip_prefix("--fields="))?;
     Some(Value::Array(
-        chosen.split(',').map(|name| Value::String(name.into())).collect(),
+        chosen
+            .split(',')
+            .map(|name| Value::String(name.into()))
+            .collect(),
     ))
 }
 

@@ -36,7 +36,12 @@ fn collect(node: &Value, root: &Value, row: &mut Row) {
             .map(str::to_owned),
     );
     for key in ["anyOf", "oneOf", "allOf"] {
-        for branch in node.get(key).and_then(Value::as_array).into_iter().flatten() {
+        for branch in node
+            .get(key)
+            .and_then(Value::as_array)
+            .into_iter()
+            .flatten()
+        {
             collect(branch, root, row);
         }
     }

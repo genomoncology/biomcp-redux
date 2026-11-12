@@ -109,9 +109,12 @@ pub(super) fn execute(
 ) -> io::Result<Completed> {
     // Research views have their own shape; chosen fields belong to entity searches.
     let mut outcome = if !matches!(call.projection, Projection::Cli)
-        && call.args.iter().filter_map(|arg| arg.to_str()).any(|arg| {
-            arg == "--fields" || arg.starts_with("--fields=")
-        }) {
+        && call
+            .args
+            .iter()
+            .filter_map(|arg| arg.to_str())
+            .any(|arg| arg == "--fields" || arg.starts_with("--fields="))
+    {
         crate::command::usage_envelope(
             biomcp_types::UsageError::argument("--fields".into()),
             crate::command::Encoding::Mcp,
