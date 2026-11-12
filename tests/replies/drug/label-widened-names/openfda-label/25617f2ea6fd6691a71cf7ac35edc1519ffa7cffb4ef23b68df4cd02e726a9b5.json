@@ -1,0 +1,52 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.generic_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.brand_name.exact%3A%22Dabigatran%22%20OR%20openfda.generic_name.exact%3A%22Dabigatran%22%20OR%20openfda.brand_name.exact%3A%22dabigatran%22%20OR%20openfda.generic_name.exact%3A%22dabigatran%22%29%20OR%20%28openfda.brand_name%3A%22dabigatran%22%20OR%20openfda.generic_name%3A%22dabigatran%22%29&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794498104,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 319,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 23
+            }
+          },
+          "results": [
+            {
+              "id": "5bd94776-2a0b-4c30-86f6-84023518fb84",
+              "set_id": "e7eff2fc-3fac-4ad5-985b-2b8cc28eb84a",
+              "version": "1",
+              "effective_time": "20261106",
+              "openfda": {
+                "brand_name": [
+                  "Dabigatran Etexilate"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "spl_set_id": [
+                  "e7eff2fc-3fac-4ad5-985b-2b8cc28eb84a"
+                ],
+                "application_number": [
+                  "ANDA207961"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

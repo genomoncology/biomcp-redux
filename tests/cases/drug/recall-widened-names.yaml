@@ -1,0 +1,51 @@
+{
+  "feature": "drug-recall",
+  "story": "Drug recall search widens a drug name by default in one native query whose total is the source's own count, and --exact-term searches the typed name only.",
+  "live_check": "public",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-12 with --record (job j38466). Metformin finds 91 recall records widened and 91 as typed: its other names add no records.",
+  "replay": "drug/recall-widened-names",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "metformin",
+        "--source",
+        "fda-drug-recall",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 91,
+        "/sources/0/notices/1/kind": "drug-name-search",
+        "/sources/0/notices/1/names": [
+          "metformin",
+          "LA-6023",
+          "Metformina",
+          "Metformine",
+          "Metformin extended release"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "metformin",
+        "--source",
+        "fda-drug-recall",
+        "--limit",
+        "3",
+        "--exact-term"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 91,
+        "/sources/0/notices": {
+          "count": 1
+        }
+      }
+    }
+  ]
+}

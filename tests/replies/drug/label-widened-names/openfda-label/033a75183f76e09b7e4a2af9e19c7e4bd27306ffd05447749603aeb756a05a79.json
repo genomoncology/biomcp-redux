@@ -1,0 +1,94 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22RIVAROXABAN%22%20OR%20openfda.generic_name.exact%3A%22RIVAROXABAN%22%20OR%20openfda.brand_name.exact%3A%22Rivaroxaban%22%20OR%20openfda.generic_name.exact%3A%22Rivaroxaban%22%20OR%20openfda.brand_name.exact%3A%22rivaroxaban%22%20OR%20openfda.generic_name.exact%3A%22rivaroxaban%22%20OR%20openfda.brand_name.exact%3A%22XARELTO%22%20OR%20openfda.generic_name.exact%3A%22XARELTO%22%20OR%20openfda.brand_name.exact%3A%22Xarelto%22%20OR%20openfda.generic_name.exact%3A%22Xarelto%22%20OR%20openfda.brand_name.exact%3A%22xarelto%22%20OR%20openfda.generic_name.exact%3A%22xarelto%22%20OR%20openfda.brand_name.exact%3A%22BAY%2059-7939%22%20OR%20openfda.generic_name.exact%3A%22BAY%2059-7939%22%20OR%20openfda.brand_name.exact%3A%22Bay%2059-7939%22%20OR%20openfda.generic_name.exact%3A%22Bay%2059-7939%22%20OR%20openfda.brand_name.exact%3A%22bay%2059-7939%22%20OR%20openfda.generic_name.exact%3A%22bay%2059-7939%22%20OR%20openfda.brand_name.exact%3A%22BAY-59-7939%22%20OR%20openfda.generic_name.exact%3A%22BAY-59-7939%22%20OR%20openfda.brand_name.exact%3A%22Bay-59-7939%22%20OR%20openfda.generic_name.exact%3A%22Bay-59-7939%22%20OR%20openfda.brand_name.exact%3A%22bay-59-7939%22%20OR%20openfda.generic_name.exact%3A%22bay-59-7939%22%20OR%20openfda.brand_name.exact%3A%22JNJ39039039%22%20OR%20openfda.generic_name.exact%3A%22JNJ39039039%22%20OR%20openfda.brand_name.exact%3A%22Jnj39039039%22%20OR%20openfda.generic_name.exact%3A%22Jnj39039039%22%20OR%20openfda.brand_name.exact%3A%22jnj39039039%22%20OR%20openfda.generic_name.exact%3A%22jnj39039039%22%20OR%20openfda.brand_name.exact%3A%22JNJ-39039039%22%20OR%20openfda.generic_name.exact%3A%22JNJ-39039039%22%20OR%20openfda.brand_name.exact%3A%22Jnj-39039039%22%20OR%20openfda.generic_name.exact%3A%22Jnj-39039039%22%20OR%20openfda.brand_name.exact%3A%22jnj-39039039%22%20OR%20openfda.generic_name.exact%3A%22jnj-39039039%22%20OR%20openfda.brand_name.exact%3A%22RIVAROXABAN%20ACCORD%22%20OR%20openfda.generic_name.exact%3A%22RIVAROXABAN%20ACCORD%22%20OR%20openfda.brand_name.exact%3A%22Rivaroxaban%20Accord%22%20OR%20openfda.generic_name.exact%3A%22Rivaroxaban%20Accord%22%20OR%20openfda.brand_name.exact%3A%22Rivaroxaban%20accord%22%20OR%20openfda.generic_name.exact%3A%22Rivaroxaban%20accord%22%20OR%20openfda.brand_name.exact%3A%22rivaroxaban%20accord%22%20OR%20openfda.generic_name.exact%3A%22rivaroxaban%20accord%22&limit=3&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794498105,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 545,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 27
+            }
+          },
+          "results": [
+            {
+              "id": "4f4d3b6f-a93f-468b-7574-c5305ed585af",
+              "set_id": "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd",
+              "version": "4",
+              "effective_time": "20261021",
+              "openfda": {
+                "brand_name": [
+                  "Rivaroxaban"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "spl_set_id": [
+                  "e98f6d83-5172-97a1-ee41-5d7d1d8ba2fd"
+                ],
+                "application_number": [
+                  "ANDA217810"
+                ]
+              }
+            },
+            {
+              "id": "5294926b-7812-41da-a0e8-56f492198450",
+              "set_id": "10db92f9-2300-4a80-836b-673e1ae91610",
+              "version": "65",
+              "effective_time": "20260910",
+              "openfda": {
+                "brand_name": [
+                  "Xarelto",
+                  "XARELTO"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "spl_set_id": [
+                  "10db92f9-2300-4a80-836b-673e1ae91610"
+                ],
+                "application_number": [
+                  "NDA215859",
+                  "NDA022406"
+                ]
+              }
+            },
+            {
+              "id": "5aa363d7-60db-4e9f-e063-6294a90a8ee6",
+              "set_id": "481b7802-5093-43e7-bbd9-1532197eb6e6",
+              "version": "2",
+              "effective_time": "20260904",
+              "openfda": {
+                "brand_name": [
+                  "RIVAROXABAN"
+                ],
+                "generic_name": [
+                  "RIVAROXABAN"
+                ],
+                "spl_set_id": [
+                  "481b7802-5093-43e7-bbd9-1532197eb6e6"
+                ],
+                "application_number": [
+                  "ANDA208334"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

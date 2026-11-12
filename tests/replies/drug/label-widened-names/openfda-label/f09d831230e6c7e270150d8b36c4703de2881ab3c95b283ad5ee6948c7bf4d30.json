@@ -1,0 +1,92 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.generic_name.exact%3A%22DABIGATRAN%22%20OR%20openfda.brand_name.exact%3A%22Dabigatran%22%20OR%20openfda.generic_name.exact%3A%22Dabigatran%22%20OR%20openfda.brand_name.exact%3A%22dabigatran%22%20OR%20openfda.generic_name.exact%3A%22dabigatran%22%20OR%20openfda.brand_name.exact%3A%22BIBR-953%22%20OR%20openfda.generic_name.exact%3A%22BIBR-953%22%20OR%20openfda.brand_name.exact%3A%22Bibr-953%22%20OR%20openfda.generic_name.exact%3A%22Bibr-953%22%20OR%20openfda.brand_name.exact%3A%22bibr-953%22%20OR%20openfda.generic_name.exact%3A%22bibr-953%22%20OR%20openfda.brand_name.exact%3A%22BIBR%20953%20ZW%22%20OR%20openfda.generic_name.exact%3A%22BIBR%20953%20ZW%22%20OR%20openfda.brand_name.exact%3A%22Bibr%20953%20Zw%22%20OR%20openfda.generic_name.exact%3A%22Bibr%20953%20Zw%22%20OR%20openfda.brand_name.exact%3A%22Bibr%20953%20zw%22%20OR%20openfda.generic_name.exact%3A%22Bibr%20953%20zw%22%20OR%20openfda.brand_name.exact%3A%22bibr%20953%20zw%22%20OR%20openfda.generic_name.exact%3A%22bibr%20953%20zw%22%20OR%20openfda.brand_name.exact%3A%22BIBR-953-ZW%22%20OR%20openfda.generic_name.exact%3A%22BIBR-953-ZW%22%20OR%20openfda.brand_name.exact%3A%22Bibr-953-zw%22%20OR%20openfda.generic_name.exact%3A%22Bibr-953-zw%22%20OR%20openfda.brand_name.exact%3A%22bibr-953-zw%22%20OR%20openfda.generic_name.exact%3A%22bibr-953-zw%22&limit=3&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794498103,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 531,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 6
+            }
+          },
+          "results": [
+            {
+              "id": "5f52de6a-eae0-0eac-e063-6394a90a90ac",
+              "set_id": "39ac558a-b375-f3c1-e063-6394a90aa901",
+              "version": "3",
+              "effective_time": "20261102",
+              "openfda": {
+                "brand_name": [
+                  "DABIGATRAN"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "spl_set_id": [
+                  "39ac558a-b375-f3c1-e063-6394a90aa901"
+                ],
+                "application_number": [
+                  "ANDA213879"
+                ]
+              }
+            },
+            {
+              "id": "3c5dd539-fa6a-4f6a-abc5-d951b16a2da3",
+              "set_id": "e4e3b992-621a-43a5-be59-eeb5083fd2b4",
+              "version": "4",
+              "effective_time": "20261029",
+              "openfda": {
+                "brand_name": [
+                  "DABIGATRAN"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "spl_set_id": [
+                  "e4e3b992-621a-43a5-be59-eeb5083fd2b4"
+                ],
+                "application_number": [
+                  "ANDA213879"
+                ]
+              }
+            },
+            {
+              "id": "56a62694-97c0-fc7d-e063-6294a90ad22d",
+              "set_id": "f7ea7e2c-ca54-4ecc-9fc7-bd3571b0ebc2",
+              "version": "2",
+              "effective_time": "20260715",
+              "openfda": {
+                "brand_name": [
+                  "DABIGATRAN"
+                ],
+                "generic_name": [
+                  "DABIGATRAN ETEXILATE"
+                ],
+                "spl_set_id": [
+                  "f7ea7e2c-ca54-4ecc-9fc7-bd3571b0ebc2"
+                ],
+                "application_number": [
+                  "ANDA213879"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

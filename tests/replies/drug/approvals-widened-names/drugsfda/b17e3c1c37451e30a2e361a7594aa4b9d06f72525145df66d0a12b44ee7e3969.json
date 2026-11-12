@@ -1,0 +1,173 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22apixaban%22%20OR%20products.active_ingredients.name%3A%22apixaban%22&limit=3",
+  "exchanges": [
+    {
+      "fetched": 1794498108,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 142,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-10",
+            "results": {
+              "skip": 0,
+              "limit": 3,
+              "total": 27
+            }
+          },
+          "results": [
+            {
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "TA",
+                  "submission_status_date": "20200302",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "UNKNOWN",
+                  "application_docs": [
+                    {
+                      "id": "62991",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/210082Orig1s000TAltr.pdf",
+                      "date": "20200514",
+                      "type": "Letter"
+                    }
+                  ]
+                }
+              ],
+              "application_number": "ANDA210082",
+              "sponsor_name": "DR REDDYS LABS INC",
+              "products": [
+                {
+                  "product_number": "001",
+                  "reference_drug": "No",
+                  "brand_name": "APIXABAN",
+                  "active_ingredients": [
+                    {
+                      "name": "APIXABAN",
+                      "strength": "2.5MG"
+                    }
+                  ],
+                  "reference_standard": "No",
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "None (Tentative Approval)"
+                }
+              ]
+            },
+            {
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "TA",
+                  "submission_status_date": "20220201",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "UNKNOWN",
+                  "application_docs": [
+                    {
+                      "id": "62982",
+                      "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/210053Orig1s000TAltr.pdf",
+                      "date": "20200514",
+                      "type": "Letter"
+                    }
+                  ]
+                }
+              ],
+              "application_number": "ANDA210053",
+              "sponsor_name": "SIGMAPHARM LABS LLC",
+              "products": [
+                {
+                  "product_number": "001",
+                  "reference_drug": "No",
+                  "brand_name": "APIXABAN",
+                  "active_ingredients": [
+                    {
+                      "name": "APIXABAN",
+                      "strength": "2.5MG"
+                    }
+                  ],
+                  "reference_standard": "No",
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "None (Tentative Approval)"
+                },
+                {
+                  "product_number": "002",
+                  "reference_drug": "No",
+                  "brand_name": "APIXABAN",
+                  "active_ingredients": [
+                    {
+                      "name": "APIXABAN",
+                      "strength": "5MG"
+                    }
+                  ],
+                  "reference_standard": "No",
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "None (Tentative Approval)"
+                }
+              ]
+            },
+            {
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20250227",
+                  "review_priority": "STANDARD",
+                  "submission_class_code": "UNKNOWN"
+                }
+              ],
+              "application_number": "ANDA210067",
+              "sponsor_name": "MACLEODS PHARMS",
+              "products": [
+                {
+                  "product_number": "001",
+                  "reference_drug": "No",
+                  "brand_name": "APIXABAN",
+                  "active_ingredients": [
+                    {
+                      "name": "APIXABAN",
+                      "strength": "2.5MG"
+                    }
+                  ],
+                  "reference_standard": "No",
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "Discontinued",
+                  "te_code": "AB"
+                },
+                {
+                  "product_number": "002",
+                  "reference_drug": "No",
+                  "brand_name": "APIXABAN",
+                  "active_ingredients": [
+                    {
+                      "name": "APIXABAN",
+                      "strength": "5MG"
+                    }
+                  ],
+                  "reference_standard": "No",
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "Discontinued",
+                  "te_code": "AB"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

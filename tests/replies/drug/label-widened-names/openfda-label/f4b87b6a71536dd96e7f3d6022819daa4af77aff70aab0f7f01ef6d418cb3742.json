@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=%28openfda.brand_name%3A%22apixaban%22%20OR%20openfda.generic_name%3A%22apixaban%22%20OR%20openfda.brand_name%3A%22Eliquis%22%20OR%20openfda.generic_name%3A%22Eliquis%22%20OR%20openfda.brand_name%3A%22apixabanum%22%20OR%20openfda.generic_name%3A%22apixabanum%22%20OR%20openfda.brand_name%3A%22BMS%20562247%22%20OR%20openfda.generic_name%3A%22BMS%20562247%22%20OR%20openfda.brand_name%3A%22BMS-562247%22%20OR%20openfda.generic_name%3A%22BMS-562247%22%20OR%20openfda.brand_name%3A%22BMS-562247-01%22%20OR%20openfda.generic_name%3A%22BMS-562247-01%22%20OR%20openfda.brand_name%3A%22Apixaban%20accord%22%20OR%20openfda.generic_name%3A%22Apixaban%20accord%22%29%20AND%20NOT%20%28openfda.brand_name.exact%3A%22APIXABAN%22%20OR%20openfda.generic_name.exact%3A%22APIXABAN%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%22%20OR%20openfda.brand_name.exact%3A%22apixaban%22%20OR%20openfda.generic_name.exact%3A%22apixaban%22%20OR%20openfda.brand_name.exact%3A%22ELIQUIS%22%20OR%20openfda.generic_name.exact%3A%22ELIQUIS%22%20OR%20openfda.brand_name.exact%3A%22Eliquis%22%20OR%20openfda.generic_name.exact%3A%22Eliquis%22%20OR%20openfda.brand_name.exact%3A%22eliquis%22%20OR%20openfda.generic_name.exact%3A%22eliquis%22%20OR%20openfda.brand_name.exact%3A%22APIXABANUM%22%20OR%20openfda.generic_name.exact%3A%22APIXABANUM%22%20OR%20openfda.brand_name.exact%3A%22Apixabanum%22%20OR%20openfda.generic_name.exact%3A%22Apixabanum%22%20OR%20openfda.brand_name.exact%3A%22apixabanum%22%20OR%20openfda.generic_name.exact%3A%22apixabanum%22%20OR%20openfda.brand_name.exact%3A%22BMS%20562247%22%20OR%20openfda.generic_name.exact%3A%22BMS%20562247%22%20OR%20openfda.brand_name.exact%3A%22Bms%20562247%22%20OR%20openfda.generic_name.exact%3A%22Bms%20562247%22%20OR%20openfda.brand_name.exact%3A%22bms%20562247%22%20OR%20openfda.generic_name.exact%3A%22bms%20562247%22%20OR%20openfda.brand_name.exact%3A%22BMS-562247%22%20OR%20openfda.generic_name.exact%3A%22BMS-562247%22%20OR%20openfda.brand_name.exact%3A%22Bms-562247%22%20OR%20openfda.generic_name.exact%3A%22Bms-562247%22%20OR%20openfda.brand_name.exact%3A%22bms-562247%22%20OR%20openfda.generic_name.exact%3A%22bms-562247%22%20OR%20openfda.brand_name.exact%3A%22BMS-562247-01%22%20OR%20openfda.generic_name.exact%3A%22BMS-562247-01%22%20OR%20openfda.brand_name.exact%3A%22Bms-562247-01%22%20OR%20openfda.generic_name.exact%3A%22Bms-562247-01%22%20OR%20openfda.brand_name.exact%3A%22bms-562247-01%22%20OR%20openfda.generic_name.exact%3A%22bms-562247-01%22%20OR%20openfda.brand_name.exact%3A%22APIXABAN%20ACCORD%22%20OR%20openfda.generic_name.exact%3A%22APIXABAN%20ACCORD%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%20Accord%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%20Accord%22%20OR%20openfda.brand_name.exact%3A%22Apixaban%20accord%22%20OR%20openfda.generic_name.exact%3A%22Apixaban%20accord%22%20OR%20openfda.brand_name.exact%3A%22apixaban%20accord%22%20OR%20openfda.generic_name.exact%3A%22apixaban%20accord%22%29&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794498101,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 145,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": {
+            "code": "NOT_FOUND",
+            "message": "No matches found!"
+          }
+        }
+      }
+    }
+  ]
+}
