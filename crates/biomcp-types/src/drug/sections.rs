@@ -165,31 +165,35 @@ pub trait DrugSectionBody {
     /// Split the identity from the rest; `query` names the label heading for label parts.
     fn split(self, query: &DrugGet) -> (DrugHeader, Self::Part);
 }
+// Each split destructures the whole body, so a field added to a section reply cannot be
+// dropped from its part unnoticed.
 impl DrugSectionBody for DrugXrefs {
     type Part = DrugXrefsPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
-        (self.identity, DrugXrefsPart { xrefs: self.xrefs })
+        let Self { identity, xrefs } = self;
+        (identity, DrugXrefsPart { xrefs })
     }
 }
 impl DrugSectionBody for DrugTargets {
     type Part = DrugTargetsPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
-        (
-            self.identity,
-            DrugTargetsPart {
-                targets: self.targets,
-            },
-        )
+        let Self { identity, targets } = self;
+        (identity, DrugTargetsPart { targets })
     }
 }
 impl DrugSectionBody for DrugIndications {
     type Part = DrugIndicationsPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
+        let Self {
+            identity,
+            indications,
+            regulatory_context,
+        } = self;
         (
-            self.identity,
+            identity,
             DrugIndicationsPart {
-                indications: self.indications,
-                regulatory_context: self.regulatory_context,
+                indications,
+                regulatory_context,
             },
         )
     }
@@ -197,19 +201,26 @@ impl DrugSectionBody for DrugIndications {
 impl DrugSectionBody for DrugCivic {
     type Part = DrugCivicPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
-        (self.identity, DrugCivicPart { civic: self.civic })
+        let Self { identity, civic } = self;
+        (identity, DrugCivicPart { civic })
     }
 }
 impl DrugSectionBody for DrugLabel {
     type Part = DrugLabelPart;
     fn split(self, query: &DrugGet) -> (DrugHeader, Self::Part) {
+        let Self {
+            identity,
+            label,
+            sections,
+            hint,
+        } = self;
         (
-            self.identity,
+            identity,
             DrugLabelPart {
                 label_section: query.label_section().cloned(),
-                label: self.label,
-                sections: self.sections,
-                hint: self.hint,
+                label,
+                sections,
+                hint,
             },
         )
     }
@@ -217,13 +228,20 @@ impl DrugSectionBody for DrugLabel {
 impl DrugSectionBody for DrugApprovals {
     type Part = DrugApprovalsPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
+        let Self {
+            identity,
+            products,
+            source_updated,
+            approvals,
+            order,
+        } = self;
         (
-            self.identity,
+            identity,
             DrugApprovalsPart {
-                products: self.products,
-                source_updated: self.source_updated,
-                approvals: self.approvals,
-                order: self.order,
+                products,
+                source_updated,
+                approvals,
+                order,
             },
         )
     }
@@ -231,11 +249,16 @@ impl DrugSectionBody for DrugApprovals {
 impl DrugSectionBody for DrugRegulatory {
     type Part = DrugRegulatoryPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
+        let Self {
+            identity,
+            regulatory,
+            date_roles,
+        } = self;
         (
-            self.identity,
+            identity,
             DrugRegulatoryPart {
-                regulatory: self.regulatory,
-                date_roles: self.date_roles,
+                regulatory,
+                date_roles,
             },
         )
     }
@@ -243,12 +266,11 @@ impl DrugSectionBody for DrugRegulatory {
 impl DrugSectionBody for DrugInteractions {
     type Part = DrugInteractionsPart;
     fn split(self, _: &DrugGet) -> (DrugHeader, Self::Part) {
-        (
-            self.identity,
-            DrugInteractionsPart {
-                interactions: self.interactions,
-            },
-        )
+        let Self {
+            identity,
+            interactions,
+        } = self;
+        (identity, DrugInteractionsPart { interactions })
     }
 }
 

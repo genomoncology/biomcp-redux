@@ -68,8 +68,15 @@
         },
         "/result/parts/1/reply/page/total": 2,
         "/result/parts/1/reply/page/returned": 1,
-        "/result/parts/1/reply/next/*/kind": {
-          "includes": "page"
+        "/result/parts/1/reply/next/0/kind": "page",
+        "/result/parts/1/reply/next/0/args": {
+          "includes_all_of": [
+            "11111111-1111-1111-1111-111111111111",
+            "dosage_and_administration",
+            "--section-offset",
+            "1"
+          ],
+          "excludes": "boxed_warning"
         }
       }
     },
