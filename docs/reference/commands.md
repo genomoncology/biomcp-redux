@@ -1137,6 +1137,7 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --expand-drug-names[=<expand_drug_names>]
+          FAERS no-op.
           FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
 
           [default: false]
@@ -1150,6 +1151,7 @@ Options:
           MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices.
 
       --name-snapshot <name_snapshot>
+          FAERS name snapshot.
           Retained FAERS name resolution; follow the returned command without changing filters.
 
       --offset <offset>
@@ -1217,11 +1219,13 @@ MAUDE report event type on source event_type: malfunction, injury, death or othe
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --event-type malfunction. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--exact-term`: Search typed drug names only.
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--expand-drug-names`: FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--expand-drug-names`: FAERS no-op.
+FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--name-snapshot`: Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--name-snapshot`: FAERS name snapshot.
+Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--offset`: Source report row offset; reaction counts require zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.

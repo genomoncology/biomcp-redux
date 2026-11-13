@@ -49,7 +49,7 @@
           "type": "boolean"
         },
         "expand_drug_names": {
-          "description": "FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.",
+          "description": "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default.",
           "type": "boolean"
         },
         "limit": {
@@ -81,7 +81,7 @@
               "type": "null"
             }
           ],
-          "description": "Retained FAERS name resolution; follow the returned command without changing filters."
+          "description": "FAERS name snapshot.\nRetained FAERS name resolution; follow the returned command without changing filters."
         },
         "offset": {
           "default": 0,
