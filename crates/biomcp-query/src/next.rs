@@ -38,6 +38,7 @@ impl Step {
                     | GetDisease(_)
                     | GetDrug(_)
                     | GetWhoMedicine(_)
+                    | GetDrugMarkets(_)
                     | GetAdverseEvent(_)
                     | GetDiagnostic(_)
                     | GetPgx(_)

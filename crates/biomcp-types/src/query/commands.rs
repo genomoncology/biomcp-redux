@@ -212,6 +212,11 @@ macro_rules! command_types {
                 "get", "drug", DrugWhoGet, "drug-who-get", "biomcp.drug-who-get/2", DrugGetCommand, "drug-get-command", "biomcp.drug-get-command/2",
                 "biomcp.drug-get-command/2", 37, GetDrug
             );
+            /// Get drug and medicine details.
+            GetDrugMarkets(DrugMarketsGet) => (
+                "get", "drug", DrugMarketsGet, "drug-markets-get", "biomcp.drug-markets-get/1", DrugGetCommand, "drug-get-command",
+                "biomcp.drug-get-command/2", "biomcp.drug-get-command/2", 37, GetDrug
+            );
             /// Get genetic variant assertions from ClinVar or ClinGen.
             VariantAssertions(VariantAssertionsGet) => (
                 "variant", "assertions", VariantAssertionsGet, "variant-assertions", "biomcp.variant-assertions/5", VariantAssertionsGet,

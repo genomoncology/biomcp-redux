@@ -100,6 +100,16 @@ pub fn search(
     }
     Ok(rows.into_iter().map(|(_, row)| row.into()).collect())
 }
+/// The product's page on WHO's prequalification site, keyed by its reference number.
+pub fn product_url(reference: &biodata::Text) -> Option<biodata::Text> {
+    let slug: String = reference
+        .as_str()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join("-")
+        .to_lowercase();
+    biodata::Text::new(&format!("{}/medicines/{slug}", SPEC.base)).ok()
+}
 /// Exact case-sensitive native reference, preserving spaces and all native cells.
 pub fn get(
     leg: &Leg<'_>,
