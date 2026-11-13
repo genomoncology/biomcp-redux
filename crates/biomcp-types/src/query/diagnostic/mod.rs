@@ -132,11 +132,11 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
     decision_to: Option<PartialDate>,
-    #[doc = "First WHO IVD year, YYYY.\nInclusive; WHO IVD publishes only the year."]
+    #[doc = "From year, YYYY.\nInclusive WHO IVD prequalification year; WHO publishes only the year."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
     prequalified_from: Option<PartialDate>,
-    #[doc = "Last WHO IVD year, YYYY.\nInclusive; WHO IVD publishes only the year."]
+    #[doc = "To year, YYYY.\nInclusive WHO IVD prequalification year; WHO publishes only the year."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
     prequalified_to: Option<PartialDate>,
