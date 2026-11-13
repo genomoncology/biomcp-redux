@@ -1,0 +1,43 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%22Z-1747-2025%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794576416,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 374,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "cfres_id": "213277",
+              "product_res_number": "Z-1747-2025",
+              "event_date_initiated": "2025-04-09",
+              "event_date_posted": "2025-05-12",
+              "recall_status": "Open, Classified",
+              "res_event_number": "96621",
+              "product_code": "PQP",
+              "pma_numbers": [
+                "P170019"
+              ],
+              "root_cause_description": "Under Investigation by firm",
+              "product_quantity": "4 units"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

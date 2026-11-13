@@ -104,6 +104,17 @@
               ],
               "description": "Classification from an exact enforcement recall_number match, absent without that match."
             },
+            "classified": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_PartialDate"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native enforcement center_classification_date: the day FDA classified the recall."
+            },
             "distribution_pattern": {
               "anyOf": [
                 {
@@ -118,6 +129,17 @@
             "header": {
               "$ref": "#/$defs/Reply_DeviceRecallHeader",
               "description": "Native recall identity and dates."
+            },
+            "initial_firm_notification": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native enforcement initial_firm_notification: how the firm first told its customers."
             },
             "k_numbers": {
               "description": "Top-level native 510(k) submission entries; harmonized openfda fields never enter this list.",
@@ -154,6 +176,17 @@
               ],
               "description": "Native product_description."
             },
+            "product_quantity": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native enforcement product_quantity, as the source spells it."
+            },
             "reason": {
               "anyOf": [
                 {
@@ -165,6 +198,17 @@
               ],
               "description": "Native reason_for_recall."
             },
+            "reported": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_PartialDate"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native enforcement report_date: the day FDA published the recall in its enforcement report."
+            },
             "root_cause": {
               "anyOf": [
                 {
@@ -175,6 +219,17 @@
                 }
               ],
               "description": "Native root_cause_description."
+            },
+            "voluntary_mandated": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native enforcement voluntary_mandated, such as whether the firm or FDA started the recall."
             }
           },
           "required": [

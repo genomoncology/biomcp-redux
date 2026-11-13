@@ -5,6 +5,7 @@ mod raw;
 use biodata::{DrugRecallNumber, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec, Terms};
 use biomcp_types::{DrugRecallCard, DrugRecallHeader, DrugSearch, Problem, Source, Use};
+pub(crate) use map::date;
 use std::time::Duration;
 /// Shared openFDA admission policy for recall and its exact enforcement lookup.
 pub static SPEC: SourceSpec = SourceSpec {

@@ -1,0 +1,42 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "public",
+  "story": "A device recall card keeps the seriousness fields of its exact enforcement record: who started the recall, how customers were first told, the product quantity, and the days FDA classified and reported it, beside the recall record's root cause and PMA numbers.",
+  "verified": "Native openFDA device recall and device enforcement replies for Z-1747-2025 recorded 2026-11-13 by biomcp --record in pm job j38969. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection retains source identifiers, codes, government classification/status/date facts, the enforcement seriousness fields, root cause category, PMA numbers and native counts; firm, product, reason, action, distribution and lot text omitted. Recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-fields/README.md. No rows or values invented.",
+  "replay": "diagnostic/recall-fields",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "Z-1747-2025",
+        "--source",
+        "fda-device-recall"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "Z-1747-2025",
+        "--source",
+        "fda-device-recall"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/recall_number": "Z-1747-2025",
+        "/result/classification": "Class II",
+        "/result/voluntary_mandated": "Voluntary: Firm initiated",
+        "/result/initial_firm_notification": "Letter",
+        "/result/product_quantity": "4 units",
+        "/result/classified": "2025-05-12",
+        "/result/reported": "2025-05-21",
+        "/result/root_cause": "Under Investigation by firm",
+        "/result/pma_numbers/0": "P170019",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      }
+    }
+  ]
+}
