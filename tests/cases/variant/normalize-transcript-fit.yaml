@@ -1,0 +1,92 @@
+{
+  "feature": "variant-identity",
+  "live_check": "CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 (job j39152) for SCN1A c.4729T>C, which is valid on NM_006920.6 and was tried on the MANE transcript NM_001165963.4.",
+  "replay": "variant/normalization/rejections",
+  "story": "A reference mismatch on a gene's transcript names the transcripts where the base fits and resolves the allele there, so an agent does not change the base and land on a neighbouring variant.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--hgvs",
+        "NM_001165963.4:c.4729T>C"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/results/0/outcome": "rejected",
+        "/result/results/0/messages/0/code": "IncorrectReferenceAllele",
+        "/result/results/0/fits/0/hgvs": "NM_006920.6:c.4729T>C",
+        "/result/results/0/fits/0/genomic": "NC_000002.12:g.165994236A>G",
+        "/result/results/1/hgvs": "NM_006920.6:c.4729T>C",
+        "/result/results/1/outcome": "resolved",
+        "/result/results/1/mappings/0/value": "http://reg.genome.network/allele/CA284979",
+        "/result/results/1/mappings/7/value": "NM_001165963.4:c.4762T>C",
+        "/next/0/kind": "disambiguate",
+        "/next/0/args": [
+          "variant",
+          "normalize",
+          "--hgvs",
+          "NM_006920.6:c.4729T>C",
+          "--source",
+          "car"
+        ]
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "mutalyzer",
+        "--hgvs",
+        "NM_001165963.4:c.4729T>C"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/results/0/messages/0/code": "ESEQUENCEMISMATCH",
+        "/result/results/0/fits/0/hgvs": "NM_006920.6:c.4729T>C",
+        "/result/results/1/normalized": "NM_006920.6:c.4729T>C",
+        "/result/results/1/mappings/0/value": "NM_006920.6(NP_008851.3):p.(Cys1577Arg)",
+        "/next/0/args": [
+          "variant",
+          "normalize",
+          "--hgvs",
+          "NM_006920.6:c.4729T>C",
+          "--source",
+          "mutalyzer"
+        ]
+      }
+    },
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "variantvalidator",
+        "--hgvs",
+        "NM_001165963.4:c.4729T>C",
+        "--build",
+        "GRCh38"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/results/0/outcome": "rejected",
+        "/result/results/0/fits/0/hgvs": "NM_006920.6:c.4729T>C",
+        "/result/results/1/hgvs": "NM_006920.6:c.4729T>C",
+        "/result/results/1/outcome": "resolved",
+        "/next/0/args": [
+          "variant",
+          "normalize",
+          "--build",
+          "GRCh38",
+          "--hgvs",
+          "NM_006920.6:c.4729T>C",
+          "--source",
+          "variantvalidator"
+        ]
+      }
+    }
+  ]
+}

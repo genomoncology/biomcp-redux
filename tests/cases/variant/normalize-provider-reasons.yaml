@@ -2,7 +2,7 @@
   "feature": "variant-identity",
   "live_check": "Native CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 for a transcript HGVS whose reference base is wrong.",
   "replay": "variant/normalization/rejections",
-  "story": "A normalization the provider rejects returns the provider's own reason, not a bare rejected state.",
+  "story": "A normalization the provider rejects returns the provider's own reason, not a bare rejected state; a transcript where the base fits is resolved beside it.",
   "steps": [
     {
       "run": [
@@ -13,10 +13,8 @@
         "--hgvs",
         "NM_001165963.4:c.4729T>C"
       ],
-      "exit": 4,
-      "is_error": true,
       "expect": {
-        "/status": "failed",
+        "/status": "partial",
         "/sources/0/reason": "rejected",
         "/result/results/0/outcome": "rejected",
         "/result/results/0/messages/0/code": "IncorrectReferenceAllele"
@@ -31,10 +29,8 @@
         "--hgvs",
         "NM_001165963.4:c.4729T>C"
       ],
-      "exit": 4,
-      "is_error": true,
       "expect": {
-        "/status": "failed",
+        "/status": "partial",
         "/result/results/0/outcome": "rejected",
         "/result/results/0/messages/0/code": "ESEQUENCEMISMATCH"
       }
@@ -50,10 +46,8 @@
         "--build",
         "GRCh38"
       ],
-      "exit": 4,
-      "is_error": true,
       "expect": {
-        "/status": "failed",
+        "/status": "partial",
         "/result/results/0/outcome": "rejected",
         "/result/results/0/messages/0/text": "ReferenceMismatchError: NM_001165963.4:c.4729T>C: Variant reference (T) does not agree with reference sequence (A)"
       }

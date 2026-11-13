@@ -14,7 +14,8 @@ struct Fields<H = String> {
     /// Explicit service; all preserves independent results without consensus.
     source: NormalizationSource,
     /// Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
-    /// Checked for reference and syntax only; no full HGVS parser.
+    /// Checked for reference and syntax only; no full HGVS parser. After a reference
+    /// mismatch, VariantValidator names the gene's transcripts where the base fits.
     #[cfg_attr(feature = "schema", schemars(schema_with = "hgvs_schema"))]
     hgvs: H,
     /// Caller assembly; required when VariantValidator is selected.
@@ -111,6 +112,17 @@ impl VariantNormalize {
     /// Unchanged caller description.
     pub fn hgvs(&self) -> &str {
         self.0.hgvs.as_str()
+    }
+    /// The same services, assembly and page size for another description, checked again.
+    pub fn with_hgvs(&self, hgvs: &str) -> Option<Self> {
+        Self::try_from(Fields {
+            source: self.0.source,
+            hgvs: hgvs.to_owned(),
+            build: self.0.build,
+            limit: self.0.limit,
+            offset: 0,
+        })
+        .ok()
     }
     /// Explicit caller assembly.
     pub fn build(&self) -> Option<Build> {

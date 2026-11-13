@@ -104,7 +104,8 @@ pub use variant::{
     VariantSearchExclusions, VariantSections, VariantTranscript,
 };
 pub use variant_normalize::{
-    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+    NormalizationField, NormalizationMessage, NormalizationResult, TranscriptFit,
+    VariantNormalization,
 };
 mod trial;
 mod trial_condition;
@@ -164,7 +165,7 @@ mod disease;
 pub use disease::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
     DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
-    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
 };
 
 mod diagnostic;

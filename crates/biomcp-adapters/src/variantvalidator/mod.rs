@@ -5,6 +5,7 @@ use biomcp_fetch::{Input, Read};
 
 use biomcp_fetch::{Arg, Endpoint, KeyUse, Leg, PathSegment, RequestError, SourceSpec};
 use biomcp_types::{Source, VariantHeader};
+mod fit;
 mod map;
 mod normalization;
 mod raw;
@@ -43,11 +44,20 @@ pub struct Resolution {
 }
 /// Preserve caller assembly, unchanged input and every service-returned identity.
 fn fetch(leg: &Leg<'_>, input: &str, build: Build) -> Result<Response, RequestError> {
+    fetch_on(leg, input, build, "all")
+}
+/// Validate on the named transcripts (`all`, or accessions joined by `|`).
+fn fetch_on(
+    leg: &Leg<'_>,
+    input: &str,
+    build: Build,
+    transcripts: &str,
+) -> Result<Response, RequestError> {
     let build = build.to_string();
     let endpoint = VALIDATE.clone().with_segments(&[
         PathSegment::new(&build)?,
         PathSegment::new(input)?,
-        PathSegment::new("all")?,
+        PathSegment::new(transcripts)?,
     ]);
     let raw = leg
         .call(
@@ -65,6 +75,8 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
     Ok(map::resolve(fetch(leg, input, build)?, input))
 }
 
+/// The gene's RefSeq transcripts on which VariantValidator accepts a mismatched change.
+pub use fit::{fits_apply, transcript_fits};
 /// Native service descriptions, warnings and version metadata.
 pub use normalization::normalize;
 

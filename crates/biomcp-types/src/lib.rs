@@ -128,7 +128,8 @@ pub use response::{
     NciTrialItem, NciTrialPage,
 };
 pub use response::{
-    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+    NormalizationField, NormalizationMessage, NormalizationResult, TranscriptFit,
+    VariantNormalization,
 };
 pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 pub use response::{
@@ -172,7 +173,7 @@ pub use query::{
 pub use response::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
     DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
-    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
 };
 mod drug;
 pub use drug::{

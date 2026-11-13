@@ -158,7 +158,7 @@ pub struct DrugLabel {
     /// Label section names present for this record, listed when no label_section was given or the label lacks the one given.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub sections: Box<[Text]>,
-    /// How to read one of those sections, and which requested section the label lacks.
+    /// How to read one of those sections, which requested section the label lacks, or why a section returned no text in this reply.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hint: Option<Text>,
 }

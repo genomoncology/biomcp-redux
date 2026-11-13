@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "myvariant",
+  "url": "https://myvariant.info/v1/variant/chr2%3Ag.166915088C%3EG?fields=_id%2Cdbsnp.rsid%2Cdbsnp.gene.symbol%2Cclinvar.variant_id%2Csnpeff.ann&assembly=hg19",
+  "exchanges": [
+    {
+      "fetched": 1794589362,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 87,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"_id":"chr2:g.166915088C>G","_version":1,"dbsnp":{"_license":"http://bit.ly/2AqoLOc","gene":{"symbol":"SCN1A"},"rsid":"rs981824621"},"snpeff":{"_license":"http://bit.ly/2suyRKt","ann":[{"cdna":{"length":"8133","position":"393"},"cds":{"length":"6030","position":"375"},"effect":"missense_variant","feature_id":"NM_001165963.1","feature_type":"transcript","gene_id":"SCN1A","genename":"SCN1A","hgvs_c":"c.375G>C","hgvs_p":"p.Leu125Phe","protein":{"length":"2009","position":"125"},"putative_impact":"MODERATE","rank":"2","total":"26","transcript_biotype":"protein_coding"},{"cdna":{"length":"8049","position":"393"},"cds":{"length":"5946","position":"375"},"effect":"missense_variant","feature_id":"NM_001165964.1","feature_type":"transcript","gene_id":"SCN1A","genename":"SCN1A","hgvs_c":"c.375G>C","hgvs_p":"p.Leu125Phe","protein":{"length":"1981","position":"125"},"putative_impact":"MODERATE","rank":"2","total":"26","transcript_biotype":"protein_coding"},{"cdna":{"length":"8100","position":"393"},"cds":{"length":"5997","position":"375"},"effect":"missense_variant","feature_id":"NM_006920.4","feature_type":"transcript","gene_id":"SCN1A","genename":"SCN1A","hgvs_c":"c.375G>C","hgvs_p":"p.Leu125Phe","protein":{"length":"1998","position":"125"},"putative_impact":"MODERATE","rank":"2","total":"26","transcript_biotype":"protein_coding"},{"cdna":{"length":"8342","position":"602"},"cds":{"length":"6030","position":"375"},"effect":"missense_variant","feature_id":"NM_001202435.1","feature_type":"transcript","gene_id":"SCN1A","genename":"SCN1A","hgvs_c":"c.375G>C","hgvs_p":"p.Leu125Phe","protein":{"length":"2009","position":"125"},"putative_impact":"MODERATE","rank":"4","total":"28","transcript_biotype":"protein_coding"}]}}
+      }
+    }
+  ]
+}

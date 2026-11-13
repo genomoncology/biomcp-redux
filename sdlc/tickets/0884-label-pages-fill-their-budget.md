@@ -1,6 +1,7 @@
 # 0884 — label-pages-fill-their-budget
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: deebb6252480f46bea895c1c4fe36967d8bbac28
 
 Milestone: 7
 
@@ -32,3 +33,15 @@ A drug label section comes back in as few replies as its size allows: each reply
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/openfda_label/`, `crates/biomcp-query/src/drug/`, `crates/biomcp/src/` (setting), `tests/cases/drug/`, `docs/`
+
+## Progress
+
+- Measured 2026-11-13 from openFDA (compact JSON-escaped bytes of the whole field): 300 human prescription labels from twelve spread pages (skip 0 to 22,000 of 36,250) have Indications and Usage median 932, 95th percentile 4,537, largest 10,161; 98.3 percent fit 6,144, 99.3 percent fit 8,192 and all fit 12,288. Across their 6,380 text sections of every kind, 83.5 percent fit 6,144, 88.6 percent 8,192, 99.5 percent 28,672 and 99.7 percent 32,768. Of 25 named labels most asked about (oncology brands and common drugs), 23 fit 8,192; Opdivo (12,307) and Keytruda (23,153 by brand search; 23,683 for set 9333c79b v229) need more.
+- Change: a label section reply now takes as many whole 6,144-byte fragments as fit the text budget, instead of one by default; `--section-limit` still caps the fragment count. The budget is the config setting `drug_label_bytes` (6,144 to 32,768), default 28,672: Keytruda's 23,683 bytes take four whole 6,144-byte fragments (24,576), and 24,576 plus 15 percent is 28,262, rounded up to whole KiB (`crates/biomcp-query/src/context.rs`). Fragment size stays 6,144 so offsets keep their meaning. The section ceiling in `label_bound.rs` is now the ruled 32,768 plus 2,048 for identity and boundaries. Docs: `docs/configuration.md`, drug slice allocation row.
+- Live on 37b8298bc (job j39092): Keytruda indications one reply, 4 fragments, no `remaining`, 25,350 bytes; Opdivo one reply, 3 fragments, 13,909; Zestril one reply, 4 fragments, 8,097; Xarelto unchanged at 5,771. Keytruda clinical studies (35 fragments) pages four fragments a reply, `remaining` 31 then 27, 26,431 bytes. With `drug_label_bytes` 6,144 Keytruda indications pages as before, `remaining` 3.
+- Cases: `drug/label-fills-budget` (Keytruda, j39048 replay, max_bytes 29,153 = 25,350 plus 15 percent), `drug/label-short-pieces` (Zestril, new j39092 recording, max_bytes 9,312), and `drug/label-continues` now sets `drug_label_bytes` 6,144 to keep proving paging and `remaining`.
+- The runner's whole-section check (`drug-label/published-sections`) measured 26,146 comparable and 26,257 full bytes for its largest page at the new default; `tests/runner-output-budgets.yaml` now sets `label-comparable` 30,068 (plus 15 percent) and `label-full` 34,816 (the ruled 32 KiB plus 2 KiB), in place of 8,811 and 8,192.
+- Gate j39126 passed on 30cfe93a1 before the review; after the shared budget, gate j39176 passed on 72600b975 (`make --keep-going landing-gate docs-check schema-release-check`); no schema change.
+- Review 2026-11-13: one call naming several label sections gave each section the whole budget. Measured on 10b91cbad (job j39150), Keytruda's five largest sections came to 137,018 bytes on the command line and 137,029 characters on MCP, inside MCP's 150,000-character reply cap; seven sections came to 180,116 bytes and MCP refused the reply with `usage.too_broad`, so the cap could be passed. Following the PM ruling that the 32 KB is per reply, the sections of one call now share the budget in order (`openfda_label::get`); a section left without room returns no text, `remaining` counts all its fragments, and its page step continues at the same offset. Measured on 825c73bbd (job j39151): five largest 33,196 bytes, seven 35,770, MCP 33,281 and 35,855 characters, all complete; indications, dosage and warnings 28,019 with indications whole and the other two at `remaining` 4. Case `drug/label-shared-budget` replays that call (new j39151 recording, max_bytes 32,222 = 28,019 plus 15 percent).
+- Re-review 2026-11-13: a section left without room returned empty text and no reason, which an agent reads as a section with no text. It now carries `hint` "No text: earlier sections in this reply used the label budget; follow next to read this section." (description of `hint` widened in drug-label and drug-sections); `drug/label-shared-budget` checks it, and `docs/configuration.md` says sections share the budget in order. `ncbi_email` in the shared-budget context stays empty as in `resolve::within`: the contact is a `Secret`, which cannot be copied, and no label source contacts NCBI.
+- Gate j39208 passed on dc324afa6 after merging origin/main and adding the hint (`make --keep-going landing-gate docs-check schema-release-check`).

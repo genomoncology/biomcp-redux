@@ -79,6 +79,7 @@ pub(crate) struct ConfigFile {
     pub(super) command_timeout_seconds: Option<std::num::NonZeroU32>,
     pub(super) drug_approvals_limit: Option<u32>,
     pub(super) drug_search_name_limit: Option<std::num::NonZeroUsize>,
+    pub(super) drug_label_bytes: Option<usize>,
     pub(super) source_pacing: Option<BTreeMap<String, biomcp_fetch::PacingOverride>>,
     pub(super) mcp_max_calls: Option<std::num::NonZeroUsize>,
     pub(super) mcp_queue_wait_seconds: Option<u32>,
@@ -135,6 +136,13 @@ fn decode(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         .is_some_and(|n| !(1..=50).contains(&n))
     {
         return Err(ConfigError::field("drug_approvals_limit"));
+    }
+    // One label fragment is 6,144 bytes, and the PM ruling of 2026-11-13 caps a reply at 32 KiB.
+    if file
+        .drug_label_bytes
+        .is_some_and(|n| !(6144..=biomcp_query::MAX_LABEL_BYTES).contains(&n))
+    {
+        return Err(ConfigError::field("drug_label_bytes"));
     }
     if let Some(keys) = &file.keys {
         for key in keys.keys() {
@@ -204,6 +212,7 @@ fn diagnose(bytes: &[u8]) -> Result<ConfigFile, ConfigError> {
         command_timeout_seconds: take(&mut map, "command_timeout_seconds")?,
         drug_approvals_limit: take(&mut map, "drug_approvals_limit")?,
         drug_search_name_limit: take(&mut map, "drug_search_name_limit")?,
+        drug_label_bytes: take(&mut map, "drug_label_bytes")?,
         source_pacing: map
             .remove("source_pacing")
             .filter(|v| !v.is_null())

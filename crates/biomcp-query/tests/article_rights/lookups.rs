@@ -75,6 +75,7 @@ fn failed_lookup_is_not_a_refusal_and_is_not_stored_as_whole() {
             fresh: false,
             ncbi_email: None,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+            label_bytes: biomcp_query::LABEL_BYTES,
         },
         &Request::SearchArticle(query),
     );
@@ -138,6 +139,7 @@ fn papers_past_the_lookup_cap_say_they_went_unchecked() {
             fresh: false,
             ncbi_email: None,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+            label_bytes: biomcp_query::LABEL_BYTES,
         },
         &Request::SearchArticle(query),
     );
@@ -230,6 +232,7 @@ fn a_card_with_an_unchecked_license_is_partial_until_the_lookup_recovers() {
                 fresh: false,
                 ncbi_email: None,
                 drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+                label_bytes: biomcp_query::LABEL_BYTES,
             },
             &Request::GetArticle(biomcp_types::ArticleGet::single(
                 biomcp_types::ArticleInput::Pmid("1002".parse().unwrap()),
@@ -307,6 +310,7 @@ fn repeat_reads_keep_refusal_markers_and_write_nothing_new() {
             fresh: false,
             ncbi_email: None,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+            label_bytes: biomcp_query::LABEL_BYTES,
         },
         &Request::SearchArticle(query),
     );
@@ -378,6 +382,7 @@ fn both_sources(fetch: &Fetch) -> biomcp_query::Outcome {
             fresh: false,
             ncbi_email: None,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+            label_bytes: biomcp_query::LABEL_BYTES,
         },
         &Request::SearchArticle(
             serde_json::from_str::<ArticleSearch>(

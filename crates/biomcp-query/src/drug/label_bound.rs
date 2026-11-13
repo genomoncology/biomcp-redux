@@ -1,7 +1,9 @@
 //! Keep complete fragment units inside the label section allocation.
 use biomcp_fetch::{InputError, RequestError};
 use biomcp_types::{ReplyData, Request, Section, StepKind};
-const LABEL_BYTES: usize = 8192;
+// The whole label section: the most text a reply may carry plus 2 KiB for identity and
+// fragment boundaries. The text budget itself is applied when fragments are chosen.
+const LABEL_BYTES: usize = crate::MAX_LABEL_BYTES + 2048;
 pub(crate) fn bound(
     fetch: &biomcp_fetch::Fetch,
     request: &Request,

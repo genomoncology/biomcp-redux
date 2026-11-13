@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "d6db9ff22fd835779ba78145383b8f2dd98bcc548363aa771871e64523ab2bb9"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794589363,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 76,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"MONDO:0003274","_id":"MONDO:0003274","_version":1,"disease_ontology":{"_license":"https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/DO_LICENSE.txt","doid":"DOID:5093","name":"thoracic cancer"},"mondo":{"label":"thoracic cancer","mondo":"MONDO:0003274"}},{"query":"MONDO:0021100","_id":"MONDO:0021100","_version":1,"mondo":{"label":"breast neoplasm","mondo":"MONDO:0021100"}}]
+      }
+    }
+  ]
+}

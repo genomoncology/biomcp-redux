@@ -4,12 +4,16 @@ use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request, Section,
-    Source, StepKind,
+    DrugGet, DrugLabel, DrugLabelText, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo,
+    Request, Section, Source, StepKind,
 };
 mod names;
 mod search_page;
 const SOURCE: Source = Source::OpenfdaLabel;
+/// An omitted limit takes the request schema's largest, 50; the reply budget usually stops sooner.
+fn fragment_limit(query: &DrugGet) -> u32 {
+    query.section_limit().unwrap_or(50)
+}
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = super::empty(
         (DrugPage {
@@ -133,13 +137,18 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
             source.count = Some(page.window.total().unwrap_or(0));
             source.retrieved_count = Some(page.window.rows.len() as u32);
         }
+        // The label budget is per reply: sections named together share it in order, and a
+        // section left without room returns no text and continues by its remaining fragments.
+        let mut left = cx.label_bytes;
         let outcomes = queries
             .iter()
             .map(|query| {
                 let mut part = fork(&out, query);
+                let cx = &sharing(cx, left);
                 if let Some(record) = page.window.rows.first() {
-                    if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut part)
-                    {
+                    let selected = select(cx, query, record, page.metadata.fetched, &mut part);
+                    left = left.saturating_sub(text_bytes(&part));
+                    if let Err(error) = selected {
                         crate::status::item(&mut part, false, true, false);
                         part.local = status::local(error);
                     }
@@ -154,6 +163,33 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     }
     command.finish(remaining);
     queries.iter().map(|query| fork(&out, query)).collect()
+}
+/// The same context with the label budget still left in this reply.
+fn sharing<'a>(cx: &Ctx<'a>, label_bytes: usize) -> Ctx<'a> {
+    Ctx {
+        fetch: cx.fetch,
+        // As in resolve::within: drug source credentials remain in the borrowed Fetch, no drug
+        // source contacts NCBI, and the contact (a Secret) cannot be copied.
+        ncbi_email: None,
+        budget: cx.budget,
+        fresh: cx.fresh,
+        drug_name_limit: cx.drug_name_limit,
+        label_bytes,
+    }
+}
+/// Escaped bytes of label text a part returned, as the adapter counts them.
+fn text_bytes(part: &Outcome) -> usize {
+    match &part.body {
+        biomcp_types::ReplyData::DrugLabel {
+            body: Some(body), ..
+        } => match &body.label {
+            Section::Data { data, .. } => {
+                serde_json::to_string(&data.text).map_or(0, |text| text.len().saturating_sub(2))
+            }
+            _ => 0,
+        },
+        _ => 0,
+    }
 }
 fn empty(query: &DrugGet) -> Outcome {
     super::empty(if matches!(query.sections(), [DrugSection::Label]) {
@@ -212,7 +248,7 @@ fn select(
         return Ok(());
     }
     let offset = query.section_offset().unwrap_or(0);
-    let label = match record.label(heading, offset, query.section_limit().unwrap_or(1))? {
+    let label = match record.label(heading, offset, fragment_limit(query), cx.label_bytes)? {
         Some(mut data) => {
             data.retrieved = received_date(fetched);
             let returned = data.fragments.len() as u32;
@@ -220,7 +256,7 @@ fn select(
             out.page = Some(page(offset, returned, total));
             if let Some(next) = offset
                 .checked_add(returned)
-                .filter(|n| returned > 0 && u64::from(*n) < total)
+                .filter(|n| u64::from(*n) < total)
                 && let Some(request) = crate::next::checked(
                     query.at_section_offset(next),
                     biomcp_types::Source::OpenfdaLabel,
@@ -246,12 +282,26 @@ fn select(
     };
     out.body = (DrugLabel {
         identity: record.header()?,
+        hint: no_room(&label)?,
         label,
         sections: Box::default(),
-        hint: None,
     })
     .with_query(query.clone());
     Ok(())
+}
+
+/// Say why a section sharing a spent reply budget returned no text, since an empty text
+/// alone reads as a section with none.
+fn no_room(label: &Section<DrugLabelText>) -> Result<Option<biodata::Text>, RequestError> {
+    match label {
+        Section::Data { data, .. } if data.fragments.is_empty() && data.remaining.is_some() => {
+            "No text: earlier sections in this reply used the label budget; follow next to read this section."
+                .parse()
+                .map(Some)
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))
+        }
+        _ => Ok(None),
+    }
 }
 
 fn page(offset: u32, returned: u32, total: u64) -> PageInfo {

@@ -2,21 +2,23 @@ use super::raw::Record;
 use crate::text_parts::{escaped_bytes, split};
 use biomcp_fetch::RequestError;
 use biomcp_types::{DrugLabelFragment, DrugLabelText};
-// Leave the rest of the bounded label envelope available for identity and provenance.
-const PAYLOAD_BYTES: usize = 6144;
+/// Fragments keep a fixed size so offsets mean the same text whatever the reply budget.
+const FRAGMENT_BYTES: usize = 6144;
 struct Fragment {
     meta: DrugLabelFragment,
     text: String,
 }
 impl Record {
-    /// Page bounded text fragments, defaulting in the consumer to one fragment.
-    /// The payload budget may return fewer fragments than the supplied maximum.
+    /// Page whole text fragments until the next would pass `budget` escaped bytes of text.
+    /// A budget of at least one fragment (6,144) always returns one; a section sharing a
+    /// reply's spent budget may return none and continues at the same offset.
     /// Offsets and totals count fragments, never characters, sentences or source array elements.
     pub(super) fn label(
         &self,
         heading: &str,
         offset: u32,
         limit: u32,
+        budget: usize,
     ) -> Result<Option<DrugLabelText>, RequestError> {
         if !(1..=50).contains(&limit) {
             return Err(biomcp_fetch::bad_reply(
@@ -34,7 +36,7 @@ impl Record {
         let mut bytes = 0;
         for fragment in all.into_iter().skip(offset as usize).take(limit as usize) {
             let size = escaped_bytes(&fragment.text);
-            if !selected.is_empty() && bytes + size > PAYLOAD_BYTES {
+            if bytes + size > budget {
                 break;
             }
             bytes += size;
@@ -63,7 +65,7 @@ fn fragments(parts: &[String]) -> Result<Vec<Fragment>, RequestError> {
         let pieces = if part.is_empty() {
             vec![String::new()]
         } else {
-            split(part, PAYLOAD_BYTES)
+            split(part, FRAGMENT_BYTES)
         };
         for text in pieces {
             let characters = u32::try_from(text.chars().count()).map_err(|_| {

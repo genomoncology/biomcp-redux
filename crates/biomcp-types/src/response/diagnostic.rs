@@ -17,6 +17,12 @@ pub struct DiagnosticLaboratory {
     /// Native institution name.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub institution: Option<Text>,
+    /// Native facility state or region.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<Text>,
+    /// Native facility postcode.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub postcode: Option<Text>,
     /// Native country.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub country: Option<Text>,
@@ -33,6 +39,12 @@ pub struct GtrHeader {
     /// Native laboratory context.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub laboratory: Option<DiagnosticLaboratory>,
+    /// Distinct symbols in the native genes cell: 1 is a single-gene test, hundreds an exome-scale one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub gene_count: Option<u64>,
+    /// Native method categories in source order, such as deletion/duplication analysis.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub method_categories: Box<[Text]>,
     /// Source record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
