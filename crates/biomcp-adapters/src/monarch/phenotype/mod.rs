@@ -1,8 +1,8 @@
 //! Literal HP discovery and independent exact Monarch term cards.
 use biomcp_fetch::{Input, Read};
 pub mod associations;
-pub mod matches;
 mod counts;
+pub mod matches;
 mod raw;
 mod sections;
 use biodata::{Attribution, PhenotypeCard, PhenotypeHeader, Text};

@@ -74,11 +74,8 @@ fn refuse(out: &mut Outcome, q: &PhenotypeSearch, unknown: &[biodata::HpId]) {
         .filter(|term| !unknown.contains(term))
         .collect();
     if !known.is_empty()
-        && let Some(search) = crate::next::checked(
-            q.with_terms(&known),
-            Source::Monarch,
-            &mut out.problems,
-        )
+        && let Some(search) =
+            crate::next::checked(q.with_terms(&known), Source::Monarch, &mut out.problems)
     {
         out.next.push(crate::next::Step::new(
             StepKind::Restart,

@@ -115,8 +115,9 @@ impl TryFrom<SearchFields> for PhenotypeSearch {
             }
         } else if v.group.is_some() || v.metric.is_some() {
             let field = if v.group.is_some() { "group" } else { "metric" };
-            return Err(QueryInvalid::new(&[field])
-                .with_message(crate::ErrorMessage::PhenotypeSetOptions));
+            return Err(
+                QueryInvalid::new(&[field]).with_message(crate::ErrorMessage::PhenotypeSetOptions)
+            );
         }
         Ok(Self(v))
     }
@@ -241,7 +242,9 @@ impl PhenotypeSearch {
     }
     /// Ranking metric for an HP ID set.
     pub fn metric(&self) -> PhenotypeMetric {
-        self.0.metric.unwrap_or(PhenotypeMetric::AncestorInformationContent)
+        self.0
+            .metric
+            .unwrap_or(PhenotypeMetric::AncestorInformationContent)
     }
     /// The same ranking for other HP IDs, keeping group, metric and limit.
     pub fn with_terms(&self, terms: &[HpId]) -> Result<Self, QueryInvalid> {
