@@ -1,8 +1,8 @@
 {
-  "verified": "tests/replies/drug/label-many-names/provenance.json records the live openFDA replies of 2026-11-12 (job j38824) and their body hashes; its skip=50 name page is kept whole at 9.1 MB.",
+  "verified": "tests/replies/drug/label-many-names/provenance.json records the live openFDA replies of 2026-11-12 (job j38824, and a direct request for the Glumetza label) and their body hashes; its skip=50 name page is kept whole at 9.1 MB.",
   "live_check": "public",
   "feature": "drug-name-get",
-  "story": "A label read by a generic name that matches hundreds of labels reads every 50-label name page, including one larger than the former 8 MiB reply bound: metformin's word search finds 396 labels in 8 pages, and the reply reads the chosen label and says which it chose, why, and how many of the other 283 exact matches are of each kind.",
+  "story": "A label read by a generic name that matches hundreds of labels reads every 50-label name page, including one larger than the former 8 MiB reply bound: metformin's word search finds 396 labels in 8 pages. Generic makers' labels branded \"Metformin\" do not count as exact brand matches, since metformin is a generic name, so the reply reads the brand-name NDA label Glumetza and says which it chose, why, and how many of the other 283 exact matches are of each kind.",
   "replay": "drug/label-many-names",
   "steps": [
     {
@@ -18,11 +18,11 @@
       "expect": {
         "/status": "complete",
         "/query/source": "openfda-label",
-        "/result/identity/id": "05999192-ebc6-4198-bd1e-f46abbfb4f8a",
-        "/result/identity/name": "Metformin",
-        "/result/identity/name_resolution/basis": "brand",
+        "/result/identity/id": "fb832474-88d9-4e29-95cd-fbc446944cc4",
+        "/result/identity/name": "Glumetza",
+        "/result/identity/name_resolution/basis": "generic",
         "/result/identity/name_resolution/total": 284,
-        "/result/identity/name_resolution/reason": "chose Metformin (05999192-ebc6-4198-bd1e-f46abbfb4f8a), a generic or other label; 283 other labels share this name: 1 brand-name NDA/BLA labels, 1 NDA/BLA labels under the generic name, 281 generic or other labels"
+        "/result/identity/name_resolution/reason": "chose Glumetza (fb832474-88d9-4e29-95cd-fbc446944cc4), a brand-name NDA/BLA label; 283 other labels share this name: 1 NDA/BLA labels under the generic name, 282 generic or other labels"
       },
       "max_bytes": 12000
     }

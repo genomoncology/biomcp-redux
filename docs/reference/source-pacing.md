@@ -2,7 +2,7 @@
 
 Generated from the source quota registry. Run `make docs-generate` to update.
 
-Defaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.
+Defaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling of one in flight, except where a row below says otherwise. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.
 
 | Source | Keyless default / ceiling | Keyed default / ceiling | In flight default / ceiling | Policy checked |
 | --- | --- | --- | --- | --- |
@@ -36,7 +36,7 @@ Defaults equal ceilings. Where no authoritative numeric policy was found, the ce
 | `gwas` | 100/60s | same as keyless | 5 |  Checked 2026-11-04: https://www.ebi.ac.uk/gwas/docs/programmatic-access/rest-api/ . Published per-IP limits: 100 per minute AND 15 per second. Space 100/minute evenly without bursts to respect both. Allow five bounded page reads to overlap so slow replies do not serialize a result window. |
 | `chembl` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://www.ebi.ac.uk/chembl/api/data/docs . No numeric data-API limit found in API docs and provider-domain search; Beaker utilities are a separate service. |
 | `opentargets` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://platform-docs.opentargets.org/data-access/graphql-api . No numeric limit found in GraphQL docs and provider-domain search; provider recommends downloads for systematic bulk access. |
-| `openfda` | 4/1s | 4/1s | 1 |  Checked 2026-11-01: https://open.fda.gov/apis/authentication/ . Published limits: 240/minute per IP keyless or per key keyed. Separate daily quotas: 1000 keyless, 120000 keyed; provider enforces these and transport honors Retry-After. |
+| `openfda` | 4/1s | 4/1s | 4 |  Checked 2026-11-01: https://open.fda.gov/apis/authentication/ . Published limits: 240/minute per IP keyless or per key keyed. Separate daily quotas: 1000 keyless, 120000 keyed; provider enforces these and transport honors Retry-After. No concurrency limit is published; allow four reads to overlap, still paced at 240/minute, so a label name lookup's many slow 50-label pages do not wait on each other. |
 | `ema` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://www.ema.europa.eu/en/about-us/about-website/legal-notice . No published numeric limit found in service documentation/terms and provider-domain policy search; retain conservative local ceiling. |
 | `ddinter` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://ddinter.scbdd.com/terms/ . No published numeric limit found in service documentation/terms and provider-domain policy search; retain conservative local ceiling. |
 | `ols` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://www.ebi.ac.uk/ols4/help . No published numeric limit found in service documentation/terms and provider-domain policy search; retain conservative local ceiling. |

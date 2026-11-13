@@ -12,10 +12,10 @@
       "retrieved": "2026-11-12"
     },
     {
-      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%2205999192-ebc6-4198-bd1e-f46abbfb4f8a%22&limit=1&sort=effective_time%3Adesc",
-      "sha256": "ef9a4a7fe878b83495cbad79f2f4e4d305b42bcc56a61fec2537bf2b07ef72e4",
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22fb832474-88d9-4e29-95cd-fbc446944cc4%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "7adf7331647b581a5ace331bb1553ee098f145b2ff23dc08f6d2f312313cafd8",
       "status": 200,
-      "bytes": 94997,
+      "bytes": 134043,
       "kept_whole": false,
       "retrieved": "2026-11-12"
     },
@@ -75,5 +75,6 @@
       "kept_whole": false,
       "retrieved": "2026-11-12"
     }
-  ]
+  ],
+  "chosen_label": "The Glumetza label read (spl_set_id fb832474) was requested live on 2026-11-12 after the label choice stopped treating a brand name that repeats the generic name as an exact brand match; it replaces the former Metformin (05999192) label read."
 }

@@ -2,6 +2,7 @@
 mod context;
 mod encoding;
 mod reply;
+mod saved;
 mod sections;
 pub(crate) use context::Context;
 pub(crate) use encoding::{Encoding, Outcome};
@@ -283,6 +284,19 @@ fn response(
     encoding: Encoding,
 ) -> io::Result<Outcome> {
     let (meta, body) = finished(fetch, &request, result, fresh, globals, encoding)?;
+    if matches!(body, biomcp_types::ReplyData::PoolError { mismatch: false })
+        && let Some((argument, message)) = saved::fault(&request)
+    {
+        return usage_envelope(
+            UsageError::Arguments(UsageArguments {
+                argument: Some(argument),
+                message: Some(message),
+                valid_values: None,
+                next: meta.next,
+            }),
+            encoding,
+        );
+    }
     body.visit(meta)
 }
 /// Complete paging and next calls, and split the body from what the envelope carries.

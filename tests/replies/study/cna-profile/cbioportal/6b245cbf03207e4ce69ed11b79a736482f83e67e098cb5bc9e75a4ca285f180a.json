@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cbioportal",
+  "url": "https://www.cbioportal.org/api/genes/POLQ",
+  "exchanges": [
+    {
+      "fetched": 1794533479,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 57,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"entrezGeneId":10721,"hugoGeneSymbol":"POLQ","type":"protein-coding"}
+      }
+    }
+  ]
+}

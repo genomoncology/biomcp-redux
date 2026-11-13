@@ -320,28 +320,33 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
     )
 }
 fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    native_names(
+    let (out, mut candidates) = native_names(
         cx,
         query,
         &biomcp_adapters::openfda_label::SPEC,
-        |leg, offset| {
-            let page = biomcp_adapters::openfda_label::search_names(leg, get.input(), 50, offset)?;
-            let next_offset = page.window.next_offset();
-            let mut candidates = Vec::new();
-            for row in &page.window.rows {
-                if let Some(matched) = row.exact_name_match(get.input()) {
-                    candidates.push((super::label_choice::rank(matched, row), row.header()?));
+        |leg, _| {
+            let mut out = NativePage {
+                read: None,
+                candidates: Vec::new(),
+                next_offset: None,
+                problems: Vec::new(),
+                refusals: biomcp_adapters::Refusal::None,
+            };
+            for page in biomcp_adapters::openfda_label::search_names(leg, get.input())? {
+                out.refusals.include(page.window.refusals());
+                out.problems.extend(page.problems);
+                for row in &page.window.rows {
+                    if let Some(matched) = row.exact_name_match(get.input()) {
+                        let rank = super::label_choice::rank(matched, row);
+                        out.candidates.push((rank, row.header()?));
+                    }
                 }
             }
-            Ok(NativePage {
-                read: None,
-                candidates,
-                next_offset,
-                problems: page.problems,
-                refusals: page.window.refusals(),
-            })
+            Ok(out)
         },
-    )
+    );
+    super::label_choice::generic_name(&mut candidates);
+    (out, candidates)
 }
 
 /// Read MyChem's free-text pages until one holds a drug record of the exact name. Its ranking can

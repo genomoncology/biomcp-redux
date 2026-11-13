@@ -167,21 +167,7 @@ impl TryFrom<GetFields> for DiseaseGet {
         {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
-        let id = if v.source == DiseaseSource::Seer {
-            if !statistic || v.id.as_str().trim().is_empty() || v.id.as_str().contains(':') {
-                return Err(QueryInvalid::new(&["source", "id", "section"]));
-            }
-            DiseaseId::SeerSite(v.id.clone())
-        } else {
-            if statistic {
-                return Err(QueryInvalid::new(&["source", "id", "section"]));
-            }
-            DiseaseId::Concept(
-                v.id.as_str()
-                    .parse()
-                    .map_err(|_| QueryInvalid::new(&["source", "id", "section"]))?,
-            )
-        };
+        let id = get_id(&v, statistic)?;
         if v.source != DiseaseSource::Seer
             && [
                 &v.sex,
@@ -241,6 +227,30 @@ impl TryFrom<GetFields> for DiseaseGet {
     }
 }
 
+/// Bind the record to a SEER site or an ontology concept, naming the real fault.
+fn get_id(v: &GetFields<Text>, statistic: bool) -> Result<DiseaseId, QueryInvalid> {
+    Ok(if v.source == DiseaseSource::Seer {
+        if statistic && v.id.as_str().contains(':') {
+            // SEER is the right source; the ontology ID is the fault.
+            return Err(QueryInvalid::new(&["id", "source", "section"])
+                .with_message(crate::ErrorMessage::DiseaseStatistic));
+        }
+        if !statistic || v.id.as_str().trim().is_empty() || v.id.as_str().contains(':') {
+            return Err(QueryInvalid::new(&["source", "id", "section"]));
+        }
+        DiseaseId::SeerSite(v.id.clone())
+    } else {
+        if statistic {
+            return Err(QueryInvalid::new(&["source", "id", "section"])
+                .with_message(crate::ErrorMessage::DiseaseStatistic));
+        }
+        DiseaseId::Concept(
+            v.id.as_str()
+                .parse()
+                .map_err(|_| QueryInvalid::new(&["source", "id", "section"]))?,
+        )
+    })
+}
 impl DiseaseSearch {
     /// Select the SEER site catalog with the standard page bounds.
     pub fn seer() -> Result<Self, QueryInvalid> {

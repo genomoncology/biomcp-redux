@@ -1,0 +1,21 @@
+{
+  "projection": "Native identity, harmonized fields, product data and the indications section only (effective_time, id, openfda, set_id, spl_product_data_elements, version, indications_and_usage); meta and request identity are the original live reply's.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22Xarelto%22%20OR%20openfda.generic_name%3A%22Xarelto%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "ec354b8259a281adfb166320f2e74cd8d7bc312743443dbd42f977bfb46c2948",
+      "status": 200,
+      "bytes": 2311753,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%2210db92f9-2300-4a80-836b-673e1ae91610%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "c957954f7af632025e4d29a47c71169394bf73dd2c819b422326613cf3285737",
+      "status": 200,
+      "retrieved": "2026-11-12",
+      "note": "the same reply recorded for drug/label-generic-choice (job j38722)"
+    }
+  ]
+}

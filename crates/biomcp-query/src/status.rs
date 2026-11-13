@@ -97,6 +97,13 @@ impl Outcome {
                     biomcp_types::Section::Unavailable { .. }
                         | biomcp_types::Section::Skipped { .. }
                 ),
+                // A provider's own rejection messages say why normalization failed.
+                ReplyData::VariantNormalization {
+                    body: Some(body), ..
+                } => body
+                    .results
+                    .iter()
+                    .any(|result| !result.messages.is_empty()),
                 _ => false,
             }
     }

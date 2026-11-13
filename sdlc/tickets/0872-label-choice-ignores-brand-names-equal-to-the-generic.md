@@ -1,6 +1,7 @@
 # 0872 — label-choice-ignores-brand-names-equal-to-the-generic
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3201a004996639109f40c6accf48927c13f19e49
 
 Milestone: 7
 

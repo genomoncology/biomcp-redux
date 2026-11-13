@@ -64,7 +64,9 @@ impl TryFrom<Fields> for VariantNormalize {
             NormalizationSource::All | NormalizationSource::Variantvalidator
         ) && f.build.is_none()
         {
-            return Err(super::gene::QueryInvalid::new(&["source", "build"]));
+            // The selected source is valid; the missing build is the fault to name.
+            return Err(super::gene::QueryInvalid::new(&["build", "source"])
+                .with_message(crate::ErrorMessage::VariantNormalize));
         }
         if f.build
             .is_some_and(|b| !matches!(b, Build::GRCh37 | Build::GRCh38))

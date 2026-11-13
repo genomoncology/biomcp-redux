@@ -1,0 +1,30 @@
+{
+  "verified": "tests/replies/drug/label-brand-choice/provenance.json records the live openFDA replies of 2026-11-12 and their body hashes.",
+  "live_check": "public",
+  "feature": "drug-name-get",
+  "story": "A label read by a brand name the user typed still chooses that brand's label first: Xarelto matches 7 labels, all under the brand name and none carrying it as a generic name, and the reply reads Janssen's newest XARELTO label as an exact brand match.",
+  "replay": "drug/label-brand-choice",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "Xarelto",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/result/identity/id": "10db92f9-2300-4a80-836b-673e1ae91610",
+        "/result/identity/name": "Xarelto",
+        "/result/identity/name_resolution/basis": "brand",
+        "/result/identity/name_resolution/total": 7,
+        "/result/identity/name_resolution/reason": "chose Xarelto (10db92f9-2300-4a80-836b-673e1ae91610), a brand-name NDA/BLA label listing 10 numbered indications; 6 other labels share this name: 6 brand-name NDA/BLA labels"
+      },
+      "max_bytes": 12000
+    }
+  ]
+}

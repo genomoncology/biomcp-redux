@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "mutalyzer",
+  "url": "https://mutalyzer.nl/api/normalize/NM_001165963.4%3Ac.4729T%3EC",
+  "exchanges": [
+    {
+      "fetched": 1794533477,
+      "status": 422,
+      "content_type": "application/json",
+      "delay_ms": 974,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"custom":{"corrected_description":"NM_001165963.4:c.4729T>C","corrected_model":{"coordinate_system":"c","reference":{"id":"NM_001165963.4","selector":{"id":"NM_001165963.4"}},"type":"description_dna","variants":[{"deleted":[{"sequence":"T","source":"description"}],"inserted":[{"sequence":"C","source":"description"}],"location":{"position":4729,"type":"point"},"source":"reference","type":"substitution"}]},"errors":[{"code":"ESEQUENCEMISMATCH","details":"`T` was not found in the reference sequence; `A` was found instead.","paths":[["variants",0,"deleted"]]}],"gene_id":"SCN1A","input_description":"NM_001165963.4:c.4729T>C","input_model":{"coordinate_system":"c","reference":{"id":"NM_001165963.4"},"type":"description_dna","variants":[{"deleted":[{"sequence":"T","source":"description"}],"inserted":[{"sequence":"C","source":"description"}],"location":{"position":4729,"type":"point"},"source":"reference","type":"substitution"}]},"selector_short":{"cds":{"c":[["1","6030"]],"g":[["479","6508"]]},"exon":{"c":[["-478","-229"],["-228","-142"],["-141","-50"],["-49","264"],["265","383"],["384","473"],["474","602"],["603","694"],["695","964"],["965","1028"],["1029","1170"],["1171","1377"],["1378","1662"],["1663","2043"],["2044","2176"],["2177","2415"],["2416","2589"],["2590","2946"],["2947","3429"],["3430","3550"],["3551","3705"],["3706","3879"],["3880","4002"],["4003","4284"],["4285","4338"],["4339","4476"],["4477","4581"],["4582","4852"],["4853","*5432"]],"g":[["1","250"],["251","337"],["338","429"],["430","742"],["743","861"],["862","951"],["952","1080"],["1081","1172"],["1173","1442"],["1443","1506"],["1507","1648"],["1649","1855"],["1856","2140"],["2141","2521"],["2522","2654"],["2655","2893"],["2894","3067"],["3068","3424"],["3425","3907"],["3908","4028"],["4029","4183"],["4184","4357"],["4358","4480"],["4481","4762"],["4763","4816"],["4817","4954"],["4955","5059"],["5060","5330"],["5331","11940"]]}}},"message":"Errors encountered. Check the 'custom' field."}
+      }
+    }
+  ]
+}

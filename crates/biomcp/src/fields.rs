@@ -136,6 +136,7 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     if path.0 != "search" {
         return Err(UsageError::Arguments(UsageArguments {
             argument: Some("--fields".into()),
+            message: Some(biomcp_types::ErrorMessage::FieldsSearchOnly),
             next: vec![help_step(path)],
             ..Default::default()
         }));

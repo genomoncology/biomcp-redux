@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "variantvalidator",
+  "url": "https://rest.variantvalidator.org/VariantValidator/variantvalidator/GRCh38/NM_001165963.4%3Ac.4729T%3EC/all?content-type=application%2Fjson",
+  "exchanges": [
+    {
+      "fetched": 1794533478,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 488,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"flag":"warning","metadata":{"variantvalidator_hgvs_version":"4.0.0","variantvalidator_version":"4.0.1.dev7+gbdab9c72f","vvdb_version":"vvdb_2025_3","vvseqrepo_db":"VV_SR_2025_02/master","vvta_version":"vvta_2025_02"},"validation_warning_1":{"alt_genomic_loci":[],"annotations":{},"gene_ids":{},"gene_symbol":"","genome_context_intronic_sequence":"","hgvs_lrg_transcript_variant":"","hgvs_lrg_variant":"","hgvs_predicted_protein_consequence":{"lrg_slr":"","lrg_tlr":"","slr":"","tlr":""},"hgvs_refseqgene_variant":"","hgvs_transcript_variant":"","lovd_corrections":{"NM_001165963.4:c.4729T>C":0.5},"lovd_messages":{"ISOURCE":"https://api.lovd.nl/v2/checkHGVS/NM_001165963.4:c.4729T>C","LIBRARYVERSION":"1.1.2"},"primary_assembly_loci":{},"reference_sequence_records":"","refseqgene_context_intronic_sequence":"","rna_variant_descriptions":null,"selected_assembly":"GRCh38","submitted_variant":"NM_001165963.4:c.4729T>C","transcript_description":"","validation_warnings":["ReferenceMismatchError: NM_001165963.4:c.4729T>C: Variant reference (T) does not agree with reference sequence (A)","LovdSyntaxcheckInvalid: NM_001165963.4:c.4729T>C is not syntactically correct, see LovdSyntaxcheckSuggestions for details","LovdSyntaxcheckSuggestions: [suggestion = NM_001165963.4:c.4729T>C, probability = 0.5]","LovdSyntaxcheckSource: https://api.lovd.nl/v2/checkHGVS/NM_001165963.4:c.4729T>C","LovdSyntaxcheckLibraryVersion: 1.1.2"],"variant_exonic_positions":null}}
+      }
+    }
+  ]
+}
