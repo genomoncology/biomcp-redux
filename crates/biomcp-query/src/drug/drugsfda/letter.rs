@@ -48,15 +48,7 @@ pub(super) fn select(
     let result = pdf::read(&leg, &drugsfda::DOCUMENTS, url, offset);
     let error = result.as_ref().err().copied();
     let mut report = status::source(Source::Drugsfda, leg.finish(), error);
-    if let Some(notice) = error.and_then(|error| pdf::refusal(url, &error)) {
-        report.notices.push(notice);
-        out.next.push(crate::next::Step::run(
-            StepKind::Fresh,
-            &[Source::Drugsfda],
-            Request::GetDrug(query.clone()),
-            true,
-        ));
-    }
+    refused(query, url, error, &mut report, out);
     // Both requests belong to Drugs@FDA; keep one source outcome and the document failure.
     if error.is_some()
         && let Some(source) = out
@@ -93,4 +85,23 @@ pub(super) fn select(
     }
     document.text = Some(text);
     Ok(Some(selected.into()))
+}
+
+/// Disclose an FDA letter refusal with its URL and a retry step.
+fn refused(
+    query: &DrugGet,
+    url: &biodata::Text,
+    error: Option<RequestError>,
+    report: &mut biomcp_types::SourceOutcome,
+    out: &mut Outcome,
+) {
+    if let Some(notice) = error.and_then(|error| pdf::refusal(url, &error)) {
+        report.notices.push(notice);
+        out.next.push(crate::next::Step::run(
+            StepKind::Fresh,
+            &[Source::Drugsfda],
+            Request::GetDrug(query.clone()),
+            true,
+        ));
+    }
 }

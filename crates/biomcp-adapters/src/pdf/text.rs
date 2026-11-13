@@ -17,10 +17,11 @@ fn error(source: Source, reason: Reason) -> RequestError {
     }
     .into()
 }
-/// Say that FDA refused one document download, with its URL and a retry step.
+/// Say that FDA refused one document download, naming its URL and suggesting a retry.
 ///
-/// FDA answers some automated downloads with a client error (its abuse detection redirects them),
-/// and a later try often succeeds. BioMCP keeps its own client identity and only discloses the refusal.
+/// FDA answers some automated downloads with a client error (its abuse detection
+/// redirects them), and a later try often succeeds. BioMCP keeps its own client
+/// identity and only discloses the refusal.
 pub fn refusal(url: &biodata::Text, error: &RequestError) -> Option<SourceNotice> {
     let RequestError::Source(source) = error else {
         return None;
@@ -31,7 +32,9 @@ pub fn refusal(url: &biodata::Text, error: &RequestError) -> Option<SourceNotice
     Some(SourceNotice::RequestGuidance {
         data_date: None,
         message: format!(
-            "FDA refused the download of {} (HTTP {status}). FDA refuses some automated downloads intermittently, so this does not show that the document is missing; retry later, or open the URL to check.",
+            "FDA refused the download of {} (HTTP {status}). FDA refuses some automated \
+             downloads intermittently, so this does not show that the document is missing; \
+             retry later, or open the URL to check.",
             url.as_str()
         )
         .into(),
