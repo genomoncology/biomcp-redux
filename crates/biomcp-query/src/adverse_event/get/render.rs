@@ -46,7 +46,7 @@ pub(super) fn render(
     };
     match q.section() {
         None => {
-            card(q, r, url, header, snapshot, &positions, extras, out)?;
+            card(q, r, url, header, snapshot, (&positions, extras), out)?;
             for section in [S::Drugs, S::Reactions] {
                 section_step(&navigation, section, None, out);
             }
@@ -170,8 +170,7 @@ fn card(
     url: Text,
     header: AdverseEventHeader,
     snapshot: Option<Text>,
-    positions: &Positions,
-    extras: Extras,
+    (positions, extras): (&Positions, Extras),
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let mut unmapped = Vec::new();
@@ -181,7 +180,11 @@ fn card(
     for (field, list, code) in [
         ("patient.patientsex", PATIENT_SEX, sex),
         ("patient.patientonsetageunit", AGE_UNIT, age_unit),
-        ("primarysource.qualification", REPORTER_QUALIFICATION, qualification),
+        (
+            "primarysource.qualification",
+            REPORTER_QUALIFICATION,
+            qualification,
+        ),
     ] {
         unmapped_code(field, list, code, &mut unmapped);
     }

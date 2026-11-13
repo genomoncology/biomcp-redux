@@ -86,14 +86,12 @@ fn patient(
         .as_ref()
         .and_then(crate::raw::Field::as_ref)
         .cloned();
-    let case_event_date = problems
-        .field("patient.summary", p.summary)
-        .and_then(|s| {
-            problems.field(
-                "patient.summary.narrativeincludeclinical",
-                s.narrativeincludeclinical,
-            )
-        });
+    let case_event_date = problems.field("patient.summary", p.summary).and_then(|s| {
+        problems.field(
+            "patient.summary.narrativeincludeclinical",
+            s.narrativeincludeclinical,
+        )
+    });
     let patient = Some(FaersPatient {
         age: age(problems, p.patientonsetage, p.patientonsetageunit),
         sex: problems.field("patient.patientsex", p.patientsex),
@@ -202,12 +200,14 @@ fn age(
     unit: Option<crate::raw::Field<Box<str>>>,
 ) -> Option<biodata::WithUnit<biodata::FiniteNumber, biodata::FaersAgeUnit>> {
     let supplied = unit.is_some();
-    let unit = p.field("patient.patientonsetageunit", unit).and_then(|code| {
-        p.optional(
-            "patient.patientonsetageunit",
-            Some(code.parse::<biodata::FaersAgeUnit>()),
-        )
-    });
+    let unit = p
+        .field("patient.patientonsetageunit", unit)
+        .and_then(|code| {
+            p.optional(
+                "patient.patientonsetageunit",
+                Some(code.parse::<biodata::FaersAgeUnit>()),
+            )
+        });
     let raw = p.field("patient.patientonsetage", value)?;
     let value = p.optional(
         "patient.patientonsetage",

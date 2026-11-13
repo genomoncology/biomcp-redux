@@ -58,8 +58,10 @@ pub const AGE_UNIT: Words = &[
 /// document, so `2` has no word and is not an off-list code either.
 pub const SERIOUSNESS_DEATH: Words = &[("1", "The adverse event resulted in death")];
 /// `seriousnesslifethreatening`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_LIFETHREATENING: Words =
-    &[("1", "The adverse event resulted in a life threatening condition")];
+pub const SERIOUSNESS_LIFETHREATENING: Words = &[(
+    "1",
+    "The adverse event resulted in a life threatening condition",
+)];
 /// `seriousnesshospitalization`; see [`SERIOUSNESS_DEATH`].
 pub const SERIOUSNESS_HOSPITALIZATION: Words =
     &[("1", "The adverse event resulted in a hospitalization")];
@@ -69,8 +71,10 @@ pub const SERIOUSNESS_DISABLING: Words = &[("1", "The adverse event resulted in 
 pub const SERIOUSNESS_CONGENITALANOMALI: Words =
     &[("1", "The adverse event resulted in a congenital anomaly")];
 /// `seriousnessother`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_OTHER: Words =
-    &[("1", "The adverse event resulted in some other serious condition")];
+pub const SERIOUSNESS_OTHER: Words = &[(
+    "1",
+    "The adverse event resulted in some other serious condition",
+)];
 /// `primarysource.qualification`.
 pub const REPORTER_QUALIFICATION: Words = &[
     ("1", "Physician"),
