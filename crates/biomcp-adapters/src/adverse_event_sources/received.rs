@@ -46,7 +46,7 @@ impl Reply for Response {
     }
     fn check(&self) -> Result<(), BadReply> {
         match self {
-            Self::Page { results, .. } if results.iter().all(|day| day_of(&day.time).is_some()) => {
+            Self::Page { results, .. } if results.iter().all(|day| day_of(&day.time).is_ok()) => {
                 Ok(())
             }
             Self::Absent { error } if error.valid() => Ok(()),
@@ -66,16 +66,13 @@ impl Reply for Response {
 }
 
 /// openFDA's native YYYYMMDD bucket time as a checked calendar day.
-fn day_of(time: &str) -> Option<PartialDate> {
-    if time.len() != 8 || !time.bytes().all(|b| b.is_ascii_digit()) {
-        return None;
+fn day_of(time: &str) -> Result<PartialDate, BadReply> {
+    match (time.get(..4), time.get(4..6), time.get(6..)) {
+        (Some(year), Some(month), Some(day)) if time.len() == 8 => format!("{year}-{month}-{day}")
+            .parse()
+            .map_err(|_| BadReply),
+        _ => Err(BadReply),
     }
-    PartialDate::new(
-        time.get(..4)?.parse().ok()?,
-        Some(time.get(4..6)?.parse().ok()?),
-        Some(time.get(6..)?.parse().ok()?),
-    )
-    .ok()
 }
 
 fn date(year: u16, month: u8, day: u8) -> Result<PartialDate, RequestError> {
@@ -83,10 +80,45 @@ fn date(year: u16, month: u8, day: u8) -> Result<PartialDate, RequestError> {
 }
 
 fn last_day(year: u16, month: u8) -> Result<PartialDate, RequestError> {
-    (28..=31)
+    let day = (28..=31)
         .rev()
-        .find_map(|day| PartialDate::new(year, Some(month), Some(day)).ok())
-        .ok_or_else(|| InputError::Serialization.into())
+        .find(|day| PartialDate::new(year, Some(month), Some(*day)).is_ok())
+        .ok_or(InputError::Serialization)?;
+    date(year, month, day)
+}
+
+/// The source's endpoint, receipt-date field and admitted terminology for this search.
+fn source_parts(
+    leg: &Leg<'_>,
+    query: &AdverseEventSearch,
+) -> Result<
+    (
+        &'static biomcp_fetch::SourceSpec,
+        &'static str,
+        Box<[ComponentLabel]>,
+    ),
+    RequestError,
+> {
+    match query.source() {
+        AdverseEventSource::Faers if query.reaction().is_some() => {
+            super::components::meddra(leg)?;
+            Ok((
+                &crate::faers::SPEC,
+                "receivedate",
+                super::components::labels(Source::Faers, Source::Meddra)?,
+            ))
+        }
+        AdverseEventSource::Faers => Ok((&crate::faers::SPEC, "receivedate", Box::default())),
+        AdverseEventSource::Maude => {
+            super::components::gmdn(leg)?;
+            Ok((
+                &crate::maude::SPEC,
+                "date_received",
+                super::components::labels(Source::Maude, Source::Gmdn)?,
+            ))
+        }
+        AdverseEventSource::Vaers => Err(InputError::Serialization.into()),
+    }
 }
 
 /// Count matching reports by FDA receipt date with the search's own expression and filters.
@@ -100,26 +132,7 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
     ) else {
         return Err(InputError::Serialization.into());
     };
-    let (spec, field, components) = match query.source() {
-        AdverseEventSource::Faers if query.reaction().is_some() => {
-            super::components::meddra(leg)?;
-            (
-                &crate::faers::SPEC,
-                "receivedate",
-                super::components::labels(Source::Faers, Source::Meddra)?,
-            )
-        }
-        AdverseEventSource::Faers => (&crate::faers::SPEC, "receivedate", Box::default()),
-        AdverseEventSource::Maude => {
-            super::components::gmdn(leg)?;
-            (
-                &crate::maude::SPEC,
-                "date_received",
-                super::components::labels(Source::Maude, Source::Gmdn)?,
-            )
-        }
-        AdverseEventSource::Vaers => return Err(InputError::Serialization.into()),
-    };
+    let (spec, field, components) = source_parts(leg, query)?;
     let selector = match query.source() {
         AdverseEventSource::Maude => crate::maude::expression(query),
         _ => query.faers_expression(),
@@ -137,7 +150,7 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
         Read::<Response>::json().check(&|reply| match reply {
             Response::Page { results, .. }
                 if results.iter().any(|day| {
-                    day_of(&day.time).is_none_or(|day| {
+                    day_of(&day.time).is_ok_and(|day| {
                         let day = day.to_string();
                         day < low || day > high
                     })
@@ -153,12 +166,27 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
     if let Response::Page { meta, results } = received.value {
         updated = meta.last_updated;
         for day in results {
-            let date = day_of(&day.time).ok_or(InputError::Serialization)?;
+            let date = day_of(&day.time).map_err(|_| InputError::Serialization)?;
             let month = date.month().ok_or(InputError::Serialization)?;
             let total = months.entry((date.year(), month)).or_default();
             *total = total.saturating_add(day.count);
         }
     }
+    Ok(ReceivedPage {
+        items: periods(aggregate, (from, to), &months, updated)?,
+        updated,
+        fetched: received.meta.fetched,
+        components,
+    })
+}
+
+/// Every year or month of the range, oldest first, with zeros and partial periods marked.
+fn periods(
+    aggregate: AdverseEventAggregate,
+    (from, to): (PartialDate, PartialDate),
+    months: &BTreeMap<(u16, u8), u64>,
+    updated: Option<PartialDate>,
+) -> Result<Vec<AdverseEventReceivedCount>, RequestError> {
     let partial = |first: PartialDate, last: PartialDate| {
         first.to_string() < from.to_string()
             || last.to_string() > to.to_string()
@@ -166,6 +194,14 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
     };
     let mut items = Vec::new();
     for year in from.year()..=to.year() {
+        if aggregate == AdverseEventAggregate::ReceivedYear {
+            items.push(AdverseEventReceivedCount {
+                received: year.to_string().into(),
+                count: months.range((year, 1)..=(year, 12)).map(|(_, n)| n).sum(),
+                partial: partial(date(year, 1, 1)?, date(year, 12, 31)?),
+            });
+            continue;
+        }
         let first_month = if year == from.year() {
             from.month().unwrap_or(1)
         } else {
@@ -176,14 +212,6 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
         } else {
             12
         };
-        if aggregate == AdverseEventAggregate::ReceivedYear {
-            items.push(AdverseEventReceivedCount {
-                received: year.to_string().into(),
-                count: months.range((year, 1)..=(year, 12)).map(|(_, n)| n).sum(),
-                partial: partial(date(year, 1, 1)?, date(year, 12, 31)?),
-            });
-            continue;
-        }
         for month in first_month..=last_month {
             items.push(AdverseEventReceivedCount {
                 received: format!("{year:04}-{month:02}").into(),
@@ -192,10 +220,5 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
             });
         }
     }
-    Ok(ReceivedPage {
-        items,
-        updated,
-        fetched: received.meta.fetched,
-        components,
-    })
+    Ok(items)
 }

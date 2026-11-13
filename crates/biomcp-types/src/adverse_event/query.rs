@@ -89,11 +89,13 @@ struct SearchFields {
     #[doc = "FAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
-    #[doc = "First date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day."]
+    #[doc = "First date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt lower bound, \
+        YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
-    #[doc = "Last date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day."]
+    #[doc = "Last date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt upper bound, \
+        YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
