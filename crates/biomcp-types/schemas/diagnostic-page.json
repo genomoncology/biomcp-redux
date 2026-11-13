@@ -429,6 +429,28 @@
             }
           ],
           "description": "Source laboratory name, absent when the native cell is empty."
+        },
+        "postcode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native facility postcode."
+        },
+        "state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native facility state or region."
         }
       },
       "required": [
@@ -988,6 +1010,15 @@
     "Reply_GtrHeader": {
       "description": "Small resolved GTR candidate; broad gene and condition arrays stay off the header.",
       "properties": {
+        "gene_count": {
+          "description": "Distinct symbols in the native genes cell: 1 is a single-gene test, hundreds an exome-scale one.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "id": {
           "$ref": "#/$defs/Reply_GtrTestId",
           "description": "Complete source accession and version."
@@ -1002,6 +1033,13 @@
             }
           ],
           "description": "Native laboratory context."
+        },
+        "method_categories": {
+          "description": "Native method categories in source order, such as deletion/duplication analysis.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
         },
         "name": {
           "anyOf": [
