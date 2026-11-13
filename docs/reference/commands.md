@@ -686,8 +686,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --search-mode <search_mode>
-          HP IDs only: hybrid, the default, or full to score every; help search phenotype
-          HP IDs only: hybrid, the default, or full to score every entity.
+          HP IDs only: hybrid (default) or full, slower, scoring; help search phenotype
+          HP IDs only: hybrid (default) or full, slower, scoring every entity.
 
       --source <source>
           Monarch only; HPO search is unsupported; help search phenotype
@@ -712,13 +712,13 @@ Search human phenotypes in HPO. Sources: hpo, monarch.
 - `--group`: HP IDs only: rank genes, the default, or diseases; help search phenotype
 HP IDs only: rank genes, the default, or diseases.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
 HP IDs only: the Monarch similarity metric to rank by.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--search-mode`: HP IDs only: hybrid, the default, or full to score every; help search phenotype
-HP IDs only: hybrid, the default, or full to score every entity.
+- `--search-mode`: HP IDs only: hybrid (default) or full, slower, scoring; help search phenotype
+HP IDs only: hybrid (default) or full, slower, scoring every entity.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; help search phenotype
 Monarch only; HPO search is unsupported.

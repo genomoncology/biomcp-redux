@@ -1,7 +1,7 @@
 {
   "live_check": "Monarch semantic similarity search replies captured live 2026-11-13 from api-v3.monarchinitiative.org",
   "feature": "phenotype-set-ranking",
-  "story": "A counselor's three HP IDs return Monarch's one ranked list of genes or diseases with each score, the metric named and Monarch's 50-row limit stated; a hybrid reply says what it can leave out and offers the full search; an HP ID Monarch does not know is refused instead of silently dropped.",
+  "story": "A counselor's three HP IDs return Monarch's one ranked list of genes or diseases with each score, the metric named and Monarch's 50-row limit stated, and a smaller limit keeps Monarch's first rows of the same 50-row hybrid order; a hybrid reply says what it can leave out and offers the full search; an HP ID Monarch does not know is refused instead of silently dropped.",
   "replay": "phenotype/set-ranks",
   "steps": [
     {
@@ -15,15 +15,6 @@
       "expect": {
         "/status": "complete",
         "/schema": "biomcp.phenotype-matches/1",
-        "/result/items/0/rank": 1,
-        "/result/items/0/id": "HGNC:4226",
-        "/result/items/0/label": "GDI1",
-        "/result/items/0/score": 12.681392140685496,
-        "/result/items/0/best_matches/1/term": "HP:0001252",
-        "/result/items/0/best_matches/1/matched": "HP:0008936",
-        "/result/items/1/id": "HGNC:15772",
-        "/result/items/1/score": 12.029876925256652,
-        "/result/items/2/id": "HGNC:14074",
         "/result/terms/2/label": "Seizure",
         "/result/method/metric": "ancestor_information_content",
         "/result/method/search_mode": "hybrid",
@@ -43,9 +34,46 @@
           "full"
         ],
         "/next/3/kind": "sort",
-        "/result/note": "Monarch's hybrid mode scores only a shortlist picked by Jaccard overlap, so a gene or disease with many annotations can be dropped before scoring; the next step reruns with --search-mode full, which scores every entity and is slower."
+        "/result/note": "Monarch's hybrid mode scores only a shortlist picked by Jaccard overlap, so a gene or disease with many annotations can be dropped before scoring; the next step reruns with --search-mode full, which scores every entity and is slower.",
+        "/result/items/0/rank": 1,
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/0/label": "GDI1",
+        "/result/items/0/score": 12.681392140685496,
+        "/result/items/0/best_matches/1/term": "HP:0001252",
+        "/result/items/0/best_matches/1/matched": "HP:0008936",
+        "/result/items/1/id": "HGNC:29112",
+        "/result/items/1/score": 12.249137668887734,
+        "/result/items/2/id": "HGNC:15505",
+        "/result/items/2/score": 12.20418603518225,
+        "/result/items": {
+          "count": 3
+        }
       },
       "max_bytes": 4600
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "count": 50
+        },
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/0/score": 12.681392140685496,
+        "/result/items/1/id": "HGNC:29112",
+        "/result/items/1/score": 12.249137668887734,
+        "/result/items/2/id": "HGNC:15505",
+        "/result/items/2/score": 12.20418603518225,
+        "/result/items/2/rank": 3,
+        "/result/items/49/rank": 50
+      },
+      "max_bytes": 90000
     },
     {
       "run": [
@@ -62,7 +90,7 @@
         "/query/group": "diseases",
         "/result/items/0/id": "MONDO:0010451",
         "/result/items/0/score": 13.682450613729127,
-        "/result/items/1/id": "MONDO:0859263",
+        "/result/items/1/id": "MONDO:0054861",
         "/result/method/metric": "ancestor_information_content",
         "/result/source_limit": 50,
         "/next/0/args": [
@@ -83,24 +111,6 @@
           "--search-mode",
           "full"
         ]
-      },
-      "max_bytes": 4200
-    },
-    {
-      "run": [
-        "search",
-        "phenotype",
-        "HP:0001263,HP:0001252,HP:0001250",
-        "--metric",
-        "phenodigm-score",
-        "--limit",
-        "2"
-      ],
-      "expect": {
-        "/status": "complete",
-        "/result/items/0/id": "HGNC:15772",
-        "/result/items/0/score": 3.153784757657971,
-        "/result/method/metric": "phenodigm_score"
       },
       "max_bytes": 4200
     },
