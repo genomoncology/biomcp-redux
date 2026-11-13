@@ -55,11 +55,12 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         ),
     };
     let error = result.as_ref().err().copied();
-    let total = result.as_ref().ok().map(|page| page.total);
+    let mut total = None;
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
+        total = Some(page.total);
         out.include_refusals(page.refusals);
         // Later pages keep this page's names, so the snapshot is kept only for an answer.
         let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
