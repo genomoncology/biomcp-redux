@@ -578,6 +578,8 @@ fn context(
         ("search", "adverse-event", "event_type") => json!({"source":"maude"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
+        // A ranking group or metric applies only to a text of HP IDs.
+        ("search", "phenotype", "group" | "metric" | "search_mode") => json!({"text":"HP:0001250"}),
         _ => json!({}),
     };
     values.extend(extra.as_object().ok_or("context")?.clone());

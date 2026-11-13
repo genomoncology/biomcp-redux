@@ -2,6 +2,7 @@
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 mod associations;
+mod matches;
 mod record;
 mod sections;
 use crate::{Ctx, Outcome, status};
@@ -20,8 +21,12 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         record::get(cx, q)
     }
 }
-/// Search one native HP page without source substitution or local selection.
+/// Search one native HP page without source substitution or local selection,
+/// or read Monarch's one ranking when the text is only HP IDs.
 pub(crate) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
+    if q.terms().is_some() {
+        return matches::search(cx, q);
+    }
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);

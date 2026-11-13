@@ -229,6 +229,14 @@ singleton! {
         PhenotypeSet => "retired; use: search phenotype TEXT; inspect diseases and genes with: get phenotype HP:ID --source monarch",
         PhenotypeHelp => "use: help phenotype",
         PhenotypeHpoSearch => "HPO term search has no proved paging contract; use: search phenotype TEXT --source monarch",
+        PhenotypeSetOptions => "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text \
+            as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes",
+        PhenotypeSetOffset => "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further \
+            pages; drop --offset and raise --limit up to 50",
+        PhenotypeSetEmpty => "Monarch ranked nothing for this set, which it does when it knows none of the IDs; check \
+            each ID with the next steps",
+        PhenotypeSetUnknown => "Monarch has no term for an HP ID in this set and would rank without it; check each ID with \
+            the next steps, or rank only the IDs Monarch knows",
         DiseaseHelp => "use: help search disease; help get disease",
         DiseaseTrials => "use: search trial --condition <text>; NCI requires an NCIt identifier",
         CellLineAllPaging => "all returns default first pages; use get cell-line <ID> <section> with --section-limit and --section-offset to page one section",

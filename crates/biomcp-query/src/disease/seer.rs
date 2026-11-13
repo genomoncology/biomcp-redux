@@ -102,7 +102,8 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Text) -> Outco
     command.finish(deadline.remaining());
     out
 }
-fn fetched(value: Option<i64>) -> Option<u64> {
+/// A signed retrieval time as the unsigned seconds replies carry.
+pub(crate) fn fetched(value: Option<i64>) -> Option<u64> {
     value.and_then(|value| u64::try_from(value).ok())
 }
 use crate::next::run;

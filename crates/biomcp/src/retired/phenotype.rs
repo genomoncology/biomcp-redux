@@ -5,15 +5,7 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
     let words = super::words(root, args)?;
     match words.positional.as_slice() {
         ["list", "phenotype", ..] => Some(ErrorMessage::PhenotypeHelp),
-        ["search", "phenotype", text @ ..] => {
-            let mut ids = text
-                .iter()
-                .flat_map(|value| value.split(|c: char| c == ',' || c.is_whitespace()))
-                .filter(|v| !v.is_empty())
-                .peekable();
-            if ids.peek().is_some() && ids.all(|id| id.parse::<biodata::HpId>().is_ok()) {
-                return Some(ErrorMessage::PhenotypeSet);
-            }
+        ["search", "phenotype", ..] => {
             let mut args = args.iter().filter_map(|v| v.to_str());
             while let Some(word) = args.next() {
                 if word == "--" {

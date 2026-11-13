@@ -115,7 +115,7 @@ Commands:
   gwas           Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
   protein        Search five reviewed human UniProt headers by literal text or exact gene.
                  No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
-  phenotype      Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+  phenotype      Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.
   pathway        Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
@@ -647,13 +647,13 @@ Form: search protein QUERY; not --query.
 ## biomcp search phenotype
 
 ```text
-Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.
 
 Usage: biomcp search phenotype [OPTIONS] <text>
 
 Arguments:
   <text>
-          Unchanged literal term search text.
+          Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.
 
 Options:
       --format <format>
@@ -662,24 +662,36 @@ Options:
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Maximum native headers, default five.
+      --group <group>
+          HP IDs only: rank genes, the default, or diseases; help search phenotype
+          HP IDs only: rank genes, the default, or diseases.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --offset <offset>
-          Native source row offset.
+  -l, --limit <limit>
+          Maximum native headers, default five.
 
-      --source <source>
-          Monarch only; HPO search is unsupported; help search phenotype
-          Monarch only; HPO search is unsupported.
+      --metric <metric>
+          HP IDs only: the Monarch similarity metric to rank by; help search phenotype
+          HP IDs only: the Monarch similarity metric to rank by.
+
+      --offset <offset>
+          Native source row offset; a ranked HP ID set has no further pages.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --search-mode <search_mode>
+          HP IDs only: hybrid (default) or slower full; help search phenotype
+          HP IDs only: hybrid (default) or slower full.
+
+      --source <source>
+          Monarch only; HPO search is unsupported; help search phenotype
+          Monarch only; HPO search is unsupported.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -697,12 +709,21 @@ Options:
 
 Search human phenotypes in HPO. Sources: hpo, monarch.
 
-- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--offset`: Source source row offset. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--group`: HP IDs only: rank genes, the default, or diseases; help search phenotype
+HP IDs only: rank genes, the default, or diseases.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
+HP IDs only: the Monarch similarity metric to rank by.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--search-mode`: HP IDs only: hybrid (default) or slower full; help search phenotype
+HP IDs only: hybrid (default) or slower full.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; help search phenotype
 Monarch only; HPO search is unsupported.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `text`: Unchanged exact term search text.
+- `text`: Unchanged exact term search text, or HP IDs separated by commas to rank genes or diseases for the set.
 Form: search phenotype TEXT; not --text.
 
 ## biomcp search pathway
