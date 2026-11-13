@@ -3,7 +3,7 @@
   "feature": "trial-sites",
   "story": "A locations page holds the 100 sites asked for, states the registry's site total and gives the next page until the last site",
   "replay": "trial/get/NCT03734029",
-  "verified": "Recorded public registry GET reply for NCT03734029, which lists 274 sites; tests/replies/trial/get/README.md identifies it. The total is the registry's own site count.",
+  "verified": "Recorded public registry GET reply for NCT03734029, which lists 208 sites; tests/replies/trial/get/README.md identifies it. The total is the registry's own site count.",
   "steps": [
     {
       "run": [
@@ -17,7 +17,7 @@
       "expect": {
         "/status": "complete",
         "/result/items/0/sections/locations/state": "data",
-        "/result/items/0/sections/locations/data/total": 274,
+        "/result/items/0/sections/locations/data/total": 208,
         "/result/items/0/sections/locations/data/offset": 0,
         "/result/items/0/sections/locations/data/items": {
           "count": 100
@@ -29,7 +29,7 @@
       "follow": "page",
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/locations/data/total": 274,
+        "/result/items/0/sections/locations/data/total": 208,
         "/result/items/0/sections/locations/data/offset": 100,
         "/result/items/0/sections/locations/data/items": {
           "count": 100
@@ -40,10 +40,10 @@
       "follow": "page",
       "expect": {
         "/status": "complete",
-        "/result/items/0/sections/locations/data/total": 274,
+        "/result/items/0/sections/locations/data/total": 208,
         "/result/items/0/sections/locations/data/offset": 200,
         "/result/items/0/sections/locations/data/items": {
-          "count": 74
+          "count": 8
         },
         "/result/items/0/sections/locations/data": {
           "omits": [

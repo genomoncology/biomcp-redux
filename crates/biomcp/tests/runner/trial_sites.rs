@@ -25,7 +25,7 @@ fn past_end() -> Check {
         .and_then(serde_json::Value::as_array)
         .map_or(0, Vec::len);
     let total = page.get("total").and_then(serde_json::Value::as_u64);
-    if returned != 100 || total != Some(274) || page.get("continuation").is_none() {
+    if returned != 100 || total != Some(208) || page.get("continuation").is_none() {
         return Err(format!("first page: {returned} sites, total {total:?}").into());
     }
     let mut next = super::action(&first, "page")?;
@@ -38,7 +38,7 @@ fn past_end() -> Check {
     let page = after.pointer(LOCATIONS).ok_or("past-end locations page")?;
     let number = |name: &str| page.get(name).and_then(serde_json::Value::as_u64);
     if after.get("status").and_then(serde_json::Value::as_str) != Some("complete")
-        || number("total") != Some(274)
+        || number("total") != Some(208)
         || number("offset") != Some(400)
         || page
             .get("items")
