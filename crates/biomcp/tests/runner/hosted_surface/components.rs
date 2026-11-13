@@ -50,13 +50,19 @@ fn component_catalog(server: &Server) -> Check {
     if !validator.is_valid(&json!({"text":"Synthetic medicine","source":"faers"}))
         || validator.is_valid(&json!({"text":"device","source":"maude"}))
         || search.pointer("/inputSchema/properties/reaction").is_some()
-        || ["aggregate", "manufacturer", "product_code", "problem"]
-            .iter()
-            .any(|field| {
-                search
-                    .pointer(&format!("/inputSchema/properties/{field}"))
-                    .is_some()
-            })
+        || [
+            "aggregate",
+            "manufacturer",
+            "product_code",
+            "problem",
+            "event_type",
+        ]
+        .iter()
+        .any(|field| {
+            search
+                .pointer(&format!("/inputSchema/properties/{field}"))
+                .is_some()
+        })
     {
         return Err("search component capabilities disagree with admission".into());
     }

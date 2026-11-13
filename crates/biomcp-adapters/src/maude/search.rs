@@ -29,6 +29,9 @@ pub fn expression(query: &AdverseEventSearch) -> String {
     if let Some(text) = query.problem() {
         selectors.push(phrase("product_problems", text));
     }
+    if let Some(kind) = query.event_type() {
+        selectors.push(format!("event_type.exact:\"{}\"", kind.native()));
+    }
     if query.received_from().is_some() || query.received_to().is_some() {
         let from = query
             .received_from()

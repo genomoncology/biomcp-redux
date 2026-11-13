@@ -1,0 +1,40 @@
+{
+  "method": "GET",
+  "source": "maude",
+  "url": "https://api.fda.gov/device/event.json?search=device.generic_name%3A%22infusion%20pump%22%20AND%20event_type.exact%3A%22Malfunction%22%20AND%20date_received%3A%5B20251101%20TO%2020261101%5D&limit=1&skip=0&sort=date_received%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794597868,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 704,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 295358
+            }
+          },
+          "results": [
+            {
+              "mdr_report_key": "51243987",
+              "report_number": "3013756811-2026-197913",
+              "event_type": "Malfunction",
+              "date_of_event": "20260718",
+              "date_received": "20261030",
+              "date_report": "20261029"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
