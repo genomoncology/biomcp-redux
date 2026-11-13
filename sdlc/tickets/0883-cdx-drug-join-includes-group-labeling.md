@@ -31,3 +31,10 @@ From the bench 0041/0042 reg-affairs runs (2026-11-13): for osimertinib (TAGRISS
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/fda_cdx/`, `tests/cases/diagnostic/`
+
+## Progress
+
+- Measured live on 2026-11-13 (job j39031, main 40b3504b5, fresh HOME after `biomcp sync fda-cdx`): FDA's page has 244 rows. 15 name NDA 208065: 10 individual rows (BioMCP returned all 10) and 5 group-labeling rows (cobas EGFR v2 P120019/S031, FoundationOne CDx P170019/S033, FoundationOne Liquid CDx P190032/S008, ONCO/Reveal P200011, MI Cancer Seek P240010), which BioMCP missed. 16 name BLA 125514, all individual, and BioMCP returned all 16; the raw agent's count was right and there is no pembrolizumab group row.
+- Cause: the group table lists each drug in its own `<li>`, and the parser joined list items with no separator, so "NDA 021743" and the next trade name read as one word ("021743Tagrisso"). No application in the cell could be matched to its link, the cell was marked a drug conflict, and the row joined nothing. The same gap ("BLA 125084VECTIBIX" across a `<p>`) silently dropped individual row 8 (cetuximab), and "NDA 211651/S010" (rows 14 and 15, talazoparib) was not read as NDA 211651.
+- Changed: paragraphs and list items now end a line in cell text; an application written with a supplement suffix reads as its application; a drug-application search now reports every row whose drug or device link cannot be read as an `identity.conflict` problem, so a row it cannot join is named, not dropped. On the current page that is one row: individual row 89 links NDA 213246 but its text reads NDA214246 (an FDA typo).
+- Case: `tests/cases/diagnostic/cdx-group-join.yaml` replays the 2026-11-13 page tables.
