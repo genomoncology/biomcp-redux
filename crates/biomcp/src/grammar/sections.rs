@@ -154,7 +154,8 @@ fn by_source(
     let published = super::validation::accepted(schema, property)?
         .iter()
         .map(|word| word.as_str().to_owned())
-        .filter(|word| word != "all")
+        // all and drug markets read every source, so neither is the one a source publishes.
+        .filter(|word| word != "all" && !(entity == "drug" && word == "markets"))
         .find(|word| {
             biomcp_types::command_section_sources(verb, entity, word, &[source])
                 .is_some_and(|sources| sources.contains(&source))

@@ -3262,6 +3262,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `approvals`: Source application and product history rows.
 - `regulatory`: Source-scoped regulator events.
 - `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
+- `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
 
 ## biomcp get gene
 

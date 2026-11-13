@@ -220,6 +220,10 @@ impl Application {
             first,
         ))
     }
+    /// Native sponsor name.
+    pub fn sponsor(&self) -> Option<&biodata::Text> {
+        self.0.sponsor_name.as_ref()
+    }
     /// Actual refused native child records.
     pub fn refusals(&self) -> crate::Refusal {
         self.0.refusals

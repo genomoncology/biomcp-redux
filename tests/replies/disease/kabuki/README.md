@@ -1,0 +1,1 @@
+Unchanged public MyDisease replies recorded live on 2026-11-13 with no key: the MONDO:0016512 annotation (MONDO CC BY 4.0, Disease Ontology CC0) and one `POST /v1/disease` batch naming its four direct parents. The DOID:225 query returns the MONDO:0002254 document; its label comes from that document's own `disease_ontology.doid` match, never from the MONDO label.

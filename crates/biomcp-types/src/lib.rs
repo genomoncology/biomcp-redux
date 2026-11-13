@@ -174,7 +174,7 @@ pub use query::{
 pub use response::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
     DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
-    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
 };
 mod drug;
 pub use drug::{
@@ -184,13 +184,13 @@ pub use drug::{
     DrugFdaLatestSubmission, DrugFdaOriginalApproval, DrugFdaPage, DrugFdaProduct, DrugFdaProperty,
     DrugFdaSort, DrugFdaSubmission, DrugFdaSupplementPurpose, DrugGet, DrugHeader, DrugIndications,
     DrugIndicationsPart, DrugInteractions, DrugInteractionsPart, DrugLabel, DrugLabelFragment,
-    DrugLabelPart, DrugLabelText, DrugNameMatch, DrugNameResolution, DrugNameSelector,
-    DrugOncokbLookup, DrugOncokbMissing, DrugPage, DrugRecallCard, DrugRecallClassification,
-    DrugRecallCountUnit, DrugRecallHeader, DrugRecallPage, DrugRecords, DrugRegulatory,
-    DrugRegulatoryContext, DrugRegulatoryPart, DrugSearch, DrugSection, DrugSectionBody,
-    DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets, DrugTargetsPart,
-    DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
-    OPENFDA_LABEL_HEADINGS, WhoDateStatus,
+    DrugLabelPart, DrugLabelText, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet,
+    DrugNameMatch, DrugNameResolution, DrugNameSelector, DrugOncokbLookup, DrugOncokbMissing,
+    DrugPage, DrugRecallCard, DrugRecallClassification, DrugRecallCountUnit, DrugRecallHeader,
+    DrugRecallPage, DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart,
+    DrugSearch, DrugSection, DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections,
+    DrugSource, DrugTargets, DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow,
+    DrugXrefs, DrugXrefsPart, OPENFDA_LABEL_HEADINGS, WhoDateStatus,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
