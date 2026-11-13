@@ -1,13 +1,17 @@
 {
   "$defs": {
     "Reply_AdverseEventAggregate": {
-      "description": "Source-native aggregation of matching FAERS reports.",
+      "description": "Source-native aggregation of matching FAERS or MAUDE reports.",
       "enum": [
-        "reactions"
+        "reactions",
+        "received-year",
+        "received-month"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Exact reaction-term buckets from openFDA; reports may contribute to several terms."
+        " Exact reaction-term buckets from openFDA; reports may contribute to several terms.",
+        " FDA receipt-date report counts summed to calendar years.",
+        " FDA receipt-date report counts summed to calendar months."
       ]
     },
     "Reply_AdverseEventHeader": {
@@ -104,6 +108,16 @@
           ],
           "description": "Explicit analyzed reaction selector semantics when a reaction was supplied."
         },
+        "received_counts": {
+          "description": "Report counts per receipt year or month, oldest first, every period in the requested\nrange listed; present only when a receipt-date aggregate was requested.",
+          "items": {
+            "$ref": "#/$defs/Reply_AdverseEventReceivedCount"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "source_query": {
           "description": "Exact literal provider expression; reaction selectors use phrase match.",
           "type": "string"
@@ -178,6 +192,30 @@
       ],
       "type": "string"
     },
+    "Reply_AdverseEventReceivedCount": {
+      "description": "Matching reports FDA received in one calendar year or month.",
+      "properties": {
+        "count": {
+          "description": "Matching reports with an FDA receipt date in this period, summed from openFDA's daily\nreceipt-date counts; reports, not exposed people.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "partial": {
+          "description": "The requested range, or the source's data as of its last update, covers only part of\nthis period.",
+          "type": "boolean"
+        },
+        "received": {
+          "description": "Receipt year as YYYY or month as YYYY-MM.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "received",
+        "count"
+      ],
+      "type": "object"
+    },
     "Reply_AdverseEventSearch": {
       "description": "Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
       "properties": {
@@ -190,8 +228,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.",
-          "x-required-component": "meddra"
+          "description": "Counts by reaction or receipt date.\nreactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero."
         },
         "drug": {
           "description": "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
@@ -287,7 +324,7 @@
               "type": "null"
             }
           ],
-          "description": "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.",
+          "description": "First date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day.",
           "format": "date"
         },
         "received_to": {
@@ -299,7 +336,7 @@
               "type": "null"
             }
           ],
-          "description": "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.",
+          "description": "Last date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day.",
           "format": "date"
         },
         "section": {
