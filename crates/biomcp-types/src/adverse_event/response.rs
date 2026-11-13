@@ -2,14 +2,15 @@ use super::{
     AdverseEventGet, AdverseEventSearch, AdverseEventSection, AdverseEventSource, ReportUnit,
 };
 use crate::{ComponentLabel, ResponseBody};
-use biodata::{FaersSeriousness, ReportId, Text};
+use biodata::{ReportId, Text};
 use serde::{Deserialize, Serialize};
 mod counts;
 mod rows;
 pub use counts::{AdverseEventReactionCount, AdverseEventReactionCounts};
 pub use rows::{
     AdverseEventDevice, AdverseEventDrug, AdverseEventIdentityCounts, AdverseEventNarrativeItem,
-    AdverseEventPatient, AdverseEventReaction, AdverseEventReporter,
+    AdverseEventPatient, AdverseEventReaction, AdverseEventReporter, AdverseEventSeriousness,
+    AdverseEventUnmappedCode,
 };
 /// Small source report header without a drug title, flattened lists or count buckets.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -94,15 +95,21 @@ pub struct AdverseEventFaersCard {
     /// Native first_received_format string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first_received_format: Option<Box<str>>,
-    /// Independent source report flags.
+    /// Independent source report flags; openFDA documents only `1` for each.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub seriousness: Option<FaersSeriousness>,
+    pub seriousness: Option<AdverseEventSeriousness>,
+    /// Unchanged `patient.summary.narrativeincludeclinical`. openFDA fills it with the case event date only; its public FAERS data carries no case narrative.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub case_event_date: Option<Box<str>>,
     /// Fixed native patient strings.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub patient: Option<AdverseEventPatient>,
     /// Optional reporter facts.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reporter: Option<AdverseEventReporter>,
+    /// Coded fields whose present value is not on openFDA's published list; a field the source omitted is never listed.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub unmapped_codes: Box<[AdverseEventUnmappedCode]>,
     /// Actual drug-array length, never count bucket.
     pub drug_count: u32,
     /// Actual reaction-array length, never causal pairs.

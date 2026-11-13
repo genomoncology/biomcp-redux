@@ -1,0 +1,202 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=safetyreportid%3A%2227298481%22&limit=5&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794596823,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-10-28",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "safetyreportversion": "1",
+              "safetyreportid": "27298481",
+              "primarysourcecountry": "US",
+              "transmissiondateformat": "102",
+              "transmissiondate": "20261010",
+              "reporttype": "1",
+              "serious": "1",
+              "seriousnessdeath": "1",
+              "seriousnesslifethreatening": "2",
+              "seriousnesshospitalization": "2",
+              "seriousnessdisabling": "2",
+              "seriousnesscongenitalanomali": "2",
+              "seriousnessother": "2",
+              "receivedateformat": "102",
+              "receivedate": "20260922",
+              "receiptdateformat": "102",
+              "receiptdate": "20260922",
+              "fulfillexpeditecriteria": "3",
+              "authoritynumb": "849425",
+              "primarysource": {
+                "reportercountry": "US",
+                "qualification": "3"
+              },
+              "sender": {
+                "sendertype": "6",
+                "senderorganization": "FDA-CTU"
+              },
+              "receiver": {
+                "receivertype": "6",
+                "receiverorganization": "FDA"
+              },
+              "patient": {
+                "patientonsetage": "76",
+                "patientonsetageunit": "801",
+                "patientsex": "1",
+                "reaction": [
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Incorrect drug administration rate"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Multiple organ dysfunction syndrome"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Toxicity to various agents"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Respiratory failure"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Atrial fibrillation"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Haemorrhage"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Hypoxia"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Renal injury"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Shock haemorrhagic"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Haematoma"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Myocarditis"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Toxic encephalopathy"
+                  },
+                  {
+                    "reactionmeddraversionpt": "29.0",
+                    "reactionmeddrapt": "Unresponsive to stimuli"
+                  }
+                ],
+                "drug": [
+                  {
+                    "drugcharacterization": "1",
+                    "medicinalproduct": "ENFORTUMAB VEDOTIN",
+                    "drugauthorizationnumb": "99",
+                    "drugdosagetext": "OTHER FREQUENCY : DAY1 AND DAY8 Q21D;",
+                    "drugadministrationroute": "042",
+                    "drugindication": "Bladder cancer",
+                    "drugstartdateformat": "102",
+                    "drugstartdate": "20260803",
+                    "drugenddateformat": "102",
+                    "drugenddate": "20260811",
+                    "drugadditional": "4",
+                    "activesubstance": {
+                      "activesubstancename": "ENFORTUMAB VEDOTIN"
+                    },
+                    "openfda": {
+                      "application_number": [
+                        "BLA761137"
+                      ],
+                      "brand_name": [
+                        "PADCEV EJFV"
+                      ],
+                      "generic_name": [
+                        "ENFORTUMAB VEDOTIN"
+                      ],
+                      "manufacturer_name": [
+                        "SEAGEN INC."
+                      ],
+                      "product_ndc": [
+                        "51144-020",
+                        "51144-030"
+                      ],
+                      "product_type": [
+                        "HUMAN PRESCRIPTION DRUG"
+                      ],
+                      "route": [
+                        "INTRAVENOUS"
+                      ],
+                      "substance_name": [
+                        "ENFORTUMAB VEDOTIN"
+                      ],
+                      "rxcui": [
+                        "2268311",
+                        "2268315",
+                        "2268317",
+                        "2268319"
+                      ],
+                      "spl_id": [
+                        "e8e304ca-8a56-4869-96e2-427ee4a1fe3c"
+                      ],
+                      "spl_set_id": [
+                        "b5631d3e-4604-4363-8f20-11dfc5a4a8ed"
+                      ],
+                      "package_ndc": [
+                        "51144-020-01",
+                        "51144-030-01"
+                      ],
+                      "unii": [
+                        "DLE8519RWM"
+                      ]
+                    }
+                  },
+                  {
+                    "drugcharacterization": "2",
+                    "medicinalproduct": "PEMBROLIZUMAB",
+                    "drugstartdateformat": "102",
+                    "drugstartdate": "20260803",
+                    "drugenddateformat": "102",
+                    "drugenddate": "20260803",
+                    "activesubstance": {
+                      "activesubstancename": "PEMBROLIZUMAB"
+                    }
+                  }
+                ],
+                "summary": {
+                  "narrativeincludeclinical": "CASE EVENT DATE: 20260810"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

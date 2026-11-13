@@ -68,7 +68,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/section_rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
+        "/result/commands/0/section_rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only.",
         "/result/commands/0/sections/*/word": [
           "drugs",
           "reactions",
