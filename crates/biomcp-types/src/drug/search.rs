@@ -21,7 +21,7 @@ pub enum DrugFdaSort {
 }
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
-    WHO prequalification accepts a name, therapeutic area or date range. openFDA labels also accept literal indication wording. \
+    WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. \
     Drugs@FDA accepts a name or an applicant. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -100,10 +100,12 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     reason: Option<Text>,
+    /// Recall start day.
     /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     initiated_from: Option<biodata::PartialDate>,
+    /// Recall start day.
     /// Inclusive initiation day, YYYY-MM-DD; drug recalls only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
@@ -120,8 +122,7 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_to: Option<biodata::PartialDate>,
     /// WHO PQ therapeutic area.
-    /// Whole words of WHO's own Therapeutic Area column, ignoring letter case, such as Oncology,
-    /// Tuberculosis or HIV; each product carries one area. A name or dates narrow the same search.
+    /// Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
     #[serde(
         default,
         deserialize_with = "present_query",
