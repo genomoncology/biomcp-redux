@@ -35,12 +35,16 @@ strings!(Reporter {
 #[derive(Debug, Deserialize)]
 pub(super) struct Patient {
     pub patientonsetage: Option<crate::raw::Field<String>>,
-    pub patientonsetageunit: Option<crate::raw::Field<biodata::FaersAgeUnit>>,
+    pub patientonsetageunit: Option<crate::raw::Field<Box<str>>>,
     pub patientsex: Option<crate::raw::Field<Box<str>>>,
     pub patientweight: Option<crate::raw::Field<Box<str>>>,
     pub drug: Option<crate::raw::Field<Vec<crate::raw::Field<Drug>>>>,
     pub reaction: Option<crate::raw::Field<Vec<crate::raw::Field<Reaction>>>>,
+    pub summary: Option<crate::raw::Field<Summary>>,
 }
+strings!(Summary {
+    narrativeincludeclinical
+});
 #[derive(Debug, Deserialize)]
 pub(super) struct Reaction {
     pub reactionmeddrapt: Option<crate::raw::Field<crate::native_text::NativeText>>,

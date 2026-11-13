@@ -202,7 +202,7 @@ pub use adverse_event::{
     AdverseEventIdentityCounts, AdverseEventMaudeCard, AdverseEventNarrative,
     AdverseEventNarrativeItem, AdverseEventPage, AdverseEventPatient, AdverseEventReaction,
     AdverseEventReactionCount, AdverseEventReactionCounts, AdverseEventReactionMatch,
-    AdverseEventReactions, AdverseEventRecords, AdverseEventReporter, AdverseEventSearch,
+    AdverseEventReactions, AdverseEventRecords, AdverseEventReporter, AdverseEventSeriousness, AdverseEventUnmappedCode, AdverseEventSearch,
     AdverseEventSection, AdverseEventSerious, AdverseEventSource, ReportUnit, VAERS_INFLUENZA,
     VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary, vaers_vaccine_code,
 };

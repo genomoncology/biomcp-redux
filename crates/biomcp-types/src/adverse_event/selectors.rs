@@ -70,7 +70,7 @@ biodata::wire_enum! { described
         ApplicationNumber => "application-number",
         /// Native device rows.
         Devices => "devices",
-        /// Complete native narrative rows.
+        /// Complete native MAUDE narrative rows; openFDA's public FAERS data carries no case narrative.
         Narrative => "narrative",
     }
 }

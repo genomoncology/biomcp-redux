@@ -1,6 +1,6 @@
 {
   "feature": "adverse-event-get",
-  "story": "Coded FAERS values keep the source code and show openFDA's published word beside it; a code outside the list has no word.",
+  "story": "Coded FAERS values keep the source code and show openFDA's published word beside it; a code outside the list has no word and is named in unmapped_codes with its code.",
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "replay": "adverse-event/faers-code-words",
   "steps": [
@@ -16,7 +16,24 @@
         "/result/patient/sex_label": "Female",
         "/result/reporter/qualification": "1",
         "/result/reporter/qualification_label": "Physician",
-        "/result/reporter/country": "US"
+        "/result/reporter/country": "US",
+        "/result/unmapped_codes": {
+          "equals": [
+            {
+              "field": "patient.patientonsetageunit",
+              "code": "806"
+            }
+          ]
+        },
+        "/result/patient": {
+          "omits": [
+            "age",
+            "age_unit_label"
+          ]
+        },
+        "/problems/*/field": {
+          "includes": "patient.patientonsetageunit"
+        }
       }
     },
     {
@@ -34,6 +51,19 @@
         "/result/reactions/records/1": {
           "omits": [
             "outcome_label"
+          ]
+        },
+        "/result/reactions/records/1/unmapped_codes": {
+          "equals": [
+            {
+              "field": "patient.reaction.reactionoutcome",
+              "code": "9"
+            }
+          ]
+        },
+        "/result/reactions/records/0": {
+          "omits": [
+            "unmapped_codes"
           ]
         }
       }
@@ -55,6 +85,14 @@
         "/result/drugs/records/1": {
           "omits": [
             "role_label"
+          ]
+        },
+        "/result/drugs/records/1/unmapped_codes": {
+          "equals": [
+            {
+              "field": "patient.drug.drugcharacterization",
+              "code": "7"
+            }
           ]
         }
       }

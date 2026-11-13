@@ -3,15 +3,16 @@ use biodata::{FaersReport, Text};
 use biomcp_adapters::{
     NativePositions,
     faers::{
-        Positions,
-        words::{PATIENT_SEX, REPORTER_QUALIFICATION, label},
+        Extras, Positions,
+        words::{self, AGE_UNIT, PATIENT_SEX, REPORTER_QUALIFICATION, Words, label, off_list},
     },
 };
 use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     AdverseEventGet, AdverseEventHeader, AdverseEventPatient, AdverseEventReporter,
-    AdverseEventSection as S, AdverseEventSource, Request, StepKind,
+    AdverseEventSection as S, AdverseEventSeriousness, AdverseEventSource,
+    AdverseEventUnmappedCode, Request, StepKind,
 };
 mod identifiers;
 mod rows;
@@ -21,6 +22,7 @@ pub(super) fn render(
     url: Text,
     snapshot: Option<Text>,
     positions: Positions,
+    extras: Extras,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
     let navigation = snapshot
@@ -44,7 +46,7 @@ pub(super) fn render(
     };
     match q.section() {
         None => {
-            card(q, r, url, header, snapshot, &positions, out)?;
+            card(q, r, url, header, snapshot, &positions, extras, out)?;
             for section in [S::Drugs, S::Reactions] {
                 section_step(&navigation, section, None, out);
             }
@@ -169,8 +171,20 @@ fn card(
     header: AdverseEventHeader,
     snapshot: Option<Text>,
     positions: &Positions,
+    extras: Extras,
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    let mut unmapped = Vec::new();
+    let sex = r.patient.as_ref().and_then(|p| p.sex.as_deref());
+    let qualification = r.reporter.as_ref().and_then(|p| p.qualification.as_deref());
+    let age_unit = extras.age_unit.as_deref();
+    for (field, list, code) in [
+        ("patient.patientsex", PATIENT_SEX, sex),
+        ("patient.patientonsetageunit", AGE_UNIT, age_unit),
+        ("primarysource.qualification", REPORTER_QUALIFICATION, qualification),
+    ] {
+        unmapped_code(field, list, code, &mut unmapped);
+    }
     out.body = (biomcp_types::AdverseEventFaersCard {
         header,
         snapshot,
@@ -179,15 +193,35 @@ fn card(
         transmitted: r.transmissiondate,
         transmitted_format: r.transmissiondateformat,
         first_received_format: r.receivedateformat,
-        seriousness: r.seriousness,
+        seriousness: r.seriousness.map(|native| AdverseEventSeriousness {
+            death_label: label(words::SERIOUSNESS_DEATH, native.death.as_deref()),
+            lifethreatening_label: label(
+                words::SERIOUSNESS_LIFETHREATENING,
+                native.lifethreatening.as_deref(),
+            ),
+            hospitalization_label: label(
+                words::SERIOUSNESS_HOSPITALIZATION,
+                native.hospitalization.as_deref(),
+            ),
+            disabling_label: label(words::SERIOUSNESS_DISABLING, native.disabling.as_deref()),
+            congenitalanomali_label: label(
+                words::SERIOUSNESS_CONGENITALANOMALI,
+                native.congenitalanomali.as_deref(),
+            ),
+            other_label: label(words::SERIOUSNESS_OTHER, native.other.as_deref()),
+            native,
+        }),
+        case_event_date: extras.case_event_date,
         patient: r.patient.map(|native| AdverseEventPatient {
             sex_label: label(PATIENT_SEX, native.sex.as_deref()),
+            age_unit_label: label(AGE_UNIT, age_unit),
             native,
         }),
         reporter: r.reporter.map(|native| AdverseEventReporter {
             qualification_label: label(REPORTER_QUALIFICATION, native.qualification.as_deref()),
             native,
         }),
+        unmapped_codes: unmapped.into(),
         drug_count: positions
             .drugs
             .as_ref()
@@ -204,4 +238,19 @@ fn card(
     })
     .with_query(q.clone());
     Ok(())
+}
+
+/// Name a present code that is not on openFDA's published list for its field.
+pub(super) fn unmapped_code(
+    field: &str,
+    list: Words,
+    code: Option<&str>,
+    out: &mut Vec<AdverseEventUnmappedCode>,
+) {
+    if let Some(code) = code.filter(|_| off_list(list, code)) {
+        out.push(AdverseEventUnmappedCode {
+            field: field.into(),
+            code: code.into(),
+        });
+    }
 }
