@@ -7,7 +7,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(30),
     probe: Probe::Get(crate::clingen::HEALTH_PATH, &[]),
     components: &[],
-    auxiliary: &[],
+    auxiliary: &[&super::REGION_SPEC],
     bundles: &[&BUNDLE],
     guidance: Guidance {
         deadline: None,

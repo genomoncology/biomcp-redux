@@ -1,4 +1,5 @@
-//! Published ClinGen validity and dosage bundles, keyed only by HGNC identity.
+//! Published ClinGen validity and dosage bundles, keyed only by HGNC identity, and the region dosage list.
+mod band;
 mod raw;
 use crate::{Mapped, mapped::Problems, quotas};
 use biodata::{GeneSymbol, HgncId};
@@ -38,14 +39,36 @@ const DOSAGE: Bundle<raw::Dosage> = Bundle {
     fresh: Freshness::Days(1),
     row: PhantomData,
 };
-/// Synchronize both required files and sum their published metadata.
+/// ClinGen's region curation lists are published on its file server.
+pub static REGION_SPEC: SourceSpec = SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
+    user_agent: None,
+    terms: SPEC.terms,
+    source: Source::ClinGen,
+    base: "https://ftp.clinicalgenome.org",
+    key: KeyUse::None,
+    quota: &quotas::CLINGEN,
+    deadline: Duration::from_secs(8),
+};
+const REGIONS: Bundle<raw::Region> = Bundle {
+    spec: &REGION_SPEC,
+    name: "clingen-regions",
+    path: "/ClinGen_region_curation_list_GRCh38.tsv",
+    format: RowFormat::CommentedTsv,
+    fresh: Freshness::Days(1),
+    row: PhantomData,
+};
+/// Synchronize the required files and sum their published metadata.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let validity = fetch.sync(&VALIDITY)?;
     let dosage = fetch.sync(&DOSAGE)?;
+    let regions = fetch.sync(&REGIONS)?;
     let mut problems = crate::mapped::bundle_problems(Source::ClinGen, &validity);
     problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &dosage));
+    problems.extend(crate::mapped::bundle_problems(Source::ClinGen, &regions));
     let mut refusals = crate::bundle_mapping::bundle_refusals(&validity);
     refusals.include(crate::bundle_mapping::bundle_refusals(&dosage));
+    refusals.include(crate::bundle_mapping::bundle_refusals(&regions));
     Ok(crate::Mapped {
         refusals,
         problems,
@@ -56,9 +79,11 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
             etag: None,
             last_modified: None,
             duplicate_identities: None,
-            rows: validity.rows + dosage.rows,
-            bytes: validity.bytes + dosage.bytes,
-            downloaded_bytes: validity.downloaded_bytes + dosage.downloaded_bytes,
+            rows: validity.rows + dosage.rows + regions.rows,
+            bytes: validity.bytes + dosage.bytes + regions.bytes,
+            downloaded_bytes: validity.downloaded_bytes
+                + dosage.downloaded_bytes
+                + regions.downloaded_bytes,
         },
     })
 }
@@ -144,11 +169,88 @@ pub fn dosage(
 }
 /// Small publisher landing page, never a validity or dosage export.
 pub(crate) const HEALTH_PATH: &str = "/kb";
-/// Both source-owned stored files are required for complete local readiness.
+/// Every source-owned stored file is required for complete local readiness.
 pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleState, RequestError> {
+    let regions = leg.sibling(&REGION_SPEC).stored_bundle_state(&REGIONS)?;
     Ok(leg
         .stored_bundle_state(&VALIDITY)?
-        .with(leg.stored_bundle_state(&DOSAGE)?))
+        .with(leg.stored_bundle_state(&DOSAGE)?)
+        .with(regions))
+}
+
+/// How a region search selects ClinGen region curations.
+#[derive(Clone, Copy, Debug)]
+pub enum RegionFind<'a> {
+    /// ClinGen ISCA region identifier.
+    Id(&'a str),
+    /// Cytoband inside the published band span, or a prefix of either end.
+    Band(&'a str),
+    /// GRCh38 interval: chromosome without `chr`, inclusive start and end.
+    Overlap(&'a str, u64, u64),
+}
+/// Read region dosage curations in published order, without duplicates.
+pub fn regions(
+    leg: &Leg<'_>,
+    find: RegionFind<'_>,
+) -> Result<Mapped<Vec<biomcp_types::ClinGenRegion>>, RequestError> {
+    let chromosome;
+    let query = match find {
+        RegionFind::Band(band) => band::parse(band),
+        _ => None,
+    };
+    let selector = match find {
+        RegionFind::Id(id) => Find::Exact(KeyKind::Id, id),
+        RegionFind::Band(_) => {
+            let Some(query) = &query else {
+                return Ok(Mapped {
+                    refusals: crate::Refusal::None,
+                    value: Vec::new(),
+                    problems: Vec::new(),
+                });
+            };
+            chromosome = format!("chr{}", query.chromosome);
+            Find::Exact(KeyKind::Xref, &chromosome)
+        }
+        RegionFind::Overlap(name, _, _) => {
+            chromosome = format!("chr{name}");
+            Find::Exact(KeyKind::Xref, &chromosome)
+        }
+    };
+    let mut problems = Problems {
+        source: Source::ClinGen,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut refusals = crate::Refusal::None;
+    let mut seen = std::collections::BTreeSet::new();
+    let mut value = Vec::new();
+    for row in leg.rows(&REGIONS, selector)? {
+        let Some(region) = row.checked(&mut problems) else {
+            refusals = crate::Refusal::Refused;
+            continue;
+        };
+        let kept = match find {
+            RegionFind::Id(_) => true,
+            RegionFind::Band(_) => region.cytoband.as_ref().is_some_and(|cytoband| {
+                query
+                    .as_ref()
+                    .is_some_and(|query| band::contains(cytoband.as_str(), query))
+            }),
+            RegionFind::Overlap(_, start, end) => region
+                .location
+                .as_ref()
+                .and_then(|location| raw::bounds(location.as_str()))
+                .is_some_and(|(_, first, last)| first <= end && start <= last),
+        };
+        if kept && seen.insert(region.id.as_str().to_owned()) {
+            value.push(region);
+        }
+    }
+    Ok(Mapped {
+        refusals,
+        value,
+        problems: problems.list,
+    })
 }
 
 /// Complete source policy and command declaration.

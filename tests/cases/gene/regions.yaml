@@ -1,0 +1,157 @@
+{
+  "live_check": "public",
+  "feature": "gene-search",
+  "story": "A microarray band, a band inside a curated span, a GRCh38 interval or an ISCA ID finds ClinGen's region dosage curations, such as the recurrent 16p11.2 deletions, with their scores, every PMID, date and MONDO disease",
+  "replay": "gene/regions",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "16p11.2"
+      ],
+      "expect": {
+        "/result/regions/*/id": {
+          "includes_all_of": [
+            "ISCA-37400",
+            "ISCA-37486"
+          ]
+        },
+        "/sources/1/source": "clingen",
+        "/result/regions/*": {
+          "includes_all_of": [
+            {
+              "id": "ISCA-37400",
+              "name": "16p11.2 recurrent region (proximal, BP4-BP5) (includes TBX6)",
+              "cytoband": "16p11.2",
+              "location": "chr16:29638676-30188531",
+              "haploinsufficiency": {
+                "score": 3,
+                "description": "Sufficient evidence for dosage pathogenicity",
+                "pmids": ["20301775", "39257254", "30767844", "24352232"],
+                "disease_id": "MONDO:0012756"
+              },
+              "triplosensitivity": {
+                "score": 3,
+                "description": "Sufficient evidence for dosage pathogenicity",
+                "pmids": ["38605127", "26629640", "21731881", "27410714", "30767844", "24352232"],
+                "disease_id": "MONDO:0013847"
+              },
+              "date": "2026-03-18"
+            },
+            {
+              "id": "ISCA-37486",
+              "name": "16p11.2 recurrent region (distal, BP1-BP3, BP2-BP3, or BP1-BP4) (includes SH2B1)",
+              "cytoband": "16p11.2",
+              "location": "chr16:28811314-29035178",
+              "haploinsufficiency": {
+                "score": 3,
+                "description": "Sufficient evidence for dosage pathogenicity",
+                "pmids": ["38605127", "27240531", "20808231", "19966786", "30767844", "23325106"],
+                "disease_id": "MONDO:0013267"
+              },
+              "triplosensitivity": {
+                "score": 1,
+                "description": "Little evidence for dosage pathogenicity",
+                "pmids": ["38605127", "27240531", "20808231", "30803986"]
+              },
+              "date": "2026-03-18"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--region",
+        "chr16:29600000-29700000"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/source": "clingen",
+        "/page/total": 0,
+        "/result/regions/*/id": [
+          "ISCA-37400"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-37486"
+      ],
+      "expect": {
+        "/result/regions/*/id": [
+          "ISCA-37486"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-37430"
+      ],
+      "expect": {
+        "/result/regions/0/haploinsufficiency/pmids": ["3391613", "1671808", "1879837", "7634541", "19584063", "12621583"],
+        "/result/regions/0/triplosensitivity/pmids": ["19136950", "19520700", "23813913"]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "15q12"
+      ],
+      "expect": {
+        "/result/regions/*/id": [
+          "ISCA-37478"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "1p36.32"
+      ],
+      "expect": {
+        "/result/regions/*/id": [
+          "ISCA-37434"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "17q21.31"
+      ],
+      "expect": {
+        "/result/regions/*/id": {
+          "includes": "ISCA-37420"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "15q14"
+      ],
+      "expect": {
+        "/result/regions/*/id": {
+          "excludes": "ISCA-37478"
+        }
+      }
+    }
+  ]
+}
