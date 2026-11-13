@@ -15,8 +15,7 @@
         "ols",
         "mydisease",
         "monarch",
-        "seer",
-        "orphadata"
+        "seer"
       ],
       "type": "string"
     }

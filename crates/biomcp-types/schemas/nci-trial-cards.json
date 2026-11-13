@@ -1655,8 +1655,7 @@
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
-        " Cellosaurus cell line identity.",
-        " Orphadata Science epidemiology and natural-history files."
+        " Cellosaurus cell line identity."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -1731,8 +1730,7 @@
         "cpic",
         "clinpgx",
         "cbioportal",
-        "cellosaurus",
-        "orphadata"
+        "cellosaurus"
       ]
     },
     "Reply_SourceNotice": {
