@@ -121,7 +121,7 @@ fn say_unread(
     let named: Vec<String> = unread
         .iter()
         .map(|(id, reason)| match reason {
-            Some(reason) => format!("{id} ({})", reason.as_str()),
+            Some(reason) => format!("{id} ({reason})"),
             None => format!("{id} (local error)"),
         })
         .collect();

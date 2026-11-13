@@ -1,0 +1,32 @@
+{
+  "feature": "trial-get",
+  "story": "A batch names each trial it could not read, with the reason, and offers a retry for just those trials.",
+  "live_check": "synthetic sibling outage combined with public native trial captures",
+  "verified": "Reuses the mixed-states replies, where NCT02578680 answers HTTP 500. Before 0858 a failed batch item carried only its input and status, and the reply named no trial (bench 0039 trial-ops log :46; four of twenty trials came back with no sections and no reason).",
+  "replay": "trial/get/NCT02296125",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT02296125",
+        "NCT01811710",
+        "NCT02578680"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items/2/status": "failed",
+        "/sources/0/notices/*/message": {
+          "includes": "Not read in this batch: NCT02578680 (unavailable). These trials carry no card or sections in this reply; read them again with the fresh step, or in smaller batches."
+        },
+        "/next/0/kind": "fresh",
+        "/next/0/args": [
+          "get",
+          "trial",
+          "NCT02578680",
+          "--fresh"
+        ]
+      }
+    }
+  ]
+}
