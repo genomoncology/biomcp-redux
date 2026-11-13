@@ -95,7 +95,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Most Events Reported first across the whole source table; equal counts and rows without a count keep the source's order."
+        " Largest WONDER count first; ties keep source order."
       ]
     }
   },
@@ -281,7 +281,7 @@
           "type": "null"
         }
       ],
-      "description": "VAERS order.\nreports: BioMCP orders the whole CDC WONDER table by its Events Reported count, largest first; equal counts keep the source's order. Counts, percentages and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.",
+      "description": "VAERS order.\nreports: largest WONDER Events Reported count first, over the whole table; ties keep source order. Omit for source order (symptoms A-Z).",
       "x-required-component": "vaers"
     },
     "source": {

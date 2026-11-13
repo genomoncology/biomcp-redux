@@ -109,7 +109,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
-    /// Native report headers, counted FAERS reaction terms or VAERS rows; default five.
+    #[doc = "Page size.\nNative report headers, counted FAERS reaction terms or VAERS rows; default five."]
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
