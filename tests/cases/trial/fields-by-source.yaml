@@ -1,0 +1,114 @@
+{
+  "feature": "search-fields",
+  "live_check": "public",
+  "story": "A chosen trial field the selected source's rows cannot carry is a usage error naming that source, its fields and the same call with the nearest field, so no column is dropped silently; the nearest field returns its values, and help names the fields of each source.",
+  "replay": "trial/row-fields",
+  "verified": "Reuses the trial/row-fields recording (three phase 3 registry rows, each with phases [PHASE3]); the refusals are checked before any source request. Persona rerun 2026-11-12 failure #2: phase, matching_sites and matched_site exist only on NCI rows.",
+  "harvest": "biomed-agent-bench life-sciences-ci and trial-ops personas: search trial --sponsor 'Revolution Medicines' --fields nct_id,phase",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--sponsor",
+        "Revolution Medicines",
+        "--fields",
+        "nct_id,phase"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/source": "ctgov",
+        "/error/valid_values": {
+          "includes_all_of": [
+            "nct_id",
+            "phases",
+            "sponsor"
+          ]
+        },
+        "/next/0/args/0": "--fields=nct_id,phases",
+        "/next/0/args": {
+          "includes": "Revolution Medicines"
+        },
+        "/next/1/args": {
+          "equals": [
+            "help",
+            "search",
+            "trial"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--sponsor",
+        "Revolution Medicines",
+        "--fields",
+        "nct_id,matching_sites,matched_site"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/source": "ctgov",
+        "/error/valid_values": {
+          "excludes": "matched_site"
+        },
+        "/next/0/args/0": "--fields=nct_id"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "uveal melanoma",
+        "--phase",
+        "3",
+        "--limit",
+        "3",
+        "--fields",
+        "phases"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/phases": {
+          "count": 1
+        },
+        "/result/items/2/phases": {
+          "count": 1
+        },
+        "/result/items/0": {
+          "omits": [
+            "title",
+            "sponsor"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "help",
+        "search",
+        "trial",
+        "--format",
+        "md"
+      ],
+      "offline": true,
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "Fields by --source: ctgov: ",
+            "; nci: brief",
+            "phases"
+          ]
+        }
+      }
+    }
+  ]
+}
