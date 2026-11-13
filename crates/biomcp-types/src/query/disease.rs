@@ -170,9 +170,10 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         let id = get_id(&v, statistic)?;
-        // Like SEER statistics, name the ID first so the section word itself is not refused.
+        // Name the ID, not the section word: prevalence is a valid section, and the message
+        // names the one source that serves it.
         if v.section == Some(DiseaseSection::Prevalence) && v.source != DiseaseSource::Orphadata {
-            return Err(QueryInvalid::new(&["id", "source", "section"])
+            return Err(QueryInvalid::new(&["id", "section"])
                 .with_message(crate::ErrorMessage::DiseasePrevalenceSource));
         }
         if v.source == DiseaseSource::Orphadata
