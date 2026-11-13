@@ -2894,6 +2894,30 @@
           "minimum": 0,
           "type": "integer"
         },
+        "prequalified_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WHO IVD year.\nFirst prequalification year included, YYYY; WHO publishes only the year.",
+          "x-required-component": "who-ivd"
+        },
+        "prequalified_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WHO IVD year.\nLast prequalification year included, YYYY; WHO publishes only the year.",
+          "x-required-component": "who-ivd"
+        },
         "product_code": {
           "anyOf": [
             {

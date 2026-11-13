@@ -1009,6 +1009,14 @@ Options:
       --offset <offset>
           Zero-based source result offset.
 
+      --prequalified-from <prequalified_from>
+          WHO IVD year.
+          First prequalification year included, YYYY; WHO publishes only the year.
+
+      --prequalified-to <prequalified_to>
+          WHO IVD year.
+          Last prequalification year included, YYYY; WHO publishes only the year.
+
       --product-code <product_code>
           FDA product code.
           Exact native FDA product code; PMA, 510(k) and device recalls only.
@@ -1057,10 +1065,14 @@ Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: stri
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.
 - `--marker`: WHO marker phrase.
-Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker hIv. Only with --source who-ivd.
+Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker HIV. Only with --source who-ivd.
 - `--name`: Source test or device name.
 Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma or fda-510k.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--prequalified-from`: WHO IVD year.
+First prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-from 2023. Only with --source who-ivd.
+- `--prequalified-to`: WHO IVD year.
+Last prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-to 2023. Only with --source who-ivd.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string. Example: --product-code ABC. Only with --source fda-pma, fda-510k or fda-device-recall.
 - `--source`: Source diagnostic source; help search diagnostic

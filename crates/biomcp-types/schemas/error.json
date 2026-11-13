@@ -99,6 +99,7 @@
         "normalization needs reference-qualified HGVS; for gene shorthand use search variant --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>, then get variant <ID>",
         "--p-value threshold must be a positive probability in scientific notation",
         "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
+        "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY",
         "choose one of the source selector values",
         "a selected source does not support the requested filters",
         "citation ordering exceeds the PMID limit; narrow the search",
