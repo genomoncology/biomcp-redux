@@ -1,6 +1,7 @@
 # 0885 — variant-mismatch-names-the-transcript-it-fits
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 74de7979e58b78327a17fe29cae7638c40c7f1e9
 
 Milestone: 7
 
@@ -31,3 +32,10 @@ In the rare-disease persona run of 2026-11-13 (biomed-agent-bench `personas/rare
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/variantvalidator/`, `crates/biomcp-query/src/variant/`, `tests/cases/variant/`, skill and help text, `docs/`
+
+## Progress
+
+- 2026-11-13 live check (jobs j39132, j39136): VariantValidator refuses a bare gene symbol (`SCN1A:c.4729T>C`, InvalidReferenceError) but validates it when given the gene's transcripts as `select_transcripts` (`NM_…|NM_…`): it returns a record for each transcript where the base fits (NM_006920.6, NM_001353949.2, NM_001353950.2 …, all NC_000002.12:g.165994236A>G) and a ReferenceMismatchError for the rest. Its `tools/gene2transcripts_v2/NM_001165963.4/all/refseq/GRCh38` gives the gene symbol and the transcript list in one call. Mutalyzer refuses a gene symbol (EGENEASREFERENCEID) and lists the gene's transcripts as options without checking them. The ClinGen Allele Registry refuses a gene symbol (500 "Unknown reference: SCN1A"; 400 parse error with a space). So VariantValidator is the only source that answers "which transcripts fit"; BioMCP uses its answer.
+- 2026-11-13 change: when any normalize service reports a reference mismatch (CAR IncorrectReferenceAllele, Mutalyzer ESEQUENCEMISMATCH, VariantValidator ReferenceMismatchError) on an NM_ c. description, BioMCP asks VariantValidator for the gene's transcripts and which of them accept the change, lists them in the rejected result's new optional `fits`, resolves each distinct genomic allele (up to 3) with the same service in an added result whose new optional `hgvs` names the transcript, and offers a `disambiguate` next step naming that transcript. The rejection and its message are unchanged; no fit means no added result and no step. The CLI does not accept a gene-symbol HGVS (biodata's HgvsText needs an accession), so the gene form is not tried. Skill, use case 16 and the `--hgvs` help say a mismatch usually means another transcript.
+- 2026-11-13 recorded (job j39152, `tests/cases/variant/normalize-transcript-fit.yaml`): for NM_001165963.4:c.4729T>C each service keeps its rejection, `fits` lists NM_006920.6, NM_001353949.2, NM_001353950.2, NM_001353951.2 and NM_001353952.2 (all NC_000002.12:g.165994236A>G), the added CAR row resolves NM_006920.6:c.4729T>C to CA284979 with MANE NM_001165963.4:c.4762T>C, and `next` is `variant normalize --hgvs NM_006920.6:c.4729T>C --source car`. Status is now partial (exit 0), so the 0860 rejection case expects that.
+- 2026-11-13 no fit (jobs j39161, j39173): for NM_001165963.4:c.4729G>C, where no SCN1A transcript has G, VariantValidator's gene query answers HTTP 500 after 60 s. BioMCP stops it at VariantValidator's 15 s source deadline and returns the CAR rejection with no fits, no added row and no step, and VariantValidator marked deadline-exceeded. Because the source gives no recordable answer, there is no replay case for this path; an unfittable mismatch costs up to 15 s more.

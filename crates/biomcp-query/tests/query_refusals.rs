@@ -42,6 +42,7 @@ fn query_resolution() -> Check {
                 budget: Duration::from_secs(20),
                 fresh: false,
                 drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+                label_bytes: biomcp_query::LABEL_BYTES,
                 ncbi_email: None,
             },
             &biomcp_types::Request::GetGene(query),

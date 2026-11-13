@@ -430,7 +430,7 @@
               "type": "null"
             }
           ],
-          "description": "How to read one of those sections, and which requested section the label lacks."
+          "description": "How to read one of those sections, which requested section the label lacks, or why a section returned no text in this reply."
         },
         "identity": {
           "$ref": "#/$defs/Reply_DrugHeader",
@@ -674,7 +674,8 @@
         " One exact native label heading.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved."
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ],
       "x-extensible-enum": [
         "xrefs",
@@ -684,7 +685,8 @@
         "label",
         "approvals",
         "regulatory",
-        "interactions"
+        "interactions",
+        "markets"
       ]
     },
     "Reply_DrugSource": {

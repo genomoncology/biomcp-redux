@@ -1,0 +1,40 @@
+{
+  "verified": "tests/replies/drug/label-short-pieces/provenance.json records the live openFDA reply of 2026-11-13 (job j39092) and its body hash.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "Zestril's Indications and Usage, which openFDA stores as four short pieces, comes back whole in one reply: no fragments remain and there is no next page.",
+  "replay": "drug/label-short-pieces",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "838c2d78-d2d8-4981-9ec9-e50ef9e1a5d8",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/data/heading": "indications_and_usage",
+        "/result/label/data/offset": 0,
+        "/result/label/data/total": 4,
+        "/result/label/data/fragments/*/source_part": [0, 1, 2, 3],
+        "/page/returned": 4,
+        "/result/label/data": {
+          "omits": [
+            "remaining"
+          ]
+        },
+        "": {
+          "omits": [
+            "next"
+          ]
+        }
+      },
+      "max_bytes": 9312
+    }
+  ]
+}

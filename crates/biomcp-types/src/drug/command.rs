@@ -45,7 +45,11 @@ impl schemars::JsonSchema for DrugGetCommand {
         }
         schema.insert(
             "x-reply-query-titles".into(),
-            vec![<super::DrugWhoGet as schemars::JsonSchema>::schema_name().into_owned()].into(),
+            vec![
+                <super::DrugWhoGet as schemars::JsonSchema>::schema_name().into_owned(),
+                <super::DrugMarketsGet as schemars::JsonSchema>::schema_name().into_owned(),
+            ]
+            .into(),
         );
         schema
     }

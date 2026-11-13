@@ -100,7 +100,7 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: ols::Record) {
             let (items, total) = slice(record.synonyms.value, query);
             out.page = Some(page_info(query.section_offset(), items.len() as u32, total));
             out.body = (DiseaseSynonyms {
-                items: items.into(),
+                items: items.into_iter().map(Into::into).collect(),
                 components,
             })
             .with_query(query.clone());

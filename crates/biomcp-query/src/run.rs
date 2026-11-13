@@ -81,6 +81,7 @@ pub fn run(cx: &Ctx<'_>, request: &Request) -> Outcome {
         Request::SearchDrug(query) => crate::drug::search_with_aliases(cx, query),
         Request::GetDrug(query) => crate::drug::get(cx, query),
         Request::GetWhoMedicine(query) => crate::drug::who::get(cx, query),
+        Request::GetDrugMarkets(query) => crate::drug::markets::get(cx, query),
         Request::VariantAssertions(query) => crate::variant::assertions::get(cx, query),
         Request::VariantPopulation(query) => crate::variant::population_detail::get(cx, query),
         Request::VariantNormalize(query) => crate::variant::normalize::normalize(cx, query),

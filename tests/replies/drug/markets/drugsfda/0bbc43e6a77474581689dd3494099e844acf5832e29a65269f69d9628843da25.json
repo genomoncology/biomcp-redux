@@ -1,0 +1,457 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1794592763,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 137,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20021220",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "36679",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21335se8-Gleevec_lbl.pdf",
+              "date": "20021220",
+              "type": "Label"
+            },
+            {
+              "id": "42105",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-335s004_Gleevec.html",
+              "date": "20030708",
+              "type": "Review"
+            },
+            {
+              "id": "5067",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-335S004_Gleevec_Approv.pdf",
+              "date": "20040604",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20020122",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "36677",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21335se8-Gleevec_lbl.pdf",
+              "date": "20030409",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20010510",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 1",
+          "submission_class_code_description": "Type 1 - New Molecular Entity",
+          "application_docs": [
+            {
+              "id": "44117",
+              "url": "http://www.fda.gov/Drugs/DrugSafety/PostmarketDrugSafetyInformationforPatientsandProviders/ucm110502.htm",
+              "date": "20031209",
+              "type": "Other Important Information from FDA"
+            },
+            {
+              "id": "5066",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2001/21335ltr.pdf",
+              "date": "20010510",
+              "type": "Letter"
+            },
+            {
+              "id": "15209",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2001/21335lbl.pdf",
+              "date": "20010510",
+              "type": "Label"
+            },
+            {
+              "id": "21604",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2001/21335_Gleevec.html",
+              "date": "20010510",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20030520",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "36678",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2003/021588s001lbl.pdf",
+              "date": "20030520",
+              "type": "Label"
+            },
+            {
+              "id": "21606",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/21-335s003_21-588s001_Gleevec.html",
+              "date": "20040809",
+              "type": "Review"
+            },
+            {
+              "id": "27505",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/21588se5-001ltr.pdf",
+              "date": "20030723",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20020201",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "36676",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21335s1lbl.pdf",
+              "date": "20020201",
+              "type": "Label"
+            },
+            {
+              "id": "21605",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-335s001_Gleevec.html",
+              "date": "20030708",
+              "type": "Review"
+            },
+            {
+              "id": "27504",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21335s001ltr.pdf",
+              "date": "20020201",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20031031",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "42106",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/21-335S006_Gleevec_Approv.pdf",
+              "date": "20040929",
+              "type": "Review"
+            },
+            {
+              "id": "5068",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/21335slr006ltr.pdf",
+              "date": "20031125",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021335",
+      "sponsor_name": "NOVARTIS",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "Yes",
+          "brand_name": "GLEEVEC",
+          "active_ingredients": [
+            {
+              "name": "IMATINIB MESYLATE",
+              "strength": "EQ 100MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "CAPSULE",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "GLEEVEC",
+          "active_ingredients": [
+            {
+              "name": "IMATINIB MESYLATE",
+              "strength": "EQ 50MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "CAPSULE",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    }
+  ]
+}
+      }
+    },
+    {
+      "fetched": 1794592763,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 135,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20021220",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "36679",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21335se8-Gleevec_lbl.pdf",
+              "date": "20021220",
+              "type": "Label"
+            },
+            {
+              "id": "42105",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-335s004_Gleevec.html",
+              "date": "20030708",
+              "type": "Review"
+            },
+            {
+              "id": "5067",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-335S004_Gleevec_Approv.pdf",
+              "date": "20040604",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20020122",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "36677",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21335se8-Gleevec_lbl.pdf",
+              "date": "20030409",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20010510",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 1",
+          "submission_class_code_description": "Type 1 - New Molecular Entity",
+          "application_docs": [
+            {
+              "id": "44117",
+              "url": "http://www.fda.gov/Drugs/DrugSafety/PostmarketDrugSafetyInformationforPatientsandProviders/ucm110502.htm",
+              "date": "20031209",
+              "type": "Other Important Information from FDA"
+            },
+            {
+              "id": "5066",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2001/21335ltr.pdf",
+              "date": "20010510",
+              "type": "Letter"
+            },
+            {
+              "id": "15209",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2001/21335lbl.pdf",
+              "date": "20010510",
+              "type": "Label"
+            },
+            {
+              "id": "21604",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2001/21335_Gleevec.html",
+              "date": "20010510",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20030520",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "36678",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2003/021588s001lbl.pdf",
+              "date": "20030520",
+              "type": "Label"
+            },
+            {
+              "id": "21606",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/21-335s003_21-588s001_Gleevec.html",
+              "date": "20040809",
+              "type": "Review"
+            },
+            {
+              "id": "27505",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/21588se5-001ltr.pdf",
+              "date": "20030723",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20020201",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "36676",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21335s1lbl.pdf",
+              "date": "20020201",
+              "type": "Label"
+            },
+            {
+              "id": "21605",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-335s001_Gleevec.html",
+              "date": "20030708",
+              "type": "Review"
+            },
+            {
+              "id": "27504",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21335s001ltr.pdf",
+              "date": "20020201",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20031031",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "42106",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/21-335S006_Gleevec_Approv.pdf",
+              "date": "20040929",
+              "type": "Review"
+            },
+            {
+              "id": "5068",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/21335slr006ltr.pdf",
+              "date": "20031125",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021335",
+      "sponsor_name": "NOVARTIS",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "Yes",
+          "brand_name": "GLEEVEC",
+          "active_ingredients": [
+            {
+              "name": "IMATINIB MESYLATE",
+              "strength": "EQ 100MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "CAPSULE",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "GLEEVEC",
+          "active_ingredients": [
+            {
+              "name": "IMATINIB MESYLATE",
+              "strength": "EQ 50MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "CAPSULE",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    }
+  ]
+}
+      }
+    }
+  ]
+}

@@ -40,6 +40,25 @@ pub struct NormalizationResult {
     /// Version fields exactly as returned; absent when the service states none.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub version: Box<[NormalizationField]>,
+    /// The description this row resolves when it is not the query's: a transcript
+    /// where VariantValidator found the query's reference base.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hgvs: Option<biodata::SourceText>,
+    /// After this service reports a reference mismatch, the same change on the gene's
+    /// other RefSeq transcripts where VariantValidator found the given reference base.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub fits: Box<[TranscriptFit]>,
+}
+/// One transcript where VariantValidator found the given reference base.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct TranscriptFit {
+    /// VariantValidator's transcript description of the change.
+    pub hgvs: biodata::SourceText,
+    /// VariantValidator's genomic description on the requested assembly; transcripts
+    /// with the same genomic description are one allele.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub genomic: Option<biodata::SourceText>,
 }
 /// A provider field name and its unchanged text.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -75,6 +94,8 @@ impl NormalizationResult {
             messages: Box::default(),
             total_messages: 0,
             version: Box::default(),
+            hgvs: None,
+            fits: Box::default(),
         }
     }
 }

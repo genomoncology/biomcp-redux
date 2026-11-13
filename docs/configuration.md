@@ -122,6 +122,8 @@ Flag fields override file fields for that source. Other fields and sources remai
 
 `drug_approvals_limit` sets the number of Drugs@FDA submissions returned by the approvals section, from 1 through 50. Omit it to use the [built-in submission page size](../crates/biomcp-types/src/drug/mod.rs). An explicit `--section-limit` overrides this setting. Continue with the returned page action when more submissions remain.
 
+`drug_label_bytes` sets the most label section text one `--label-section` reply returns, in JSON-escaped bytes, from 6144 through 32768. Omit it to use the [built-in budget](../crates/biomcp-query/src/context.rs), which holds a typical Indications and Usage section, Keytruda's included, in one reply. Text comes in whole fragments of up to 6,144 bytes, so a reply may stop short of the budget; a larger section says how many fragments remain and offers the next page. Sections named together in one call share the budget in the order given, so a later section may return no text; it then says so in its `hint`, counts all its fragments in `remaining`, and offers a page step to read it. An explicit `--section-limit` caps the fragments a reply returns.
+
 `drug_search_name_limit` sets the most names one trial or article search sends for a drug, as a positive whole number. Omit it to use the [built-in limit](../crates/biomcp-query/src/context.rs). A capped search keeps the typed name, the record's preferred name and the shortest other names, and its reply says how many it left out. ClinicalTrials.gov refuses a name of more than 12 words, so a trial search also leaves those out and counts them.
 
 ## MCP reply form

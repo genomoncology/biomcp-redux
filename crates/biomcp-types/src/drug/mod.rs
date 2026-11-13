@@ -37,6 +37,9 @@ pub use source::DrugSource;
 mod name_selector;
 pub use name_selector::DrugNameSelector;
 
+mod markets;
+pub use markets::{DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet};
+
 mod who;
 pub use who::{DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, WhoDateStatus};
 #[cfg(feature = "schema")]

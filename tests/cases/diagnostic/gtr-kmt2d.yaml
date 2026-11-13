@@ -1,0 +1,86 @@
+{
+  "verified": "GTR test_condition_gene.txt (Last-Modified 2026-11-05) and test_version.gz fetched live on 2026-11-13, then cut to the 211 KMT2D gene relation rows and those tests' 211 version rows, unchanged. The genes cells give 13 single-gene tests, 16 with 2-10 genes, 46 with 11-100 and 136 with more than 100, the same split E-utilities esummary genecount gave the rare-disease persona that day.",
+  "live_check": "public replies cut to one gene's rows; no live provider call",
+  "feature": "diagnostic-gtr",
+  "story": "A rare-disease genetic counselor lists every KMT2D test in GTR and sees on each row how many genes it covers, its method categories and where the lab is, so she can count single-gene, panel and exome-scale tests and pick a lab near the family without opening each test.",
+  "replay": "diagnostic/gtr-kmt2d",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 200,
+      "expect": {
+        "/schema": "biomcp.sync/7",
+        "/result/rows": 422
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "KMT2D",
+        "--limit",
+        "1"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "KMT2D",
+        "--limit",
+        "1"
+      ],
+      "max_bytes": 1400,
+      "expect": {
+        "/page/total": 211,
+        "/result/items/0/header/id": "GTR000324750.2",
+        "/result/items/0/header/gene_count": 2,
+        "/result/items/0/header/method_categories": [
+          "Deletion/duplication analysis",
+          "Sequence analysis of the entire coding region"
+        ],
+        "/result/items/0/header/laboratory/state": "Massachusetts",
+        "/result/items/0/header/laboratory/postcode": "02139",
+        "/result/items/0/header/laboratory/country": "United States",
+        "/result/items/0/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/324750/"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "KMT2D",
+        "--limit",
+        "50"
+      ],
+      "walk": {
+        "items": "/result/items",
+        "max_pages": 5
+      },
+      "max_bytes": 60000,
+      "expect": {
+        "/page/total": 211,
+        "/result/items": {
+          "count": 211,
+          "unique": true
+        },
+        "/result/items/*/header/id": {
+          "equals_file": "gtr-kmt2d-ids.json"
+        },
+        "/result/items/*/header/gene_count": {
+          "equals_file": "gtr-kmt2d-gene-counts.json"
+        }
+      }
+    }
+  ]
+}
