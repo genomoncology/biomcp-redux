@@ -278,7 +278,7 @@
               "type": "null"
             }
           ],
-          "description": "Date of Prequalification as YYYY-MM-DD; absent when the native cell is blank or not a whole date."
+          "description": "Date of Prequalification as YYYY-MM-DD; absent when prequalified_on_status says why."
         },
         "prequalified_on_status": {
           "anyOf": [
@@ -289,7 +289,7 @@
               "type": "null"
             }
           ],
-          "description": "Present only when WHO's Date of Prequalification cell is blank."
+          "description": "Why prequalified_on is absent: a blank cell, or a cell that is not a WHO date; absent with a date."
         },
         "product_type": {
           "description": "Native Product Type, retained even when empty.",
@@ -1034,7 +1034,8 @@
     "Reply_WhoDateStatus": {
       "description": "Why a WHO row carries no prequalification date.",
       "enum": [
-        "not-published"
+        "not-published",
+        "unreadable"
       ],
       "type": "string"
     }
