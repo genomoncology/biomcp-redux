@@ -216,7 +216,8 @@ impl Record {
         heading: &str,
         offset: u32,
         limit: u32,
+        budget: usize,
     ) -> Result<Option<biomcp_types::DrugLabelText>, RequestError> {
-        self.0.label(heading, offset, limit)
+        self.0.label(heading, offset, limit, budget)
     }
 }

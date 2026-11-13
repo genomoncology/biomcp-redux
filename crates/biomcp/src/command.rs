@@ -472,6 +472,7 @@ fn query_context<'a>(
         budget: crate::config::budget(settings),
         fresh,
         drug_name_limit: crate::config::drug_name_limit(settings),
+        label_bytes: crate::config::drug_label_bytes(settings),
     })
 }
 
