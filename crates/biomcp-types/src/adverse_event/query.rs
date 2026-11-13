@@ -177,7 +177,9 @@ impl SearchFields {
         if self.source != AdverseEventSource::Vaers
             && (self.section.is_some() || self.snapshot.is_some() || self.sort.is_some())
         {
-            return Err(QueryInvalid::new(&["source", "section", "snapshot", "sort"]));
+            return Err(QueryInvalid::new(&[
+                "source", "section", "snapshot", "sort",
+            ]));
         }
         if self.source == AdverseEventSource::Vaers
             && self
