@@ -76,37 +76,35 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         })
         .with_query(sent.clone());
     }
-    if let Some(applicant) = query.applicant()
-        && let Some(report) = out.sources.first_mut()
-    {
-        report
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: format!(
-                    "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
-                    source::applicant_prefix(applicant)
-                )
-                .into(),
-                retry_after_seconds: None,
-            });
-    }
-    if query.sort().is_some()
-        && let Some(report) = out.sources.first_mut()
-    {
-        report
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: NEWEST.into(),
-                retry_after_seconds: None,
-            });
-    }
+    notices(query, &mut out);
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
     command.finish(deadline.remaining());
     out
+}
+
+/// State the applicant prefix searched and any requested order on the source.
+fn notices(query: &DrugSearch, out: &mut Outcome) {
+    let Some(report) = out.sources.first_mut() else {
+        return;
+    };
+    let applicant = query.applicant().map(|applicant| {
+        format!(
+            "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
+            source::applicant_prefix(applicant)
+        )
+    });
+    let sort = query.sort().map(|_| NEWEST.to_owned());
+    for message in applicant.into_iter().chain(sort) {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            });
+    }
 }
 
 /// Search the name group at its step; after a refusal, search the typed name alone and keep it.
