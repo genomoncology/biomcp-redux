@@ -1,6 +1,7 @@
 # 0882 — label-section-pages-say-they-continue
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e9da92745079c4b2564934c3510c8a3e19ef10bf
 
 Milestone: 7
 
@@ -31,3 +32,11 @@ From the bench 0041 reg-affairs run on BioMCP b87cb3b3e (`personas/reg-affairs/r
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/`, `crates/biomcp-query/src/drug/`, `crates/biomcp-types/src/`, `tests/cases/drug/`, `sdlc/records/`
+
+## Progress
+
+- Measured 2026-11-13 (openFDA, compact JSON-escaped bytes of each whole field): Indications and Usage is 23,683 for KEYTRUDA 9333c79b v229, 12,307 for OPDIVO f570b9c4 v68, 6,450 for ZESTRIL 838c2d78 v2, and 3,210 to 4,281 for Tagrisso, Gleevec, Xarelto and Humira. Every label measured has 7 to 10 sections over 6,144; the largest reach 209,576 (Keytruda clinical studies). openFDA's Keytruda field holds the highlights list and the full section, which is why it is twice the 10,999 characters the raw-tools run counted for the section alone.
+- A larger fragment does not fit the budget: the label section allocation is 8,192 bytes (`LABEL_BYTES`), and growing it past 50 percent needs a PM ruling (`sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md:7`), while Keytruda's indications need about three times it. So the continuation is now unmistakable instead: `label.data.remaining` counts the fragments after this reply, is absent on the last one, and comes before `text` on the command line and, by its name, in MCP's alphabetical keys. Text stays verbatim. Root-cause note: `sdlc/records/2026-11-13-label-continuation-rca.md`.
+- Live on cb204d5ca (jobs j39041, j39048): Keytruda indications offsets 0 to 3 give `remaining` 3, 2, 1, then none, the last fragment ending at 1.21; replies 6,749 to 7,842 bytes. Opdivo indications 3 fragments, Zestril 4 (one short native element a reply, the first ending at a full stop), Xarelto 1 with no `remaining`.
+- Case `tests/cases/drug/label-continues.yaml` replays the j39048 Keytruda reply (indications projection, provenance with the original hash); `max_bytes` 9,014 is the measured 7,838 plus 15 percent.
+- Gate j39060 passed on 0a09fc2be (`make --keep-going landing-gate docs-check schema-release-check`), including `drug/label-continues`; the schema change is one optional field in drug-label and drug-sections.
