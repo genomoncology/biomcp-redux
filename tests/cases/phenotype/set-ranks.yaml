@@ -57,9 +57,7 @@
         "phenotype",
         "HP:0001263,HP:0001252,HP:0001250",
         "--limit",
-        "50",
-        "--metric",
-        "ancestor-information-content"
+        "50"
       ],
       "expect": {
         "/status": "complete",
@@ -73,8 +71,7 @@
         "/result/items/2/id": "HGNC:15505",
         "/result/items/2/score": 12.20418603518225,
         "/result/items/2/rank": 3,
-        "/result/items/49/rank": 50,
-        "/result/method/metric": "ancestor_information_content"
+        "/result/items/49/rank": 50
       },
       "max_bytes": 90000
     },
@@ -139,6 +136,50 @@
           "omits": [
             "note"
           ]
+        }
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--search-mode",
+        "full",
+        "--metric",
+        "phenodigm-score",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/method/metric": "phenodigm_score",
+        "/result/method/search_mode": "full",
+        "/result/items": {
+          "count": 2
+        }
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--search-mode",
+        "full",
+        "--metric",
+        "jaccard-similarity",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/method/metric": "jaccard_similarity",
+        "/result/method/search_mode": "full",
+        "/result/items": {
+          "count": 2
         }
       },
       "max_bytes": 4200
