@@ -14,6 +14,13 @@
       ],
       "type": "string"
     },
+    "Reply_DrugFdaSort": {
+      "description": "Drugs@FDA application order; omitted keeps the source's own order.",
+      "enum": [
+        "newest"
+      ],
+      "type": "string"
+    },
     "Reply_DrugNameSelector": {
       "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
       "type": "string",
@@ -187,6 +194,18 @@
           ],
           "description": "Recall reason phrase.",
           "x-required-component": "fda-drug-recall"
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugFdaSort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. Omit it for the source's own order.",
+          "x-required-component": "drugsfda"
         },
         "source": {
           "$ref": "#/$defs/Reply_DrugSource",

@@ -1402,6 +1402,12 @@ Options:
       --reason <reason>
           Recall reason phrase.
 
+      --sort <sort>
+          Drugs@FDA order; help search drug
+          Drugs@FDA order.
+          newest: each application's latest submission status date first, ties by application number;
+          applications with no dated submission come last. Omit it for the source's own order.
+
       --source <source>
           Selected source; help search drug
           Selected source.
@@ -1452,6 +1458,11 @@ exact names before word matches. openFDA labels search exact then word brand/gen
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
 - `--reason`: Recall reason phrase. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--sort`: Drugs@FDA order; help search drug
+Drugs@FDA order.
+newest: each application's latest submission status date first, ties by application number;
+applications with no dated submission come last. Omit it for the source's own order.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort newest. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Selected source; help search drug
 Selected source.
 

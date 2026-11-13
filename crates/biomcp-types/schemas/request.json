@@ -374,6 +374,13 @@
       ],
       "type": "string"
     },
+    "DrugFdaSort": {
+      "description": "Drugs@FDA application order; omitted keeps the source's own order.",
+      "enum": [
+        "newest"
+      ],
+      "type": "string"
+    },
     "DrugId": {
       "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
@@ -3590,6 +3597,18 @@
           ],
           "description": "Recall reason phrase.",
           "x-required-component": "fda-drug-recall"
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugFdaSort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. Omit it for the source's own order.",
+          "x-required-component": "drugsfda"
         },
         "source": {
           "$ref": "#/$defs/DrugSource",

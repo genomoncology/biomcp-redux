@@ -1,0 +1,80 @@
+{
+  "feature": "drug-approvals",
+  "story": "A sponsor's Drugs@FDA applications come newest first in one call: each row carries its latest submission's date, type, number and status, the source total stays, and a notice states the order; the next page keeps the order.",
+  "live_check": "public",
+  "verified": "Native openFDA Drugs@FDA replies recorded 2026-11-13 with biomcp --record in pm job j38975; bodies unchanged. Requests, byte counts and SHA-256 are in tests/replies/drug/sponsor-newest/README.md.",
+  "replay": "drug/sponsor-newest",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "NOVARTIS",
+        "--sort",
+        "newest",
+        "--limit",
+        "5"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "NOVARTIS",
+        "--sort",
+        "newest",
+        "--limit",
+        "5"
+      ],
+      "max_bytes": 30000,
+      "expect": {
+        "/status": "complete",
+        "/query/applicant": "NOVARTIS",
+        "/query/sort": "newest",
+        "/page/total": 204,
+        "/page/returned": 5,
+        "/result/total": 204,
+        "/result/items/*/id": ["NDA212526", "BLA125504", "BLA761349", "NDA218436", "NDA215358"],
+        "/result/items/*/latest_submission/date": ["2026-10-28", "2026-10-15", "2026-10-15", "2026-10-06", "2026-09-22"],
+        "/result/items/0/latest_submission/submission_type": "SUPPL",
+        "/result/items/0/latest_submission/submission_number": "11",
+        "/result/items/0/latest_submission/status": "AP",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--sort newest orders applications by their latest submission status date, newest first, ties by application number; applications with no dated submission come last. latest_submission shows that submission."
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "max_bytes": 30000,
+      "expect": {
+        "/query/sort": "newest",
+        "/query/offset": 5,
+        "/page/total": 204,
+        "/page/returned": 5,
+        "/result/items/*/id": ["NDA021560", "NDA214012", "NDA215833", "NDA050791", "NDA019500"],
+        "/result/items/*/latest_submission/date": ["2026-09-16", "2026-08-19", "2026-07-31", "2026-07-29", "2026-07-27"]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "mychem",
+        "imatinib",
+        "--sort",
+        "newest"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}
