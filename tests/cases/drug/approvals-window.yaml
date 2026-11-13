@@ -42,7 +42,7 @@
         "/result/approvals/data/records/25/submission_number": "147",
         "/result/approvals/data/records/25/event/dates/0/date": "2024-01-12",
         "/sources/0/notices/*/message": {
-          "includes": "26 of 128 submissions have a status date from 2024-01-01 to the last, inclusive; undated submissions are left out."
+          "includes": "26 of 128 submissions have a status date on or after 2024-01-01; undated submissions are left out."
         }
       }
     },
@@ -80,6 +80,34 @@
         ],
         "/sources/0/notices/*/message": {
           "includes": "10 of 128 submissions have a status date from 2024-01-01 to 2024-12-31, inclusive; undated submissions are left out."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--decision-from",
+        "2024-01-12",
+        "--decision-to",
+        "2024-01-12",
+        "--section-limit",
+        "200"
+      ],
+      "max_bytes": 23000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/approvals/data/records/*/submission_number": [
+          "147"
+        ],
+        "/result/approvals/data/records/0/event/dates/0/date": "2024-01-12",
+        "/sources/0/notices/*/message": {
+          "includes": "1 of 128 submissions have a status date from 2024-01-12 to 2024-01-12, inclusive; undated submissions are left out."
         }
       }
     },

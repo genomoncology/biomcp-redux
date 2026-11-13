@@ -122,15 +122,14 @@ fn window_notice(
     all: usize,
     out: &mut Outcome,
 ) {
-    if from.is_none() && to.is_none() {
-        return;
-    }
-    let bound = |date: Option<biodata::PartialDate>| date.map(|d| d.to_string());
+    let window = match (from, to) {
+        (Some(from), Some(to)) => format!("from {from} to {to}, inclusive"),
+        (Some(from), None) => format!("on or after {from}"),
+        (None, Some(to)) => format!("on or before {to}"),
+        (None, None) => return,
+    };
     let message = format!(
-        "{inside} of {all} submissions have a status date from {} to {}, inclusive; \
-         undated submissions are left out.",
-        bound(from).unwrap_or_else(|| "the first".into()),
-        bound(to).unwrap_or_else(|| "the last".into()),
+        "{inside} of {all} submissions have a status date {window}; undated submissions are left out."
     );
     guidance(message, out);
 }
