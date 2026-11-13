@@ -41,6 +41,12 @@ def main():
             continue
         record = os.path.join(cache, "record", label)
         extra = ["--record", record] if label in RECORD else []
+        if extra:
+            os.makedirs(record, exist_ok=True)
+        if extra and label != "study-cna-profile":
+            # Also show the reply without recording, so a record-mode failure cannot hide it.
+            plain = subprocess.run([binary] + args, capture_output=True, env=env, timeout=300)
+            print(f"\n### {label} (no record) exit={plain.returncode}\n" + plain.stdout.decode("utf-8", "replace")[:6000])
         result = subprocess.run([binary] + args + extra, capture_output=True, env=env, timeout=300)
         out = result.stdout.decode("utf-8", "replace")
         print(f"\n### {label} exit={result.returncode}\nCMD: biomcp {' '.join(args)}")

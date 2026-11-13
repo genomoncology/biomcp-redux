@@ -1,0 +1,192 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "Usage errors name the real fault: a missing build rather than a valid source, SEER for incidence, the 20-ID article limit, a raw variant query without its source, a saved-result name BioMCP never issued, an offset without a saved result, and --fields on a get.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "all",
+        "--hgvs",
+        "NM_004333.4:c.1799T>A"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--build",
+        "/error/message": "use: variant normalize --source <car|mutalyzer|variantvalidator|all> --hgvs <TEXT>; VariantValidator and all require --build",
+        "/next/0/args/*": {
+          "includes_all_of": [
+            "--build",
+            "--source",
+            "all"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "incidence",
+        "--source",
+        "ols"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--source",
+        "/error/message": "incidence and survival come only from --source seer for a SEER cancer site, not an ontology ID; use: search disease --source seer, then get disease <SITE> incidence --source seer"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "incidence",
+        "--source",
+        "seer"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "id",
+        "/error/message": "incidence and survival come only from --source seer for a SEER cancer site, not an ontology ID; use: search disease --source seer, then get disease <SITE> incidence --source seer"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "article",
+        "30000000",
+        "30000001",
+        "30000002",
+        "30000003",
+        "30000004",
+        "30000005",
+        "30000006",
+        "30000007",
+        "30000008",
+        "30000009",
+        "30000010",
+        "30000011",
+        "30000012",
+        "30000013",
+        "30000014",
+        "30000015",
+        "30000016",
+        "30000017",
+        "30000018",
+        "30000019",
+        "30000020"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "input",
+        "/error/message": "get article takes 1 to 20 IDs per call; split a longer list into several calls"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--query",
+        "SCN1A c.4729T>C"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--query",
+        "/error/message": "--query takes MyVariant query syntax and needs --source myvariant; for a gene and change use --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0001252",
+        "synonyms",
+        "--snapshot",
+        "kabuki_case_q4"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--snapshot",
+        "/error/message": "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",
+        "/next/0/kind": "restart",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001252",
+          "synonyms"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0001252",
+        "synonyms",
+        "--snapshot",
+        "0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "exit": 3,
+      "is_error": true,
+      "expect": {
+        "/status": "expired",
+        "/error/code": "pool.expired",
+        "/next/0/kind": "restart"
+      }
+    },
+    {
+      "run": [
+        "protein",
+        "structures",
+        "O75417",
+        "--limit",
+        "25",
+        "--offset",
+        "25"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--offset",
+        "/error/message": "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the suggested first-page command, then follow its next command",
+        "/next/0/kind": "restart"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "trial",
+        "NCT04613596",
+        "--fields",
+        "nct_id,title,phases"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--fields",
+        "/error/message": "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead"
+      }
+    }
+  ]
+}
