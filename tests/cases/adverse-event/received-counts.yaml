@@ -1,0 +1,392 @@
+{
+  "feature": "adverse-event-search",
+  "live_check": "public",
+  "story": "One search returns FAERS or MAUDE report counts per FDA receipt year or month, from openFDA's daily receipt-date counts over the whole range in one request, with the same widened drug names and filters as the search. Each year equals the report total of the same search dated to that year; a year the source has not finished is marked partial. Periods that start after the source's last update are left out.",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-13 (job j39406). openFDA's count=receivedate returns every daily bucket of the range with no limit sent (no cap: aspirin 2004-2025 gave 846,202 reports summed from 7,359 daily buckets in one reply, equal to the dated search total), and refuses a limit above 100 without an API key. The per-year counts 142, 198, 319, 433 and 512 equal the pv-scientist run's five dated searches and the recorded dated search totals; openFDA's last update was 2026-10-28, so 2026 is partial. The clipping steps were recorded the same way (job j39564): with openFDA last updated 2026-10-28, September 2026 has 35 reports, October 0 (partial), and November and December are left out.",
+  "replay": "adverse-event/received-counts",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--aggregate",
+        "received-year",
+        "--received-from",
+        "2021",
+        "--received-to",
+        "2026"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/aggregate": "received-year",
+        "/query/received_from": "2021-01-01",
+        "/query/received_to": "2026-12-31",
+        "/result/received_counts": [
+          {
+            "received": "2021",
+            "count": 142
+          },
+          {
+            "received": "2022",
+            "count": 198
+          },
+          {
+            "received": "2023",
+            "count": 319
+          },
+          {
+            "received": "2024",
+            "count": 433
+          },
+          {
+            "received": "2025",
+            "count": 512
+          },
+          {
+            "received": "2026",
+            "count": 365,
+            "partial": true
+          }
+        ],
+        "/result/source_query": "((patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") OR (patient.drug.openfda.generic_name:\"Lambrolizumab\" OR patient.drug.openfda.brand_name:\"Lambrolizumab\" OR patient.drug.medicinalproduct:\"Lambrolizumab\") OR (patient.drug.openfda.generic_name:\"MK-3475\" OR patient.drug.openfda.brand_name:\"MK-3475\" OR patient.drug.medicinalproduct:\"MK-3475\") OR (patient.drug.openfda.generic_name:\"Keytruda\" OR patient.drug.openfda.brand_name:\"Keytruda\" OR patient.drug.medicinalproduct:\"Keytruda\") OR (patient.drug.openfda.generic_name:\"SCH-900475\" OR patient.drug.openfda.brand_name:\"SCH-900475\" OR patient.drug.medicinalproduct:\"SCH-900475\")) AND patient.reaction.reactionmeddrapt:\"myocarditis\" AND receivedate:[20210101 TO 20261231]",
+        "/result/source_updated": "2026-10-28",
+        "/sources/0/notices/1/names": [
+          "pembrolizumab",
+          "Lambrolizumab",
+          "MK-3475",
+          "Keytruda",
+          "SCH-900475"
+        ],
+        "/result": {
+          "omits": [
+            "items",
+            "reaction_counts"
+          ]
+        },
+        "": {
+          "omits": [
+            "page",
+            "next"
+          ]
+        }
+      },
+      "mcp": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--aggregate",
+        "received-year",
+        "--received-from",
+        "2021",
+        "--received-to",
+        "2026"
+      ]
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2021",
+        "--received-to",
+        "2021",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 142
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2022",
+        "--received-to",
+        "2022",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 198
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2023",
+        "--received-to",
+        "2023",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 319
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2024",
+        "--received-to",
+        "2024",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 433
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2025",
+        "--received-to",
+        "2025",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 512
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2026",
+        "--received-to",
+        "2026",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 365
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--aggregate",
+        "received-month",
+        "--received-from",
+        "2025-10-15",
+        "--received-to",
+        "2025-12"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/received_counts": [
+          {
+            "received": "2025-10",
+            "count": 31,
+            "partial": true
+          },
+          {
+            "received": "2025-11",
+            "count": 40
+          },
+          {
+            "received": "2025-12",
+            "count": 40
+          }
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2025-10-15",
+        "--received-to",
+        "2025-10",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 31
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "insulin pump",
+        "--source",
+        "maude",
+        "--aggregate",
+        "received-year",
+        "--received-from",
+        "2024",
+        "--received-to",
+        "2025"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/received_counts": [
+          {
+            "received": "2024",
+            "count": 10022
+          },
+          {
+            "received": "2025",
+            "count": 12103
+          }
+        ],
+        "/result/source_query": "device.generic_name:\"insulin pump\" AND date_received:[20240101 TO 20251231]",
+        "/result/components/0/component": "gmdn"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "insulin pump",
+        "--source",
+        "maude",
+        "--received-from",
+        "2024",
+        "--received-to",
+        "2024",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 10022
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--aggregate",
+        "received-month",
+        "--received-from",
+        "2026-09",
+        "--received-to",
+        "2026-12"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/source_updated": "2026-10-28",
+        "/result/received_counts": [
+          {
+            "received": "2026-09",
+            "count": 35
+          },
+          {
+            "received": "2026-10",
+            "count": 0,
+            "partial": true
+          }
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2026-10",
+        "--received-to",
+        "2026-10",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--aggregate",
+        "received-year",
+        "--received-from",
+        "2021"
+      ],
+      "exit": 2,
+      "expect": {
+        "/status": "usage",
+        "/error/message": "--aggregate received-year or received-month needs --received-from and --received-to; example: --aggregate received-year --received-from 2021 --received-to 2025"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "MMR",
+        "--source",
+        "vaers",
+        "--aggregate",
+        "received-year",
+        "--received-from",
+        "2021",
+        "--received-to",
+        "2022"
+      ],
+      "exit": 2,
+      "expect": {
+        "/status": "usage"
+      }
+    }
+  ]
+}

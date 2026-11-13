@@ -116,7 +116,7 @@ fn commands(
             answered_by(argument, schema.as_ref(), &excluded);
             if matches!(
                 argument.name.trim_start_matches('-'),
-                "section" | "sections"
+                "section" | "sections" | "aggregate"
             ) && let [verb, entity] = command.command.as_slice()
             {
                 argument.choices.retain(|word| {
@@ -230,9 +230,13 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
                         "source" | "sources" | "resolver" => !word
                             .parse::<Source>()
                             .is_ok_and(|source| source_exclusions.contains(&source)),
-                        "section" | "sections" => path.is_none_or(|(verb, entity, _)| {
-                            super::typed::catalog::section_allowed(verb, entity, word, &excluded)
-                        }),
+                        "section" | "sections" | "aggregate" => {
+                            path.is_none_or(|(verb, entity, _)| {
+                                super::typed::catalog::section_allowed(
+                                    verb, entity, word, &excluded,
+                                )
+                            })
+                        }
                         _ => true,
                     }
                 })

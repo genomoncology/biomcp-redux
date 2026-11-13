@@ -76,11 +76,11 @@ struct SearchFields {
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
     source: AdverseEventSource,
-    #[doc = "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. \
-        Counts are not rates or causal associations; a report may contribute to several terms. \
-        Requires MedDRA and offset zero."]
+    #[doc = "Report counts.\nreactions: FAERS reaction-term buckets; needs MedDRA. \
+        received-year or received-month: FAERS or MAUDE reports per FDA receipt period between \
+        --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. \
+        Counts are reports, not rates or causes. Requires offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSection::Reactions.required_component())))]
     aggregate: Option<AdverseEventAggregate>,
     /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -101,19 +101,22 @@ struct SearchFields {
     #[doc = "FAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
-    #[doc = "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day."]
+    #[doc = "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, \
+        YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
-    #[doc = "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day."]
+    #[doc = "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, \
+        YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
-    #[doc = "Page size.\nNative report headers, counted FAERS reaction terms or VAERS rows; default five."]
+    #[doc = "Page size.
+Report headers, reaction terms or VAERS rows; default five."]
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native report row offset; reaction counts require zero. VAERS needs its snapshot.
+    /// Report row offset; counts need zero. VAERS needs its snapshot.
     #[serde(default)]
     offset: u32,
 }
@@ -134,8 +137,20 @@ impl SearchFields {
         Ok(())
     }
     fn validate_aggregate(&self) -> Result<(), QueryInvalid> {
-        if self.aggregate.is_some() && self.source != AdverseEventSource::Faers {
+        let received = self
+            .aggregate
+            .is_some_and(AdverseEventAggregate::is_received);
+        if self.aggregate.is_some()
+            && self.source != AdverseEventSource::Faers
+            && !(received && self.source == AdverseEventSource::Maude)
+        {
             return Err(QueryInvalid::new(&["source", "aggregate"]));
+        }
+        if received && (self.received_from.is_none() || self.received_to.is_none()) {
+            return Err(
+                QueryInvalid::new(&["aggregate", "received_from", "received_to"])
+                    .with_message(crate::ErrorMessage::AdverseReceivedCounts),
+            );
         }
         if self.aggregate.is_some() && self.offset != 0 {
             return Err(QueryInvalid::new(&["aggregate", "offset"]));

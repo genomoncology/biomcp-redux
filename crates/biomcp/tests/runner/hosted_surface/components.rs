@@ -50,19 +50,19 @@ fn component_catalog(server: &Server) -> Check {
     if !validator.is_valid(&json!({"text":"Synthetic medicine","source":"faers"}))
         || validator.is_valid(&json!({"text":"device","source":"maude"}))
         || search.pointer("/inputSchema/properties/reaction").is_some()
-        || [
-            "aggregate",
-            "manufacturer",
-            "product_code",
-            "problem",
-            "event_type",
-        ]
-        .iter()
-        .any(|field| {
-            search
-                .pointer(&format!("/inputSchema/properties/{field}"))
-                .is_some()
-        })
+        || search
+            .pointer("/inputSchema/properties/aggregate")
+            .is_none()
+        || search
+            .pointer("/inputSchema/properties/aggregate")
+            .is_some_and(|field| field.to_string().contains("\"reactions\""))
+        || ["manufacturer", "product_code", "problem", "event_type"]
+            .iter()
+            .any(|field| {
+                search
+                    .pointer(&format!("/inputSchema/properties/{field}"))
+                    .is_some()
+            })
     {
         return Err("search component capabilities disagree with admission".into());
     }
@@ -107,13 +107,7 @@ fn component_help(server: &Server, mode: &str) -> Check {
                     && choices.is_some_and(|choices| choices.contains(&json!("maude")));
                 if matches!(
                     argument.get("name").and_then(Value::as_str),
-                    Some(
-                        "--reaction"
-                            | "--aggregate"
-                            | "--manufacturer"
-                            | "--product_code"
-                            | "--problem"
-                    )
+                    Some("--reaction" | "--manufacturer" | "--product_code" | "--problem")
                 ) || section
                     || source
                 {
@@ -174,7 +168,11 @@ fn aggregate_component(server: &Server, mode: &str) -> Check {
         )?;
         if aggregate == "bogus" {
             recovery(&reply)?;
-            if reply.pointer("/error/valid_values").is_some() {
+            // Receipt-date counts need no MedDRA, so they stay offered; reaction counts do not.
+            if reply
+                .pointer("/error/valid_values")
+                .is_some_and(|values| values.to_string().contains("\"reactions\""))
+            {
                 return Err(format!("disabled aggregation offered in recovery: {reply}"));
             }
         } else if reply.pointer("/sources/0/reason") != Some(&json!("disabled"))

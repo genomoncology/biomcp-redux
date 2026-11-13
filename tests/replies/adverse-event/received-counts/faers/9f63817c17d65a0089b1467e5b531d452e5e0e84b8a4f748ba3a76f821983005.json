@@ -1,0 +1,1906 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20210101%20TO%2020211231%5D&limit=1&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794598139,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 334,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 142
+    }
+  },
+  "results": [
+    {
+      "safetyreportversion": "2",
+      "safetyreportid": "20261731",
+      "primarysourcecountry": "ES",
+      "occurcountry": "ES",
+      "transmissiondateformat": "102",
+      "transmissiondate": "20220423",
+      "reporttype": "1",
+      "serious": "1",
+      "seriousnesslifethreatening": "1",
+      "seriousnesshospitalization": "1",
+      "receivedateformat": "102",
+      "receivedate": "20211231",
+      "receiptdateformat": "102",
+      "receiptdate": "20220112",
+      "fulfillexpeditecriteria": "1",
+      "companynumb": "ES-TEVA-2021-ES-1993027",
+      "duplicate": "1",
+      "reportduplicate": {
+        "duplicatesource": "Springer Nature",
+        "duplicatenumb": "NZ-Adis-3620526-281550"
+      },
+      "primarysource": {
+        "reportercountry": "ES",
+        "qualification": "3",
+        "literaturereference": "Hernandez AP, Clemente MB, Garcia DE, Calvo RV, Garcia BN, Oteo Dominguez JF, et al. Checkpoint inhibitor-induced fulminant myocarditis, complete atrioventricular block and myasthenia gravis-a case report. Cardiovasc-Diagn-Ther 2021;11(4):1013-1019."
+      },
+      "sender": {
+        "sendertype": "2",
+        "senderorganization": "FDA-Public Use"
+      },
+      "receiver": {
+        "receivertype": "6",
+        "receiverorganization": "FDA"
+      },
+      "patient": {
+        "patientagegroup": "5",
+        "patientsex": "2",
+        "reaction": [
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Atrioventricular block complete",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Myocarditis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Pleural effusion",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Myasthenia gravis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Drug ineffective",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Hypotension",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Renal failure",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Oliguria",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Cardiogenic shock",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "24.1",
+            "reactionmeddrapt": "Respiratory failure",
+            "reactionoutcome": "6"
+          }
+        ],
+        "drug": [
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "DOXORUBICIN",
+            "drugauthorizationnumb": "63097",
+            "drugstructuredosagenumb": "394",
+            "drugstructuredosageunit": "009",
+            "drugdosagetext": "394MG/M2 TOTAL DOSE",
+            "drugadministrationroute": "065",
+            "drugindication": "Thymoma",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "DOXORUBICIN"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA208888"
+              ],
+              "brand_name": [
+                "DOXORUBICIN HYDROCHLORIDE"
+              ],
+              "generic_name": [
+                "DOXORUBICIN"
+              ],
+              "manufacturer_name": [
+                "Amneal Pharmaceuticals LLC"
+              ],
+              "product_ndc": [
+                "70121-1218",
+                "70121-1219"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "DOXORUBICIN HYDROCHLORIDE"
+              ],
+              "rxcui": [
+                "1790095",
+                "1872062"
+              ],
+              "spl_id": [
+                "f4a01f55-65d7-401f-ac2f-e1511bf3a429"
+              ],
+              "spl_set_id": [
+                "d928625e-c1ef-4f25-8d25-764c8c6aab67"
+              ],
+              "package_ndc": [
+                "70121-1218-1",
+                "70121-1218-7",
+                "70121-1219-1"
+              ],
+              "unii": [
+                "82F2G7BL4E"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "CISPLATIN",
+            "drugadministrationroute": "065",
+            "drugindication": "Thymoma",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "CISPLATIN"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA074656",
+                "NDA018057",
+                "ANDA075036",
+                "ANDA207323",
+                "ANDA206774",
+                "ANDA218868",
+                "ANDA074735"
+              ],
+              "brand_name": [
+                "CISPLATIN"
+              ],
+              "generic_name": [
+                "CISPLATIN"
+              ],
+              "manufacturer_name": [
+                "Teva Parenteral Medicines, Inc.",
+                "WG Critical Care, LLC",
+                "Hikma Pharmaceuticals USA Inc.",
+                "Sagent Pharmaceuticals",
+                "BluePoint Laboratories",
+                "Accord Healthcare Inc.",
+                "Apotex Corp.",
+                "FOSUN PHARMA USA INC",
+                "Fresenius Kabi USA, LLC",
+                "Gland Pharma Limited"
+              ],
+              "product_ndc": [
+                "0703-5747",
+                "0703-5748",
+                "44567-530",
+                "0143-9504",
+                "0143-9505",
+                "25021-253",
+                "44567-509",
+                "44567-510",
+                "44567-511",
+                "68001-283",
+                "16729-288",
+                "60505-6279",
+                "72266-252",
+                "72266-253",
+                "63323-103",
+                "68083-162",
+                "68083-163",
+                "68001-608",
+                "68001-609"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "CISPLATIN"
+              ],
+              "rxcui": [
+                "309311",
+                "1736854"
+              ],
+              "spl_id": [
+                "adf5773e-9095-4cb4-a90f-72cbf82f4493",
+                "bf273433-d76e-4071-99a9-a71caf064734",
+                "b463892e-6ca3-4c57-ae72-bdd3a7370a08",
+                "bf489cd3-17a3-4398-ba7e-2cb9e87b9c13",
+                "dd45d777-d4c1-40ee-b4f0-c9e001a15a8c",
+                "11314cd7-5167-4699-e063-6394a90a93b8",
+                "2860827e-1817-2b85-e063-6394a90a127e",
+                "0e147fbc-5660-4d80-b834-f069e8487f59",
+                "189a1ee6-231d-7e56-e063-6394a90abc01",
+                "24604fc6-875c-4f70-973a-9cca93f9a7a7",
+                "89007399-3c34-40d2-8068-a0b8e09cbef8",
+                "0c3ef530-de61-73f7-e063-6294a90a9973"
+              ],
+              "spl_set_id": [
+                "a440f077-46f6-4688-a209-65bce38d1c92",
+                "508496cb-3441-46b3-a4fe-e0d440e6adc6",
+                "76aea034-6d58-4390-a164-36aa09c1f101",
+                "00396546-6a80-4b9f-a5f8-c22c1d1bb173",
+                "2bf8d2fb-80c8-401d-8e9b-d58463f5e954",
+                "a60c5173-6bc0-4c9d-9674-b3f4d68f79ba",
+                "b2b029f5-0d7e-4e7f-accc-b722aec34c68",
+                "8d170f6f-37d7-41ce-aae2-33307a6ef3ae",
+                "0219eae9-82b4-b779-e063-6394a90a311e",
+                "de6302d5-85f0-4116-a709-57826c2c84fe",
+                "a32820f7-9ff6-4c13-a96a-4483a943fe82",
+                "0372598e-4837-43c6-b56f-63527ac94559"
+              ],
+              "package_ndc": [
+                "0703-5747-11",
+                "0703-5748-11",
+                "44567-530-01",
+                "0143-9505-01",
+                "0143-9504-01",
+                "25021-253-50",
+                "25021-253-51",
+                "44567-509-01",
+                "44567-510-01",
+                "44567-511-01",
+                "68001-283-24",
+                "68001-283-27",
+                "68001-283-33",
+                "68001-283-32",
+                "16729-288-11",
+                "16729-288-38",
+                "60505-6279-0",
+                "72266-252-01",
+                "72266-253-01",
+                "63323-103-51",
+                "63323-103-65",
+                "63323-103-64",
+                "68083-162-01",
+                "68083-163-01",
+                "68001-608-24",
+                "68001-609-33"
+              ],
+              "nui": [
+                "N0000175413",
+                "N0000175073"
+              ],
+              "pharm_class_epc": [
+                "Platinum-based Drug [EPC]"
+              ],
+              "unii": [
+                "Q20Q21Q62J"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "CYCLOPHOSPHAMIDE",
+            "drugadministrationroute": "065",
+            "drugindication": "Thymoma",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "CYCLOPHOSPHAMIDE"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA218632",
+                "ANDA211757",
+                "ANDA211608",
+                "ANDA040745",
+                "NDA210852",
+                "ANDA215892",
+                "NDA212501",
+                "ANDA210046",
+                "ANDA204555",
+                "ANDA218644",
+                "NDA012141",
+                "NDA203856",
+                "ANDA216783",
+                "ANDA214529",
+                "NDA210735",
+                "NDA217150",
+                "NDA217651"
+              ],
+              "brand_name": [
+                "CYCLOPHOSPHAMIDE",
+                "FRINDOVYX"
+              ],
+              "generic_name": [
+                "CYCLOPHOSPHAMIDE FOR INJECTION",
+                "CYCLOPHOSPHAMIDE",
+                "CYCLOPHOSPHAMIDE INJECTION, SOLUTION"
+              ],
+              "manufacturer_name": [
+                "Slate Run Pharmaceuticals, LLC",
+                "XGen Pharmaceuticals DJB, Inc.",
+                "Cipla USA Inc.",
+                "Civica, Inc.",
+                "AVYXA Pharma, LLC",
+                "Alembic Pharmaceuticals Inc.",
+                "Dr. Reddy's Labratories Inc.",
+                "Baxter Healthcare Company",
+                "Amneal Pharmaceuticals LLC",
+                "Fresenius Kabi USA, LLC",
+                "Sandoz Inc.",
+                "BluePoint Laboratories",
+                "Baxter Healthcare Corporation",
+                "Hikma Pharmaceuticals USA Inc.",
+                "Nexus Pharmaceuticals, LLC",
+                "Sagent Pharmaceuticals",
+                "Alembic Pharmaceuticals Limited",
+                "Epic Pharma, LLC",
+                "Eugia US LLC",
+                "Hainan Poly Pharm. Co., Ltd.",
+                "Sandoz Inc",
+                "Avyxa Pharma, LLC",
+                "Avenacy, LLC",
+                "Bamboo US Bidco LCC",
+                "NorthStar Rx LLC"
+              ],
+              "product_ndc": [
+                "70436-105",
+                "70436-106",
+                "70436-107",
+                "39822-0250",
+                "39822-0255",
+                "39822-0260",
+                "69097-516",
+                "69097-517",
+                "72572-083",
+                "72572-085",
+                "72572-087",
+                "83831-119",
+                "83831-120",
+                "83831-121",
+                "62332-618",
+                "62332-619",
+                "75907-189",
+                "75907-191",
+                "75907-190",
+                "10019-943",
+                "10019-944",
+                "10019-945",
+                "70121-1238",
+                "70121-1239",
+                "70121-1240",
+                "10019-935",
+                "10019-936",
+                "10019-937",
+                "65219-131",
+                "65219-135",
+                "65219-133",
+                "0781-3233",
+                "0781-3244",
+                "0781-3255",
+                "10019-955",
+                "10019-956",
+                "10019-957",
+                "68001-694",
+                "68001-695",
+                "68001-696",
+                "10019-938",
+                "10019-939",
+                "10019-942",
+                "68001-564",
+                "68001-563",
+                "68001-565",
+                "10019-982",
+                "10019-984",
+                "0054-0382",
+                "0054-0383",
+                "14789-125",
+                "14789-126",
+                "25021-247",
+                "25021-248",
+                "25021-249",
+                "46708-618",
+                "46708-619",
+                "42806-901",
+                "42806-902",
+                "42806-903",
+                "55150-270",
+                "55150-271",
+                "55150-272",
+                "14335-470",
+                "14335-471",
+                "14335-472",
+                "0781-3528",
+                "0781-3529",
+                "0781-3530",
+                "83831-116",
+                "83831-117",
+                "83831-118",
+                "68001-442",
+                "68001-443",
+                "68001-444",
+                "83634-205",
+                "83634-206",
+                "83634-207",
+                "83703-549",
+                "83703-550",
+                "83703-551",
+                "0338-9777",
+                "0338-9779",
+                "16714-857",
+                "16714-859",
+                "16714-858"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS",
+                "ORAL"
+              ],
+              "substance_name": [
+                "CYCLOPHOSPHAMIDE",
+                "CYCLOPHOSPHAMIDE ANHYDROUS"
+              ],
+              "rxcui": [
+                "1734917",
+                "1734919",
+                "1734921",
+                "1437968",
+                "1437969",
+                "2703027",
+                "2703032",
+                "2386859",
+                "197549",
+                "197550",
+                "2568661",
+                "2568663",
+                "2679073",
+                "2644738",
+                "2644751",
+                "2644824"
+              ],
+              "spl_id": [
+                "31c60f0f-f81b-a187-e063-6394a90aa39d",
+                "29b88d00-eeea-7282-e063-6294a90a4024",
+                "11c7b59d-18e5-4efb-bc77-5877d9b89bb1",
+                "ff8ba8ad-44bf-4286-a451-4fd55a5a3c63",
+                "e3e444b2-9344-4cc2-b35a-370073a747d4",
+                "c4d00f29-b259-4ba5-933b-3908870376d8",
+                "81f6f0e0-48f4-4eb1-95e5-b1463e5f53f5",
+                "3d950615-927d-441e-b3be-0cebda594df5",
+                "40ce8341-9b51-4187-920b-ad9cce7930e1",
+                "9b5bfec0-7b18-4839-b731-53867588ad53",
+                "fadfc813-11a5-415a-9d70-06c579e7619c",
+                "2f9d08d0-1f6c-0bf3-e063-6394a90a2b6f",
+                "a466e63c-d425-4387-a41f-d1cd8023f694",
+                "4cd3801f-1a1a-33fd-e063-6294a90aa2b0",
+                "e478e54f-228b-46a1-9347-df729becf777",
+                "3bc6345d-4340-1f0f-e063-6294a90ac0a9",
+                "dc40762e-5ccf-402c-a7b1-4c9dee737811",
+                "35c0ebb6-6127-4e3a-9846-4ad17f7d5cd4",
+                "5a9bcde4-fee3-8fdd-e063-6294a90a33c9",
+                "5ed11ef9-73c0-42d1-9cac-0fba10a1f991",
+                "9c04aa3c-6a2b-4ad4-b3df-87cc168cf93d",
+                "14b3b66b-0e87-4e71-8507-e23c8214cc50",
+                "f90b3bb0-87cd-4951-9789-34202e2b13df",
+                "2aca7731-9fcc-4625-e063-6394a90a6020",
+                "3a7a4ad7-90ca-4d84-92f1-c61032067deb",
+                "5fc45658-c2d9-41de-821f-ff6f40a469dd",
+                "4a9e24ce-e6fc-6f07-e063-6394a90ab4bd",
+                "fd5fc06c-b5e5-4e07-acdb-26e56bfa2c7f",
+                "450da59c-b50e-4de0-e063-6394a90a0559",
+                "5c81399c-bacb-48ec-8985-836412a07a6d",
+                "27e82150-4ad3-5be6-e063-6394a90a0e3f"
+              ],
+              "spl_set_id": [
+                "20bda486-cb9a-4d67-8c41-50e9fd066434",
+                "02e64046-687d-449e-e063-6294a90a6c32",
+                "0e1cb955-99c8-4fe5-89d1-399c8e52174e",
+                "8627c83f-c057-495d-9f78-8b67bda97b3e",
+                "5ad8ea65-4c98-487a-9c8d-df778765ec5e",
+                "3d6e68b1-5120-4cbb-a9d2-fb09d1b74ea1",
+                "a5818647-d840-e9d7-c7b8-6541b485e44e",
+                "cef038cc-efab-46d9-99c2-95bb11d6c9bc",
+                "520bfe39-dfd5-4a20-9a37-80078afded0d",
+                "6bae5c14-9e87-4fb6-ae9c-4d875c1ecffe",
+                "31986d36-a1bf-4903-93a4-ce7386241ba1",
+                "0e9e22fa-178a-42fc-9f82-c303db3b245a",
+                "591d9955-3d9c-4cdc-a308-2f1288376b9f",
+                "1d3396d8-4c03-4a28-890a-d87c6c53a74e",
+                "97ab446f-5017-4180-ae65-0a355289b0ed",
+                "0afd2cc7-09e6-481a-afea-9d2e3742da46",
+                "769ded74-6186-40a8-8e44-ceff67287451",
+                "8135b917-882f-4b4c-99b7-fa8ea54af4bf",
+                "c961a1ac-6705-4756-9abc-9d84a6fcb5c8",
+                "329b5a3a-c7b9-4b11-abf0-009719cdfb79",
+                "9e699cf7-860e-4c03-9760-0c24d56df2de",
+                "988d2f71-1dc7-45b5-b2df-187e68224973",
+                "3c1eb470-0bba-457d-94e3-b9508f0d398a",
+                "6fde2705-a2d8-4d48-9618-b9d99d051373",
+                "cf2f4b95-0327-499a-a5a3-51b1bdef68c5",
+                "6f593585-e0dd-48bc-bd2b-c6c787e0b98c",
+                "d7e97b99-83db-42d0-8521-b87fe6467a67",
+                "1de02105-9c5b-4d11-bddf-bf8450d88b78",
+                "2873b99a-830d-0a7b-e063-6394a90a4de7",
+                "34dbffee-80e0-49c3-90e8-95713a0b7fbe",
+                "76f057be-e3da-0a89-e053-2a91aa0a8438"
+              ],
+              "package_ndc": [
+                "70436-105-80",
+                "70436-106-80",
+                "70436-107-80",
+                "39822-0255-1",
+                "39822-0250-1",
+                "39822-0260-1",
+                "69097-516-07",
+                "69097-517-07",
+                "72572-085-01",
+                "72572-083-01",
+                "72572-087-01",
+                "83831-119-01",
+                "83831-120-02",
+                "83831-121-04",
+                "62332-618-31",
+                "62332-619-31",
+                "75907-191-02",
+                "75907-190-07",
+                "75907-189-35",
+                "10019-943-25",
+                "10019-943-01",
+                "10019-944-50",
+                "10019-944-01",
+                "10019-945-10",
+                "10019-945-01",
+                "70121-1238-1",
+                "70121-1239-1",
+                "70121-1240-1",
+                "10019-935-25",
+                "10019-935-01",
+                "10019-936-50",
+                "10019-936-01",
+                "10019-937-10",
+                "10019-937-01",
+                "65219-135-20",
+                "65219-131-20",
+                "65219-133-20",
+                "0781-3233-94",
+                "0781-3244-94",
+                "0781-3255-94",
+                "10019-955-50",
+                "10019-955-01",
+                "10019-956-16",
+                "10019-956-01",
+                "10019-957-11",
+                "10019-957-01",
+                "68001-694-27",
+                "68001-695-32",
+                "68001-696-32",
+                "10019-938-25",
+                "10019-938-01",
+                "10019-939-50",
+                "10019-939-01",
+                "10019-942-10",
+                "10019-942-01",
+                "68001-563-84",
+                "68001-564-22",
+                "68001-565-28",
+                "10019-982-09",
+                "10019-982-01",
+                "10019-984-09",
+                "10019-984-01",
+                "0054-0382-13",
+                "0054-0382-25",
+                "0054-0383-13",
+                "0054-0383-25",
+                "14789-126-07",
+                "14789-126-05",
+                "14789-125-07",
+                "14789-125-05",
+                "25021-247-50",
+                "25021-248-51",
+                "25021-249-51",
+                "46708-618-31",
+                "46708-619-31",
+                "42806-901-26",
+                "42806-902-26",
+                "42806-903-26",
+                "55150-270-01",
+                "55150-270-99",
+                "55150-271-01",
+                "55150-271-99",
+                "55150-272-01",
+                "14335-470-01",
+                "14335-470-10",
+                "14335-471-01",
+                "14335-471-10",
+                "14335-472-01",
+                "14335-472-10",
+                "0781-3528-75",
+                "0781-3528-10",
+                "0781-3529-70",
+                "0781-3529-10",
+                "0781-3530-80",
+                "0781-3530-10",
+                "83831-116-01",
+                "83831-117-02",
+                "83831-118-04",
+                "68001-442-26",
+                "68001-443-27",
+                "68001-444-32",
+                "83634-205-50",
+                "83634-206-51",
+                "83634-207-51",
+                "83703-549-25",
+                "83703-549-01",
+                "83703-550-50",
+                "83703-550-01",
+                "83703-551-10",
+                "83703-551-01",
+                "0338-9777-01",
+                "0338-9779-01",
+                "16714-859-01",
+                "16714-857-01",
+                "16714-858-01"
+              ],
+              "unii": [
+                "8N3DW7272P",
+                "6UXW23996M"
+              ],
+              "nui": [
+                "N0000000236",
+                "N0000175558"
+              ],
+              "pharm_class_moa": [
+                "Alkylating Activity [MoA]"
+              ],
+              "pharm_class_epc": [
+                "Alkylating Drug [EPC]"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "PEMBROLIZUMAB",
+            "drugstructuredosagenumb": "2",
+            "drugstructuredosageunit": "007",
+            "drugseparatedosagenumb": "1",
+            "drugintervaldosageunitnumb": "3",
+            "drugintervaldosagedefinition": "803",
+            "drugdosagetext": "2MG/KG ONCE IN 3 WEEKS",
+            "drugadministrationroute": "065",
+            "drugindication": "Thymoma",
+            "drugstartdateformat": "610",
+            "drugstartdate": "202010",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "PEMBROLIZUMAB"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "ISOPROTERENOL",
+            "drugadministrationroute": "042",
+            "drugindication": "Myocarditis",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "ISOPROTERENOL"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA210322"
+              ],
+              "brand_name": [
+                "ISOPROTERENOL"
+              ],
+              "generic_name": [
+                "ISOPROTERENOL HYDROCHLORIDE"
+              ],
+              "manufacturer_name": [
+                "Cipla USA Inc."
+              ],
+              "product_ndc": [
+                "69097-521",
+                "69097-522"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRACARDIAC",
+                "INTRAMUSCULAR",
+                "INTRAVENOUS",
+                "SUBCUTANEOUS"
+              ],
+              "substance_name": [
+                "ISOPROTERENOL HYDROCHLORIDE"
+              ],
+              "rxcui": [
+                "1667909",
+                "1667915"
+              ],
+              "spl_id": [
+                "6014b0c8-2851-4111-a4f7-6764be850176"
+              ],
+              "spl_set_id": [
+                "f724120d-da28-4065-9e05-d7dd6afbb546"
+              ],
+              "package_ndc": [
+                "69097-521-31",
+                "69097-522-35"
+              ],
+              "unii": [
+                "DIA2A74855"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "METHYLPREDNISOLONE",
+            "drugstructuredosagenumb": "2",
+            "drugstructuredosageunit": "007",
+            "drugdosagetext": "2MG/KG",
+            "drugadministrationroute": "065",
+            "drugindication": "Myocarditis",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "METHYLPREDNISOLONE"
+            },
+            "openfda": {
+              "application_number": [
+                "NDA011153",
+                "ANDA204072",
+                "ANDA206751",
+                "ANDA212396",
+                "ANDA207549",
+                "ANDA209097"
+              ],
+              "brand_name": [
+                "MEDROL",
+                "METHYLPREDNISOLONE",
+                "METHYLPREDNISOLONE SODIUM SUCCINATE"
+              ],
+              "generic_name": [
+                "METHYLPREDNISOLONE"
+              ],
+              "manufacturer_name": [
+                "Pharmacia & Upjohn Company LLC",
+                "Epic Pharma, LLC",
+                "Mylan Pharmaceuticals Inc.",
+                "Zydus Lifesciences Limited",
+                "BluePoint Laboratories",
+                "Tianjin Kingyork Pharmaceuticals Co., Ltd",
+                "Tianjin Tianyao Pharmaceuticals Co., Ltd.",
+                "Zydus Pharmaceuticals USA Inc.",
+                "Amneal Pharmaceuticals LLC",
+                "Chartwell RX, LLC"
+              ],
+              "product_ndc": [
+                "0009-0020",
+                "0009-0049",
+                "0009-0056",
+                "0009-0022",
+                "0009-0073",
+                "0009-0176",
+                "42806-400",
+                "59762-0049",
+                "59762-4440",
+                "59762-0050",
+                "59762-0051",
+                "70771-1348",
+                "70771-1349",
+                "70771-1350",
+                "70771-1351",
+                "68001-624",
+                "82094-401",
+                "82094-402",
+                "82094-403",
+                "82094-404",
+                "82094-405",
+                "57582-101",
+                "68382-916",
+                "68382-917",
+                "68382-918",
+                "68382-919",
+                "70121-1000",
+                "70121-1001",
+                "62135-759",
+                "62135-760",
+                "62135-761",
+                "62135-762",
+                "62135-763"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL",
+                "INTRAMUSCULAR",
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "METHYLPREDNISOLONE",
+                "METHYLPREDNISOLONE SODIUM SUCCINATE"
+              ],
+              "rxcui": [
+                "197969",
+                "197971",
+                "197973",
+                "207136",
+                "207137",
+                "207138",
+                "207141",
+                "259966",
+                "260330",
+                "328161",
+                "762675",
+                "834023",
+                "311659",
+                "314099",
+                "1357886",
+                "1743704"
+              ],
+              "spl_id": [
+                "e4a8e5b4-af77-4eca-92de-cd0982969b82",
+                "a7416892-37af-4d45-ab52-5e5700e6b3e5",
+                "bc3419a0-22a3-4eaf-a4f2-3133e9380663",
+                "99239c7c-b107-454a-8cee-9dd6cbd5647b",
+                "5267c1af-043e-c1e6-e063-6294a90a42d1",
+                "94c8ce6b-7622-4d1f-8b54-0ce959752ae5",
+                "925bd0e3-3f69-411c-ad1e-7db010ec17be",
+                "6cebff10-362f-41a7-8f66-3d9e878760fd",
+                "3eb27de6-9e1c-4ef4-bb31-2458b9360582",
+                "225669c1-9479-52eb-e063-6394a90a649b"
+              ],
+              "spl_set_id": [
+                "39d5270b-d957-4821-93d6-501b7b9f02d4",
+                "b1908c2a-c596-4e2a-b2bd-0745d4fea31a",
+                "22dd75d6-f89a-44f7-8ca6-b64c4e9806dd",
+                "fe9c15b5-4264-45f1-87b5-f7e1d6e6ddee",
+                "7092df48-4904-4047-9916-e585417a216f",
+                "77a8d96c-37df-4f3a-9757-b2d4131ff82b",
+                "e09eefd2-f423-40cb-87b6-3ee97e7f831b",
+                "eaa9c932-c659-4ef6-bf5a-186545d87320",
+                "e86fbda8-00e4-4d54-841a-59dea6c15e70",
+                "bdd048bb-7e6c-45c7-b51a-075e83ca9f5b"
+              ],
+              "package_ndc": [
+                "0009-0049-02",
+                "0009-0056-02",
+                "0009-0056-04",
+                "0009-0022-01",
+                "0009-0073-01",
+                "0009-0176-01",
+                "0009-0020-01",
+                "42806-400-01",
+                "42806-400-21",
+                "59762-4440-3",
+                "59762-4440-2",
+                "59762-0049-1",
+                "59762-0050-1",
+                "59762-0051-1",
+                "70771-1348-1",
+                "70771-1348-5",
+                "70771-1348-3",
+                "70771-1349-8",
+                "70771-1349-1",
+                "70771-1349-5",
+                "70771-1349-2",
+                "70771-1349-4",
+                "70771-1350-7",
+                "70771-1350-1",
+                "70771-1350-5",
+                "70771-1350-2",
+                "70771-1350-4",
+                "70771-1351-8",
+                "70771-1351-1",
+                "70771-1351-5",
+                "70771-1351-2",
+                "70771-1351-4",
+                "68001-624-01",
+                "82094-401-01",
+                "82094-401-50",
+                "82094-402-01",
+                "82094-402-50",
+                "82094-403-01",
+                "82094-403-50",
+                "82094-404-01",
+                "82094-404-50",
+                "82094-405-01",
+                "82094-405-50",
+                "57582-101-01",
+                "57582-101-02",
+                "68382-916-01",
+                "68382-916-05",
+                "68382-916-34",
+                "68382-917-11",
+                "68382-917-01",
+                "68382-917-05",
+                "68382-917-30",
+                "68382-917-77",
+                "68382-918-18",
+                "68382-918-01",
+                "68382-918-05",
+                "68382-918-30",
+                "68382-918-77",
+                "68382-919-11",
+                "68382-919-01",
+                "68382-919-05",
+                "68382-919-30",
+                "68382-919-77",
+                "70121-1000-1",
+                "70121-1000-5",
+                "70121-1001-1",
+                "70121-1001-5",
+                "62135-759-30",
+                "62135-760-21",
+                "62135-760-01",
+                "62135-761-26",
+                "62135-762-50",
+                "62135-763-26"
+              ],
+              "nui": [
+                "N0000175576",
+                "N0000175450"
+              ],
+              "pharm_class_epc": [
+                "Corticosteroid [EPC]"
+              ],
+              "pharm_class_moa": [
+                "Corticosteroid Hormone Receptor Agonists [MoA]"
+              ],
+              "unii": [
+                "X4W7ZR7023",
+                "LEC9GKY20K"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "METHYLPREDNISOLONE",
+            "drugstructuredosagenumb": "1",
+            "drugstructuredosageunit": "002",
+            "drugseparatedosagenumb": "1",
+            "drugintervaldosageunitnumb": "1",
+            "drugintervaldosagedefinition": "804",
+            "drugdosagetext": "1 GRAM DAILY; RECEIVED FOR 5 DAYS",
+            "drugadministrationroute": "042",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "METHYLPREDNISOLONE"
+            },
+            "openfda": {
+              "application_number": [
+                "NDA011153",
+                "ANDA204072",
+                "ANDA206751",
+                "ANDA212396",
+                "ANDA207549",
+                "ANDA209097"
+              ],
+              "brand_name": [
+                "MEDROL",
+                "METHYLPREDNISOLONE",
+                "METHYLPREDNISOLONE SODIUM SUCCINATE"
+              ],
+              "generic_name": [
+                "METHYLPREDNISOLONE"
+              ],
+              "manufacturer_name": [
+                "Pharmacia & Upjohn Company LLC",
+                "Epic Pharma, LLC",
+                "Mylan Pharmaceuticals Inc.",
+                "Zydus Lifesciences Limited",
+                "BluePoint Laboratories",
+                "Tianjin Kingyork Pharmaceuticals Co., Ltd",
+                "Tianjin Tianyao Pharmaceuticals Co., Ltd.",
+                "Zydus Pharmaceuticals USA Inc.",
+                "Amneal Pharmaceuticals LLC",
+                "Chartwell RX, LLC"
+              ],
+              "product_ndc": [
+                "0009-0020",
+                "0009-0049",
+                "0009-0056",
+                "0009-0022",
+                "0009-0073",
+                "0009-0176",
+                "42806-400",
+                "59762-0049",
+                "59762-4440",
+                "59762-0050",
+                "59762-0051",
+                "70771-1348",
+                "70771-1349",
+                "70771-1350",
+                "70771-1351",
+                "68001-624",
+                "82094-401",
+                "82094-402",
+                "82094-403",
+                "82094-404",
+                "82094-405",
+                "57582-101",
+                "68382-916",
+                "68382-917",
+                "68382-918",
+                "68382-919",
+                "70121-1000",
+                "70121-1001",
+                "62135-759",
+                "62135-760",
+                "62135-761",
+                "62135-762",
+                "62135-763"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL",
+                "INTRAMUSCULAR",
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "METHYLPREDNISOLONE",
+                "METHYLPREDNISOLONE SODIUM SUCCINATE"
+              ],
+              "rxcui": [
+                "197969",
+                "197971",
+                "197973",
+                "207136",
+                "207137",
+                "207138",
+                "207141",
+                "259966",
+                "260330",
+                "328161",
+                "762675",
+                "834023",
+                "311659",
+                "314099",
+                "1357886",
+                "1743704"
+              ],
+              "spl_id": [
+                "e4a8e5b4-af77-4eca-92de-cd0982969b82",
+                "a7416892-37af-4d45-ab52-5e5700e6b3e5",
+                "bc3419a0-22a3-4eaf-a4f2-3133e9380663",
+                "99239c7c-b107-454a-8cee-9dd6cbd5647b",
+                "5267c1af-043e-c1e6-e063-6294a90a42d1",
+                "94c8ce6b-7622-4d1f-8b54-0ce959752ae5",
+                "925bd0e3-3f69-411c-ad1e-7db010ec17be",
+                "6cebff10-362f-41a7-8f66-3d9e878760fd",
+                "3eb27de6-9e1c-4ef4-bb31-2458b9360582",
+                "225669c1-9479-52eb-e063-6394a90a649b"
+              ],
+              "spl_set_id": [
+                "39d5270b-d957-4821-93d6-501b7b9f02d4",
+                "b1908c2a-c596-4e2a-b2bd-0745d4fea31a",
+                "22dd75d6-f89a-44f7-8ca6-b64c4e9806dd",
+                "fe9c15b5-4264-45f1-87b5-f7e1d6e6ddee",
+                "7092df48-4904-4047-9916-e585417a216f",
+                "77a8d96c-37df-4f3a-9757-b2d4131ff82b",
+                "e09eefd2-f423-40cb-87b6-3ee97e7f831b",
+                "eaa9c932-c659-4ef6-bf5a-186545d87320",
+                "e86fbda8-00e4-4d54-841a-59dea6c15e70",
+                "bdd048bb-7e6c-45c7-b51a-075e83ca9f5b"
+              ],
+              "package_ndc": [
+                "0009-0049-02",
+                "0009-0056-02",
+                "0009-0056-04",
+                "0009-0022-01",
+                "0009-0073-01",
+                "0009-0176-01",
+                "0009-0020-01",
+                "42806-400-01",
+                "42806-400-21",
+                "59762-4440-3",
+                "59762-4440-2",
+                "59762-0049-1",
+                "59762-0050-1",
+                "59762-0051-1",
+                "70771-1348-1",
+                "70771-1348-5",
+                "70771-1348-3",
+                "70771-1349-8",
+                "70771-1349-1",
+                "70771-1349-5",
+                "70771-1349-2",
+                "70771-1349-4",
+                "70771-1350-7",
+                "70771-1350-1",
+                "70771-1350-5",
+                "70771-1350-2",
+                "70771-1350-4",
+                "70771-1351-8",
+                "70771-1351-1",
+                "70771-1351-5",
+                "70771-1351-2",
+                "70771-1351-4",
+                "68001-624-01",
+                "82094-401-01",
+                "82094-401-50",
+                "82094-402-01",
+                "82094-402-50",
+                "82094-403-01",
+                "82094-403-50",
+                "82094-404-01",
+                "82094-404-50",
+                "82094-405-01",
+                "82094-405-50",
+                "57582-101-01",
+                "57582-101-02",
+                "68382-916-01",
+                "68382-916-05",
+                "68382-916-34",
+                "68382-917-11",
+                "68382-917-01",
+                "68382-917-05",
+                "68382-917-30",
+                "68382-917-77",
+                "68382-918-18",
+                "68382-918-01",
+                "68382-918-05",
+                "68382-918-30",
+                "68382-918-77",
+                "68382-919-11",
+                "68382-919-01",
+                "68382-919-05",
+                "68382-919-30",
+                "68382-919-77",
+                "70121-1000-1",
+                "70121-1000-5",
+                "70121-1001-1",
+                "70121-1001-5",
+                "62135-759-30",
+                "62135-760-21",
+                "62135-760-01",
+                "62135-761-26",
+                "62135-762-50",
+                "62135-763-26"
+              ],
+              "nui": [
+                "N0000175576",
+                "N0000175450"
+              ],
+              "pharm_class_epc": [
+                "Corticosteroid [EPC]"
+              ],
+              "pharm_class_moa": [
+                "Corticosteroid Hormone Receptor Agonists [MoA]"
+              ],
+              "unii": [
+                "X4W7ZR7023",
+                "LEC9GKY20K"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "INFLIXIMAB",
+            "drugstructuredosagenumb": "5",
+            "drugstructuredosageunit": "007",
+            "drugdosagetext": "5MG/KG",
+            "drugadministrationroute": "065",
+            "drugindication": "Myocarditis",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "INFLIXIMAB"
+            },
+            "openfda": {
+              "application_number": [
+                "BLA761054",
+                "BLA103772"
+              ],
+              "brand_name": [
+                "RENFLEXIS",
+                "INFLIXIMAB",
+                "REMICADE"
+              ],
+              "generic_name": [
+                "INFLIXIMAB"
+              ],
+              "manufacturer_name": [
+                "Organon LLC",
+                "Janssen Biotech, Inc."
+              ],
+              "product_ndc": [
+                "78206-162",
+                "57894-160",
+                "57894-030"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "INFLIXIMAB"
+              ],
+              "rxcui": [
+                "1927285",
+                "1927290",
+                "310994",
+                "213361"
+              ],
+              "spl_id": [
+                "20c46bec-ae83-4851-98b7-88222a8ff88a",
+                "3bfeaa57-8d95-4bc9-8bb5-274271688470",
+                "36afec96-dd29-9328-e063-6294a90af8e4"
+              ],
+              "spl_set_id": [
+                "dbf738c4-3fac-4422-a9d8-51d9c83a8789",
+                "b05c174f-832c-4321-b34f-2c4ad3742269",
+                "a0a046c1-056d-45a9-bfd9-13b47c24f257"
+              ],
+              "package_ndc": [
+                "78206-162-99",
+                "78206-162-01",
+                "57894-160-01",
+                "57894-030-01"
+              ],
+              "nui": [
+                "N0000175610",
+                "N0000175451"
+              ],
+              "pharm_class_epc": [
+                "Tumor Necrosis Factor Blocker [EPC]"
+              ],
+              "pharm_class_moa": [
+                "Tumor Necrosis Factor Receptor Blocking Activity [MoA]"
+              ],
+              "unii": [
+                "B72HH48FLU"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "AMIODARONE",
+            "drugadministrationroute": "042",
+            "drugindication": "Cardiogenic shock",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "AMIODARONE"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "NOREPINEPHRINE",
+            "drugadministrationroute": "065",
+            "drugindication": "Hypotension",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "NOREPINEPHRINE"
+            },
+            "openfda": {
+              "brand_name": [
+                "NOREPINEPHRINE",
+                "NOREPINEPHRINE 1530"
+              ],
+              "generic_name": [
+                "NOREPINEPHRINE (BITARTRATE)",
+                "NOREPINEPHRINE",
+                "NOREPINEPHRINE BITARTRATE"
+              ],
+              "manufacturer_name": [
+                "Deseret Biologicals, Inc.",
+                "BioActive Nutritional, Inc.",
+                "Professional Complementary Health Formulas",
+                "Long Grove Pharmaceuticals, LLC"
+              ],
+              "product_ndc": [
+                "43742-1489",
+                "43857-0260",
+                "63083-1530",
+                "43857-0161",
+                "81298-9655",
+                "81298-9659",
+                "81298-9658"
+              ],
+              "product_type": [
+                "HUMAN OTC DRUG",
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL",
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "NOREPINEPHRINE BITARTRATE",
+                "NOREPINEPHRINE"
+              ],
+              "spl_id": [
+                "a61e9472-9464-4461-a331-5a0c8d8c8b58",
+                "75203db5-f71e-46ad-9dd9-202b663fafbb",
+                "ede263c1-d0b9-4f59-83c9-07c84d155297",
+                "9ae285bc-3fd4-43f8-bb02-402336512a2f",
+                "329c5273-4dc5-4738-bf21-660e73d91eb9"
+              ],
+              "spl_set_id": [
+                "8dea9818-e3f1-4c51-9e67-83a63f3e950c",
+                "77da899e-fa5b-476c-a7b3-5fa635e5ea4c",
+                "9eb4ebe0-fb2f-4147-b117-0fa19bbd2c1e",
+                "edf75607-d285-45e5-912e-280d13acbc2b",
+                "759807dd-61a8-4f6f-8bf5-f6ee773c81bc"
+              ],
+              "package_ndc": [
+                "43742-1489-1",
+                "43857-0260-1",
+                "63083-1530-1",
+                "43857-0161-1",
+                "81298-9659-1",
+                "81298-9659-3",
+                "81298-9655-1",
+                "81298-9655-3",
+                "81298-9658-1",
+                "81298-9658-3"
+              ],
+              "unii": [
+                "IFY5PE3ZRW",
+                "X4W3ENH1CV"
+              ],
+              "nui": [
+                "N0000175570",
+                "M0003647"
+              ],
+              "pharm_class_epc": [
+                "Catecholamine [EPC]"
+              ],
+              "pharm_class_cs": [
+                "Catecholamines [CS]"
+              ],
+              "application_number": [
+                "NDA214628"
+              ],
+              "rxcui": [
+                "2475337",
+                "2475340",
+                "2619579"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "NOREPINEPHRINE",
+            "drugindication": "Oliguria",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "NOREPINEPHRINE"
+            },
+            "openfda": {
+              "brand_name": [
+                "NOREPINEPHRINE",
+                "NOREPINEPHRINE 1530"
+              ],
+              "generic_name": [
+                "NOREPINEPHRINE (BITARTRATE)",
+                "NOREPINEPHRINE",
+                "NOREPINEPHRINE BITARTRATE"
+              ],
+              "manufacturer_name": [
+                "Deseret Biologicals, Inc.",
+                "BioActive Nutritional, Inc.",
+                "Professional Complementary Health Formulas",
+                "Long Grove Pharmaceuticals, LLC"
+              ],
+              "product_ndc": [
+                "43742-1489",
+                "43857-0260",
+                "63083-1530",
+                "43857-0161",
+                "81298-9655",
+                "81298-9659",
+                "81298-9658"
+              ],
+              "product_type": [
+                "HUMAN OTC DRUG",
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL",
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "NOREPINEPHRINE BITARTRATE",
+                "NOREPINEPHRINE"
+              ],
+              "spl_id": [
+                "a61e9472-9464-4461-a331-5a0c8d8c8b58",
+                "75203db5-f71e-46ad-9dd9-202b663fafbb",
+                "ede263c1-d0b9-4f59-83c9-07c84d155297",
+                "9ae285bc-3fd4-43f8-bb02-402336512a2f",
+                "329c5273-4dc5-4738-bf21-660e73d91eb9"
+              ],
+              "spl_set_id": [
+                "8dea9818-e3f1-4c51-9e67-83a63f3e950c",
+                "77da899e-fa5b-476c-a7b3-5fa635e5ea4c",
+                "9eb4ebe0-fb2f-4147-b117-0fa19bbd2c1e",
+                "edf75607-d285-45e5-912e-280d13acbc2b",
+                "759807dd-61a8-4f6f-8bf5-f6ee773c81bc"
+              ],
+              "package_ndc": [
+                "43742-1489-1",
+                "43857-0260-1",
+                "63083-1530-1",
+                "43857-0161-1",
+                "81298-9659-1",
+                "81298-9659-3",
+                "81298-9655-1",
+                "81298-9655-3",
+                "81298-9658-1",
+                "81298-9658-3"
+              ],
+              "unii": [
+                "IFY5PE3ZRW",
+                "X4W3ENH1CV"
+              ],
+              "nui": [
+                "N0000175570",
+                "M0003647"
+              ],
+              "pharm_class_epc": [
+                "Catecholamine [EPC]"
+              ],
+              "pharm_class_cs": [
+                "Catecholamines [CS]"
+              ],
+              "application_number": [
+                "NDA214628"
+              ],
+              "rxcui": [
+                "2475337",
+                "2475340",
+                "2619579"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "NOREPINEPHRINE",
+            "drugindication": "Renal failure",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "NOREPINEPHRINE"
+            },
+            "openfda": {
+              "brand_name": [
+                "NOREPINEPHRINE",
+                "NOREPINEPHRINE 1530"
+              ],
+              "generic_name": [
+                "NOREPINEPHRINE (BITARTRATE)",
+                "NOREPINEPHRINE",
+                "NOREPINEPHRINE BITARTRATE"
+              ],
+              "manufacturer_name": [
+                "Deseret Biologicals, Inc.",
+                "BioActive Nutritional, Inc.",
+                "Professional Complementary Health Formulas",
+                "Long Grove Pharmaceuticals, LLC"
+              ],
+              "product_ndc": [
+                "43742-1489",
+                "43857-0260",
+                "63083-1530",
+                "43857-0161",
+                "81298-9655",
+                "81298-9659",
+                "81298-9658"
+              ],
+              "product_type": [
+                "HUMAN OTC DRUG",
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL",
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "NOREPINEPHRINE BITARTRATE",
+                "NOREPINEPHRINE"
+              ],
+              "spl_id": [
+                "a61e9472-9464-4461-a331-5a0c8d8c8b58",
+                "75203db5-f71e-46ad-9dd9-202b663fafbb",
+                "ede263c1-d0b9-4f59-83c9-07c84d155297",
+                "9ae285bc-3fd4-43f8-bb02-402336512a2f",
+                "329c5273-4dc5-4738-bf21-660e73d91eb9"
+              ],
+              "spl_set_id": [
+                "8dea9818-e3f1-4c51-9e67-83a63f3e950c",
+                "77da899e-fa5b-476c-a7b3-5fa635e5ea4c",
+                "9eb4ebe0-fb2f-4147-b117-0fa19bbd2c1e",
+                "edf75607-d285-45e5-912e-280d13acbc2b",
+                "759807dd-61a8-4f6f-8bf5-f6ee773c81bc"
+              ],
+              "package_ndc": [
+                "43742-1489-1",
+                "43857-0260-1",
+                "63083-1530-1",
+                "43857-0161-1",
+                "81298-9659-1",
+                "81298-9659-3",
+                "81298-9655-1",
+                "81298-9655-3",
+                "81298-9658-1",
+                "81298-9658-3"
+              ],
+              "unii": [
+                "IFY5PE3ZRW",
+                "X4W3ENH1CV"
+              ],
+              "nui": [
+                "N0000175570",
+                "M0003647"
+              ],
+              "pharm_class_epc": [
+                "Catecholamine [EPC]"
+              ],
+              "pharm_class_cs": [
+                "Catecholamines [CS]"
+              ],
+              "application_number": [
+                "NDA214628"
+              ],
+              "rxcui": [
+                "2475337",
+                "2475340",
+                "2619579"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "DOBUTAMINE",
+            "drugadministrationroute": "065",
+            "drugindication": "Hypotension",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "DOBUTAMINE HYDROCHLORIDE"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA216131",
+                "ANDA074277",
+                "ANDA074086"
+              ],
+              "brand_name": [
+                "DOBUTAMINE"
+              ],
+              "generic_name": [
+                "DOBUTAMINE"
+              ],
+              "manufacturer_name": [
+                "Slate Run Pharmaceuticals",
+                "Hikma Pharmaceuticals USA Inc.",
+                "Hospira, Inc."
+              ],
+              "product_ndc": [
+                "70436-203",
+                "0143-9141",
+                "0409-2344"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "DOBUTAMINE HYDROCHLORIDE"
+              ],
+              "rxcui": [
+                "1812168"
+              ],
+              "spl_id": [
+                "49562559-8e19-fb8a-e063-6394a90a0966",
+                "b0a40444-634c-4eb0-a861-fe9e21e02552",
+                "e71e9520-871b-479d-9652-1857fceca863",
+                "f6a67673-07a7-44e4-b05c-1f7e63326f79"
+              ],
+              "spl_set_id": [
+                "ee09a55f-9992-48bb-b8d6-1184bd548536",
+                "74ba9408-17d3-48ac-be0b-a4fee9e7a1a5",
+                "dc537761-d5f4-488d-24ab-b2bcd2b17b7a",
+                "89becb0c-da60-4f43-0a98-29ff7a9eca58"
+              ],
+              "package_ndc": [
+                "70436-203-80",
+                "70436-203-82",
+                "0143-9141-10",
+                "0409-2344-01",
+                "0409-2344-62",
+                "0409-2344-02",
+                "0409-2344-68",
+                "0409-2344-88"
+              ],
+              "unii": [
+                "0WR771DJXV"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "DOBUTAMINE",
+            "drugindication": "Renal failure",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "DOBUTAMINE HYDROCHLORIDE"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA216131",
+                "ANDA074277",
+                "ANDA074086"
+              ],
+              "brand_name": [
+                "DOBUTAMINE"
+              ],
+              "generic_name": [
+                "DOBUTAMINE"
+              ],
+              "manufacturer_name": [
+                "Slate Run Pharmaceuticals",
+                "Hikma Pharmaceuticals USA Inc.",
+                "Hospira, Inc."
+              ],
+              "product_ndc": [
+                "70436-203",
+                "0143-9141",
+                "0409-2344"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "DOBUTAMINE HYDROCHLORIDE"
+              ],
+              "rxcui": [
+                "1812168"
+              ],
+              "spl_id": [
+                "49562559-8e19-fb8a-e063-6394a90a0966",
+                "b0a40444-634c-4eb0-a861-fe9e21e02552",
+                "e71e9520-871b-479d-9652-1857fceca863",
+                "f6a67673-07a7-44e4-b05c-1f7e63326f79"
+              ],
+              "spl_set_id": [
+                "ee09a55f-9992-48bb-b8d6-1184bd548536",
+                "74ba9408-17d3-48ac-be0b-a4fee9e7a1a5",
+                "dc537761-d5f4-488d-24ab-b2bcd2b17b7a",
+                "89becb0c-da60-4f43-0a98-29ff7a9eca58"
+              ],
+              "package_ndc": [
+                "70436-203-80",
+                "70436-203-82",
+                "0143-9141-10",
+                "0409-2344-01",
+                "0409-2344-62",
+                "0409-2344-02",
+                "0409-2344-68",
+                "0409-2344-88"
+              ],
+              "unii": [
+                "0WR771DJXV"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "DOBUTAMINE",
+            "drugindication": "Oliguria",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "DOBUTAMINE HYDROCHLORIDE"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA216131",
+                "ANDA074277",
+                "ANDA074086"
+              ],
+              "brand_name": [
+                "DOBUTAMINE"
+              ],
+              "generic_name": [
+                "DOBUTAMINE"
+              ],
+              "manufacturer_name": [
+                "Slate Run Pharmaceuticals",
+                "Hikma Pharmaceuticals USA Inc.",
+                "Hospira, Inc."
+              ],
+              "product_ndc": [
+                "70436-203",
+                "0143-9141",
+                "0409-2344"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "DOBUTAMINE HYDROCHLORIDE"
+              ],
+              "rxcui": [
+                "1812168"
+              ],
+              "spl_id": [
+                "49562559-8e19-fb8a-e063-6394a90a0966",
+                "b0a40444-634c-4eb0-a861-fe9e21e02552",
+                "e71e9520-871b-479d-9652-1857fceca863",
+                "f6a67673-07a7-44e4-b05c-1f7e63326f79"
+              ],
+              "spl_set_id": [
+                "ee09a55f-9992-48bb-b8d6-1184bd548536",
+                "74ba9408-17d3-48ac-be0b-a4fee9e7a1a5",
+                "dc537761-d5f4-488d-24ab-b2bcd2b17b7a",
+                "89becb0c-da60-4f43-0a98-29ff7a9eca58"
+              ],
+              "package_ndc": [
+                "70436-203-80",
+                "70436-203-82",
+                "0143-9141-10",
+                "0409-2344-01",
+                "0409-2344-62",
+                "0409-2344-02",
+                "0409-2344-68",
+                "0409-2344-88"
+              ],
+              "unii": [
+                "0WR771DJXV"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "THYMOCYTE IMMUNE GLOBULIN NOS",
+            "drugadministrationroute": "042",
+            "drugindication": "Hypotension",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "THYMOCYTE IMMUNE GLOBULIN NOS"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "THYMOCYTE IMMUNE GLOBULIN NOS",
+            "drugindication": "Renal failure",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "THYMOCYTE IMMUNE GLOBULIN NOS"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "THYMOCYTE IMMUNE GLOBULIN NOS",
+            "drugindication": "Oliguria",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "THYMOCYTE IMMUNE GLOBULIN NOS"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "PYRIDOSTIGMINE",
+            "drugadministrationroute": "065",
+            "drugindication": "Myasthenia gravis",
+            "actiondrug": "6",
+            "drugadditional": "4",
+            "activesubstance": {
+              "activesubstancename": "PYRIDOSTIGMINE"
+            },
+            "openfda": {
+              "application_number": [
+                "ANDA211694"
+              ],
+              "brand_name": [
+                "PYRIDOSTIGMINE"
+              ],
+              "generic_name": [
+                "PYRIDOSTIGMINE BROMIDE ORAL"
+              ],
+              "manufacturer_name": [
+                "Novitium Pharma LLC"
+              ],
+              "product_ndc": [
+                "70954-148"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL"
+              ],
+              "substance_name": [
+                "PYRIDOSTIGMINE BROMIDE"
+              ],
+              "rxcui": [
+                "903843"
+              ],
+              "spl_id": [
+                "ef78ff05-8e0f-463a-88cd-ca9a01aed76a"
+              ],
+              "spl_set_id": [
+                "ef78ff05-8e0f-463a-88cd-ca9a01aed76a"
+              ],
+              "package_ndc": [
+                "70954-148-10"
+              ],
+              "unii": [
+                "KVI301NA53"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+      }
+    }
+  ]
+}

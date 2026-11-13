@@ -1,6 +1,8 @@
 //! Adverse event services retain independent third-party terminology policy.
 /// Component declarations and whole-leg admission before I/O.
 pub mod components;
+/// FDA receipt-date report counts shared by FAERS and MAUDE.
+pub mod received;
 /// Canonical FAERS service declaration.
 pub use crate::faers::SPEC as FAERS;
 /// Canonical MAUDE service declaration.

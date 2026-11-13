@@ -7,7 +7,7 @@ pub(super) fn day(
     field: &str,
 ) -> Result<Option<PartialDate>, QueryInvalid> {
     date.map(|date| {
-        let month = date.month().ok_or_else(|| QueryInvalid::new(&[field]))?;
+        let month = date.month().unwrap_or(if upper { 12 } else { 1 });
         let day = date.day().unwrap_or_else(|| {
             if upper {
                 (28..=31)
