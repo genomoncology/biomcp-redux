@@ -29,6 +29,30 @@ biodata::wire_enum! { described
     }
 }
 biodata::wire_enum! { described
+    /// MAUDE report event type, matched on native event_type.
+    MaudeEventType {
+        /// Native Malfunction reports.
+        Malfunction => "malfunction",
+        /// Native Injury reports.
+        Injury => "injury",
+        /// Native Death reports.
+        Death => "death",
+        /// Native Other reports.
+        Other => "other",
+    }
+}
+impl MaudeEventType {
+    /// The native event_type value openFDA publishes.
+    pub const fn native(self) -> &'static str {
+        match self {
+            Self::Malfunction => "Malfunction",
+            Self::Injury => "Injury",
+            Self::Death => "Death",
+            Self::Other => "Other",
+        }
+    }
+}
+biodata::wire_enum! { described
     /// One reviewed identifier collection owned by one drug.
     AdverseEventIdentifierSection {
         /// Native UNII strings.
@@ -70,7 +94,7 @@ biodata::wire_enum! { described
         ApplicationNumber => "application-number",
         /// Native device rows.
         Devices => "devices",
-        /// Complete native narrative rows.
+        /// Complete native MAUDE narrative rows; openFDA's public FAERS data carries no case narrative.
         Narrative => "narrative",
     }
 }

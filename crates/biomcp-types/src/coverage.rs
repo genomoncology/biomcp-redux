@@ -102,6 +102,12 @@ pub fn command_section_sources(
         ("get", "adverse-event") => one(word, |s: AdverseEventSection| s.source().source()),
         ("search", "adverse-event") => one(word, |_: VaersSection| Source::Vaers),
         ("get", "drug") => word.parse::<DrugSection>().ok().map(|s| {
+            // The markets section reads each market's own source.
+            if s == DrugSection::Markets {
+                return [DrugSource::Drugsfda, DrugSource::Ema, DrugSource::WhoPq]
+                    .map(DrugSource::source)
+                    .into();
+            }
             DrugSource::ALL
                 .into_iter()
                 .filter(|source| source.sections().contains(&s))

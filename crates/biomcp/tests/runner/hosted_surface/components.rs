@@ -56,7 +56,7 @@ fn component_catalog(server: &Server) -> Check {
         || search
             .pointer("/inputSchema/properties/aggregate")
             .is_some_and(|field| field.to_string().contains("\"reactions\""))
-        || ["manufacturer", "product_code", "problem"]
+        || ["manufacturer", "product_code", "problem", "event_type"]
             .iter()
             .any(|field| {
                 search

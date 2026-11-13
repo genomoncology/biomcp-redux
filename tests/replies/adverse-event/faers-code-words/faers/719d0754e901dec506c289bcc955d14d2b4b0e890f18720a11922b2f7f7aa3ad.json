@@ -44,7 +44,9 @@
                     "reactionoutcome": "9"
                   }
                 ],
-                "patientsex": "2"
+                "patientsex": "2",
+                "patientonsetage": "3",
+                "patientonsetageunit": "806"
               },
               "receivedate": "20240102",
               "safetyreportid": "100",

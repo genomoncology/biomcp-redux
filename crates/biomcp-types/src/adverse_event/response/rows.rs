@@ -1,4 +1,4 @@
-use biodata::{FaersPatient, FaersReporter};
+use biodata::{FaersPatient, FaersReporter, FaersSeriousness};
 use serde::{Deserialize, Serialize};
 /// Native patient facts with the published word beside the sex code.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -10,6 +10,45 @@ pub struct AdverseEventPatient {
     /// Published word for the sex code, when the code is on openFDA's list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sex_label: Option<Box<str>>,
+    /// Published word for the age unit code (800-805), when the code is on openFDA's list.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub age_unit_label: Option<Box<str>>,
+}
+/// Native seriousness flags with openFDA's own wording beside a `1`.
+/// openFDA documents only `1` for each flag ("absent otherwise"); the data also carries `2`, which has no published word and stays unlabelled.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AdverseEventSeriousness {
+    /// Unchanged native flag values.
+    #[serde(flatten)]
+    pub native: FaersSeriousness,
+    /// openFDA's wording for death `1`; absent for `2`, which openFDA does not document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub death_label: Option<Box<str>>,
+    /// openFDA's wording for lifethreatening `1`; absent for `2`, which openFDA does not document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub lifethreatening_label: Option<Box<str>>,
+    /// openFDA's wording for hospitalization `1`; absent for `2`, which openFDA does not document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hospitalization_label: Option<Box<str>>,
+    /// openFDA's wording for disabling `1`; absent for `2`, which openFDA does not document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disabling_label: Option<Box<str>>,
+    /// openFDA's wording for congenitalanomali `1`; absent for `2`, which openFDA does not document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub congenitalanomali_label: Option<Box<str>>,
+    /// openFDA's wording for other `1`; absent for `2`, which openFDA does not document.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub other_label: Option<Box<str>>,
+}
+/// One present coded value that is not on openFDA's published list for its field.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct AdverseEventUnmappedCode {
+    /// openFDA field name, such as `patient.patientsex`.
+    pub field: Box<str>,
+    /// Unchanged source code.
+    pub code: Box<str>,
 }
 /// Native reporter facts with the published word beside the qualification code.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -134,6 +173,9 @@ pub struct AdverseEventDrug {
     pub drugadditional: Option<Box<str>>,
     /// Sizes only; original lists live behind named pages.
     pub identity_counts: AdverseEventIdentityCounts,
+    /// Coded fields whose present value is not on openFDA's published list; a field the source omitted is never listed.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub unmapped_codes: Box<[AdverseEventUnmappedCode]>,
 }
 /// Independent native reaction row without drug attribution.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -153,6 +195,9 @@ pub struct AdverseEventReaction {
     /// Published word for the outcome code, when the code is on openFDA's list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub outcome_label: Option<Box<str>>,
+    /// Coded fields whose present value is not on openFDA's published list; a field the source omitted is never listed.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub unmapped_codes: Box<[AdverseEventUnmappedCode]>,
 }
 /// Native device fields; administrative addresses are excluded.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

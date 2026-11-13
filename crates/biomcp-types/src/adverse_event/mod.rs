@@ -12,11 +12,11 @@ pub use response::{
     AdverseEventNarrative, AdverseEventNarrativeItem, AdverseEventPage, AdverseEventPatient,
     AdverseEventReaction, AdverseEventReactionCount, AdverseEventReactionCounts,
     AdverseEventReactionMatch, AdverseEventReactions, AdverseEventReceivedCount,
-    AdverseEventRecords, AdverseEventReporter,
+    AdverseEventRecords, AdverseEventReporter, AdverseEventSeriousness, AdverseEventUnmappedCode,
 };
 pub use selectors::{
     AdverseEventAggregate, AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious,
-    AdverseEventSource, ReportUnit,
+    AdverseEventSource, MaudeEventType, ReportUnit,
 };
 
 mod vaers;

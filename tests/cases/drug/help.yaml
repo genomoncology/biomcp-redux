@@ -45,7 +45,8 @@
           "label",
           "approvals",
           "regulatory",
-          "interactions"
+          "interactions",
+          "markets"
         ],
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
