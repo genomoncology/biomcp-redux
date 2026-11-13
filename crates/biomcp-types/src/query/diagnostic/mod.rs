@@ -3,7 +3,7 @@ mod search_validation;
 use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 pub use id::DiagnosticId;
-use search_validation::{validate_device, validate_recall};
+use search_validation::{validate_device, validate_recall, validate_who_years};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -220,28 +220,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         {
             return Err(QueryInvalid::new(&["marker", "manufacturer"]));
         }
-        let who_years = v.prequalified_from.is_some() || v.prequalified_to.is_some();
-        if who_years && v.source != DiagnosticSearchSource::WhoIvd {
-            return Err(QueryInvalid::new(&[
-                "source",
-                "prequalified_from",
-                "prequalified_to",
-            ]));
-        }
-        if [v.prequalified_from, v.prequalified_to]
-            .into_iter()
-            .flatten()
-            .any(|d| d.month().is_some())
-        {
-            return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"])
-                .with_message(crate::ErrorMessage::WhoIvdYears));
-        }
-        if v.prequalified_from
-            .zip(v.prequalified_to)
-            .is_some_and(|(a, b)| a.year() > b.year())
-        {
-            return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"]));
-        }
+        validate_who_years(&v)?;
         if v.device_id
             .as_ref()
             .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
