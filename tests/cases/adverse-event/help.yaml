@@ -5,7 +5,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 8761
+          "max_bytes": 10306
         },
         "/result/commands": {
           "count": 1

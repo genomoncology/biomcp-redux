@@ -1130,7 +1130,7 @@
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Largest WONDER count first; ties keep source order."
+        " Most Events Reported first across the whole source table; equal counts and rows without a count keep the source's order."
       ]
     },
     "VariantLookupInput": {
@@ -3181,7 +3181,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Page size.\nReport headers, reaction terms or VAERS rows; default five.",
+          "description": "Report headers, reaction terms or VAERS rows; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3317,7 +3317,7 @@
               "type": "null"
             }
           ],
-          "description": "VAERS order.\nreports: largest WONDER Events Reported count first, over the whole table; ties keep source order. Omit for source order (symptoms A-Z).",
+          "description": "VAERS order.\nreports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.",
           "x-required-component": "vaers"
         },
         "source": {
