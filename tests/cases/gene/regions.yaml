@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "gene-search",
-  "story": "A microarray band or GRCh38 interval finds ClinGen's region dosage curations, such as the recurrent 16p11.2 deletions, with their scores, PMIDs, date and MONDO disease",
+  "story": "A microarray band, a band inside a curated span, a GRCh38 interval or an ISCA ID finds ClinGen's region dosage curations, such as the recurrent 16p11.2 deletions, with their scores, every PMID, date and MONDO disease",
   "replay": "gene/regions",
   "steps": [
     {
@@ -87,6 +87,43 @@
       "expect": {
         "/result/regions/*/id": [
           "ISCA-37486"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "ISCA-37430"
+      ],
+      "expect": {
+        "/result/regions/0/haploinsufficiency/pmids": ["3391613", "1671808", "1879837", "7634541", "19584063", "12621583"],
+        "/result/regions/0/triplosensitivity/pmids": ["19136950", "19520700", "23813913"]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "15q12"
+      ],
+      "expect": {
+        "/result/regions/*/id": [
+          "ISCA-37478"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "1p36.32"
+      ],
+      "expect": {
+        "/result/regions/*/id": [
+          "ISCA-37434"
         ]
       }
     }

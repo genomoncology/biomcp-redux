@@ -155,7 +155,7 @@ fn region_find(query: &GeneSearch) -> Option<clingen::RegionFind<'_>> {
                     .get(..5)
                     .is_some_and(|prefix| prefix.eq_ignore_ascii_case("ISCA-"))
         })
-        .map(clingen::RegionFind::Text)
+        .map(clingen::RegionFind::Id)
 }
 fn collect(
     leg: &Leg<'_>,

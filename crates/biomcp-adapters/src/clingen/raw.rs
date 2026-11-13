@@ -158,46 +158,37 @@ pub(super) fn bounds(location: &str) -> Option<(&str, u64, u64)> {
         _ => None,
     }
 }
-/// Both ends of a published cytoband span, such as 15q11.2-q13.1.
-fn bands(cytoband: &str) -> Vec<String> {
-    let Some((first, last)) = cytoband.split_once('-') else {
-        return vec![cytoband.to_owned()];
-    };
-    let arm = first.find(['p', 'q']).unwrap_or(first.len());
-    let last = if last.starts_with(['p', 'q']) {
-        format!("{}{last}", &first[..arm])
-    } else {
-        last.to_owned()
-    };
-    vec![first.to_owned(), last]
-}
 impl Row for Region {
     fn keys(&self) -> Keys {
         let mut exact = Vec::new();
         if let Some(id) = self.id.as_ref().and_then(Field::as_ref) {
             exact.push((KeyKind::Id, id.as_str().into()));
         }
-        if let Some(band) = self.cytoband.as_ref().and_then(Field::as_ref) {
-            for band in bands(band.as_str()) {
-                exact.push((KeyKind::Band, band.into()));
+        // Band and interval searches both read a chromosome's rows, then filter them.
+        let chromosomes = [
+            self.cytoband
+                .as_ref()
+                .and_then(Field::as_ref)
+                .and_then(|band| super::band::parse(band.as_str()))
+                .map(|band| band.chromosome),
+            self.location
+                .as_ref()
+                .and_then(Field::as_ref)
+                .and_then(|location| bounds(location.as_str()))
+                .map(|(chromosome, _, _)| chromosome),
+        ];
+        let mut seen = Vec::new();
+        for chromosome in chromosomes.into_iter().flatten() {
+            let key = format!("chr{chromosome}");
+            if !seen.contains(&key) {
+                seen.push(key.clone());
+                exact.push((KeyKind::Xref, key.into()));
             }
         }
-        if let Some((chromosome, _, _)) = self
-            .location
-            .as_ref()
-            .and_then(Field::as_ref)
-            .and_then(|location| bounds(location.as_str()))
-        {
-            exact.push((KeyKind::Xref, format!("chr{chromosome}").into()));
+        Keys {
+            exact,
+            words: Vec::new(),
         }
-        let words = self
-            .name
-            .as_ref()
-            .and_then(Field::as_ref)
-            .map(|name| name.as_str().into())
-            .into_iter()
-            .collect();
-        Keys { exact, words }
     }
 }
 impl Region {
@@ -258,12 +249,17 @@ fn dosage(
     let score = problems.field(&field, score)?;
     let score = problems.optional(&field, Some(score.as_str().parse::<u32>()))?;
     let field = format!("{kind} PMID");
+    // A cell can hold several comma-separated PMIDs, as ISCA-37430's PMID1 does.
     let pmids = pmids
         .into_iter()
-        .filter_map(|pmid| {
-            let pmid = problems.field(&field, pmid)?;
-            problems.optional(&field, Some(pmid.as_str().parse::<biodata::Pmid>()))
-        })
+        .filter_map(|pmid| problems.field(&field, pmid))
+        .collect::<Vec<_>>();
+    let pmids = pmids
+        .iter()
+        .flat_map(|cell| cell.as_str().split(','))
+        .map(str::trim)
+        .filter(|pmid| !pmid.is_empty())
+        .filter_map(|pmid| problems.optional(&field, Some(pmid.parse::<biodata::Pmid>())))
         .collect();
     Some(biomcp_types::ClinGenRegionDosage {
         score,

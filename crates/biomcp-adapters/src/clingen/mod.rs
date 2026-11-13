@@ -1,4 +1,5 @@
 //! Published ClinGen validity and dosage bundles, keyed only by HGNC identity, and the region dosage list.
+mod band;
 mod raw;
 use crate::{Mapped, mapped::Problems, quotas};
 use biodata::{GeneSymbol, HgncId};
@@ -180,9 +181,9 @@ pub(crate) fn bundle_state(leg: &Leg<'_>) -> Result<biomcp_types::LocalBundleSta
 /// How a region search selects ClinGen region curations.
 #[derive(Clone, Copy, Debug)]
 pub enum RegionFind<'a> {
-    /// Region identifier or words in the region name.
-    Text(&'a str),
-    /// Cytoband prefix of either end of the published band span.
+    /// ClinGen ISCA region identifier.
+    Id(&'a str),
+    /// Cytoband inside the published band span, or a prefix of either end.
     Band(&'a str),
     /// GRCh38 interval: chromosome without `chr`, inclusive start and end.
     Overlap(&'a str, u64, u64),
@@ -193,12 +194,26 @@ pub fn regions(
     find: RegionFind<'_>,
 ) -> Result<Mapped<Vec<biomcp_types::ClinGenRegion>>, RequestError> {
     let chromosome;
-    let finds: Vec<Find<'_>> = match find {
-        RegionFind::Text(text) => vec![Find::Exact(KeyKind::Id, text), Find::Words(text)],
-        RegionFind::Band(band) => vec![Find::Prefix(KeyKind::Band, band)],
+    let query = match find {
+        RegionFind::Band(band) => band::parse(band),
+        _ => None,
+    };
+    let selector = match find {
+        RegionFind::Id(id) => Find::Exact(KeyKind::Id, id),
+        RegionFind::Band(_) => {
+            let Some(query) = &query else {
+                return Ok(Mapped {
+                    refusals: crate::Refusal::None,
+                    value: Vec::new(),
+                    problems: Vec::new(),
+                });
+            };
+            chromosome = format!("chr{}", query.chromosome);
+            Find::Exact(KeyKind::Xref, &chromosome)
+        }
         RegionFind::Overlap(name, _, _) => {
             chromosome = format!("chr{name}");
-            vec![Find::Exact(KeyKind::Xref, &chromosome)]
+            Find::Exact(KeyKind::Xref, &chromosome)
         }
     };
     let mut problems = Problems {
@@ -209,24 +224,26 @@ pub fn regions(
     let mut refusals = crate::Refusal::None;
     let mut seen = std::collections::BTreeSet::new();
     let mut value = Vec::new();
-    for selector in finds {
-        for row in leg.rows(&REGIONS, selector)? {
-            let Some(region) = row.checked(&mut problems) else {
-                refusals = crate::Refusal::Refused;
-                continue;
-            };
-            if let RegionFind::Overlap(_, start, end) = find
-                && !region
-                    .location
+    for row in leg.rows(&REGIONS, selector)? {
+        let Some(region) = row.checked(&mut problems) else {
+            refusals = crate::Refusal::Refused;
+            continue;
+        };
+        let kept = match find {
+            RegionFind::Id(_) => true,
+            RegionFind::Band(_) => region.cytoband.as_ref().is_some_and(|cytoband| {
+                query
                     .as_ref()
-                    .and_then(|location| raw::bounds(location.as_str()))
-                    .is_some_and(|(_, first, last)| first <= end && start <= last)
-            {
-                continue;
-            }
-            if seen.insert(region.id.as_str().to_owned()) {
-                value.push(region);
-            }
+                    .is_some_and(|query| band::contains(cytoband.as_str(), query))
+            }),
+            RegionFind::Overlap(_, start, end) => region
+                .location
+                .as_ref()
+                .and_then(|location| raw::bounds(location.as_str()))
+                .is_some_and(|(_, first, last)| first <= end && start <= last),
+        };
+        if kept && seen.insert(region.id.as_str().to_owned()) {
+            value.push(region);
         }
     }
     Ok(Mapped {
