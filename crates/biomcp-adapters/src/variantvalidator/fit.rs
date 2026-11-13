@@ -65,7 +65,10 @@ pub fn transcript_fits(
             .value;
         if let Some((symbol, transcripts)) = gene(genes, accession, &mut problems) {
             let query = format!("{symbol}:{body}");
-            let raw = fetch_on(leg, &query, build, &transcripts.join("|"))?;
+            let mut raw = fetch_on(leg, &query, build, &transcripts.join("|"))?;
+            // The transcripts where the base does not fit come back as warning records.
+            raw.variants
+                .retain(|(key, _)| !key.starts_with("validation_warning"));
             if raw.flag.as_str() != "warning" {
                 let key = assembly.to_ascii_lowercase();
                 for (_, row) in raw.records(&query, &mut problems, &mut refusals) {

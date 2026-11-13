@@ -47,8 +47,10 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
             },
         );
         result.total_messages = result.messages.len() as u32;
-        more |= result.total_messages.max(result.total_mappings) as u64
-            > query.offset() as u64 + query.limit() as u64;
+        // A row resolved on a fitting transcript pages through its own next step.
+        more |= result.hgvs.is_none()
+            && result.total_messages.max(result.total_mappings) as u64
+                > query.offset() as u64 + query.limit() as u64;
         result.messages = result
             .messages
             .into_vec()
