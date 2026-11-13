@@ -14,7 +14,7 @@ pub(super) fn select(
         return Ok(None);
     };
     let mut selected = Vec::new();
-    for mut submission in row.submissions(0, u32::MAX)? {
+    for mut submission in row.submissions((None, None), 0, u32::MAX)?.0 {
         let Some(docs) = submission.application_docs.take() else {
             continue;
         };
@@ -99,7 +99,7 @@ pub(super) fn refusal(
     };
     let mut kinds = Vec::new();
     let mut letters = Vec::new();
-    for submission in row.submissions(0, u32::MAX)? {
+    for submission in row.submissions((None, None), 0, u32::MAX)?.0 {
         for document in submission
             .application_docs
             .iter()

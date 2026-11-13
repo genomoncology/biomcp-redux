@@ -69,7 +69,7 @@ fn context(
         if row.name_rank(name.as_str()).is_none() {
             continue;
         }
-        let records = row.submissions(0, remaining)?;
+        let (records, _) = row.submissions((None, None), 0, remaining)?;
         remaining = remaining.saturating_sub(records.len() as u32);
         let total = row.submission_count() as u64;
         let truncated = (records.len() as u64) < total;

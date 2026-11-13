@@ -70,15 +70,21 @@ fn history(
     out: &mut Outcome,
 ) -> Result<DrugRecords<DrugFdaSubmission>, RequestError> {
     let offset = query.section_offset().unwrap_or(0);
-    let mut records = row.submissions(
+    let window = query.decision_window();
+    let (mut records, total) = row.submissions(
+        window,
         offset,
         query
             .section_limit()
             .unwrap_or(biomcp_types::DEFAULT_DRUG_APPROVALS_LIMIT),
     )?;
-    super::purpose::enrich(cx, &mut records, deadline, out)?;
+    window_notice(window, total, row.submission_count(), out);
+    if records.len() > LETTER_ROWS {
+        guidance(LETTERS_SKIPPED.into(), out);
+    } else {
+        super::purpose::enrich(cx, &mut records, deadline, out)?;
+    }
     let returned = records.len() as u32;
-    let total = row.submission_count() as u64;
     out.page = Some(PageInfo {
         offset,
         returned,
@@ -110,4 +116,44 @@ fn history(
         version: None,
         retrieved: received_date(fetched),
     })
+}
+
+/// State the date window and how many of the application's submissions fall inside it.
+fn window_notice(
+    (from, to): (Option<biodata::PartialDate>, Option<biodata::PartialDate>),
+    inside: u64,
+    all: usize,
+    out: &mut Outcome,
+) {
+    if from.is_none() && to.is_none() {
+        return;
+    }
+    let bound = |date: Option<biodata::PartialDate>| date.map(|d| d.to_string());
+    let message = format!(
+        "{inside} of {all} submissions have a status date from {} to {}, inclusive; \
+         undated submissions are left out.",
+        bound(from).unwrap_or_else(|| "the first".into()),
+        bound(to).unwrap_or_else(|| "the last".into()),
+    );
+    guidance(message, out);
+}
+/// The most rows whose supplement letters one page reads: each efficacy supplement costs one
+/// FDA letter download, so a whole-history page reads none.
+const LETTER_ROWS: usize = 50;
+const LETTERS_SKIPPED: &str = "This page has more than 50 rows, so no supplement letters were read \
+    and rows carry no supplement_purpose. Ask for 50 rows or fewer, or one --document-id, to read them.";
+fn guidance(message: String, out: &mut Outcome) {
+    if let Some(source) = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::Drugsfda)
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            });
+    }
 }
