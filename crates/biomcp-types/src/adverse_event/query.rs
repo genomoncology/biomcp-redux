@@ -9,9 +9,6 @@ fn default_source() -> AdverseEventSource {
 fn default_limit() -> u32 {
     5
 }
-/// Receipt-date counts span at most this many calendar years, so one command stays within
-/// openFDA's request quota and the source deadline.
-pub const RECEIVED_COUNT_MAX_YEARS: u16 = 30;
 #[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
     product-code or problem filter. One report may list several devices; filters may match \
     different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
@@ -137,14 +134,7 @@ impl SearchFields {
         {
             return Err(QueryInvalid::new(&["source", "aggregate"]));
         }
-        if received
-            && !self
-                .received_from
-                .zip(self.received_to)
-                .is_some_and(|(from, to)| {
-                    to.year().saturating_sub(from.year()) < RECEIVED_COUNT_MAX_YEARS
-                })
-        {
+        if received && (self.received_from.is_none() || self.received_to.is_none()) {
             return Err(
                 QueryInvalid::new(&["aggregate", "received_from", "received_to"])
                     .with_message(crate::ErrorMessage::AdverseReceivedCounts),
@@ -289,13 +279,6 @@ impl AdverseEventSearch {
     /// Requested source-native aggregation, distinct from report discovery.
     pub fn aggregate(&self) -> Option<AdverseEventAggregate> {
         self.0.aggregate
-    }
-    /// The same search over a narrower receipt range inside the checked one.
-    pub fn within_received(&self, from: PartialDate, to: PartialDate) -> Self {
-        let mut q = self.clone();
-        q.0.received_from = Some(from);
-        q.0.received_to = Some(to);
-        q
     }
 
     /// Selected VAERS grouping.

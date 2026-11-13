@@ -1,5 +1,5 @@
-//! FDA receipt-date report counts: openFDA's daily `count=` buckets, one request per calendar
-//! year, summed to years or months.
+//! FDA receipt-date report counts: openFDA's daily `count=` buckets for the whole range in one
+//! request, summed to years or months.
 use biodata::PartialDate;
 use biomcp_fetch::{Arg, BadReply, Freshness, Input, InputError, Leg, Read, Reply, RequestError};
 use biomcp_types::{
@@ -9,19 +9,14 @@ use biomcp_types::{
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// openFDA's count cap when no `limit` is sent; a `limit` without an API key is refused with
-/// 403 API_KEY_MISSING (measured 2026-11-13). One calendar year holds at most 366 daily buckets,
-/// so a reply at the cap is not a whole year and is refused.
-const DAY_LIMIT: usize = 1000;
-
 /// Report counts per receipt period, oldest first, with every period in the range listed.
 #[derive(Debug)]
 pub struct ReceivedPage {
     /// One row per year or month of the requested range.
     pub items: Vec<AdverseEventReceivedCount>,
-    /// The earliest publisher dataset date among the replies.
+    /// Publisher dataset date.
     pub updated: Option<PartialDate>,
-    /// The earliest original retrieval time among the replies, in Unix seconds.
+    /// Original retrieval time in Unix seconds.
     pub fetched: Option<i64>,
     /// Applicable terminology terms.
     pub components: Box<[ComponentLabel]>,
@@ -51,16 +46,11 @@ impl Reply for Response {
     }
     fn check(&self) -> Result<(), BadReply> {
         match self {
-            Self::Page { results, .. } => {
-                if results.len() >= DAY_LIMIT
-                    || results.iter().any(|day| day_of(&day.time).is_none())
-                {
-                    return Err(BadReply);
-                }
+            Self::Page { results, .. } if results.iter().all(|day| day_of(&day.time).is_some()) => {
                 Ok(())
             }
             Self::Absent { error } if error.valid() => Ok(()),
-            Self::Absent { .. } => Err(BadReply),
+            _ => Err(BadReply),
         }
     }
     fn check_status(&self, status: u16) -> Result<(), BadReply> {
@@ -130,66 +120,43 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
         }
         AdverseEventSource::Vaers => return Err(InputError::Serialization.into()),
     };
+    let selector = match query.source() {
+        AdverseEventSource::Maude => crate::maude::expression(query),
+        _ => query.faers_expression(),
+    };
+    let (low, high) = (from.to_string(), to.to_string());
     let endpoint = spec.get("").fresh(Freshness::Days(1)).json_absence();
-    let mut months = BTreeMap::<(u16, u8), u64>::new();
-    let mut updated: Option<PartialDate> = None;
-    let mut fetched: Option<i64> = None;
-    for year in from.year()..=to.year() {
-        let start = if year == from.year() {
-            from
-        } else {
-            date(year, 1, 1)?
-        };
-        let end = if year == to.year() {
-            to
-        } else {
-            date(year, 12, 31)?
-        };
-        let part = query.within_received(start, end);
-        let selector = match query.source() {
-            AdverseEventSource::Maude => crate::maude::expression(&part),
-            _ => part.faers_expression(),
-        };
-        let (low, high) = (start.to_string(), end.to_string());
-        let received = leg.call(
-            &endpoint,
-            Input::Params(&[
-                ("search", Arg::Text(&selector)),
-                ("count", Arg::Text(field)),
-            ]),
-            Read::<Response>::json().check(&|reply| match reply {
-                Response::Page { results, .. }
-                    if results.iter().any(|day| {
-                        day_of(&day.time).is_none_or(|day| {
-                            let day = day.to_string();
-                            day < low || day > high
-                        })
-                    }) =>
-                {
-                    Err(BadReply)
-                }
-                _ => Ok(()),
-            }),
-        )?;
-        fetched = match (fetched, received.meta.fetched) {
-            (Some(a), Some(b)) => Some(a.min(b)),
-            (a, b) => a.or(b),
-        };
-        if let Response::Page { meta, results } = received.value {
-            if let Some(date) = meta.last_updated
-                && updated.is_none_or(|prior| date.to_string() < prior.to_string())
+    // No `limit`: openFDA returns every daily bucket of a date count without one, and refuses a
+    // `limit` above 100 without an API key (measured 2026-11-13).
+    let received = leg.call(
+        &endpoint,
+        Input::Params(&[
+            ("search", Arg::Text(&selector)),
+            ("count", Arg::Text(field)),
+        ]),
+        Read::<Response>::json().check(&|reply| match reply {
+            Response::Page { results, .. }
+                if results.iter().any(|day| {
+                    day_of(&day.time).is_none_or(|day| {
+                        let day = day.to_string();
+                        day < low || day > high
+                    })
+                }) =>
             {
-                updated = Some(date);
+                Err(BadReply)
             }
-            for day in results {
-                let day = day_of(&day.time).map(|d| (d, day.count));
-                let Some((d, count)) = day else {
-                    return Err(InputError::Serialization.into());
-                };
-                let month = d.month().ok_or(InputError::Serialization)?;
-                let total = months.entry((d.year(), month)).or_default();
-                *total = total.saturating_add(count);
-            }
+            _ => Ok(()),
+        }),
+    )?;
+    let mut months = BTreeMap::<(u16, u8), u64>::new();
+    let mut updated = None;
+    if let Response::Page { meta, results } = received.value {
+        updated = meta.last_updated;
+        for day in results {
+            let date = day_of(&day.time).ok_or(InputError::Serialization)?;
+            let month = date.month().ok_or(InputError::Serialization)?;
+            let total = months.entry((date.year(), month)).or_default();
+            *total = total.saturating_add(day.count);
         }
     }
     let partial = |first: PartialDate, last: PartialDate| {
@@ -228,7 +195,7 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
     Ok(ReceivedPage {
         items,
         updated,
-        fetched,
+        fetched: received.meta.fetched,
         components,
     })
 }
