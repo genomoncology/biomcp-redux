@@ -192,7 +192,7 @@
       "expect": {
         "/status": "usage",
         "/error/option": "--group",
-        "/error/message": "--group and --metric rank genes or diseases for HP IDs only; give the text as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes"
+        "/error/message": "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes"
       }
     },
     {
