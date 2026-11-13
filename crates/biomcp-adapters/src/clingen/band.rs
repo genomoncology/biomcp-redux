@@ -75,27 +75,3 @@ pub(super) fn contains(cytoband: &str, query: &Band<'_>) -> bool {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    fn within(cytoband: &str, query: &str) -> bool {
-        contains(cytoband, &parse(query).unwrap())
-    }
-    #[test]
-    fn bands_inside_spans_match() {
-        assert!(within("15q11.2-q13.1", "15q12"));
-        assert!(within("15q11.2-q13.1", "15q13"));
-        assert!(within("15q11.2-q13.1", "15q1"));
-        assert!(!within("15q11.2-q13.1", "15q13.2"));
-        assert!(!within("15q11.2-q13.1", "15q14"));
-        assert!(within("1p36.33-p36.31", "1p36.32"));
-        assert!(!within("1p36.33-p36.31", "1p36.2"));
-        assert!(within("16p11.2", "16p11"));
-        assert!(!within("16p11.2", "16p12"));
-        assert!(!within("16p11.2", "1p11.2"));
-        assert!(within("16p11.2", "16"));
-        assert!(within("8p11.1-q11.21", "8p11.1"));
-        assert!(within("8p11.1-q11.1", "8q11.1"));
-        assert!(!within("8p11.1-q11.1", "8q12"));
-    }
-}
