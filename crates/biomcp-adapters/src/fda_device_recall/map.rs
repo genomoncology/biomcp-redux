@@ -71,6 +71,11 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
             product_description,
             distribution_pattern,
             classification: None,
+            voluntary_mandated: None,
+            initial_firm_notification: None,
+            product_quantity: None,
+            classified: None,
+            reported: None,
             k_numbers,
             pma_numbers,
         },
@@ -91,6 +96,37 @@ pub(super) fn classification(row: raw::Enforcement) -> Mapped<Option<Text>> {
         value,
         problems,
     }
+}
+/// The exact enforcement record adds its classification and seriousness fields to the card.
+/// An empty native string states no value.
+pub(super) fn enforcement(row: raw::Enforcement, card: &mut DeviceRecallCard) -> Vec<Problem> {
+    let mut problems = Vec::new();
+    let id = record(&row.recall_number);
+    let given = |value: Option<Field<String>>| {
+        value.filter(|v| !matches!(v.as_ref(), Some(s) if s.trim().is_empty()))
+    };
+    let mut text = |field, value, code| {
+        let admit = if code {
+            crate::mapped::field_code_text
+        } else {
+            field_text
+        };
+        admit(&mut problems, SOURCE, id.clone(), field, given(value))
+    };
+    card.classification = text("classification", row.classification, true);
+    card.voluntary_mandated = text("voluntary_mandated", row.voluntary_mandated, true);
+    card.initial_firm_notification = text(
+        "initial_firm_notification",
+        row.initial_firm_notification,
+        false,
+    );
+    card.product_quantity = text("product_quantity", row.product_quantity, false);
+    let mut date = |field, value| {
+        crate::fda_drug_recall::date(SOURCE, given(value), field, id.clone(), &mut problems)
+    };
+    card.classified = date("center_classification_date", row.center_classification_date);
+    card.reported = date("report_date", row.report_date);
+    problems
 }
 /// The compact search header of one native recall record.
 pub(super) fn header(row: raw::Record, problems: &mut Vec<Problem>) -> DeviceRecallHeader {

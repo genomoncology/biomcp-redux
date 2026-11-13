@@ -6,7 +6,9 @@ use crate::{
 use biodata::{PartialDate, Text};
 use biomcp_types::{DrugRecallCard, DrugRecallHeader, Problem, Source};
 const SOURCE: Source = Source::FdaDrugRecall;
-fn date(
+/// A native openFDA enforcement YYYYMMDD day; another spelling is a field problem.
+pub(crate) fn date(
+    source: Source,
     value: Option<Field<String>>,
     field: &str,
     id: Option<Text>,
@@ -23,7 +25,7 @@ fn date(
         PartialDate::new(year, Some(month), Some(day)).ok()
     });
     if date.is_none() {
-        push_problem(problems, SOURCE, id, field);
+        push_problem(problems, source, id, field);
     }
     date
 }
@@ -31,12 +33,13 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
     let mut problems = Vec::new();
     let id = record(&row.recall_number);
     let initiated = date(
+        SOURCE,
         row.recall_initiation_date,
         "recall_initiation_date",
         id.clone(),
         &mut problems,
     );
-    let reported = date(row.report_date, "report_date", id.clone(), &mut problems);
+    let reported = date(SOURCE, row.report_date, "report_date", id.clone(), &mut problems);
     let mut text = |field, value| {
         let admit = if matches!(
             field,

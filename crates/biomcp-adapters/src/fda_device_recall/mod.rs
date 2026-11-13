@@ -270,21 +270,14 @@ pub fn get(
 ) -> Result<Option<crate::mapped::Mapped<DeviceRecallCard>>, Failure> {
     exact::<raw::Record>(leg, RECALL, "product_res_number", id).map(|row| row.map(map::mapped))
 }
-/// One exact enforcement lookup adds only its native classification.
-pub fn classification(
+/// One exact enforcement lookup adds its native classification and seriousness fields to the card.
+pub fn enforcement(
     leg: &Leg<'_>,
     id: &DeviceRecallNumber,
-) -> Result<crate::mapped::Mapped<Option<Text>>, Failure> {
-    exact::<raw::Enforcement>(leg, ENFORCEMENT, "recall_number", id).map(|row| {
-        row.map_or_else(
-            || crate::mapped::Mapped {
-                refusals: crate::Refusal::None,
-                value: None,
-                problems: Vec::new(),
-            },
-            map::classification,
-        )
-    })
+    card: &mut DeviceRecallCard,
+) -> Result<Vec<Problem>, Failure> {
+    exact::<raw::Enforcement>(leg, ENFORCEMENT, "recall_number", id)
+        .map(|row| row.map_or_else(Vec::new, |row| map::enforcement(row, card)))
 }
 
 /// Complete source policy and command declaration.
