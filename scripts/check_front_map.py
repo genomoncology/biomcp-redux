@@ -47,7 +47,7 @@ FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
 # What every connection reads first, in characters, as measured on main 4f4414616. The skill is re-read
 # every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so ticket 0836 lets none of these grow;
 # the command map and worked examples are served on request instead.
-FIRST_READ_CEILINGS = {"single": 3669, "typed": 2010, "hosted": 1997, "hosted-single": 2518, "skill": 5557}
+FIRST_READ_CEILINGS = {"single": 3669, "typed": 2009, "hosted": 1996, "hosted-single": 2518, "skill": 5557}
 
 
 def first_read_sizes(binary, env):

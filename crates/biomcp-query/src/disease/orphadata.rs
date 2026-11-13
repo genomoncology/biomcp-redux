@@ -13,32 +13,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let mut out = empty(body(query, Vec::new(), Vec::new()));
-    let (codes, links) = if orphadata::orpha_code(id).is_some() {
-        (vec![id.clone()], Vec::new())
-    } else {
-        let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
-        let reply = mydisease::annotation(&leg, id);
-        let error = reply.as_ref().err().copied();
-        out.sources
-            .push(status::source(Source::MyDisease, leg.finish(), error));
-        out.local = error.and_then(status::local);
-        let mapped = match reply {
-            Ok(mapped) => mapped,
-            Err(_) => {
-                super::page::record_problem(&mut out, query, Source::MyDisease);
-                command.finish(deadline.remaining());
-                return out;
-            }
-        };
-        out.include_refusals(mapped.refusals);
-        out.problems.extend(mapped.problems);
-        let links: Vec<DiseaseRelation> = mapped
-            .value
-            .xrefs
-            .into_iter()
-            .filter(|xref| orphadata::orpha_code(&xref.object.id).is_some())
-            .collect();
-        (links.iter().map(|l| l.object.id.clone()).collect(), links)
+    let Some((codes, links)) = linked(cx, query, id, deadline, &mut out) else {
+        command.finish(deadline.remaining());
+        return out;
     };
     if codes.is_empty() {
         // The concept exists but MONDO states no Orphanet link, so no file row can be joined.
@@ -93,6 +70,42 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
     }
     command.finish(deadline.remaining());
     out
+}
+
+/// The Orphanet codes to read: the requested code, or the concept's MONDO-stated Orphanet links.
+/// None when the concept itself could not be read.
+fn linked(
+    cx: &Ctx<'_>,
+    query: &DiseaseGet,
+    id: &Curie,
+    deadline: biomcp_fetch::Deadline<'_>,
+    out: &mut Outcome,
+) -> Option<(Vec<Curie>, Vec<DiseaseRelation>)> {
+    if orphadata::orpha_code(id).is_some() {
+        return Some((vec![id.clone()], Vec::new()));
+    }
+    let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
+    let reply = mydisease::annotation(&leg, id);
+    let error = reply.as_ref().err().copied();
+    out.sources
+        .push(status::source(Source::MyDisease, leg.finish(), error));
+    out.local = error.and_then(status::local);
+    let mapped = match reply {
+        Ok(mapped) => mapped,
+        Err(_) => {
+            super::page::record_problem(out, query, Source::MyDisease);
+            return None;
+        }
+    };
+    out.include_refusals(mapped.refusals);
+    out.problems.extend(mapped.problems);
+    let links: Vec<DiseaseRelation> = mapped
+        .value
+        .xrefs
+        .into_iter()
+        .filter(|xref| orphadata::orpha_code(&xref.object.id).is_some())
+        .collect();
+    Some((links.iter().map(|l| l.object.id.clone()).collect(), links))
 }
 
 fn body(
