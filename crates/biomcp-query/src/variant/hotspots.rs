@@ -19,21 +19,37 @@ pub(super) fn section(
     bool,
 ) {
     let disabled = cx.fetch.disabled(Source::CancerHotspots);
-    let mut genes = symbols(candidates);
     let mut sources = Vec::new();
     let mut problems = Vec::new();
     let mut dropped = false;
     let mut error = disabled.then_some(failure(Reason::Disabled));
-    if genes.is_empty()
-        && !disabled
-        && let Some(join) = registry_genes(cx, candidates, &mut deadline)
+    let mut joined = Vec::new();
+    if !disabled
+        && !named(candidates)
+        && let Some(join) = registry_join(cx, candidates, &mut deadline)
     {
         sources.push(join.source);
         problems.extend(join.problems);
         dropped |= join.dropped;
         error = join.error;
-        genes = join.genes;
+        joined = join.rows;
     }
+    let genes = candidates
+        .iter()
+        .chain(&joined)
+        .flat_map(|c| {
+            c.identity
+                .genes
+                .iter()
+                .chain(c.myvariant.iter().flat_map(|v| v.genes.iter()))
+        })
+        .filter_map(|gene| gene.label().as_str().parse::<biodata::GeneSymbol>().ok())
+        .fold(Vec::new(), |mut genes, gene| {
+            if !genes.contains(&gene) {
+                genes.push(gene);
+            }
+            genes
+        });
     let leg = cx
         .fetch
         .leg(&biomcp_adapters::hotspots::SPEC, deadline)
@@ -72,26 +88,14 @@ pub(super) fn section(
     )
 }
 
-fn symbols(candidates: &[VariantHeader]) -> Vec<biodata::GeneSymbol> {
-    candidates
-        .iter()
-        .flat_map(|c| {
-            c.identity
-                .genes
-                .iter()
-                .chain(c.myvariant.iter().flat_map(|v| v.genes.iter()))
-        })
-        .filter_map(|gene| gene.label().as_str().parse::<biodata::GeneSymbol>().ok())
-        .fold(Vec::new(), |mut genes, gene| {
-            if !genes.contains(&gene) {
-                genes.push(gene);
-            }
-            genes
-        })
+fn named(candidates: &[VariantHeader]) -> bool {
+    candidates.iter().any(|c| {
+        !c.identity.genes.is_empty() || c.myvariant.as_ref().is_some_and(|v| !v.genes.is_empty())
+    })
 }
 
 struct Join {
-    genes: Vec<biodata::GeneSymbol>,
+    rows: Vec<VariantHeader>,
     source: SourceOutcome,
     problems: Vec<Problem>,
     error: Option<RequestError>,
@@ -100,7 +104,7 @@ struct Join {
 
 /// A registry candidate (a CAid) names no gene; read the gene from MyVariant's
 /// record for the candidate's own genomic allele, the join the MyVariant sections use.
-fn registry_genes(
+fn registry_join(
     cx: &Ctx<'_>,
     candidates: &[VariantHeader],
     deadline: &mut Deadline<'_>,
@@ -119,16 +123,19 @@ fn registry_genes(
     let error = result.as_ref().err().copied();
     let source = status::source(Source::MyVariant, leg.finish(), error);
     let mut join = Join {
-        genes: Vec::new(),
+        rows: Vec::new(),
         source,
         problems: Vec::new(),
-        error,
+        error: None,
         dropped: false,
     };
-    if let Ok(found) = result {
-        join.dropped = found.refusals == biomcp_adapters::Refusal::Refused;
-        join.problems = found.problems;
-        join.genes = symbols(&found.value);
+    match result {
+        Ok(found) => {
+            join.dropped = found.refusals == biomcp_adapters::Refusal::Refused;
+            join.problems = found.problems;
+            join.rows = found.value;
+        }
+        Err(e) => join.error = Some(e),
     }
     Some(join)
 }
