@@ -93,7 +93,7 @@
           "drug"
         ],
         "/problems/*/record": [
-          "PLACEHOLDER:0:89"
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:89"
         ]
       }
     }
