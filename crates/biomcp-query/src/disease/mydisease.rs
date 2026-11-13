@@ -65,9 +65,9 @@ fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
                     run(Request::GetDisease(query.with_section(*section))),
                 ));
             }
-            if let Some(step) = super::orphadata::step(&record.card.requested_id, &record.xrefs) {
-                out.next.push(step);
-            }
+            let step =
+                super::orphadata::step(&record.card.requested_id, &record.xrefs, &mut out.problems);
+            out.next.extend(step);
             out.body = (record.card).with_query(query.clone());
         }
     }
