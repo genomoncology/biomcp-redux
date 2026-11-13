@@ -65,6 +65,8 @@ pub enum RowFormat {
     },
     /// Tab-separated cells with a named header.
     Tsv,
+    /// Tab-separated cells after leading `#` banner lines; the last banner line names the columns.
+    CommentedTsv,
     /// Strict quoted TSV preserving all cells, optionally gzip-encoded.
     NativeTsv {
         /// Decode the published gzip member before reading cells.
@@ -103,7 +105,7 @@ impl RowFormat {
         match self {
             Self::Document { media } => media.media(),
             Self::Json { .. } => "application/json",
-            Self::Tsv | Self::NativeTsv { .. } => "text/tab-separated-values",
+            Self::Tsv | Self::CommentedTsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",
         }
     }

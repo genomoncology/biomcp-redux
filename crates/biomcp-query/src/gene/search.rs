@@ -3,26 +3,51 @@ use crate::{Ctx, Outcome, status};
 use biodata::{Gene, LocusGroup, MatchKind, Text};
 use biomcp_types::ReplyBody;
 
-use biomcp_adapters::hgnc;
+use biomcp_adapters::{clingen, hgnc};
 use biomcp_fetch::{Find, KeyKind, Leg, RequestError};
 use biomcp_types::{GeneHeader, Match};
 use biomcp_types::{GeneSearch, PageInfo, Source, SourceState};
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
-    let leg = cx
-        .fetch
-        .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
-        .fresh(cx.fresh);
     let mut dropped = false;
     let mut problems = Vec::new();
-    let result = collect(&leg, query, &mut problems, &mut dropped);
-    let error = result.as_ref().err().copied();
-    let source = status::source(Source::Hgnc, leg.finish(), error);
-    let state = match (&result, source.state) {
-        (Err(_), _) => crate::status::item_status(false, true, false),
-        (_, SourceState::Stale) => crate::status::item_status(true, false, true),
-        _ => crate::status::item_status(true, false, false),
-    };
+    let mut states = Vec::new();
+    let mut sources = Vec::new();
+    let mut local = None;
+    // An interval alone selects only ClinGen regions: HGNC rows carry no coordinates.
+    let mut result = Ok(Vec::new());
+    if query.query().is_some() || query.band().is_some() {
+        let leg = cx
+            .fetch
+            .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
+            .fresh(cx.fresh);
+        result = collect(&leg, query, &mut problems, &mut dropped);
+        let error = result.as_ref().err().copied();
+        let source = status::source(Source::Hgnc, leg.finish(), error);
+        states.push(state(result.is_ok(), source.state));
+        sources.push(source);
+        local = error.and_then(status::local);
+    }
+    let mut regions = Vec::new();
+    if let Some(find) = region_find(query) {
+        let leg = cx
+            .fetch
+            .leg(&clingen::REGION_SPEC, cx.fetch.deadline(cx.budget))
+            .fresh(cx.fresh);
+        let result = clingen::regions(&leg, find);
+        let error = result.as_ref().err().copied();
+        let source = status::source(Source::ClinGen, leg.finish(), error);
+        states.push(state(result.is_ok(), source.state));
+        sources.push(source);
+        local = local.or(error.and_then(status::local));
+        if let Ok(mapped) = result {
+            dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+            status::append(&mut problems, mapped.problems);
+            regions = mapped.value;
+        }
+    }
+    let regions_total = (regions.len() > MAX_REGIONS).then_some(regions.len() as u64);
+    regions.truncate(MAX_REGIONS);
     let mut headers = result.unwrap_or_default();
     headers.retain(|(_, header)| {
         query
@@ -49,22 +74,62 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         returned: items.len() as u32,
         total,
     };
-    let next = next::search(query, &items, &page, &source, &mut problems);
+    let next = match sources.first() {
+        Some(source) if source.source == Source::Hgnc => {
+            next::search(query, &items, &page, source, &mut problems)
+        }
+        _ => Vec::new(),
+    };
     crate::status::finish(
-        [state],
+        states,
         crate::status::Parts {
             dropped,
             body: (biomcp_types::GenePage {
                 items: items.into(),
+                regions: regions.into(),
+                regions_total,
             })
             .with_query(query.clone()),
             page: Some(page),
-            sources: vec![source],
+            sources,
             problems,
             next,
-            local: error.and_then(status::local),
+            local,
         },
     )
+}
+/// A band prefix such as 16p reaches many regions; the rest need a narrower selector.
+const MAX_REGIONS: usize = 50;
+fn state(ok: bool, source: SourceState) -> biomcp_types::Status {
+    match (ok, source) {
+        (false, _) => crate::status::item_status(false, true, false),
+        (_, SourceState::Stale) => crate::status::item_status(true, false, true),
+        _ => crate::status::item_status(true, false, false),
+    }
+}
+/// ClinGen regions answer an interval, a band, or a query that names an ISCA region.
+fn region_find(query: &GeneSearch) -> Option<clingen::RegionFind<'_>> {
+    if let Some(region) = query.region() {
+        let (chromosome, start, end) = region.bounds();
+        return Some(clingen::RegionFind::Overlap(
+            chromosome,
+            start.into(),
+            end.into(),
+        ));
+    }
+    if let Some(band) = query.band() {
+        return Some(clingen::RegionFind::Band(band.as_str()));
+    }
+    query
+        .query()
+        .map(Text::as_str)
+        .filter(|text| {
+            text.len() > 5
+                && text
+                    .get(..5)
+                    .is_some_and(|prefix| prefix.eq_ignore_ascii_case("ISCA-"))
+        })
+        .map(clingen::RegionFind::Text)
 }
 fn collect(
     leg: &Leg<'_>,

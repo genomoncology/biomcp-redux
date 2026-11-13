@@ -269,6 +269,7 @@ impl crate::Leg<'_> {
         let banner = match format {
             crate::RowFormat::Document { .. }
             | crate::RowFormat::Tsv
+            | crate::RowFormat::CommentedTsv
             | crate::RowFormat::NativeTsv { .. }
             | crate::RowFormat::Json { .. }
             | crate::RowFormat::NativeCsv { .. } => 0,

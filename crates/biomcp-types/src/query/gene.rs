@@ -57,11 +57,11 @@ impl GeneGet {
         &self.0.input
     }
 }
-/// Search genes by text, cytoband, or their intersection.
+/// Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("anyOf" = [{"required":["query"]},{"required":["band"]}])))]
+#[cfg_attr(feature = "schema", schemars(with = "SearchFields", extend("anyOf" = [{"required":["query"]},{"required":["band"]},{"required":["region"]}])))]
 pub struct GeneSearch(SearchFields);
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -83,6 +83,14 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Cytoband"))]
     band: Option<Cytoband>,
+    /// A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes.
+    #[serde(
+        default,
+        deserialize_with = "present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "crate::VariantRegion"))]
+    region: Option<crate::VariantRegion>,
     /// Optional HGNC locus group intersected with the selector.
     #[serde(
         default,
@@ -106,13 +114,7 @@ crate::query::validation::checked_query!(GeneSearch, SearchFields);
 impl TryFrom<SearchFields> for GeneSearch {
     type Error = QueryInvalid;
     fn try_from(fields: SearchFields) -> Result<Self, Self::Error> {
-        Self::filtered(
-            fields.query,
-            fields.band,
-            fields.locus_group,
-            fields.limit,
-            fields.offset,
-        )
+        Self::checked(fields)
     }
 }
 impl GeneSearch {
@@ -133,19 +135,38 @@ impl GeneSearch {
         limit: u32,
         offset: u32,
     ) -> Result<Self, QueryInvalid> {
-        if query.is_none() && band.is_none() {
-            return Err(QueryInvalid::new(&["query", "band"]));
-        }
-        if !(MIN_LIMIT..=MAX_LIMIT).contains(&limit) {
-            return Err(QueryInvalid::new(&["limit"]));
-        }
-        Ok(Self(SearchFields {
+        Self::checked(SearchFields {
             query,
             band,
+            region: None,
             locus_group,
             limit,
             offset,
-        }))
+        })
+    }
+    /// Select ClinGen dosage regions overlapping a GRCh38 interval.
+    pub fn in_region(
+        region: crate::VariantRegion,
+        limit: u32,
+        offset: u32,
+    ) -> Result<Self, QueryInvalid> {
+        Self::checked(SearchFields {
+            query: None,
+            band: None,
+            region: Some(region),
+            locus_group: None,
+            limit,
+            offset,
+        })
+    }
+    fn checked(fields: SearchFields) -> Result<Self, QueryInvalid> {
+        if fields.query.is_none() && fields.band.is_none() && fields.region.is_none() {
+            return Err(QueryInvalid::new(&["query", "band", "region"]));
+        }
+        if !(MIN_LIMIT..=MAX_LIMIT).contains(&fields.limit) {
+            return Err(QueryInvalid::new(&["limit"]));
+        }
+        Ok(Self(fields))
     }
     /// Optional search text.
     pub fn query(&self) -> Option<&Text> {
@@ -154,6 +175,10 @@ impl GeneSearch {
     /// Optional band prefix.
     pub fn band(&self) -> Option<&Cytoband> {
         self.0.band.as_ref()
+    }
+    /// Optional GRCh38 interval.
+    pub fn region(&self) -> Option<&crate::VariantRegion> {
+        self.0.region.as_ref()
     }
     /// Optional HGNC locus group.
     pub fn locus_group(&self) -> Option<LocusGroup> {

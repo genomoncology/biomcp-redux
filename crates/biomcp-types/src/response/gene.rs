@@ -11,7 +11,7 @@ use super::{ItemStatus, ResponseBody, Section};
 use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
-pub use clingen::{ClinGenGene, ClinGenValidity};
+pub use clingen::{ClinGenGene, ClinGenRegion, ClinGenRegionDosage, ClinGenValidity};
 pub use constraint::Constraint;
 pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, RnaUnit, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
@@ -54,6 +54,12 @@ pub struct GenePage {
     /// Headers after ranking and paging.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneHeader]>,
+    /// ClinGen region dosage curations (ISCA regions) for --band, --region or an ISCA ID query, in source order and outside gene paging; at most 50.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub regions: Box<[ClinGenRegion]>,
+    /// Matching ClinGen regions, present only when more matched than `regions` holds; narrow the band or interval for the rest.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub regions_total: Option<u64>,
 }
 impl ResponseBody for GeneCards {
     const SCHEMA: &'static str = "biomcp.gene-cards/13";

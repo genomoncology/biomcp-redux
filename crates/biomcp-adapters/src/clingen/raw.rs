@@ -97,3 +97,177 @@ impl Dosage {
         })
     }
 }
+/// One row of ClinGen's region curation list. Field names: <https://ftp.clinicalgenome.org/ClinGen_region_curation_list_GRCh38.tsv>
+#[derive(Debug, Deserialize)]
+pub(super) struct Region {
+    #[serde(rename = "ISCA ID")]
+    id: Option<Field<Text>>,
+    #[serde(rename = "ISCA Region Name")]
+    name: Option<Field<NativeText>>,
+    #[serde(rename = "cytoBand")]
+    cytoband: Option<Field<Text>>,
+    #[serde(rename = "Genomic Location")]
+    location: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency Score")]
+    haplo_score: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency Description")]
+    haplo_description: Option<Field<NativeText>>,
+    #[serde(rename = "Haploinsufficiency PMID1")]
+    haplo_pmid1: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID2")]
+    haplo_pmid2: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID3")]
+    haplo_pmid3: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID4")]
+    haplo_pmid4: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID5")]
+    haplo_pmid5: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID6")]
+    haplo_pmid6: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency Disease ID")]
+    haplo_disease: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity Score")]
+    triplo_score: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity Description")]
+    triplo_description: Option<Field<NativeText>>,
+    #[serde(rename = "Triplosensitivity PMID1")]
+    triplo_pmid1: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID2")]
+    triplo_pmid2: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID3")]
+    triplo_pmid3: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID4")]
+    triplo_pmid4: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID5")]
+    triplo_pmid5: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID6")]
+    triplo_pmid6: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity Disease ID")]
+    triplo_disease: Option<Field<Text>>,
+    #[serde(rename = "Date Last Evaluated")]
+    date: Option<Field<Text>>,
+}
+/// Published GRCh38 location split into chromosome without `chr`, start and end.
+pub(super) fn bounds(location: &str) -> Option<(&str, u64, u64)> {
+    let (chromosome, range) = location.split_once(':')?;
+    let (start, end) = range.split_once('-')?;
+    Some((
+        chromosome.strip_prefix("chr").unwrap_or(chromosome),
+        start.parse().ok()?,
+        end.parse().ok()?,
+    ))
+}
+/// Both ends of a published cytoband span, such as 15q11.2-q13.1.
+fn bands(cytoband: &str) -> Vec<String> {
+    let Some((first, last)) = cytoband.split_once('-') else {
+        return vec![cytoband.to_owned()];
+    };
+    let arm = first.find(['p', 'q']).unwrap_or(first.len());
+    let last = if last.starts_with(['p', 'q']) {
+        format!("{}{last}", &first[..arm])
+    } else {
+        last.to_owned()
+    };
+    vec![first.to_owned(), last]
+}
+impl Row for Region {
+    fn keys(&self) -> Keys {
+        let mut exact = Vec::new();
+        if let Some(id) = self.id.as_ref().and_then(Field::as_ref) {
+            exact.push((KeyKind::Id, id.as_str().into()));
+        }
+        if let Some(band) = self.cytoband.as_ref().and_then(Field::as_ref) {
+            for band in bands(band.as_str()) {
+                exact.push((KeyKind::Band, band.into()));
+            }
+        }
+        if let Some((chromosome, _, _)) = self
+            .location
+            .as_ref()
+            .and_then(Field::as_ref)
+            .and_then(|location| bounds(location.as_str()))
+        {
+            exact.push((KeyKind::Xref, format!("chr{chromosome}").into()));
+        }
+        let words = self
+            .name
+            .as_ref()
+            .and_then(Field::as_ref)
+            .map(|name| name.as_str().into())
+            .into_iter()
+            .collect();
+        Keys { exact, words }
+    }
+}
+impl Region {
+    pub(super) fn checked(self, problems: &mut Problems) -> Option<biomcp_types::ClinGenRegion> {
+        problems.record = None;
+        let id = problems.required_field("ISCA ID", self.id)?;
+        problems.record = Some(id.clone());
+        let haploinsufficiency = dosage(
+            problems,
+            "Haploinsufficiency",
+            self.haplo_score,
+            self.haplo_description,
+            [
+                self.haplo_pmid1,
+                self.haplo_pmid2,
+                self.haplo_pmid3,
+                self.haplo_pmid4,
+                self.haplo_pmid5,
+                self.haplo_pmid6,
+            ],
+            self.haplo_disease,
+        );
+        let triplosensitivity = dosage(
+            problems,
+            "Triplosensitivity",
+            self.triplo_score,
+            self.triplo_description,
+            [
+                self.triplo_pmid1,
+                self.triplo_pmid2,
+                self.triplo_pmid3,
+                self.triplo_pmid4,
+                self.triplo_pmid5,
+                self.triplo_pmid6,
+            ],
+            self.triplo_disease,
+        );
+        Some(biomcp_types::ClinGenRegion {
+            id,
+            name: problems.source_field("ISCA Region Name", self.name),
+            cytoband: problems.field("cytoBand", self.cytoband),
+            location: problems.field("Genomic Location", self.location),
+            haploinsufficiency,
+            triplosensitivity,
+            date: problems.field("Date Last Evaluated", self.date),
+        })
+    }
+}
+fn dosage(
+    problems: &mut Problems,
+    kind: &str,
+    score: Option<Field<Text>>,
+    description: Option<Field<NativeText>>,
+    pmids: [Option<Field<Text>>; 6],
+    disease: Option<Field<Text>>,
+) -> Option<biomcp_types::ClinGenRegionDosage> {
+    let field = format!("{kind} Score");
+    let score = problems.field(&field, score)?;
+    let score = problems.optional(&field, Some(score.as_str().parse::<u8>()))?;
+    let field = format!("{kind} PMID");
+    let pmids = pmids
+        .into_iter()
+        .filter_map(|pmid| {
+            let pmid = problems.field(&field, pmid)?;
+            problems.optional(&field, Some(pmid.as_str().parse::<biodata::Pmid>()))
+        })
+        .collect();
+    Some(biomcp_types::ClinGenRegionDosage {
+        score,
+        description: problems.source_field(&format!("{kind} Description"), description),
+        pmids,
+        disease_id: problems.field(&format!("{kind} Disease ID"), disease),
+    })
+}
