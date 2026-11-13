@@ -1,0 +1,52 @@
+{
+  "live_check": "WHO PQ finished-product export captured live 2026-11-13; original bytes retained in sidecars",
+  "feature": "drug-who-medicines",
+  "story": "Each WHO PQ row reads its Date of Prequalification as an ISO date beside WHO's own text, and a blank date cell says WHO published no date rather than inventing one.",
+  "replay": "drug/who-pq-dates-read",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-pq"
+      ],
+      "expect": {
+        "/result/rows": 657
+      },
+      "max_bytes": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "who-pq",
+        "dolutegravir",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 52,
+        "/result/items/0/reference": "ANDA 208355 USFDA",
+        "/result/items/0/date_of_prequalification": "",
+        "/result/items/0/prequalified_on_status": "not-published",
+        "/result/items/0": {
+          "omits": [
+            "prequalified_on"
+          ]
+        },
+        "/result/items/8/reference": "HA634",
+        "/result/items/8/date_of_prequalification": "14  Oct,  2014",
+        "/result/items/8/prequalified_on": "2014-10-14",
+        "/result/items/8": {
+          "omits": [
+            "prequalified_on_status"
+          ]
+        },
+        "/result/items/9/reference": "HA678",
+        "/result/items/9/prequalified_on": "2018-10-31"
+      },
+      "max_bytes": 40000
+    }
+  ]
+}

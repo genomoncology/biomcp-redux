@@ -2423,6 +2423,15 @@
           "minimum": 0,
           "type": "integer"
         },
+        "remaining": {
+          "description": "Fragments of this section after this reply; absent when this reply ends the section.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "retrieved": {
           "anyOf": [
             {
