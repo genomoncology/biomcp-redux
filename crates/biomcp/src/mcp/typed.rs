@@ -1,6 +1,6 @@
 //! Typed tools derive their contracts and CLI spelling from the command registry.
 mod arguments;
-pub(super) mod catalog;
+pub(crate) mod catalog;
 pub(super) use catalog::instructions;
 mod description;
 mod examples;

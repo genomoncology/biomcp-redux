@@ -170,7 +170,7 @@ pub(in crate::mcp) fn argument_allowed(
 }
 
 /// One source or a list; a list field stays offered while any listed source is on.
-pub(in crate::mcp) fn argument_sources(schema: &Value, name: &str) -> Vec<Source> {
+pub(crate) fn argument_sources(schema: &Value, name: &str) -> Vec<Source> {
     let fact = schema
         .get("properties")
         .and_then(|fields| fields.get(name.trim_start_matches('-').replace('-', "_")))
