@@ -57,8 +57,9 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
     /// Named section page size, refused on an identity-only card.
+    /// At most 50 rows, or 200 for Drugs@FDA approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
+    #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     section_limit: Option<u32>,
     /// Named section continuation, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -71,11 +72,19 @@ struct GetFields {
     #[doc = "FDA product number.\nExplicit native application product number, only for approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
+    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
+    decision_from: Option<biodata::PartialDate>,
+    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
+    decision_to: Option<biodata::PartialDate>,
     #[doc = "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages"]
     /// and 6144 escaped bytes per fragment. No-text scans are explicit.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    /// Selected native CIViC molecular profile for a drug-scoped claim stream.
+    #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
@@ -141,9 +150,16 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     {
         return Err(QueryInvalid::new(&["document_id", "source", "section"]));
     }
-    if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
+    let approvals = fields.source == Some(DrugSource::Drugsfda)
+        && fields.section.as_ref() == [DrugSection::Approvals];
+    let most = if approvals { MAX_APPROVALS_LIMIT } else { 50 };
+    if fields
+        .section_limit
+        .is_some_and(|n| !(1..=most).contains(&n))
+    {
         return Err(QueryInvalid::new(&["section_limit"]));
     }
+    validate_window(fields, approvals)?;
     if fields.section.is_empty()
         && (fields.section_limit.is_some() || fields.section_offset.is_some())
     {
@@ -161,6 +177,37 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     }
     if fields.source == Some(DrugSource::FdaDrugRecall) && !fields.section.is_empty() {
         return Err(QueryInvalid::new(&["source", "section"]));
+    }
+    Ok(())
+}
+/// The most Drugs@FDA submission rows one approvals page returns.
+const MAX_APPROVALS_LIMIT: u32 = 200;
+fn validate_window(fields: &GetFields, approvals: bool) -> Result<(), QueryInvalid> {
+    let window = [
+        ("decision_from", fields.decision_from),
+        ("decision_to", fields.decision_to),
+    ];
+    if window.iter().any(|(_, date)| date.is_some()) && (!approvals || fields.document_id.is_some())
+    {
+        return Err(QueryInvalid::new(&[
+            "decision_from",
+            "decision_to",
+            "source",
+            "section",
+            "document_id",
+        ]));
+    }
+    for (name, date) in window {
+        if date.is_some_and(|d| d.day().is_none()) {
+            return Err(QueryInvalid::new(&[name]));
+        }
+    }
+    if fields
+        .decision_from
+        .zip(fields.decision_to)
+        .is_some_and(|(a, b)| a.to_string() > b.to_string())
+    {
+        return Err(QueryInvalid::new(&["decision_from", "decision_to"]));
     }
     Ok(())
 }
@@ -242,6 +289,8 @@ impl DrugGet {
             section_offset: None,
             label_section: None,
             product_number: None,
+            decision_from: None,
+            decision_to: None,
             document_id: None,
             civic_profile: None,
             civic_kind: None,
@@ -381,6 +430,10 @@ impl DrugGet {
     /// Exact selected native label heading.
     pub fn label_section(&self) -> Option<&Text> {
         self.fields.label_section.as_ref()
+    }
+    /// Inclusive Drugs@FDA submission status date window.
+    pub fn decision_window(&self) -> (Option<biodata::PartialDate>, Option<biodata::PartialDate>) {
+        (self.fields.decision_from, self.fields.decision_to)
     }
     /// Exact application product selector.
     pub fn product_number(&self) -> Option<&Text> {

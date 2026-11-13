@@ -32,7 +32,7 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/valid_values/0": "integer >= 1 <= 50"
+        "/error/valid_values/0": "integer >= 1 <= 200"
       }
     },
     {

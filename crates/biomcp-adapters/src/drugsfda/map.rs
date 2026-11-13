@@ -1,6 +1,6 @@
 //! Preserve independent native FDA products and application submission facts.
 use super::raw::{Application as RawApplication, Product, Submission};
-use biodata::{Attribution, AuthorizationDate, AuthorizationEvent};
+use biodata::{Attribution, AuthorizationDate, AuthorizationEvent, PartialDate};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
     DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission,
@@ -250,18 +250,30 @@ impl Application {
         self.0.submissions.len()
     }
     /// Map the newest status dates first, then descending submission numbers; undated rows last.
+    /// A date window keeps only submissions whose status date falls inside it, inclusive.
+    /// Returns the page and the count of submissions in the window.
     pub fn submissions(
         &self,
+        (from, to): (Option<PartialDate>, Option<PartialDate>),
         offset: u32,
         limit: u32,
-    ) -> Result<Box<[DrugFdaSubmission]>, RequestError> {
-        self.0
-            .newest_first()
+    ) -> Result<(Box<[DrugFdaSubmission]>, u64), RequestError> {
+        let inside = |s: &&Submission| {
+            (from.is_none() && to.is_none())
+                || s.submission_status_date.is_some_and(|d| {
+                    let d = d.to_string();
+                    from.is_none_or(|f| f.to_string() <= d) && to.is_none_or(|t| d <= t.to_string())
+                })
+        };
+        let rows: Vec<_> = self.0.newest_first().into_iter().filter(inside).collect();
+        let total = rows.len() as u64;
+        let page = rows
             .into_iter()
             .skip(offset as usize)
             .take(limit as usize)
             .map(|s| s.mapped(&self.0))
-            .collect()
+            .collect::<Result<_, _>>()?;
+        Ok((page, total))
     }
 }
 

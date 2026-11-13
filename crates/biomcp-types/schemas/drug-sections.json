@@ -1803,7 +1803,7 @@
           "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
         },
         "civic_profile": {
-          "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+          "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -1811,6 +1811,30 @@
             "integer",
             "null"
           ]
+        },
+        "decision_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
+          "x-required-component": "drugsfda"
+        },
+        "decision_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
+          "x-required-component": "drugsfda"
         },
         "document_id": {
           "anyOf": [
@@ -1877,9 +1901,9 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.",
+          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": [
             "integer",

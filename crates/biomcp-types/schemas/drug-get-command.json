@@ -73,6 +73,11 @@
       ],
       "type": "string"
     },
+    "PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
+      "type": "string"
+    },
     "Text": {
       "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
       "maxLength": 1048576,
@@ -109,7 +114,7 @@
       "description": "CIViC collection; help get drug\nCIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
     },
     "civic_profile": {
-      "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+      "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
       "format": "uint64",
       "maximum": 2147483647,
       "minimum": 1,
@@ -117,6 +122,30 @@
         "integer",
         "null"
       ]
+    },
+    "decision_from": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
+      "x-required-component": "drugsfda"
+    },
+    "decision_to": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/PartialDate"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
+      "x-required-component": "drugsfda"
     },
     "document_id": {
       "anyOf": [
@@ -186,9 +215,9 @@
       "x-section-rule": "Named disclosures of the selected source, each its own part of one reply; empty means identity only."
     },
     "section_limit": {
-      "description": "Named section page size, refused on an identity-only card.",
+      "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
       "format": "uint32",
-      "maximum": 50,
+      "maximum": 200,
       "minimum": 1,
       "type": [
         "integer",
