@@ -241,7 +241,8 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         .iter()
         .any(|r| r.item.pmid.is_none() && r.item.header.is_none());
     let returned = u32::try_from(rows.len()).unwrap_or(u32::MAX);
-    let total = u64::from(pool.info.size);
+    let held = u64::from(pool.info.size);
+    let total = source_total(pool).unwrap_or(held);
     out.page = Some(PageInfo {
         offset: query.offset(),
         returned,
@@ -264,9 +265,9 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         })
         .with_query(q.clone()),
         Cursor::Edges(q, _) => (ArticleEdgePage { items }).with_query(q.clone()),
-        Cursor::Recommend(q) => (super::recommend::body(items, total == 0)).with_query(q.clone()),
+        Cursor::Recommend(q) => (super::recommend::body(items, held == 0)).with_query(q.clone()),
     };
-    actions(query, pool, returned, total, out);
+    actions(query, pool, returned, held, out);
     if let Cursor::Search(search) = query {
         super::next::search(search, total, partial, out);
     }
@@ -292,11 +293,23 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     }
 }
 
-fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut Outcome) {
+/// One source's own count when it matched more than the retrieved window holds.
+/// Several sources' counts are never summed; their union keeps the held size.
+fn source_total(pool: &Pool) -> Option<u64> {
+    let [source] = pool.sources.as_slice() else {
+        return None;
+    };
+    source
+        .count
+        .zip(source.retrieved_count)
+        .and_then(|(count, fetched)| (count > u64::from(fetched)).then_some(count))
+}
+/// Page steps stay inside the held window, even when the source matched more.
+fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, held: u64, out: &mut Outcome) {
     if let Some(offset) = query
         .offset()
         .checked_add(returned)
-        .filter(|offset| u64::from(*offset) < total && returned > 0)
+        .filter(|offset| u64::from(*offset) < held && returned > 0)
     {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
