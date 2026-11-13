@@ -3014,7 +3014,7 @@ Form: get adverse-event ID SECTION; not --section.
 FAERS by default; MAUDE is explicit.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source maude. Command sources: faers, maude; source restrictions in the field description apply.
 
-FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
+FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only.
 
 - `drugs`: Independent source drug rows.
 - `reactions`: Independent source reaction rows.
@@ -3026,7 +3026,7 @@ FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. O
 - `spl-set-id`: Source SPL set IDs.
 - `application-number`: Source application numbers.
 - `devices`: Source device rows.
-- `narrative`: Complete source narrative rows.
+- `narrative`: Complete source MAUDE narrative rows; openFDA's public FAERS data carries no case narrative.
 
 ## biomcp get disease
 
