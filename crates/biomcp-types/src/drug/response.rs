@@ -130,6 +130,9 @@ pub struct DrugLabelText {
     pub label: DrugLabelReference,
     /// Exact native label heading.
     pub heading: Text,
+    /// Fragments of this section after this reply; absent when this reply ends the section.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub remaining: Option<u64>,
     /// Original text slice, preserving whitespace and wording.
     pub text: Box<str>,
     /// Original source reply retrieval date; absent for legacy captures without a timestamp.

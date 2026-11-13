@@ -220,6 +220,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/src/destination_tests.rs` | Cover public DNS address and redirect rejection tables without contacting private destinations. |
 | `crates/biomcp-fetch/src/grpc/dns_tests.rs` | Prove a stalled platform lookup cannot outlive its caller budget or begin a stream, without changing the host resolver configuration. |
 | `crates/biomcp-fetch/src/retry_tests.rs` | Cover Retry-After forms and backoff boundaries without one recording per table row. |
+| `crates/biomcp-adapters/src/who_pq/raw_tests.rs` | Map blank, WHO-format and unreadable Date of Prequalification cells through the private row type without inventing a source export. |
 | `crates/biomcp-fetch/src/xml_tests.rs` | Cover inline XML markup and decoder limits with many tiny inputs. |
 | `crates/biomcp-adapters/tests/alphagenome.rs` | Exercise the selected request encoding and complete bounded envelopes through the public protocol API. |
 | `crates/biomcp-fetch/tests/alphagenome.rs` | Exercise required-key routing through a synthetic stream. |

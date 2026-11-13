@@ -1,7 +1,7 @@
 {
   "live_check": "openFDA 510(k) native API replies captured 2026-11-12; original bytes retained in sidecars",
   "feature": "diagnostic-510k",
-  "story": "A De Novo DEN number that openFDA's 510(k) data holds reads back like a K number, and K numbers still read.",
+  "story": "A De Novo DEN number that openFDA's 510(k) data holds reads back like a K number and says it is a De Novo grant beside openFDA's own Unknown description; K numbers still read, with no reading added.",
   "replay": "diagnostic/510k-de-novo",
   "steps": [
     {
@@ -17,7 +17,9 @@
         "/result/k_number": "DEN170058",
         "/result/decision_code": "DENG",
         "/result/applicant": "Memorial Sloan-Kettering Cancer Center",
-        "/sources/0/source": "fda-510k"
+        "/sources/0/source": "fda-510k",
+        "/result/decision_description": "Unknown",
+        "/result/decision_reading": "de-novo-granted"
       },
       "max_bytes": 4000
     },
@@ -34,7 +36,12 @@
         "/result/k_number": "K233537",
         "/result/decision_code": "SESE",
         "/result/applicant": "Abbott Diabetes Care, Inc.",
-        "/sources/0/source": "fda-510k"
+        "/sources/0/source": "fda-510k",
+        "/result": {
+          "omits": [
+            "decision_reading"
+          ]
+        }
       },
       "max_bytes": 4000
     }

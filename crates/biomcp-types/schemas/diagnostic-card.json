@@ -14,6 +14,13 @@
       ],
       "type": "string"
     },
+    "Reply_DecisionReading": {
+      "description": "Plain reading of a 510(k) decision code.",
+      "enum": [
+        "de-novo-granted"
+      ],
+      "type": "string"
+    },
     "Reply_DeviceRecallHeader": {
       "description": "Native medical device product recall header, independent of event grouping.",
       "properties": {
@@ -417,6 +424,17 @@
                 "string",
                 "null"
               ]
+            },
+            "decision_reading": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_DecisionReading"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Plain reading of a decision_code whose openFDA decision_description does not name it; absent otherwise."
             },
             "device_name": {
               "description": "Native device_name; missing and empty remain distinct.",

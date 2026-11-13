@@ -1201,14 +1201,6 @@
       "reason": "Removed unknown-column refusal. NativeCsv delivers every valid cell as an exact String, including empty cells; UTF-8, header and row-width failures are wire protocol failures."
     },
     {
-      "path": "crates/biomcp-adapters/src/who_pq/raw.rs",
-      "site": "adapter serde refusal: [ serde ( deny_unknown_fields ) ] pub ( super ) struct Native { # [ serde ( rename",
-      "maximum": 1,
-      "class": "migrated",
-      "owner": "who_pq",
-      "reason": "Removed unknown-column refusal. NativeCsv delivers every valid cell as an exact String, including empty cells; UTF-8, header and row-width failures are wire protocol failures."
-    },
-    {
       "path": "crates/biomcp-adapters/src/wikipathways/gpml_raw.rs",
       "site": "matches: | | revision . parse : : < u64 > ( ) . ok ( )",
       "maximum": 1,
