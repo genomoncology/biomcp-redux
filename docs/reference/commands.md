@@ -1450,12 +1450,12 @@ Options:
           Native rows to skip.
 
       --prequalified-from <prequalified_from>
-          WHO PQ start date, inclusive.
-          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+          WHO PQ start date.
+          Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.
 
       --prequalified-to <prequalified_to>
-          WHO PQ end date, inclusive.
-          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+          WHO PQ end date.
+          Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.
 
       --reason <reason>
           Recall reason phrase.
@@ -1513,10 +1513,10 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `--name-snapshot`: Label name page token.
 Follow the returned command with unchanged filters to keep the first page's names and step. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--prequalified-from`: WHO PQ start date, inclusive.
-Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Only with --source who-pq.
-- `--prequalified-to`: WHO PQ end date, inclusive.
-Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Only with --source who-pq.
+- `--prequalified-from`: WHO PQ start date.
+Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Only with --source who-pq.
+- `--prequalified-to`: WHO PQ end date.
+Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Only with --source who-pq.
 - `query`: Drug name phrase.
 FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,

@@ -3670,7 +3670,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ start date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "WHO PQ start date.\nInclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
         },
         "prequalified_to": {
@@ -3682,7 +3682,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "WHO PQ end date.\nInclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
         },
         "query": {
