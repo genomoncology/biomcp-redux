@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "gene-clingen",
-  "story": "ClinGen sync imports both required summaries and sums their metadata",
+  "story": "ClinGen sync imports the validity and dosage summaries and the region list, and sums their metadata",
   "replay": "gene/clingen",
   "steps": [
     {
@@ -12,8 +12,8 @@
       "expect": {
         "/status": "complete",
         "/query/source": "clingen",
-        "/result/rows": 21,
-        "/result/bytes": 6600,
+        "/result/rows": 534,
+        "/result/bytes": 105481,
         "/sources/0/source": "clingen"
       }
     }

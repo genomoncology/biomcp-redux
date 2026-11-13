@@ -264,7 +264,7 @@
       "properties": {
         "band": {
           "$ref": "#/$defs/Reply_Cytoband",
-          "description": "A cytoband prefix."
+          "description": "A cytoband prefix. Also lists ClinGen dosage regions in that band."
         },
         "limit": {
           "default": 10,
@@ -287,7 +287,7 @@
         },
         "query": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Words matched against symbols, previous symbols, aliases and names.",
+          "description": "Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.",
           "x-positional": 0
         },
         "region": {
