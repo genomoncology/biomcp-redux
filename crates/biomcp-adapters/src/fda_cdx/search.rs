@@ -60,23 +60,29 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         })
         .collect();
     if let Some(id) = query.drug_application() {
-        // An unreadable row that mentions the asked application joins nothing, so name it.
+        // A row that mentions the asked application but joins nothing is named, not dropped.
         let digits = id.as_str().get(3..).unwrap_or_default();
         let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
         for row in all
             .iter()
             .filter(|row| mentions(&row.value.relation, digits))
         {
-            conflicts.extend(conflicts_of(&row.value));
+            let found = conflicts_of(&row.value);
+            if found.is_empty() && applications(&row.value.relation).is_empty() {
+                // The text names it but no link carries an application number.
+                let (table, index) = place(&row.value.relation);
+                conflicts.push((table, index, "drug", ProblemCode::ValueUnknown));
+            }
+            conflicts.extend(found);
         }
     }
     let mut problems: Vec<Problem> = conflicts
         .into_iter()
-        .map(|(table, index, field)| Problem {
+        .map(|(table, index, field, code)| Problem {
             source: Source::FdaCdx,
             record: biodata::Text::new(&format!("{snapshot}:{table}:{index}")).ok(),
             field: field.into(),
-            code: ProblemCode::IdentityConflict,
+            code,
         })
         .collect();
     let group_unsupported = query.biomarker().is_some();
@@ -104,16 +110,30 @@ fn mentions(row: &CompanionDiagnosticRelation, digits: &str) -> bool {
     !digits.is_empty()
         && (cell.text.contains(digits) || cell.links.iter().any(|l| l.href.contains(digits)))
 }
-/// Table, row and field of each identity cell this stored row could not read.
-fn conflicts_of(row: &super::raw::Native) -> Vec<(u8, u32, &'static str)> {
-    let (table, index) = match &row.relation {
+/// Table and physical row position.
+fn place(row: &CompanionDiagnosticRelation) -> (u8, u32) {
+    match row {
         CompanionDiagnosticRelation::Individual { index, .. } => (0, *index),
         CompanionDiagnosticRelation::Group { index, .. } => (1, *index),
-    };
+    }
+}
+fn applications(row: &CompanionDiagnosticRelation) -> &[biodata::DiagnosticDrugApplication] {
+    match row {
+        CompanionDiagnosticRelation::Individual {
+            drug_applications, ..
+        }
+        | CompanionDiagnosticRelation::Group {
+            drug_applications, ..
+        } => drug_applications,
+    }
+}
+/// Table, row, field and code of each identity cell this stored row could not read.
+fn conflicts_of(row: &super::raw::Native) -> Vec<(u8, u32, &'static str, ProblemCode)> {
+    let (table, index) = place(&row.relation);
     [(row.device_conflict, "device"), (row.drug_conflict, "drug")]
         .into_iter()
         .filter(|(conflict, _)| *conflict)
-        .map(|(_, field)| (table, index, field))
+        .map(|(_, field)| (table, index, field, ProblemCode::IdentityConflict))
         .collect()
 }
 fn changed_revision() -> RequestError {
