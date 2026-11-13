@@ -324,7 +324,7 @@ fn once_each(
         };
         let problem = biomcp_types::Problem {
             source: call.source,
-            record: biomcp_types::Text::new(&hgvs).ok(),
+            record: biodata::Text::new(&hgvs).ok(),
             field: field.into(),
             code: biomcp_types::ProblemCode::ValueUnknown,
         };
