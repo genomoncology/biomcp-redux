@@ -504,7 +504,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO IVD year from, YYYY.\nInclusive WHO IVD prequalification year; WHO publishes only the year.",
+          "description": "WHO IVD year.\nFirst prequalification year included, YYYY; WHO publishes only the year.",
           "x-required-component": "who-ivd"
         },
         "prequalified_to": {
@@ -516,7 +516,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO IVD year to, YYYY.\nInclusive WHO IVD prequalification year; WHO publishes only the year.",
+          "description": "WHO IVD year.\nLast prequalification year included, YYYY; WHO publishes only the year.",
           "x-required-component": "who-ivd"
         },
         "product_code": {
