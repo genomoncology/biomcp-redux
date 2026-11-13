@@ -127,6 +127,7 @@ const EXAMPLE_CASES: &[(&str, usize)] = &[
     ("protein/examples.yaml", 11),
     ("protein/examples.yaml", 12),
     ("protein/examples.yaml", 13),
+    ("phenotype/set-ranks.yaml", 0),
     ("phenotype/examples.yaml", 0),
     ("phenotype/examples.yaml", 1),
     ("phenotype/examples.yaml", 2),

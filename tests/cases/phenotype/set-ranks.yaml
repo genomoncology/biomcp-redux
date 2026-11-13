@@ -1,0 +1,294 @@
+{
+  "live_check": "Monarch semantic similarity search replies captured live 2026-11-13 from api-v3.monarchinitiative.org",
+  "feature": "phenotype-set-ranking",
+  "story": "A counselor's three HP IDs return Monarch's one ranked list of genes or diseases with each score, the metric named and Monarch's 50-row limit stated, and a smaller limit keeps Monarch's first rows of the same 50-row hybrid order; a hybrid reply says what it can leave out and offers the full search; an HP ID Monarch does not know is refused instead of silently dropped.",
+  "replay": "phenotype/set-ranks",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.phenotype-matches/1",
+        "/result/terms/2/label": "Seizure",
+        "/result/method/metric": "ancestor_information_content",
+        "/result/method/search_mode": "hybrid",
+        "/result/source_limit": 50,
+        "/next/0/args": [
+          "get",
+          "gene",
+          "HGNC:4226"
+        ],
+        "/next/3/args": [
+          "search",
+          "phenotype",
+          "HP:0001263,HP:0001252,HP:0001250",
+          "--limit",
+          "3",
+          "--search-mode",
+          "full"
+        ],
+        "/next/3/kind": "sort",
+        "/result/note": "Monarch's hybrid mode scores only a shortlist picked by Jaccard overlap, so a gene or disease with many annotations can be dropped before scoring; the next step reruns with --search-mode full, which scores every entity and is slower.",
+        "/result/items/0/rank": 1,
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/0/label": "GDI1",
+        "/result/items/0/score": 12.681392140685496,
+        "/result/items/0/best_matches/1/term": "HP:0001252",
+        "/result/items/0/best_matches/1/matched": "HP:0008936",
+        "/result/items/1/id": "HGNC:29112",
+        "/result/items/1/score": 12.249137668887734,
+        "/result/items/2/id": "HGNC:15505",
+        "/result/items/2/score": 12.20418603518225,
+        "/result/items": {
+          "count": 3
+        }
+      },
+      "max_bytes": 4600
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items": {
+          "count": 50
+        },
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/0/score": 12.681392140685496,
+        "/result/items/1/id": "HGNC:29112",
+        "/result/items/1/score": 12.249137668887734,
+        "/result/items/2/id": "HGNC:15505",
+        "/result/items/2/score": 12.20418603518225,
+        "/result/items/2/rank": 3,
+        "/result/items/49/rank": 50
+      },
+      "max_bytes": 90000
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--group",
+        "diseases",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/group": "diseases",
+        "/result/items/0/id": "MONDO:0010451",
+        "/result/items/0/score": 13.682450613729127,
+        "/result/items/1/id": "MONDO:0054861",
+        "/result/method/metric": "ancestor_information_content",
+        "/result/source_limit": 50,
+        "/next/0/args": [
+          "get",
+          "disease",
+          "MONDO:0010451",
+          "--section-limit",
+          "5"
+        ],
+        "/next/2/args": [
+          "search",
+          "phenotype",
+          "HP:0001263,HP:0001252,HP:0001250",
+          "--group",
+          "diseases",
+          "--limit",
+          "2",
+          "--search-mode",
+          "full"
+        ]
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--search-mode",
+        "full",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/search_mode": "full",
+        "/result/method/search_mode": "full",
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/1/id": "HGNC:29112",
+        "/result/items/2/id": "HGNC:15505",
+        "/result/items/2/score": 12.20418603518225,
+        "/result": {
+          "omits": [
+            "note"
+          ]
+        }
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--search-mode",
+        "full",
+        "--metric",
+        "phenodigm-score",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/method/metric": "phenodigm_score",
+        "/result/method/search_mode": "full",
+        "/result/items": {
+          "count": 2
+        },
+        "/result/items/0/id": "HGNC:15772",
+        "/result/items/0/score": 3.153784757657971,
+        "/result/items/1/id": "HGNC:15505"
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--search-mode",
+        "full",
+        "--metric",
+        "jaccard-similarity",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/method/metric": "jaccard_similarity",
+        "/result/method/search_mode": "full",
+        "/result/items": {
+          "count": 2
+        },
+        "/result/items/0/id": "HGNC:10866",
+        "/result/items/0/score": 0.852916465317422,
+        "/result/items/1/id": "HGNC:15772"
+      },
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:9999999",
+        "--limit",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "text",
+        "/error/message": "Monarch has no term for an HP ID in this set and would rank without it; check each ID with the next steps, or rank only the IDs Monarch knows",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:9999999"
+        ],
+        "/next/1/args": [
+          "search",
+          "phenotype",
+          "HP:0001263",
+          "--limit",
+          "1"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:9999999",
+        "--limit",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "text",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:9999999"
+        ],
+        "/error/message": "Monarch ranked nothing for this set, which it does when it knows none of the IDs; check each ID with the next steps"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "seizure",
+        "--group",
+        "genes"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--group",
+        "/error/message": "--group, --metric and --search-mode rank genes or diseases for HP IDs only; give the text as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001250",
+        "--offset",
+        "5"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--offset",
+        "/error/message": "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further pages; drop --offset and raise --limit up to 50"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263",
+        "HP:0001252",
+        "HP:0001250"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/args": [
+          "search",
+          "phenotype",
+          "HP:0001263 HP:0001252 HP:0001250"
+        ]
+      }
+    }
+  ]
+}

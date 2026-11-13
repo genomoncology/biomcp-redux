@@ -133,6 +133,7 @@ macro_rules! reply_types {
             phenotype_hierarchy: $crate::PhenotypeHierarchy => "phenotype-hierarchy",
             phenotype_diseases: $crate::PhenotypeDiseases => "phenotype-diseases",
             phenotype_genes: $crate::PhenotypeGenes => "phenotype-genes",
+            phenotype_matches: $crate::PhenotypeMatches => "phenotype-matches",
             author_page: $crate::AuthorPage => "author-page",
             author_cards: $crate::AuthorCards => "author-card",
             author_papers: $crate::AuthorPapers => "author-papers",
