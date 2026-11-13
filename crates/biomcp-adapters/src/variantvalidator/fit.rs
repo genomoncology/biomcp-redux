@@ -125,7 +125,9 @@ fn gene(genes: Genes, input: &str, problems: &mut Problems) -> Option<(Text, Vec
         let Some((base, version)) = reference.as_str().split_once('.') else {
             continue;
         };
-        let Ok(version) = version.parse::<u32>() else {
+        let Some(version) =
+            problems.optional("transcripts.reference", Some(version.parse::<u32>()))
+        else {
             continue;
         };
         if base.starts_with("NM_") && base != own {

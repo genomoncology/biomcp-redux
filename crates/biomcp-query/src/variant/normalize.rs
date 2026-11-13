@@ -199,8 +199,9 @@ fn transcript_fit(
     let result = variantvalidator::transcript_fits(&leg, query.hgvs(), build);
     let error = result.as_ref().err().copied();
     let outcome = status::source(variantvalidator::SPEC.source, leg.finish(), error);
-    let Ok(found) = result else {
-        return Some(outcome);
+    let found = match result {
+        Ok(found) => found,
+        Err(_) => return Some(outcome),
     };
     let mut fits = found.value;
     // Lowest accession number first: the longest-standing RefSeq record of the allele.
