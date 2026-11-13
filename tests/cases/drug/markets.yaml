@@ -83,7 +83,8 @@
       "exit": 2,
       "is_error": true,
       "expect": {
-        "/error/code": "usage.arguments"
+        "/error/code": "usage.arguments",
+        "/error/option": "--source"
       }
     }
   ]

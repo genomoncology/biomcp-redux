@@ -160,7 +160,12 @@ pub(super) fn market(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket
     row.first_approval = chosen
         .prequalified_on
         .and_then(|date| markets::dated("date_of_prequalification", date, Source::WhoPq, out));
-    row.url = markets::kept(who_pq::product_url(&chosen.reference), Source::WhoPq, "url", out);
+    row.url = markets::kept(
+        who_pq::product_url(&chosen.reference),
+        Source::WhoPq,
+        "url",
+        out,
+    );
     row.choice = Some(WHO_CHOICE.into());
     markets::section_step(
         out,

@@ -30,6 +30,17 @@ pub(super) fn request(
             if value.get("source").and_then(Value::as_str) == Some("who-pq") {
                 decode_query(value).map(Request::GetWhoMedicine)
             } else if markets(&value) {
+                // The markets section takes a name alone, so any other option is named as refused.
+                let refused: Vec<&str> = value
+                    .as_object()
+                    .into_iter()
+                    .flat_map(|fields| fields.keys())
+                    .map(String::as_str)
+                    .filter(|key| !matches!(*key, "input" | "section"))
+                    .collect();
+                if !refused.is_empty() {
+                    return Err(QueryInvalid::new(&refused));
+                }
                 decode_query(value).map(Request::GetDrugMarkets)
             } else {
                 decode_query(value).map(Request::GetDrug)

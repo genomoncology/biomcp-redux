@@ -103,7 +103,12 @@ fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     row.first_approval = candidate
         .original_approval
         .and_then(|first| dated("submission_status_date", first.date, Source::Drugsfda, out));
-    row.url = kept(drugsfda::application_url(&candidate.id), Source::Drugsfda, "url", out);
+    row.url = kept(
+        drugsfda::application_url(&candidate.id),
+        Source::Drugsfda,
+        "url",
+        out,
+    );
     if let Some(get) = crate::next::checked(
         DrugGet::new(candidate.id, DrugSource::Drugsfda)
             .and_then(|get| get.for_section(DrugSection::Approvals)),
