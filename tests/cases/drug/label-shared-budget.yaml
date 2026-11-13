@@ -2,7 +2,7 @@
   "verified": "tests/replies/drug/label-shared-budget/provenance.json records the live openFDA reply of 2026-11-13 (job j39151) and its body hash.",
   "live_check": "public",
   "feature": "drug-label",
-  "story": "Label sections named in one call share one reply's text budget in order: Keytruda's indications come back whole, and dosage and warnings, left without room, return no text, say all four fragments remain and offer their first page; read alone, dosage comes back whole.",
+  "story": "Label sections named in one call share one reply's text budget in order: Keytruda's indications come back whole, and dosage and warnings, left without room, return no text, say why in their hint, say all four fragments remain and offer their first page; read alone, dosage comes back whole.",
   "replay": "drug/label-shared-budget",
   "steps": [
     {
@@ -33,7 +33,14 @@
           "includes": "dosage_and_administration"
         },
         "/result/parts/2/reply/page/returned": 0,
-        "/result/parts/2/reply/result/label/data/remaining": 4
+        "/result/parts/2/reply/result/label/data/remaining": 4,
+        "/result/parts/0/reply/result": {
+          "omits": [
+            "hint"
+          ]
+        },
+        "/result/parts/1/reply/result/hint": "No text: earlier sections in this reply used the label budget; follow next to read this section.",
+        "/result/parts/2/reply/result/hint": "No text: earlier sections in this reply used the label budget; follow next to read this section."
       },
       "max_bytes": 32222
     },
@@ -56,6 +63,11 @@
         "/result/label/data": {
           "omits": [
             "remaining"
+          ]
+        },
+        "/result": {
+          "omits": [
+            "hint"
           ]
         }
       },

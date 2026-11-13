@@ -4,8 +4,8 @@ use biomcp_adapters::{openfda_label as source, received_date};
 use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugLabel, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request, Section,
-    Source, StepKind,
+    DrugGet, DrugLabel, DrugLabelText, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo,
+    Request, Section, Source, StepKind,
 };
 mod names;
 mod search_page;
@@ -168,7 +168,8 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
 fn sharing<'a>(cx: &Ctx<'a>, label_bytes: usize) -> Ctx<'a> {
     Ctx {
         fetch: cx.fetch,
-        // No label source contacts NCBI.
+        // As in resolve::within: drug source credentials remain in the borrowed Fetch, no drug
+        // source contacts NCBI, and the contact (a Secret) cannot be copied.
         ncbi_email: None,
         budget: cx.budget,
         fresh: cx.fresh,
@@ -283,10 +284,24 @@ fn select(
         identity: record.header()?,
         label,
         sections: Box::default(),
-        hint: None,
+        hint: no_room(&label)?,
     })
     .with_query(query.clone());
     Ok(())
+}
+
+/// Say why a section sharing a spent reply budget returned no text, since an empty text
+/// alone reads as a section with none.
+fn no_room(label: &Section<DrugLabelText>) -> Result<Option<biodata::Text>, RequestError> {
+    match label {
+        Section::Data { data, .. } if data.fragments.is_empty() && data.remaining.is_some() => {
+            "No text: earlier sections in this reply used the label budget; follow next to read this section."
+                .parse()
+                .map(Some)
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))
+        }
+        _ => Ok(None),
+    }
 }
 
 fn page(offset: u32, returned: u32, total: u64) -> PageInfo {
