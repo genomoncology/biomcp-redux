@@ -74,4 +74,3 @@ pub(super) fn contains(cytoband: &str, query: &Band<'_>) -> bool {
         _ => false,
     }
 }
-
