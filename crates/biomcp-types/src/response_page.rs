@@ -4,7 +4,7 @@ macro_rules! page {
         page!(
             @body, $name, $row, $query, $schema, $doc, [], "Whole native rows in source order; totals apply only to this collection.", [], []);
     };
-    (diagnostic, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
+    (diagnostic, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal $(, [$($extra:tt)*])?) => {
         page!(
             @body, $name, $row, $query, $schema, $doc, [], "Complete source-owned rows in native order; envelope totals count native rows.", [], [
             /// Exact meaning of the envelope total; supplied by the owning source command.
@@ -12,7 +12,8 @@ macro_rules! page {
             pub count_unit: Option<DiagnosticCountUnit>,
             /// Distinct complete native IDs across the selected relation collection.
             #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub distinct_id_total: Option<u64>,]);
+            pub distinct_id_total: Option<u64>,
+            $($($extra)*)?]);
     };
     (study, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         page!(

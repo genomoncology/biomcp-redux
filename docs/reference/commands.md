@@ -1025,7 +1025,7 @@ Options:
 
       --name <name>
           Native test or device name.
-          Native trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.
+          Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.
 
       --offset <offset>
           Zero-based source result offset.
@@ -1088,7 +1088,7 @@ WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phra
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker HIV. Only with --source who-ivd.
 - `--name`: Source test or device name.
-Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma or fda-510k.
+Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma, fda-510k or fda-device-recall.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--prequalified-from`: WHO IVD year.
 First prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-from 2023. Only with --source who-ivd.

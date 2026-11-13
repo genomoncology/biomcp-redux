@@ -55,6 +55,14 @@ const PRODUCT_CODE_SOURCES: [crate::Source; 3] = [
     crate::Source::Fda510k,
     crate::Source::FdaDeviceRecall,
 ];
+// Sources that answer this field; it stays offered while any of them is on.
+#[cfg(feature = "schema")]
+const NAME_SOURCES: [crate::Source; 4] = [
+    crate::Source::Gtr,
+    crate::Source::FdaPma,
+    crate::Source::Fda510k,
+    crate::Source::FdaDeviceRecall,
+];
 /// Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -120,9 +128,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     classification: Option<crate::DrugRecallClassification>,
-    #[doc = "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case."]
+    #[doc = "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::Gtr, crate::Source::FdaPma, crate::Source::Fda510k])))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = NAME_SOURCES)))]
     name: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -322,7 +330,7 @@ impl DiagnosticSearch {
     pub fn classification(&self) -> Option<crate::DrugRecallClassification> {
         self.0.classification
     }
-    /// Native device name phrase or literal GTR test name text.
+    /// Native device name phrase, device recall product description phrase or literal GTR test name text.
     pub fn name(&self) -> Option<&Text> {
         self.0.name.as_ref()
     }
