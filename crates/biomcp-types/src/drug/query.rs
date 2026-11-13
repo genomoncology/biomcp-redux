@@ -56,8 +56,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
-    /// Named section page size, refused on an identity-only card.
-    /// At most 50 rows, or 200 for Drugs@FDA approvals alone.
+    /// Named section page size, refused on an identity-only card; 200 for Drugs@FDA approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     section_limit: Option<u32>,
@@ -72,11 +71,11 @@ struct GetFields {
     #[doc = "FDA product number.\nExplicit native application product number, only for approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
-    #[doc = "First date, YYYY-MM-DD.\nInclusive submission status date; Drugs@FDA approvals only."]
+    #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_from: Option<biodata::PartialDate>,
-    #[doc = "Last date, YYYY-MM-DD.\nInclusive submission status date; Drugs@FDA approvals only."]
+    #[doc = "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_to: Option<biodata::PartialDate>,
