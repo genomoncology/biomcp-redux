@@ -161,6 +161,15 @@ fn rows(
         list: Vec::new(),
     };
     for value in &component.synonyms {
+        // One row per distinct text; the first component and scope that state it keep the row.
+        if mapped
+            .value
+            .synonyms
+            .iter()
+            .any(|row| row.value.as_str().to_lowercase() == value.value.as_str().to_lowercase())
+        {
+            continue;
+        }
         let field = format!("{synonym_field}.{}", value.field);
         let scope = problems.optional(
             &format!("{}.{}", component_id(component), field),
@@ -205,4 +214,63 @@ fn rows(
         });
     }
     Ok(())
+}
+
+/// Keep a parent label only when the parent's own component record states it.
+pub(super) fn labels(
+    hits: super::raw::LabelHits,
+    ids: &[Curie],
+) -> Mapped<std::collections::HashMap<String, biodata::Text>> {
+    let mut problems = Vec::new();
+    let mut value = std::collections::HashMap::new();
+    for id in ids {
+        let key = id.to_string();
+        let doid = key.starts_with("DOID:");
+        let root = if doid { "disease_ontology" } else { "mondo" };
+        let field = format!("{root}.{}", if doid { "name" } else { "label" });
+        let mut problem = crate::mapped::Problems {
+            source: Source::MyDisease,
+            record: crate::mapped::record(&key),
+            list: Vec::new(),
+        };
+        let mut found: Vec<biodata::Text> = Vec::new();
+        for hit in hits.0.iter().filter(|hit| hit.query == key) {
+            let component = if doid {
+                hit.disease_ontology.as_ref()
+            } else {
+                hit.mondo.as_ref()
+            };
+            let Some(component) = component.and_then(crate::raw::Field::as_ref) else {
+                continue;
+            };
+            if component.id.as_ref().and_then(crate::raw::Field::as_ref) != Some(id) {
+                continue;
+            }
+            let label = match &component.label {
+                Some(crate::raw::Field::Value(label)) => Some(biodata::Text::from(label.clone())),
+                Some(crate::raw::Field::Invalid(_)) => problem.required(&field, None),
+                None => None,
+            };
+            if let Some(label) = label
+                && !found.contains(&label)
+            {
+                found.push(label);
+            }
+        }
+        match found.as_slice() {
+            [label] => {
+                value.insert(key, label.clone());
+            }
+            [] => {}
+            _ => {
+                problem.required::<()>(&field, None);
+            }
+        }
+        problems.extend(problem.list);
+    }
+    Mapped {
+        value,
+        problems,
+        refusals: crate::Refusal::None,
+    }
 }

@@ -12,7 +12,13 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
-    let reply = mydisease::annotation(&leg, id);
+    let mut reply = mydisease::annotation(&leg, id);
+    let mut label_problems = Vec::new();
+    if matches!(query.section(), Some(DiseaseSection::Hierarchy))
+        && let Ok(mapped) = reply.as_mut()
+    {
+        label(&leg, id, &mut mapped.value.parents, &mut label_problems);
+    }
     let error = reply.as_ref().err().copied();
     let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
     out.sources
@@ -21,11 +27,37 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     if let Ok(mapped) = reply {
         out.include_refusals(mapped.refusals);
         out.problems = mapped.problems;
+        out.problems.extend(label_problems);
         apply(&mut out, query, mapped.value);
     }
     super::page::record_problem(&mut out, query, Source::MyDisease);
     command.finish(deadline.remaining());
     out
+}
+/// Name each direct parent from its own record in one batch; an unnamed parent keeps its ID.
+fn label(
+    leg: &biomcp_fetch::Leg<'_>,
+    id: &biodata::Curie,
+    parents: &mut [biodata::DiseaseRelation],
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
+    let ids: Vec<_> = parents.iter().map(|row| row.object.id.clone()).collect();
+    match mydisease::parent_labels(leg, &ids) {
+        Ok(labels) => {
+            problems.extend(labels.problems);
+            for row in parents {
+                if let Some(label) = labels.value.get(&row.object.id.to_string()) {
+                    row.object.label = Some(label.clone());
+                }
+            }
+        }
+        Err(_) => problems.push(biomcp_types::Problem {
+            source: Source::MyDisease,
+            record: biodata::Text::new(&id.to_string()).ok(),
+            field: "parents.label: parent label lookup failed".into(),
+            code: biomcp_types::ProblemCode::ValueUnknown,
+        }),
+    }
 }
 fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {
     let components = record.card.components.clone();

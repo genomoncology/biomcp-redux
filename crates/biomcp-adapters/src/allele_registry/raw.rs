@@ -138,3 +138,17 @@ impl Allele {
         Ok((url.clone(), Text::new(key).map_err(|_| BadReply)?, id))
     }
 }
+
+/// Registry alleles found by one external-record query; an empty list is a real absence.
+#[derive(Deserialize)]
+#[serde(transparent)]
+pub(super) struct Alleles(pub Vec<Allele>);
+impl Reply for Alleles {
+    fn check(&self) -> Result<(), BadReply> {
+        // An external record names a few alleles at most; refuse an unbounded list.
+        if self.0.len() > 20 || self.0.iter().any(|allele| allele.error_type.is_some()) {
+            return Err(BadReply);
+        }
+        self.0.iter().try_for_each(Reply::check)
+    }
+}
