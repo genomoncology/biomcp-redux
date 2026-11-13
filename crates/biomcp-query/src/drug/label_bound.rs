@@ -43,6 +43,7 @@ pub(crate) fn bound(
             return Err(InputError::Serialization.into());
         }
         fragments.pop();
+        data.remaining = Some(data.remaining.unwrap_or(0) + 1);
         let characters = fragments
             .iter()
             .map(|f| f.characters as usize)

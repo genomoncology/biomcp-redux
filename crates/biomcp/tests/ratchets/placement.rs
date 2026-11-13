@@ -256,6 +256,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Cover Retry-After forms and backoff boundaries without one recording per table row.",
     ),
     (
+        "crates/biomcp-adapters/src/who_pq/raw_tests.rs",
+        "Map blank, WHO-format and unreadable Date of Prequalification cells through the private row type without inventing a source export.",
+    ),
+    (
         "crates/biomcp-fetch/src/xml_tests.rs",
         "Cover inline XML markup and decoder limits with many tiny inputs.",
     ),
