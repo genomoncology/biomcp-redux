@@ -406,7 +406,7 @@
               "type": "null"
             }
           ],
-          "description": "How to read one of those sections."
+          "description": "How to read one of those sections, and which requested section the label lacks."
         },
         "identity": {
           "$ref": "#/$defs/Reply_DrugHeader",
@@ -417,7 +417,7 @@
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
         },
         "sections": {
-          "description": "Label section names present for this record, listed when no label_section was given.",
+          "description": "Label section names present for this record, listed when no label_section was given or the label lacks the one given.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },

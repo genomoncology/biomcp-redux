@@ -1,0 +1,30 @@
+{
+  "feature": "cpic-pgx",
+  "live_check": "public",
+  "story": "An empty recommendation table for one gene and drug says why from CPIC's own pair row, such as a provisional pair.",
+  "verified": "CPIC API replies recorded 2026-11-12 by biomcp --record: UGT1A1 with irinotecan (RxNorm:51499) has no recommendation rows, and its pair_view row is provisional with no guideline. Before 0858 the reply was a complete empty table with no reason (bench 0039 tumor-board log :265-270).",
+  "replay": "pgx/empty-pair-says-why",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--gene",
+        "UGT1A1",
+        "--source",
+        "cpic",
+        "--drug-id",
+        "RxNorm:51499"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 0,
+        "/sources/0/notices/*/message": {
+          "includes": "CPIC marks the UGT1A1 and irinotecan (RxNorm:51499) pair provisional; the pair has no CPIC guideline and has no CPIC recommendations."
+        }
+      },
+      "max_bytes": 2000
+    }
+  ]
+}

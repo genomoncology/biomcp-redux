@@ -2293,7 +2293,7 @@
               "type": "null"
             }
           ],
-          "description": "How to read one of those sections."
+          "description": "How to read one of those sections, and which requested section the label lacks."
         },
         "label": {
           "$ref": "#/$defs/Reply_Section_DrugLabelText",
@@ -2311,7 +2311,7 @@
           "description": "The requested label heading, as given."
         },
         "sections": {
-          "description": "Label section names present for this record, listed when no label_section was given.",
+          "description": "Label section names present for this record, listed when no label_section was given or the label lacks the one given.",
           "items": {
             "$ref": "#/$defs/Reply_Text"
           },
