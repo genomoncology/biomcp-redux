@@ -687,7 +687,7 @@
               "type": "null"
             }
           ],
-          "description": "First date, YYYY-MM-DD.\nInclusive submission status date; Drugs@FDA approvals only.",
+          "description": "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
           "x-required-component": "drugsfda"
         },
         "decision_to": {
@@ -699,7 +699,7 @@
               "type": "null"
             }
           ],
-          "description": "Last date, YYYY-MM-DD.\nInclusive submission status date; Drugs@FDA approvals only.",
+          "description": "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
           "x-required-component": "drugsfda"
         },
         "document_id": {
@@ -767,7 +767,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals alone.",
+          "description": "Named section page size, refused on an identity-only card; 200 for Drugs@FDA approvals.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
