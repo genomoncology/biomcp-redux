@@ -363,6 +363,53 @@
       ],
       "type": "object"
     },
+    "Reply_DiseaseSynonymItem": {
+      "description": "One synonym text, stated by its first source row and by any other rows listed with it.",
+      "properties": {
+        "also_stated_by": {
+          "description": "Other source rows stating the same text, ignoring letter case, each with its own spelling, scope and record.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiseaseSynonym"
+          },
+          "type": "array"
+        },
+        "attribution": {
+          "$ref": "#/$defs/Reply_Attribution",
+          "description": "Publisher record and version."
+        },
+        "language": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source language tag."
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Curie"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher scope predicate."
+        },
+        "value": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Complete synonym text."
+        }
+      },
+      "required": [
+        "value",
+        "attribution"
+      ],
+      "type": "object"
+    },
     "Reply_DiseaseSynonyms": {
       "description": "One publisher synonym page with scope and language.",
       "properties": {
@@ -376,7 +423,7 @@
         "items": {
           "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
           "items": {
-            "$ref": "#/$defs/Reply_DiseaseSynonym"
+            "$ref": "#/$defs/Reply_DiseaseSynonymItem"
           },
           "type": "array"
         }
