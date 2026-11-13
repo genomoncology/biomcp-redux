@@ -39,7 +39,13 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
         id.clone(),
         &mut problems,
     );
-    let reported = date(SOURCE, row.report_date, "report_date", id.clone(), &mut problems);
+    let reported = date(
+        SOURCE,
+        row.report_date,
+        "report_date",
+        id.clone(),
+        &mut problems,
+    );
     let mut text = |field, value| {
         let admit = if matches!(
             field,
