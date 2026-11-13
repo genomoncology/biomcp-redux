@@ -76,6 +76,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             items: Box::default(),
             count_unit: Some(count),
             distinct_id_total: None,
+            source_query: None,
         })
         .with_query(q.clone()),
     );
@@ -121,6 +122,7 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             items,
             count_unit: Some(count),
             distinct_id_total: None,
+            source_query: None,
         })
         .with_query(q.clone());
     }

@@ -25,6 +25,11 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
         }
         return Ok(());
     }
+    // openFDA answers HTTP 400 to a letter outside ASCII, so the name is refused before the request.
+    if v.name.as_ref().is_some_and(|v| !v.as_str().is_ascii()) {
+        return Err(QueryInvalid::new(&["name"])
+            .with_message(crate::ErrorMessage::DeviceRecallNameAscii));
+    }
     if v.classification.is_some() && v.product_code.is_some() {
         return Err(QueryInvalid::new(&["product_code", "classification"])
             .with_message(crate::ErrorMessage::DeviceRecallClassificationProductCode));
@@ -62,8 +67,13 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     if !device_source(v) {
-        // GTR matches literal test names; other non-device sources have no name field.
-        let name = v.name.is_some() && v.source != DiagnosticSearchSource::Gtr;
+        // GTR matches literal test names and device recalls their product description;
+        // other non-device sources have no name field.
+        let name = v.name.is_some()
+            && !matches!(
+                v.source,
+                DiagnosticSearchSource::Gtr | DiagnosticSearchSource::FdaDeviceRecall
+            );
         if name || v.decision_from.is_some() || v.decision_to.is_some() {
             return Err(QueryInvalid::new(&[
                 "source",

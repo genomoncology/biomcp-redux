@@ -120,9 +120,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     classification: Option<crate::DrugRecallClassification>,
-    #[doc = "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case."]
+    #[doc = "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; device recall product_description phrase, without plural or synonym expansion; text inside GTR lab_test_name, ignoring case."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::Gtr, crate::Source::FdaPma, crate::Source::Fda510k])))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::Gtr, crate::Source::FdaPma, crate::Source::Fda510k, crate::Source::FdaDeviceRecall])))]
     name: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -322,7 +322,7 @@ impl DiagnosticSearch {
     pub fn classification(&self) -> Option<crate::DrugRecallClassification> {
         self.0.classification
     }
-    /// Native device name phrase or literal GTR test name text.
+    /// Native device name phrase, device recall product description phrase or literal GTR test name text.
     pub fn name(&self) -> Option<&Text> {
         self.0.name.as_ref()
     }

@@ -80,6 +80,12 @@ pub enum DiagnosticCandidate {
         /// Classification from an exact enforcement recall_number match, absent without that match.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         classification: Option<Text>,
+        /// Native product_description of the recall record; a device name search matches this text.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        product_description: Option<Text>,
+        /// Native reason_for_recall of the recall record.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        reason: Option<Text>,
     },
     /// One matched WHO product with cells from its first matching native row.
     WhoIvd {
@@ -244,7 +250,12 @@ page!(
     DiagnosticCandidate,
     DiagnosticSearch,
     "biomcp.diagnostic-page/6",
-    "Source-ordered native diagnostic and medical-device submission candidates."
+    "Source-ordered native diagnostic and medical-device submission candidates.",
+    [
+        /// Exact openFDA search expression sent for a device recall page; it names the field each filter matched.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub source_query: Option<Box<str>>,
+    ]
 );
 page!(
     diagnostic,
