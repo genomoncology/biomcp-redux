@@ -10,23 +10,26 @@ pub(super) const RANKING: &str = "exact brand before generic, unless a matching 
      generic or other labels; then most numbered indications; then newest revision";
 
 /// Brand match first, then the label holder, then more numbered indications; the source's
-/// newest-first order breaks ties.
+/// newest-first order breaks ties. A label whose generic name matches ranks as generic even when
+/// its brand name matches too; `generic_name` then settles every label's match.
 pub(super) fn rank(matched: DrugNameMatch, row: &Record) -> Rank {
     let choice = row.choice();
     (
-        u8::from(matched == DrugNameMatch::Generic),
+        u8::from(matched != DrugNameMatch::Brand),
         choice.holder as u8,
         Reverse(choice.indications),
         String::new(),
     )
 }
 
-/// The name is a generic name, since some matching label carries it as one, so a label whose
-/// brand name repeats it (a generic maker filing as "Metformin") is no exact brand match, and
-/// every label is ranked by the tiers alone.
+/// When some matching label carries the name as its generic name, the name is a generic name,
+/// so a label whose brand name repeats it (a generic maker filing as "Metformin") is no exact
+/// brand match, and every label is ranked by the tiers alone.
 pub(super) fn generic_name(candidates: &mut [(Rank, DrugHeader)]) {
-    for ((matched, ..), _) in candidates {
-        *matched = 1;
+    if candidates.iter().any(|((matched, ..), _)| *matched != 0) {
+        for ((matched, ..), _) in candidates {
+            *matched = 1;
+        }
     }
 }
 
