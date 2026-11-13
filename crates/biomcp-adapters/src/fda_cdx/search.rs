@@ -59,10 +59,11 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
             row.relation
         })
         .collect();
-    if query.drug_application().is_some() {
-        // A row whose drug cell cannot be read joins no application, so name it.
+    if let Some(id) = query.drug_application() {
+        // An unreadable row that mentions the asked application joins nothing, so name it.
+        let digits = id.as_str().get(3..).unwrap_or_default();
         let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
-        for row in all {
+        for row in all.iter().filter(|row| mentions(&row.value.relation, digits)) {
             conflicts.extend(conflicts_of(&row.value));
         }
     }
@@ -90,6 +91,15 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         info,
         problems,
     })
+}
+/// Whether the row's drug cell text or a link address contains the application digits.
+fn mentions(row: &CompanionDiagnosticRelation, digits: &str) -> bool {
+    let cell = match row {
+        CompanionDiagnosticRelation::Individual { cells, .. } => &cells.drug,
+        CompanionDiagnosticRelation::Group { cells, .. } => &cells.drug_group,
+    };
+    !digits.is_empty()
+        && (cell.text.contains(digits) || cell.links.iter().any(|l| l.href.contains(digits)))
 }
 /// Table, row and field of each identity cell this stored row could not read.
 fn conflicts_of(row: &super::raw::Native) -> Vec<(u8, u32, &'static str)> {

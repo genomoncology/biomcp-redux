@@ -1,7 +1,7 @@
 {
   "feature": "diagnostic-cdx",
   "live_check": "public",
-  "story": "A drug-application search returns FDA's group-labeling rows as well as the individual rows, and names the one row whose drug link and text disagree.",
+  "story": "A drug-application search returns FDA's group-labeling rows as well as the individual rows, and names an unreadable row only when it mentions the asked application.",
   "verified": "Captured 2026-11-13 from https://www.fda.gov/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools. FDA-authored government tables are public domain unless otherwise noted under https://www.fda.gov/about-fda/about-website/website-policies#linking; the captured page has no copyright, license or proprietary notice. Git body is only the two unchanged table substrings in original order, separated by one newline. Original page SHA256 f6cb7f44cdd7fb41f83936afbd68a7f1d10e77a38879c36b194b7ff7734b4f60; projected table SHA256 e87b01a8bc7e8d48c3db42f81fcf7763196cd6573e08d3691fc237f04fd5fec6. On that page 15 rows name NDA 208065 (10 individual, group rows 1, 3, 4, 5 and 8) and 16 name BLA 125514 (all individual). Individual row 89 links NDA 213246 but its text reads NDA214246.",
   "replay": "diagnostic/cdx-group-join",
   "steps": [
@@ -38,12 +38,11 @@
         "/result/items/*/kind": {
           "count": 15
         },
-        "/problems/*/code": [
-          "identity.conflict"
-        ],
-        "/problems/*/field": [
-          "drug"
-        ]
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
       }
     },
     {
@@ -74,6 +73,28 @@
         "/page/total": 2,
         "/result/items/0/index": 14,
         "/result/items/1/index": 15
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--drug-application",
+        "NDA213246"
+      ],
+      "expect": {
+        "/page/total": 6,
+        "/problems/*/code": [
+          "identity.conflict"
+        ],
+        "/problems/*/field": [
+          "drug"
+        ],
+        "/problems/*/record": [
+          "PLACEHOLDER:0:89"
+        ]
       }
     }
   ]
