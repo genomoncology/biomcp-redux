@@ -1,0 +1,28 @@
+{
+  "live_check": "synthetic",
+  "feature": "article-pdf",
+  "story": "A failed PDF save whose source answered keeps its file section, so the reply says why no file was saved.",
+  "verified": "Reuses the synthetic not-pdf replies: Semantic Scholar names an open PDF and the publisher answers HTTP 200 with an HTML body. Before 0858 the reply was status failed, the only source ok, and no result or problem (bench 0040 failure #21, msl log :95-96, PMID 24256730).",
+  "replay": "article/pdf/not-pdf",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "pdf",
+        "41351423",
+        "--save",
+        "not-saved.pdf"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/state": "ok",
+        "/result/file/state": "unavailable",
+        "/result/file/source": "semantic-scholar",
+        "/result/file/reason": "not-pdf"
+      },
+      "max_bytes": 2000
+    }
+  ]
+}

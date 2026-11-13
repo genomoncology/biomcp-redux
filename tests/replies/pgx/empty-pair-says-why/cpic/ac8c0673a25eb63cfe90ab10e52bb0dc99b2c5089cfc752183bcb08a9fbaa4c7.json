@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=%2A&lookupkey-%3E%3EUGT1A1=not.is.null&drugid=eq.RxNorm%3A51499&order=id.asc&limit=5&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794534385,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "*/0",
+      "delay_ms": 337,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": []
+      }
+    }
+  ]
+}

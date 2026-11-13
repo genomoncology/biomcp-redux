@@ -2742,7 +2742,7 @@ Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
 
 - `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string. Example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string. Example: --diplotype '*1/*2A'. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id <drug-id> (syntax; replace the placeholder with your retained value). Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id RxNorm:343047. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: clinpgx, cpic; source restrictions in the field description apply.
 - `--kind`: One ClinPGx collection; clinical is the default only on; help get pgx
 One ClinPGx collection; clinical is the default only on annotations.

@@ -89,6 +89,14 @@ impl Outcome {
                 ReplyData::NciTrialPage {
                     body: Some(body), ..
                 } => body.condition_resolution.is_some(),
+                // The file section's reason is the only cause when the source answered.
+                ReplyData::ArticlePdfResult {
+                    body: Some(body), ..
+                } => matches!(
+                    body.file,
+                    biomcp_types::Section::Unavailable { .. }
+                        | biomcp_types::Section::Skipped { .. }
+                ),
                 // A provider's own rejection messages say why normalization failed.
                 ReplyData::VariantNormalization {
                     body: Some(body), ..

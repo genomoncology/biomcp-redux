@@ -31,7 +31,7 @@ impl<T: serde::de::DeserializeOwned> Reply for Rows<T> {
         Ok(())
     }
 }
-fn read<T: serde::de::DeserializeOwned + Native>(
+pub(super) fn read<T: serde::de::DeserializeOwned + Native>(
     leg: &Leg<'_>,
     path: &'static str,
     args: &[(&str, Arg<'_>)],

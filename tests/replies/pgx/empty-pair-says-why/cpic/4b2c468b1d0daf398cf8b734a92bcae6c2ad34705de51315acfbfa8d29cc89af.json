@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.UGT1A1&drugid=eq.RxNorm%3A51499&order=pairid.asc&limit=1&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794534386,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-0/1",
+      "delay_ms": 84,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"pairid":110106,"drugid":"RxNorm:51499","drugname":"irinotecan","genesymbol":"UGT1A1","guidelinename":null,"guidelineurl":null,"cpiclevel":"A","clinpgxlevel":"1A","pgxtesting":"Testing Recommended","pmids":null,"usedforrecommendation":"n/a","provisional":true}]
+      }
+    }
+  ]
+}

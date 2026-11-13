@@ -58,6 +58,7 @@ fn fetch(
         .map_or_else(Vec::new, |version| version.problems.clone());
     let source_updated = version.and_then(|version| version.value);
     let mut items = Vec::new();
+    let mut unread = Vec::new();
     for (id, row) in query.input().iter().zip(rows) {
         match row {
             Ok((detail, metadata)) => {
@@ -88,18 +89,70 @@ fn fetch(
                 };
                 items.push(page::render(query, snapshot, pool, out)?);
             }
-            Err(e) => items.push(unresolved(
-                *id,
-                if not_found(e) {
-                    crate::status::item_status(false, false, false)
-                } else {
-                    crate::status::item_status(false, true, false)
-                },
-            )),
+            Err(e) => {
+                if !not_found(e) {
+                    unread.push((*id, status::reason(e)));
+                }
+                items.push(unresolved(
+                    *id,
+                    if not_found(e) {
+                        crate::status::item_status(false, false, false)
+                    } else {
+                        crate::status::item_status(false, true, false)
+                    },
+                ))
+            }
         }
     }
+    say_unread(query, &unread, out);
     finish(query, items, source_updated, out);
     Ok(())
+}
+/// A batch item that failed carries only its input and status; name each one, its reason
+/// and a retry, so a missing card or section never reads as an empty one.
+fn say_unread(
+    query: &TrialGet,
+    unread: &[(NctId, Option<biomcp_types::Reason>)],
+    out: &mut Outcome,
+) {
+    // A single get's source reason already names the cause.
+    if unread.is_empty() || query.input().len() < 2 {
+        return;
+    }
+    let named: Vec<String> = unread
+        .iter()
+        .map(|(id, reason)| match reason {
+            Some(reason) => format!("{id} ({reason})"),
+            None => format!("{id} (local error)"),
+        })
+        .collect();
+    let message = format!(
+        "Not read in this batch: {}. These trials carry no card or sections in this reply; read them again with the fresh step, or in smaller batches.",
+        named.join(", ")
+    );
+    if let Some(source) = out
+        .sources
+        .iter_mut()
+        .find(|source| source.source == Source::ClinicalTrialsGov)
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            });
+    }
+    let ids: Vec<NctId> = unread.iter().map(|(id, _)| *id).collect();
+    out.next.insert(
+        0,
+        crate::next::Step::run(
+            StepKind::Fresh,
+            &[Source::ClinicalTrialsGov],
+            Request::GetTrial(query.identity().with_input(ids)),
+            true,
+        ),
+    );
 }
 fn restore(
     cx: &Ctx<'_>,

@@ -17,8 +17,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
 };
+mod pair;
 mod raw;
 mod read;
+pub use pair::pair;
 pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
 
 /// Native gene collection shared by record reads and the bounded health probe.

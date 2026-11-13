@@ -87,6 +87,81 @@ pub(super) fn select(
     Ok(Some(selected.into()))
 }
 
+/// Say why a document ID cannot be read: the application lacks it, or it is not a letter.
+/// Returns the section reason; a unique letter, or a duplicated ID, goes on to `select`.
+pub(super) fn refusal(
+    query: &DrugGet,
+    row: &drugsfda::Application,
+    out: &mut Outcome,
+) -> Result<Option<biomcp_types::Reason>, RequestError> {
+    let Some(id) = query.document_id() else {
+        return Ok(None);
+    };
+    let mut kinds = Vec::new();
+    let mut letters = Vec::new();
+    for submission in row.submissions(0, u32::MAX)? {
+        for document in submission
+            .application_docs
+            .iter()
+            .flat_map(|docs| docs.iter())
+        {
+            let kind = document.r#type.as_ref().map(|kind| kind.as_str());
+            if kind == Some("Letter") && !letters.contains(&document.id.as_str().to_owned()) {
+                letters.push(document.id.as_str().to_owned());
+            }
+            if &document.id == id {
+                kinds.push(kind.map(str::to_owned));
+            }
+        }
+    }
+    let (reason, opening) = match kinds.as_slice() {
+        [] => (
+            biomcp_types::Reason::NotFound,
+            format!("This application lists no document {id}."),
+        ),
+        [Some(kind)] if kind == "Letter" => return Ok(None),
+        [kind] => (
+            biomcp_types::Reason::Unsupported,
+            format!(
+                "Document {id} is {}, not a Letter; document_id (--document-id on the command line) reads FDA letter text only.",
+                kind.as_deref().map_or_else(
+                    || "of no stated type".to_owned(),
+                    |kind| format!("a {kind}")
+                )
+            ),
+        ),
+        _ => return Ok(None),
+    };
+    const SHOWN: usize = 10;
+    let listed = match letters.len() {
+        0 => "It lists no letter documents.".to_owned(),
+        n if n <= SHOWN => format!("Its letter documents: {}.", letters.join(", ")),
+        n => format!(
+            "Its letter documents include {} ({n} in all; the approvals section lists each one).",
+            letters
+                .iter()
+                .take(SHOWN)
+                .map(String::as_str)
+                .collect::<Vec<_>>()
+                .join(", ")
+        ),
+    };
+    if let Some(source) = out
+        .sources
+        .iter_mut()
+        .find(|source| source.source == Source::Drugsfda)
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: format!("{opening} {listed}").into(),
+                retry_after_seconds: None,
+            });
+    }
+    Ok(Some(reason))
+}
+
 /// Disclose an FDA letter refusal with its URL and a retry step.
 fn refused(
     query: &DrugGet,

@@ -1,6 +1,7 @@
 # 0858 — empty-and-failed-replies-say-why
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8abbad84d687f4788b294074a4bd15120ba0194e
 
 Milestone: 7
 
@@ -36,4 +37,14 @@ From bench 0040's rerun, reproduced on main 59150d16d (`sdlc/records/2026-11-12-
 
 ## Changes
 
-- Changes: `crates/biomcp-query/src/`, `tests/cases/`
+- Changes: `crates/biomcp-query/src/`, `crates/biomcp-adapters/src/cpic/`, `crates/biomcp-types/src/`, `tests/cases/`
+
+## Progress
+
+- Measured on main 6f7f0abb0 (pm job j38870). Still held: label section absent from the label (bare empty), batched trial get (failed items carried only input and status; the source said `deadline-exceeded` once), article PDF 24256730 (`failed`, source `ok`, no result; the publisher answered HTML, so the hidden reason was `not-pdf`), approvals document 68968 (`failed`, source `ok`; the document is a Label, not a Letter), and the provisional CPIC pair (complete, zero rows, no reason). No longer held: disease genes and phenotypes without `--source` give the guided `--source monarch` error for both MONDO:0016512 and MONDO:0007843. Document 68973 now names FDA's refusal (0868).
+- A label heading the label lacks keeps `label` empty and fills the existing `sections` and `hint` fields: the hint says the label has no such section.
+- A batched trial get names each unread trial with its reason in a `request-guidance` notice and puts a `fresh` step for just those trials first in `next`. Single gets are unchanged; their source reason already names the cause.
+- A failed PDF save keeps its file section when the section is unavailable or skipped, so `result.file.reason` names the cause (`not-pdf`, `not-open`). Status and exit stay `failed` and 4.
+- An approvals document ID the application does not list, or that is not a Letter, leaves `approvals` unavailable (`not-found` or `unsupported`, status `partial`, as an unlisted product number already did) with a notice naming the document's type and the application's letter IDs. Any other Drugs@FDA failure after an ok read now marks the source failed with its reason.
+- An empty CPIC recommendation table for a gene and drug reads CPIC's pair row once and says, in a notice, whether the pair is provisional, has no guideline, or is not a CPIC pair.
+- No schema shape changed: only the descriptions of the label `sections` and `hint` fields, and existing notice kinds, step kinds and section reasons.

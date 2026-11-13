@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=%2A&lookupkey-%3E%3EUGT1A1=not.is.null&drugid=eq.RxNorm%3A343047&order=id.asc&limit=1&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794534386,
+      "status": 206,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-0/4",
+      "delay_ms": 305,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"id":8608781,"guidelineid":100429,"drugid":"RxNorm:343047","implications":{"UGT1A1": "Reference UGT1A1 activity; very low likelihood of bilirubin-related discontinuation of atazanavir."},"drugrecommendation":"There is no need to avoid prescribing of atazanavir based on UGT1A1 genetic test result. Inform the patient that some patients stop atazanavir because of jaundice (yellow eyes and skin), but that this patient's genotype makes this unlikely (less than about a 1 in 20 chance of stopping atazanavir because of jaundice).","classification":"Strong","phenotypes":{"UGT1A1": "Normal Metabolizer"},"activityscore":{"UGT1A1": "n/a"},"allelestatus":{},"lookupkey":{"UGT1A1": "Normal Metabolizer"},"population":"general","comments":"All studies correlating UGT1A1 genotypes with atazanavir adverse events have involved ritonavir boosting. However, concentration-time profiles are equivalent when boosted with either cobicistat or ritonavir (PMID 23532097), and bilirubin-related adverse events including discontinuation of atazanavir occur in a similar percentage of patients prescribed atazanavir with cobicistat or ritonavir (PMID 23532097). Associations between UGT1A1 genotype, bilirubin elevations, and atazanavir/r discontinuation therefore almost certainly translate to atazanavir/cobicistat. \"reference\" function refers to the UGT1A1 allele to which other alleles are compared.","version":1,"dosinginformation":false,"alternatedrugavailable":false,"otherprescribingguidance":false}]
+      }
+    }
+  ]
+}

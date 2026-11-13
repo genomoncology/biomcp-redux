@@ -122,6 +122,14 @@ impl TrialGet {
         next.0.offset = offset;
         next
     }
+    /// The same request for a checked subset of its own inputs, such as unread batch items.
+    pub fn with_input(&self, input: Vec<NctId>) -> Self {
+        let mut q = self.clone();
+        if !input.is_empty() && input.iter().all(|id| self.0.input.contains(id)) {
+            q.0.input = input.into();
+        }
+        q
+    }
     /// Initial request without continuation state.
     pub fn identity(&self) -> Self {
         let mut q = self.clone();

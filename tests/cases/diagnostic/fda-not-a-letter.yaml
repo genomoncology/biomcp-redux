@@ -1,0 +1,51 @@
+{
+  "feature": "fda-document-text",
+  "live_check": "public",
+  "story": "A document ID that is not a letter, or that the application does not list, leaves the approvals section unavailable with the reason and the application's letter IDs, instead of a bare failure.",
+  "verified": "openFDA Drugs@FDA reply for NDA202155 (ELIQUIS) recorded 2026-11-12 by biomcp --record; document 68968 is the s034 Label. Before 0858 the reply was status failed with drugsfda state ok and no result, problem or next step (bench 0039 pt-committee log :82).",
+  "replay": "diagnostic/fda-not-a-letter",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA202155",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "68968"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/approvals/state": "unavailable",
+        "/result/approvals/reason": "unsupported",
+        "/sources/0/notices/*/message": {
+          "includes": "Document 68968 is a Label, not a Letter; document_id (--document-id on the command line) reads FDA letter text only. Its letter documents include 86347, 82022, 82023, 68973, 67134, 61076, 58977, 54836, 52630, 50563 (20 in all; the approvals section lists each one)."
+        }
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA202155",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "1"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/approvals/state": "unavailable",
+        "/result/approvals/reason": "not-found",
+        "/sources/0/notices/*/message": {
+          "includes": "This application lists no document 1. Its letter documents include 86347, 82022, 82023, 68973, 67134, 61076, 58977, 54836, 52630, 50563 (20 in all; the approvals section lists each one)."
+        }
+      },
+      "max_bytes": 4000
+    }
+  ]
+}
