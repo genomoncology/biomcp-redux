@@ -21,7 +21,9 @@ fn newest(total: Option<u64>) -> String {
     format!(
         "--sort newest: openFDA orders {matches}, not just this page, by their latest submission \
          status date, newest first, ties by application number; applications with no dated \
-         submission come last. latest_submission shows that submission."
+         submission come last. latest_submission shows that submission, which is often a \
+         labeling or efficacy supplement, not the original approval; original_approval gives \
+         the original approval date."
     )
 }
 

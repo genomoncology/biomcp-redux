@@ -3,8 +3,8 @@ use super::raw::{Application as RawApplication, Product, Submission};
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent, PartialDate};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission, DrugFdaProduct,
-    DrugFdaProperty, DrugFdaSubmission,
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission,
+    DrugFdaOriginalApproval, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission,
 };
 impl RawApplication {
     /// Expose an application name only when all native products share exact brand wording.
@@ -33,7 +33,32 @@ impl RawApplication {
                     submission_class_code: s.submission_class_code.clone(),
                 })
             }),
+            original_approval: self.original_approval(),
         }
+    }
+    /// The earliest dated ORIG submission with status AP, lowest submission number on a tie.
+    fn original_approval(&self) -> Option<DrugFdaOriginalApproval> {
+        self.submissions
+            .iter()
+            .filter(|s| {
+                s.submission_type
+                    .as_ref()
+                    .is_some_and(|t| t.as_str() == "ORIG")
+                    && s.submission_status
+                        .as_ref()
+                        .is_some_and(|t| t.as_str() == "AP")
+            })
+            .filter_map(|s| s.submission_status_date.map(|date| (date, s)))
+            .min_by(|(a, x), (b, y)| {
+                a.to_string().cmp(&b.to_string()).then_with(|| {
+                    submission_number_key(x.submission_number.as_str())
+                        .cmp(&submission_number_key(y.submission_number.as_str()))
+                })
+            })
+            .map(|(date, s)| DrugFdaOriginalApproval {
+                date,
+                submission_number: s.submission_number.clone(),
+            })
     }
     /// Submissions by newest status date, then descending submission number; undated rows last.
     fn newest_first(&self) -> Vec<&Submission> {

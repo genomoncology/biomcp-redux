@@ -77,7 +77,9 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     applicant: Option<Text>,
     #[doc = "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;"]
-    /// applications with no dated submission come last. Omit it for the source's own order.
+    /// applications with no dated submission come last. That latest date is often a labeling or
+    /// efficacy supplement, not the original approval; each row's original_approval gives that.
+    /// Omit it for the source's own order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     sort: Option<DrugFdaSort>,

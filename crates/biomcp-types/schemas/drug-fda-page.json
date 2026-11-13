@@ -40,6 +40,17 @@
           "$ref": "#/$defs/Reply_Text",
           "description": "Exact brand wording shared by every product; omitted for zero or differing brands."
         },
+        "original_approval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DrugFdaOriginalApproval"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The earliest approved original (ORIG, status AP) submission; omitted when there is none."
+        },
         "products": {
           "description": "Complete native product candidates within this application.",
           "items": {
@@ -76,7 +87,7 @@
       "type": "object"
     },
     "Reply_DrugFdaLatestSubmission": {
-      "description": "An application's most recent dated submission, as the source states it.",
+      "description": "An application's most recent dated submission, as the source states it; often a labeling or\nefficacy supplement rather than the original approval.",
       "properties": {
         "date": {
           "$ref": "#/$defs/Reply_PartialDate",
@@ -118,6 +129,24 @@
             }
           ],
           "description": "Native submission type, such as ORIG or SUPPL."
+        }
+      },
+      "required": [
+        "date",
+        "submission_number"
+      ],
+      "type": "object"
+    },
+    "Reply_DrugFdaOriginalApproval": {
+      "description": "An application's original approval, as the source states it.",
+      "properties": {
+        "date": {
+          "$ref": "#/$defs/Reply_PartialDate",
+          "description": "Native submission status date of the original submission."
+        },
+        "submission_number": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Original submission number."
         }
       },
       "required": [
@@ -630,7 +659,7 @@
               "type": "null"
             }
           ],
-          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. Omit it for the source's own order.",
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\nOmit it for the source's own order.",
           "x-required-component": "drugsfda"
         },
         "source": {

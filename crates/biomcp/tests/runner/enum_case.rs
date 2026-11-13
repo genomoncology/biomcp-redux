@@ -110,6 +110,8 @@ fn sample(key: &str, property: &Value, schema: &Value) -> Value {
         "annotation_id" => json!("PA166104949"),
         // A saved-result name has the store's form, so the command reaches its lookup.
         "pool" | "snapshot" | "name_snapshot" => json!("0".repeat(64)),
+        // WHO IVD publishes only a year; a year is also a valid WHO PQ bound.
+        "prequalified_from" | "prequalified_to" => json!("2020"),
         key if key.ends_with("_from") || key.ends_with("_to") => json!("2020-01-01"),
         "since" | "until" => json!("2020"),
         _ if node.get("type") == Some(&json!("boolean")) => json!(true),

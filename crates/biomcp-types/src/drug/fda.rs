@@ -147,8 +147,21 @@ pub struct DrugFdaCandidate {
     /// The submission with the latest status date; omitted when no submission is dated.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub latest_submission: Option<DrugFdaLatestSubmission>,
+    /// The earliest approved original (ORIG, status AP) submission; omitted when there is none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub original_approval: Option<DrugFdaOriginalApproval>,
 }
-/// An application's most recent dated submission, as the source states it.
+/// An application's original approval, as the source states it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugFdaOriginalApproval {
+    /// Native submission status date of the original submission.
+    pub date: PartialDate,
+    /// Original submission number.
+    pub submission_number: Text,
+}
+/// An application's most recent dated submission, as the source states it; often a labeling or
+/// efficacy supplement rather than the original approval.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugFdaLatestSubmission {

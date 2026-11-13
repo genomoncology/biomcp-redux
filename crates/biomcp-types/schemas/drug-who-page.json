@@ -204,7 +204,7 @@
               "type": "null"
             }
           ],
-          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. Omit it for the source's own order.",
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\nOmit it for the source's own order.",
           "x-required-component": "drugsfda"
         },
         "source": {
