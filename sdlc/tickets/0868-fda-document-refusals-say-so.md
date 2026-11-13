@@ -1,6 +1,7 @@
 # 0868 — fda-document-refusals-say-so
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 6e8e3973c8acaa4728394ea8c8bed3c8e58b52d5
 
 Milestone: 7
 

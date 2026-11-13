@@ -19,10 +19,12 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     } else {
         "pdf".into()
     };
-    let url = format!("https://www.accessdata.fda.gov/cdrh_docs/{directory}/{id}B.pdf").parse();
+    let url: Result<biodata::Text, _> =
+        format!("https://www.accessdata.fda.gov/cdrh_docs/{directory}/{id}B.pdf").parse();
     let result = url
+        .as_ref()
         .map_err(|_| biomcp_fetch::bad_reply(q.source().source(), None))
-        .and_then(|url| pdf::read(&leg, &fda_pma::DOCUMENTS, &url, q.section_offset()));
+        .and_then(|url| pdf::read(&leg, &fda_pma::DOCUMENTS, url, q.section_offset()));
     let error = match result {
         Ok(document) => {
             let returned = u32::from(document.text.is_some());
@@ -50,8 +52,20 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
         Err(error) => Some(error),
     };
     out.local = error.and_then(status::local);
-    out.sources
-        .push(status::source(q.source().source(), leg.finish(), error));
+    let mut source = status::source(q.source().source(), leg.finish(), error);
+    if let (Some(error), Ok(url)) = (error, url.as_ref())
+        && let Some(notice) = pdf::refusal(url, &error)
+    {
+        source.notices.push(notice);
+        next::push(
+            &mut out,
+            StepKind::Fresh,
+            &[q.source().source()],
+            Request::GetDiagnostic(q.clone()),
+            true,
+        );
+    }
+    out.sources.push(source);
     if error.is_some() {
         status::item(&mut out, false, true, false);
     }
