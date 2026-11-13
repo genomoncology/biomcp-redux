@@ -11,7 +11,7 @@
       ]
     },
     "Reply_AdverseEventSearch": {
-      "description": "Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
+      "description": "Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.",
       "properties": {
         "aggregate": {
           "anyOf": [
@@ -31,6 +31,18 @@
             "$ref": "#/$defs/Reply_Text"
           },
           "type": "array"
+        },
+        "event_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_MaudeEventType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other.",
+          "x-required-component": "gmdn"
         },
         "exact_term": {
           "description": "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.",
@@ -234,6 +246,22 @@
         "version"
       ],
       "type": "string"
+    },
+    "Reply_MaudeEventType": {
+      "description": "MAUDE report event type, matched on native event_type.",
+      "enum": [
+        "malfunction",
+        "injury",
+        "death",
+        "other"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Malfunction reports.",
+        " Native Injury reports.",
+        " Native Death reports.",
+        " Native Other reports."
+      ]
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",

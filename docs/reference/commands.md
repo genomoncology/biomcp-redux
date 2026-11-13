@@ -120,7 +120,7 @@ Commands:
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
-  adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+  adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
   drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection.
@@ -1087,7 +1087,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 ## biomcp search adverse-event
 
 ```text
-Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
+Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
 
 Usage: biomcp search adverse-event [OPTIONS] [text] [section]
 
@@ -1118,15 +1118,14 @@ Options:
           FAERS drug names; OR.
           FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).
 
+      --event-type <event_type>
+          MAUDE event type; help search adverse-event
+          MAUDE event type.
+          MAUDE report event type on native event_type: malfunction, injury, death or other.
+
       --exact-term[=<exact_term>]
           Search typed drug names only.
           FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.
-
-          [default: false]
-          [possible values: true, false]
-
-      --expand-drug-names[=<expand_drug_names>]
-          FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
 
           [default: false]
           [possible values: true, false]
@@ -1136,6 +1135,12 @@ Options:
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --expand-drug-names[=<expand_drug_names>]
+          FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
+
+          [default: false]
+          [possible values: true, false]
 
       --limit <limit>
           Native report headers, counted FAERS reaction terms or VAERS rows; default five.
@@ -1150,12 +1155,18 @@ Options:
       --offset <offset>
           Native report row offset; reaction counts require zero. VAERS needs its snapshot.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --problem <problem>
           MAUDE product problem.
           MAUDE phrase on native product_problems.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1163,12 +1174,6 @@ Options:
       --product-code <product_code>...
           MAUDE product codes; OR.
           MAUDE exact native device.device_report_product_code; repeated codes join with OR.
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --reaction <reaction>
           FAERS MedDRA phrase.
@@ -1206,6 +1211,10 @@ Use reactions for source count buckets across matching reports. Counts are not r
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
 FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--event-type`: MAUDE event type; help search adverse-event
+MAUDE event type.
+MAUDE report event type on source event_type: malfunction, injury, death or other.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --event-type malfunction. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--exact-term`: Search typed drug names only.
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--expand-drug-names`: FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
