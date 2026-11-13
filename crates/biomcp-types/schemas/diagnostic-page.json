@@ -19,6 +19,13 @@
       "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
       "type": "string"
     },
+    "Reply_DecisionReading": {
+      "description": "Plain reading of a 510(k) decision code.",
+      "enum": [
+        "de-novo-granted"
+      ],
+      "type": "string"
+    },
     "Reply_DeviceRecallHeader": {
       "description": "Native medical device product recall header, independent of event grouping.",
       "properties": {
@@ -153,6 +160,17 @@
                     "string",
                     "null"
                   ]
+                },
+                "decision_reading": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/Reply_DecisionReading"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Plain reading of a decision_code whose openFDA decision_description does not name it; absent otherwise."
                 },
                 "device_name": {
                   "description": "Native device_name; missing and empty remain distinct.",
@@ -720,6 +738,30 @@
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "prequalified_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WHO IVD year.\nFirst prequalification year included, YYYY; WHO publishes only the year.",
+          "x-required-component": "who-ivd"
+        },
+        "prequalified_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "WHO IVD year.\nLast prequalification year included, YYYY; WHO publishes only the year.",
+          "x-required-component": "who-ivd"
         },
         "product_code": {
           "anyOf": [

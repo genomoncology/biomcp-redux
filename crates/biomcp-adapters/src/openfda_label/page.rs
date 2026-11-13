@@ -41,11 +41,13 @@ impl Record {
             text.push_str(&fragment.text);
             selected.push(fragment.meta);
         }
+        let remaining = total.saturating_sub(u64::from(offset) + selected.len() as u64);
         Ok(Some(DrugLabelText {
             label: self.reference()?,
             heading: heading.parse().map_err(|_| {
                 biomcp_fetch::bad_reply(biomcp_types::Source::OpenfdaLabel, Some(200))
             })?,
+            remaining: (remaining > 0).then_some(remaining),
             text: text.into(),
             retrieved: None,
             fragments: selected.into(),

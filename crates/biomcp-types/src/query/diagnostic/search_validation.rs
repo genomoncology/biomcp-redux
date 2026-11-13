@@ -112,3 +112,30 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
     }
     Ok(())
 }
+
+/// WHO IVD publishes only a prequalification year, so its window takes whole years.
+pub(super) fn validate_who_years(v: &SearchFields) -> Result<(), QueryInvalid> {
+    let years = v.prequalified_from.is_some() || v.prequalified_to.is_some();
+    if years && v.source != DiagnosticSearchSource::WhoIvd {
+        return Err(QueryInvalid::new(&[
+            "source",
+            "prequalified_from",
+            "prequalified_to",
+        ]));
+    }
+    if [v.prequalified_from, v.prequalified_to]
+        .into_iter()
+        .flatten()
+        .any(|d| d.month().is_some())
+    {
+        return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"])
+            .with_message(crate::ErrorMessage::WhoIvdYears));
+    }
+    if v.prequalified_from
+        .zip(v.prequalified_to)
+        .is_some_and(|(a, b)| a.year() > b.year())
+    {
+        return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"]));
+    }
+    Ok(())
+}

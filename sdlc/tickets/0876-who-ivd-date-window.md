@@ -1,6 +1,7 @@
 # 0876 — who-ivd-date-window
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ce845d4aa633a9116534da08a651189b19ad243d
 
 Milestone: 7
 
@@ -31,3 +32,9 @@ From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `pers
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/`, `crates/biomcp-query/src/diagnostic/`, `tests/cases/diagnostic/`
+
+## Progress
+
+- Measured live 2026-11-13: WHO's IVD export has 439 rows, 127 products; every `Year prequalification` cell is a four-digit year, and rows of one product share one year. 62 products carry the HIV marker; 9 of them were prequalified in 2023 or later.
+- `search diagnostic --source who-ivd` now takes `--prequalified-from`/`--prequalified-to` as whole years (inclusive), alone or with `--marker`/`--manufacturer`; the page total counts products inside the window. A month or day bound is refused with "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY", other sources refuse the options, and a reversed window is refused.
+- Proof: `tests/cases/diagnostic/who-ivd-window.yaml` on the WHO IVD export recorded live in a job: HIV since 2023 returns those 9 products with total 9; 2023 alone totals 4.
