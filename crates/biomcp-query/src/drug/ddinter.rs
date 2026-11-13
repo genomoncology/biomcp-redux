@@ -3,8 +3,8 @@ use crate::{Action, Bundle, Ctx, Outcome, status};
 use biomcp_adapters::ddinter;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugGet, DrugInteractions, DrugPage, DrugSearch, DrugSection, PageInfo, Request, Section,
-    Source, SourceState, StepKind,
+    DrugGet, DrugInteractions, DrugPage, DrugSearch, DrugSection, DrugSource, PageInfo, Request,
+    Section, Source, SourceState, StepKind,
 };
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -67,6 +67,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
         ddinter::interactions(
             &leg,
             &id,
+            query.partner().map(|p| p.as_str()),
             query.section_limit().unwrap_or(5),
             query.section_offset().unwrap_or(0),
         )
@@ -75,6 +76,17 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
+            if let Some(partner) = query.partner()
+                && body.as_ref().is_some_and(|body| body.partners.is_empty())
+                && let Ok(search) = DrugSearch::named(partner.clone(), DrugSource::Ddinter, 10)
+            {
+                out.next.push(crate::next::Step::run(
+                    StepKind::Disambiguate,
+                    &[biomcp_types::Source::Ddinter],
+                    Request::SearchDrug(search),
+                    cx.fresh,
+                ));
+            }
             out.body = biomcp_types::DrugInteractions::into_reply(
                 query.clone(),
                 body.map(|body| page(query, cx.fresh, body, &mut out)),

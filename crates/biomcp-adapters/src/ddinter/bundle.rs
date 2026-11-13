@@ -107,10 +107,49 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
         problems,
     })
 }
-/// Page exact native partners, preserving the source order and every duplicate origin.
+/// What every interactions reply says about the published files.
+const LEVELS_ONLY: &str = "DDInter's published files give each listed pair a level and no management or \
+    mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.";
+
+/// DDInter identities a partner argument names: an exact DDInter ID, or a complete DDInter name
+/// ignoring letter case, alone or followed by one approved salt word.
+fn partner_identities(leg: &Leg<'_>, partner: &str) -> Result<Vec<DrugHeader>, RequestError> {
+    let id = super::raw::valid_id(partner);
+    let find = if id {
+        Find::Exact(KeyKind::Id, partner)
+    } else {
+        Find::Words(partner)
+    };
+    let (mut rows, _) = leg.stored_set_rows(&PAIRS, find)?;
+    rows.sort_by(|a, b| (&a.part, a.row).cmp(&(&b.part, b.row)));
+    let mut seen = std::collections::BTreeSet::new();
+    let mut headers = Vec::new();
+    for row in &rows {
+        for (key, name) in identity::identities(&row.value) {
+            let named = if id {
+                key == partner
+            } else {
+                name.is_some_and(|name| {
+                    biomcp_types::DrugNameMatch::generic_name(name, partner)
+                })
+            };
+            if named
+                && seen.insert(key.to_owned())
+                && let Ok(value) = identity::identity(key, name)
+            {
+                headers.push(identity::header(value));
+            }
+        }
+    }
+    Ok(headers)
+}
+
+/// Page exact native partners, preserving the source order and every duplicate origin; a partner
+/// keeps only the pairs with the DDInter identities it names.
 pub fn interactions(
     leg: &Leg<'_>,
     id: &DrugId,
+    partner: Option<&str>,
     limit: u32,
     offset: u32,
 ) -> Result<crate::Mapped<Option<DrugInteractions>>, RequestError> {
@@ -123,7 +162,19 @@ pub fn interactions(
             problems: Vec::new(),
         });
     };
-    let pairs = partners(rows, &id.to_string());
+    let mut pairs = partners(rows, &id.to_string());
+    let mut named = Vec::new();
+    let mut hint = String::from(LEVELS_ONLY);
+    if let Some(partner) = partner {
+        named = partner_identities(leg, partner)?;
+        pairs.retain(|pair| named.iter().any(|h| h.id.to_string() == pair.partner_id()));
+        if named.is_empty() {
+            hint = format!(
+                "DDInter's files name no drug \"{partner}\", so this reply cannot say whether they list the pair; \
+                 search drug with --source ddinter shows the names they use. {LEVELS_ONLY}"
+            );
+        }
+    }
     let total = pairs.len() as u64;
     let mut problems = Vec::new();
     let records = pairs
@@ -157,6 +208,8 @@ pub fn interactions(
                     retrieved: crate::received_date(info.retrieved_at),
                 },
             },
+            partners: named.into(),
+            hint: Text::new(&hint).or_else(|_| Text::new(LEVELS_ONLY)).ok(),
         }),
     })
 }

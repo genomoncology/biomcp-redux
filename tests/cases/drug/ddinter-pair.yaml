@@ -1,0 +1,153 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation; reuses the ddinter-synthetic recording",
+  "feature": "drug-ddinter",
+  "story": "One call answers whether DDInter lists a drug pair: a partner by DDInter ID or complete name keeps only that pair's rows and level, a pair DDInter does not list returns no row, a partner DDInter does not name says so and offers the name search, and every reply says the files carry levels only, no management text.",
+  "replay": "drug/ddinter-synthetic",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "ddinter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 9
+      },
+      "max_bytes": 179
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "synthetic partnerfive"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 1,
+        "/result/interactions/data/records/0/partner/id": "DDInter5",
+        "/result/interactions/data/records/0/level": "Minor",
+        "/result/partners/*/id": [
+          "DDInter5"
+        ],
+        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
+      },
+      "max_bytes": 3000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "DDInter4"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 0,
+        "/result/interactions/data/records": {
+          "equals": [],
+          "count": 0
+        },
+        "/result/partners/*/id": [
+          "DDInter4"
+        ],
+        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
+      },
+      "max_bytes": 3000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "Synthetic Anchor Three",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "Synthetic PartnerFour"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/id": "DDInter3",
+        "/result/interactions/data/total": 1,
+        "/result/interactions/data/records/0/partner/id": "DDInter4",
+        "/result/interactions/data/records/0/level": "Major"
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "Synthetic PartnerNine"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 0,
+        "/result": {
+          "omits": [
+            "partners"
+          ]
+        },
+        "/result/hint": "DDInter's files name no drug \"Synthetic PartnerNine\", so this reply cannot say whether they list the pair; search drug with --source ddinter shows the names they use. DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "Synthetic PartnerNine",
+          "--source",
+          "ddinter"
+        ]
+      },
+      "max_bytes": 3000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter"
+      ],
+      "expect": {
+        "/result/interactions/data/total": 3,
+        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/result": {
+          "omits": [
+            "partners"
+          ]
+        }
+      },
+      "max_bytes": 3000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "--source",
+        "ddinter",
+        "--partner",
+        "DDInter5"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 3000,
+      "exit": 2
+    }
+  ]
+}

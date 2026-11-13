@@ -1,0 +1,156 @@
+{
+  "live_check": "WHO PQ finished-product export captured live 2026-11-13; reuses the who-pq-dates-read recording",
+  "feature": "drug-who-medicines",
+  "story": "A WHO PQ search by therapeutic area returns, in one page, only the products WHO lists under that area in its own Therapeutic Area column, newest first; dates and names narrow the same search, and the area works only with WHO PQ.",
+  "replay": "drug/who-pq-dates-read",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-pq"
+      ],
+      "expect": {
+        "/result/rows": 657
+      },
+      "max_bytes": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "who-pq",
+        "--therapeutic-area",
+        "oncology",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 18,
+        "/page/returned": 18,
+        "/result/items/*/reference": [
+          "BT-ON018",
+          "BT-ON019",
+          "BT-ON017",
+          "BT-ON013",
+          "BT-ON014",
+          "BT-ON016",
+          "BT-ON006",
+          "BT-ON007",
+          "BT-ON009",
+          "BT-ON010",
+          "BT-ON011",
+          "BT-ON012",
+          "BT-ON002",
+          "BT-ON003",
+          "BT-ON008",
+          "BT-ON004",
+          "BT-ON005",
+          "BT-ON001"
+        ],
+        "/result/items/*/therapeutic_area": [
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology"
+        ]
+      },
+      "max_bytes": 40000
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "who-pq",
+        "--therapeutic-area",
+        "Oncology",
+        "--prequalified-from",
+        "2021"
+      ],
+      "expect": {
+        "/page/total": 5,
+        "/result/items/*/reference": [
+          "BT-ON018",
+          "BT-ON019",
+          "BT-ON017",
+          "BT-ON013",
+          "BT-ON014"
+        ]
+      },
+      "max_bytes": 40000
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "who-pq",
+        "rituximab",
+        "--therapeutic-area",
+        "oncology",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/page/total": 8,
+        "/result/items/*/therapeutic_area": [
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology",
+          "Oncology"
+        ]
+      },
+      "max_bytes": 40000
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "who-pq"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "WHO PQ search requires a name, --therapeutic-area or a --prequalified-from/--prequalified-to date range"
+      },
+      "max_bytes": 40000,
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "imatinib",
+        "--source",
+        "ema",
+        "--therapeutic-area",
+        "oncology"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 40000,
+      "exit": 2
+    }
+  ]
+}
