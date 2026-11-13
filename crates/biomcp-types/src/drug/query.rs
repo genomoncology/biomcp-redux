@@ -56,7 +56,8 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
-    /// Named section page size, refused on an identity-only card; 200 for Drugs@FDA approvals.
+    /// Named section page size, refused on an identity-only card.
+    /// At most 50 rows, or 200 for Drugs@FDA approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     section_limit: Option<u32>,
@@ -83,7 +84,7 @@ struct GetFields {
     /// and 6144 escaped bytes per fragment. No-text scans are explicit.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    /// Selected native CIViC molecular profile for a drug-scoped claim stream.
+    #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
