@@ -1,6 +1,7 @@
 # 0897 — device-recall-search-by-device-name
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 8bab2e649dc0f95dd58885ae770745f554968ea8
 
 Milestone: 7
 
@@ -31,3 +32,8 @@ In the pv-scientist persona run of 2026-11-13 (biomed-agent-bench `personas/pv-s
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/fda_device_recall/`, `crates/biomcp-types/`, `tests/cases/diagnostic/`, `docs/`
+
+## Progress
+
+- 2026-11-13: Measured live. On openFDA, `product_description:"infusion pump"` over 2021-11-13 to 2026-11-13 counts 87 in both device recall and device enforcement, the code-mode run's number. Without dates the phrase counts 517 recall records and `product_code:FRN` 721, with 309 in both; `"infusion pumps"` counts 191 (no stemming). Inside a quoted phrase openFDA answers HTTP 400 to `! # $ ; ? ^ | ~`, the backtick and letters outside ASCII; a space in their place finds the same words.
+- 2026-11-13: `search diagnostic --source fda-device-recall --name TEXT` now matches the phrase on `product_description` (recall records, or enforcement records under `--classification`). Refused punctuation is spaced; a letter outside ASCII is refused with a usage message. The page carries `source_query` with the exact openFDA expression, and a notice names the field and says a name total differs from a product-code total. Search rows add the recall's product description and reason. Recorded case `tests/cases/diagnostic/recall-name.yaml` (pm job j39528) asserts total 87 with class, firm and reason on each row. `docs/cautions.md` explains the match.

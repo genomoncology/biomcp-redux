@@ -112,6 +112,8 @@ singleton! {
         FaersDrugNames => "pass --drug once per literal name to search several names with OR; OR inside one --drug value \
             is not supported",
         FaersQueryLength => "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
+        AdverseReceivedCounts => "--aggregate received-year or received-month needs --received-from and --received-to; \
+            example: --aggregate received-year --received-from 2021 --received-to 2025",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
             reactions for native outcomes; the old hospitalization and disability mappings were wrong",
@@ -190,6 +192,8 @@ singleton! {
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
         DeviceRecallClassificationProductCode => "--classification selects device enforcement records, which carry no product code; \
             drop --product-code, or drop --classification and read each returned row's classification",
+        DeviceRecallNameAscii => "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, \
+            such as e for é",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
         TrialSince => "renamed; use: --updated-since",
@@ -213,6 +217,8 @@ singleton! {
         DiseaseVariants => "dropped; use exact variant commands without disease fanout",
         DiseaseModels => "dropped; model-organism evidence is outside this disease slice",
         DiseasePrevalence => "dropped; prevalence is not SEER incidence or survival",
+        DiseasePrevalenceSource => "prevalence comes only from --source orphadata for a MONDO, DOID or Orphanet ID; \
+            use: get disease <CURIE> prevalence --source orphadata",
         DiseaseFunding => "dropped; grant amounts do not answer the disease care questions",
         DiseaseCivic => "dropped; use: get variant <ID> civic; no disease-name join",
         DiseaseDisgenet => "dropped; no indispensable disease question establishes this source",

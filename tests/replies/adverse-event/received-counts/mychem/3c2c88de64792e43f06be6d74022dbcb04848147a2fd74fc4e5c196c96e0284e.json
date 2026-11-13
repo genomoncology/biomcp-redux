@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22pembrolizumab%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22pembrolizumab%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
+  "exchanges": [
+    {
+      "fetched": 1794598151,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 71,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"took":2,"total":1,"max_score":27.26304,"hits":[{"_id":"CHEMBL3137343","_score":27.26304,"chembl":{"_license":"http://bit.ly/2KAUCAm","molecule_chembl_id":"CHEMBL3137343","molecule_synonyms":[{"molecule_synonym":"Keytruda","syn_type":"TRADE_NAME","synonyms":"KEYTRUDA"},{"molecule_synonym":"Lambrolizumab","syn_type":"USAN","synonyms":"LAMBROLIZUMAB"},{"molecule_synonym":"MK-3475","syn_type":"RESEARCH_CODE","synonyms":"MK-3475"},{"molecule_synonym":"Pembrolizumab","syn_type":"ATC","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"BNF","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"EMA","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"FDA","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"INN","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"INN_FRENCH","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"INN_SPANISH","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"JAN","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"MERCK_INDEX","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"OTHER","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"Pembrolizumab","syn_type":"USAN","synonyms":"PEMBROLIZUMAB"},{"molecule_synonym":"PEMBROLIZUMAB COMPONENT OF KEYLYNK-010","syn_type":"RESEARCH_CODE","synonyms":"PEMBROLIZUMAB COMPONENT OF KEYLYNK-010"},{"molecule_synonym":"Pembrolizumab component of mk-1308a","syn_type":"TRADE_NAME","synonyms":"PEMBROLIZUMAB COMPONENT OF MK-1308A"},{"molecule_synonym":"Pembrolizumab component of mk 7684a","syn_type":"TRADE_NAME","synonyms":"PEMBROLIZUMAB COMPONENT OF MK 7684A"},{"molecule_synonym":"SCH-900475","syn_type":"RESEARCH_CODE","synonyms":"SCH-900475"}],"pref_name":"PEMBROLIZUMAB"}}]}
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "orphadata",
+  "url": "https://www.orphadata.com/data/xml/en_product9_ages.xml",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/xml",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<JDBOR date=\"2026-06-23 07:57:51\" version=\"1.3.42 / 4.1.8 [2025-03-03]\" copyright=\"Orphanet (c) 2026\" dbserver=\"jdbc:sybase:Tds:canard.orpha.net:2020\">\n  <Availability> \n    <Licence>\n      <FullName lang=\"en\">Creative Commons Attribution 4.0 International</FullName>\n      <ShortIdentifier>CC-BY-4.0</ShortIdentifier>\n      <LegalCode>https://creativecommons.org/licenses/by/4.0/legalcode</LegalCode>\n    </Licence>\n  </Availability>\n  <DisorderList count=\"7790\">\n    <Disorder id=\"2177\">\n      <OrphaCode>2322</OrphaCode>\n      <ExpertLink lang=\"en\">http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=en&amp;Expert=2322</ExpertLink>\n      <Name lang=\"en\">Kabuki syndrome</Name>\n      <DisorderType id=\"21401\">\n        <Name lang=\"en\">Malformation syndrome</Name>\n      </DisorderType>\n      <DisorderGroup id=\"36547\">\n        <Name lang=\"en\">Disorder</Name>\n      </DisorderGroup>\n      <AverageAgeOfOnsetList count=\"3\">\n        <AverageAgeOfOnset id=\"23508\">\n          <Name lang=\"en\">Antenatal</Name>\n        </AverageAgeOfOnset>\n        <AverageAgeOfOnset id=\"23522\">\n          <Name lang=\"en\">Infancy</Name>\n        </AverageAgeOfOnset>\n        <AverageAgeOfOnset id=\"23515\">\n          <Name lang=\"en\">Neonatal</Name>\n        </AverageAgeOfOnset>\n      </AverageAgeOfOnsetList>\n      <TypeOfInheritanceList count=\"2\">\n        <TypeOfInheritance id=\"23410\">\n          <Name lang=\"en\">Autosomal dominant</Name>\n        </TypeOfInheritance>\n        <TypeOfInheritance id=\"23494\">\n          <Name lang=\"en\">Not applicable</Name>\n        </TypeOfInheritance>\n      </TypeOfInheritanceList>\n    </Disorder>\n  </DisorderList>\n</JDBOR>\n"
+      }
+    }
+  ]
+}

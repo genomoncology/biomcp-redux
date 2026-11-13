@@ -17,6 +17,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             items: Box::default(),
             count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
             distinct_id_total: None,
+            source_query: None,
         })
         .with_query(q.clone()),
     );
@@ -57,6 +58,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 items: page.items,
                 count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
                 distinct_id_total: None,
+                source_query: None,
             })
             .with_query(q.clone());
             None

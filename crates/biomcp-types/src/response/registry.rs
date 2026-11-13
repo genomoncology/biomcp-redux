@@ -126,6 +126,7 @@ macro_rules! reply_types {
             disease_sites: $crate::DiseaseSites => "disease-sites",
             disease_incidence: $crate::DiseaseIncidence => "disease-incidence",
             disease_survival: $crate::DiseaseSurvival => "disease-survival",
+            disease_prevalence: $crate::DiseasePrevalence => "disease-prevalence",
             phenotype_page: $crate::PhenotypePage => "phenotype-search",
             phenotype_term_card: $crate::PhenotypeTermCard => "phenotype-card",
             phenotype_synonyms: $crate::PhenotypeSynonyms => "phenotype-synonyms",

@@ -113,6 +113,64 @@ impl From<DiseaseSynonym> for DiseaseSynonymItem {
     }
 }
 
+/// One Orphanet epidemiology estimate exactly as Orphadata publishes it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrphanetPrevalence {
+    /// Publisher estimate identifier.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<Text>,
+    /// Estimate type, such as point prevalence, prevalence at birth, annual incidence or cases/families.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<Text>,
+    /// Whether the publisher gives a value and class, a class only, or counted cases or families.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub qualification: Option<Text>,
+    /// Publisher prevalence class, such as `1-9 / 100 000`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub class: Option<Text>,
+    /// Publisher mean value as written: per 100,000 people for a value-and-class estimate, a count for
+    /// cases or families. Omitted for a class-only estimate, where the file writes 0.0.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<Text>,
+    /// Geographic area of the estimate.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub geography: Option<Text>,
+    /// Publisher source text, such as `15108197[PMID]` or `[EXPERT]`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<Text>,
+    /// PubMed identifiers written in the source text.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub pmids: Box<[Text]>,
+    /// Publisher validation status.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub validation: Option<Text>,
+}
+/// One Orphanet disorder's epidemiology and natural history from the synchronized Orphadata files.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct OrphanetEpidemiology {
+    /// Orphanet disorder as `Orphanet:<ORPHAcode>`.
+    pub id: Curie,
+    /// Publisher disorder name.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Text>,
+    /// Publisher disorder type, such as disease or malformation syndrome.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub disorder_type: Option<Text>,
+    /// Prevalence and incidence estimates in file order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub prevalence: Box<[OrphanetPrevalence]>,
+    /// Average ages of onset in file order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub onset: Box<[Text]>,
+    /// Types of inheritance in file order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub inheritance: Box<[Text]>,
+    /// Orphadata record and file release.
+    pub attribution: Attribution,
+}
+
 page!(
     disease,
     DiseasePage,
@@ -211,5 +269,18 @@ DiseaseGet,
         /// Original response retrieval time in Unix seconds, distinct from dataset publication.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub fetched: Option<u64>,
+    ]
+);
+page!(
+disease,
+DiseasePrevalence,
+OrphanetEpidemiology,
+DiseaseGet,
+"biomcp.disease-prevalence/1",
+"Orphanet epidemiology for each linked Orphanet disorder, without pooling or ranking estimates.",
+[
+        /// Orphanet links of a MONDO or DOID concept; empty when an Orphanet code was requested.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        pub links: Box<[DiseaseRelation]>,
     ]
 );

@@ -481,11 +481,12 @@
               "type": "null"
             }
           ],
-          "description": "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.",
+          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.",
           "x-required-component": [
             "gtr",
             "fda-pma",
-            "fda-510k"
+            "fda-510k",
+            "fda-device-recall"
           ]
         },
         "offset": {
@@ -863,7 +864,8 @@
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
-        " Cellosaurus cell line identity."
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -938,7 +940,8 @@
         "cpic",
         "clinpgx",
         "cbioportal",
-        "cellosaurus"
+        "cellosaurus",
+        "orphadata"
       ]
     },
     "Reply_SourceNotice": {

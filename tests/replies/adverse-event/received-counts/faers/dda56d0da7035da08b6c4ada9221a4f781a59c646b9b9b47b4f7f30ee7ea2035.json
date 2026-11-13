@@ -1,0 +1,104 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20250101%20TO%2020251231%5D&limit=1&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794598149,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 406,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 512
+    }
+  },
+  "results": [
+    {
+      "safetyreportversion": "1",
+      "safetyreportid": "26214288",
+      "primarysourcecountry": "EU",
+      "occurcountry": "EU",
+      "transmissiondateformat": "102",
+      "transmissiondate": "20260118",
+      "reporttype": "1",
+      "serious": "1",
+      "seriousnessdeath": "2",
+      "seriousnesslifethreatening": "1",
+      "seriousnesshospitalization": "1",
+      "seriousnessdisabling": "2",
+      "seriousnesscongenitalanomali": "2",
+      "seriousnessother": "2",
+      "receivedateformat": "102",
+      "receivedate": "20251230",
+      "receiptdateformat": "102",
+      "receiptdate": "20251230",
+      "fulfillexpeditecriteria": "1",
+      "companynumb": "EU-009507513-2364583",
+      "primarysource": {
+        "reportercountry": "EU",
+        "qualification": "3",
+        "literaturereference": "Mihon M. L, Pamfil C, Beyer R, Tomoaia R, Gherasim A.R, Deac A,ET AL. Pembrolizumab-induced fulminant triple M syndrome presenting with severe bradycardia. Medicine and Pharmacy Reports 07 August 2025; 98 (4): 542 - 44."
+      },
+      "sender": {
+        "sendertype": "6",
+        "senderorganization": "MERCK SHARP & DOHME LLC"
+      },
+      "receiver": {
+        "receivertype": "6",
+        "receiverorganization": "FDA"
+      },
+      "patient": {
+        "patientonsetage": "83",
+        "patientonsetageunit": "801",
+        "patientsex": "1",
+        "reaction": [
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Immune-mediated myositis",
+            "reactionoutcome": "3"
+          },
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Myasthenic syndrome",
+            "reactionoutcome": "3"
+          },
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Immune-mediated myocarditis",
+            "reactionoutcome": "3"
+          }
+        ],
+        "drug": [
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "PEMBROLIZUMAB",
+            "drugauthorizationnumb": "125514",
+            "drugseparatedosagenumb": "1",
+            "drugdosageform": "Solution for infusion",
+            "drugindication": "Malignant melanoma",
+            "actiondrug": "1",
+            "drugadditional": "2",
+            "activesubstance": {
+              "activesubstancename": "PEMBROLIZUMAB"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+      }
+    }
+  ]
+}

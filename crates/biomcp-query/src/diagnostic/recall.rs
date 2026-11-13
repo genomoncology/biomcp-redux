@@ -9,11 +9,13 @@ use biomcp_types::{
     Problem, ProblemCode, Request, Source, SourceNotice, SourceState, Status, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
+    let source_query = || Some(adapter::expression(q).into_boxed_str()).filter(|s| !s.is_empty());
     let mut out = empty(
         (DiagnosticPage {
             items: Box::default(),
             count_unit: Some(DiagnosticCountUnit::RecallRecords),
             distinct_id_total: None,
+            source_query: source_query(),
         })
         .with_query(q.clone()),
     );
@@ -55,6 +57,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             items: page.items,
             count_unit: Some(DiagnosticCountUnit::RecallRecords),
             distinct_id_total: None,
+            source_query: source_query(),
         })
         .with_query(q.clone());
     }
@@ -69,6 +72,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         if q.classification().is_some() {
             source.notices.push(guidance(CLASS_NOTICE.into()));
         }
+        if q.name().is_some() {
+            source.notices.push(guidance(NAME_NOTICE.into()));
+        }
         if unmatched.0 > 0 {
             source
                 .notices
@@ -80,6 +86,9 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
 }
 const CLASS_NOTICE: &str = "--classification selects openFDA device enforcement records: the total counts \
     enforcement records, and --manufacturer and the initiation dates match enforcement fields.";
+const NAME_NOTICE: &str = "--name matched the words of openFDA's product_description as one phrase, \
+    ignoring case and punctuation, without plural or synonym expansion: the total counts recall records \
+    whose description holds the phrase, a different set from a --product-code search.";
 /// Count rows the exact join left without their other openFDA record; nothing is inferred for them.
 fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNotice {
     let (missing, shown) = if q.classification().is_some() {

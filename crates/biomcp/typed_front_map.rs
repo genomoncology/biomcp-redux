@@ -316,7 +316,7 @@ pub(crate) fn generate(
     }
     let (tool, _, _, [_, get], _) = ENTITY_TOOLS.first().ok_or("no entity tool")?;
     let mut lines = vec![format!(
-        "Each tool takes action and one object named after it, e.g. {tool} {{\"action\":\"get\",\"get\":{get}}}. Search takes query; get takes id. help(command): options; help(questions|examples|sources): map, worked calls, sources."
+        "Each tool takes action and one object named after it, e.g. {tool} {{\"action\":\"get\",\"get\":{get}}}. Search takes query; get takes id. help(command|questions|examples|sources): options, map, worked calls, sources."
     )];
     for (tool, _, placed, _, _) in ENTITY_TOOLS {
         let mut actions = BTreeSet::new();

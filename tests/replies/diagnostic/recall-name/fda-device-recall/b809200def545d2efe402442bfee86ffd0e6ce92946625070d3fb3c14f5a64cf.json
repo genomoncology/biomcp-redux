@@ -1,0 +1,102 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_description%3A%22infusion%20pump%22%20AND%20event_date_initiated%3A%5B2021-11-13%20TO%202026-11-13%5D&limit=5&skip=0&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794603618,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 674,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 87
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-2723-2026",
+              "res_event_number": "99192",
+              "recalling_firm": "ICU Medical, Inc.",
+              "product_code": "FRN",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-06-10",
+              "product_description": "ICU Medical Plum Duo Infusion Pump, v1.2.3:  1) Item Number 400020401 and 2)  Item Number 400020403; infusion pump",
+              "reason_for_recall": "In a specific scenario, the pump will not decrement the Volume to be Infused (VTBI) displayed on the Delivery screen and may deliver up to twice the VTBI at the programmed rate.",
+              "root_cause_description": "Under Investigation by firm",
+              "k_numbers": [
+                "K223607"
+              ]
+            },
+            {
+              "product_res_number": "Z-2724-2026",
+              "res_event_number": "99192",
+              "recalling_firm": "ICU Medical, Inc.",
+              "product_code": "FRN",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-06-10",
+              "product_description": "ICU Medical Plum Solo Precision IV Pump, v1.0.3, Item Number 400010401; infusion pump",
+              "reason_for_recall": "In a specific scenario, the pump will not decrement the Volume to be Infused (VTBI) displayed on the Delivery screen and may deliver up to twice the VTBI at the programmed rate.",
+              "root_cause_description": "Under Investigation by firm",
+              "k_numbers": [
+                "K242114"
+              ]
+            },
+            {
+              "product_res_number": "Z-2580-2026",
+              "res_event_number": "99063",
+              "recalling_firm": "Boston Scientific Corporation",
+              "product_code": "LKK",
+              "recall_status": "Completed",
+              "event_date_initiated": "2026-05-11",
+              "product_description": "Intera Oncology INTERA 3000 Hepatic Artery Infusion Pump, AP-0300H, implantable drug delivery device",
+              "reason_for_recall": "There is the potential for leakage along the drug pathway from the pump through the end of the catheter.",
+              "root_cause_description": "Process control",
+              "pma_numbers": [
+                "P890055"
+              ]
+            },
+            {
+              "product_res_number": "Z-2312-2026",
+              "res_event_number": "98872",
+              "recalling_firm": "ICU Medical, Inc.",
+              "product_code": "FRN",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-04-29",
+              "product_description": "Plum Duo Infusion Pump, 40002-0401",
+              "reason_for_recall": "Under certain conditions, the pump may not display a soft limit alert, and will not notify the clinician of a soft limit violation before confirming and starting delivery. This may potentially lead to under- or over-delivery.",
+              "root_cause_description": "Software Design Change",
+              "k_numbers": [
+                "K223607"
+              ]
+            },
+            {
+              "product_res_number": "Z-2201-2026",
+              "res_event_number": "98750",
+              "recalling_firm": "Medtronic Neuromodulation",
+              "product_code": "LKK",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-04-08",
+              "product_description": "Medtronic SynchroMed Flex Infusion Mode - A810 Clinician Programmer Software Application, loaded on the following devices:   \n1. PROG CT900A CLINICIAN TABLET US, Model Number CT900A; \n2. PROG CT900B CLINICIAN TABLET EU -UK, Model Number CT900B; \n3. PROG CT900C CLINICIAN TABLET UK, Model Number CT900C; \n4. PROG CT900D CLINICIAN TABLET GLOBAL, Model Number CT900D; \n5. PROG CT900E CLINICIAN TABLET GLBL SMSNG, Model Number CT900E; \n6. PROG CT900F CLINICIAN TABLET GLBL SMSNG, Model Number CT900F; implanted programmable infusion pump",
+              "reason_for_recall": "Software issue:  When programming the SynchroMed Pump with the A810 CP App in Flex Infusion Mode, the infusion steps should automatically be arranged in consecutive order, from earliest to latest. However, in rare cases, the steps may be displayed out of order. If this occurs, the programmed Flex Infusion schedule will not be delivered at the intended time, if at all.",
+              "root_cause_description": "Under Investigation by firm",
+              "pma_numbers": [
+                "P860004"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

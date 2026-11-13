@@ -268,7 +268,7 @@ pub(in crate::mcp) fn required_components(
             {
                 required.insert(component);
             }
-            if matches!(name.as_str(), "section" | "sections")
+            if matches!(name.as_str(), "section" | "sections" | "aggregate")
                 && let Some(component) = biomcp_types::command_section_component(verb, entity, word)
             {
                 required.insert(component);

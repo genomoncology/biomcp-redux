@@ -1025,7 +1025,7 @@ Options:
 
       --name <name>
           Native test or device name.
-          Native trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.
+          Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.
 
       --offset <offset>
           Zero-based source result offset.
@@ -1088,7 +1088,7 @@ WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phra
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker HIV. Only with --source who-ivd.
 - `--name`: Source test or device name.
-Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma or fda-510k.
+Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma, fda-510k or fda-device-recall.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--prequalified-from`: WHO IVD year.
 First prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-from 2023. Only with --source who-ivd.
@@ -1122,9 +1122,9 @@ Arguments:
 
 Options:
       --aggregate <aggregate>
-          FAERS reaction counts; help search adverse-event
-          FAERS reaction counts.
-          Use reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
+          Report counts; help search adverse-event
+          Report counts.
+          reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1165,7 +1165,7 @@ Options:
           [possible values: true, false]
 
       --limit <limit>
-          Native report headers, counted FAERS reaction terms or VAERS rows; default five.
+          Report headers, reaction terms or VAERS rows; default five.
 
       --manufacturer <manufacturer>
           MAUDE manufacturer.
@@ -1176,7 +1176,7 @@ Options:
           Retained FAERS name resolution; follow the returned command without changing filters.
 
       --offset <offset>
-          Native report row offset; reaction counts require zero. VAERS needs its snapshot.
+          Report row offset; counts need zero. VAERS needs its snapshot.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1204,11 +1204,11 @@ Options:
 
       --received-from <received_from>
           First date, YYYY-MM[-DD].
-          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day.
 
       --received-to <received_to>
           Last date, YYYY-MM[-DD].
-          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
+          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day.
 
       --serious <serious>
           FAERS seriousness flag; help search adverse-event
@@ -1228,9 +1228,9 @@ Options:
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
-- `--aggregate`: FAERS reaction counts; help search adverse-event
-FAERS reaction counts.
-Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
+- `--aggregate`: Report counts; help search adverse-event
+Report counts.
+reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
 FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1242,12 +1242,12 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--expand-drug-names`: FAERS no-op.
 FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--name-snapshot`: FAERS name snapshot.
 Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--offset`: Source report row offset; reaction counts require zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--offset`: Report row offset; counts need zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--product-code`: MAUDE product codes; OR.
@@ -1255,9 +1255,9 @@ MAUDE exact source device.device_report_product_code; repeated codes join with O
 - `--reaction`: FAERS MedDRA phrase.
 FAERS MedDRA term phrase match, not exact equality. Value form: string. Example: --reaction 'synthetic reaction'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-from`: First date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-to`: Last date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `section`: VAERS table; help search adverse-event
 Listed choices accept any letter case; replies use their listed spelling.
 Form: search adverse-event TEXT SECTION; not --section.
@@ -3114,27 +3114,27 @@ Options:
 
 ```
 
-Get disease details and source statistics. Sources: monarch, mydisease, ols, seer.
+Get disease details and source statistics. Sources: monarch, mydisease, ols, orphadata, seer.
 
-- `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `id`: Exact ontology CURIE or a SEER site code or name.
 Form: get disease ID SECTION; not --id.
-- `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `--ontology`: One OLS ontology; help get disease
 One OLS ontology.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `section`: One named section; absent means identity card only; help get disease
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get disease ID SECTION; not --section.
-- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `--source`: Default MyDisease; no automatic fallback; help get disease
 Default MyDisease; no automatic fallback.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 
 One named section; absent means identity card only.
 
@@ -3145,6 +3145,7 @@ One named section; absent means identity card only.
 - `phenotypes`: Source phenotype association rows.
 - `incidence`: Source stage incidence rows.
 - `survival`: Annual survival rows.
+- `prevalence`: Orphanet prevalence, age of onset and inheritance.
 
 ## biomcp get drug
 
@@ -5505,7 +5506,7 @@ Arguments:
           Local source bundle to synchronize.
 
           [default: hgnc]
-          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
+          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata]
 
 Options:
       --format <format>
@@ -9242,6 +9243,7 @@ Commands:
   gtr
   who-ivd
   fda-cdx
+  orphadata
 
 Options:
       --format <format>
@@ -9692,6 +9694,44 @@ Options:
 ```
 
 Describe help sync fda-cdx.
+
+
+## biomcp help sync orphadata
+
+```text
+Usage: biomcp help sync orphadata [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sync orphadata.
 
 
 ## biomcp help skill

@@ -164,8 +164,9 @@ pub use trial_header::TrialHeader;
 mod disease;
 pub use disease::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
-    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
-    DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseasePrevalence,
+    DiseaseSite, DiseaseSites, DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
+    OrphanetEpidemiology, OrphanetPrevalence,
 };
 
 mod diagnostic;

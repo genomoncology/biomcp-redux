@@ -129,6 +129,7 @@
         "FAERS supports --offset up to 25000; narrow the filters to retrieve more reports",
         "pass --drug once per literal name to search several names with OR; OR inside one --drug value is not supported",
         "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
+        "--aggregate received-year or received-month needs --received-from and --received-to; example: --aggregate received-year --received-from 2021 --received-to 2025",
         "use: search adverse-event <TEXT>; text stays literal",
         "--outcome is retired; use --serious death or --serious hospitalization for report flags and reactions for native outcomes; the old hospitalization and disability mappings were wrong",
         "renamed; use: --received-from",
@@ -191,6 +192,7 @@
         "raw --query cannot enforce disabled source component terms; use declared protein or region selectors and named filters, or clear the component restriction",
         "the registry cannot bind --facility and radius to one site; choose one filter",
         "--classification selects device enforcement records, which carry no product code; drop --product-code, or drop --classification and read each returned row's classification",
+        "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, such as e for é",
         "retired; use: --criteria for literal registry eligibility text",
         "retired; use: --variant for explicit discovery text",
         "renamed; use: --updated-since",
@@ -214,6 +216,7 @@
         "dropped; use exact variant commands without disease fanout",
         "dropped; model-organism evidence is outside this disease slice",
         "dropped; prevalence is not SEER incidence or survival",
+        "prevalence comes only from --source orphadata for a MONDO, DOID or Orphanet ID; use: get disease <CURIE> prevalence --source orphadata",
         "dropped; grant amounts do not answer the disease care questions",
         "dropped; use: get variant <ID> civic; no disease-name join",
         "dropped; no indispensable disease question establishes this source",
@@ -410,7 +413,8 @@
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
-        " Cellosaurus cell line identity."
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -485,7 +489,8 @@
         "cpic",
         "clinpgx",
         "cbioportal",
-        "cellosaurus"
+        "cellosaurus",
+        "orphadata"
       ]
     },
     "Reply_Step": {

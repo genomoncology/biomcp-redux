@@ -1,0 +1,150 @@
+{
+  "method": "GET",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease/MONDO%3A0016512?fields=mondo%2Cdisease_ontology",
+  "exchanges": [
+    {
+      "fetched": 1794595980,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 301,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_id": "MONDO:0016512",
+          "_version": 1,
+          "disease_ontology": {
+            "_license": "https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/DO_LICENSE.txt",
+            "ancestors": [
+              "DOID:225",
+              "DOID:4"
+            ],
+            "children": [],
+            "def": "\"A syndrome characterized by multiple congenital anomalies and mental retardation. Other characteristics include a peculiar facial gestalt, short stature, skeletal and visceral abnormalities, cardiac anomalies, and immunological defects.\" [url:http\\://ghr.nlm.nih.gov/condition/kabuki-syndrome, url:https\\://en.wikipedia.org/wiki/Kabuki_syndrome, url:https\\://www.ncbi.nlm.nih.gov/pubmed/25281733, url:https\\://www.ncbi.nlm.nih.gov/pubmed/25972376, url:https\\://www.ncbi.nlm.nih.gov/pubmed/26512256]",
+            "descendants": [],
+            "doid": "DOID:0060473",
+            "name": "Kabuki syndrome",
+            "parents": [
+              "DOID:225"
+            ],
+            "synonyms": {
+              "exact": [
+                "Kabuki make up syndrome",
+                "KMS",
+                "Niikawa-Kuroki syndrome"
+              ]
+            },
+            "xrefs": {
+              "gard": "6810",
+              "icd10": "Q89.81",
+              "mesh": "C537705",
+              "mim": [
+                "147920",
+                "300867"
+              ],
+              "ncit": "C124837",
+              "ordo": "2322",
+              "snomedct_us_2025_09_01": "205805008",
+              "umls_cui": "C0796004"
+            }
+          },
+          "mondo": {
+            "ancestors": [
+              "MONDO:0021147",
+              "MONDO:0700096",
+              "MONDO:0019755",
+              "MONDO:0000001",
+              "MONDO:0015159",
+              "MONDO:7770006",
+              "MONDO:7770007",
+              "MONDO:7770008",
+              "MONDO:0002254",
+              "MONDO:0003847",
+              "MONDO:0019042",
+              "MONDO:7770009"
+            ],
+            "children": [
+              "MONDO:0007843",
+              "MONDO:0010465"
+            ],
+            "definition": "Kabuki syndrome (KS) is a multiple congenital anomaly syndrome characterized by typical facial features, skeletal anomalies, mild to moderate intellectual disability and postnatal growth deficiency. [Orphanet:2322]",
+            "descendants": [
+              "MONDO:0010465",
+              "MONDO:0007843"
+            ],
+            "excluded_subClassOf": {
+              "mondo": [
+                "MONDO:0000508"
+              ]
+            },
+            "label": "Kabuki syndrome",
+            "mondo": "MONDO:0016512",
+            "parents": [
+              "MONDO:0002254",
+              "MONDO:0003847",
+              "MONDO:0015159"
+            ],
+            "should_conform_to": {
+              "http": [
+                "http://purl.obolibrary.org/obo/mondo/patterns/OMIM_phenotypic_series.yaml"
+              ]
+            },
+            "synonym": {
+              "exact": [
+                "Kabuki make-up syndrome",
+                "KMS",
+                "Niikawa-Kuroki syndrome"
+              ],
+              "related": [
+                "NKS"
+              ]
+            },
+            "xrefs": {
+              "doid": [
+                "DOID:0060473"
+              ],
+              "gard": [
+                "0006810"
+              ],
+              "icd11": [
+                "foundation:1104246467"
+              ],
+              "meddra": [
+                "10063935"
+              ],
+              "medgen": [
+                "162897"
+              ],
+              "mesh": [
+                "C537705"
+              ],
+              "nando": [
+                "1200672",
+                "2200956"
+              ],
+              "ncit": [
+                "C124837"
+              ],
+              "nord": [
+                "1318"
+              ],
+              "omimps": [
+                "147920"
+              ],
+              "orphanet": [
+                "2322"
+              ],
+              "sctid": [
+                "313426007"
+              ],
+              "umls": [
+                "C0796004"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

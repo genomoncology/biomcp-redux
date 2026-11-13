@@ -97,6 +97,7 @@ pub mod disease_sources;
 pub mod monarch;
 pub mod mydisease;
 pub mod ols;
+pub mod orphadata;
 pub mod seer;
 
 mod text_parts;

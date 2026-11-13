@@ -62,7 +62,8 @@
           "genes",
           "phenotypes",
           "incidence",
-          "survival"
+          "survival",
+          "prevalence"
         ],
         "/status": "complete"
       },
