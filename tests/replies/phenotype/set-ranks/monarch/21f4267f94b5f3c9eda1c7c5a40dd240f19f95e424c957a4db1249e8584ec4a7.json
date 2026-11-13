@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/semsim/search/HP%3A9999999/Human%20Genes?limit=1&metric=ancestor_information_content&search_mode=hybrid",
+  "exchanges": [
+    {
+      "fetched": 1794596293,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 436,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": []
+      }
+    }
+  ]
+}

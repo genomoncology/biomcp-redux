@@ -1,7 +1,7 @@
 {
   "live_check": "Monarch semantic similarity search replies captured live 2026-11-13 from api-v3.monarchinitiative.org",
   "feature": "phenotype-set-ranking",
-  "story": "A counselor's three HP IDs return Monarch's one ranked list of genes or diseases with each score, the metric named and Monarch's 50-row limit stated; an HP ID Monarch does not know is refused instead of silently dropped.",
+  "story": "A counselor's three HP IDs return Monarch's one ranked list of genes or diseases with each score, the metric named and Monarch's 50-row limit stated; a hybrid reply says what it can leave out and offers the full search; an HP ID Monarch does not know is refused instead of silently dropped.",
   "replay": "phenotype/set-ranks",
   "steps": [
     {
@@ -32,9 +32,20 @@
           "get",
           "gene",
           "HGNC:4226"
-        ]
+        ],
+        "/next/3/args": [
+          "search",
+          "phenotype",
+          "HP:0001263,HP:0001252,HP:0001250",
+          "--limit",
+          "3",
+          "--search-mode",
+          "full"
+        ],
+        "/next/3/kind": "sort",
+        "/result/note": "Monarch's hybrid mode scores only a shortlist picked by Jaccard overlap, so a gene or disease with many annotations can be dropped before scoring; the next step reruns with --search-mode full, which scores every entity and is slower."
       },
-      "max_bytes": 4000
+      "max_bytes": 4600
     },
     {
       "run": [
@@ -60,9 +71,20 @@
           "MONDO:0010451",
           "--section-limit",
           "5"
+        ],
+        "/next/2/args": [
+          "search",
+          "phenotype",
+          "HP:0001263,HP:0001252,HP:0001250",
+          "--group",
+          "diseases",
+          "--limit",
+          "2",
+          "--search-mode",
+          "full"
         ]
       },
-      "max_bytes": 3500
+      "max_bytes": 4200
     },
     {
       "run": [
@@ -80,7 +102,33 @@
         "/result/items/0/score": 3.153784757657971,
         "/result/method/metric": "phenodigm_score"
       },
-      "max_bytes": 3500
+      "max_bytes": 4200
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--search-mode",
+        "full",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/search_mode": "full",
+        "/result/method/search_mode": "full",
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/1/id": "HGNC:29112",
+        "/result/items/2/id": "HGNC:15505",
+        "/result/items/2/score": 12.20418603518225,
+        "/result": {
+          "omits": [
+            "note"
+          ]
+        }
+      },
+      "max_bytes": 4200
     },
     {
       "run": [
@@ -127,7 +175,8 @@
           "get",
           "phenotype",
           "HP:9999999"
-        ]
+        ],
+        "/error/message": "Monarch ranked nothing for this set, which it does when it knows none of the IDs; check each ID with the next steps"
       }
     },
     {

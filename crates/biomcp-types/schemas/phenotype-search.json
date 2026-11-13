@@ -351,6 +351,10 @@
           "minimum": 0,
           "type": "integer"
         },
+        "search_mode": {
+          "$ref": "#/$defs/Reply_PhenotypeSearchMode",
+          "description": "HP IDs only: hybrid, the default, or full to score every entity."
+        },
         "source": {
           "$ref": "#/$defs/Reply_PhenotypeSource",
           "default": "monarch",
@@ -367,6 +371,18 @@
         "text"
       ],
       "type": "object"
+    },
+    "Reply_PhenotypeSearchMode": {
+      "description": "Which Monarch entities are scored against a set of HP terms.",
+      "enum": [
+        "hybrid",
+        "full"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's default: score only a shortlist prefiltered by Jaccard overlap.",
+        " Score every entity in the group; slower."
+      ]
     },
     "Reply_PhenotypeSource": {
       "description": "One independent term publisher.",
