@@ -31,3 +31,16 @@ From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `pers
 ## Changes
 
 - Changes: `skills/`, `crates/biomcp/src/grammar/`, `docs/`, `tests/cases/`
+
+## Progress
+
+- Diagnosis from the run's call record (j38923): the agent read the skill and six help pages, then guessed.
+  - `--section approvals`: the skill's only word on sections was the MCP line "sections go in `section`", and `help get drug` lists the argument as `section` with a position but no call that shows it; its one example has no section.
+  - `--device-id` on fda-pma: help printed every filter with "Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply", and the `--device-id` text ("Exact PMA application, application/supplement or K identity") names no source. The schema already knew it was fda-cdx only (`x-required-component`).
+  - `--fields decision_date,supplements` and `manufacturer` on who-pq: the agent took field names from the reply (dates sit inside `header`) or from the other entity's list. The error listed valid names but its next step was only `help`.
+  - Three empty WHO pages: the agent batched offsets 0–200 in one script before it saw the total of 62. Nothing in the skill said to stop at the total.
+- Changed:
+  - Skill: four short lines under "take names only from help": sections are bare words after the ID (with a recorded call), a filter works only with the sources help names, `--fields` names come only from help's `Fields:` list, and stop paging at the total. The skill is 2.5 KB of the 4 KB cap.
+  - Help: each option whose schema names only some of the command's sources now ends "Only with --source X" in place of the long all-sources line; other options say "Any command source". Each positional argument shows the call shape, e.g. `Form: get drug INPUT SECTION...; not --section.` `help search diagnostic` shrank from about 9.7 KB to 6.7 KB.
+  - `--fields` error: next now leads with the same call, keeping the valid names (for the run's call, `--fields=id,product_name`), then help.
+- Proof now: routine cases `grammar/help-coaches-forms` and `local/skill`. The before-and-after call count waits for the next reg-affairs bench run.
