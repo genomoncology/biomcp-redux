@@ -7,13 +7,22 @@ use biomcp_fetch::{
 use biomcp_types::{Source, SyncResult};
 use std::{marker::PhantomData, time::Duration};
 
+/// Orphadata's CC BY 4.0 terms in plain words. Its legal notice, checked 2026-11-13, asks an
+/// AI tool or service offered to others to state that it uses Orphanet/Orphadata data, that its
+/// results may not truly reflect that data, and that Orphanet is not responsible for them.
+const TERMS: biomcp_fetch::Terms = biomcp_fetch::Terms {
+    name: "CC BY 4.0; cite Orphadata. BioMCP uses Orphanet/Orphadata data; its results may not \
+           truly reflect that data, and Orphanet is not responsible for their quality",
+    url: "https://www.orphadata.com/legal-notice/",
+    usage: biomcp_types::Use::Attribution,
+};
 /// Orphadata's file host and its CC BY 4.0 terms.
 pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     source: Source::Orphadata,
     base: "https://www.orphadata.com",
-    terms: crate::disease_sources::components::ORPHANET,
+    terms: TERMS,
     quota: &crate::quotas::ORPHADATA,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
