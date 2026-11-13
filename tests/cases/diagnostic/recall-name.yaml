@@ -1,0 +1,127 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "public",
+  "story": "A device recall search takes a device name, matched as one phrase on the recall's native product_description; the persona's infusion-pump question returns openFDA's total of 87 recall records for 2021-11-13 to 2026-11-13 with class, firm, product description and reason on each row, the exact openFDA expression in source_query and a notice that names the field and says the total differs from a product-code search. Punctuation openFDA refuses inside a phrase is spaced, and a letter outside ASCII is refused before the request.",
+  "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-13 by biomcp --record in pm job j39528. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection retains source identifiers, firm, product code, status, dates, product description, reason, root cause, submission numbers, classification and native counts; address, contact, action, distribution, quantity and lot text omitted. Recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-name/README.md. No rows or values invented.",
+  "replay": "diagnostic/recall-name",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--name",
+        "infusion pump",
+        "--initiated-from",
+        "2021-11-13",
+        "--initiated-to",
+        "2026-11-13"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--name",
+        "infusion pump",
+        "--initiated-from",
+        "2021-11-13",
+        "--initiated-to",
+        "2026-11-13"
+      ],
+      "max_bytes": 5600,
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.diagnostic-page/6",
+        "/query/name": "infusion pump",
+        "/page/total": 87,
+        "/page/returned": 5,
+        "/result/count_unit": "recall-records",
+        "/result/source_query": "product_description:\"infusion pump\" AND event_date_initiated:[2021-11-13 TO 2026-11-13]",
+        "/result/items/*/header/recall_number": [
+          "Z-2723-2026",
+          "Z-2724-2026",
+          "Z-2580-2026",
+          "Z-2312-2026",
+          "Z-2201-2026"
+        ],
+        "/result/items/*/header/firm": [
+          "ICU Medical, Inc.",
+          "ICU Medical, Inc.",
+          "Boston Scientific Corporation",
+          "ICU Medical, Inc.",
+          "Medtronic Neuromodulation"
+        ],
+        "/result/items/*/header/product_code": [
+          "FRN",
+          "FRN",
+          "LKK",
+          "FRN",
+          "LKK"
+        ],
+        "/result/items/*/classification": [
+          "Class II",
+          "Class II",
+          "Class II",
+          "Class II",
+          "Class II"
+        ],
+        "/result/items/*/reason": [
+          "In a specific scenario, the pump will not decrement the Volume to be Infused (VTBI) displayed on the Delivery screen and may deliver up to twice the VTBI at the programmed rate.",
+          "In a specific scenario, the pump will not decrement the Volume to be Infused (VTBI) displayed on the Delivery screen and may deliver up to twice the VTBI at the programmed rate.",
+          "There is the potential for leakage along the drug pathway from the pump through the end of the catheter.",
+          "Under certain conditions, the pump may not display a soft limit alert, and will not notify the clinician of a soft limit violation before confirming and starting delivery. This may potentially lead to under- or over-delivery.",
+          "Software issue:  When programming the SynchroMed Pump with the A810 CP App in Flex Infusion Mode, the infusion steps should automatically be arranged in consecutive order, from earliest to latest. However, in rare cases, the steps may be displayed out of order. If this occurs, the programmed Flex Infusion schedule will not be delivered at the intended time, if at all."
+        ],
+        "/result/items/3/product_description": "Plum Duo Infusion Pump, 40002-0401",
+        "/sources": {
+          "count": 1
+        },
+        "/sources/0/notices/*/message": {
+          "includes": "--name matched the words of openFDA's product_description as one phrase, ignoring case and punctuation, without plural or synonym expansion: the total counts recall records whose description holds the phrase, a different set from a --product-code search."
+        },
+        "/next/*/kind": {
+          "includes": "page"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--name",
+        "infusion pump!",
+        "--initiated-from",
+        "2021-11-13",
+        "--initiated-to",
+        "2026-11-13"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/name": "infusion pump!",
+        "/page/total": 87,
+        "/result/source_query": "product_description:\"infusion pump\" AND event_date_initiated:[2021-11-13 TO 2026-11-13]",
+        "/result/items/0/header/recall_number": "Z-2723-2026"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--name",
+        "Nestlé"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--name",
+        "/error/message": "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, such as e for é"
+      }
+    }
+  ]
+}

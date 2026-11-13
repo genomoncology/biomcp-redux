@@ -128,26 +128,40 @@ pub(super) fn enforcement(row: raw::Enforcement, card: &mut DeviceRecallCard) ->
     card.reported = date("report_date", row.report_date);
     problems
 }
-/// The compact search header of one native recall record.
-pub(super) fn header(row: raw::Record, problems: &mut Vec<Problem>) -> DeviceRecallHeader {
+/// The search fields of one native recall record: its header, product description and reason.
+pub(super) struct Row {
+    header: DeviceRecallHeader,
+    product_description: Option<Text>,
+    reason: Option<Text>,
+}
+/// The compact search row of one native recall record.
+pub(super) fn row(row: raw::Record, problems: &mut Vec<Problem>) -> Row {
     let row = mapped(row);
     problems.extend(row.problems);
-    row.value.header
+    Row {
+        header: row.value.header,
+        product_description: row.value.product_description,
+        reason: row.value.reason,
+    }
 }
 /// An enforcement record without its recall record retains only the shared identity.
-pub(super) fn bare(recall_number: DeviceRecallNumber) -> DeviceRecallHeader {
-    DeviceRecallHeader {
-        recall_number,
-        event_number: None,
-        firm: None,
-        product_code: None,
-        status: None,
-        initiated: None,
+pub(super) fn bare(recall_number: DeviceRecallNumber) -> Row {
+    Row {
+        header: DeviceRecallHeader {
+            recall_number,
+            event_number: None,
+            firm: None,
+            product_code: None,
+            status: None,
+            initiated: None,
+        },
+        product_description: None,
+        reason: None,
     }
 }
 /// One search row; a row without an enforcement record states no classification.
 pub(super) fn candidate(
-    header: DeviceRecallHeader,
+    row: Row,
     class: Option<raw::Enforcement>,
     problems: &mut Vec<Problem>,
 ) -> DiagnosticCandidate {
@@ -157,7 +171,9 @@ pub(super) fn candidate(
         row.value
     });
     DiagnosticCandidate::DeviceRecall {
-        header,
+        header: row.header,
         classification,
+        product_description: row.product_description,
+        reason: row.reason,
     }
 }

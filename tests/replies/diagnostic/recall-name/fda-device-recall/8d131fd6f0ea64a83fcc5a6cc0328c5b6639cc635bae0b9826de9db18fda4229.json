@@ -1,0 +1,52 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%28%22Z-2723-2026%22%20OR%20%22Z-2724-2026%22%20OR%20%22Z-2580-2026%22%20OR%20%22Z-2312-2026%22%20OR%20%22Z-2201-2026%22%29&limit=5&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794603618,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 171,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 5
+            }
+          },
+          "results": [
+            {
+              "recall_number": "Z-2723-2026",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-2201-2026",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-2580-2026",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-2724-2026",
+              "classification": "Class II"
+            },
+            {
+              "recall_number": "Z-2312-2026",
+              "classification": "Class II"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

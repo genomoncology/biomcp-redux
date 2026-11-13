@@ -44,10 +44,16 @@ def discover(binary, env):
 
 FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
                     "hosted": ["--hosted", "--tool-mode", "typed"], "hosted-single": ["--hosted"]}
-# What every connection reads first, in characters, as measured on main 4f4414616. The skill is re-read
-# every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so ticket 0836 lets none of these grow;
-# the command map and worked examples are served on request instead.
-FIRST_READ_CEILINGS = {"single": 3669, "typed": 2009, "hosted": 1996, "hosted-single": 2518, "skill": 5557}
+# What every connection reads first, in characters, as measured on main 4f4414616 for ticket 0836. The skill
+# is re-read every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so first-read text costs tokens.
+# Ticket 0905 gives each ceiling 5% room over that measured base, rounded up, because a new source or
+# option must be able to name itself without trimming someone else's words. Growth inside the room needs
+# no ask; growth past it needs a PM ruling. The command map and worked examples stay out of the first
+# read and are served on request instead.
+FIRST_READ_MEASURED = {"single": 3669, "typed": 2009, "hosted": 1996, "hosted-single": 2518, "skill": 5557}
+FIRST_READ_ROOM_PERCENT = 5
+FIRST_READ_CEILINGS = {mode: -(-size * (100 + FIRST_READ_ROOM_PERCENT) // 100)
+                       for mode, size in FIRST_READ_MEASURED.items()}
 
 
 def first_read_sizes(binary, env):
@@ -69,7 +75,7 @@ def first_read_sizes(binary, env):
         sizes[mode] = {"instructions_characters": len(instructions), "tools_bytes": len(tools.encode()),
                        "tools": len(replies[2]["result"]["tools"])}
         require(len(instructions) <= FIRST_READ_CEILINGS[mode],
-                f"{mode} instructions are {len(instructions)} characters, over main's {FIRST_READ_CEILINGS[mode]}")
+                f"{mode} instructions are {len(instructions)} characters, over the ceiling of {FIRST_READ_CEILINGS[mode]}")
         require(all(word in instructions for word in ("questions", "examples")),
                 f"{mode} instructions do not name help questions and help examples")
     return sizes
@@ -157,7 +163,7 @@ def main():
         require("--" not in front, "front map names a flag, and it must name commands only")
         rendered = run(binary, ["skill", "render"], env)
         require(len(rendered) <= FIRST_READ_CEILINGS["skill"] and "help questions" in rendered
-                and "help examples" in rendered, "skill grew past main or names no on-request map")
+                and "help examples" in rendered, "skill grew past its ceiling or names no on-request map")
         check_on_request(binary, env, front)
         source_help = json.loads(run(binary, ["help", "sources"], env))["result"]["commands"][0]["description"]
         require(source_help.startswith("Services:") and "Components:" in source_help,

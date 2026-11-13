@@ -188,6 +188,8 @@ singleton! {
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
         DeviceRecallClassificationProductCode => "--classification selects device enforcement records, which carry no product code; \
             drop --product-code, or drop --classification and read each returned row's classification",
+        DeviceRecallNameAscii => "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, \
+            such as e for é",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
         TrialSince => "renamed; use: --updated-since",

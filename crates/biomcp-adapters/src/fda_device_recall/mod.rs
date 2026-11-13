@@ -38,24 +38,37 @@ pub struct Page {
     /// A failed join leaves the selected rows and their total unchanged.
     pub join_failure: Option<Failure>,
 }
-fn literal(value: &Text) -> String {
-    format!(
-        "\"{}\"",
-        value.as_str().replace('\\', "\\\\").replace('"', "\\\"")
-    )
+fn literal(value: &str) -> String {
+    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
+}
+/// openFDA answers HTTP 400 to these characters even inside a quoted phrase (live, 2026-11-13).
+/// Its tokenizer splits words at them, so a space finds the same words.
+const REFUSED: &[char] = &['!', '#', '$', ';', '?', '^', '|', '~', '`'];
+/// The device name as one quoted phrase on product_description, with refused punctuation spaced.
+fn phrase(value: &Text) -> String {
+    let words: String = value
+        .as_str()
+        .chars()
+        .map(|c| if REFUSED.contains(&c) { ' ' } else { c })
+        .collect();
+    literal(&words.split_whitespace().collect::<Vec<_>>().join(" "))
 }
 /// Recall selectors; a classification selects enforcement records and their field spellings.
-fn expression(q: &DiagnosticSearch) -> String {
+/// Both datasets spell the device name field product_description.
+pub fn expression(q: &DiagnosticSearch) -> String {
     let class = q.classification();
     let mut terms = Vec::new();
     if let Some(v) = class {
         terms.push(format!("classification:\"{v}\""));
     }
+    if let Some(v) = q.name() {
+        terms.push(format!("product_description:{}", phrase(v)));
+    }
     if let Some(v) = q.manufacturer() {
-        terms.push(format!("recalling_firm:{}", literal(v)));
+        terms.push(format!("recalling_firm:{}", literal(v.as_str())));
     }
     if let Some(v) = q.product_code() {
-        terms.push(format!("product_code:{}", literal(v)));
+        terms.push(format!("product_code:{}", literal(v.as_str())));
     }
     if q.initiated_from().is_some() || q.initiated_to().is_some() {
         let day = |d: Option<biodata::PartialDate>| match d {
@@ -156,11 +169,11 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
         let items = rows
             .into_iter()
             .map(|(class, record)| {
-                let header = match record {
-                    Some(record) => map::header(record, &mut problems),
+                let row = match record {
+                    Some(record) => map::row(record, &mut problems),
                     None => map::bare(class.recall_number.clone()),
                 };
-                map::candidate(header, Some(class), &mut problems)
+                map::candidate(row, Some(class), &mut problems)
             })
             .collect();
         (items, total, unmatched, failure)
@@ -171,8 +184,8 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
         let items = rows
             .into_iter()
             .map(|(record, class)| {
-                let header = map::header(record, &mut problems);
-                map::candidate(header, class, &mut problems)
+                let row = map::row(record, &mut problems);
+                map::candidate(row, class, &mut problems)
             })
             .collect();
         (items, total, unmatched, failure)
