@@ -531,6 +531,14 @@ impl Leg<'_> {
     pub fn remaining(&self) -> Duration {
         self.budget().remaining()
     }
+    /// Open a leg for another declaration of the same source within this leg's deadline.
+    pub fn sibling(&self, spec: &'static SourceSpec) -> Self {
+        debug_assert_eq!(
+            spec.source, self.spec.source,
+            "sibling legs share one source"
+        );
+        self.fetch.leg(spec, self.deadline).fresh(self.fresh)
+    }
     /// Finish the leg without clearing failures after later successful requests.
     pub fn finish(self) -> LegReport {
         self.take_report()

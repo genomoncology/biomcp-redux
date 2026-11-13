@@ -5,3 +5,5 @@ The ClinGen validity and dosage files were captured once through the transport i
 The HGNC fixtures reuse the existing constraint slices. Missing MLH1, MSH2, MSH6, PMS2 and EPCAM records derive from the official HGNC REST responses retained under hgnc-rest, captured through the transport in j9069. For each existing TSV column a REST scalar is copied verbatim, a list is joined with the published pipe separator in source order, and an absent field stays empty. No HGNC bundle was downloaded again. This derived TSV fixture is synthetic. The five-ID MyGene POST was captured in the same job. Existing TP53, MIR21 and BCR MyGene and TP53 gnomAD identities reuse the prior constraint recordings.
 
 The all and constraint directories reuse these same ClinGen slices. ClinGen reports are public CC0 summaries.
+
+The region curation list recorded in j39307 on 2026-11-13 is copied whole from ../regions/clingen; see ../regions/README.md.

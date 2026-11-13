@@ -43,7 +43,8 @@
           "--limit",
           "--locus-group",
           "--offset",
-          "query"
+          "query",
+          "--region"
         ],
         "/result/commands/0/examples": [
           [
@@ -53,7 +54,7 @@
           ]
         ]
       },
-      "max_bytes": 2060,
+      "max_bytes": 2435,
       "run": [
         "help",
         "search",

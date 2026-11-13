@@ -5548,13 +5548,18 @@
           "required": [
             "band"
           ]
+        },
+        {
+          "required": [
+            "region"
+          ]
         }
       ],
-      "description": "Search human genes by name or identifier.",
+      "description": "Search human genes by name, identifier or cytoband, and ClinGen dosage regions by cytoband or GRCh38 interval.",
       "properties": {
         "band": {
           "$ref": "#/$defs/Cytoband",
-          "description": "A cytoband prefix."
+          "description": "A cytoband prefix. Also lists ClinGen dosage regions whose band span contains it, such as 15q12 in 15q11.2-q13.1."
         },
         "command": {
           "const": "search-gene",
@@ -5581,8 +5586,12 @@
         },
         "query": {
           "$ref": "#/$defs/Text",
-          "description": "Words matched against symbols, previous symbols, aliases and names.",
+          "description": "Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.",
           "x-positional": 0
+        },
+        "region": {
+          "$ref": "#/$defs/VariantRegion",
+          "description": "A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes."
         }
       },
       "required": [

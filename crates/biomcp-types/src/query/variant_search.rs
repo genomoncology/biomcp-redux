@@ -51,6 +51,18 @@ impl FromStr for VariantRegion {
         Ok(Self(value.into()))
     }
 }
+impl VariantRegion {
+    /// Chromosome without the `chr` prefix, then the inclusive start and end.
+    pub fn bounds(&self) -> (&str, u32, u32) {
+        let (chromosome, bounds) = self.0.split_once(':').unwrap_or_default();
+        let (start, end) = bounds.split_once('-').unwrap_or_default();
+        (
+            chromosome.trim_start_matches("chr"),
+            start.parse().unwrap_or_default(),
+            end.parse().unwrap_or_default(),
+        )
+    }
+}
 impl fmt::Display for VariantRegion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(&self.0)

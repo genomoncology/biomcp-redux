@@ -49,6 +49,27 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
     let text = std::str::from_utf8(body).map_err(|_| BadReply)?;
     let mut lines = text.lines();
     let header = lines.next().ok_or(BadReply)?;
+    tsv_rows::<R>(header, lines, 2)
+}
+/// Leading `#` lines are a banner; the last of them names the columns.
+pub(super) fn commented_tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
+    let text = std::str::from_utf8(body).map_err(|_| BadReply)?;
+    let banner = text
+        .lines()
+        .take_while(|line| line.starts_with('#'))
+        .count();
+    let header = text
+        .lines()
+        .nth(banner.checked_sub(1).ok_or(BadReply)?)
+        .and_then(|line| line.strip_prefix('#'))
+        .ok_or(BadReply)?;
+    tsv_rows::<R>(header, text.lines().skip(banner), banner + 1)
+}
+fn tsv_rows<'a, R: Row>(
+    header: &str,
+    lines: impl Iterator<Item = &'a str>,
+    first: usize,
+) -> Result<ParsedRows, BadReply> {
     let names: Vec<_> = header.split('\t').collect();
     let unique: BTreeSet<_> = names.iter().collect();
     if names
@@ -65,7 +86,7 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
             .map(tsv_cell)
             .collect::<Result<Vec<_>, _>>()?;
         if values.len() != names.len() {
-            rows.reject(index + 2, "wrong number of columns");
+            rows.reject(index + first, "wrong number of columns");
             continue;
         }
         let mut object = serde_json::Map::new();
@@ -75,7 +96,7 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
             }
         }
         let value = serde_json::Value::Object(object);
-        rows.admit::<R>(value, index + 2);
+        rows.admit::<R>(value, index + first);
     }
     Ok(rows)
 }
@@ -128,6 +149,7 @@ pub(super) fn rows<R: Row>(body: &[u8], format: RowFormat) -> Result<ParsedRows,
             max_decoded_bytes,
         } => super::native::rows::<R>(body, gzip, max_decoded_bytes),
         RowFormat::Tsv => tsv::<R>(body),
+        RowFormat::CommentedTsv => commented_tsv::<R>(body),
         RowFormat::Csv { banner_lines } => csv::<R>(body, banner_lines, false),
         RowFormat::NativeCsv { max_bytes } => {
             if max_bytes == 0
