@@ -282,9 +282,10 @@ fn select(
     };
     out.body = (DrugLabel {
         identity: record.header()?,
+        // Read before `label` moves into the reply.
+        hint: no_room(&label)?,
         label,
         sections: Box::default(),
-        hint: no_room(&label)?,
     })
     .with_query(query.clone());
     Ok(())
