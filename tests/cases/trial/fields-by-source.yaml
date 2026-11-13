@@ -104,8 +104,8 @@
         "": {
           "includes_all_of": [
             "Fields by --source: ctgov: ",
-            "; nci: ",
-            "matched_site"
+            "; nci: brief",
+            "phases"
           ]
         }
       }
