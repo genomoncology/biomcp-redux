@@ -1,0 +1,15 @@
+{
+  "projection": "Native identity, harmonized fields, product data and the indications section only (effective_time, id, openfda, set_id, spl_product_data_elements, version, indications_and_usage); meta and request identity are the original live reply's.",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "job": "j39092",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22838c2d78-d2d8-4981-9ec9-e50ef9e1a5d8%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "e317277bddbd9d2328a9a0c589fb648e14fe661640d8277a803b248103cbcbed",
+      "status": 200,
+      "bytes": 101546,
+      "kept_whole": false,
+      "retrieved": "2026-11-13"
+    }
+  ]
+}

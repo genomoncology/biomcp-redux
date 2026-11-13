@@ -1,0 +1,37 @@
+{
+  "verified": "tests/replies/drug/label-continues/provenance.json records the live openFDA reply of 2026-11-13 (job j39048) and its body hash.",
+  "live_check": "public",
+  "feature": "drug-label",
+  "story": "Keytruda's Indications and Usage, 23,683 bytes in four fragments, comes back whole in one reply at the default label budget: no fragments remain and there is no next page.",
+  "replay": "drug/label-continues",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "9333c79b-d487-4538-a9f0-71b91a02b287",
+        "label",
+        "--source",
+        "openfda-label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/label/data/heading": "indications_and_usage",
+        "/result/label/data/offset": 0,
+        "/result/label/data/total": 4,
+        "/page/returned": 4,
+        "/result/label/data": {
+          "omits": [
+            "remaining"
+          ]
+        },
+        "/next/*/kind": {
+          "excludes": "page"
+        }
+      },
+      "max_bytes": 29153
+    }
+  ]
+}

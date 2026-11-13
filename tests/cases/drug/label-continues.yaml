@@ -2,7 +2,7 @@
   "verified": "tests/replies/drug/label-continues/provenance.json records the live openFDA reply of 2026-11-13 (job j39048) and its body hash.",
   "live_check": "public",
   "feature": "drug-label",
-  "story": "Keytruda's Indications and Usage runs to 1.21 across four fragments; the first fragment says before its text that three fragments remain, and the last says nothing remains.",
+  "story": "With a 6,144-byte label budget, Keytruda's Indications and Usage runs to 1.21 across four replies; the first says before its text that three fragments remain, and the last says nothing remains.",
   "replay": "drug/label-continues",
   "steps": [
     {
@@ -53,5 +53,8 @@
       },
       "max_bytes": 9014
     }
-  ]
+  ],
+  "config": {
+    "drug_label_bytes": 6144
+  }
 }
