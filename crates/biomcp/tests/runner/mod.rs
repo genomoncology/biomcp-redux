@@ -92,6 +92,7 @@ use biomcp_test_support::network_stub;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
+mod orphadata_sync;
 mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
@@ -352,6 +353,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(drug_name_load::trials());
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
+    trials.extend(orphadata_sync::trials());
     trials
 }
 

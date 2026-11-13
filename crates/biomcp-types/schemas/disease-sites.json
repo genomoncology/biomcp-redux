@@ -89,7 +89,7 @@
           "description": "Exactly one ontology, default MONDO."
         },
         "source": {
-          "$ref": "#/$defs/Reply_DiseaseSource",
+          "$ref": "#/$defs/Reply_DiseaseSearchSource",
           "default": "ols",
           "description": "One explicit source, default OLS."
         },
@@ -104,6 +104,16 @@
         }
       },
       "type": "object"
+    },
+    "Reply_DiseaseSearchSource": {
+      "description": "An explicit disease search source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer"
+      ],
+      "type": "string"
     },
     "Reply_DiseaseSite": {
       "description": "One publisher catalog site, independent of ontology identities.",
@@ -171,16 +181,6 @@
         }
       },
       "type": "object"
-    },
-    "Reply_DiseaseSource": {
-      "description": "An explicit disease source without fallback.",
-      "enum": [
-        "ols",
-        "mydisease",
-        "monarch",
-        "seer"
-      ],
-      "type": "string"
     },
     "Reply_PageInfo": {
       "description": "Search counts after filtering and deduplication.",
@@ -433,7 +433,8 @@
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
-        " Cellosaurus cell line identity."
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -508,7 +509,8 @@
         "cpic",
         "clinpgx",
         "cbioportal",
-        "cellosaurus"
+        "cellosaurus",
+        "orphadata"
       ]
     },
     "Reply_SourceNotice": {

@@ -18,7 +18,8 @@ fn bundle_names_are_unique_and_keep_the_public_command_contract() {
             "who-pq",
             "gtr",
             "who-ivd",
-            "fda-cdx"
+            "fda-cdx",
+            "orphadata"
         ],
         "source declarations keep every public sync word"
     );

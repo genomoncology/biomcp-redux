@@ -9,8 +9,8 @@
       ],
       "type": "string"
     },
-    "DiseaseSource": {
-      "description": "An explicit disease source without fallback.",
+    "DiseaseSearchSource": {
+      "description": "An explicit disease search source without fallback.",
       "enum": [
         "ols",
         "mydisease",
@@ -46,7 +46,7 @@
       "description": "Exactly one ontology, default MONDO; help search disease\nExactly one ontology, default MONDO."
     },
     "source": {
-      "$ref": "#/$defs/DiseaseSource",
+      "$ref": "#/$defs/DiseaseSearchSource",
       "default": "ols",
       "description": "One explicit source, default OLS; help search disease\nOne explicit source, default OLS."
     },

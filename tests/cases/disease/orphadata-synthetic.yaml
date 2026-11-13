@@ -1,0 +1,29 @@
+{
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "feature": "disease-orphadata",
+  "story": "A synthetic Orphadata pair shows a class-only estimate without its 0.0 placeholder, and PubMed IDs kept when the source text spaces or labels them.",
+  "replay": "disease/orphadata-synthetic",
+  "steps": [
+    {
+      "run": ["sync", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 2
+      }
+    },
+    {
+      "run": ["get", "disease", "Orphanet:900001", "prevalence", "--source", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "Orphanet:900001",
+        "/result/items/0/prevalence/*/qualification": ["Class only", "Value and class", "Value and class"],
+        "/result/items/0/prevalence/0": {"omits": ["value", "pmids"]},
+        "/result/items/0/prevalence/0/class": "<1 / 1 000 000",
+        "/result/items/0/prevalence/1/value": "1.5",
+        "/result/items/0/prevalence/1/pmids": ["18442953"],
+        "/result/items/0/prevalence/2/pmids": ["33080481"],
+        "/result/items/0/inheritance": ["Autosomal dominant"]
+      }
+    }
+  ]
+}
