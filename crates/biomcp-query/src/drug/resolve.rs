@@ -320,7 +320,7 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
     )
 }
 fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    native_names(
+    let (out, mut candidates) = native_names(
         cx,
         query,
         &biomcp_adapters::openfda_label::SPEC,
@@ -341,7 +341,9 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
                 refusals: page.window.refusals(),
             })
         },
-    )
+    );
+    super::label_choice::generic_name(&mut candidates);
+    (out, candidates)
 }
 
 /// Read MyChem's free-text pages until one holds a drug record of the exact name. Its ranking can
