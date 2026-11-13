@@ -49,13 +49,13 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         }
     }
     let total = matching.len() as u64;
-    let mut problems = Vec::new();
+    let mut conflicts = Vec::new();
     let items = matching
         .into_iter()
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
         .map(|row| {
-            conflicts(&row, snapshot, &mut problems);
+            conflicts.extend(conflicts_of(&row));
             row.relation
         })
         .collect();
@@ -63,9 +63,18 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         // A row whose drug cell cannot be read joins no application, so name it.
         let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
         for row in all {
-            conflicts(&row.value, snapshot, &mut problems);
+            conflicts.extend(conflicts_of(&row.value));
         }
     }
+    let mut problems: Vec<Problem> = conflicts
+        .into_iter()
+        .map(|(table, index, field)| Problem {
+            source: Source::FdaCdx,
+            record: biodata::Text::new(&format!("{snapshot}:{table}:{index}")).ok(),
+            field: field.into(),
+            code: ProblemCode::IdentityConflict,
+        })
+        .collect();
     let group_unsupported = query.biomarker().is_some();
     if group_unsupported {
         problems.push(Problem {
@@ -82,21 +91,17 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         problems,
     })
 }
-fn conflicts(row: &super::raw::Native, snapshot: &str, problems: &mut Vec<Problem>) {
+/// Table, row and field of each identity cell this stored row could not read.
+fn conflicts_of(row: &super::raw::Native) -> Vec<(u8, u32, &'static str)> {
     let (table, index) = match &row.relation {
-        CompanionDiagnosticRelation::Individual { index, .. } => (0, index),
-        CompanionDiagnosticRelation::Group { index, .. } => (1, index),
+        CompanionDiagnosticRelation::Individual { index, .. } => (0, *index),
+        CompanionDiagnosticRelation::Group { index, .. } => (1, *index),
     };
-    for (conflict, field) in [(row.device_conflict, "device"), (row.drug_conflict, "drug")] {
-        if conflict {
-            problems.push(Problem {
-                source: Source::FdaCdx,
-                record: biodata::Text::new(&format!("{snapshot}:{table}:{index}")).ok(),
-                field: field.into(),
-                code: ProblemCode::IdentityConflict,
-            });
-        }
-    }
+    [(row.device_conflict, "device"), (row.drug_conflict, "drug")]
+        .into_iter()
+        .filter(|(conflict, _)| *conflict)
+        .map(|(_, field)| (table, index, field))
+        .collect()
 }
 fn changed_revision() -> RequestError {
     biomcp_fetch::SourceError {
