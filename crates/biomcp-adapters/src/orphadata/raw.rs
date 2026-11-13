@@ -200,3 +200,72 @@ impl Row for Native {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{Native, Row};
+    // Cut from the live en_product9_prev.xml of 2026-06-23 (Kabuki syndrome, first estimate).
+    const PREV: &str = r#"<?xml version="1.0" encoding="UTF-8"?>
+<JDBOR date="2026-06-23 07:57:58" version="1.3.42 / 4.1.8 [2025-03-03]" copyright="Orphanet (c) 2026" dbserver="jdbc:sybase:Tds:canard.orpha.net:2020">
+  <Availability> 
+    <Licence>
+      <FullName lang="en">Creative Commons Attribution 4.0 International</FullName>
+      <ShortIdentifier>CC-BY-4.0</ShortIdentifier>
+      <LegalCode>https://creativecommons.org/licenses/by/4.0/legalcode</LegalCode>
+    </Licence>
+  </Availability>
+  <DisorderList count="1">
+    <Disorder id="2177">
+      <OrphaCode>2322</OrphaCode>
+      <ExpertLink lang="en">http://www.orpha.net/consor/cgi-bin/OC_Exp.php?lng=en&amp;Expert=2322</ExpertLink>
+      <Name lang="en">Kabuki syndrome</Name>
+      <DisorderType id="21401">
+        <Name lang="en">Malformation syndrome</Name>
+      </DisorderType>
+      <DisorderGroup id="36547">
+        <Name lang="en">Disorder</Name>
+      </DisorderGroup>
+      <PrevalenceList count="1">
+        <Prevalence id="3580">
+          <Source>15108197[PMID]</Source>
+          <PrevalenceType id="23683">
+            <Name lang="en">Prevalence at birth</Name>
+          </PrevalenceType>
+          <PrevalenceQualification id="23711">
+            <Name lang="en">Value and class</Name>
+          </PrevalenceQualification>
+          <PrevalenceClass id="23746">
+            <Name lang="en">1-9 / 100 000</Name>
+          </PrevalenceClass>
+          <ValMoy>1.16</ValMoy>
+          <PrevalenceGeographic id="24957">
+            <Name lang="en">New Zealand</Name>
+          </PrevalenceGeographic>
+          <PrevalenceValidationStatus id="25958">
+            <Name lang="en">Validated</Name>
+          </PrevalenceValidationStatus>
+        </Prevalence>
+      </PrevalenceList>
+    </Disorder>
+  </DisorderList>
+</JDBOR>
+"#;
+    #[test]
+    fn decodes_one_published_disorder() {
+        let rows = Native::decode_document(PREV.as_bytes()).expect("document decodes");
+        assert_eq!(rows.len(), 1, "one disorder row");
+        let row: Native = serde_json::from_str(&rows[0]).expect("row decodes");
+        assert_eq!(row.code, "2322", "OrphaCode");
+        assert_eq!(row.name.as_deref(), Some("Kabuki syndrome"), "name");
+        assert_eq!(row.prevalence[0].value.as_deref(), Some("1.16"), "value");
+        assert_eq!(
+            row.prevalence[0].geography.as_deref(),
+            Some("New Zealand"),
+            "geography"
+        );
+        assert!(
+            row.check_part(super::super::PREVALENCE).is_ok(),
+            "prevalence part"
+        );
+    }
+}
