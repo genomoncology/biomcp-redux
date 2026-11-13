@@ -108,12 +108,18 @@ fn sync_step(out: &mut Outcome) {
 }
 
 /// How the WHO row is chosen among the products WHO lists under the name.
-const WHO_CHOICE: &str = "earliest Date of Prequalification among WHO rows whose INN, dosage form and strength cell names the input; export order on a tie; undated rows last";
+const WHO_CHOICE: &str = "earliest Date of Prequalification among WHO rows whose INN, dosage form and strength \
+    cell names the input; export order on a tie; undated rows last";
 
 /// The WHO market row for a name: the earliest prequalified product WHO lists under it.
 pub(super) fn market(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     let mut row = markets::row(DrugSource::WhoPq);
-    let Ok(search) = DrugSearch::named(name.clone(), DrugSource::WhoPq, 10) else {
+    let Some(search) = markets::kept(
+        DrugSearch::named(name.clone(), DrugSource::WhoPq, 10),
+        Source::WhoPq,
+        "input",
+        out,
+    ) else {
         return row;
     };
     let command = cx.fetch.command_deadline(cx.budget);
@@ -149,12 +155,12 @@ pub(super) fn market(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket
     };
     row.state = DrugMarketState::Found;
     row.record = Some(chosen.reference.clone());
-    row.name = markets::text(&chosen.inn_dosage_form_strength);
-    row.holder = markets::text(&chosen.applicant);
+    row.name = markets::text(&chosen.inn_dosage_form_strength, Source::WhoPq, "name", out);
+    row.holder = markets::text(&chosen.applicant, Source::WhoPq, "holder", out);
     row.first_approval = chosen
         .prequalified_on
-        .and_then(|date| markets::dated("date_of_prequalification", date));
-    row.url = who_pq::product_url(&chosen.reference);
+        .and_then(|date| markets::dated("date_of_prequalification", date, Source::WhoPq, out));
+    row.url = markets::kept(who_pq::product_url(&chosen.reference), Source::WhoPq, "url", out);
     row.choice = Some(WHO_CHOICE.into());
     markets::section_step(
         out,

@@ -52,7 +52,12 @@ pub(super) fn row(source: DrugSource) -> DrugMarket {
 
 fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     let mut row = row(DrugSource::Drugsfda);
-    let Ok(get) = DrugGet::named(name.clone(), DrugSource::Drugsfda) else {
+    let Some(get) = kept(
+        DrugGet::named(name.clone(), DrugSource::Drugsfda),
+        Source::Drugsfda,
+        "input",
+        out,
+    ) else {
         return row;
     };
     let sub = super::get(cx, &get);
@@ -71,16 +76,22 @@ fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     let error = result.as_ref().err().copied();
     let read = status::source(Source::Drugsfda, leg.finish(), error);
     command.finish(deadline.remaining());
-    let Some(application) = result.ok().and_then(|page| page.records.into_iter().next()) else {
+    let application = match result {
+        Ok(page) => page.records.into_iter().next(),
+        Err(error) => {
+            out.local = out.local.or(status::local(error));
+            None
+        }
+    };
+    let Some(application) = application else {
         row.state = DrugMarketState::Failed;
         row.reason = read.reason;
-        out.local = out.local.or(error.and_then(status::local));
         add_source(out, read);
         return row;
     };
     let candidate = application.candidate();
     row.state = DrugMarketState::Found;
-    row.record = text(&candidate.id.to_string());
+    row.record = text(&candidate.id.to_string(), Source::Drugsfda, "record", out);
     row.name = candidate.name;
     row.holder = application.sponsor().cloned();
     row.status = distinct(
@@ -91,8 +102,8 @@ fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     );
     row.first_approval = candidate
         .original_approval
-        .and_then(|first| dated("submission_status_date", first.date));
-    row.url = drugsfda::application_url(&candidate.id);
+        .and_then(|first| dated("submission_status_date", first.date, Source::Drugsfda, out));
+    row.url = kept(drugsfda::application_url(&candidate.id), Source::Drugsfda, "url", out);
     if let Some(get) = crate::next::checked(
         DrugGet::new(candidate.id, DrugSource::Drugsfda)
             .and_then(|get| get.for_section(DrugSection::Approvals)),
@@ -107,9 +118,13 @@ fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
 
 fn ema(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     let mut row = row(DrugSource::Ema);
-    let Ok(get) = DrugGet::named(name.clone(), DrugSource::Ema)
-        .and_then(|get| get.for_section(DrugSection::Regulatory))
-    else {
+    let Some(get) = kept(
+        DrugGet::named(name.clone(), DrugSource::Ema)
+            .and_then(|get| get.for_section(DrugSection::Regulatory)),
+        Source::Ema,
+        "input",
+        out,
+    ) else {
         return row;
     };
     let sub = super::get(cx, &get);
@@ -122,7 +137,7 @@ fn ema(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     };
     resolution(&mut row, &body.identity);
     row.state = DrugMarketState::Found;
-    row.record = text(&body.identity.id.to_string());
+    row.record = text(&body.identity.id.to_string(), Source::Ema, "record", out);
     row.name = body.identity.name.clone();
     row.url = body.identity.url.clone();
     if let Section::Data { data, .. } = &body.regulatory
@@ -213,7 +228,11 @@ pub(super) fn section_step(out: &mut Outcome, source: Source, request: Request, 
 /// When several records match, the call that lists them all.
 pub(super) fn alternatives(out: &mut Outcome, row: &DrugMarket, name: &Text, fresh: bool) {
     if row.matches.is_some_and(|n| n > 1)
-        && let Ok(search) = DrugSearch::named(name.clone(), row.source, 10)
+        && let Some(search) = crate::next::checked(
+            DrugSearch::named(name.clone(), row.source, 10),
+            row.source.source(),
+            &mut out.problems,
+        )
     {
         out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
@@ -234,13 +253,37 @@ fn distinct(values: impl Iterator<Item = Text>) -> Box<[Text]> {
     seen.into()
 }
 
-pub(super) fn dated(role: &str, date: PartialDate) -> Option<AuthorizationDate> {
-    Some(AuthorizationDate {
-        role: role.parse().ok()?,
-        date,
-    })
+pub(super) fn dated(
+    role: &str,
+    date: PartialDate,
+    source: Source,
+    out: &mut Outcome,
+) -> Option<AuthorizationDate> {
+    let role = kept(role.parse::<Text>(), source, "first_approval", out)?;
+    Some(AuthorizationDate { role, date })
 }
 
-pub(super) fn text(value: &str) -> Option<Text> {
-    Text::new(value.trim()).ok()
+pub(super) fn text(value: &str, source: Source, field: &str, out: &mut Outcome) -> Option<Text> {
+    kept(Text::new(value.trim()), source, field, out)
+}
+
+/// Keep a value the source supplied; a value that cannot be built is a problem on its field.
+pub(super) fn kept<T, E>(
+    result: Result<T, E>,
+    source: Source,
+    field: &str,
+    out: &mut Outcome,
+) -> Option<T> {
+    match result {
+        Ok(value) => Some(value),
+        Err(_) => {
+            out.problems.push(biomcp_types::Problem {
+                source,
+                record: None,
+                field: field.into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
+            None
+        }
+    }
 }

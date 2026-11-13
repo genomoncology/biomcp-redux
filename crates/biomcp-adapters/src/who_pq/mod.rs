@@ -100,15 +100,17 @@ pub fn search(
     }
     Ok(rows.into_iter().map(|(_, row)| row.into()).collect())
 }
-/// The product's page on WHO's prequalification site, keyed by its reference number.
-pub fn product_url(reference: &biodata::Text) -> Option<biodata::Text> {
+/// The product's page on WHO's prequalification site: WHO's own list links each product by its
+/// reference number in lower case, with spaces as hyphens.
+pub fn product_url(reference: &biodata::Text) -> Result<biodata::Text, RequestError> {
     let slug: String = reference
         .as_str()
         .split_whitespace()
         .collect::<Vec<_>>()
         .join("-")
         .to_lowercase();
-    biodata::Text::new(&format!("{}/medicines/{slug}", SPEC.base)).ok()
+    biodata::Text::new(&format!("{}/medicines/{slug}", SPEC.base))
+        .map_err(|_| biomcp_fetch::bad_reply(Source::WhoPq, None))
 }
 /// Exact case-sensitive native reference, preserving spaces and all native cells.
 pub fn get(
