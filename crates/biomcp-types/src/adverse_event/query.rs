@@ -86,8 +86,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(title = "VAERS table.", extend("x-positional" = 1)))]
     section: Option<super::VaersSection>,
-    #[doc = "VAERS order.\nreports: largest WONDER Events Reported count first, over the whole table; \
-        ties keep source order. Omit for source order (symptoms A-Z)."]
+    #[doc = "VAERS order.\nreports: largest count first; omit for source order."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Vaers)))]
     sort: Option<super::VaersSort>,

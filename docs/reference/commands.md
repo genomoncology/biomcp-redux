@@ -1165,6 +1165,7 @@ Options:
           [possible values: true, false]
 
       --limit <limit>
+          Page size.
           Report headers, reaction terms or VAERS rows; default five.
 
       --manufacturer <manufacturer>
@@ -1219,6 +1220,11 @@ Options:
           VAERS snapshot.
           Retained VAERS table for provider-free continuation.
 
+      --sort <sort>
+          VAERS order; help search adverse-event
+          VAERS order.
+          reports: largest WONDER Events Reported count first, over the whole table; ties keep source order. Omit for source order (symptoms A-Z).
+
       --source <source>
           Source; default FAERS; help search adverse-event
           Source; default FAERS.
@@ -1242,7 +1248,8 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--expand-drug-names`: FAERS no-op.
 FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--limit`: Page size.
+Report headers, reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--name-snapshot`: FAERS name snapshot.
@@ -1267,6 +1274,10 @@ FAERS report flag: any uses the source seriousness flag; the specific flags can 
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--snapshot`: VAERS snapshot.
 Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--sort`: VAERS order; help search adverse-event
+VAERS order.
+reports: largest WONDER Events Reported count first, over the whole table; ties keep source order. Omit for source order (symptoms A-Z).
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort reports. Only with --source vaers.
 - `--source`: Source; default FAERS; help search adverse-event
 Source; default FAERS.
 FAERS by default; VAERS accepts only exact supported vaccine names.

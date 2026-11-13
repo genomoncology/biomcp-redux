@@ -91,6 +91,16 @@
         " Reports classified by native seriousness.",
         " Native age groups."
       ]
+    },
+    "VaersSort": {
+      "description": "Local VAERS row order; omitted keeps CDC WONDER's own order.",
+      "enum": [
+        "reports"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Largest WONDER count first; ties keep source order."
+      ]
     }
   },
   "$id": "biomcp.adverse-event-search/4",
@@ -138,7 +148,7 @@
     },
     "limit": {
       "default": 5,
-      "description": "Report headers, reaction terms or VAERS rows; default five.",
+      "description": "Page size.\nReport headers, reaction terms or VAERS rows; default five.",
       "format": "uint32",
       "maximum": 50,
       "minimum": 1,
@@ -264,6 +274,18 @@
         }
       ],
       "description": "VAERS snapshot.\nRetained VAERS table for provider-free continuation."
+    },
+    "sort": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VaersSort"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "VAERS order.\nreports: largest WONDER Events Reported count first, over the whole table; ties keep source order. Omit for source order (symptoms A-Z).",
+      "x-required-component": "vaers"
     },
     "source": {
       "$ref": "#/$defs/AdverseEventSource",
