@@ -43,7 +43,7 @@ def main():
         extra = ["--record", record] if label in RECORD else []
         if extra:
             os.makedirs(record, exist_ok=True)
-        if extra and label != "study-cna-profile":
+        if extra:
             # Also show the reply without recording, so a record-mode failure cannot hide it.
             plain = subprocess.run([binary] + args, capture_output=True, env=env, timeout=300)
             print(f"\n### {label} (no record) exit={plain.returncode}\n" + plain.stdout.decode("utf-8", "replace")[:6000])
