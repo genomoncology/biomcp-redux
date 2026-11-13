@@ -306,7 +306,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(vaers::trials());
     trials.extend(trial_get::trials());
     trials.extend(trial_results::trials());
-    trials.push(trial_sites::trial());
+    trials.extend(trial_sites::trials());
     trials.extend(retained_source_trials());
     trials.extend(cache_errors::trials());
     trials.extend(variant_assertion_wire::trials());
