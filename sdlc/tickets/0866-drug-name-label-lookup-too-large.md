@@ -1,6 +1,7 @@
 # 0866 — drug-name-label-lookup-too-large
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 209e08c60f62cd994e136fed833ab3688c6ff4eb
 
 Milestone: 7
 
