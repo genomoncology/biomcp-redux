@@ -10,7 +10,8 @@ struct Fragment {
 }
 impl Record {
     /// Page whole text fragments until the next would pass `budget` escaped bytes of text.
-    /// The budget may return fewer fragments than the supplied maximum, and always at least one.
+    /// A budget of at least one fragment (6,144) always returns one; a section sharing a
+    /// reply's spent budget may return none and continues at the same offset.
     /// Offsets and totals count fragments, never characters, sentences or source array elements.
     pub(super) fn label(
         &self,
@@ -35,7 +36,7 @@ impl Record {
         let mut bytes = 0;
         for fragment in all.into_iter().skip(offset as usize).take(limit as usize) {
             let size = escaped_bytes(&fragment.text);
-            if !selected.is_empty() && bytes + size > budget {
+            if bytes + size > budget {
                 break;
             }
             bytes += size;

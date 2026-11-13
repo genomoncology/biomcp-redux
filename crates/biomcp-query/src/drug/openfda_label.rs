@@ -137,13 +137,18 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
             source.count = Some(page.window.total().unwrap_or(0));
             source.retrieved_count = Some(page.window.rows.len() as u32);
         }
+        // The label budget is per reply: sections named together share it in order, and a
+        // section left without room returns no text and continues by its remaining fragments.
+        let mut left = cx.label_bytes;
         let outcomes = queries
             .iter()
             .map(|query| {
                 let mut part = fork(&out, query);
+                let cx = &sharing(cx, left);
                 if let Some(record) = page.window.rows.first() {
-                    if let Err(error) = select(cx, query, record, page.metadata.fetched, &mut part)
-                    {
+                    let selected = select(cx, query, record, page.metadata.fetched, &mut part);
+                    left = left.saturating_sub(text_bytes(&part));
+                    if let Err(error) = selected {
                         crate::status::item(&mut part, false, true, false);
                         part.local = status::local(error);
                     }
@@ -158,6 +163,31 @@ pub(super) fn get(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
     }
     command.finish(remaining);
     queries.iter().map(|query| fork(&out, query)).collect()
+}
+/// The same context with the label budget still left in this reply.
+fn sharing<'a>(cx: &Ctx<'a>, label_bytes: usize) -> Ctx<'a> {
+    Ctx {
+        fetch: cx.fetch,
+        // No label source contacts NCBI.
+        ncbi_email: None,
+        budget: cx.budget,
+        fresh: cx.fresh,
+        drug_name_limit: cx.drug_name_limit,
+        label_bytes,
+    }
+}
+/// Escaped bytes of label text a part returned, as the adapter counts them.
+fn text_bytes(part: &Outcome) -> usize {
+    match &part.body {
+        biomcp_types::ReplyData::DrugLabel {
+            body: Some(body), ..
+        } => match &body.label {
+            Section::Data { data, .. } => serde_json::to_string(&data.text)
+                .map_or(0, |text| text.len().saturating_sub(2)),
+            _ => 0,
+        },
+        _ => 0,
+    }
 }
 fn empty(query: &DrugGet) -> Outcome {
     super::empty(if matches!(query.sections(), [DrugSection::Label]) {
@@ -224,7 +254,7 @@ fn select(
             out.page = Some(page(offset, returned, total));
             if let Some(next) = offset
                 .checked_add(returned)
-                .filter(|n| returned > 0 && u64::from(*n) < total)
+                .filter(|n| u64::from(*n) < total)
                 && let Some(request) = crate::next::checked(
                     query.at_section_offset(next),
                     biomcp_types::Source::OpenfdaLabel,
