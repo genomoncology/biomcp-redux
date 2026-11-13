@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "50df5837532f70f95235e03243d8643fa10ccc92d5aed7f6564ffa8009c7e180"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794589357,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 72,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"DOID:225","_id":"MONDO:0002254","_version":1,"disease_ontology":{"_license":"https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/DO_LICENSE.txt","doid":"DOID:225","name":"syndrome"},"mondo":{"label":"syndromic disease","mondo":"MONDO:0002254"}},{"query":"MONDO:0002254","_id":"MONDO:0002254","_version":1,"disease_ontology":{"_license":"https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/DO_LICENSE.txt","doid":"DOID:225","name":"syndrome"},"mondo":{"label":"syndromic disease","mondo":"MONDO:0002254"}},{"query":"MONDO:0003847","_id":"MONDO:0003847","_version":1,"disease_ontology":{"_license":"https://github.com/DiseaseOntology/HumanDiseaseOntology/blob/master/DO_LICENSE.txt","doid":"DOID:630","name":"genetic disease"},"mondo":{"label":"hereditary disease","mondo":"MONDO:0003847"}},{"query":"MONDO:0015159","_id":"MONDO:0015159","_version":1,"mondo":{"label":"multiple congenital anomalies/dysmorphic syndrome-intellectual disability","mondo":"MONDO:0015159"}}]
+      }
+    }
+  ]
+}

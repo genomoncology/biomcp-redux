@@ -6,20 +6,52 @@
   "replay": "disease/kabuki",
   "steps": [
     {
-      "run": ["get", "disease", "MONDO:0016512", "synonyms", "--source", "mydisease", "--section-limit", "50"],
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "synonyms",
+        "--source",
+        "mydisease",
+        "--section-limit",
+        "50"
+      ],
       "expect": {
         "/page/total": 5,
-        "/result/items/*/value": ["Kabuki make-up syndrome", "KMS", "Niikawa-Kuroki syndrome", "NKS", "Kabuki make up syndrome"],
+        "/result/items/*/value": [
+          "Kabuki make-up syndrome",
+          "KMS",
+          "Niikawa-Kuroki syndrome",
+          "NKS",
+          "Kabuki make up syndrome"
+        ],
         "/result/items/1/attribution/source": "mondo",
         "/result/items/4/attribution/source": "doid"
       }
     },
     {
-      "run": ["get", "disease", "MONDO:0016512", "hierarchy", "--source", "mydisease"],
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "hierarchy",
+        "--source",
+        "mydisease"
+      ],
       "expect": {
         "/page/total": 4,
-        "/result/items/*/object/id": ["MONDO:0002254", "MONDO:0003847", "MONDO:0015159", "DOID:225"],
-        "/result/items/*/object/label": ["syndromic disease", "hereditary disease", "multiple congenital anomalies/dysmorphic syndrome-intellectual disability", "syndrome"],
+        "/result/items/*/object/id": [
+          "MONDO:0002254",
+          "MONDO:0003847",
+          "MONDO:0015159",
+          "DOID:225"
+        ],
+        "/result/items/*/object/label": [
+          "syndromic disease",
+          "hereditary disease",
+          "multiple congenital anomalies/dysmorphic syndrome-intellectual disability",
+          "syndrome"
+        ],
         "/result/items/3/attribution/source": "doid"
       }
     }
