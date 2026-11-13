@@ -1,6 +1,7 @@
 # 0870 — get-de-novo-records-by-den-id
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 7e666371a2b545b95a2c1bfde1d8d7c9c81a7885
 
 Milestone: 7
 

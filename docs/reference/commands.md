@@ -2799,7 +2799,7 @@ Options:
       --source <source>
           Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
           Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-          510(k) K number or device recall Z-NNNN-YYYY.
+          510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -2834,7 +2834,7 @@ Listed choices accept any letter case; replies use their listed spelling.
 - `--section-offset`: Zero-based source row or fragment offset. Value form: integer. Example: --section-offset 5. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--source`: Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
 Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-510(k) K number or device recall Z-NNNN-YYYY.
+510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source who-ivd. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string. Example: --supplement S020. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 
