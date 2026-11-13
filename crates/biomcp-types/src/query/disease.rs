@@ -48,6 +48,10 @@ struct SearchFields {
     text: Option<Box<str>>,
     /// One explicit source, default OLS.
     #[serde(default)]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "source::DiseaseSearchSource", extend("default" = "ols"))
+    )]
     source: DiseaseSource,
     /// Exactly one ontology, default MONDO.
     #[serde(

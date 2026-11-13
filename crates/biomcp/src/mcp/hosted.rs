@@ -327,7 +327,7 @@ fn notices(
 
 pub(super) fn instructions(cx: Context<'_>) -> io::Result<String> {
     let excluded = super::typed::catalog::excluded(cx)?;
-    let mut rows = vec!["biomcp: command words in args. help COMMAND: options; help questions|examples|sources: map, worked calls, sources.".to_owned()];
+    let mut rows = vec!["biomcp: command words in args. help COMMAND|questions|examples|sources: options, map, worked calls, sources.".to_owned()];
     for (verb, entity, id) in crate::grammar::command_paths() {
         let schema: Value = serde_json::from_str(
             crate::schema::find(id).ok_or_else(|| io::Error::other("query schema"))?,
