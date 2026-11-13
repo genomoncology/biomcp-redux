@@ -46,25 +46,7 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
                 crate::status::item_status(true, false, false)
             },
         );
-        result.total_messages = result.messages.len() as u32;
-        // A row resolved on a fitting transcript pages through its own next step.
-        more |= result.hgvs.is_none()
-            && result.total_messages.max(result.total_mappings) as u64
-                > query.offset() as u64 + query.limit() as u64;
-        result.messages = result
-            .messages
-            .into_vec()
-            .into_iter()
-            .skip(query.offset() as usize)
-            .take(query.limit() as usize)
-            .collect();
-        result.mappings = result
-            .mappings
-            .into_vec()
-            .into_iter()
-            .skip(query.offset() as usize)
-            .take(query.limit() as usize)
-            .collect();
+        more |= page(&mut result, query);
         results.push(result);
         sources.push(source);
         local = local.or(error);
@@ -100,6 +82,28 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
     );
     command.finish(deadline.remaining());
     outcome
+}
+/// Page one service's messages and mappings; true when rows remain past this page.
+fn page(result: &mut NormalizationResult, query: &VariantNormalize) -> bool {
+    result.total_messages = result.messages.len() as u32;
+    let skip = query.offset() as usize;
+    let take = query.limit() as usize;
+    result.messages = std::mem::take(&mut result.messages)
+        .into_vec()
+        .into_iter()
+        .skip(skip)
+        .take(take)
+        .collect();
+    result.mappings = std::mem::take(&mut result.mappings)
+        .into_vec()
+        .into_iter()
+        .skip(skip)
+        .take(take)
+        .collect();
+    // A row resolved on a fitting transcript pages through its own next step.
+    result.hgvs.is_none()
+        && result.total_messages.max(result.total_mappings) as u64
+            > query.offset() as u64 + query.limit() as u64
 }
 fn selected(source: NormalizationSource) -> Vec<&'static SourceSpec> {
     match source {
