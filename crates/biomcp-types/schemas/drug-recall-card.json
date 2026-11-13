@@ -77,6 +77,30 @@
             "null"
           ]
         },
+        "decision_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First date, YYYY-MM-DD.\nInclusive submission status date; Drugs@FDA approvals only.",
+          "x-required-component": "drugsfda"
+        },
+        "decision_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last date, YYYY-MM-DD.\nInclusive submission status date; Drugs@FDA approvals only.",
+          "x-required-component": "drugsfda"
+        },
         "document_id": {
           "anyOf": [
             {
@@ -142,9 +166,9 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.",
+          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals alone.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": [
             "integer",

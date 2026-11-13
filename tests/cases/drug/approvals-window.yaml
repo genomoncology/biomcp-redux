@@ -1,0 +1,170 @@
+{
+  "feature": "drug-approvals",
+  "story": "A drug's Drugs@FDA approvals take an inclusive status-date window, with the window and its count stated, and a whole application history of 128 submissions fits in one 200-row page; pages above 50 rows read no supplement letters and say so; other sources keep the 50-row limit.",
+  "live_check": "public",
+  "verified": "Native openFDA Drugs@FDA reply for BLA125514 recorded 2026-11-13 with biomcp --record in pm job j39043; body unchanged. The whole-history page measured 90,461 bytes and the 2024-onward window 19,979 bytes in that job.",
+  "replay": "drug/approvals-window",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--decision-from",
+        "2024-01-01",
+        "--section-limit",
+        "200"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--decision-from",
+        "2024-01-01",
+        "--section-limit",
+        "200"
+      ],
+      "max_bytes": 23000,
+      "expect": {
+        "/status": "complete",
+        "/query/decision_from": "2024-01-01",
+        "/page/total": 26,
+        "/page/returned": 26,
+        "/result/approvals/data/total": 26,
+        "/result/approvals/data/records/0/submission_number": "191",
+        "/result/approvals/data/records/0/event/dates/0/date": "2026-10-16",
+        "/result/approvals/data/records/25/submission_number": "147",
+        "/result/approvals/data/records/25/event/dates/0/date": "2024-01-12",
+        "/sources/0/notices/*/message": {
+          "includes": "26 of 128 submissions have a status date from 2024-01-01 to the last, inclusive; undated submissions are left out."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--decision-from",
+        "2024-01-01",
+        "--decision-to",
+        "2024-12-31",
+        "--section-limit",
+        "200"
+      ],
+      "max_bytes": 23000,
+      "expect": {
+        "/status": "complete",
+        "/query/decision_to": "2024-12-31",
+        "/page/total": 10,
+        "/result/approvals/data/records/*/submission_number": [
+          "162",
+          "164",
+          "161",
+          "157",
+          "158",
+          "155",
+          "154",
+          "160",
+          "124",
+          "147"
+        ],
+        "/sources/0/notices/*/message": {
+          "includes": "10 of 128 submissions have a status date from 2024-01-01 to 2024-12-31, inclusive; undated submissions are left out."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--section-limit",
+        "200"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--section-limit",
+        "200"
+      ],
+      "max_bytes": 104000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 128,
+        "/page/returned": 128,
+        "/result/approvals/data/records/0/submission_number": "191",
+        "/result/approvals/data/records/127/event/kind": "ORIG",
+        "/result/approvals/data/records/127/event/dates/0/date": "2014-09-04",
+        "/sources/0/notices/*/message": {
+          "includes": "--section-limit above 50 reads no supplement letters, so rows carry no supplement_purpose. Ask for 50 rows or fewer, or one --document-id, to read them."
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "imatinib",
+        "xrefs",
+        "--source",
+        "mychem",
+        "--section-limit",
+        "60"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--section-limit"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA125514",
+        "--source",
+        "drugsfda",
+        "--decision-from",
+        "2024-01-01"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "BLA125514",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--decision-from",
+        "2024-01"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--decision-from"
+      }
+    }
+  ]
+}
