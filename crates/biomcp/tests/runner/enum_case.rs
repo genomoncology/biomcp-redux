@@ -86,6 +86,7 @@ fn fact_context(entity: &str, key: &str) -> Value {
         ("pgx", "drug_id") => json!({"section":"recommendations"}),
         ("drug", "decision_from" | "decision_to") => json!({"section":"approvals"}),
         ("variant", "tumor_type") => json!({"build":"GRCh38"}),
+        ("adverse-event", "sort") => json!({"text":"COVID19"}),
         _ => json!({}),
     }
 }
