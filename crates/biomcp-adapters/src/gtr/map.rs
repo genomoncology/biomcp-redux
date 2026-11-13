@@ -53,13 +53,26 @@ pub(super) fn header(
             id,
             name: optional(&v.name_of_laboratory, "name_of_laboratory", v, problems),
             institution: optional(&v.name_of_institution, "name_of_institution", v, problems),
+            state: optional(&v.facility_state, "facility_state", v, problems),
+            postcode: optional(&v.facility_postcode, "facility_postcode", v, problems),
             country: optional(&v.facility_country, "facility_country", v, problems),
         }),
+        gene_count: gene_count(&v.genes),
+        method_categories: v
+            .method_categories
+            .split('|')
+            .filter_map(|value| optional(value, "method_categories", v, problems))
+            .collect(),
         url: Text::new(&format!(
             "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"
         ))
         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?,
     })
+}
+/// Distinct symbols in the pipe-separated native genes cell; absent when the cell is empty.
+fn gene_count(cell: &str) -> Option<u32> {
+    let genes: std::collections::HashSet<_> = cell.split('|').filter(|g| !g.is_empty()).collect();
+    u32::try_from(genes.len()).ok().filter(|n| *n > 0)
 }
 pub(super) fn card(
     v: &GtrTestVersion,

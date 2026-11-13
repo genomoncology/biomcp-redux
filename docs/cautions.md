@@ -85,6 +85,8 @@ EMA's medicines file holds some `?` characters where a symbol such as `≥` was 
 
 Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
+Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. GTR's stored files hold no laboratory street, city, director or order link; the GTR page lists them. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
+
 `--name` matches literal text inside the native `lab_test_name`, ignoring letter case, across every stored version row, including tests with no gene or condition link. It counts current cards and conflicting identities before paging; a test whose only card is not current is left out. A name match has no matched relation unless a relation selector is also given. Tests whose name holds the text as whole words, with no letter or digit touching either end, come first, then tests where it sits only inside a longer word, each group in source order; `name_match` says `whole-word` or `partial-word` on each row. There is no fuzzy matching.
 
 ## GTR cards
