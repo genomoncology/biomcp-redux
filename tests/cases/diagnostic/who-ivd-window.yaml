@@ -1,0 +1,141 @@
+{
+  "live_check": "WHO IVD prequalified export captured live 2026-11-13; original bytes retained in sidecars",
+  "feature": "diagnostic-who-search",
+  "story": "A WHO IVD prequalification year window returns only products prequalified in those years, with the window's own total; WHO publishes only the year, so a month or day bound is refused and says so.",
+  "replay": "diagnostic/who-ivd-window",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-ivd"
+      ],
+      "expect": {
+        "/result/rows": 439
+      },
+      "max_bytes": 500
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--marker",
+        "HIV",
+        "--prequalified-from",
+        "2023",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 9,
+        "/page/returned": 9,
+        "/result/items/*/id": {
+          "equals": [
+            "0372-017-01",
+            "13226-013-00",
+            "0661-265-00",
+            "0544-005-00",
+            "0454-140-00",
+            "0691-070-00",
+            "0640-027-00",
+            "0652-070-00",
+            "0528-046-00"
+          ]
+        },
+        "/result/items/*/prequalification_year": {
+          "equals": [
+            "2025",
+            "2025",
+            "2025",
+            "2025",
+            "2024",
+            "2024",
+            "2024",
+            "2024",
+            "2023"
+          ]
+        }
+      },
+      "max_bytes": 5000
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--prequalified-from",
+        "2023",
+        "--prequalified-to",
+        "2023",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/page/total": 4,
+        "/page/returned": 3,
+        "/result/items/*/prequalification_year": {
+          "equals": [
+            "2023",
+            "2023",
+            "2023"
+          ]
+        }
+      },
+      "max_bytes": 3000
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--prequalified-from",
+        "2023-06"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/message": "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY"
+      },
+      "max_bytes": 2000,
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--prequalified-from",
+        "2023"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/valid_values": [
+          "who-ivd"
+        ]
+      },
+      "max_bytes": 2000,
+      "exit": 2
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "who-ivd",
+        "--prequalified-from",
+        "2024",
+        "--prequalified-to",
+        "2023"
+      ],
+      "expect": {
+        "/error/code": "usage.arguments"
+      },
+      "max_bytes": 2000,
+      "exit": 2
+    }
+  ]
+}

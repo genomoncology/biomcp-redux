@@ -87,7 +87,7 @@ diagnostic-510k: Retrieve one exact native FDA clearance with source-owned ident
 diagnostic-retirements: Retired diagnostic spellings return fixed supported routes before any source request.
 drug-who-medicines: Explicit WHO finished-product sync publishes a validated local bundle; explicit source reads preserve native prequalification rows without downloading, with optional name and inclusive year, month or day date ranges and date-only results newest first.
 vaers-summary: Read explicit supported vaccine aggregate tables without inferring individual risks or silently changing sources.
-diagnostic-who-search: Search stored WHO product headers by literal marker and manufacturer words.
+diagnostic-who-search: Search stored WHO product headers by literal marker and manufacturer words and a prequalification year window.
 mcp-research: Search citable source headers and fetch the same CLI record through research compatibility tools.
 store-clean: Publishing removes bounded expired pools and snapshots; ordinary reply writes prune expired replies; explicit cleanup removes expired state and obsolete owned database files with their sidecars while preserving supported generations, bundle tables in obsolete files, fresh state and foreign tables.
 study-catalog: Explicit catalog sync preserves checked metadata atomically; literal stored study searches retain selectors and source order.
