@@ -31,3 +31,11 @@ In the rare-disease persona run of 2026-11-13 (biomed-agent-bench `personas/rare
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/gtr/`, `crates/biomcp-types/`, `tests/cases/diagnostic/`, `docs/`
+
+## Progress
+
+- Measured live on 2026-11-13: BioMCP's GTR adapter reads NCBI's stored files `test_version.gz` (13 MB) and `test_condition_gene.txt` (47 MB), not E-utilities. KMT2D has 211 tests there, the same count E-utilities gave the persona. The version file's `genes` cell gives the gene count; it split KMT2D's tests 13 single-gene, 16 with 2-10 genes, 46 with 11-100 and 136 over 100, exactly as esummary `genecount` did (log.md:299). Its `method_categories` counts also match. The file holds the lab's state, postcode and country but no street, city, director or order link.
+- Those lab contact fields exist only in E-utilities esummary and in `gtr_ftp.xml.gz` (184 MB compressed, 1.9 GB uncompressed). Adding either is a new source path, not a row change, so it is left out here.
+- Changed: each GTR row (and the card header) now carries `gene_count`, `method_categories` and `laboratory.state` and `laboratory.postcode`, all optional fields. The schemas were regenerated and pass the release check.
+- Reply size: a 50-row KMT2D page is 41-44 KB, so all 211 rows would be about 180 KB in one reply, over what MCP clients take comfortably. The page limit stays 50; `page.total` says 211 and the reply offers the next page, so five calls cover the gene.
+- Case `tests/cases/diagnostic/gtr-kmt2d.yaml` replays the live files cut to KMT2D's 211 relation rows and their version rows. It checks the first row's new fields and walks all five pages, matching every ID and gene count against the recorded reply.
