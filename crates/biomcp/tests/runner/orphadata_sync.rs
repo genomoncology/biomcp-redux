@@ -59,7 +59,9 @@ fn other_licence() -> Result<(), String> {
         ),
     )?;
     if kept.pointer("/result/items/0/prevalence/1/value") != Some(&json!("1.5")) {
-        return Err(format!("the installed set did not survive the refusal: {kept}"));
+        return Err(format!(
+            "the installed set did not survive the refusal: {kept}"
+        ));
     }
     Ok(())
 }
@@ -70,10 +72,6 @@ fn run(env: &Environment, args: Vec<String>) -> Result<Value, String> {
         .command(env!("CARGO_BIN_EXE_biomcp"), &args)
         .output()
         .map_err(|e| e.to_string())?;
-    serde_json::from_slice(&output.stdout).map_err(|e| {
-        format!(
-            "{e}; stderr: {}",
-            String::from_utf8_lossy(&output.stderr)
-        )
-    })
+    serde_json::from_slice(&output.stdout)
+        .map_err(|e| format!("{e}; stderr: {}", String::from_utf8_lossy(&output.stderr)))
 }
