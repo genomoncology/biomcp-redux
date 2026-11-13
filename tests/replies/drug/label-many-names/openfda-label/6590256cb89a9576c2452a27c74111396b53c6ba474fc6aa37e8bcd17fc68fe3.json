@@ -1,0 +1,3310 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794528981,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 1191,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 50,
+              "total": 396
+            }
+          },
+          "results": [
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE MALTODEXTRIN TRIACETIN HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex M4 Chemical Structure"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "fb296500-55cb-45ce-be0c-59aa2e3d4624",
+              "id": "3de4b7de-2094-43d2-95d8-a3532be18ddf",
+              "effective_time": "20261104",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA077095"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Bryant Ranch Prepack"
+                ],
+                "product_ndc": [
+                  "71335-3132"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "spl_id": [
+                  "3de4b7de-2094-43d2-95d8-a3532be18ddf"
+                ],
+                "spl_set_id": [
+                  "fb296500-55cb-45ce-be0c-59aa2e3d4624"
+                ],
+                "package_ndc": [
+                  "71335-3132-1",
+                  "71335-3132-2",
+                  "71335-3132-3",
+                  "71335-3132-4",
+                  "71335-3132-5",
+                  "71335-3132-6",
+                  "71335-3132-7",
+                  "71335-3132-8",
+                  "71335-3132-9",
+                  "71335-3132-0"
+                ],
+                "original_packager_product_ndc": [
+                  "59651-854"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN POVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE 2910 (15 MPA.S) TALC TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 PROPYLENE GLYCOL white to off white round shaped biconvex 227 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN POVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE 2910 (15 MPA.S) TALC TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 PROPYLENE GLYCOL white to off white round shaped biconvex 228 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN POVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE 2910 (15 MPA.S) TALC TITANIUM DIOXIDE POLYETHYLENE GLYCOL 6000 PROPYLENE GLYCOL white to off white oval capsule shaped biconvex 229;229 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE 2208 (100000 MPA.S) COPOVIDONE K25-31 CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE white to off white oval shaped biconvex MX;500 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN MAGNESIUM STEARATE HYPROMELLOSE 2208 (100000 MPA.S) COPOVIDONE K25-31 CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED MICROCRYSTALLINE CELLULOSE white to off white capsule shaped tablets MX;750"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride tablets is indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 ) Metformin is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "0ff1ba75-3c86-4baf-a6b1-1bb883839866",
+              "id": "0c532cbf-ce0f-4e95-85ca-486993078787",
+              "effective_time": "20261102",
+              "version": "29",
+              "openfda": {
+                "application_number": [
+                  "ANDA091184",
+                  "ANDA206145"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Ascend Laboratories, LLC"
+                ],
+                "product_ndc": [
+                  "67877-217",
+                  "67877-218",
+                  "67877-221",
+                  "67877-413",
+                  "67877-414"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "spl_id": [
+                  "0c532cbf-ce0f-4e95-85ca-486993078787"
+                ],
+                "spl_set_id": [
+                  "0ff1ba75-3c86-4baf-a6b1-1bb883839866"
+                ],
+                "package_ndc": [
+                  "67877-217-01",
+                  "67877-217-05",
+                  "67877-217-10",
+                  "67877-217-33",
+                  "67877-217-38",
+                  "67877-218-01",
+                  "67877-218-05",
+                  "67877-218-10",
+                  "67877-218-33",
+                  "67877-218-38",
+                  "67877-221-01",
+                  "67877-221-05",
+                  "67877-221-10",
+                  "67877-221-33",
+                  "67877-221-38",
+                  "67877-413-01",
+                  "67877-413-05",
+                  "67877-413-10",
+                  "67877-413-33",
+                  "67877-413-90",
+                  "67877-414-01",
+                  "67877-414-05",
+                  "67877-414-10",
+                  "67877-414-33",
+                  "67877-414-90"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0367877221014",
+                  "0367877218014",
+                  "0367877414904",
+                  "0367877413907"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POLYETHYLENE GLYCOL, UNSPECIFIED POVIDONE, UNSPECIFIED TITANIUM DIOXIDE MALTODEXTRIN TRIACETIN White to off-white M24;500"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus."
+              ],
+              "set_id": "55062171-7581-0630-e063-6394a90ac088",
+              "id": "5eecb7c1-abf2-c9ad-e063-6294a90af5fb",
+              "effective_time": "20261028",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA213320"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "NuCare Pharmaceuticcals,Inc."
+                ],
+                "product_ndc": [
+                  "68071-5306"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "5eecb7c1-abf2-c9ad-e063-6294a90af5fb"
+                ],
+                "spl_set_id": [
+                  "55062171-7581-0630-e063-6394a90ac088"
+                ],
+                "package_ndc": [
+                  "68071-5306-8",
+                  "68071-5306-6",
+                  "68071-5306-9"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-930"
+                ],
+                "upc": [
+                  "0368071530681"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE 2208 (100000 MPA.S) CELLULOSE, MICROCRYSTALLINE GLYCERYL DIBEHENATE MAGNESIUM STEARATE METHACRYLIC ACID - METHYL METHACRYLATE COPOLYMER (1:1) TALC TRIETHYL CITRATE HYPROMELLOSE 2910 (6 MPA.S) FD&C BLUE NO. 2 TITANIUM DIOXIDE POVIDONE K30 AMMONIO METHACRYLATE COPOLYMER TYPE A HYDROXYPROPYL CELLULOSE (110000 WAMW) M500 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K30 HYPROMELLOSE 2208 (100000 MPA.S) MICROCRYSTALLINE CELLULOSE GLYCERYL DIBEHENATE MAGNESIUM STEARATE AMMONIO METHACRYLATE COPOLYMER TYPE A TALC TRIETHYL CITRATE HYDROXYPROPYL CELLULOSE (110000 WAMW) METHACRYLIC ACID - METHYL METHACRYLATE COPOLYMER (1:1) white to off-white M1000"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablet is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "cc070735-5e8d-4bb3-9caa-e84d29bb8943",
+              "id": "5ecf7be6-d5f5-a2e8-e063-6394a90a63b9",
+              "effective_time": "20261027",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA212448"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Micro Labs Limited"
+                ],
+                "product_ndc": [
+                  "42571-333",
+                  "42571-334"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "5ecf7be6-d5f5-a2e8-e063-6394a90a63b9"
+                ],
+                "spl_set_id": [
+                  "cc070735-5e8d-4bb3-9caa-e84d29bb8943"
+                ],
+                "package_ndc": [
+                  "42571-333-60",
+                  "42571-333-90",
+                  "42571-333-01",
+                  "42571-333-05",
+                  "42571-334-60",
+                  "42571-334-90",
+                  "42571-334-01",
+                  "42571-334-05"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0342571334901",
+                  "0342571333010"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POLYETHYLENE GLYCOL 400 MAGNESIUM STEARATE POVIDONE K30 POVIDONE K90 STARCH, CORN TITANIUM DIOXIDE BLACKBERRY HYPROMELLOSE 2910 (6 MPA.S) White to off-white BICONVEX G;10"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets are biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "30658e19-8e6e-49aa-a007-e414224797c5",
+              "id": "5ebdcc21-9da4-a52c-e063-6294a90a4cd8",
+              "effective_time": "20261026",
+              "version": "22",
+              "openfda": {
+                "application_number": [
+                  "ANDA090564"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-2833"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "5ebdcc21-9da4-a52c-e063-6294a90a4cd8"
+                ],
+                "spl_set_id": [
+                  "30658e19-8e6e-49aa-a007-e414224797c5"
+                ],
+                "package_ndc": [
+                  "70518-2833-0",
+                  "70518-2833-1",
+                  "70518-2833-2",
+                  "70518-2833-3",
+                  "70518-2833-4",
+                  "70518-2833-5",
+                  "70518-2833-6",
+                  "70518-2833-7",
+                  "70518-2833-8",
+                  "70518-2833-9"
+                ],
+                "original_packager_product_ndc": [
+                  "70010-063"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE MALTODEXTRIN TRIACETIN HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex M;8"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "55b25f66-a0a3-4e2e-9c4a-6354f41072fa",
+              "id": "5ebd6ac3-55c6-47c9-e063-6394a90a1494",
+              "effective_time": "20261026",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA077095"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4781"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004"
+                ],
+                "spl_id": [
+                  "5ebd6ac3-55c6-47c9-e063-6394a90a1494"
+                ],
+                "spl_set_id": [
+                  "55b25f66-a0a3-4e2e-9c4a-6354f41072fa"
+                ],
+                "package_ndc": [
+                  "70518-4781-0"
+                ],
+                "original_packager_product_ndc": [
+                  "59651-856"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE MALTODEXTRIN TRIACETIN HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex M;8"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "583f2a2e-a9d7-f266-e063-6294a90ad0ab",
+              "id": "5ec4a6b8-cc1d-43d6-e063-6394a90a2bfd",
+              "effective_time": "20261026",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA077095"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "NuCare Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "68071-5313"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004"
+                ],
+                "spl_id": [
+                  "5ec4a6b8-cc1d-43d6-e063-6394a90a2bfd"
+                ],
+                "spl_set_id": [
+                  "583f2a2e-a9d7-f266-e063-6294a90ad0ab"
+                ],
+                "package_ndc": [
+                  "68071-5313-9",
+                  "68071-5313-8",
+                  "68071-5313-6"
+                ],
+                "original_packager_product_ndc": [
+                  "59651-856"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN BLACKBERRY CROSCARMELLOSE SODIUM HYPROMELLOSE 2910 (6 MPA.S) MAGNESIUM STEARATE POLYETHYLENE GLYCOL 3350 POLYVINYL ALCOHOL, UNSPECIFIED POVIDONE K30 SILICON DIOXIDE TALC TITANIUM DIOXIDE White to off white Oval-Biconvex L;11"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 ) Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "bfd6ec0f-8264-4877-aa6d-f347f53bc426",
+              "id": "5e850119-4b7e-b916-e063-6394a90a6559",
+              "effective_time": "20261023",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "ANDA209882"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4262"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004"
+                ],
+                "spl_id": [
+                  "5e850119-4b7e-b916-e063-6394a90a6559"
+                ],
+                "spl_set_id": [
+                  "bfd6ec0f-8264-4877-aa6d-f347f53bc426"
+                ],
+                "package_ndc": [
+                  "70518-4262-0"
+                ],
+                "original_packager_product_ndc": [
+                  "42385-949"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A HYPROMELLOSE 2910 (15 MPA.S) MAGNESIUM STEARATE POVIDONE TALC TRIETHYL CITRATE HYPROMELLOSE 2208 (200000 MPA.S) White to off white G42"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "104b5f5b-cc83-450d-82ec-1fd20c4f7119",
+              "id": "5dfa21ca-ea79-9c0f-e063-6294a90a8b69",
+              "effective_time": "20261016",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA213344"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4677"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888"
+                ],
+                "spl_id": [
+                  "5dfa21ca-ea79-9c0f-e063-6294a90a8b69"
+                ],
+                "spl_set_id": [
+                  "104b5f5b-cc83-450d-82ec-1fd20c4f7119"
+                ],
+                "package_ndc": [
+                  "70518-4677-0",
+                  "70518-4677-2",
+                  "70518-4677-1",
+                  "70518-4677-3"
+                ],
+                "original_packager_product_ndc": [
+                  "70010-497"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin HCl Metformin HCl METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K30 POVIDONE K90 STARCH, CORN MAGNESIUM STEARATE HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 MALTODEXTRIN TRIACETIN G;12"
+              ],
+              "indications_and_usage": [
+                "INDICATIONS & USAGE Metformin Hydrochloride Tablets USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults and children with type 2 diabetes mellitus."
+              ],
+              "set_id": "235680e6-1c3e-45b8-902e-866583f1aef3",
+              "id": "5dfa1c8e-524a-4eae-e063-6394a90a8ad4",
+              "effective_time": "20261016",
+              "version": "15",
+              "openfda": {
+                "application_number": [
+                  "ANDA090564"
+                ],
+                "brand_name": [
+                  "Metformin HCl"
+                ],
+                "generic_name": [
+                  "METFORMIN HCL"
+                ],
+                "manufacturer_name": [
+                  "PD-Rx Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "72789-189"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004"
+                ],
+                "spl_id": [
+                  "5dfa1c8e-524a-4eae-e063-6394a90a8ad4"
+                ],
+                "spl_set_id": [
+                  "235680e6-1c3e-45b8-902e-866583f1aef3"
+                ],
+                "package_ndc": [
+                  "72789-189-30",
+                  "72789-189-93",
+                  "72789-189-90",
+                  "72789-189-60",
+                  "72789-189-21",
+                  "72789-189-98",
+                  "72789-189-42"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-563"
+                ],
+                "upc": [
+                  "0372789189215"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN COPOVIDONE K25-31 CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED HYPROMELLOSE, UNSPECIFIED MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE OE;585"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "c568d49f-c040-4f1e-ad36-77b05ab659c3",
+              "id": "5df577d6-ba1a-800d-e063-6294a90ab84a",
+              "effective_time": "20261016",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA078321"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4163"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860981"
+                ],
+                "spl_id": [
+                  "5df577d6-ba1a-800d-e063-6294a90ab84a"
+                ],
+                "spl_set_id": [
+                  "c568d49f-c040-4f1e-ad36-77b05ab659c3"
+                ],
+                "package_ndc": [
+                  "70518-4163-0",
+                  "70518-4163-1"
+                ],
+                "original_packager_product_ndc": [
+                  "68094-804"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin HCl Metformin HCl METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K30 POVIDONE K90 STARCH, CORN MAGNESIUM STEARATE HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 MALTODEXTRIN TRIACETIN G;10"
+              ],
+              "indications_and_usage": [
+                "INDICATIONS & USAGE Metformin Hydrochloride Tablets USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults and children with type 2 diabetes mellitus."
+              ],
+              "set_id": "fb890205-5d43-41eb-97b2-fb0dcdd3a950",
+              "id": "5dfbcb68-c716-c338-e063-6294a90a5fb8",
+              "effective_time": "20261016",
+              "version": "15",
+              "openfda": {
+                "application_number": [
+                  "ANDA090564"
+                ],
+                "brand_name": [
+                  "Metformin HCl"
+                ],
+                "generic_name": [
+                  "METFORMIN HCL"
+                ],
+                "manufacturer_name": [
+                  "PD-Rx Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "72789-192"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "5dfbcb68-c716-c338-e063-6294a90a5fb8"
+                ],
+                "spl_set_id": [
+                  "fb890205-5d43-41eb-97b2-fb0dcdd3a950"
+                ],
+                "package_ndc": [
+                  "72789-192-93",
+                  "72789-192-30",
+                  "72789-192-60",
+                  "72789-192-20",
+                  "72789-192-21"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-561"
+                ],
+                "upc": [
+                  "0372789192604"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE metformin hydrochloride HYPROMELLOSE 2910 (5 MPA.S) MAGNESIUM STEARATE POLYETHYLENE GLYCOL, UNSPECIFIED POVIDONE, UNSPECIFIED TITANIUM DIOXIDE METFORMIN HYDROCHLORIDE METFORMIN White to off white 001;500"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus.( 1 )"
+              ],
+              "set_id": "5073c482-952c-400c-afff-64380f133bc8",
+              "id": "44aefdea-2295-4f31-b726-5f5c847c4116",
+              "effective_time": "20261014",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "ANDA213320"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Preferred Pharmaceuticals Inc."
+                ],
+                "product_ndc": [
+                  "68788-8564"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "44aefdea-2295-4f31-b726-5f5c847c4116"
+                ],
+                "spl_set_id": [
+                  "5073c482-952c-400c-afff-64380f133bc8"
+                ],
+                "package_ndc": [
+                  "68788-8564-1",
+                  "68788-8564-3",
+                  "68788-8564-6",
+                  "68788-8564-9"
+                ],
+                "original_packager_product_ndc": [
+                  "23155-841"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Pioglitazone Hydrochloride and Metformin Hydrochloride Pioglitazone Hydrochloride and Metformin Hydrochloride PIOGLITAZONE HYDROCHLORIDE PIOGLITAZONE METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE CALCIUM HYDROXYPROPYL CELLULOSE (1600000 WAMW) HYPROMELLOSE 2910 (5 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 6000 TALC TITANIUM DIOXIDE White to Off-white Oblong, Biconvex H;92 Pioglitazone Hydrochloride and Metformin Hydrochloride Pioglitazone Hydrochloride and Metformin Hydrochloride PIOGLITAZONE HYDROCHLORIDE PIOGLITAZONE METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE CALCIUM HYDROXYPROPYL CELLULOSE (1600000 WAMW) HYPROMELLOSE 2910 (5 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 6000 TALC TITANIUM DIOXIDE White to Off-white Oblong, Biconvex H;93"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Pioglitazone and metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Limitations of Use Pioglitazone and metformin hydrochloride tablets are not recommended to treat type 1 diabetes mellitus or diabetic ketoacidosis. Pioglitazone and metformin hydrochloride tablets are a combination of pioglitazone, a thiazolidinedione agonist of peroxisome proliferator receptor gamma, and metformin hydrochloride, a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: Not recommended for treatment of type 1 diabetes or diabetic ketoacidosis. ( 1 )"
+              ],
+              "set_id": "8d252dab-e868-42d3-95ea-69423d909e84",
+              "id": "6023c38b-b347-48ad-bd0d-83452ffb1d00",
+              "effective_time": "20261014",
+              "version": "12",
+              "openfda": {
+                "application_number": [
+                  "ANDA200823"
+                ],
+                "brand_name": [
+                  "Pioglitazone Hydrochloride and Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "PIOGLITAZONE HYDROCHLORIDE AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Rising Pharma Holdings, Inc."
+                ],
+                "product_ndc": [
+                  "57237-217",
+                  "57237-218"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "PIOGLITAZONE HYDROCHLORIDE",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861783",
+                  "861822"
+                ],
+                "spl_id": [
+                  "6023c38b-b347-48ad-bd0d-83452ffb1d00"
+                ],
+                "spl_set_id": [
+                  "8d252dab-e868-42d3-95ea-69423d909e84"
+                ],
+                "package_ndc": [
+                  "57237-217-60",
+                  "57237-217-81",
+                  "57237-218-60",
+                  "57237-218-81"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0357237218600",
+                  "0357237217603"
+                ],
+                "unii": [
+                  "JQT35NPK6C",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN MAGNESIUM STEARATE HYPROMELLOSE 2208 (100000 MPA.S) COPOVIDONE K25-31 CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED FORM MICROCRYSTALLINE CELLULOSE white to off white capsule shaped tablets MX;750"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride tablets is indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 ) Metformin is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "056072d8-6228-4914-831d-ee7c0661b742",
+              "id": "37b108d1-319e-4c34-8ac2-38540b38ff67",
+              "effective_time": "20261009",
+              "version": "15",
+              "openfda": {
+                "application_number": [
+                  "ANDA206145"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-5246"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860981"
+                ],
+                "spl_id": [
+                  "37b108d1-319e-4c34-8ac2-38540b38ff67"
+                ],
+                "spl_set_id": [
+                  "056072d8-6228-4914-831d-ee7c0661b742"
+                ],
+                "package_ndc": [
+                  "50090-5246-1",
+                  "50090-5246-2",
+                  "50090-5246-3",
+                  "50090-5246-0"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-414"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE MALTODEXTRIN TRIACETIN HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex M4"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "7078da8f-f8a7-411f-aa79-8a9710d0cdb5",
+              "id": "9b4f91b3-880a-4fb6-a62d-e8ee9787e58d",
+              "effective_time": "20261009",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA077095"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-8106"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "9b4f91b3-880a-4fb6-a62d-e8ee9787e58d"
+                ],
+                "spl_set_id": [
+                  "7078da8f-f8a7-411f-aa79-8a9710d0cdb5"
+                ],
+                "package_ndc": [
+                  "50090-8106-4",
+                  "50090-8106-5",
+                  "50090-8106-0",
+                  "50090-8106-3",
+                  "50090-8106-6"
+                ],
+                "original_packager_product_ndc": [
+                  "59651-854"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN Blackberry Croscarmellose Sodium Hypromellose 2910 (6 MPA.S) Magnesium Stearate Polyethylene Glycol 3350 Polyvinyl Alcohol, Unspecified Povidone K30 Silicon Dioxide Talc Titanium Dioxide White to off white Round-Biconvex LL"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 ) Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "f59ceea4-a84a-4082-8e73-7c6f340c28d6",
+              "id": "e1c3e6aa-f4f6-4b29-80c7-f17e421ff107",
+              "effective_time": "20261009",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA209882"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-6858"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "e1c3e6aa-f4f6-4b29-80c7-f17e421ff107"
+                ],
+                "spl_set_id": [
+                  "f59ceea4-a84a-4082-8e73-7c6f340c28d6"
+                ],
+                "package_ndc": [
+                  "50090-6858-6",
+                  "50090-6858-4",
+                  "50090-6858-0",
+                  "50090-6858-5",
+                  "50090-6858-3"
+                ],
+                "original_packager_product_ndc": [
+                  "42385-947"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Sitagliptin and Metformin Hydrochloride Sitagliptin and Metformin Hydrochloride SITAGLIPTIN PHOSPHATE SITAGLIPTIN METFORMIN HYDROCHLORIDE METFORMIN MICROCRYSTALLINE CELLULOSE 102 POVIDONE, UNSPECIFIED Croscarmellose Sodium MAGNESIUM STEARATE HYPROMELLOSE 2910 (5 MPA.S) HYDROXYPROPYL CELLULOSE (1600000 WAMW) POLYETHYLENE GLYCOL 8000 TITANIUM DIOXIDE FERRIC OXIDE RED Propyl Gallate Light 5;5 Sitagliptin and Metformin Hydrochloride Sitagliptin and Metformin Hydrochloride SITAGLIPTIN PHOSPHATE SITAGLIPTIN METFORMIN HYDROCHLORIDE METFORMIN MICROCRYSTALLINE CELLULOSE 102 POVIDONE, UNSPECIFIED Croscarmellose Sodium MAGNESIUM STEARATE HYPROMELLOSE 2910 (5 MPA.S) HYDROXYPROPYL CELLULOSE (1600000 WAMW) POLYETHYLENE GLYCOL 8000 TITANIUM DIOXIDE FERRIC OXIDE RED Propyl Gallate 5;1 sitagliptinmetformin-01 sitagliptinmetformin-02 sitagliptinmetformin-03 sitagliptinmetformin-04 sime-btl-lbl-50-500mg sime-btl-lbl-50-1000mg"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Sitagliptin and metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Limitations of Use Sitagliptin and metformin hydrochloride tablets should not be used in patients with type 1 diabetes mellitus. Sitagliptin and metformin hydrochloride tablets have not been studied in patients with a history of pancreatitis. It is unknown whether patients with a history of pancreatitis are at increased risk for the development of pancreatitis while using sitagliptin and metformin hydrochloride tablets [see Warnings and Precautions (5.2)]. Sitagliptin and metformin hydrochloride tablets is a combination of sitagliptin, a dipeptidyl peptidase-4 (DPP-4) inhibitor, and metformin hydrochloride (HCl), a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: Sitagliptin and metformin hydrochloride tablets should not be used in patients with type 1 diabetes. ( 1 ) Sitagliptin and metformin hydrochloride has not been studied in patients with a history of pancreatitis. ( 1 , 5.2 )"
+              ],
+              "set_id": "950613e2-e959-6b57-e172-251ddc53c64c",
+              "id": "36ef9eed-221e-a76c-c2a3-80ab897bac8a",
+              "effective_time": "20261008",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA202426"
+                ],
+                "brand_name": [
+                  "Sitagliptin and Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "SITAGLIPTIN AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Apotex Corp."
+                ],
+                "product_ndc": [
+                  "60505-3658",
+                  "60505-3659"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "SITAGLIPTIN PHOSPHATE",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "2709488",
+                  "2709491"
+                ],
+                "spl_id": [
+                  "36ef9eed-221e-a76c-c2a3-80ab897bac8a"
+                ],
+                "spl_set_id": [
+                  "950613e2-e959-6b57-e172-251ddc53c64c"
+                ],
+                "package_ndc": [
+                  "60505-3658-6",
+                  "60505-3658-7",
+                  "60505-3659-6",
+                  "60505-3659-7"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0360505365968"
+                ],
+                "unii": [
+                  "TS63EW8X6F",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A HYPROMELLOSE 2910 (15 MPA.S) MAGNESIUM STEARATE POVIDONE TALC TRIETHYL CITRATE HYPROMELLOSE 2208 (200000 MPA.S) White to off white G41 METFORMIN HYDROCHLORIDE Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A HYPROMELLOSE 2910 (15 MPA.S) MAGNESIUM STEARATE POVIDONE TALC TRIETHYL CITRATE HYPROMELLOSE 2208 (200000 MPA.S) White to off white G42"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "a5980bc8-8de8-c456-e053-2a95a90a792e",
+              "id": "5d4f025e-92f8-7bf6-e063-6294a90a1ba0",
+              "effective_time": "20261008",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA213344"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Granules Pharmaceuticals Inc."
+                ],
+                "product_ndc": [
+                  "70010-496",
+                  "70010-497"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "5d4f025e-92f8-7bf6-e063-6294a90a1ba0"
+                ],
+                "spl_set_id": [
+                  "a5980bc8-8de8-c456-e053-2a95a90a792e"
+                ],
+                "package_ndc": [
+                  "70010-496-01",
+                  "70010-497-09"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B AMMONIA HYDROXYPROPYL CELLULOSE (160000 WAMW) HYPROMELLOSE 2208 (100000 MPA.S) FERROSOFERRIC OXIDE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 101 POLYSORBATE 80 PROPYLENE GLYCOL SHELLAC TALC TRIETHYL CITRATE White to Off-white Biconvex MTN500 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B AMMONIA HYDROXYPROPYL CELLULOSE (160000 WAMW) HYPROMELLOSE 2208 (100000 MPA.S) FERROSOFERRIC OXIDE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 101 POLYSORBATE 80 PROPYLENE GLYCOL SHELLAC TALC TRIETHYL CITRATE White to Off-white Biconvex MTN1000"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "ef77c7dd-a65f-4adc-a0d9-a93779b459a0",
+              "id": "8a4c1e52-f40b-42a5-8136-656bac6cc963",
+              "effective_time": "20261007",
+              "version": "4",
+              "openfda": {
+                "application_number": [
+                  "ANDA209694"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Aurobindo Pharma Limited"
+                ],
+                "product_ndc": [
+                  "59651-042",
+                  "59651-043"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807894",
+                  "1807917"
+                ],
+                "spl_id": [
+                  "8a4c1e52-f40b-42a5-8136-656bac6cc963"
+                ],
+                "spl_set_id": [
+                  "ef77c7dd-a65f-4adc-a0d9-a93779b459a0"
+                ],
+                "package_ndc": [
+                  "59651-042-60",
+                  "59651-043-60"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN POVIDONE, UNSPECIFIED CROSPOVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TITANIUM DIOXIDE DEXTROSE, UNSPECIFIED FORM ALCOHOL ACACIA PROPYLENE GLYCOL SILICON DIOXIDE off-white SG;105 METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN POVIDONE, UNSPECIFIED CROSPOVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TITANIUM DIOXIDE DEXTROSE, UNSPECIFIED FORM ALCOHOL ACACIA PROPYLENE GLYCOL SILICON DIOXIDE off-white SG;106 METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN POVIDONE, UNSPECIFIED CROSPOVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TITANIUM DIOXIDE DEXTROSE, UNSPECIFIED FORM ALCOHOL ACACIA PROPYLENE GLYCOL SILICON DIOXIDE off-white S;G;1;07"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin Hydrochloride Tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "f86bda10-8b25-4125-8bb1-1b5917969ff0",
+              "id": "5cbbc9ec-7bb2-0aa7-e063-6394a90ad91f",
+              "effective_time": "20260930",
+              "version": "14",
+              "openfda": {
+                "application_number": [
+                  "ANDA203769"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Golden State Medical Supply, Inc."
+                ],
+                "product_ndc": [
+                  "60429-111",
+                  "60429-112",
+                  "60429-113"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004",
+                  "861007",
+                  "861010"
+                ],
+                "spl_id": [
+                  "5cbbc9ec-7bb2-0aa7-e063-6394a90ad91f"
+                ],
+                "spl_set_id": [
+                  "f86bda10-8b25-4125-8bb1-1b5917969ff0"
+                ],
+                "package_ndc": [
+                  "60429-111-01",
+                  "60429-111-10",
+                  "60429-111-12",
+                  "60429-111-18",
+                  "60429-111-27",
+                  "60429-111-36",
+                  "60429-111-45",
+                  "60429-111-60",
+                  "60429-111-90",
+                  "60429-112-01",
+                  "60429-112-05",
+                  "60429-112-18",
+                  "60429-112-27",
+                  "60429-112-60",
+                  "60429-112-90",
+                  "60429-113-60",
+                  "60429-113-01",
+                  "60429-113-05",
+                  "60429-113-18",
+                  "60429-113-90"
+                ],
+                "original_packager_product_ndc": [
+                  "50228-105",
+                  "50228-106",
+                  "50228-107"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN Blackberry Croscarmellose Sodium Hypromellose 2910 (6 MPA.S) Magnesium Stearate Polyethylene Glycol 3350 Polyvinyl Alcohol, Unspecified Povidone K30 Silicon Dioxide Talc Titanium Dioxide White to off white Round-Biconvex LL Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN Blackberry Croscarmellose Sodium Hypromellose 2910 (6 MPA.S) Magnesium Stearate Polyethylene Glycol 3350 Polyvinyl Alcohol, Unspecified Povidone K30 Silicon Dioxide Talc Titanium Dioxide White to off white Capsule-Biconvex L06 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN Blackberry Croscarmellose Sodium Hypromellose 2910 (6 MPA.S) Magnesium Stearate Polyethylene Glycol 3350 Polyvinyl Alcohol, Unspecified Povidone K30 Silicon Dioxide Talc Titanium Dioxide White to off white Oval-Biconvex L;11 METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED HYPROMELLOSE 2208 (100000 MPA.S) MAGNESIUM STEARATE white to off-white color LA20 METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED HYPROMELLOSE 2208 (100000 MPA.S) MAGNESIUM STEARATE white to off-white color LA19"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 ) Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "c3dfa8a1-d10a-4a1a-8eba-5f4e2a5a2949",
+              "id": "59e47cee-79d7-4adc-9a71-165c170e5006",
+              "effective_time": "20260925",
+              "version": "8",
+              "openfda": {
+                "application_number": [
+                  "ANDA209882",
+                  "ANDA217631"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Laurus Labs Limited"
+                ],
+                "product_ndc": [
+                  "42385-947",
+                  "42385-948",
+                  "42385-949",
+                  "42385-977",
+                  "42385-978"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860975",
+                  "860981",
+                  "861004",
+                  "861007",
+                  "861010"
+                ],
+                "spl_id": [
+                  "59e47cee-79d7-4adc-9a71-165c170e5006"
+                ],
+                "spl_set_id": [
+                  "c3dfa8a1-d10a-4a1a-8eba-5f4e2a5a2949"
+                ],
+                "package_ndc": [
+                  "42385-947-90",
+                  "42385-947-01",
+                  "42385-947-18",
+                  "42385-947-05",
+                  "42385-947-11",
+                  "42385-947-19",
+                  "42385-948-90",
+                  "42385-948-01",
+                  "42385-948-18",
+                  "42385-948-05",
+                  "42385-948-11",
+                  "42385-948-19",
+                  "42385-949-60",
+                  "42385-949-90",
+                  "42385-949-01",
+                  "42385-949-18",
+                  "42385-949-05",
+                  "42385-949-11",
+                  "42385-949-19",
+                  "42385-977-30",
+                  "42385-977-90",
+                  "42385-977-01",
+                  "42385-977-18",
+                  "42385-977-05",
+                  "42385-977-11",
+                  "42385-977-72",
+                  "42385-978-30",
+                  "42385-978-90",
+                  "42385-978-01",
+                  "42385-978-18",
+                  "42385-978-05",
+                  "42385-978-11",
+                  "42385-978-72"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0342385949605",
+                  "0342385948905",
+                  "0342385947908"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B HYPROMELLOSE 2910 (5 MPA.S) HYPROMELLOSE 2208 (100000 MPA.S) POVIDONE K30 TRIETHYL CITRATE MAGNESIUM STEARATE TITANIUM DIOXIDE TALC SHELLAC PROPYLENE GLYCOL FERROSOFERRIC OXIDE AMMONIA white to off-white oval G520 METFORMIN HYDROCHLORIDE metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B HYPROMELLOSE 2910 (5 MPA.S) HYPROMELLOSE 2208 (100000 MPA.S) POVIDONE K30 TRIETHYL CITRATE MAGNESIUM STEARATE TITANIUM DIOXIDE TALC SHELLAC PROPYLENE GLYCOL FERROSOFERRIC OXIDE AMMONIA white to off-white oval G521"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "0ef9de1a-b786-4b6c-a250-3f5ac532b16a",
+              "id": "7e6fa4ce-7452-44f2-82f5-6549f2ec4b85",
+              "effective_time": "20260923",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA212969"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "GLENMARK PHARMACEUTICALS INC., USA"
+                ],
+                "product_ndc": [
+                  "68462-520",
+                  "68462-521"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "7e6fa4ce-7452-44f2-82f5-6549f2ec4b85"
+                ],
+                "spl_set_id": [
+                  "0ef9de1a-b786-4b6c-a250-3f5ac532b16a"
+                ],
+                "package_ndc": [
+                  "68462-520-01",
+                  "68462-520-05",
+                  "68462-520-10",
+                  "68462-521-90",
+                  "68462-521-01",
+                  "68462-521-05"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0368462521908",
+                  "0368462520017"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Glipizide and Metformin Hydrochloride Glipizide and Metformin Hydrochloride GLIPIZIDE GLIPIZIDE METFORMIN HYDROCHLORIDE METFORMIN STARCH, CORN CROSCARMELLOSE SODIUM MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE POLYETHYLENE GLYCOL 3350 POLYETHYLENE GLYCOL 4000 POLYVINYL ALCOHOL, UNSPECIFIED POVIDONE K30 POVIDONE K90 TALC TITANIUM DIOXIDE FERROSOFERRIC OXIDE FERRIC OXIDE RED FERRIC OXIDE YELLOW 93;7457 modified capsule-shaped"
+              ],
+              "indications_and_usage": [
+                "INDICATIONS AND USAGE Glipizide and metformin hydrochloride tablets USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus."
+              ],
+              "set_id": "3f2599c6-9e33-487e-9379-6477bb121461",
+              "id": "5c146e7a-0576-f0cf-e063-6394a90a661d",
+              "effective_time": "20260922",
+              "version": "14",
+              "openfda": {
+                "application_number": [
+                  "ANDA077270"
+                ],
+                "brand_name": [
+                  "Glipizide and Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "GLIPIZIDE AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-0373"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "GLIPIZIDE",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861740"
+                ],
+                "spl_id": [
+                  "5c146e7a-0576-f0cf-e063-6394a90a661d"
+                ],
+                "spl_set_id": [
+                  "3f2599c6-9e33-487e-9379-6477bb121461"
+                ],
+                "package_ndc": [
+                  "70518-0373-0",
+                  "70518-0373-1"
+                ],
+                "original_packager_product_ndc": [
+                  "0093-7457"
+                ],
+                "nui": [
+                  "N0000175608",
+                  "M0020795"
+                ],
+                "pharm_class_epc": [
+                  "Sulfonylurea [EPC]"
+                ],
+                "pharm_class_cs": [
+                  "Sulfonylurea Compounds [CS]"
+                ],
+                "unii": [
+                  "X7WDT95N5C",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin hydrochloride Metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POLYETHYLENE GLYCOL 400 POVIDONE, UNSPECIFIED STARCH, CORN ETHYLCELLULOSE, UNSPECIFIED SHELLAC FERROSOFERRIC OXIDE PROPYLENE GLYCOL AMMONIA white to off-white ME2"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets, USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets, USP are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "014f2a32-8440-4d0c-8f5d-c4b3a49e0dec",
+              "id": "5bfdea6b-84b7-766e-e063-6394a90a33c4",
+              "effective_time": "20260921",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA213651"
+                ],
+                "brand_name": [
+                  "Metformin hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4652"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807894"
+                ],
+                "spl_id": [
+                  "5bfdea6b-84b7-766e-e063-6394a90a33c4"
+                ],
+                "spl_set_id": [
+                  "014f2a32-8440-4d0c-8f5d-c4b3a49e0dec"
+                ],
+                "package_ndc": [
+                  "70518-4652-1",
+                  "70518-4652-0"
+                ],
+                "original_packager_product_ndc": [
+                  "27241-189"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE HYPROMELLOSE 2910 (5 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex A;12 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE HYPROMELLOSE 2910 (5 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex A;13 Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE HYPROMELLOSE 2910 (5 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex 1;4;A"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "23aa50c5-28fe-4322-b5c6-1f1c48409b16",
+              "id": "ed135ed3-4fa3-48bb-9272-c9360fc19dc6",
+              "effective_time": "20260921",
+              "version": "43",
+              "openfda": {
+                "application_number": [
+                  "ANDA077095"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-2081",
+                  "50090-2173",
+                  "50090-2177"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004",
+                  "861007",
+                  "861010"
+                ],
+                "spl_id": [
+                  "ed135ed3-4fa3-48bb-9272-c9360fc19dc6"
+                ],
+                "spl_set_id": [
+                  "23aa50c5-28fe-4322-b5c6-1f1c48409b16"
+                ],
+                "package_ndc": [
+                  "50090-2081-0",
+                  "50090-2081-5",
+                  "50090-2081-6",
+                  "50090-2081-3",
+                  "50090-2081-4",
+                  "50090-2173-5",
+                  "50090-2173-0",
+                  "50090-2173-2",
+                  "50090-2173-4",
+                  "50090-2177-3",
+                  "50090-2177-0",
+                  "50090-2177-2",
+                  "50090-2177-5",
+                  "50090-2177-4"
+                ],
+                "original_packager_product_ndc": [
+                  "65862-008",
+                  "65862-009",
+                  "65862-010"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE ER metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE White to off-white biconvex, beveled edge IL001"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "3dca884d-ec44-496f-9eeb-31fd8fa3f574",
+              "id": "5bfcb3f8-cc3e-4e7f-e063-6394a90aa6b4",
+              "effective_time": "20260921",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "ANDA201991"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE ER"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Leading Pharma, LLC"
+                ],
+                "product_ndc": [
+                  "69315-410"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860975"
+                ],
+                "spl_id": [
+                  "5bfcb3f8-cc3e-4e7f-e063-6394a90aa6b4"
+                ],
+                "spl_set_id": [
+                  "3dca884d-ec44-496f-9eeb-31fd8fa3f574"
+                ],
+                "package_ndc": [
+                  "69315-410-01",
+                  "69315-410-05"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0369315410011"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE White to off-white Capsule shaped, biconvex, beveled edge 001"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "a944a167-e3ac-4084-af1c-22b48713471c",
+              "id": "5bfcf9c6-ead6-4fb4-e063-6394a90a8680",
+              "effective_time": "20260921",
+              "version": "12",
+              "openfda": {
+                "application_number": [
+                  "ANDA201991"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Ascend Laboratories, LLC"
+                ],
+                "product_ndc": [
+                  "67877-159"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860975"
+                ],
+                "spl_id": [
+                  "5bfcf9c6-ead6-4fb4-e063-6394a90a8680"
+                ],
+                "spl_set_id": [
+                  "a944a167-e3ac-4084-af1c-22b48713471c"
+                ],
+                "package_ndc": [
+                  "67877-159-01",
+                  "67877-159-05",
+                  "67877-159-10"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0367877159010"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN COPOVIDONE K25-31 CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED HYPROMELLOSE, UNSPECIFIED MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE OE;584"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "ec43efb2-8a50-4bac-9576-f4303841a497",
+              "id": "5bc6d490-46a5-4f0e-e063-6294a90a38eb",
+              "effective_time": "20260918",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA078321"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4639"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860975"
+                ],
+                "spl_id": [
+                  "5bc6d490-46a5-4f0e-e063-6294a90a38eb"
+                ],
+                "spl_set_id": [
+                  "ec43efb2-8a50-4bac-9576-f4303841a497"
+                ],
+                "package_ndc": [
+                  "70518-4639-1",
+                  "70518-4639-0"
+                ],
+                "original_packager_product_ndc": [
+                  "68094-904"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE, UNSPECIFIED MAGNESIUM STEARATE HYPROMELLOSE, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED 10;00"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "4d4021ba-4b28-6b81-e063-6294a90a5ea7",
+              "id": "5bb05537-fa46-9fd4-e063-6294a90a6a01",
+              "effective_time": "20260917",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA205096"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "NuCare Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "68071-3976"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861004"
+                ],
+                "spl_id": [
+                  "5bb05537-fa46-9fd4-e063-6294a90a6a01"
+                ],
+                "spl_set_id": [
+                  "4d4021ba-4b28-6b81-e063-6294a90a5ea7"
+                ],
+                "package_ndc": [
+                  "68071-3976-6",
+                  "68071-3976-8"
+                ],
+                "original_packager_product_ndc": [
+                  "69367-383"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN ANHYDROUS LACTOSE MICROCRYSTALLINE CELLULOSE 112 SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED CROSCARMELLOSE SODIUM HYDROXYPROPYL CELLULOSE, UNSPECIFIED HYPROMELLOSE 2208 (100000 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 101 POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERRIC OXIDE YELLOW pink to dark pink RL;59 Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN ANHYDROUS LACTOSE MICROCRYSTALLINE CELLULOSE 112 SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED CROSCARMELLOSE SODIUM HYDROXYPROPYL CELLULOSE, UNSPECIFIED HYPROMELLOSE 2208 (100000 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 101 POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERROSOFERRIC OXIDE RL;60 Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN ANHYDROUS LACTOSE MICROCRYSTALLINE CELLULOSE 112 SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED CROSCARMELLOSE SODIUM HYDROXYPROPYL CELLULOSE, UNSPECIFIED HYPROMELLOSE 2208 (100000 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE 101 POLYETHYLENE GLYCOL, UNSPECIFIED POLYVINYL ALCOHOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW yellow to dark yellow RL;61"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Dapagliflozin and metformin hydrochloride extended-release tablets are a combination of dapagliflozin and metformin hydrochloride (HCl) extended-release, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Dapagliflozin, when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, cardiovascular (CV) death, and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. CV death, hospitalization for heart failure, and urgent heart failure visit in patients with heart failure. Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. Limitations of Use Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus [ see Warnings and Precautions (5.2) ] . Because of the metformin hydrochloride component, the use of dapagliflozin and metformin hydrochloride extended-release tablets is limited to patients with type 2 diabetes mellitus for all indications. Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. Pediatric use information is approved for AstraZeneca AB’s Xigduo ® XR (dapagliflozin and metformin hydrochloride) Extended-Release Tablets. However, due to AstraZeneca AB’s marketing exclusivity rights, this drug product is not labeled with that information. Dapagliflozin and metformin hydrochloride extended-release tablets are combination of dapagliflozin, a sodium-glucose cotransporter 2 (SGLT2) inhibitor, and metformin hydrochloride (HCl), a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Dapagliflozin when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, cardiovascular (CV) death, and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. ( 1 ) CV death, hospitalization for heart failure, and urgent heart failure visit in patients with heart failure. ( 1 ) Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. ( 1 ) Limitations of use: Not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus. ( 1 ) Because of the metformin hydrochloride component, the use of dapagliflozin and metformin hydrochloride extended-release tablets is limited to patients with type 2 diabetes mellitus for all indications. ( 1 ) Not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for the treatment of kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. ( 1 )"
+              ],
+              "set_id": "bddc2d47-8d3d-4c2f-8e5c-7a1a0782219a",
+              "id": "5bac1e03-5062-a6b3-e063-6394a90aacf6",
+              "effective_time": "20260917",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA211491"
+                ],
+                "brand_name": [
+                  "Dapagliflozin and Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Sun Pharmaceutical Industries, Inc."
+                ],
+                "product_ndc": [
+                  "63304-026",
+                  "63304-027",
+                  "63304-028"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DAPAGLIFLOZIN",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1593058",
+                  "1593068",
+                  "1593070"
+                ],
+                "spl_id": [
+                  "5bac1e03-5062-a6b3-e063-6394a90aacf6"
+                ],
+                "spl_set_id": [
+                  "bddc2d47-8d3d-4c2f-8e5c-7a1a0782219a"
+                ],
+                "package_ndc": [
+                  "63304-026-30",
+                  "63304-026-62",
+                  "63304-026-54",
+                  "63304-027-30",
+                  "63304-027-54",
+                  "63304-028-30",
+                  "63304-028-54"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0363304028300",
+                  "0363304027303",
+                  "0363304026627"
+                ],
+                "nui": [
+                  "N0000187059",
+                  "N0000187058"
+                ],
+                "pharm_class_epc": [
+                  "Sodium-Glucose Cotransporter 2 Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Sodium-Glucose Transporter 2 Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "1ULL0QJ8UC",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIA BUTYL ALCOHOL CELLULOSE, MICROCRYSTALLINE CROSPOVIDONE FERROSOFERRIC OXIDE GLYCERYL DIBEHENATE HYPROMELLOSE 2910 (3 MPA.S) METHACRYLIC ACID AND ETHYL ACRYLATE COPOLYMER POLYETHYLENE GLYCOL, UNSPECIFIED POLYSORBATE 80 POLYVINYL ALCOHOL PROPYLENE GLYCOL SHELLAC SILICON DIOXIDE TALC TITANIUM DIOXIDE DIMETHICONE White to off-white oval shaped biconvex F33"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin Hydrochloride Extended-Release Tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "2737f784-07ad-4e5a-862f-beaea31d005e",
+              "id": "727f5e27-e514-4014-93d5-c611dd0c790c",
+              "effective_time": "20260916",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA211163"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Macleods Pharmaceuticals Limited"
+                ],
+                "product_ndc": [
+                  "33342-378"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888"
+                ],
+                "spl_id": [
+                  "727f5e27-e514-4014-93d5-c611dd0c790c"
+                ],
+                "spl_set_id": [
+                  "2737f784-07ad-4e5a-862f-beaea31d005e"
+                ],
+                "package_ndc": [
+                  "33342-378-10"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K90 MAGNESIUM STEARATE MALTODEXTRIN TRIACETIN HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 POLYETHYLENE GLYCOL 6000 Biconvex M4"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "5ba1c159-5e1d-68ab-e063-6294a90a9139",
+              "id": "5ba1c161-052c-b011-e063-6394a90aef7b",
+              "effective_time": "20260916",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA077095"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "NuCare Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "68071-5323"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "5ba1c161-052c-b011-e063-6394a90aef7b"
+                ],
+                "spl_set_id": [
+                  "5ba1c159-5e1d-68ab-e063-6294a90a9139"
+                ],
+                "package_ndc": [
+                  "68071-5323-6"
+                ],
+                "original_packager_product_ndc": [
+                  "59651-854"
+                ],
+                "upc": [
+                  "0368071532364"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Pioglitazone and metformin hydrochloride Pioglitazone and metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN PIOGLITAZONE HYDROCHLORIDE PIOGLITAZONE CELLULOSE, MICROCRYSTALLINE CROSCARMELLOSE SODIUM POVIDONE MAGNESIUM STEARATE HYPROMELLOSES POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE White to off-white capsule shaped C;27 Pioglitazone and metformin hydrochloride Pioglitazone and metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN PIOGLITAZONE HYDROCHLORIDE PIOGLITAZONE CELLULOSE, MICROCRYSTALLINE CROSCARMELLOSE SODIUM POVIDONE MAGNESIUM STEARATE HYPROMELLOSES POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE White to off-white capsule shaped C;28"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Pioglitazone and metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus Limitations of Use Pioglitazone and metformin hydrochloride tablets is not recommended to treat type 1 diabetes mellitus or diabetic ketoacidosis. Pioglitazone and metformin hydrochloride tablets are a thiazolidinedione and biguanide combination product indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus when treatment with both pioglitazone and metformin is appropriate. ( 1 , 14 ) Limitations of Use : • Not for treatment of type 1 diabetes or diabetic ketoacidosis. ( 1 )"
+              ],
+              "set_id": "5ff2cd9e-a579-48f5-845f-c37a68372a34",
+              "id": "7d2de2ee-5ec9-4bc6-af03-2d3ac6b476a3",
+              "effective_time": "20260916",
+              "version": "12",
+              "openfda": {
+                "application_number": [
+                  "ANDA204802"
+                ],
+                "brand_name": [
+                  "Pioglitazone and metformin hydrochloride"
+                ],
+                "generic_name": [
+                  "PIOGLITAZONE AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Macleods Pharmaceuticals Limited"
+                ],
+                "product_ndc": [
+                  "33342-176",
+                  "33342-177"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE",
+                  "PIOGLITAZONE HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861783",
+                  "861822"
+                ],
+                "spl_id": [
+                  "7d2de2ee-5ec9-4bc6-af03-2d3ac6b476a3"
+                ],
+                "spl_set_id": [
+                  "5ff2cd9e-a579-48f5-845f-c37a68372a34"
+                ],
+                "package_ndc": [
+                  "33342-176-09",
+                  "33342-176-11",
+                  "33342-176-57",
+                  "33342-176-44",
+                  "33342-176-12",
+                  "33342-177-09",
+                  "33342-177-11",
+                  "33342-177-57",
+                  "33342-177-44",
+                  "33342-177-12"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0333342177117",
+                  "0333342177094",
+                  "0333342176448"
+                ],
+                "unii": [
+                  "JQT35NPK6C",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CELLULOSE, MICROCRYSTALLINE CROSPOVIDONE HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM FERRIC OXIDE RED POLYVINYL ALCOHOL POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE FD&C YELLOW NO. 6 MANNITOL biconvex F27 Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CELLULOSE, MICROCRYSTALLINE CROSPOVIDONE HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM FERRIC OXIDE RED FERRIC OXIDE YELLOW POLYVINYL ALCOHOL POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE MANNITOL biconvex F29 Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CELLULOSE, MICROCRYSTALLINE CROSPOVIDONE HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM FERRIC OXIDE RED POLYVINYL ALCOHOL POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE MANNITOL Pink to dark pink biconvex F28 Dapagliflozin and Metformin Hydrochloride Dapagliflozin and Metformin Hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CELLULOSE, MICROCRYSTALLINE CROSPOVIDONE HYPROMELLOSES LACTOSE MONOHYDRATE MAGNESIUM STEARATE SILICON DIOXIDE CARBOXYMETHYLCELLULOSE SODIUM FERRIC OXIDE YELLOW POLYVINYL ALCOHOL POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE MANNITOL Yellow to dark yellow biconvex F26"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Dapagliflozin and metformin hydrochloride extended-release tablets are a combination of dapagliflozin and metformin hydrochloride (HCl) extended-release, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Dapagliflozin, when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, (CV) death, and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. CV death, hospitalization for heart failure, and urgent heart failure visit in patients with heart failure. Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. Limitations of Use Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus [see Warnings and Precautions ( 5.2 )]. Because of the metformin HCl component, the use of dapagliflozin and metformin hydrochloride extended-release tablets is limited to patients with type 2 diabetes mellitus for all indications. Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. Pediatric use information is approved for AstraZeneca AB’s Xigduo® XR (dapagliflozin and metformin hydrochloride) Extended-Release Tablets. However, due to AstraZeneca AB’s marketing exclusivity rights, this drug product is not labeled with that information. Dapagliflozin and metformin hydrochloride extended-release tablets are a combination of dapagliflozin, a sodium-glucose cotransporter 2 (SGLT2) inhibitor, and metformin hydrochloride (HCl), a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Dapagliflozin when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: • Sustained eGFR decline, end-stage kidney disease, cardiovascular (CV) death, and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. ( 1 ) • CV death, hospitalization for heart failure, and urgent heart failure visit in patients with heart failure. ( 1 ) • Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. ( 1 ) Limitations of use: • Not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus. ( 1 ) • Because of the metformin HCl component, the use of dapagliflozin and metformin hydrochloride extended-release tablets is limited to patients with type 2 diabetes mellitus for all indications. ( 1 ) • Not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for the treatment of kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. ( 1 )"
+              ],
+              "set_id": "7d575ca8-9c1f-469d-a341-34daf2f036dd",
+              "id": "237ce7d1-f375-4c14-971d-a682fdccd6bf",
+              "effective_time": "20260916",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA211559"
+                ],
+                "brand_name": [
+                  "Dapagliflozin and Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Macleods Pharmaceuticals Limited"
+                ],
+                "product_ndc": [
+                  "33342-406",
+                  "33342-407",
+                  "33342-408",
+                  "33342-409"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DAPAGLIFLOZIN",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1593058",
+                  "1593068",
+                  "1593070",
+                  "1593072"
+                ],
+                "spl_id": [
+                  "237ce7d1-f375-4c14-971d-a682fdccd6bf"
+                ],
+                "spl_set_id": [
+                  "7d575ca8-9c1f-469d-a341-34daf2f036dd"
+                ],
+                "package_ndc": [
+                  "33342-406-07",
+                  "33342-406-09",
+                  "33342-406-10",
+                  "33342-406-15",
+                  "33342-406-66",
+                  "33342-406-06",
+                  "33342-407-07",
+                  "33342-407-09",
+                  "33342-407-10",
+                  "33342-407-15",
+                  "33342-407-66",
+                  "33342-407-06",
+                  "33342-408-07",
+                  "33342-408-09",
+                  "33342-408-10",
+                  "33342-408-15",
+                  "33342-408-66",
+                  "33342-408-06",
+                  "33342-409-07",
+                  "33342-409-09",
+                  "33342-409-10",
+                  "33342-409-15",
+                  "33342-409-66",
+                  "33342-409-06"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0333342409096",
+                  "0333342406071",
+                  "0333342407153",
+                  "0333342406095",
+                  "0333342409102",
+                  "0333342408150",
+                  "0333342407092",
+                  "0333342406101",
+                  "0333342408075",
+                  "0333342407078",
+                  "0333342409072",
+                  "0333342406156",
+                  "0333342408105",
+                  "0333342409157",
+                  "0333342408099",
+                  "0333342407108"
+                ],
+                "nui": [
+                  "N0000187059",
+                  "N0000187058"
+                ],
+                "pharm_class_epc": [
+                  "Sodium-Glucose Cotransporter 2 Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Sodium-Glucose Transporter 2 Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "1ULL0QJ8UC",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride metformin METFORMIN HYDROCHLORIDE METFORMIN AMMONIA FERROSOFERRIC OXIDE CELLULOSE ACETATE HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL, UNSPECIFIED POVIDONE, UNSPECIFIED PROPYLENE GLYCOL FERRIC OXIDE RED SHELLAC SODIUM LAURYL SULFATE TALC TITANIUM DIOXIDE TRIACETIN TRIETHYL CITRATE FERRIC OXIDE YELLOW M;MN2 Metformin Hydrochloride metformin METFORMIN HYDROCHLORIDE METFORMIN AMMONIA FERROSOFERRIC OXIDE CELLULOSE ACETATE HYPROMELLOSE, UNSPECIFIED LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL, UNSPECIFIED POVIDONE, UNSPECIFIED PROPYLENE GLYCOL FERRIC OXIDE RED SHELLAC SODIUM LAURYL SULFATE TALC TITANIUM DIOXIDE TRIACETIN TRIETHYL CITRATE FERRIC OXIDE YELLOW M;MN1"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "7e41818c-60e9-4bcf-9586-7bb8d33d5e89",
+              "id": "88a13bb5-a5b6-46be-b935-a4e2e187ea93",
+              "effective_time": "20260915",
+              "version": "11",
+              "openfda": {
+                "application_number": [
+                  "ANDA200690"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN"
+                ],
+                "manufacturer_name": [
+                  "Mylan Pharmaceuticals Inc."
+                ],
+                "product_ndc": [
+                  "0378-6001",
+                  "0378-6002"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807894",
+                  "1807917"
+                ],
+                "spl_id": [
+                  "88a13bb5-a5b6-46be-b935-a4e2e187ea93"
+                ],
+                "spl_set_id": [
+                  "7e41818c-60e9-4bcf-9586-7bb8d33d5e89"
+                ],
+                "package_ndc": [
+                  "0378-6002-91",
+                  "0378-6001-91"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0303786002917",
+                  "0303786001910"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin HCl Metformin HCl METFORMIN HYDROCHLORIDE METFORMIN POVIDONE K30 POVIDONE K90 STARCH, CORN MAGNESIUM STEARATE HYPROMELLOSE 2910 (6 MPA.S) POLYETHYLENE GLYCOL 400 MALTODEXTRIN TRIACETIN G;11"
+              ],
+              "indications_and_usage": [
+                "INDICATIONS & USAGE Metformin Hydrochloride Tablets USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults and children with type 2 diabetes mellitus."
+              ],
+              "set_id": "ded33248-44ef-45f6-a461-24b35772a1b2",
+              "id": "5b39fdae-1431-440d-e063-6294a90a9e26",
+              "effective_time": "20260911",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA090564"
+                ],
+                "brand_name": [
+                  "Metformin HCl"
+                ],
+                "generic_name": [
+                  "METFORMIN HCL"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4479"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861010"
+                ],
+                "spl_id": [
+                  "5b39fdae-1431-440d-e063-6294a90a9e26"
+                ],
+                "spl_set_id": [
+                  "ded33248-44ef-45f6-a461-24b35772a1b2"
+                ],
+                "package_ndc": [
+                  "70518-4479-0",
+                  "70518-4479-1"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-562"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Metformin ER 500 mg METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE 2208 (100 MPA.S) POVIDONE K30 HYPROMELLOSE 2910 (15 MPA.S) MAGNESIUM STEARATE white to off-white G7"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "05999192-ebc6-4198-bd1e-f46abbfb4f8a",
+              "id": "5b0d17ff-e1b6-c6cf-e063-6394a90ae215",
+              "effective_time": "20260909",
+              "version": "5",
+              "openfda": {
+                "application_number": [
+                  "ANDA209313"
+                ],
+                "brand_name": [
+                  "Metformin"
+                ],
+                "generic_name": [
+                  "METFORMIN ER 500 MG"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4370"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "860975"
+                ],
+                "spl_id": [
+                  "5b0d17ff-e1b6-c6cf-e063-6394a90ae215"
+                ],
+                "spl_set_id": [
+                  "05999192-ebc6-4198-bd1e-f46abbfb4f8a"
+                ],
+                "package_ndc": [
+                  "70518-4370-0",
+                  "70518-4370-2",
+                  "70518-4370-1",
+                  "70518-4370-3",
+                  "70518-4370-4"
+                ],
+                "original_packager_product_ndc": [
+                  "70010-491"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B SILICON DIOXIDE DIBUTYL SEBACATE HYPROMELLOSES MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE POVIDONE CROSPOVIDONE white to off white OVAL Q21;LU Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B SILICON DIOXIDE DIBUTYL SEBACATE HYPROMELLOSES MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE POVIDONE CROSPOVIDONE white to off white OVAL Q22;LU"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets, USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablet is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "2a84c550-aed8-4058-961f-351a5e4cf7a1",
+              "id": "8553488e-8bf5-4a86-9a18-e40a858ab39d",
+              "effective_time": "20260909",
+              "version": "17",
+              "openfda": {
+                "application_number": [
+                  "ANDA090692"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Lupin Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "68180-336",
+                  "68180-337"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807894",
+                  "1807917"
+                ],
+                "spl_id": [
+                  "8553488e-8bf5-4a86-9a18-e40a858ab39d"
+                ],
+                "spl_set_id": [
+                  "2a84c550-aed8-4058-961f-351a5e4cf7a1"
+                ],
+                "package_ndc": [
+                  "68180-336-07",
+                  "68180-336-02",
+                  "68180-336-01",
+                  "68180-337-07",
+                  "68180-337-01",
+                  "68180-337-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0368180337072"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A AMMONIO METHACRYLATE COPOLYMER TYPE B SILICON DIOXIDE DIBUTYL SEBACATE HYPROMELLOSES MAGNESIUM STEARATE CELLULOSE, MICROCRYSTALLINE POVIDONE CROSPOVIDONE white to off white OVAL Q22;LU"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets, USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablet is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "d5228e81-9c86-4781-b984-20feaa2ae779",
+              "id": "5b0cd046-242c-484f-e063-6294a90acf23",
+              "effective_time": "20260909",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA090692"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "REMEDYREPACK INC."
+                ],
+                "product_ndc": [
+                  "70518-4369"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807894"
+                ],
+                "spl_id": [
+                  "5b0cd046-242c-484f-e063-6294a90acf23"
+                ],
+                "spl_set_id": [
+                  "d5228e81-9c86-4781-b984-20feaa2ae779"
+                ],
+                "package_ndc": [
+                  "70518-4369-1",
+                  "70518-4369-0",
+                  "70518-4369-2"
+                ],
+                "original_packager_product_ndc": [
+                  "68180-337"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin hydrochloride Metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POVIDONE, UNSPECIFIED STARCH, CORN ETHYLCELLULOSE, UNSPECIFIED POLYETHYLENE GLYCOL 400 SHELLAC FERROSOFERRIC OXIDE PROPYLENE GLYCOL AMMONIA white to off-white beveled edged MG1 Metformin hydrochloride Metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POVIDONE, UNSPECIFIED STARCH, CORN ETHYLCELLULOSE, UNSPECIFIED POLYETHYLENE GLYCOL 400 SHELLAC FERROSOFERRIC OXIDE PROPYLENE GLYCOL AMMONIA white to off-white MG2"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets, USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets, USP are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "1ed9dde4-339c-486f-a346-dde33a5e493f",
+              "id": "ef3c7539-78d7-46de-9c90-7655011a6afb",
+              "effective_time": "20260908",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "ANDA213962"
+                ],
+                "brand_name": [
+                  "Metformin hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Ajanta Pharma USA Inc."
+                ],
+                "product_ndc": [
+                  "27241-240",
+                  "27241-241"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "ef3c7539-78d7-46de-9c90-7655011a6afb"
+                ],
+                "spl_set_id": [
+                  "1ed9dde4-339c-486f-a346-dde33a5e493f"
+                ],
+                "package_ndc": [
+                  "27241-240-01",
+                  "27241-241-90"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0327241241901",
+                  "0327241240010"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin Hydrochloride Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIC ACID POTASSIUM BICARBONATE SUCRALOSE XYLITOL WATER"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride oral solution is indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "7cc02a26-5c22-445b-ad8f-3e7570c143d3",
+              "id": "5af39aa6-2d68-870a-e063-6394a90a1560",
+              "effective_time": "20260908",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA215008"
+                ],
+                "brand_name": [
+                  "Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Camber Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "31722-042"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861025"
+                ],
+                "spl_id": [
+                  "5af39aa6-2d68-870a-e063-6394a90a1560"
+                ],
+                "spl_set_id": [
+                  "7cc02a26-5c22-445b-ad8f-3e7570c143d3"
+                ],
+                "package_ndc": [
+                  "31722-042-47"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0331722042475"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CROSPOVIDONE SILICON DIOXIDE HYPROMELLOSES LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE POVIDONE CARBOXYMETHYLCELLULOSE SODIUM SODIUM STEARYL FUMARATE POLYVINYL ALCOHOL, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERRIC OXIDE YELLOW Light orange to orange biconvex L108 DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CROSPOVIDONE SILICON DIOXIDE HYPROMELLOSES LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE POVIDONE CARBOXYMETHYLCELLULOSE SODIUM SODIUM STEARYL FUMARATE POLYVINYL ALCOHOL, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERROSOFERRIC OXIDE Purple to light purple biconvex L109 DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CROSPOVIDONE SILICON DIOXIDE HYPROMELLOSES LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE POVIDONE CARBOXYMETHYLCELLULOSE SODIUM SODIUM STEARYL FUMARATE POLYVINYL ALCOHOL, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE FERRIC OXIDE RED FERRIC OXIDE YELLOW Pink to light pink biconvex L110 DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CROSPOVIDONE SILICON DIOXIDE HYPROMELLOSES LACTOSE MONOHYDRATE MICROCRYSTALLINE CELLULOSE MAGNESIUM STEARATE POVIDONE CARBOXYMETHYLCELLULOSE SODIUM SODIUM STEARYL FUMARATE POLYVINYL ALCOHOL, UNSPECIFIED POLYETHYLENE GLYCOL, UNSPECIFIED TALC TITANIUM DIOXIDE D&C YELLOW NO. 10 FD&C YELLOW NO. 6 FD&C BLUE NO. 2 Yellow to dark yellow biconvex L111"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Dapagliflozin and metformin hydrochloride extended-release tablets are combination of dapagliflozin and metformin hydrochloride (HCl) extended-release, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Dapagliflozin when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, (CV) death and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. CV death, hospitalization for heart failure and urgent heart failure visit in patients with heart failure. Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. Limitations of Use Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus [see Warnings and Precautions ( 5.2 )] . Because of the metformin HCl component, the use of dapagliflozin and metformin hydrochloride extended-release tablet is limited to patients with type 2 diabetes mellitus for all indications. Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. Pediatric use information is approved for AstraZeneca AB's Xigduo ® XR (dapagliflozin and metformin hydrochloride) Extended-Release Tablets. However, due to AstraZeneca AB's marketing exclusivity rights, this drug product is not labeled with that information. Dapagliflozin and metformin hydrochloride extended-release tablets are combination of dapagliflozin, a sodium-glucose cotransporter 2 (SGLT2) inhibitor, and metformin hydrochloride (HCl), a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Dapagliflozin when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, cardiovascular (CV) death and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. ( 1 ) CV death, hospitalization for heart failure and urgent heart failure visit in patients with heart failure. ( 1 ) Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. ( 1 ) L i mitations of use : Not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus. ( 1 ) Because of the metformin HCl component, the use of dapagliflozin and metformin hydrochloride extended-release tablet is limited to patients with type 2 diabetes mellitus for all indications. ( 1 ) Not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for the treatment of kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablet is not expected to be effective in these populations. ( 1 )"
+              ],
+              "set_id": "e6957674-86c1-4536-8e23-54ad7f2cacc4",
+              "id": "deac53e9-671e-4972-b0fa-9fdf2652a682",
+              "effective_time": "20260908",
+              "version": "16",
+              "openfda": {
+                "application_number": [
+                  "ANDA211579"
+                ],
+                "brand_name": [
+                  "DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Lupin Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "70748-101",
+                  "70748-102",
+                  "70748-103",
+                  "70748-104"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DAPAGLIFLOZIN",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1593058",
+                  "1593068",
+                  "1593070",
+                  "1593072"
+                ],
+                "spl_id": [
+                  "deac53e9-671e-4972-b0fa-9fdf2652a682"
+                ],
+                "spl_set_id": [
+                  "e6957674-86c1-4536-8e23-54ad7f2cacc4"
+                ],
+                "package_ndc": [
+                  "70748-101-06",
+                  "70748-102-07",
+                  "70748-103-06",
+                  "70748-104-06"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000187059",
+                  "N0000187058"
+                ],
+                "pharm_class_epc": [
+                  "Sodium-Glucose Cotransporter 2 Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Sodium-Glucose Transporter 2 Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "1ULL0QJ8UC",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN WHITE TO OFF WHITE BI CONVEX L41;LU METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN WHITE TO OFF WHITE BI CONVEX L42;LU"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablet is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus."
+              ],
+              "set_id": "1200ea71-8a9e-4e49-bb77-7d9fe0d84ae7",
+              "id": "88bc99f3-47e9-4cc7-879e-bcbf94d4843b",
+              "effective_time": "20260907",
+              "version": "13",
+              "openfda": {
+                "application_number": [
+                  "ANDA091664"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Lupin Pharmaceuticals, Inc."
+                ],
+                "product_ndc": [
+                  "68180-338",
+                  "68180-339"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "88bc99f3-47e9-4cc7-879e-bcbf94d4843b"
+                ],
+                "spl_set_id": [
+                  "1200ea71-8a9e-4e49-bb77-7d9fe0d84ae7"
+                ],
+                "package_ndc": [
+                  "68180-338-01",
+                  "68180-338-02",
+                  "68180-338-03",
+                  "68180-339-09",
+                  "68180-339-01",
+                  "68180-339-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Metformin hydrochloride Metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POLYETHYLENE GLYCOL 400 POVIDONE, UNSPECIFIED STARCH, CORN ETHYLCELLULOSE, UNSPECIFIED SHELLAC FERROSOFERRIC OXIDE PROPYLENE GLYCOL AMMONIA white to off-white beveled edged ME1 Metformin hydrochloride Metformin hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POLYETHYLENE GLYCOL 400 POVIDONE, UNSPECIFIED STARCH, CORN ETHYLCELLULOSE, UNSPECIFIED SHELLAC FERROSOFERRIC OXIDE PROPYLENE GLYCOL AMMONIA white to off-white ME2"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets, USP are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets, USP are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 )"
+              ],
+              "set_id": "6d9179a8-9579-4804-a4c7-633f37aef1ee",
+              "id": "62e90798-c0a4-4239-9a55-6268ee747954",
+              "effective_time": "20260904",
+              "version": "8",
+              "openfda": {
+                "application_number": [
+                  "ANDA213651"
+                ],
+                "brand_name": [
+                  "Metformin hydrochloride"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Ajanta Pharma USA Inc."
+                ],
+                "product_ndc": [
+                  "27241-188",
+                  "27241-189"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807894",
+                  "1807917"
+                ],
+                "spl_id": [
+                  "62e90798-c0a4-4239-9a55-6268ee747954"
+                ],
+                "spl_set_id": [
+                  "6d9179a8-9579-4804-a4c7-633f37aef1ee"
+                ],
+                "package_ndc": [
+                  "27241-188-60",
+                  "27241-189-60"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0327241189609",
+                  "0327241188602"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED AMMONIO METHACRYLATE COPOLYMER TYPE A MAGNESIUM STEARATE POVIDONE TALC TRIETHYL CITRATE White to off white G41 METFORMIN HYDROCHLORIDE Metformin Hydrochloride METFORMIN HYDROCHLORIDE METFORMIN AMMONIO METHACRYLATE COPOLYMER TYPE A HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POVIDONE TALC TRIETHYL CITRATE White to off white G42"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Metformin hydrochloride extended-release tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Metformin hydrochloride extended-release tablets are biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus ( 1 )"
+              ],
+              "set_id": "73197cb5-3e23-4ac0-b189-f9bc848bce66",
+              "id": "5a918a65-96d8-917d-e063-6294a90acc1d",
+              "effective_time": "20260903",
+              "version": "7",
+              "openfda": {
+                "application_number": [
+                  "ANDA213344"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Granules India Ltd"
+                ],
+                "product_ndc": [
+                  "62207-496",
+                  "62207-497"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "5a918a65-96d8-917d-e063-6294a90acc1d"
+                ],
+                "spl_set_id": [
+                  "73197cb5-3e23-4ac0-b189-f9bc848bce66"
+                ],
+                "package_ndc": [
+                  "62207-496-54",
+                  "62207-496-47",
+                  "62207-497-54",
+                  "62207-497-47"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0362207496544"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Pioglitazone Hydrochloride and Metformin Hydrochloride Pioglitazone Hydrochloride and Metformin Hydrochloride PIOGLITAZONE HYDROCHLORIDE PIOGLITAZONE METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE CALCIUM HYDROXYPROPYL CELLULOSE (1600000 WAMW) HYPROMELLOSE 2910 (5 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 6000 TALC TITANIUM DIOXIDE White to Off-white Oblong, Biconvex H;92 Pioglitazone Hydrochloride and Metformin Hydrochloride Pioglitazone Hydrochloride and Metformin Hydrochloride PIOGLITAZONE HYDROCHLORIDE PIOGLITAZONE METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE CALCIUM HYDROXYPROPYL CELLULOSE (1600000 WAMW) HYPROMELLOSE 2910 (5 MPA.S) LACTOSE MONOHYDRATE MAGNESIUM STEARATE POLYETHYLENE GLYCOL 6000 TALC TITANIUM DIOXIDE White to Off-white Oblong, Biconvex H;93"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Pioglitazone and metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Limitations of Use Pioglitazone and metformin hydrochloride tablets are not recommended to treat type 1 diabetes mellitus or diabetic ketoacidosis. Pioglitazone and metformin hydrochloride tablets are a combination of pioglitazone, a thiazolidinedione agonist of peroxisome proliferator receptor gamma, and metformin hydrochloride, a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Limitations of Use: Not recommended for treatment of type 1 diabetes or diabetic ketoacidosis. ( 1 )"
+              ],
+              "set_id": "1fa2703e-fb73-44d5-aaa2-b12b1090d42c",
+              "id": "98930be0-b506-4a8c-8b1a-90117ac500c3",
+              "effective_time": "20260902",
+              "version": "15",
+              "openfda": {
+                "application_number": [
+                  "ANDA200823"
+                ],
+                "brand_name": [
+                  "Pioglitazone Hydrochloride and Metformin Hydrochloride"
+                ],
+                "generic_name": [
+                  "PIOGLITAZONE HYDROCHLORIDE AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Aurobindo Pharma Limited"
+                ],
+                "product_ndc": [
+                  "65862-525",
+                  "65862-526"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "PIOGLITAZONE HYDROCHLORIDE",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861783",
+                  "861822"
+                ],
+                "spl_id": [
+                  "98930be0-b506-4a8c-8b1a-90117ac500c3"
+                ],
+                "spl_set_id": [
+                  "1fa2703e-fb73-44d5-aaa2-b12b1090d42c"
+                ],
+                "package_ndc": [
+                  "65862-525-60",
+                  "65862-525-18",
+                  "65862-526-60",
+                  "65862-526-18"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "JQT35NPK6C",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "Dapagliflozin and Metformin hydrochloride Dapagliflozin and Metformin hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED SILICON DIOXIDE CROSPOVIDONE (120 .MU.M) GLYCERYL MONO- AND DICAPRYLOCAPRATE HYPROMELLOSE 2208 (100000 MPA.S) HYPROMELLOSE 2910 (5 MPA.S) MANNITOL MICROCRYSTALLINE CELLULOSE POLYVINYL ALCOHOL, UNSPECIFIED SODIUM LAURYL SULFATE SODIUM STEARYL FUMARATE TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW FD&C YELLOW NO. 6 ALUMINUM LAKE light orange to orange capsule shaped, biconvex N;15 Dapagliflozin and Metformin hydrochloride Dapagliflozin and Metformin hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED SILICON DIOXIDE CROSPOVIDONE (120 .MU.M) GLYCERYL MONO- AND DICAPRYLOCAPRATE HYPROMELLOSE 2208 (100000 MPA.S) MANNITOL MICROCRYSTALLINE CELLULOSE POLYVINYL ALCOHOL, UNSPECIFIED SODIUM LAURYL SULFATE SODIUM STEARYL FUMARATE TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW FERRIC OXIDE RED pink to dark pink biconvex N;16 Dapagliflozin and Metformin hydrochloride Dapagliflozin and Metformin hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED SILICON DIOXIDE CROSPOVIDONE (120 .MU.M) GLYCERYL MONO- AND DICAPRYLOCAPRATE HYPROMELLOSE 2208 (100000 MPA.S) HYPROMELLOSE 2910 (5 MPA.S) MANNITOL MICROCRYSTALLINE CELLULOSE POLYVINYL ALCOHOL, UNSPECIFIED SODIUM LAURYL SULFATE SODIUM STEARYL FUMARATE TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW FERRIC OXIDE RED light pink to pink capsule shaped, biconvex N;19 Dapagliflozin and Metformin hydrochloride Dapagliflozin and Metformin hydrochloride DAPAGLIFLOZIN DAPAGLIFLOZIN METFORMIN HYDROCHLORIDE METFORMIN CARBOXYMETHYLCELLULOSE SODIUM, UNSPECIFIED SILICON DIOXIDE CROSPOVIDONE (120 .MU.M) GLYCERYL MONO- AND DICAPRYLOCAPRATE HYPROMELLOSE 2208 (100000 MPA.S) MANNITOL MICROCRYSTALLINE CELLULOSE POLYVINYL ALCOHOL, UNSPECIFIED SODIUM LAURYL SULFATE SODIUM STEARYL FUMARATE TALC TITANIUM DIOXIDE FERRIC OXIDE YELLOW yellow to dark yellow biconvex N;25"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE Dapagliflozin and metformin hydrochloride extended-release tablets are combination of dapagliflozin and metformin hydrochloride extended-release, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. Dapagliflozin, when used as a component of dapagliflozin and metformin hydrochloride extended-release, is indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, CV death, and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. CV death, hospitalization for heart failure, and urgent heart failure visit in patients with heart failure. Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. Limitations of Use Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus [see Warnings and Precautions (5.2) ]. Because of the metformin hydrochloride component, the use of dapagliflozin and metformin hydrochloride extended-release tablets are limited to patients with type 2 diabetes mellitus for all indications. Dapagliflozin and metformin hydrochloride extended-release tablets are not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. Pediatric use information is approved for AstraZeneca AB’s Xigduo ® XR (dapagliflozin and metformin hydrochloride) Extended-Release Tablets. However, due to AstraZeneca AB’s marketing exclusivity rights, this drug product is not labeled with that information. Dapagliflozin and metformin hydrochloride extended-release tablets are a combination of dapagliflozin, a sodium-glucose cotransporter 2 (SGLT2) inhibitor, and metformin hydrochloride, a biguanide, indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. ( 1 ) Dapagliflozin when used as a component of dapagliflozin and metformin hydrochloride extended-release tablets, are indicated in adults with type 2 diabetes mellitus to reduce the risk of: Sustained eGFR decline, end-stage kidney disease, cardiovascular (CV) death, and hospitalization for heart failure in patients with chronic kidney disease at risk of progression. ( 1 ) CV death, hospitalization for heart failure, and urgent heart failure visit in patients with heart failure. ( 1 ) Hospitalization for heart failure in patients with type 2 diabetes mellitus and either established CV disease or multiple CV risk factors. ( 1 ) Limitations of use: Not recommended for use to improve glycemic control in patients with type 1 diabetes mellitus. ( 1 ) Because of the metformin hydrochloride component, the use of dapagliflozin and metformin hydrochloride extended-release tablets are limited to patients with type 2 diabetes mellitus for all indications. ( 1 ) Not recommended for the treatment of chronic kidney disease in patients with polycystic kidney disease or patients requiring or with a recent history of immunosuppressive therapy for the treatment of kidney disease. Dapagliflozin and metformin hydrochloride extended-release tablets are not expected to be effective in these populations. ( 1 )"
+              ],
+              "set_id": "513bdf9f-774c-4f7f-935a-54d3885e80a4",
+              "id": "8800b2c7-e3be-4205-913f-466e0ea9cb66",
+              "effective_time": "20260902",
+              "version": "2",
+              "openfda": {
+                "application_number": [
+                  "ANDA211489"
+                ],
+                "brand_name": [
+                  "Dapagliflozin and Metformin hydrochloride"
+                ],
+                "generic_name": [
+                  "DAPAGLIFLOZIN AND METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Aurobindo Pharma Limited"
+                ],
+                "product_ndc": [
+                  "59651-154",
+                  "59651-155",
+                  "59651-156",
+                  "59651-157"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "DAPAGLIFLOZIN",
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "1593058",
+                  "1593068",
+                  "1593070",
+                  "1593072"
+                ],
+                "spl_id": [
+                  "8800b2c7-e3be-4205-913f-466e0ea9cb66"
+                ],
+                "spl_set_id": [
+                  "513bdf9f-774c-4f7f-935a-54d3885e80a4"
+                ],
+                "package_ndc": [
+                  "59651-154-30",
+                  "59651-154-05",
+                  "59651-155-30",
+                  "59651-155-60",
+                  "59651-155-04",
+                  "59651-156-30",
+                  "59651-156-05",
+                  "59651-157-30",
+                  "59651-157-04"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000187059",
+                  "N0000187058"
+                ],
+                "pharm_class_epc": [
+                  "Sodium-Glucose Cotransporter 2 Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Sodium-Glucose Transporter 2 Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "1ULL0QJ8UC",
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POLYETHYLENE GLYCOL, UNSPECIFIED POVIDONE, UNSPECIFIED TITANIUM DIOXIDE MALTODEXTRIN TRIACETIN White to off-white M24;500"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus."
+              ],
+              "set_id": "b6d7edc9-93d6-4480-906d-55c18d053600",
+              "id": "017fc887-de17-4f26-a715-b28bc6271e09",
+              "effective_time": "20260902",
+              "version": "1",
+              "openfda": {
+                "application_number": [
+                  "ANDA213320"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "A-S Medication Solutions"
+                ],
+                "product_ndc": [
+                  "50090-8043"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "017fc887-de17-4f26-a715-b28bc6271e09"
+                ],
+                "spl_set_id": [
+                  "b6d7edc9-93d6-4480-906d-55c18d053600"
+                ],
+                "package_ndc": [
+                  "50090-8043-0"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-930"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            },
+            {
+              "spl_product_data_elements": [
+                "METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYDROCHLORIDE METFORMIN HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE POLYETHYLENE GLYCOL, UNSPECIFIED POVIDONE, UNSPECIFIED TITANIUM DIOXIDE MALTODEXTRIN TRIACETIN White to off-white M24;500"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS & USAGE Metformin hydrochloride tablets are indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus. Metformin hydrochloride tablets are a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults and pediatric patients 10 years of age and older with type 2 diabetes mellitus."
+              ],
+              "set_id": "d8bd1779-d1c4-4dde-816d-ea72b37bb5cd",
+              "id": "b0f6bff2-0981-4dde-84e4-5dfa6f6346e2",
+              "effective_time": "20260902",
+              "version": "3",
+              "openfda": {
+                "application_number": [
+                  "ANDA213320"
+                ],
+                "brand_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Proficient Rx LP"
+                ],
+                "product_ndc": [
+                  "82804-309"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861007"
+                ],
+                "spl_id": [
+                  "b0f6bff2-0981-4dde-84e4-5dfa6f6346e2"
+                ],
+                "spl_set_id": [
+                  "d8bd1779-d1c4-4dde-816d-ea72b37bb5cd"
+                ],
+                "package_ndc": [
+                  "82804-309-30",
+                  "82804-309-60",
+                  "82804-309-90",
+                  "82804-309-78"
+                ],
+                "original_packager_product_ndc": [
+                  "67877-930"
+                ],
+                "upc": [
+                  "0382804309788"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

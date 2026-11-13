@@ -1,0 +1,30 @@
+{
+  "verified": "tests/replies/drug/label-many-names/provenance.json records the live openFDA replies of 2026-11-12 (job j38824) and their body hashes; its skip=50 name page is kept whole at 9.1 MB.",
+  "live_check": "public",
+  "feature": "drug-name-get",
+  "story": "A label read by a generic name that matches hundreds of labels reads every 50-label name page, including one larger than the former 8 MiB reply bound: metformin's word search finds 396 labels in 8 pages, and the reply reads the chosen label and says which it chose, why, and how many of the other 283 exact matches are of each kind.",
+  "replay": "drug/label-many-names",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "metformin",
+        "label",
+        "--label-section",
+        "indications_and_usage"
+      ],
+      "exit": 0,
+      "expect": {
+        "/status": "complete",
+        "/query/source": "openfda-label",
+        "/result/identity/id": "05999192-ebc6-4198-bd1e-f46abbfb4f8a",
+        "/result/identity/name": "Metformin",
+        "/result/identity/name_resolution/basis": "brand",
+        "/result/identity/name_resolution/total": 284,
+        "/result/identity/name_resolution/reason": "chose Metformin (05999192-ebc6-4198-bd1e-f46abbfb4f8a), a generic or other label; 283 other labels share this name: 1 brand-name NDA/BLA labels, 1 NDA/BLA labels under the generic name, 281 generic or other labels"
+      },
+      "max_bytes": 12000
+    }
+  ]
+}
