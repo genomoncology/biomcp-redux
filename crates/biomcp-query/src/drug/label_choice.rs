@@ -5,9 +5,9 @@ use biomcp_types::{DrugHeader, DrugNameMatch};
 use std::cmp::Reverse;
 
 /// The label ordering a name get applies, stated in every label name lookup.
-pub(super) const RANKING: &str = "exact brand before generic; then brand-name NDA/BLA labels, \
-     other NDA/BLA labels, then generic or other labels; then most numbered indications; then \
-     newest revision";
+pub(super) const RANKING: &str = "exact brand before generic, unless a matching label carries \
+     the name as its generic name; then brand-name NDA/BLA labels, other NDA/BLA labels, then \
+     generic or other labels; then most numbered indications; then newest revision";
 
 /// Brand match first, then the label holder, then more numbered indications; the source's
 /// newest-first order breaks ties.
@@ -19,6 +19,15 @@ pub(super) fn rank(matched: DrugNameMatch, row: &Record) -> Rank {
         Reverse(choice.indications),
         String::new(),
     )
+}
+
+/// The name is a generic name, since some matching label carries it as one, so a label whose
+/// brand name repeats it (a generic maker filing as "Metformin") is no exact brand match, and
+/// every label is ranked by the tiers alone.
+pub(super) fn generic_name(candidates: &mut [(Rank, DrugHeader)]) {
+    for ((matched, ..), _) in candidates {
+        *matched = 1;
+    }
 }
 
 fn kind(holder: u8) -> &'static str {

@@ -1,0 +1,101 @@
+{
+  "method": "GET",
+  "source": "openfda-label",
+  "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%22fb832474-88d9-4e29-95cd-fbc446944cc4%22&limit=1&sort=effective_time%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794532653,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 3657,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "spl_product_data_elements": [
+                "Glumetza metformin hydrochloride HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED METFORMIN HYDROCHLORIDE METFORMIN blue oval GMZ;500 Glumetza metformin hydrochloride SILICON DIOXIDE POLYVINYL ALCOHOL, UNSPECIFIED CROSPOVIDONE, UNSPECIFIED GLYCERYL DIBEHENATE HYPROMELLOSE, UNSPECIFIED TALC POLYETHYLENE GLYCOL, UNSPECIFIED TITANIUM DIOXIDE POLYSORBATE 80 METFORMIN HYDROCHLORIDE METFORMIN white oval M1000 Glumetza metformin hydrochloride HYPROMELLOSE, UNSPECIFIED MAGNESIUM STEARATE MICROCRYSTALLINE CELLULOSE POLYETHYLENE GLYCOL, UNSPECIFIED METFORMIN HYDROCHLORIDE METFORMIN white oval M500"
+              ],
+              "indications_and_usage": [
+                "1 INDICATIONS AND USAGE GLUMETZA is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. GLUMETZA is a biguanide indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus. (1)"
+              ],
+              "set_id": "fb832474-88d9-4e29-95cd-fbc446944cc4",
+              "id": "8aee004e-3e08-4791-a09a-cb17bb5230ca",
+              "effective_time": "20260902",
+              "version": "32",
+              "openfda": {
+                "application_number": [
+                  "NDA021748"
+                ],
+                "brand_name": [
+                  "Glumetza"
+                ],
+                "generic_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "manufacturer_name": [
+                  "Santarus, Inc."
+                ],
+                "product_ndc": [
+                  "68012-002",
+                  "68012-003",
+                  "68012-004"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "METFORMIN HYDROCHLORIDE"
+                ],
+                "rxcui": [
+                  "861015",
+                  "861018",
+                  "1807888",
+                  "1807915"
+                ],
+                "spl_id": [
+                  "8aee004e-3e08-4791-a09a-cb17bb5230ca"
+                ],
+                "spl_set_id": [
+                  "fb832474-88d9-4e29-95cd-fbc446944cc4"
+                ],
+                "package_ndc": [
+                  "68012-002-13",
+                  "68012-002-92",
+                  "68012-003-16",
+                  "68012-003-97",
+                  "68012-004-50"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0368012003168",
+                  "0368012004509"
+                ],
+                "unii": [
+                  "786Z46389E"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
