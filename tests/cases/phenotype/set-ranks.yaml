@@ -57,7 +57,9 @@
         "phenotype",
         "HP:0001263,HP:0001252,HP:0001250",
         "--limit",
-        "50"
+        "50",
+        "--metric",
+        "ancestor-information-content"
       ],
       "expect": {
         "/status": "complete",
@@ -71,7 +73,8 @@
         "/result/items/2/id": "HGNC:15505",
         "/result/items/2/score": 12.20418603518225,
         "/result/items/2/rank": 3,
-        "/result/items/49/rank": 50
+        "/result/items/49/rank": 50,
+        "/result/method/metric": "ancestor_information_content"
       },
       "max_bytes": 90000
     },
