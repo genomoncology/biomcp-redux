@@ -673,8 +673,8 @@ Options:
           Maximum native headers, default five.
 
       --metric <metric>
-          HP IDs only: Monarch similarity metric. Default; help search phenotype
-          HP IDs only: Monarch similarity metric. Default ancestor-information-content.
+          HP IDs only: the Monarch similarity metric to rank by; help search phenotype
+          HP IDs only: the Monarch similarity metric to rank by.
 
       --offset <offset>
           Native source row offset; a ranked HP ID set has no further pages.
@@ -709,8 +709,8 @@ Search human phenotypes in HPO. Sources: hpo, monarch.
 HP IDs only: rank genes, the default, or diseases.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--metric`: HP IDs only: Monarch similarity metric. Default; help search phenotype
-HP IDs only: Monarch similarity metric. Default ancestor-information-content.
+- `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
+HP IDs only: the Monarch similarity metric to rank by.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; help search phenotype

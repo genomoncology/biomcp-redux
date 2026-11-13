@@ -342,7 +342,7 @@
         },
         "metric": {
           "$ref": "#/$defs/Reply_PhenotypeMetric",
-          "description": "HP IDs only: Monarch similarity metric. Default ancestor-information-content."
+          "description": "HP IDs only: the Monarch similarity metric to rank by."
         },
         "offset": {
           "default": 0,
