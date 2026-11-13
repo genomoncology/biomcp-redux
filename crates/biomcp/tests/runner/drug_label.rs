@@ -177,14 +177,17 @@ fn both(env: &Environment, args: Vec<String>, exit: i32) -> Result<Value, String
 fn measure(value: &Value) -> Check {
     let bytes = serde_json::to_vec(value).map_err(|e| e.to_string())?.len();
     let comparable = super::source_terms::size(value, "")?;
-    // Peak retained full-body replay is 7661 comparable bytes; allow 15% growth.
-    if comparable > crate::runner::output_limit("label-comparable")? {
+    // Peak retained replay is 26,146 comparable bytes at the 28 KiB default label budget
+    // (ticket 0884); allow 15% growth. The full allocation is the 32 KiB ruled ceiling plus 2 KiB.
+    let limit = crate::runner::output_limit("label-comparable")?;
+    if comparable > limit {
         return Err(format!(
-            "label exceeds measured comparable budget {comparable}/8811"
+            "label exceeds measured comparable budget {comparable}/{limit}"
         ));
     }
-    if bytes > crate::runner::output_limit("label-full")? {
-        return Err(format!("label exceeds full allocation {bytes}/8192"));
+    let limit = crate::runner::output_limit("label-full")?;
+    if bytes > limit {
+        return Err(format!("label exceeds full allocation {bytes}/{limit}"));
     }
     use std::io::Write;
     writeln!(

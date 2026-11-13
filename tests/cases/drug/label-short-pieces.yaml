@@ -28,8 +28,10 @@
             "remaining"
           ]
         },
-        "/next/*/kind": {
-          "excludes": "page"
+        "": {
+          "omits": [
+            "next"
+          ]
         }
       },
       "max_bytes": 9312
