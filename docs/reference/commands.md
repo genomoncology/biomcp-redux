@@ -1044,7 +1044,7 @@ Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: str
 - `--device-id`: PMA or K identifier.
 Exact PMA application, application/supplement or source K identity. Value form: string. Example: --device-id P200010/S026. Only with --source fda-cdx.
 - `--drug-application`: NDA/BLA application.
-Cell-owned typed NDA/BLA application. Value form: string. Example: --drug-application BLA125514. Only with --source fda-cdx.
+Cell-owned typed NDA/BLA application. Value form: string. Example: --drug-application NDA208065. Only with --source fda-cdx.
 - `--gene`: Exact gene symbol.
 Exact source gene_symbol field, without alias expansion. Value form: string. Example: --gene BRCA1. Only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.
@@ -1053,7 +1053,7 @@ Exact source GeneID, exclusive with gene symbol. Value form: string. Example: --
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-from 2024-01-01. Only with --source fda-device-recall.
 - `--initiated-to`: Last date, YYYY-MM-DD.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-to 2024-12-31. Only with --source fda-device-recall.
-- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer. Example: --limit 1. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer. Example: --limit 50. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.
 - `--marker`: WHO marker phrase.
