@@ -14,6 +14,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
     let mut reply = mydisease::annotation(&leg, id);
     let mut label_problems = Vec::new();
+    let mut label_error = None;
     let hierarchy = matches!(query.section(), Some(DiseaseSection::Hierarchy));
     for mapped in reply.iter_mut().filter(|_| hierarchy) {
         let page = mapped
@@ -22,12 +23,16 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
             .iter_mut()
             .skip(query.section_offset() as usize)
             .take(query.section_limit() as usize);
-        label(&leg, page.collect(), &mut label_problems);
+        label_error = label(&leg, page.collect(), &mut label_problems);
     }
     let error = reply.as_ref().err().copied();
     let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
-    out.sources
-        .push(status::source(Source::MyDisease, leg.finish(), error));
+    // A failed parent-name read leaves the rows unnamed, so the source and reply are not complete.
+    out.sources.push(status::source(
+        Source::MyDisease,
+        leg.finish(),
+        error.or(label_error),
+    ));
     out.local = error.and_then(status::local);
     if let Ok(mapped) = reply {
         out.include_refusals(mapped.refusals);
@@ -35,16 +40,19 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         out.problems.extend(label_problems);
         apply(&mut out, query, mapped.value);
     }
-    super::page::record_problem(&mut out, query, Source::MyDisease);
+    if error.is_some() || label_error.is_none() {
+        super::page::record_problem(&mut out, query, Source::MyDisease);
+    }
     command.finish(deadline.remaining());
     out
 }
 /// Name each direct parent on the page from its own record in one batch; an unnamed parent keeps its ID.
+/// Returns the lookup failure, which the caller reports on the source.
 fn label(
     leg: &biomcp_fetch::Leg<'_>,
     parents: Vec<&mut biodata::DiseaseRelation>,
     problems: &mut Vec<biomcp_types::Problem>,
-) {
+) -> Option<biomcp_fetch::RequestError> {
     let ids: Vec<_> = parents.iter().map(|row| row.object.id.clone()).collect();
     match mydisease::parent_labels(leg, &ids) {
         Ok(labels) => {
@@ -54,13 +62,17 @@ fn label(
                     row.object.label = Some(label.clone());
                 }
             }
+            None
         }
-        Err(_) => problems.push(biomcp_types::Problem {
-            source: Source::MyDisease,
-            record: None,
-            field: "parents.label: parent label lookup failed".into(),
-            code: biomcp_types::ProblemCode::ValueUnknown,
-        }),
+        Err(error) => {
+            problems.push(biomcp_types::Problem {
+                source: Source::MyDisease,
+                record: None,
+                field: "parents.label: parent label lookup failed".into(),
+                code: biomcp_types::ProblemCode::ValueUnknown,
+            });
+            Some(error)
+        }
     }
 }
 fn apply(out: &mut Outcome, query: &DiseaseGet, record: mydisease::Annotation) {

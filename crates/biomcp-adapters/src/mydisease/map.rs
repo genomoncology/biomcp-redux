@@ -161,26 +161,32 @@ fn rows(
         list: Vec::new(),
     };
     for value in &component.synonyms {
-        // One row per distinct text; the first component and scope that state it keep the row.
-        if mapped
-            .value
-            .synonyms
-            .iter()
-            .any(|row| row.value.as_str().to_lowercase() == value.value.as_str().to_lowercase())
-        {
-            continue;
-        }
         let field = format!("{synonym_field}.{}", value.field);
         let scope = problems.optional(
             &format!("{}.{}", component_id(component), field),
             Some(predicate(component, &field)),
         );
-        mapped.value.synonyms.push(DiseaseSynonym {
+        let row = DiseaseSynonym {
             value: value.value.clone(),
             scope,
             language: None,
             attribution: attribution.clone(),
-        });
+        };
+        // One row per distinct text; the first row keeps it and later rows are listed with it.
+        let text = row.value.as_str().to_lowercase();
+        match mapped
+            .value
+            .synonyms
+            .iter_mut()
+            .find(|item| item.synonym.value.as_str().to_lowercase() == text)
+        {
+            Some(item) => {
+                let mut also = std::mem::take(&mut item.also_stated_by).into_vec();
+                also.push(row);
+                item.also_stated_by = also.into();
+            }
+            None => mapped.value.synonyms.push(row.into()),
+        }
     }
     mapped.problems.extend(problems.list);
     for value in &component.xrefs {

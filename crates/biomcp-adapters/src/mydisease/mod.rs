@@ -13,8 +13,8 @@ pub use native::{Component, Record, Reference, Value};
 pub struct Annotation {
     /// Exact identity with optional native alias proof.
     pub card: biomcp_types::DiseaseCard,
-    /// Component-attributed native synonyms.
-    pub synonyms: Vec<biodata::DiseaseSynonym>,
+    /// One row per distinct synonym text, listing every other component row that states it.
+    pub synonyms: Vec<biomcp_types::DiseaseSynonymItem>,
     /// Every native cross-reference with its original source field predicate.
     pub xrefs: Vec<biodata::DiseaseRelation>,
     /// Direct component parents, without ancestors or alternatives.

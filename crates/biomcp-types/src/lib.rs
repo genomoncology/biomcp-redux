@@ -172,7 +172,7 @@ pub use query::{
 pub use response::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
     DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
-    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
 };
 mod drug;
 pub use drug::{
