@@ -4,7 +4,7 @@
 //! envelope always stay, and so do identifier properties (`x-identifier`), so identifiers
 //! and source attribution survive narrowing.
 use biomcp_query::Action;
-use biomcp_types::{Step, StepKind, UsageArguments, UsageError};
+use biomcp_types::{ErrorMessage, Request, Source, Step, StepKind, UsageArguments, UsageError};
 use serde_json::Value;
 use std::{collections::BTreeSet, io};
 
@@ -129,8 +129,8 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     if fields.is_empty() || parsed.help.is_some() {
         return Ok(());
     }
-    let path = match &parsed.action {
-        Some(Action::Run { request, .. }) => request.path(),
+    let (request, path) = match &parsed.action {
+        Some(Action::Run { request, .. }) => (request, request.path()),
         _ => return Err(UsageError::argument("--fields".into())),
     };
     if path.0 != "search" {
@@ -142,7 +142,7 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     }
     let row = search_row(path.0, path.1);
     if !row.names.is_empty() && fields.iter().all(|name| row.names.contains(name)) {
-        return Ok(());
+        return source_check(parsed, request, path);
     }
     Err(UsageError::Arguments(UsageArguments {
         argument: Some("--fields".into()),
@@ -155,6 +155,91 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
         next: vec![help_step(path)],
         ..Default::default()
     }))
+}
+
+/// The source a search query selects, with the reply schema of its rows, when the
+/// query alone fixes it.
+fn selected(request: &Request) -> Option<(Source, &'static str)> {
+    match request {
+        Request::SearchTrial(query) => Some((
+            query.source().source(),
+            biomcp_query::trial::reply_schema(query.source()),
+        )),
+        _ => None,
+    }
+}
+
+/// Rows of a search by source selector, when its sources return different rows.
+fn source_rows(verb: &str, entity: &str) -> Vec<(&'static str, Row)> {
+    if (verb, entity) != ("search", "trial") {
+        return Vec::new();
+    }
+    biomcp_query::trial::SOURCES
+        .iter()
+        .filter_map(|source| {
+            reply_row(biomcp_query::trial::reply_schema(*source)).map(|row| (source.as_str(), row))
+        })
+        .collect()
+}
+
+/// The one field of the source's row that contains the asked name or that it contains.
+fn nearest<'a>(row: &'a Row, name: &str) -> Option<&'a String> {
+    let mut near = row
+        .names
+        .iter()
+        .filter(|field| field.contains(name) || name.contains(field.as_str()));
+    near.next().filter(|_| near.next().is_none())
+}
+
+/// Refuse chosen fields that the selected source's rows cannot carry, naming that
+/// source, its fields, and the same call with each such field moved to its nearest.
+fn source_check(
+    parsed: &crate::grammar::Parsed,
+    request: &Request,
+    path: (&str, &str),
+) -> Result<(), UsageError> {
+    let fields = &parsed.globals.fields;
+    let Some((source, row)) =
+        selected(request).and_then(|(source, id)| Some((source, reply_row(id)?)))
+    else {
+        return Ok(());
+    };
+    if fields.iter().all(|name| row.names.contains(name)) {
+        return Ok(());
+    }
+    let mut chosen: Vec<&str> = Vec::new();
+    for name in fields {
+        let field = if row.names.contains(name) {
+            Some(name)
+        } else {
+            nearest(&row, name)
+        };
+        if let Some(field) = field.filter(|field| !chosen.contains(&field.as_str())) {
+            chosen.push(field.as_str());
+        }
+    }
+    let mut next = Vec::new();
+    if !chosen.is_empty()
+        && let Some(action) = &parsed.action
+        && let Ok(mut step) = crate::spell::step(StepKind::Configure, action)
+    {
+        let mut args = step.args.into_vec();
+        args.insert(0, format!("--fields={}", chosen.join(",")).into());
+        step.args = args.into();
+        next.push(step);
+    }
+    next.push(help_step(path));
+    Err(UsageError::SourceSelector {
+        source,
+        message: ErrorMessage::ArgumentGuidance,
+        option: "--fields".into(),
+        valid_values: row
+            .names
+            .iter()
+            .filter_map(|name| biodata::Text::new(name).ok())
+            .collect(),
+        next,
+    })
 }
 
 /// Keep only the chosen and required keys of each row of a finished reply.
@@ -183,22 +268,39 @@ pub(crate) fn help_line(verb: &str, entity: &str) -> Option<String> {
     if verb != "search" {
         return None;
     }
+    let choose = "Choose some with --fields a,b (typed: fields list)";
+    let sources = source_rows(verb, entity);
+    if !sources.is_empty() {
+        let rows = sources
+            .iter()
+            .map(|(source, row)| format!("{source}: {}", listed(row)))
+            .collect::<Vec<_>>()
+            .join("; ");
+        return Some(format!("Fields by --source: {rows}. {choose}."));
+    }
     let row = search_row(verb, entity);
     if row.names.is_empty() {
         return None;
     }
-    let names = row.names.iter().cloned().collect::<Vec<_>>().join(", ");
     let kept = if row.required.is_empty() {
         String::new()
     } else {
-        format!(
-            "; always kept: {}",
-            row.required.iter().cloned().collect::<Vec<_>>().join(", ")
-        )
+        format!("; always kept: {}", joined(&row.required))
     };
-    Some(format!(
-        "Fields: {names}. Choose some with --fields a,b (typed: fields list){kept}."
-    ))
+    Some(format!("Fields: {}. {choose}{kept}.", joined(&row.names)))
+}
+
+fn joined(names: &BTreeSet<String>) -> String {
+    names.iter().cloned().collect::<Vec<_>>().join(", ")
+}
+
+/// A row's names, then those it always keeps.
+fn listed(row: &Row) -> String {
+    let names = joined(&row.names);
+    if row.required.is_empty() {
+        return names;
+    }
+    format!("{names} (always kept: {})", joined(&row.required))
 }
 
 /// Paging, sort, restart and fresh steps of a search keep the caller's fields.

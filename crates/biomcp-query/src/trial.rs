@@ -16,6 +16,19 @@ use biomcp_types::GeneResolution;
 use biomcp_types::{
     ReplyData, Request, Source, SourceState, Status, StepKind, TrialPage, TrialSearch,
 };
+/// Every trial search source, in help order.
+pub const SOURCES: [biomcp_types::TrialSource; 2] = [
+    biomcp_types::TrialSource::Ctgov,
+    biomcp_types::TrialSource::Nci,
+];
+/// The reply schema whose rows a trial search from this source returns.
+pub fn reply_schema(source: biomcp_types::TrialSource) -> &'static str {
+    use biomcp_types::ResponseBody;
+    match source {
+        biomcp_types::TrialSource::Ctgov => TrialPage::SCHEMA,
+        biomcp_types::TrialSource::Nci => biomcp_types::NciTrialPage::SCHEMA,
+    }
+}
 /// Execute a checked native search without locally screening returned studies.
 pub(crate) fn search_bound(cx: &Ctx<'_>, query: &TrialSearch) -> Outcome {
     if query.source() == biomcp_types::TrialSource::Nci {
