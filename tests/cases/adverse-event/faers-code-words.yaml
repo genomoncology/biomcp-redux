@@ -96,6 +96,27 @@
           ]
         }
       }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "101"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/patient": {
+          "omits": [
+            "age",
+            "age_unit_label"
+          ]
+        },
+        "/result": {
+          "omits": [
+            "unmapped_codes"
+          ]
+        }
+      }
     }
   ]
 }

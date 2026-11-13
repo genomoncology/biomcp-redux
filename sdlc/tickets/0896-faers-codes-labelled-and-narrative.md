@@ -43,3 +43,4 @@ In the pv-scientist persona run of 2026-11-13 (biomed-agent-bench `personas/pv-s
 - Cases: `tests/cases/adverse-event/faers-recorded-labels.yaml` replays live replies for 27298481 and 22814945 recorded in j39377 and j39380; `faers-code-words.yaml` adds a synthetic off-list age unit and markers for its off-list outcome and role. Schema change is optional fields and descriptions only.
 - The synthetic FAERS card budget is remeasured at 1,647 full and 1,525 comparable bytes (was 1,442 and 1,320; j39435): the card now carries two seriousness labels and the age-unit label.
 - Gate passed on bb0c4d074 (`make --keep-going landing-gate docs-check schema-release-check`), job j39465.
+- Review fix: `age_unit_label` now comes from the age that survived, so a report with a unit but no age (484 live) shows neither the unit nor its label; synthetic report 101 in `faers-code-words.yaml` covers it. `docs/cautions.md` notes that ICH E2B(R3) defines role 4 as "drug not administered".

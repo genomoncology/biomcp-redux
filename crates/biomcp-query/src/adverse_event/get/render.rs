@@ -217,7 +217,14 @@ fn card(
         case_event_date: extras.case_event_date,
         patient: r.patient.map(|native| AdverseEventPatient {
             sex_label: label(PATIENT_SEX, native.sex.as_deref()),
-            age_unit_label: label(AGE_UNIT, age_unit),
+            age_unit_label: label(
+                AGE_UNIT,
+                native
+                    .age
+                    .as_ref()
+                    .and_then(|a| a.unit)
+                    .map(biodata::FaersAgeUnit::as_str),
+            ),
             native,
         }),
         reporter: r.reporter.map(|native| AdverseEventReporter {
