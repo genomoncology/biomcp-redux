@@ -719,7 +719,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--search-mode`: HP IDs only: hybrid, the default, or full to score every; help search phenotype
 HP IDs only: hybrid, the default, or full to score every entity.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode hybrid. Command sources: hpo, monarch; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; help search phenotype
 Monarch only; HPO search is unsupported.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
