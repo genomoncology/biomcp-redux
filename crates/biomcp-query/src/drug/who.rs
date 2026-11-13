@@ -1,13 +1,13 @@
 //! Read-only local WHO prequalification records; no authorization joins or aliases.
 use super::{empty, markets};
 use crate::{Action, Bundle, Ctx, Outcome, status};
+use biodata::{PartialDate, Text};
 use biomcp_adapters::who_pq;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
-use biodata::{PartialDate, Text};
 use biomcp_types::{
-    DrugMarket, DrugMarketState, DrugWhoRow, DrugSearch, DrugSource, DrugWhoGet, DrugWhoPage, PageInfo, Request, Source,
-    SourceState, StepKind,
+    DrugMarket, DrugMarketState, DrugSearch, DrugSource, DrugWhoGet, DrugWhoPage, DrugWhoRow,
+    PageInfo, Request, Source, SourceState, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(

@@ -16,6 +16,7 @@ Ask for more when you need it:
 Use `biomcp help COMMAND ENTITY` before guessing an option, and take names only from it:
 
 - Sections are words after the ID: `biomcp get drug BLA761445 approvals --source drugsfda`. Use `--section` only where help lists it.
+- One product's row in each market (Drugs@FDA, EMA, WHO prequalification), each from its own source: `biomcp get drug dolutegravir markets`.
 - A filter works only with the sources named after `Only with --source` or in its description.
 - `--fields` takes only the names help lists after `Fields:`.
 - Follow returned `next` steps for pages and sections. When a page reports a total, stop paging at it.

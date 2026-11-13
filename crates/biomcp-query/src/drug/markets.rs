@@ -6,8 +6,8 @@ use biodata::{AuthorizationDate, PartialDate, Text};
 use biomcp_adapters::drugsfda;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet, DrugSearch,
-    DrugSection, DrugSource, ReplyBody, ReplyData, Request, Section,
-    Source, SourceState, Status, StepKind,
+    DrugSection, DrugSource, ReplyBody, ReplyData, Request, Section, Source, SourceState, Status,
+    StepKind,
 };
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
@@ -83,7 +83,12 @@ fn fda(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     row.record = text(&candidate.id.to_string());
     row.name = candidate.name;
     row.holder = application.sponsor().cloned();
-    row.status = distinct(candidate.products.iter().filter_map(|p| p.marketing_status.clone()));
+    row.status = distinct(
+        candidate
+            .products
+            .iter()
+            .filter_map(|p| p.marketing_status.clone()),
+    );
     row.first_approval = candidate
         .original_approval
         .and_then(|first| dated("submission_status_date", first.date));
