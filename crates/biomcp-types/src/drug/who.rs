@@ -22,6 +22,19 @@ pub struct DrugWhoRow {
     pub basis_of_listing: Box<str>,
     /// Native Date of Prequalification text, including spacing and empty strings.
     pub date_of_prequalification: Box<str>,
+    /// Date of Prequalification as YYYY-MM-DD; absent when the native cell is blank or not a whole date.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prequalified_on: Option<biodata::PartialDate>,
+    /// Present only when WHO's Date of Prequalification cell is blank.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prequalified_on_status: Option<WhoDateStatus>,
+}
+biodata::wire_enum! {
+    /// Why a WHO row carries no prequalification date.
+    WhoDateStatus {
+        /// WHO publishes no date for this product: its Date of Prequalification cell is blank.
+        NotPublished => "not-published"
+    }
 }
 /// Source-ordered WHO matches; prequalification does not establish US/EU authorization.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

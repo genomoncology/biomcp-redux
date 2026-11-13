@@ -81,7 +81,15 @@ impl Native {
 }
 impl From<Native> for biomcp_types::DrugWhoRow {
     fn from(row: Native) -> Self {
+        let prequalified_on = row.prequalified_date().ok();
+        let prequalified_on_status = row
+            .date
+            .trim()
+            .is_empty()
+            .then_some(biomcp_types::WhoDateStatus::NotPublished);
         Self {
+            prequalified_on,
+            prequalified_on_status,
             reference: row.reference,
             inn_dosage_form_strength: row.inn,
             product_type: row.product_type,

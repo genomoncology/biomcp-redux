@@ -20,8 +20,9 @@ impl Record {
             record: crate::mapped::record(&self.k_number),
             list: Vec::new(),
         };
-        let value = biomcp_types::DiagnosticClearance {
+        let mut value = biomcp_types::DiagnosticClearance {
             k_number: self.k_number,
+            decision_reading: None,
             device_name: p.field("device_name", self.device_name),
             applicant: p.field("applicant", self.applicant),
             decision_code: p.field("decision_code", self.decision_code),
@@ -30,6 +31,10 @@ impl Record {
             date_received: p.field("date_received", self.date_received),
             product_code: p.field("product_code", self.product_code),
         };
+        // openFDA describes DENG as "Unknown"; the native description stays beside this reading.
+        if value.decision_code.as_deref() == Some("DENG") {
+            value.decision_reading = Some(biomcp_types::DecisionReading::DeNovoGranted);
+        }
         crate::Mapped {
             refusals: crate::Refusal::None,
             value,
