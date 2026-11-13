@@ -1506,7 +1506,8 @@ Usage: biomcp search gene [OPTIONS] [query]
 
 Arguments:
   [query]
-          Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.
+          Words matched against symbols, previous symbols, aliases and names;
+          a ClinGen ISCA ID, such as ISCA-37400, returns that region.
 
 Options:
       --band <band>
@@ -1538,7 +1539,8 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --region <region>
-          A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes.
+          A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that
+          overlap it; HGNC genes carry no coordinates, so it adds no genes.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1562,9 +1564,11 @@ Search human genes by name, identifier or cytoband, and ClinGen dosage regions b
 Optional HGNC locus group intersected with the selector.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --locus-group pseudogene. Command sources: clingen, hgnc; source restrictions in the field description apply.
 - `--offset`: Number of results to skip. Value form: integer. Example: --offset 24. Command sources: clingen, hgnc; source restrictions in the field description apply.
-- `query`: Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.
+- `query`: Words matched against symbols, previous symbols, aliases and names;
+a ClinGen ISCA ID, such as ISCA-37400, returns that region.
 Form: search gene QUERY; not --query.
-- `--region`: A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes. Value form: string. Example: --region chr16:29600000-29700000. Command sources: clingen, hgnc; source restrictions in the field description apply.
+- `--region`: A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that
+overlap it; HGNC genes carry no coordinates, so it adds no genes. Value form: string. Example: --region chr16:29600000-29700000. Command sources: clingen, hgnc; source restrictions in the field description apply.
 
 ## biomcp search article
 
