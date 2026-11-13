@@ -1,0 +1,207 @@
+{
+  "method": "GET",
+  "source": "maude",
+  "url": "https://api.fda.gov/device/event.json?search=device.generic_name%3A%22insulin%20pump%22%20AND%20date_received%3A%5B20240101%20TO%2020241231%5D&limit=1&skip=0&sort=date_received%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794598160,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 399,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 10022
+    }
+  },
+  "results": [
+    {
+      "manufacturer_contact_zip_ext": "",
+      "manufacturer_g1_address_2": "",
+      "event_location": "",
+      "report_to_fda": "",
+      "manufacturer_contact_t_name": "",
+      "manufacturer_contact_state": "CA",
+      "manufacturer_link_flag": "Y",
+      "manufacturer_contact_address_2": "",
+      "manufacturer_g1_city": "NORTHRIDGE",
+      "manufacturer_contact_address_1": "18000 DEVONSHIRE ST.",
+      "manufacturer_contact_pcity": "",
+      "event_type": "Malfunction",
+      "report_number": "2032227-2024-297576",
+      "type_of_report": [
+        "Initial submission"
+      ],
+      "product_problem_flag": "Y",
+      "date_received": "20241231",
+      "manufacturer_address_2": "",
+      "pma_pmn_number": "EXEMPT",
+      "date_of_event": "20241211",
+      "reprocessed_and_reused_flag": "N",
+      "manufacturer_address_1": "",
+      "exemption_number": "",
+      "manufacturer_contact_zip_code": "91325",
+      "reporter_occupation_code": "003",
+      "manufacturer_contact_plocal": "",
+      "noe_summarized": "1",
+      "manufacturer_contact_l_name": "BOYADZHYAN",
+      "source_type": [
+        "Consumer"
+      ],
+      "distributor_zip_code_ext": "",
+      "manufacturer_g1_postal_code": "91325",
+      "manufacturer_g1_state": "CA",
+      "reporter_country_code": "US",
+      "manufacturer_contact_area_code": "",
+      "date_added": "20241231",
+      "manufacturer_contact_f_name": "LUSINE",
+      "previous_use_code": "A",
+      "device": [
+        {
+          "device_event_key": "",
+          "implant_flag": "",
+          "date_removed_flag": "",
+          "device_sequence_number": "1090361",
+          "implant_date_year": "",
+          "date_removed_year": "",
+          "serviced_by_3rd_party_flag": "",
+          "date_received": "20241231",
+          "brand_name": "SMARTPHONE IOS APP: PUMP CONNECT",
+          "generic_name": "INSULIN PUMP SECONDARY DISPLAY",
+          "manufacturer_d_name": "MEDTRONIC MINIMED",
+          "manufacturer_d_address_1": "18000 DEVONSHIRE ST.",
+          "manufacturer_d_address_2": "",
+          "manufacturer_d_city": "NORTHRIDGE",
+          "manufacturer_d_state": "CA",
+          "manufacturer_d_zip_code": "91325",
+          "manufacturer_d_zip_code_ext": "",
+          "manufacturer_d_country": "US",
+          "manufacturer_d_postal_code": "91325",
+          "device_operator": "LAY USER/PATIENT",
+          "model_number": "MMT-6102",
+          "catalog_number": "MMT-6102",
+          "lot_number": "",
+          "other_id_number": "",
+          "device_availability": "No",
+          "device_report_product_code": "PKU",
+          "device_age_text": "",
+          "device_evaluated_by_manufacturer": "*",
+          "combination_product_flag": "N",
+          "udi_di": "",
+          "udi_public": "",
+          "openfda": {
+            "registration_number": [
+              "2032227"
+            ],
+            "fei_number": [
+              "3003166194"
+            ],
+            "device_name": "Insulin Pump Secondary Display",
+            "medical_specialty_description": "Clinical Chemistry",
+            "regulation_number": "862.1350",
+            "device_class": "2"
+          }
+        }
+      ],
+      "product_problems": [
+        "Wireless Communication Problem",
+        "Wireless Communication Problem"
+      ],
+      "reporter_state_code": "PA",
+      "manufacturer_zip_code": "",
+      "suppl_dates_mfr_received": "",
+      "mfr_report_type": "Thirty-Day",
+      "manufacturer_contact_country": "US",
+      "date_changed": "20250821",
+      "health_professional": "",
+      "summary_report_flag": "N",
+      "manufacturer_g1_zip_code_ext": "",
+      "manufacturer_contact_extension": "",
+      "manufacturer_city": "",
+      "manufacturer_contact_phone_number": "",
+      "patient": [
+        {
+          "patient_sequence_number": "1",
+          "date_received": "20241231",
+          "sequence_number_treatment": [
+            ""
+          ],
+          "sequence_number_outcome": [
+            ""
+          ],
+          "patient_age": "65 YR",
+          "patient_sex": "Male",
+          "patient_weight": "",
+          "patient_ethnicity": "",
+          "patient_race": "",
+          "patient_problems": [
+            "No Clinical Signs, Symptoms or Conditions",
+            "No Clinical Signs, Symptoms or Conditions"
+          ]
+        }
+      ],
+      "distributor_city": "",
+      "date_report": "20241230",
+      "initial_report_to_fda": "No",
+      "distributor_state": "",
+      "event_key": "",
+      "manufacturer_g1_country": "US",
+      "manufacturer_contact_city": "NORTHRIDGE",
+      "mdr_report_key": "21045443",
+      "removal_correction_number": "",
+      "number_devices_in_event": "",
+      "date_manufacturer_received": "20241211",
+      "manufacturer_name": "",
+      "report_source_code": "Manufacturer report",
+      "remedial_action": [
+        ""
+      ],
+      "manufacturer_g1_zip_code": "91325",
+      "report_to_manufacturer": "",
+      "manufacturer_zip_code_ext": "",
+      "manufacturer_g1_name": "MEDTRONIC MINIMED",
+      "adverse_event_flag": "N",
+      "distributor_address_1": "",
+      "manufacturer_state": "",
+      "distributor_address_2": "",
+      "manufacturer_postal_code": "",
+      "single_use_flag": "N",
+      "manufacturer_country": "",
+      "mdr_text": [
+        {
+          "mdr_text_key": "360921404",
+          "text_type_code": "Additional Manufacturer Narrative",
+          "patient_sequence_number": "0",
+          "text": "CURRENTLY IT IS UNKNOWN WHETHER OR NOT THE DEVICE MAY HAVE CAUSED OR CONTRIBUTED TO THE EVENT AS NO PRODUCT HAS BEEN RETURNED. NO CONCLUSION CAN BE DRAWN AT THIS TIME. WE THEREFORE CONSIDER THIS REPORT COMPLETE TO THE BEST OF OUR KNOWLEDGE. MEDTRONIC SUBMITS THIS REPORT TO COMPLY WITH FDA REGULATIONS 21 CFR PARTS 4 AND 803. MEDTRONIC HAS MADE REASONABLE EFFORTS TO PROVIDE AS MUCH RELEVANT INFORMATION AS IS AVAILABLE TO THE COMPANY AS OF THE SUBMISSION DATE OF THIS REPORT. THIS REPORT DOES NOT CONSTITUTE AN ADMISSION OR A CONCLUSION BY FDA, MEDTRONIC, OR ITS EMPLOYEES THAT THE DEVICE, MEDTRONIC, OR ITS EMPLOYEES CAUSED OR CONTRIBUTED TO THE EVENT DESCRIBED IN THE REPORT. ANY REQUIRED FIELDS THAT ARE UNPOPULATED ARE BLANK BECAUSE THE INFORMATION IS CURRENTLY UNKNOWN OR UNAVAILABLE. MEDTRONIC WILL SUBMIT A SUPPLEMENTAL REPORT IF ADDITIONAL RELEVANT INFORMATION BECOMES KNOWN."
+        },
+        {
+          "mdr_text_key": "360921405",
+          "text_type_code": "Description of Event or Problem",
+          "patient_sequence_number": "0",
+          "text": "IT WAS REPORTED TO MEDTRONIC MINIMED THAT THE CUSTOMER EXPERIENCED NO COMMUNICATION PUMP TO MOBILE. THE CUSTOMER REPORTED NO ADVERSE EVENT. THE EVENT INVOLVED PRODUCT(S) MMT-6102. TROUBLESHOOTING WAS PERFORMED. UNABLE TO COMPLETE TROUBLESHOOTING OR PROVIDE INSTRUCTIONS, INSUFFICIENT INFORMATION TO ESCALATE. NO HARM REQUIRING MEDICAL INTERVENTION WAS REPORTED. NO PRODUCT RETURN IS REQUIRED FOR MMT-6102."
+        }
+      ],
+      "number_patients_in_event": "",
+      "distributor_name": "",
+      "manufacturer_g1_address_1": "18000 DEVONSHIRE ST.",
+      "distributor_zip_code": "",
+      "manufacturer_contact_postal_code": "91325",
+      "manufacturer_contact_exchange": "",
+      "manufacturer_contact_pcountry": "",
+      "suppl_dates_fda_received": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}
