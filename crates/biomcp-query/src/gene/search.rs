@@ -17,16 +17,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     // An interval alone selects only ClinGen regions: HGNC rows carry no coordinates.
     let mut result = Ok(Vec::new());
     if query.query().is_some() || query.band().is_some() {
-        let leg = cx
-            .fetch
-            .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
-            .fresh(cx.fresh);
-        result = collect(&leg, query, &mut problems, &mut dropped);
-        let error = result.as_ref().err().copied();
-        let source = status::source(Source::Hgnc, leg.finish(), error);
-        states.push(state(result.is_ok(), source.state));
+        let (genes, source) = read_genes(cx, query, &mut problems, &mut dropped);
+        let error = genes.as_ref().err().copied();
+        states.push(state(error.is_none(), source.state));
         sources.push(source);
         local = error.and_then(status::local);
+        result = genes;
     }
     let mut regions = Vec::new();
     if let Some(find) = region_find(query) {
@@ -94,6 +90,21 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
             local,
         },
     )
+}
+type Genes = Result<Vec<(u8, GeneHeader)>, RequestError>;
+fn read_genes(
+    cx: &Ctx<'_>,
+    query: &GeneSearch,
+    problems: &mut Vec<biomcp_types::Problem>,
+    dropped: &mut bool,
+) -> (Genes, biomcp_types::SourceOutcome) {
+    let leg = cx
+        .fetch
+        .leg(&hgnc::SPEC, cx.fetch.deadline(cx.budget))
+        .fresh(cx.fresh);
+    let genes = collect(&leg, query, problems, dropped);
+    let error = genes.as_ref().err().copied();
+    (genes, status::source(Source::Hgnc, leg.finish(), error))
 }
 type Regions = biomcp_adapters::Mapped<Vec<biomcp_types::ClinGenRegion>>;
 fn read_regions(
