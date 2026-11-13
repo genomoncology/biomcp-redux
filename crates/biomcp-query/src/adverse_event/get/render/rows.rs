@@ -45,6 +45,22 @@ pub(super) fn drugs(
             actiondrug_label: label(ACTION_TAKEN, r.actiondrug.as_deref()),
             drugadditional: r.drugadditional.clone(),
             identity_counts: counts(r.openfda.as_ref()),
+            unmapped_codes: {
+                let mut out = Vec::new();
+                super::unmapped_code(
+                    "patient.drug.drugcharacterization",
+                    DRUG_ROLE,
+                    r.drugcharacterization.as_deref(),
+                    &mut out,
+                );
+                super::unmapped_code(
+                    "patient.drug.actiondrug",
+                    ACTION_TAKEN,
+                    r.actiondrug.as_deref(),
+                    &mut out,
+                );
+                out.into()
+            },
         })
         .collect()
 }
@@ -83,6 +99,16 @@ pub(super) fn reactions(
             vocabulary_version: r.vocabulary_version.clone(),
             outcome: r.outcome.clone(),
             outcome_label: label(REACTION_OUTCOME, r.outcome.as_deref()),
+            unmapped_codes: {
+                let mut out = Vec::new();
+                super::unmapped_code(
+                    "patient.reaction.reactionoutcome",
+                    REACTION_OUTCOME,
+                    r.outcome.as_deref(),
+                    &mut out,
+                );
+                out.into()
+            },
         })
         .collect()
 }
