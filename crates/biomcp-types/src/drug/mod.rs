@@ -10,8 +10,9 @@ pub use civic::{
     DrugOncokbLookup, DrugOncokbMissing,
 };
 pub use fda::{
-    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission, DrugFdaPage,
-    DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugFdaSupplementPurpose,
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission,
+    DrugFdaOriginalApproval, DrugFdaPage, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission,
+    DrugFdaSupplementPurpose,
 };
 mod query;
 mod response;
