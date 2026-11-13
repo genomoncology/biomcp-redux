@@ -12,7 +12,7 @@ pub struct Search {
     /// Exact stored source snapshot.
     pub info: BundleInfo,
 }
-/// Match only the two native cells; reads never download or synchronize.
+/// Match the native marker and manufacturer cells and the year window; reads never download or synchronize.
 pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Search, RequestError> {
     let (rows, info) = leg.stored_set_rows(&SET, Find::Prefix(KeyKind::Id, ""))?;
     if q.bundle_revision()
@@ -37,6 +37,7 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Search, RequestErro
         });
         if words(&row.marker, q.marker())
             && words(&row.manufacturer, q.manufacturer())
+            && in_years(&row.prequalification_year, q)
             && let Some(header @ None) = products.get_mut(position)
         {
             *header = Some(DiagnosticCandidate::WhoIvd {
@@ -56,6 +57,17 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Search, RequestErro
         .take(q.limit() as usize)
         .collect();
     Ok(Search { items, total, info })
+}
+/// WHO publishes only a year; a cell that is not a year is outside every window.
+fn in_years(cell: &str, q: &DiagnosticSearch) -> bool {
+    let (from, to) = (q.prequalified_from(), q.prequalified_to());
+    if from.is_none() && to.is_none() {
+        return true;
+    }
+    cell.trim().parse::<i32>().is_ok_and(|year| {
+        from.is_none_or(|bound| year >= i32::from(bound.year()))
+            && to.is_none_or(|bound| year <= i32::from(bound.year()))
+    })
 }
 fn words(cell: &str, selector: Option<&biodata::Text>) -> bool {
     selector.is_none_or(|value| {
