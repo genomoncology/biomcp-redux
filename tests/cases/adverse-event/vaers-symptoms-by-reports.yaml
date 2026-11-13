@@ -1,0 +1,121 @@
+{
+  "feature": "vaers-summary",
+  "story": "Which symptoms dominate COVID-19 vaccine reports is one call: the default page keeps CDC WONDER's alphabetical order and offers a sort step, the sort step reorders the same held table by WONDER's own Events Reported count with its counts, percents and report total, the next page keeps the order, and other sources refuse --sort.",
+  "live_check": "public",
+  "verified": "Native CDC WONDER VAERS COVID19 symptoms reply (vintage 10/30/2026) recorded 2026-11-13 with biomcp --record in pm job j39525; body unchanged. Request, byte count and SHA-256 are in tests/replies/adverse-event/vaers-symptoms-by-reports/README.md.",
+  "replay": "adverse-event/vaers-symptoms-by-reports",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "COVID19",
+        "--source",
+        "vaers"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "COVID19",
+        "--source",
+        "vaers"
+      ],
+      "max_bytes": 10000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 12971,
+        "/page/returned": 5,
+        "/result/report_total": "995,917",
+        "/result/rows/*/label/l": [
+          "17-HYDROXYPROGESTERONE",
+          "3-DIMENSIONAL VASCULOGRAPHY",
+          "5'NUCLEOTIDASE INCREASED",
+          "5-HYDROXYINDOLACETIC ACID",
+          "5-HYDROXYINDOLACETIC ACID IN URINE"
+        ],
+        "/next/0/kind": "sort"
+      }
+    },
+    {
+      "follow": "sort",
+      "max_bytes": 10000,
+      "expect": {
+        "/status": "complete",
+        "/query/sort": "reports",
+        "/page/total": 12971,
+        "/page/returned": 5,
+        "/result/report_total": "995,917",
+        "/result/footer/reports/dt": "4,194,079",
+        "/result/rows/*/label/l": [
+          "HEADACHE",
+          "PYREXIA",
+          "FATIGUE",
+          "PAIN",
+          "CHILLS"
+        ],
+        "/result/rows/*/reports/v": [
+          "151,715",
+          "131,336",
+          "130,958",
+          "108,525",
+          "106,760"
+        ],
+        "/result/rows/*/percent/v": [
+          "15.23%",
+          "13.19%",
+          "13.15%",
+          "10.90%",
+          "10.72%"
+        ],
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--sort reports: BioMCP ordered all 12971 rows of this CDC WONDER table, not just this page, by the source's Events Reported count, largest first; equal counts and rows without a count keep the source's order. Counts, percentages and the report total are the source's."
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "max_bytes": 10000,
+      "expect": {
+        "/query/sort": "reports",
+        "/query/offset": 5,
+        "/page/total": 12971,
+        "/page/returned": 5,
+        "/result/rows/*/label/l": [
+          "COVID-19",
+          "NAUSEA",
+          "PAIN IN EXTREMITY",
+          "DIZZINESS",
+          "MYALGIA"
+        ],
+        "/result/rows/*/reports/v": [
+          "86,240",
+          "83,206",
+          "82,447",
+          "81,668",
+          "58,656"
+        ],
+        "/result/rows/*/percent/v": [
+          "8.66%",
+          "8.35%",
+          "8.28%",
+          "8.20%",
+          "5.89%"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "imatinib",
+        "--sort",
+        "reports"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

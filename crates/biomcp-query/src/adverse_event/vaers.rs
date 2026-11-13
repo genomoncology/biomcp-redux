@@ -7,7 +7,7 @@ use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     AdverseEventSearch, PageInfo, ReplyData, Request, Source, SourceOutcome, StepKind,
-    VaersSection, VaersSummary,
+    VaersSection, VaersSort, VaersSummary,
 };
 type Saved = (VaersSummary, Vec<SourceOutcome>);
 
@@ -89,6 +89,9 @@ fn render(
     out: &mut Outcome,
 ) {
     let total = table.rows.len() as u64;
+    if q.vaers_sort() == Some(VaersSort::Reports) {
+        by_reports(&mut table, out);
+    }
     table.rows = table
         .rows
         .iter()
@@ -105,6 +108,9 @@ fn render(
         truncated: None,
     });
     let offset = q.offset().saturating_add(returned);
+    if q.vaers_sort().is_none() && u64::from(returned) < total {
+        offer_sort(q, snapshot.as_ref(), out);
+    }
     if let Some(snapshot) = snapshot.filter(|_| returned > 0 && u64::from(offset) < total) {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
@@ -128,4 +134,47 @@ fn render(
         }
     }
     out.body = table.with_query(q.clone());
+}
+
+/// Offer the same retained table largest first, without a new source request.
+fn offer_sort(q: &AdverseEventSearch, snapshot: Option<&Text>, out: &mut Outcome) {
+    let held = snapshot.map_or_else(|| q.clone(), |s| q.with_snapshot(s.clone()));
+    out.next.push(crate::next::Step::run(
+        StepKind::Sort,
+        &[biomcp_types::Source::Vaers],
+        Request::SearchAdverseEvent(held.with_vaers_sort(VaersSort::Reports)),
+        false,
+    ));
+}
+/// Stable largest-first order by the native Events Reported value; rows without a count last.
+/// One notice says the whole table was ordered locally from the source's own counts.
+fn by_reports(table: &mut VaersSummary, out: &mut Outcome) {
+    let mut rows = table.rows.to_vec();
+    // A count is digits with thousands commas; compare by digit length, then digits, so any
+    // size orders without parsing. Other text, such as Suppressed, has no count.
+    rows.sort_by_key(|row| {
+        std::cmp::Reverse(row.reports.get("v").and_then(|v| {
+            let digits = v.replace(',', "");
+            let digits = digits.trim_start_matches('0');
+            (!v.is_empty() && v.bytes().all(|b| b.is_ascii_digit() || b == b','))
+                .then(|| (digits.len(), digits.to_owned()))
+        }))
+    });
+    let total = rows.len();
+    table.rows = rows.into();
+    if let Some(report) = out.sources.first_mut() {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: format!(
+                    "--sort reports: BioMCP ordered all {total} rows of this CDC WONDER table, \
+                     not just this page, by the source's Events Reported count, largest first; \
+                     equal counts and rows without a count keep the source's order. Counts, \
+                     percentages and the report total are the source's."
+                )
+                .into(),
+                retry_after_seconds: None,
+            });
+    }
 }
