@@ -1,44 +1,77 @@
 {
   "feature": "drug-markets",
-  "story": "One call gives dolutegravir's row in each market: Drugs@FDA NDA204790 first approved 2013-08-12, EMA EMEA/H/C/002753 (Tivicay) authorised 2014-01-16 and WHO HA634 (ViiV) prequalified 2014-10-14, each with its own number, status, date role, record URL and source, and no date joined across markets. Imatinib has FDA and EMA rows, and its WHO row says WHO lists no product under that name.",
+  "story": "One call gives dolutegravir's row in each market: Drugs@FDA NDA204790 first approved 2013-08-12, EMA EMEA/H/C/002753 (Tivicay) authorised 2014-01-16 and WHO HA634 (ViiV) prequalified 2014-10-14, each with its own number, status, date role, record URL, source, match count and choice rule, and no date joined across markets. Imatinib has FDA and EMA rows, and its WHO row says WHO lists no product under that name, with 0 matches. Lamivudine matches several records in every market (FDA 138, EMA 4, WHO 92), and each market keeps its list call within the five next steps.",
   "live_check": "public",
-  "verified": "Drugs@FDA replies and the WHO PQ finished-product export recorded unchanged 2026-11-13 with biomcp --record; the EMA medicines and referrals files recorded the same day are trimmed to the dolutegravir and imatinib medicines and one referral. Details are in tests/replies/drug/markets/README.md.",
+  "verified": "Drugs@FDA replies and the WHO PQ finished-product export recorded unchanged 2026-11-13 with biomcp --record; the EMA medicines and referrals files recorded the same day are trimmed to the dolutegravir, imatinib and lamivudine medicines and one referral. Details are in tests/replies/drug/markets/README.md.",
   "replay": "drug/markets",
   "steps": [
     {
-      "run": ["sync", "ema"],
+      "run": [
+        "sync",
+        "ema"
+      ],
       "expect": {
-        "/result/rows": 13
+        "/result/rows": 23
       },
       "max_bytes": 800
     },
     {
-      "run": ["sync", "who-pq"],
+      "run": [
+        "sync",
+        "who-pq"
+      ],
       "expect": {
         "/result/rows": 657
       },
       "max_bytes": 500
     },
     {
-      "run": ["get", "drug", "dolutegravir", "markets"],
-      "mcp": ["get", "drug", "dolutegravir", "markets"],
+      "run": [
+        "get",
+        "drug",
+        "dolutegravir",
+        "markets"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "dolutegravir",
+        "markets"
+      ],
       "max_bytes": 3700,
       "expect": {
         "/schema": "biomcp.drug-markets/1",
         "/status": "complete",
         "/query/input": "dolutegravir",
-        "/result/markets/*/source": ["drugsfda", "ema", "who-pq"],
-        "/result/markets/*/state": ["found", "found", "found"],
-        "/result/markets/*/record": ["NDA204790", "EMEA/H/C/002753", "HA634"],
+        "/result/markets/*/source": [
+          "drugsfda",
+          "ema",
+          "who-pq"
+        ],
+        "/result/markets/*/state": [
+          "found",
+          "found",
+          "found"
+        ],
+        "/result/markets/*/record": [
+          "NDA204790",
+          "EMEA/H/C/002753",
+          "HA634"
+        ],
         "/result/markets/0/name": "TIVICAY",
         "/result/markets/0/holder": "VIIV HLTHCARE",
-        "/result/markets/0/status": ["Discontinued", "Prescription"],
+        "/result/markets/0/status": [
+          "Discontinued",
+          "Prescription"
+        ],
         "/result/markets/0/first_approval/role": "submission_status_date",
         "/result/markets/0/first_approval/date": "2013-08-12",
         "/result/markets/0/url": "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo=204790",
         "/result/markets/1/name": "Tivicay",
         "/result/markets/1/holder": "ViiV Healthcare BV",
-        "/result/markets/1/status": ["Authorised"],
+        "/result/markets/1/status": [
+          "Authorised"
+        ],
         "/result/markets/1/first_approval/role": "marketing_authorisation_date",
         "/result/markets/1/first_approval/date": "2014-01-16",
         "/result/markets/1/url": "https://www.ema.europa.eu/en/medicines/human/EPAR/tivicay",
@@ -46,40 +79,210 @@
         "/result/markets/2/first_approval/role": "date_of_prequalification",
         "/result/markets/2/first_approval/date": "2014-10-14",
         "/result/markets/2/url": "https://extranet.who.int/prequal/medicines/ha634",
-        "/result/markets/2/matches": 52,
         "/sources/*/source": {
-          "includes_all_of": ["drugsfda", "ema", "who-pq"]
+          "includes_all_of": [
+            "drugsfda",
+            "ema",
+            "who-pq"
+          ]
         },
         "/next/*/args": {
           "includes_all_of": [
-            ["get", "drug", "NDA204790", "approvals", "--source", "drugsfda"],
-            ["get", "drug", "EMEA/H/C/002753", "regulatory", "--source", "ema"],
-            ["get", "drug", "HA634", "--source", "who-pq"]
+            [
+              "search",
+              "drug",
+              "dolutegravir",
+              "--source",
+              "drugsfda"
+            ],
+            [
+              "search",
+              "drug",
+              "dolutegravir",
+              "--source",
+              "who-pq"
+            ],
+            [
+              "get",
+              "drug",
+              "NDA204790",
+              "approvals",
+              "--source",
+              "drugsfda"
+            ],
+            [
+              "get",
+              "drug",
+              "EMEA/H/C/002753",
+              "regulatory",
+              "--source",
+              "ema"
+            ],
+            [
+              "get",
+              "drug",
+              "HA634",
+              "--source",
+              "who-pq"
+            ]
+          ]
+        },
+        "/result/markets/*/matches": [
+          29,
+          1,
+          52
+        ],
+        "/result/markets/*/choice": [
+          "exact brand before generic; NDA/BLA before ANDA, then earliest approval",
+          "exact brand before generic; source search order among equals",
+          "earliest Date of Prequalification among WHO rows whose INN, dosage form and strength cell names the input; export order on a tie; undated rows last"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "imatinib",
+        "markets"
+      ],
+      "max_bytes": 3200,
+      "expect": {
+        "/schema": "biomcp.drug-markets/1",
+        "/status": "complete",
+        "/result/markets/*/source": [
+          "drugsfda",
+          "ema",
+          "who-pq"
+        ],
+        "/result/markets/*/state": [
+          "found",
+          "found",
+          "no-record"
+        ],
+        "/result/markets/0/record": "NDA021335",
+        "/result/markets/1/record": "EMEA/H/C/000406",
+        "/result/markets/0/status": [
+          "Discontinued"
+        ],
+        "/result/markets/0/first_approval/date": "2001-05-10",
+        "/result/markets/1/first_approval/date": "2001-11-07",
+        "/result/markets/2": {
+          "omits": [
+            "record",
+            "first_approval",
+            "url",
+            "choice"
+          ]
+        },
+        "/result/markets/*/matches": [
+          19,
+          8,
+          0
+        ],
+        "/result/markets/0/choice": "exact brand before generic; NDA/BLA before ANDA, then earliest approval",
+        "/result/markets/1/choice": "exact brand before generic; source search order among equals",
+        "/next/*/args": {
+          "includes_all_of": [
+            [
+              "search",
+              "drug",
+              "imatinib",
+              "--source",
+              "drugsfda"
+            ],
+            [
+              "search",
+              "drug",
+              "imatinib",
+              "--source",
+              "ema"
+            ]
           ]
         }
       }
     },
     {
-      "run": ["get", "drug", "imatinib", "markets"],
-      "max_bytes": 3200,
+      "run": [
+        "get",
+        "drug",
+        "lamivudine",
+        "markets"
+      ],
+      "mcp": [
+        "get",
+        "drug",
+        "lamivudine",
+        "markets"
+      ],
+      "max_bytes": 3700,
       "expect": {
         "/schema": "biomcp.drug-markets/1",
         "/status": "complete",
-        "/result/markets/*/source": ["drugsfda", "ema", "who-pq"],
-        "/result/markets/*/state": ["found", "found", "no-record"],
-        "/result/markets/0/record": "NDA021335",
-        "/result/markets/1/record": "EMEA/H/C/000406",
-        "/result/markets/0/status": ["Discontinued"],
-        "/result/markets/0/first_approval/date": "2001-05-10",
-        "/result/markets/1/first_approval/date": "2001-11-07",
-        "/result/markets/2/matches": 0,
-        "/result/markets/2": {
-          "omits": ["record", "first_approval", "url"]
+        "/result/markets/*/source": [
+          "drugsfda",
+          "ema",
+          "who-pq"
+        ],
+        "/result/markets/*/state": [
+          "found",
+          "found",
+          "found"
+        ],
+        "/result/markets/*/record": [
+          "NDA020596",
+          "EMEA/H/C/001111",
+          "HA110"
+        ],
+        "/result/markets/*/matches": [
+          138,
+          4,
+          92
+        ],
+        "/result/markets/*/choice": [
+          "exact brand before generic; NDA/BLA before ANDA, then earliest approval",
+          "exact brand before generic; source search order among equals",
+          "earliest Date of Prequalification among WHO rows whose INN, dosage form and strength cell names the input; export order on a tie; undated rows last"
+        ],
+        "/result/markets/0/first_approval/date": "1995-11-17",
+        "/result/markets/1/first_approval/date": "2009-12-10",
+        "/result/markets/2/first_approval/date": "2002-03-20",
+        "/next/*/args": {
+          "includes_all_of": [
+            [
+              "search",
+              "drug",
+              "lamivudine",
+              "--source",
+              "drugsfda"
+            ],
+            [
+              "search",
+              "drug",
+              "lamivudine",
+              "--source",
+              "ema"
+            ],
+            [
+              "search",
+              "drug",
+              "lamivudine",
+              "--source",
+              "who-pq"
+            ]
+          ]
         }
       }
     },
     {
-      "run": ["get", "drug", "dolutegravir", "markets", "--source", "ema"],
+      "run": [
+        "get",
+        "drug",
+        "dolutegravir",
+        "markets",
+        "--source",
+        "ema"
+      ],
       "exit": 2,
       "is_error": true,
       "expect": {

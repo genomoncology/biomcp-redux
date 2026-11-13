@@ -4,10 +4,10 @@
   "url": "https://www.ema.europa.eu/en/documents/report/referrals-output-json-report_en.json",
   "exchanges": [
     {
-      "fetched": 1794592426,
+      "fetched": 1794597962,
       "status": 200,
       "content_type": "application/json",
-      "delay_ms": 161,
+      "delay_ms": 627,
       "retry_after_ms": null,
       "body": {
         "kind": "text",
