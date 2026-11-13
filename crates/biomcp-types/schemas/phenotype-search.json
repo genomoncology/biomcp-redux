@@ -353,7 +353,7 @@
         },
         "search_mode": {
           "$ref": "#/$defs/Reply_PhenotypeSearchMode",
-          "description": "HP IDs only: hybrid (default) or full, slower, scoring every entity."
+          "description": "HP IDs only: hybrid (default) or slower full."
         },
         "source": {
           "$ref": "#/$defs/Reply_PhenotypeSource",

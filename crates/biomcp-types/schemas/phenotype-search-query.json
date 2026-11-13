@@ -81,7 +81,7 @@
     },
     "search_mode": {
       "$ref": "#/$defs/PhenotypeSearchMode",
-      "description": "HP IDs only: hybrid (default) or full, slower, scoring; help search phenotype\nHP IDs only: hybrid (default) or full, slower, scoring every entity."
+      "description": "HP IDs only: hybrid (default) or slower full; help search phenotype\nHP IDs only: hybrid (default) or slower full."
     },
     "source": {
       "$ref": "#/$defs/PhenotypeSource",
