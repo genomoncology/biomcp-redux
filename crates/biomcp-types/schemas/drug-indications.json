@@ -785,7 +785,7 @@
               "type": "null"
             }
           ],
-          "description": "Interaction partner.\nA DDInter ID or the complete name DDInter uses, ignoring letter case; DDInter interactions only.\nReturns only the pairs with that drug, so one call shows whether DDInter lists the pair.",
+          "description": "DDInter partner.\nDDInter ID or full DDInter name; keeps only pairs with it.",
           "x-required-component": "ddinter"
         },
         "product_number": {
@@ -809,7 +809,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
+          "description": "Section page size.\nRefused on an identity-only card. At most 50 rows, or 200 for Drugs@FDA approvals.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -819,7 +819,7 @@
           ]
         },
         "section_offset": {
-          "description": "Named section continuation, refused on an identity-only card.",
+          "description": "Section page offset.\nNamed section continuation, refused on an identity-only card.",
           "format": "uint32",
           "minimum": 0,
           "type": [

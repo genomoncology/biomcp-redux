@@ -111,13 +111,13 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDrugRecall)))]
     initiated_to: Option<biodata::PartialDate>,
 
-    /// WHO PQ start date, inclusive.
-    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+    /// WHO PQ start date.
+    /// Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_from: Option<biodata::PartialDate>,
-    /// WHO PQ end date, inclusive.
-    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+    /// WHO PQ end date.
+    /// Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_to: Option<biodata::PartialDate>,

@@ -3615,7 +3615,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Recall start day.\nInclusive initiation day, YYYY-MM-DD; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
         "initiated_to": {
@@ -3627,7 +3627,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Recall start day.\nInclusive initiation day, YYYY-MM-DD; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
         "limit": {
@@ -3733,7 +3733,7 @@
         },
         "therapeutic_area": {
           "$ref": "#/$defs/Text",
-          "description": "WHO PQ therapeutic area.\nWhole words of WHO's own Therapeutic Area column, ignoring letter case, such as Oncology,\nTuberculosis or HIV; each product carries one area. A name or dates narrow the same search.",
+          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
           "x-required-component": "who-pq"
         }
       },
@@ -3859,7 +3859,7 @@
               "type": "null"
             }
           ],
-          "description": "Interaction partner.\nA DDInter ID or the complete name DDInter uses, ignoring letter case; DDInter interactions only.\nReturns only the pairs with that drug, so one call shows whether DDInter lists the pair.",
+          "description": "DDInter partner.\nDDInter ID or full DDInter name; keeps only pairs with it.",
           "x-required-component": "ddinter"
         },
         "product_number": {
@@ -3883,7 +3883,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
+          "description": "Section page size.\nRefused on an identity-only card. At most 50 rows, or 200 for Drugs@FDA approvals.",
           "format": "uint32",
           "maximum": 200,
           "minimum": 1,
@@ -3893,7 +3893,7 @@
           ]
         },
         "section_offset": {
-          "description": "Named section continuation, refused on an identity-only card.",
+          "description": "Section page offset.\nNamed section continuation, refused on an identity-only card.",
           "format": "uint32",
           "minimum": 0,
           "type": [

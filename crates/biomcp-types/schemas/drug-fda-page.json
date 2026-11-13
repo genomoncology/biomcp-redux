@@ -503,7 +503,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, therapeutic area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -563,7 +563,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Recall start day.\nInclusive initiation day, YYYY-MM-DD; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
         "initiated_to": {
@@ -575,7 +575,7 @@
               "type": "null"
             }
           ],
-          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Recall start day.\nInclusive initiation day, YYYY-MM-DD; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
         "limit": {
@@ -681,7 +681,7 @@
         },
         "therapeutic_area": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "WHO PQ therapeutic area.\nWhole words of WHO's own Therapeutic Area column, ignoring letter case, such as Oncology,\nTuberculosis or HIV; each product carries one area. A name or dates narrow the same search.",
+          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
           "x-required-component": "who-pq"
         }
       },
