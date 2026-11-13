@@ -1,0 +1,62 @@
+{
+  "$defs": {
+    "DrugSection": {
+      "description": "Explicit drug disclosures; identity cards never expand into these sections.",
+      "enum": [
+        "xrefs",
+        "targets",
+        "indications",
+        "civic",
+        "label",
+        "approvals",
+        "regulatory",
+        "interactions",
+        "markets"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " All native identity cross-references and product links, mechanically paged.",
+        " Native target and mechanism relations.",
+        " Native indication wording.",
+        " Native CIViC therapy evidence and profile context.",
+        " One exact native label heading.",
+        " Native application and product history rows.",
+        " Source-scoped regulator events.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
+      ]
+    },
+    "Text": {
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.drug-markets-get/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A drug name's registration row in each market BioMCP reads: US FDA (Drugs@FDA), the EU\ncentralised procedure (EMA) and WHO prequalification.",
+  "properties": {
+    "input": {
+      "$ref": "#/$defs/Text",
+      "description": "Complete brand or generic name, looked up in each market's source on its own.",
+      "x-positional": 0
+    },
+    "section": {
+      "description": "The markets section, alone; it takes no source.",
+      "items": {
+        "$ref": "#/$defs/DrugSection"
+      },
+      "type": "array",
+      "x-positional": 1
+    }
+  },
+  "required": [
+    "input",
+    "section"
+  ],
+  "title": "DrugMarketsGet",
+  "type": "object"
+}

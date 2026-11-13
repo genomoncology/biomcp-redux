@@ -22,6 +22,8 @@ biodata::canonical_enum! {
         Regulatory => "regulatory",
         /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
         Interactions => "interactions",
+        /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
+        Markets => "markets",
     }
 }
 /// Retrieve a native ID or a complete source name.
@@ -144,6 +146,10 @@ impl TryFrom<GetFields> for DrugGet {
     }
 }
 fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
+    // The markets section is its own request, with no source and no other section.
+    if fields.section.contains(&DrugSection::Markets) {
+        return Err(QueryInvalid::new(&["section", "source"]));
+    }
     if fields.document_id.is_some()
         && (fields.source != Some(DrugSource::Drugsfda)
             || fields.section.as_ref() != [DrugSection::Approvals])

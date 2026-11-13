@@ -1,0 +1,1375 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA020596%22&limit=1",
+  "exchanges": [
+    {
+      "fetched": 1794597965,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 135,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "16",
+          "submission_status": "AP",
+          "submission_status_date": "20020624",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "2828",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/20564s015ltrand20596s016ltr.pdf",
+              "date": "20020624",
+              "type": "Letter"
+            },
+            {
+              "id": "34925",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/20564s015and20596s016lbl.pdf",
+              "date": "20020624",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "30",
+          "submission_status": "AP",
+          "submission_status_date": "20111118",
+          "review_priority": "901 REQUIRED",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "12810",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020564s031,020596s030lbl.pdf",
+              "date": "20111202",
+              "type": "Label"
+            },
+            {
+              "id": "2831",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/020564s031,020596s030ltr.pdf",
+              "date": "20111122",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "22",
+          "submission_status": "AP",
+          "submission_status_date": "20040929",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "34927",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20596s022,20564s021lbl.pdf",
+              "date": "20041004",
+              "type": "Label"
+            },
+            {
+              "id": "25280",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2004/20596s022,20564s021ltr.pdf",
+              "date": "20041004",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20010619",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "19951117",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "53538",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/20977 abacavir clinical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "53539",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/20977 abacavir clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            },
+            {
+              "id": "53540",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/20977 abacavir statistical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Statistical Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "20",
+          "submission_status": "AP",
+          "submission_status_date": "20031113",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "2829",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/20596slr020,20564slr019ltr.pdf",
+              "date": "20031125",
+              "type": "Letter"
+            },
+            {
+              "id": "34926",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2003/20596slr020,20564slr019_epivir_lbl.pdf",
+              "date": "20031202",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20010105",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "19991018",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "20750",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/99/020596_S010_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "19990308",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "37",
+          "submission_status": "AP",
+          "submission_status_date": "20180427",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "53929",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/020564Orig1s038,020596Orig1s037ltr.pdf",
+              "date": "20180501",
+              "type": "Letter"
+            },
+            {
+              "id": "54029",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/020564s038,020596s037lbl.pdf",
+              "date": "20180507",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "19971215",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "35",
+          "submission_status": "AP",
+          "submission_status_date": "20160720",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "25285",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/020564Orig1s036,020596Orig1s035ltr.pdf",
+              "date": "20160722",
+              "type": "Letter"
+            },
+            {
+              "id": "34932",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/020564s036,020596s035lbl.pdf",
+              "date": "20160721",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "19971215",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "27",
+          "submission_status": "AP",
+          "submission_status_date": "20061025",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "2830",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/020596s027ltr.pdf",
+              "date": "20061106",
+              "type": "Letter"
+            },
+            {
+              "id": "34929",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020596s027.pdf",
+              "date": "20061026",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "19",
+          "submission_status": "AP",
+          "submission_status_date": "20021224",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "41461",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/020596_S019_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "19970411",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "33",
+          "submission_status": "AP",
+          "submission_status_date": "20150219",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "12811",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/020564s034,020596s033lbl.pdf",
+              "date": "20150220",
+              "type": "Label"
+            },
+            {
+              "id": "25283",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/020564Orig1s034,020596Orig1s033ltr.pdf",
+              "date": "20150224",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "25",
+          "submission_status": "AP",
+          "submission_status_date": "20060613",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "41462",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2006/020596_S025_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            },
+            {
+              "id": "25281",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/020596s025, 020564s024LTR.pdf",
+              "date": "20060620",
+              "type": "Letter"
+            },
+            {
+              "id": "34928",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020596s025,020564s024lbl.pdf",
+              "date": "20060614",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "17",
+          "submission_status": "AP",
+          "submission_status_date": "20020301",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "25278",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/20564s16ltr.pdf",
+              "date": "20020301",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20021008",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "25277",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/20564slr014,20596slr015ltr.pdf",
+              "date": "20021008",
+              "type": "Letter"
+            },
+            {
+              "id": "34924",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/20564s14,20596s15lbl.pdf",
+              "date": "20021008",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20041122",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "12809",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20596s021,20564s020lbl.pdf",
+              "date": "20041203",
+              "type": "Label"
+            },
+            {
+              "id": "20752",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2004/020596_S021_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            },
+            {
+              "id": "25279",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2004/20596s021,20564s020ltr.pdf",
+              "date": "20041202",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20010306",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "20751",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2001/20-564s012_20-596s013_Epivir.html",
+              "date": "20050106",
+              "type": "Review"
+            },
+            {
+              "id": "25276",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2001/20596S13LTR.PDF",
+              "date": "20010306",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "19991008",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "9",
+          "submission_status": "AP",
+          "submission_status_date": "19990308",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "38",
+          "submission_status": "AP",
+          "submission_status_date": "20190510",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "58684",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/020564Orig1s039, 020596Orig1s038ltr.pdf",
+              "date": "20190514",
+              "type": "Letter"
+            },
+            {
+              "id": "58708",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/020564s039,020596s038lbl.pdf",
+              "date": "20190515",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "19990323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "41460",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/99/020596_S007_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "36",
+          "submission_status": "AP",
+          "submission_status_date": "20170925",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "50016",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020564s37_020596s036lbl.pdf",
+              "date": "20171012",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "19980203",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "19971113",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "34",
+          "submission_status": "AP",
+          "submission_status_date": "20150930",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "25284",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/020564Orig1s035,020596Orig1s034ltr.pdf",
+              "date": "20151002",
+              "type": "Letter"
+            },
+            {
+              "id": "34931",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/020564s035,020596s034lbl.pdf",
+              "date": "20151007",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "19960731",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20020913",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "32",
+          "submission_status": "AP",
+          "submission_status_date": "20150323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "34930",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/020564s033,020596s032lbl.pdf",
+              "date": "20150414",
+              "type": "Label"
+            },
+            {
+              "id": "25282",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/020564Orig1s033,020596Orig1s032ltr.pdf",
+              "date": "20150326",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA020596",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA020596"
+        ],
+        "brand_name": [
+          "EPIVIR"
+        ],
+        "generic_name": [
+          "LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-205",
+          "49702-203",
+          "49702-204"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "152931",
+          "152932",
+          "199147",
+          "199148",
+          "349491",
+          "352230"
+        ],
+        "spl_id": [
+          "38eff3e4-ae02-40be-9f8a-5e2d99113447"
+        ],
+        "spl_set_id": [
+          "89226149-47fa-4f7d-bb1f-1aa7034486b8"
+        ],
+        "package_ndc": [
+          "49702-203-18",
+          "49702-204-13",
+          "49702-205-48"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "EPIVIR",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "10MG/ML"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "SOLUTION",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AA"
+        }
+      ]
+    }
+  ]
+}
+      }
+    },
+    {
+      "fetched": 1794597966,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 260,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "16",
+          "submission_status": "AP",
+          "submission_status_date": "20020624",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "2828",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/20564s015ltrand20596s016ltr.pdf",
+              "date": "20020624",
+              "type": "Letter"
+            },
+            {
+              "id": "34925",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/20564s015and20596s016lbl.pdf",
+              "date": "20020624",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "30",
+          "submission_status": "AP",
+          "submission_status_date": "20111118",
+          "review_priority": "901 REQUIRED",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "12810",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/020564s031,020596s030lbl.pdf",
+              "date": "20111202",
+              "type": "Label"
+            },
+            {
+              "id": "2831",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/020564s031,020596s030ltr.pdf",
+              "date": "20111122",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "22",
+          "submission_status": "AP",
+          "submission_status_date": "20040929",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "34927",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20596s022,20564s021lbl.pdf",
+              "date": "20041004",
+              "type": "Label"
+            },
+            {
+              "id": "25280",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2004/20596s022,20564s021ltr.pdf",
+              "date": "20041004",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20010619",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "19951117",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "53538",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/20977 abacavir clinical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "53539",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/20977 abacavir clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            },
+            {
+              "id": "53540",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/20977 abacavir statistical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Statistical Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "20",
+          "submission_status": "AP",
+          "submission_status_date": "20031113",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "2829",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2003/20596slr020,20564slr019ltr.pdf",
+              "date": "20031125",
+              "type": "Letter"
+            },
+            {
+              "id": "34926",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2003/20596slr020,20564slr019_epivir_lbl.pdf",
+              "date": "20031202",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20010105",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "19991018",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "20750",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/99/020596_S010_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "19990308",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "37",
+          "submission_status": "AP",
+          "submission_status_date": "20180427",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "53929",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/020564Orig1s038,020596Orig1s037ltr.pdf",
+              "date": "20180501",
+              "type": "Letter"
+            },
+            {
+              "id": "54029",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/020564s038,020596s037lbl.pdf",
+              "date": "20180507",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "19971215",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "35",
+          "submission_status": "AP",
+          "submission_status_date": "20160720",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "25285",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/020564Orig1s036,020596Orig1s035ltr.pdf",
+              "date": "20160722",
+              "type": "Letter"
+            },
+            {
+              "id": "34932",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/020564s036,020596s035lbl.pdf",
+              "date": "20160721",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "19971215",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "27",
+          "submission_status": "AP",
+          "submission_status_date": "20061025",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "2830",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/020596s027ltr.pdf",
+              "date": "20061106",
+              "type": "Letter"
+            },
+            {
+              "id": "34929",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020596s027.pdf",
+              "date": "20061026",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "19",
+          "submission_status": "AP",
+          "submission_status_date": "20021224",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "41461",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/020596_S019_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "19970411",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "33",
+          "submission_status": "AP",
+          "submission_status_date": "20150219",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "12811",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/020564s034,020596s033lbl.pdf",
+              "date": "20150220",
+              "type": "Label"
+            },
+            {
+              "id": "25283",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/020564Orig1s034,020596Orig1s033ltr.pdf",
+              "date": "20150224",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "25",
+          "submission_status": "AP",
+          "submission_status_date": "20060613",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "41462",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2006/020596_S025_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            },
+            {
+              "id": "25281",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/020596s025, 020564s024LTR.pdf",
+              "date": "20060620",
+              "type": "Letter"
+            },
+            {
+              "id": "34928",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020596s025,020564s024lbl.pdf",
+              "date": "20060614",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "17",
+          "submission_status": "AP",
+          "submission_status_date": "20020301",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "25278",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/20564s16ltr.pdf",
+              "date": "20020301",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20021008",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "25277",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/20564slr014,20596slr015ltr.pdf",
+              "date": "20021008",
+              "type": "Letter"
+            },
+            {
+              "id": "34924",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/20564s14,20596s15lbl.pdf",
+              "date": "20021008",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20041122",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "12809",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2004/20596s021,20564s020lbl.pdf",
+              "date": "20041203",
+              "type": "Label"
+            },
+            {
+              "id": "20752",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2004/020596_S021_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            },
+            {
+              "id": "25279",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2004/20596s021,20564s020ltr.pdf",
+              "date": "20041202",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20010306",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "20751",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2001/20-564s012_20-596s013_Epivir.html",
+              "date": "20050106",
+              "type": "Review"
+            },
+            {
+              "id": "25276",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2001/20596S13LTR.PDF",
+              "date": "20010306",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "19991008",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "9",
+          "submission_status": "AP",
+          "submission_status_date": "19990308",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "38",
+          "submission_status": "AP",
+          "submission_status_date": "20190510",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "58684",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/020564Orig1s039, 020596Orig1s038ltr.pdf",
+              "date": "20190514",
+              "type": "Letter"
+            },
+            {
+              "id": "58708",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/020564s039,020596s038lbl.pdf",
+              "date": "20190515",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "19990323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "41460",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/99/020596_S007_Epivir.pdf",
+              "date": "20070926",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "36",
+          "submission_status": "AP",
+          "submission_status_date": "20170925",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "50016",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/020564s37_020596s036lbl.pdf",
+              "date": "20171012",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "19980203",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "19971113",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "34",
+          "submission_status": "AP",
+          "submission_status_date": "20150930",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "25284",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/020564Orig1s035,020596Orig1s034ltr.pdf",
+              "date": "20151002",
+              "type": "Letter"
+            },
+            {
+              "id": "34931",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/020564s035,020596s034lbl.pdf",
+              "date": "20151007",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "19960731",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20020913",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "32",
+          "submission_status": "AP",
+          "submission_status_date": "20150323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "34930",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/020564s033,020596s032lbl.pdf",
+              "date": "20150414",
+              "type": "Label"
+            },
+            {
+              "id": "25282",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/020564Orig1s033,020596Orig1s032ltr.pdf",
+              "date": "20150326",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA020596",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA020596"
+        ],
+        "brand_name": [
+          "EPIVIR"
+        ],
+        "generic_name": [
+          "LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-205",
+          "49702-203",
+          "49702-204"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "152931",
+          "152932",
+          "199147",
+          "199148",
+          "349491",
+          "352230"
+        ],
+        "spl_id": [
+          "38eff3e4-ae02-40be-9f8a-5e2d99113447"
+        ],
+        "spl_set_id": [
+          "89226149-47fa-4f7d-bb1f-1aa7034486b8"
+        ],
+        "package_ndc": [
+          "49702-203-18",
+          "49702-204-13",
+          "49702-205-48"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "EPIVIR",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "10MG/ML"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "SOLUTION",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AA"
+        }
+      ]
+    }
+  ]
+}
+      }
+    }
+  ]
+}

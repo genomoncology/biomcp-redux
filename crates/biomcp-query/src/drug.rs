@@ -7,6 +7,7 @@ mod ddinter;
 mod drugsfda;
 mod ema;
 mod label_choice;
+pub(crate) mod markets;
 mod name_fit;
 mod next;
 mod openfda_label;

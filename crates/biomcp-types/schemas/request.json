@@ -422,7 +422,8 @@
         "label",
         "approvals",
         "regulatory",
-        "interactions"
+        "interactions",
+        "markets"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -433,7 +434,8 @@
         " One exact native label heading.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved."
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ]
     },
     "DrugSource": {
@@ -3837,6 +3839,35 @@
         "command",
         "input",
         "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Get drug and medicine details.",
+      "properties": {
+        "command": {
+          "const": "get-drug-markets",
+          "type": "string"
+        },
+        "input": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete brand or generic name, looked up in each market's source on its own.",
+          "x-positional": 0
+        },
+        "section": {
+          "description": "The markets section, alone; it takes no source.",
+          "items": {
+            "$ref": "#/$defs/DrugSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "section"
       ],
       "type": "object"
     },
