@@ -160,11 +160,20 @@ fn read(
     })
 }
 /// Say why a gene and drug have no recommendation rows, from CPIC's own pair row.
-/// The pair read only explains; when it fails the empty table stands without a reason.
+/// The pair read only explains; when it fails, the notice names that failure instead.
 fn empty_pair(leg: &Leg<'_>, q: &PgxGet) -> Option<String> {
     let drug = q.drug_id()?;
     let gene = q.gene();
-    let page = cpic::pair(leg, q).ok()?;
+    let page = match cpic::pair(leg, q) {
+        Ok(page) => page,
+        Err(error) => {
+            let reason = status::reason(error)
+                .map_or_else(|| "a local error".to_owned(), |reason| reason.to_string());
+            return Some(format!(
+                "CPIC has no {gene} recommendations for drug {drug}; reading CPIC's pair row to say why failed ({reason})."
+            ));
+        }
+    };
     let Some(pair) = page.items.first() else {
         return Some(format!(
             "CPIC lists no {gene} pair with drug {drug}, so it has no recommendations for it; search pgx --gene {gene} lists the gene's pairs."
