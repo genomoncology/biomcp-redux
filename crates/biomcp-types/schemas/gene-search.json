@@ -60,7 +60,7 @@
   "properties": {
     "band": {
       "$ref": "#/$defs/Cytoband",
-      "description": "A cytoband prefix. Also lists ClinGen dosage regions in that band."
+      "description": "A cytoband prefix. Also lists ClinGen dosage regions whose band span contains it, such as 15q12 in 15q11.2-q13.1."
     },
     "limit": {
       "default": 10,
@@ -83,12 +83,12 @@
     },
     "query": {
       "$ref": "#/$defs/Text",
-      "description": "Words matched against symbols, previous symbols, aliases and names;\na ClinGen ISCA ID, such as ISCA-37400, returns that region.",
+      "description": "Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.",
       "x-positional": 0
     },
     "region": {
       "$ref": "#/$defs/VariantRegion",
-      "description": "A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that\noverlap it; HGNC genes carry no coordinates, so it adds no genes."
+      "description": "A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes."
     }
   },
   "title": "GeneSearch",
