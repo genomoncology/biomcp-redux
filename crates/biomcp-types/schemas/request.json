@@ -434,7 +434,7 @@
         " One exact native label heading.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ]
     },
@@ -3680,6 +3680,11 @@
           ],
           "description": "Literal recall status.",
           "x-required-component": "fda-drug-recall"
+        },
+        "therapeutic_area": {
+          "$ref": "#/$defs/Text",
+          "description": "WHO PQ therapeutic area.\nWhole words of WHO's own Therapeutic Area column, ignoring letter case, such as Oncology,\nTuberculosis or HIV; each product carries one area. A name or dates narrow the same search.",
+          "x-required-component": "who-pq"
         }
       },
       "required": [
@@ -3794,6 +3799,18 @@
           ],
           "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.",
           "x-comma-separated": true
+        },
+        "partner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Interaction partner.\nA DDInter ID or the complete name DDInter uses, ignoring letter case; DDInter interactions only.\nReturns only the pairs with that drug, so one call shows whether DDInter lists the pair.",
+          "x-required-component": "ddinter"
         },
         "product_number": {
           "anyOf": [

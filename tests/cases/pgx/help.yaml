@@ -78,7 +78,7 @@
           "clinpgx"
         ]
       },
-      "max_bytes": 4476
+      "max_bytes": 4129
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

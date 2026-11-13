@@ -20,7 +20,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 2219,
+      "max_bytes": 2266,
       "run": [
         "help",
         "search",
@@ -41,7 +41,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 539,
+      "max_bytes": 581,
       "run": [
         "help",
         "get",

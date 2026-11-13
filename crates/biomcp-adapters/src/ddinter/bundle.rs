@@ -129,9 +129,7 @@ fn partner_identities(leg: &Leg<'_>, partner: &str) -> Result<Vec<DrugHeader>, R
             let named = if id {
                 key == partner
             } else {
-                name.is_some_and(|name| {
-                    biomcp_types::DrugNameMatch::generic_name(name, partner)
-                })
+                name.is_some_and(|name| biomcp_types::DrugNameMatch::generic_name(name, partner))
             };
             if named
                 && seen.insert(key.to_owned())

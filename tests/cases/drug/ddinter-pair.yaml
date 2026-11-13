@@ -52,14 +52,15 @@
       "expect": {
         "/status": "complete",
         "/result/interactions/data/total": 0,
-        "/result/interactions/data/records": {
-          "equals": [],
-          "count": 0
-        },
         "/result/partners/*/id": [
           "DDInter4"
         ],
-        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
+        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/result/interactions/data": {
+          "omits": [
+            "records"
+          ]
+        }
       },
       "max_bytes": 3000
     },
