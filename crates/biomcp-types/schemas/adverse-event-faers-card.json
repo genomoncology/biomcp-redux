@@ -10,6 +10,13 @@
           },
           "type": "array"
         },
+        "case_event_date": {
+          "description": "Unchanged `patient.summary.narrativeincludeclinical`. openFDA fills it with the case event date only; its public FAERS data carries no case narrative.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "components": {
           "description": "Applicable component terms.",
           "items": {
@@ -84,13 +91,13 @@
         "seriousness": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Reply_FaersSeriousness"
+              "$ref": "#/$defs/Reply_AdverseEventSeriousness"
             },
             {
               "type": "null"
             }
           ],
-          "description": "Independent source report flags."
+          "description": "Independent source report flags; openFDA documents only `1` for each."
         },
         "snapshot": {
           "anyOf": [
@@ -121,6 +128,13 @@
             "string",
             "null"
           ]
+        },
+        "unmapped_codes": {
+          "description": "Coded fields whose present value is not on openFDA's published list; a field the source omitted is never listed.",
+          "items": {
+            "$ref": "#/$defs/Reply_AdverseEventUnmappedCode"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -158,7 +172,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
+          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only.",
           "x-positional": 1
         },
         "section_limit": {
@@ -262,6 +276,13 @@
           ],
           "description": "Native numeric age with the exact publisher unit code, when stated."
         },
+        "age_unit_label": {
+          "description": "Published word for the age unit code (800-805), when the code is on openFDA's list.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "sex": {
           "description": "Native sex string, including a present empty value.",
           "type": [
@@ -340,8 +361,98 @@
         " Native SPL set IDs.",
         " Native application numbers.",
         " Native device rows.",
-        " Complete native narrative rows."
+        " Complete native MAUDE narrative rows; openFDA's public FAERS data carries no case narrative."
       ]
+    },
+    "Reply_AdverseEventSeriousness": {
+      "description": "Native seriousness flags with openFDA's own wording beside a `1`.\nopenFDA documents only `1` for each flag (\"absent otherwise\"); the data also carries `2`, which has no published word and stays unlabelled.",
+      "properties": {
+        "congenitalanomali": {
+          "description": "Native congenitalanomali string, including a present empty value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "congenitalanomali_label": {
+          "description": "openFDA's wording for congenitalanomali `1`; absent for `2`, which openFDA does not document.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "death": {
+          "description": "Native death string, including a present empty value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "death_label": {
+          "description": "openFDA's wording for death `1`; absent for `2`, which openFDA does not document.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "disabling": {
+          "description": "Native disabling string, including a present empty value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "disabling_label": {
+          "description": "openFDA's wording for disabling `1`; absent for `2`, which openFDA does not document.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hospitalization": {
+          "description": "Native hospitalization string, including a present empty value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hospitalization_label": {
+          "description": "openFDA's wording for hospitalization `1`; absent for `2`, which openFDA does not document.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lifethreatening": {
+          "description": "Native lifethreatening string, including a present empty value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lifethreatening_label": {
+          "description": "openFDA's wording for lifethreatening `1`; absent for `2`, which openFDA does not document.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "other": {
+          "description": "Native other string, including a present empty value.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "other_label": {
+          "description": "openFDA's wording for other `1`; absent for `2`, which openFDA does not document.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "type": "object"
     },
     "Reply_AdverseEventSource": {
       "description": "An explicit source; never probe the other family.",
@@ -356,6 +467,24 @@
         " Device event reports.",
         " Explicit CDC WONDER vaccine aggregate tables."
       ]
+    },
+    "Reply_AdverseEventUnmappedCode": {
+      "description": "One present coded value that is not on openFDA's published list for its field.",
+      "properties": {
+        "code": {
+          "description": "Unchanged source code.",
+          "type": "string"
+        },
+        "field": {
+          "description": "openFDA field name, such as `patient.patientsex`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "code"
+      ],
+      "type": "object"
     },
     "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
@@ -424,54 +553,6 @@
         "805"
       ],
       "type": "string"
-    },
-    "Reply_FaersSeriousness": {
-      "description": "Independent overlapping report-level flags; no CTCAE or reaction-outcome conversion.",
-      "properties": {
-        "congenitalanomali": {
-          "description": "Native congenitalanomali string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "death": {
-          "description": "Native death string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "disabling": {
-          "description": "Native disabling string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "hospitalization": {
-          "description": "Native hospitalization string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "lifethreatening": {
-          "description": "Native lifethreatening string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "other": {
-          "description": "Native other string, including a present empty value.",
-          "type": [
-            "string",
-            "null"
-          ]
-        }
-      },
-      "type": "object"
     },
     "Reply_FiniteNumber": {
       "description": "A finite decimal that JSON can represent without losing its value to null.",

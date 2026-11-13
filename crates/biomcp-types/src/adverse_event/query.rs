@@ -1,4 +1,7 @@
-use super::{AdverseEventAggregate, AdverseEventSection, AdverseEventSerious, AdverseEventSource};
+use super::{
+    AdverseEventAggregate, AdverseEventSection, AdverseEventSerious, AdverseEventSource,
+    MaudeEventType,
+};
 use crate::QueryInvalid;
 use biodata::{PartialDate, ReportId, Text};
 use serde::{Deserialize, Serialize};
@@ -10,7 +13,7 @@ fn default_limit() -> u32 {
     5
 }
 #[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
-    product-code or problem filter. One report may list several devices; filters may match \
+    product-code, problem or event-type filter. One report may list several devices; filters may match \
     different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
     one exact qualified native influenza code, matched without case; use influenza to list \
     codes and labels. Tables remain separate and are never summed. One report may list \
@@ -42,14 +45,14 @@ struct SearchFields {
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
-    /// FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
+    #[doc = "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
     #[doc = "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; \
         this searches only the names as typed. MAUDE and VAERS always search the text as typed."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    /// Retained FAERS name resolution; follow the returned command without changing filters.
+    #[doc = "FAERS name snapshot.\nRetained FAERS name resolution; follow the returned command without changing filters."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     #[doc = "MAUDE manufacturer.\n\
@@ -65,6 +68,10 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     problem: Option<Text>,
+    #[doc = "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
+    event_type: Option<MaudeEventType>,
     #[doc = "Source; default FAERS.\nFAERS by default; VAERS accepts only exact supported vaccine names."]
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
@@ -138,14 +145,17 @@ impl SearchFields {
                 QueryInvalid::new(&["offset"]).with_message(crate::ErrorMessage::FaersOffset)
             );
         }
-        let maude_filter =
-            self.manufacturer.is_some() || !self.product_code.is_empty() || self.problem.is_some();
+        let maude_filter = self.manufacturer.is_some()
+            || !self.product_code.is_empty()
+            || self.problem.is_some()
+            || self.event_type.is_some();
         if self.source != AdverseEventSource::Maude && maude_filter {
             return Err(QueryInvalid::new(&[
                 "source",
                 "manufacturer",
                 "product_code",
                 "problem",
+                "event_type",
             ]));
         }
         if self.text.is_none()
@@ -157,6 +167,7 @@ impl SearchFields {
                 "manufacturer",
                 "product_code",
                 "problem",
+                "event_type",
             ]));
         }
         if self.source != AdverseEventSource::Faers && !self.drug.is_empty() {
@@ -248,6 +259,7 @@ impl AdverseEventSearch {
             manufacturer: None,
             product_code: vec![code],
             problem: None,
+            event_type: None,
             source: AdverseEventSource::Maude,
             aggregate: None,
             section: None,
@@ -316,6 +328,10 @@ impl AdverseEventSearch {
     pub fn problem(&self) -> Option<&Text> {
         self.0.problem.as_ref()
     }
+    /// Native MAUDE report event type.
+    pub fn event_type(&self) -> Option<MaudeEventType> {
+        self.0.event_type
+    }
     /// Selected source.
     pub fn source(&self) -> AdverseEventSource {
         self.0.source
@@ -373,7 +389,9 @@ struct GetFields {
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(with="str", extend("enum"=["faers", "maude"])))]
     source: AdverseEventSource,
-    /// FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
+    #[doc = "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. \
+        openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date \
+        holds the case event date. Omitted means card only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<AdverseEventSection>,
