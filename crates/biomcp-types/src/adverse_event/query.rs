@@ -74,7 +74,6 @@ struct SearchFields {
         --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. \
         Counts are reports, not rates or causes. Requires offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventAggregate::components())))]
     aggregate: Option<AdverseEventAggregate>,
     /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]

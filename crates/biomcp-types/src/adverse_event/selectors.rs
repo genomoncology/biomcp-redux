@@ -111,13 +111,6 @@ impl AdverseEventAggregate {
     pub const fn is_received(self) -> bool {
         matches!(self, Self::ReceivedYear | Self::ReceivedMonth)
     }
-    #[cfg(feature = "schema")]
-    pub(crate) fn components() -> std::collections::BTreeMap<String, crate::Source> {
-        [Self::Reactions, Self::ReceivedYear, Self::ReceivedMonth]
-            .into_iter()
-            .filter_map(|value| Some((value.to_string(), value.required_component()?)))
-            .collect()
-    }
 }
 biodata::wire_enum! { described
     /// The count describes reports, never exposed people or causal events.

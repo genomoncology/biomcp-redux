@@ -1,7 +1,7 @@
 //! Source coverage for public command discovery, including implicit source sections.
 use crate::Source;
 
-/// A section's required component, separate from alternative publishers.
+/// A section's or aggregate's required component, separate from alternative publishers.
 pub fn command_section_component(verb: &str, entity: &str, word: &str) -> Option<Source> {
     match (verb, entity) {
         ("get", "adverse-event") => word
