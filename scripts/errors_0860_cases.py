@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 
+RECORD = {"normalize-car-reason", "normalize-mutalyzer-reason", "normalize-vv-reason", "study-cna-profile"}
 PMIDS = [str(30000000 + n) for n in range(21)]
 CASES = [
     ("normalize-all-no-build", ["variant", "normalize", "--source", "all", "--hgvs", "NM_004333.4:c.1799T>A"]),
@@ -38,7 +39,9 @@ def main():
     for label, args in CASES:
         if only and label not in only:
             continue
-        result = subprocess.run([binary] + args, capture_output=True, env=env, timeout=300)
+        record = os.path.join(cache, "record", label)
+        extra = ["--record", record] if label in RECORD else []
+        result = subprocess.run([binary] + args + extra, capture_output=True, env=env, timeout=300)
         out = result.stdout.decode("utf-8", "replace")
         print(f"\n### {label} exit={result.returncode}\nCMD: biomcp {' '.join(args)}")
         try:
@@ -47,6 +50,12 @@ def main():
             print("RAW: " + out[:3000])
         if result.stderr.strip():
             print("STDERR: " + result.stderr.decode("utf-8", "replace")[:1000])
+        for root, _, files in os.walk(record):
+            for name in sorted(files):
+                path = os.path.join(root, name)
+                print(f"--- RECORDED {os.path.relpath(path, record)}")
+                with open(path, encoding="utf-8") as handle:
+                    print(handle.read())
 
 
 if __name__ == "__main__":

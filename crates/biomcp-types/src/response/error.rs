@@ -71,6 +71,10 @@ singleton! {
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
+ FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead",
+ SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",
+ OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the suggested first-page command, then follow its next command",
+ ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",
  McpSync => "sync is unavailable over MCP; run it from the command line",
@@ -173,6 +177,8 @@ singleton! {
             --sample-set <ID>; no default cohort",
         VariantCgi => "deferred; no proved current CGI section",
         VariantCspec => "deferred until a harvested question requires variant cspec",
+        VariantRawQuery => "--query takes MyVariant query syntax and needs --source myvariant; for a gene and change use \
+            --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>",
         VariantQueryPolicy => "raw --query cannot enforce disabled source component terms; use declared protein or region \
             selectors and named filters, or clear the component restriction",
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
@@ -208,6 +214,8 @@ singleton! {
         DiseaseClinicalFeatures => "renamed; use: get disease <CURIE> phenotypes --source monarch",
         DiseaseName => "use: search disease <TEXT>; select an exact CURIE before get",
         DiseaseSite => "use: search disease --source seer; then get disease <SITE> survival --source seer --dataset <CODE> --interval <CODE>",
+        DiseaseStatistic => "incidence and survival come only from --source seer for a SEER cancer site, not an ontology ID; \
+            use: search disease --source seer, then get disease <SITE> incidence --source seer",
         DiseaseOpenTargets => "deferred; Open Targets disease genes have no proved current section",
         // Retain the old error/4 wire value for legacy artifact deserialization.
         DiseaseDrugs => "use: search drug --source chembl --indication <TEXT>; no disease synonym expansion",
@@ -273,6 +281,8 @@ singleton! {
         StudyList => "use: search study",
         StudyDownload => "use: sync cbioportal-studies for metadata; get study ID files for source file references; \
             whole-study analytical installs are retired",
+        StudyMutationProfile => "the mutations section reads only a mutation profile of this study; choose \
+            --molecular-profile from valid_values",
         StudyCalculate => "local calculations are dropped by the entity boundary ruling; use: get study ID and the source study page",
         StudyCharts => "charts are retired",
         StudyDirectory => "BIOMCP_STUDY_DIR is retired; use: sync cbioportal-studies for metadata",

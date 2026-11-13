@@ -146,7 +146,7 @@ fn altered_pool(env: &Environment, args: &[String], globals: &[String]) -> Check
             changed[value] = if selector == "offset" {
                 "4294967295".into()
             } else {
-                "unknown-snapshot".into()
+                "0".repeat(32)
             };
         }
         let exit = if selector == "offset" { 2 } else { 3 };

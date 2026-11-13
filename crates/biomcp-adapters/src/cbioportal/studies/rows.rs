@@ -227,8 +227,8 @@ fn gene(leg: &Leg<'_>, q: &StudyGet) -> Result<NcbiGeneId, RequestError> {
     NcbiGeneId::new(gene.entrez_gene_id)
         .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))
 }
-fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> {
-    let profiles = leg
+fn study_profiles(leg: &Leg<'_>, q: &StudyGet) -> Result<Vec<Profile>, RequestError> {
+    Ok(leg
         .call(
             &endpoint("/studies", &[q.id().as_str(), "molecular-profiles"])?,
             Input::Params(&[("projection", Arg::Text("SUMMARY"))]),
@@ -240,12 +240,17 @@ fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> 
                 }
             }),
         )?
-        .value;
-    let profile = profiles
-        .0
+        .value
+        .0)
+}
+fn mutation_profile(p: &Profile) -> bool {
+    p.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
+}
+fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> {
+    let profile = study_profiles(leg, q)?
         .into_iter()
         .find(|p| {
-            p.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
+            mutation_profile(p)
                 && q.molecular_profile()
                     .is_none_or(|id| *id == p.molecular_profile_id)
         })
@@ -258,6 +263,21 @@ fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> 
         })?
         .molecular_profile_id;
     Ok(profile)
+}
+/// The study's mutation profiles when the requested profile is not one of them.
+pub fn refused_profile(
+    leg: &Leg<'_>,
+    q: &StudyGet,
+) -> Result<Option<Box<[StudyProfileId]>>, RequestError> {
+    let Some(asked) = q.molecular_profile() else {
+        return Ok(None);
+    };
+    let mutation: Vec<_> = study_profiles(leg, q)?
+        .into_iter()
+        .filter(mutation_profile)
+        .map(|p| p.molecular_profile_id)
+        .collect();
+    Ok((!mutation.is_empty() && !mutation.contains(asked)).then(|| mutation.into()))
 }
 
 fn acquired(time: Option<i64>) -> Result<Option<u64>, RequestError> {

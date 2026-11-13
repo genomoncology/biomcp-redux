@@ -44,7 +44,7 @@ impl ArticleGet {
         section: Box<[ArticleSectionWord]>,
     ) -> Result<Self, QueryInvalid> {
         if !(1..=20).contains(&input.len()) {
-            return Err(QueryInvalid::new(&["input"]));
+            return Err(QueryInvalid::new(&["input"]).with_message(crate::ErrorMessage::ArticleGetLimit));
         }
         Ok(Self(Fields { input, section }))
     }

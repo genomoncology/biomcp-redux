@@ -168,13 +168,19 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         let id = if v.source == DiseaseSource::Seer {
+            if statistic && v.id.as_str().contains(':') {
+                // SEER is the right source; the ontology ID is the fault.
+                return Err(QueryInvalid::new(&["id", "source", "section"])
+                    .with_message(crate::ErrorMessage::DiseaseStatistic));
+            }
             if !statistic || v.id.as_str().trim().is_empty() || v.id.as_str().contains(':') {
                 return Err(QueryInvalid::new(&["source", "id", "section"]));
             }
             DiseaseId::SeerSite(v.id.clone())
         } else {
             if statistic {
-                return Err(QueryInvalid::new(&["source", "id", "section"]));
+                return Err(QueryInvalid::new(&["source", "id", "section"])
+                    .with_message(crate::ErrorMessage::DiseaseStatistic));
             }
             DiseaseId::Concept(
                 v.id.as_str()

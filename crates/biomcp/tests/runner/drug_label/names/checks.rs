@@ -57,7 +57,7 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
         ));
     }
     let mut bad = next.clone();
-    *bad.get_mut(index + 1).ok_or("value")? = "synthetic-missing".into();
+    *bad.get_mut(index + 1).ok_or("value")? = "0".repeat(64);
     let failed = invoke(env, bad, 3)?;
     crate::runner::action(&failed, "restart")?;
     for disabled in ["mychem", "drugcentral", "openfda-label"] {

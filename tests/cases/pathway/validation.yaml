@@ -10,7 +10,7 @@
         "pathway",
         "MAPK signaling",
         "--pool",
-        "foreign-query"
+        "00000000000000000000000000000000"
       ],
       "exit": 3,
       "is_error": true,

@@ -75,7 +75,18 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         }
         continuation(out, cx, q, rows.rejected != 0, offset);
     } else {
-        let (rows, profile, gene) = studies::mutations(leg, q)?;
+        let (rows, profile, gene) = match studies::mutations(leg, q) {
+            Ok(found) => found,
+            Err(error) => {
+                if crate::status::reason(error) == Some(biomcp_types::Reason::Unavailable)
+                    && let Some(valid) = studies::refused_profile(leg, q)?
+                {
+                    out.body = ReplyData::Usage(profile_refused(&valid));
+                    return Ok(());
+                }
+                return Err(error);
+            }
+        };
         let page = page_info(&rows.window);
         let offset = rows.window.next_offset();
         out.include_refusals(rows.window.refusals());
@@ -104,6 +115,19 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         continuation(out, cx, &query, rows.rejected != 0, offset);
     }
     Ok(())
+}
+/// A non-mutation profile is the caller's choice to fix, not a source outage.
+fn profile_refused(valid: &[biodata::StudyProfileId]) -> biomcp_types::UsageError {
+    biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
+        argument: Some("--molecular-profile".into()),
+        message: Some(biomcp_types::ErrorMessage::StudyMutationProfile),
+        valid_values: valid
+            .iter()
+            .map(|id| biodata::Text::new(id.as_str()).ok())
+            .collect::<Option<Vec<_>>>()
+            .map(Into::into),
+        next: Vec::new(),
+    })
 }
 fn page_info<T>(window: &biomcp_adapters::NativeWindow<T>) -> PageInfo {
     PageInfo {

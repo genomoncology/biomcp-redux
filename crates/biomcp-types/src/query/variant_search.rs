@@ -234,6 +234,13 @@ impl TryFrom<Fields> for VariantSearch {
             && f.protein.is_none()
             && f.coding.is_none()
             && f.region.is_none();
+        if !(protein || coding || region || raw) && f.query.is_some() {
+            // Name the raw query the caller typed, not a gene selector it never passed.
+            return Err(QueryInvalid::new(&[
+                "query", "source", "gene", "protein", "coding", "region", "build",
+            ])
+            .with_message(crate::ErrorMessage::VariantRawQuery));
+        }
         if !(protein || coding || region || raw) {
             return Err(QueryInvalid::new(&[
                 "gene", "protein", "coding", "region", "build", "query", "source",

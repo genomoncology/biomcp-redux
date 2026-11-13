@@ -24,7 +24,7 @@
         "protein",
         "EGFR",
         "--pool",
-        "unknown"
+        "00000000000000000000000000000000"
       ],
       "exit": 3,
       "is_error": true,
