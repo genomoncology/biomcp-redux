@@ -28,6 +28,9 @@ pub(super) fn select(
     let approvals = if query.product_number().is_some() && products.is_empty() {
         crate::status::item(out, true, false, true);
         Section::unavailable(Source::Drugsfda, Reason::NotFound)
+    } else if let Some(reason) = super::letter::refusal(query, row, out)? {
+        crate::status::item(out, true, false, true);
+        Section::unavailable(Source::Drugsfda, reason)
     } else if let Some(mut records) = super::letter::select(cx, query, row, deadline, out)? {
         super::purpose::enrich(cx, &mut records, deadline, out)?;
         Section::Data {

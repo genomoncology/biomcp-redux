@@ -56,8 +56,27 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     let mut problems = Vec::new();
     let mut consumed = 0;
     let mut refusals = biomcp_adapters::Refusal::None;
-    let reply = read(&leg, query, &mut problems, &mut consumed, &mut refusals);
+    let mut empty_reason = None;
+    let reply = read(
+        &leg,
+        query,
+        &mut problems,
+        &mut consumed,
+        &mut refusals,
+        &mut empty_reason,
+    );
     let mut out = finish(leg, reply, empty(query), Source::Cpic);
+    if let Some(message) = empty_reason
+        && let Some(source) = out.sources.iter_mut().find(|s| s.source == Source::Cpic)
+    {
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            });
+    }
     out.include_refusals(refusals);
     status::append(&mut out.problems, problems);
     out.next = next::steps_with(&Request::GetPgx(query.clone()), &mut out, Some(consumed));
@@ -70,6 +89,7 @@ fn read(
     problems: &mut Vec<Problem>,
     consumed: &mut u32,
     refusals: &mut biomcp_adapters::Refusal,
+    empty_reason: &mut Option<String>,
 ) -> Result<ReplyData, RequestError> {
     let header = header(q.gene());
     Ok(match q.section() {
@@ -91,6 +111,9 @@ fn read(
             *consumed = p.consumed;
             refusals.include(p.refusals);
             problems.extend(p.problems);
+            if p.total == 0 {
+                *empty_reason = empty_pair(leg, q);
+            }
             (PgxRecommendations::Table {
                 header,
                 page: page_info(q.section_offset(), p.items.len(), p.total),
@@ -134,6 +157,36 @@ fn read(
             .with_query(q.clone())
         }
         Some(PgxSection::Annotations) => return Err(biomcp_fetch::InputError::Serialization.into()),
+    })
+}
+/// Say why a gene and drug have no recommendation rows, from CPIC's own pair row.
+/// The pair read only explains; when it fails the empty table stands without a reason.
+fn empty_pair(leg: &Leg<'_>, q: &PgxGet) -> Option<String> {
+    let drug = q.drug_id()?;
+    let gene = q.gene();
+    let page = cpic::pair(leg, q).ok()?;
+    let Some(pair) = page.items.first() else {
+        return Some(format!(
+            "CPIC lists no {gene} pair with drug {drug}, so it has no recommendations for it; search pgx --gene {gene} lists the gene's pairs."
+        ));
+    };
+    let name = pair
+        .drugname
+        .as_deref()
+        .map_or_else(|| drug.to_string(), |name| format!("{name} ({drug})"));
+    let guideline = if pair.guidelinename.is_none() && pair.guidelineurl.is_none() {
+        " has no CPIC guideline and"
+    } else {
+        ""
+    };
+    Some(if pair.provisional == Some(true) {
+        format!(
+            "CPIC marks the {gene} and {name} pair provisional; the pair{guideline} has no CPIC recommendations."
+        )
+    } else {
+        format!(
+            "CPIC lists the {gene} and {name} pair, but the pair{guideline} has no CPIC recommendations."
+        )
     })
 }
 fn empty(q: &PgxGet) -> ReplyData {

@@ -165,6 +165,15 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 ) {
                     crate::status::item(&mut out, false, true, false);
                     out.local = status::local(error);
+                    // A failed reply whose source still reads ok would name no cause.
+                    if let Some(reason) = status::reason(error)
+                        && let Some(source) = out
+                            .sources
+                            .iter_mut()
+                            .find(|s| s.source == Source::Drugsfda && s.state == SourceState::Ok)
+                    {
+                        source.set_status(biomcp_types::SourceStatus::Failed(Some(reason)));
+                    }
                 }
             } else {
                 if let Some(request) = crate::next::checked(

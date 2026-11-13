@@ -207,6 +207,10 @@ fn select(
         out.body = biomcp_types::ReplyData::Usage(invalid_heading(record)?);
         return Ok(());
     }
+    if !record.has_heading(heading) {
+        out.body = absent_heading(query, record, heading)?;
+        return Ok(());
+    }
     let offset = query.section_offset().unwrap_or(0);
     let label = match record.label(heading, offset, query.section_limit().unwrap_or(1))? {
         Some(mut data) => {
@@ -276,6 +280,31 @@ fn section_names(
             "pass sections as label_section (--label-section on the command line), several separated by commas, to read their text"
                 .parse()
                 .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
+        ),
+    }
+    .with_query(query.clone()))
+}
+
+/// A heading this label does not carry: say so and list the headings it has, since an
+/// empty section alone reads as a heading with no text.
+fn absent_heading(
+    query: &DrugGet,
+    record: &source::Record,
+    heading: &str,
+) -> Result<biomcp_types::ReplyData, RequestError> {
+    Ok(DrugLabel {
+        identity: record.header()?,
+        label: Section::Empty {
+            source: SOURCE,
+            record: None,
+        },
+        sections: headings(record)?,
+        hint: Some(
+            format!(
+                "this label has no {heading} section; sections lists the sections it has, and label_section (--label-section on the command line) reads one"
+            )
+            .parse()
+            .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
         ),
     }
     .with_query(query.clone()))

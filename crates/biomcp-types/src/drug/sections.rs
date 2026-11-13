@@ -118,10 +118,10 @@ pub struct DrugLabelPart {
     pub label_section: Option<Text>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub label: Section<DrugLabelText>,
-    /// Label section names present for this record, listed when no label_section was given.
+    /// Label section names present for this record, listed when no label_section was given or the label lacks the one given.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub sections: Box<[Text]>,
-    /// How to read one of those sections.
+    /// How to read one of those sections, and which requested section the label lacks.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hint: Option<Text>,
 }
