@@ -298,7 +298,7 @@
     },
     {
       "path": "crates/biomcp-adapters/src/fda_cdx/search.rs",
-      "site": "search: Text : : new ( & format ! ( \"{snapshot}:{table}:{index}\" ) ) . ok ( )",
+      "site": "conflicts: Text : : new ( & format ! ( \"{snapshot}:{table}:{index}\" ) ) . ok ( )",
       "maximum": 1,
       "class": "legitimate_absence",
       "owner": "fda_cdx",
