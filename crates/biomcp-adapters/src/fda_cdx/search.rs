@@ -49,28 +49,31 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         }
     }
     let total = matching.len() as u64;
-    let mut problems = Vec::new();
+    let mut conflicts = Vec::new();
     let items = matching
         .into_iter()
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
         .map(|row| {
-            let (table, index) = match &row.relation {
-                CompanionDiagnosticRelation::Individual { index, .. } => (0, index),
-                CompanionDiagnosticRelation::Group { index, .. } => (1, index),
-            };
-            for (conflict, field) in [(row.device_conflict, "device"), (row.drug_conflict, "drug")]
-            {
-                if conflict {
-                    problems.push(Problem {
-                        source: Source::FdaCdx,
-                        record: biodata::Text::new(&format!("{snapshot}:{table}:{index}")).ok(),
-                        field: field.into(),
-                        code: ProblemCode::IdentityConflict,
-                    });
-                }
-            }
+            conflicts.extend(conflicts_of(&row));
             row.relation
+        })
+        .collect();
+    if let Some(id) = query.drug_application() {
+        // A row that mentions the asked application but joins nothing is named, not dropped.
+        let digits = id.as_str().get(3..).unwrap_or_default();
+        let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
+        for row in all {
+            conflicts.extend(unjoined(&row.value, digits));
+        }
+    }
+    let mut problems: Vec<Problem> = conflicts
+        .into_iter()
+        .map(|(table, index, field, code)| Problem {
+            source: Source::FdaCdx,
+            record: biodata::Text::new(&format!("{snapshot}:{table}:{index}")).ok(),
+            field: field.into(),
+            code,
         })
         .collect();
     let group_unsupported = query.biomarker().is_some();
@@ -88,6 +91,54 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         info,
         problems,
     })
+}
+/// Problems for a row that mentions the application digits but joins no application.
+fn unjoined(row: &super::raw::Native, digits: &str) -> Vec<(u8, u32, &'static str, ProblemCode)> {
+    if !mentions(&row.relation, digits) {
+        return Vec::new();
+    }
+    let mut found = conflicts_of(row);
+    if found.is_empty() && applications(&row.relation).is_empty() {
+        // The text names it but no link carries an application number.
+        let (table, index) = place(&row.relation);
+        found.push((table, index, "drug", ProblemCode::ValueUnknown));
+    }
+    found
+}
+/// Whether the row's drug cell text or a link address contains the application digits.
+fn mentions(row: &CompanionDiagnosticRelation, digits: &str) -> bool {
+    let cell = match row {
+        CompanionDiagnosticRelation::Individual { cells, .. } => &cells.drug,
+        CompanionDiagnosticRelation::Group { cells, .. } => &cells.drug_group,
+    };
+    !digits.is_empty()
+        && (cell.text.contains(digits) || cell.links.iter().any(|l| l.href.contains(digits)))
+}
+/// Table and physical row position.
+fn place(row: &CompanionDiagnosticRelation) -> (u8, u32) {
+    match row {
+        CompanionDiagnosticRelation::Individual { index, .. } => (0, *index),
+        CompanionDiagnosticRelation::Group { index, .. } => (1, *index),
+    }
+}
+fn applications(row: &CompanionDiagnosticRelation) -> &[biodata::DiagnosticDrugApplication] {
+    match row {
+        CompanionDiagnosticRelation::Individual {
+            drug_applications, ..
+        }
+        | CompanionDiagnosticRelation::Group {
+            drug_applications, ..
+        } => drug_applications,
+    }
+}
+/// Table, row, field and code of each identity cell this stored row could not read.
+fn conflicts_of(row: &super::raw::Native) -> Vec<(u8, u32, &'static str, ProblemCode)> {
+    let (table, index) = place(&row.relation);
+    [(row.device_conflict, "device"), (row.drug_conflict, "drug")]
+        .into_iter()
+        .filter(|(conflict, _)| *conflict)
+        .map(|(_, field)| (table, index, field, ProblemCode::IdentityConflict))
+        .collect()
 }
 fn changed_revision() -> RequestError {
     biomcp_fetch::SourceError {
