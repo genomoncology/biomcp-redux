@@ -84,6 +84,7 @@ fn fact_context(entity: &str, key: &str) -> Value {
         ("pgx", "kind" | "snapshot") => json!({"section":"annotations"}),
         ("pgx", "diplotype") => json!({"section":"diplotype"}),
         ("pgx", "drug_id") => json!({"section":"recommendations"}),
+        ("drug", "decision_from" | "decision_to") => json!({"section":"approvals"}),
         ("variant", "tumor_type") => json!({"build":"GRCh38"}),
         _ => json!({}),
     }
@@ -109,6 +110,8 @@ fn sample(key: &str, property: &Value, schema: &Value) -> Value {
         "annotation_id" => json!("PA166104949"),
         // A saved-result name has the store's form, so the command reaches its lookup.
         "pool" | "snapshot" | "name_snapshot" => json!("0".repeat(64)),
+        // WHO IVD publishes only a year; a year is also a valid WHO PQ bound.
+        "prequalified_from" | "prequalified_to" => json!("2020"),
         key if key.ends_with("_from") || key.ends_with("_to") => json!("2020-01-01"),
         "since" | "until" => json!("2020"),
         _ if node.get("type") == Some(&json!("boolean")) => json!(true),
@@ -570,6 +573,7 @@ fn context(
         ("search", "drug", "classification") => json!({"source":"fda-drug-recall"}),
         ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
+        ("search", "drug", "sort") => json!({"source":"drugsfda"}),
         ("search", "adverse-event", "section") => json!({"source":"vaers", "text":"COVID19"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),

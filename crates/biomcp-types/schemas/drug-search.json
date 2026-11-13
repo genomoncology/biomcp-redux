@@ -1,5 +1,12 @@
 {
   "$defs": {
+    "DrugFdaSort": {
+      "description": "Drugs@FDA application order; omitted keeps the source's own order.",
+      "enum": [
+        "newest"
+      ],
+      "type": "string"
+    },
     "DrugNameSelector": {
       "description": "One explicit ChEMBL name filter without fallback or synonym expansion.",
       "enum": [
@@ -204,6 +211,18 @@
       ],
       "description": "Recall reason phrase.",
       "x-required-component": "fda-drug-recall"
+    },
+    "sort": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DrugFdaSort"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Drugs@FDA order; help search drug\nDrugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\nOmit it for the source's own order.",
+      "x-required-component": "drugsfda"
     },
     "source": {
       "$ref": "#/$defs/DrugSource",

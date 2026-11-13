@@ -144,6 +144,40 @@ pub struct DrugFdaCandidate {
     /// Complete native product candidates within this application.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub products: Box<[DrugFdaProduct]>,
+    /// The submission with the latest status date; omitted when no submission is dated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub latest_submission: Option<DrugFdaLatestSubmission>,
+    /// The earliest approved original (ORIG, status AP) submission; omitted when there is none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub original_approval: Option<DrugFdaOriginalApproval>,
+}
+/// An application's original approval, as the source states it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugFdaOriginalApproval {
+    /// Native submission status date of the original submission.
+    pub date: PartialDate,
+    /// Original submission number.
+    pub submission_number: Text,
+}
+/// An application's most recent dated submission, as the source states it; often a labeling or
+/// efficacy supplement rather than the original approval.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DrugFdaLatestSubmission {
+    /// Native submission status date.
+    pub date: PartialDate,
+    /// Native submission type, such as ORIG or SUPPL.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub submission_type: Option<Text>,
+    /// Original submission number, scoped by application and type.
+    pub submission_number: Text,
+    /// Native status, such as AP.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub status: Option<Text>,
+    /// Native submission class code, such as EFFICACY or LABELING.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub submission_class_code: Option<Text>,
 }
 /// A source-owned application page preserving complete product context and source order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

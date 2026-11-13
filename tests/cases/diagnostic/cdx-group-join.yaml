@@ -1,0 +1,129 @@
+{
+  "feature": "diagnostic-cdx",
+  "live_check": "public",
+  "story": "A drug-application search returns FDA's group-labeling rows as well as the individual rows, and names an unreadable row only when it mentions the asked application.",
+  "verified": "Captured 2026-11-13 from https://www.fda.gov/medical-devices/in-vitro-diagnostics/list-fda-authorized-companion-diagnostic-devices-in-vitro-and-imaging-tools. FDA-authored government tables are public domain unless otherwise noted under https://www.fda.gov/about-fda/about-website/website-policies#linking; the captured page has no copyright, license or proprietary notice. Git body is only the two unchanged table substrings in original order, separated by one newline. Original page SHA256 f6cb7f44cdd7fb41f83936afbd68a7f1d10e77a38879c36b194b7ff7734b4f60; projected table SHA256 e87b01a8bc7e8d48c3db42f81fcf7763196cd6573e08d3691fc237f04fd5fec6. On that page 15 rows name NDA 208065 (10 individual, group rows 1, 3, 4, 5 and 8) and 16 name BLA 125514 (all individual). Individual row 89 links NDA 213246 but its text reads NDA214246. Individual row 38 names Talzenna NDA 211651 but links only a generic Drugs@FDA search, so it is named as value.unknown. Individual row 8 (cetuximab BLA 125084) joins once a paragraph break separates its two applications.",
+  "replay": "diagnostic/cdx-group-join",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "fda-cdx"
+      ],
+      "expect": {
+        "/result/rows": 244
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--drug-application",
+        "NDA208065",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/page/total": 15,
+        "/result/items/9/kind": "individual",
+        "/result/items/10/kind": "group",
+        "/result/items/10/index": 1,
+        "/result/items/10/device_ids/0": "P120019/S031",
+        "/result/items/13/index": 5,
+        "/result/items/13/device_ids/0": "P200011",
+        "/result/items/14/index": 8,
+        "/result/items/14/device_ids/0": "P240010",
+        "/result/items/*/kind": {
+          "count": 15
+        },
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--drug-application",
+        "BLA125514",
+        "--limit",
+        "50"
+      ],
+      "expect": {
+        "/page/total": 16
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--drug-application",
+        "NDA211651"
+      ],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/0/index": 14,
+        "/result/items/1/index": 15,
+        "/problems/*/code": [
+          "value.unknown"
+        ],
+        "/problems/*/field": [
+          "drug"
+        ],
+        "/problems/*/record": [
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:38"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--drug-application",
+        "BLA125084"
+      ],
+      "expect": {
+        "/page/total": 13,
+        "/result/items/0/index": 8,
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-cdx",
+        "--drug-application",
+        "NDA213246"
+      ],
+      "expect": {
+        "/page/total": 6,
+        "/problems/*/code": [
+          "identity.conflict"
+        ],
+        "/problems/*/field": [
+          "drug"
+        ],
+        "/problems/*/record": [
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:89"
+        ]
+      }
+    }
+  ]
+}

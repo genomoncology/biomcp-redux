@@ -1009,6 +1009,14 @@ Options:
       --offset <offset>
           Zero-based source result offset.
 
+      --prequalified-from <prequalified_from>
+          WHO IVD year.
+          First prequalification year included, YYYY; WHO publishes only the year.
+
+      --prequalified-to <prequalified_to>
+          WHO IVD year.
+          Last prequalification year included, YYYY; WHO publishes only the year.
+
       --product-code <product_code>
           FDA product code.
           Exact native FDA product code; PMA, 510(k) and device recalls only.
@@ -1044,7 +1052,7 @@ Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: str
 - `--device-id`: PMA or K identifier.
 Exact PMA application, application/supplement or source K identity. Value form: string. Example: --device-id P200010/S026. Only with --source fda-cdx.
 - `--drug-application`: NDA/BLA application.
-Cell-owned typed NDA/BLA application. Value form: string. Example: --drug-application BLA125514. Only with --source fda-cdx.
+Cell-owned typed NDA/BLA application. Value form: string. Example: --drug-application NDA208065. Only with --source fda-cdx.
 - `--gene`: Exact gene symbol.
 Exact source gene_symbol field, without alias expansion. Value form: string. Example: --gene BRCA1. Only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.
@@ -1053,14 +1061,18 @@ Exact source GeneID, exclusive with gene symbol. Value form: string. Example: --
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-from 2024-01-01. Only with --source fda-device-recall.
 - `--initiated-to`: Last date, YYYY-MM-DD.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-to 2024-12-31. Only with --source fda-device-recall.
-- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer. Example: --limit 1. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer. Example: --limit 50. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.
 - `--marker`: WHO marker phrase.
-Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker hIv. Only with --source who-ivd.
+Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker HIV. Only with --source who-ivd.
 - `--name`: Source test or device name.
 Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma or fda-510k.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--prequalified-from`: WHO IVD year.
+First prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-from 2023. Only with --source who-ivd.
+- `--prequalified-to`: WHO IVD year.
+Last prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-to 2023. Only with --source who-ivd.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string. Example: --product-code ABC. Only with --source fda-pma, fda-510k or fda-device-recall.
 - `--source`: Source diagnostic source; help search diagnostic
@@ -1412,6 +1424,14 @@ Options:
       --reason <reason>
           Recall reason phrase.
 
+      --sort <sort>
+          Drugs@FDA order; help search drug
+          Drugs@FDA order.
+          newest: each application's latest submission status date first, ties by application number;
+          applications with no dated submission come last. That latest date is often a labeling or
+          efficacy supplement, not the original approval; each row's original_approval gives that.
+          Omit it for the source's own order.
+
       --source <source>
           Selected source; help search drug
           Selected source.
@@ -1463,6 +1483,13 @@ then label text (including indications) when no names match; source matches need
 Harmonized recall names match but never become display names.
 Form: search drug QUERY; not --query.
 - `--reason`: Recall reason phrase. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Only with --source fda-drug-recall.
+- `--sort`: Drugs@FDA order; help search drug
+Drugs@FDA order.
+newest: each application's latest submission status date first, ties by application number;
+applications with no dated submission come last. That latest date is often a labeling or
+efficacy supplement, not the original approval; each row's original_approval gives that.
+Omit it for the source's own order.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort newest. Only with --source drugsfda.
 - `--source`: Selected source; help search drug
 Selected source.
 
@@ -3110,18 +3137,27 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-profile <civic_profile>
+          CIViC profile.
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
-      --document-id <document_id>
-          FDA letter document ID.
-          Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-          and 6144 escaped bytes per fragment. No-text scans are explicit.
+      --decision-from <decision_from>
+          From date.
+          Inclusive YYYY-MM-DD status date; Drugs@FDA approvals.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --decision-to <decision_to>
+          To date.
+          Inclusive YYYY-MM-DD status date; Drugs@FDA approvals.
+
+      --document-id <document_id>
+          FDA letter document ID.
+          Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
+          and 6144 escaped bytes per fragment. No-text scans are explicit.
 
       --evidence-level <evidence_level>...
           A–E; help get drug
@@ -3137,27 +3173,28 @@ Options:
           Exact openFDA SPL fields.
           Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
 
-      --product-number <product_number>
-          FDA product number.
-          Explicit native application product number, only for approvals.
-
-      --section-limit <section_limit>
-          Named section page size, refused on an identity-only card.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
 
-      --section-offset <section_offset>
-          Named section continuation, refused on an identity-only card.
+      --product-number <product_number>
+          FDA product number.
+          Explicit native application product number, only for approvals.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --section-limit <section_limit>
+          Named section page size, refused on an identity-only card.
+          At most 50 rows, or 200 for Drugs@FDA approvals.
+
+      --section-offset <section_offset>
+          Named section continuation, refused on an identity-only card.
 
       --source <source>
           Omit to infer the source of an unambiguous section; identity or; help get drug
@@ -3173,7 +3210,12 @@ Source continuation cursor for that exact drug, profile and claim collection. Va
 CIViC collection.
 Independent source evidence or assertion collection within the selected profile.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--civic-profile`: CIViC profile.
+Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--decision-from`: From date.
+Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-from 2024-01-01. Only with --source drugsfda.
+- `--decision-to`: To date.
+Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-to 2024-12-31. Only with --source drugsfda.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
 and 6144 escaped bytes per fragment. No-text scans are explicit. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
@@ -3195,7 +3237,8 @@ Explicit source application product number, only for approvals. Value form: stri
 - `section`: Source sections; help get drug
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get drug INPUT SECTION...; not --section.
-- `--section-limit`: Named section page size, refused on an identity-only card. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--section-limit`: Named section page size, refused on an identity-only card.
+At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Omit to infer the source of an unambiguous section; identity or; help get drug
 Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
