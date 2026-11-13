@@ -78,7 +78,11 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             let found = body.is_some();
             if let Some(partner) = query.partner()
                 && body.as_ref().is_some_and(|body| body.partners.is_empty())
-                && let Ok(search) = DrugSearch::named(partner.clone(), DrugSource::Ddinter, 10)
+                && let Some(search) = crate::next::checked(
+                    DrugSearch::named(partner.clone(), DrugSource::Ddinter, 10),
+                    Source::Ddinter,
+                    &mut out.problems,
+                )
             {
                 out.next.push(crate::next::Step::run(
                     StepKind::Disambiguate,

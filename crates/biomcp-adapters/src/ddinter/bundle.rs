@@ -113,7 +113,11 @@ const LEVELS_ONLY: &str = "DDInter's published files give each listed pair a lev
 
 /// DDInter identities a partner argument names: an exact DDInter ID, or a complete DDInter name
 /// ignoring letter case, alone or followed by one approved salt word.
-fn partner_identities(leg: &Leg<'_>, partner: &str) -> Result<Vec<DrugHeader>, RequestError> {
+/// A named identity the row cannot express is a refusal, as in name search.
+fn partner_identities(
+    leg: &Leg<'_>,
+    partner: &str,
+) -> Result<(Vec<DrugHeader>, crate::Refusal), RequestError> {
     let id = super::raw::valid_id(partner);
     let find = if id {
         Find::Exact(KeyKind::Id, partner)
@@ -124,6 +128,7 @@ fn partner_identities(leg: &Leg<'_>, partner: &str) -> Result<Vec<DrugHeader>, R
     rows.sort_by(|a, b| (&a.part, a.row).cmp(&(&b.part, b.row)));
     let mut seen = std::collections::BTreeSet::new();
     let mut headers = Vec::new();
+    let mut refusals = crate::Refusal::None;
     for row in &rows {
         for (key, name) in identity::identities(&row.value) {
             let named = if id {
@@ -131,15 +136,15 @@ fn partner_identities(leg: &Leg<'_>, partner: &str) -> Result<Vec<DrugHeader>, R
             } else {
                 name.is_some_and(|name| biomcp_types::DrugNameMatch::generic_name(name, partner))
             };
-            if named
-                && seen.insert(key.to_owned())
-                && let Ok(value) = identity::identity(key, name)
-            {
-                headers.push(identity::header(value));
+            if named && seen.insert(key.to_owned()) {
+                match identity::identity(key, name) {
+                    Ok(value) => headers.push(identity::header(value)),
+                    Err(_) => refusals = crate::Refusal::Refused,
+                }
             }
         }
     }
-    Ok(headers)
+    Ok((headers, refusals))
 }
 
 /// Page exact native partners, preserving the source order and every duplicate origin; a partner
@@ -164,7 +169,9 @@ pub fn interactions(
     let mut named = Vec::new();
     let mut hint = String::from(LEVELS_ONLY);
     if let Some(partner) = partner {
-        named = partner_identities(leg, partner)?;
+        let (found, refused) = partner_identities(leg, partner)?;
+        refusals.include(refused);
+        named = found;
         pairs.retain(|pair| named.iter().any(|h| h.id.to_string() == pair.partner_id()));
         if named.is_empty() {
             hint = format!(
@@ -207,7 +214,7 @@ pub fn interactions(
                 },
             },
             partners: named.into(),
-            hint: Text::new(&hint).or_else(|_| Text::new(LEVELS_ONLY)).ok(),
+            hint: Some(Text::new(&hint).map_err(|_| biomcp_fetch::CacheError::Limit)?),
         }),
     })
 }
