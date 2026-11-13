@@ -41,7 +41,7 @@ pub struct GtrHeader {
     pub laboratory: Option<DiagnosticLaboratory>,
     /// Distinct symbols in the native genes cell: 1 is a single-gene test, hundreds an exome-scale one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub gene_count: Option<u32>,
+    pub gene_count: Option<u64>,
     /// Native method categories in source order, such as deletion/duplication analysis.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub method_categories: Box<[Text]>,

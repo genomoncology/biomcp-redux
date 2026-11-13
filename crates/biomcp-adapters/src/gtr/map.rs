@@ -70,9 +70,9 @@ pub(super) fn header(
     })
 }
 /// Distinct symbols in the pipe-separated native genes cell; absent when the cell is empty.
-fn gene_count(cell: &str) -> Option<u32> {
+fn gene_count(cell: &str) -> Option<u64> {
     let genes: std::collections::HashSet<_> = cell.split('|').filter(|g| !g.is_empty()).collect();
-    u32::try_from(genes.len()).ok().filter(|n| *n > 0)
+    (!genes.is_empty()).then_some(genes.len() as u64)
 }
 pub(super) fn card(
     v: &GtrTestVersion,

@@ -1012,7 +1012,7 @@
       "properties": {
         "gene_count": {
           "description": "Distinct symbols in the native genes cell: 1 is a single-gene test, hundreds an exome-scale one.",
-          "format": "uint32",
+          "format": "uint64",
           "minimum": 0,
           "type": [
             "integer",
