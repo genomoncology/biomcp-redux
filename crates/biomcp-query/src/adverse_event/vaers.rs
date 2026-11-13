@@ -150,12 +150,15 @@ fn offer_sort(q: &AdverseEventSearch, snapshot: Option<&Text>, out: &mut Outcome
 /// One notice says the whole table was ordered locally from the source's own counts.
 fn by_reports(table: &mut VaersSummary, out: &mut Outcome) {
     let mut rows = table.rows.to_vec();
+    // A count is digits with thousands commas; compare by digit length, then digits, so any
+    // size orders without parsing. Other text, such as Suppressed, has no count.
     rows.sort_by_key(|row| {
-        std::cmp::Reverse(
-            row.reports
-                .get("v")
-                .and_then(|v| v.replace(',', "").parse::<u64>().ok()),
-        )
+        std::cmp::Reverse(row.reports.get("v").and_then(|v| {
+            let digits = v.replace(',', "");
+            let digits = digits.trim_start_matches('0');
+            (!v.is_empty() && v.bytes().all(|b| b.is_ascii_digit() || b == b','))
+                .then(|| (digits.len(), digits.to_owned()))
+        }))
     });
     let total = rows.len();
     table.rows = rows.into();
