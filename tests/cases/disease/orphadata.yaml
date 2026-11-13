@@ -36,6 +36,7 @@
     },
     {
       "run": ["get", "disease", "MONDO:0007254", "prevalence", "--source", "orphadata"],
+      "exit": 1,
       "expect": {
         "/status": "absent",
         "/page/total": 0,
