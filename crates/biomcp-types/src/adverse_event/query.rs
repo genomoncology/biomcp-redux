@@ -69,12 +69,10 @@ struct SearchFields {
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
     source: AdverseEventSource,
-    #[doc = "Report counts by reaction or receipt date.\nUse reactions for FAERS source-native count buckets across matching reports; \
-        requires MedDRA. Use received-year or received-month for FAERS or MAUDE report counts by FDA receipt date \
-        between --received-from and --received-to, with the same names and filters as the search; a period \
-        the range or the source's data only partly covers is marked partial. \
-        Counts are not rates or causal associations; a report may contribute to several terms. \
-        Requires offset zero."]
+    #[doc = "Counts by reaction or receipt date.\nreactions: FAERS reaction-term buckets; needs MedDRA. \
+        received-year or received-month: FAERS or MAUDE reports per FDA receipt period between \
+        --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. \
+        Counts are reports, not rates or causes. Requires offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventAggregate::components())))]
     aggregate: Option<AdverseEventAggregate>,

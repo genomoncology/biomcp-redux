@@ -8,6 +8,10 @@ pub fn command_section_component(verb: &str, entity: &str, word: &str) -> Option
             .parse::<crate::AdverseEventSection>()
             .ok()
             .and_then(|section| section.required_component()),
+        ("search", "adverse-event") => word
+            .parse::<crate::AdverseEventAggregate>()
+            .ok()
+            .and_then(|aggregate| aggregate.required_component()),
         _ => None,
     }
 }
