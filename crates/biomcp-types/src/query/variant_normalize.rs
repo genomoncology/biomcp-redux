@@ -14,7 +14,8 @@ struct Fields<H = String> {
     /// Explicit service; all preserves independent results without consensus.
     source: NormalizationSource,
     /// Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
-    /// Checked for reference and syntax only; no full HGVS parser.
+    /// Checked for reference and syntax only; no full HGVS parser. After a reference
+    /// mismatch, VariantValidator names the gene's transcripts where the base fits.
     #[cfg_attr(feature = "schema", schemars(schema_with = "hgvs_schema"))]
     hgvs: H,
     /// Caller assembly; required when VariantValidator is selected.
