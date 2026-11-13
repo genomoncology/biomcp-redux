@@ -22,7 +22,9 @@
           "results": [
             {
               "recall_number": "Z-0001-2024",
-              "classification": "Class II"
+              "classification": "Class II",
+              "initial_firm_notification": "",
+              "product_quantity": " "
             }
           ]
         }

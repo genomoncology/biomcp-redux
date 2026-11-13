@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-device-recall",
-  "story": "Native device recall records retain their own identifiers and join exact enforcement classification in search rows and cards, without projecting product-code metadata; a failed or wrong-identity join leaves the rows visible and the reply partial.",
+  "story": "Native device recall records retain their own identifiers and join exact enforcement classification in search rows and cards, without projecting product-code metadata; a failed or wrong-identity join leaves the rows visible and the reply partial; an empty enforcement string states no value and no problem.",
   "replay": "diagnostic/recall-synthetic",
   "steps": [
     {
@@ -100,7 +100,18 @@
       "expect": {
         "/result/classification": "Class II",
         "/result/k_numbers/0": "K000001",
-        "/result/pma_numbers/0": "P000001"
+        "/result/pma_numbers/0": "P000001",
+        "/result": {
+          "omits": [
+            "initial_firm_notification",
+            "product_quantity"
+          ]
+        },
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
       },
       "max_bytes": 1064,
       "full_output_bytes": true
