@@ -105,9 +105,7 @@
           "--fields=phases,title",
           "search",
           "trial",
-          "melanoma",
-          "--source",
-          "ctgov"
+          "melanoma"
         ]
       }
     }
