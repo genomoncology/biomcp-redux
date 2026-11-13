@@ -851,7 +851,7 @@
           "type": "integer"
         },
         "total": {
-          "description": "Total matching identities held by this snapshot.",
+          "description": "Total matches: the source's own count when one source states more than the snapshot holds, otherwise the identities held by this snapshot.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
@@ -2149,9 +2149,9 @@
         },
         "limit": {
           "default": 10,
-          "description": "Whole-record count per source collection page; text fragments follow the text budget.",
+          "description": "Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 100,
           "minimum": 1,
           "type": "integer"
         },

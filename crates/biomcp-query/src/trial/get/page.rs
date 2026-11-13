@@ -12,26 +12,20 @@ use biomcp_types::{
     TrialEligibilityPage, TrialGet, TrialRecords, TrialSection, TrialSections,
 };
 
+/// A character offset must fall inside the text; a record offset past the end is an empty page.
 pub(super) fn valid(query: &TrialGet, snapshot: &Snapshot) -> bool {
     let d = &snapshot.detail;
-    let total = match query.sections().first() {
-        Some(TrialSection::Eligibility) => d
-            .eligibility
-            .as_ref()
-            .and_then(|e| e.criteria.as_ref())
-            .map_or(0, |s| s.as_str().chars().count()),
-        Some(TrialSection::Outcomes) => d.outcomes.len(),
-        Some(s @ (TrialSection::Results | TrialSection::Flow | TrialSection::Baseline)) => {
-            results::rows(*s, &d.results).len()
+    match query.sections().first() {
+        Some(TrialSection::Eligibility) => {
+            let total = d
+                .eligibility
+                .as_ref()
+                .and_then(|e| e.criteria.as_ref())
+                .map_or(0, |s| s.as_str().chars().count());
+            query.offset() as usize <= total
         }
-        Some(TrialSection::Arms) => d.arms.len() + d.interventions.len(),
-        Some(TrialSection::References) => d.references.len(),
-        Some(TrialSection::Documents) => d.documents.len(),
-        Some(TrialSection::Locations) => d.locations.len(),
-        Some(TrialSection::Contacts) => d.contacts.len() + d.officials.len(),
-        _ => 0,
-    };
-    query.offset() as usize <= total
+        _ => true,
+    }
 }
 pub(super) fn render(
     query: &TrialGet,
