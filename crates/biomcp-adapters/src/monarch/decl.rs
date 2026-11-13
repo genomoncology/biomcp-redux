@@ -20,7 +20,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     registry_order: Some(54),
     probe: Probe::Custom(probe),
     components: &[HPO_COMPONENT, ORPHANET_COMPONENT],
-    auxiliary: &[],
+    auxiliary: &[&super::phenotype::matches::SPEC],
     bundles: &[],
     guidance: Guidance {
         deadline: None,

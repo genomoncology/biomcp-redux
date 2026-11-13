@@ -1,13 +1,17 @@
 {
   "$defs": {
     "AdverseEventAggregate": {
-      "description": "Source-native aggregation of matching FAERS reports.",
+      "description": "Source-native aggregation of matching FAERS or MAUDE reports.",
       "enum": [
-        "reactions"
+        "reactions",
+        "received-year",
+        "received-month"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Exact reaction-term buckets from openFDA; reports may contribute to several terms."
+        " Exact reaction-term buckets from openFDA; reports may contribute to several terms.",
+        " FDA receipt-date report counts summed to calendar years.",
+        " FDA receipt-date report counts summed to calendar months."
       ]
     },
     "AdverseEventSection": {
@@ -717,6 +721,44 @@
       "x-enum-descriptions": [
         " CPIC source-native records.",
         " ClinPGx annotation records."
+      ]
+    },
+    "PhenotypeGroup": {
+      "description": "The Monarch entity group ranked against a set of HP terms.",
+      "enum": [
+        "genes",
+        "diseases"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's Human Genes group.",
+        " Monarch's Human Diseases group."
+      ]
+    },
+    "PhenotypeMetric": {
+      "description": "A Monarch similarity metric for ranking against a set of HP terms.",
+      "enum": [
+        "ancestor-information-content",
+        "jaccard-similarity",
+        "phenodigm-score"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Information content of the most informative shared ancestor, Monarch's default.",
+        " Jaccard similarity of the ancestor sets.",
+        " Phenodigm score, the geometric mean of the other two."
+      ]
+    },
+    "PhenotypeSearchMode": {
+      "description": "Which Monarch entities are scored against a set of HP terms.",
+      "enum": [
+        "hybrid",
+        "full"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's default: score only a shortlist prefiltered by Jaccard overlap.",
+        " Score every entity in the group; slower."
       ]
     },
     "PhenotypeSection": {
@@ -2120,6 +2162,10 @@
           "const": "search-phenotype",
           "type": "string"
         },
+        "group": {
+          "$ref": "#/$defs/PhenotypeGroup",
+          "description": "HP IDs only: rank genes, the default, or diseases."
+        },
         "limit": {
           "default": 5,
           "description": "Maximum native headers, default five.",
@@ -2128,12 +2174,20 @@
           "minimum": 1,
           "type": "integer"
         },
+        "metric": {
+          "$ref": "#/$defs/PhenotypeMetric",
+          "description": "HP IDs only: the Monarch similarity metric to rank by."
+        },
         "offset": {
           "default": 0,
-          "description": "Native source row offset.",
+          "description": "Native source row offset; a ranked HP ID set has no further pages.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "search_mode": {
+          "$ref": "#/$defs/PhenotypeSearchMode",
+          "description": "HP IDs only: hybrid (default) or slower full."
         },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",
@@ -2141,7 +2195,7 @@
           "description": "Monarch only; HPO search is unsupported."
         },
         "text": {
-          "description": "Unchanged literal term search text.",
+          "description": "Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.",
           "minLength": 1,
           "type": "string",
           "x-positional": 0
@@ -2905,11 +2959,12 @@
               "type": "null"
             }
           ],
-          "description": "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.",
+          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.",
           "x-required-component": [
             "gtr",
             "fda-pma",
-            "fda-510k"
+            "fda-510k",
+            "fda-device-recall"
           ]
         },
         "offset": {
@@ -3068,8 +3123,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.",
-          "x-required-component": "meddra"
+          "description": "Report counts.\nreactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero."
         },
         "command": {
           "const": "search-adverse-event",
@@ -3104,7 +3158,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Native report headers, counted FAERS reaction terms or VAERS rows; default five.",
+          "description": "Report headers, reaction terms or VAERS rows; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3135,7 +3189,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native report row offset; reaction counts require zero. VAERS needs its snapshot.",
+          "description": "Report row offset; counts need zero. VAERS needs its snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3181,7 +3235,7 @@
               "type": "null"
             }
           ],
-          "description": "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.",
+          "description": "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day.",
           "format": "date"
         },
         "received_to": {
@@ -3193,7 +3247,7 @@
               "type": "null"
             }
           ],
-          "description": "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.",
+          "description": "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day.",
           "format": "date"
         },
         "section": {

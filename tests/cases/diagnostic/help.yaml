@@ -10,7 +10,7 @@
         "diagnostic"
       ],
       "expect": {
-        "/result/commands/0/description": "Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.\nFields: cells, classification, device_ids, drug_applications, header, id, identity_status, index, kind, manufacturer, marker, matched, name_match, prequalification_year, problem, product_name, snapshot. Choose some with --fields a,b (typed: fields list); always kept: cells, header, id, identity_status, index, kind, manufacturer, marker, matched, prequalification_year, problem, product_name, snapshot.",
+        "/result/commands/0/description": "Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.\nFields: cells, classification, device_ids, drug_applications, header, id, identity_status, index, kind, manufacturer, marker, matched, name_match, prequalification_year, problem, product_description, product_name, reason, snapshot. Choose some with --fields a,b (typed: fields list); always kept: cells, header, id, identity_status, index, kind, manufacturer, marker, matched, prequalification_year, problem, product_name, snapshot.",
         "/result/commands/0/examples": {
           "count": 1
         },

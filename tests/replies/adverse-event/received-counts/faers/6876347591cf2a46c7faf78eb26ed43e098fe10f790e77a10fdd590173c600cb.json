@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20261001%20TO%2020261031%5D&limit=1&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794606658,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 346,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}

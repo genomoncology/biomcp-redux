@@ -115,7 +115,7 @@ Commands:
   gwas           Source associations in default p-value-ascending order. Reports no personal risk, causal variant or gene, or clinical interpretation of a statistic.
   protein        Search five reviewed human UniProt headers by literal text or exact gene.
                  No variant effect, structure, interaction or clinical meaning is inferred. No bioinformatics tool runs.
-  phenotype      Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+  phenotype      Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.
   pathway        Search Reactome (default) or WikiPathways human pathways. Membership names a source and release; it implies no therapy, response or actionability. No enrichment is calculated.
   study          Literal stored metadata search; text is never parsed as a query language. No frequency, denominator, survival or comparison is calculated. Source counts keep their native names.
   pgx            Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.
@@ -647,13 +647,13 @@ Form: search protein QUERY; not --query.
 ## biomcp search phenotype
 
 ```text
-Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.
 
 Usage: biomcp search phenotype [OPTIONS] <text>
 
 Arguments:
   <text>
-          Unchanged literal term search text.
+          Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.
 
 Options:
       --format <format>
@@ -662,24 +662,36 @@ Options:
           [default: json]
           [possible values: json, md]
 
-  -l, --limit <limit>
-          Maximum native headers, default five.
+      --group <group>
+          HP IDs only: rank genes, the default, or diseases; help search phenotype
+          HP IDs only: rank genes, the default, or diseases.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
-      --offset <offset>
-          Native source row offset.
+  -l, --limit <limit>
+          Maximum native headers, default five.
 
-      --source <source>
-          Monarch only; HPO search is unsupported; help search phenotype
-          Monarch only; HPO search is unsupported.
+      --metric <metric>
+          HP IDs only: the Monarch similarity metric to rank by; help search phenotype
+          HP IDs only: the Monarch similarity metric to rank by.
+
+      --offset <offset>
+          Native source row offset; a ranked HP ID set has no further pages.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --search-mode <search_mode>
+          HP IDs only: hybrid (default) or slower full; help search phenotype
+          HP IDs only: hybrid (default) or slower full.
+
+      --source <source>
+          Monarch only; HPO search is unsupported; help search phenotype
+          Monarch only; HPO search is unsupported.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -697,12 +709,21 @@ Options:
 
 Search human phenotypes in HPO. Sources: hpo, monarch.
 
-- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--offset`: Source source row offset. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--group`: HP IDs only: rank genes, the default, or diseases; help search phenotype
+HP IDs only: rank genes, the default, or diseases.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
+HP IDs only: the Monarch similarity metric to rank by.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--search-mode`: HP IDs only: hybrid (default) or slower full; help search phenotype
+HP IDs only: hybrid (default) or slower full.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; help search phenotype
 Monarch only; HPO search is unsupported.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `text`: Unchanged exact term search text.
+- `text`: Unchanged exact term search text, or HP IDs separated by commas to rank genes or diseases for the set.
 Form: search phenotype TEXT; not --text.
 
 ## biomcp search pathway
@@ -1004,7 +1025,7 @@ Options:
 
       --name <name>
           Native test or device name.
-          Native trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.
+          Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.
 
       --offset <offset>
           Zero-based source result offset.
@@ -1067,7 +1088,7 @@ WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phra
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker HIV. Only with --source who-ivd.
 - `--name`: Source test or device name.
-Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma or fda-510k.
+Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma, fda-510k or fda-device-recall.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--prequalified-from`: WHO IVD year.
 First prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-from 2023. Only with --source who-ivd.
@@ -1101,9 +1122,9 @@ Arguments:
 
 Options:
       --aggregate <aggregate>
-          FAERS reaction counts; help search adverse-event
-          FAERS reaction counts.
-          Use reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
+          Report counts; help search adverse-event
+          Report counts.
+          reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -1144,7 +1165,7 @@ Options:
           [possible values: true, false]
 
       --limit <limit>
-          Native report headers, counted FAERS reaction terms or VAERS rows; default five.
+          Report headers, reaction terms or VAERS rows; default five.
 
       --manufacturer <manufacturer>
           MAUDE manufacturer.
@@ -1155,7 +1176,7 @@ Options:
           Retained FAERS name resolution; follow the returned command without changing filters.
 
       --offset <offset>
-          Native report row offset; reaction counts require zero. VAERS needs its snapshot.
+          Report row offset; counts need zero. VAERS needs its snapshot.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -1183,11 +1204,11 @@ Options:
 
       --received-from <received_from>
           First date, YYYY-MM[-DD].
-          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.
+          Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day.
 
       --received-to <received_to>
           Last date, YYYY-MM[-DD].
-          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.
+          Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day.
 
       --serious <serious>
           FAERS seriousness flag; help search adverse-event
@@ -1207,9 +1228,9 @@ Options:
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
-- `--aggregate`: FAERS reaction counts; help search adverse-event
-FAERS reaction counts.
-Use reactions for source count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.
+- `--aggregate`: Report counts; help search adverse-event
+Report counts.
+reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
 FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
@@ -1221,12 +1242,12 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--expand-drug-names`: FAERS no-op.
 FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--name-snapshot`: FAERS name snapshot.
 Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--offset`: Source report row offset; reaction counts require zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--offset`: Report row offset; counts need zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--product-code`: MAUDE product codes; OR.
@@ -1234,9 +1255,9 @@ MAUDE exact source device.device_report_product_code; repeated codes join with O
 - `--reaction`: FAERS MedDRA phrase.
 FAERS MedDRA term phrase match, not exact equality. Value form: string. Example: --reaction 'synthetic reaction'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-from`: First date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--received-to`: Last date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `section`: VAERS table; help search adverse-event
 Listed choices accept any letter case; replies use their listed spelling.
 Form: search adverse-event TEXT SECTION; not --section.

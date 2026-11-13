@@ -268,11 +268,12 @@
           "type": "null"
         }
       ],
-      "description": "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.",
+      "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.",
       "x-required-component": [
         "gtr",
         "fda-pma",
-        "fda-510k"
+        "fda-510k",
+        "fda-device-recall"
       ]
     },
     "offset": {
