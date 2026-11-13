@@ -1,7 +1,7 @@
 //! Source facts shared by discovery, health and commands.
 use crate::decl::{Guidance, Probe, SourceDecl};
 pub(crate) static DECL: SourceDecl = SourceDecl {
-    spec: &super::SPEC,
+    spec: &super::bundle::SPEC,
     display: "Orphadata",
     discovery_aliases: &[],
     registry_order: Some(60),

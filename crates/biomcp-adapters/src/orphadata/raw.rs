@@ -94,7 +94,7 @@ struct Prevalence {
 /// One disorder from one file, with the file's release date and version.
 #[derive(Debug, Serialize, Deserialize)]
 pub(super) struct Native {
-    pub(super) code: String,
+    pub(super) code: Option<String>,
     pub(super) name: Option<String>,
     pub(super) disorder_type: Option<String>,
     pub(super) date: String,
@@ -135,8 +135,7 @@ fn terms(values: Option<Vec<Term>>) -> Vec<String> {
 impl Native {
     fn new(disorder: Disorder, date: &str, version: Option<&str>) -> Self {
         Self {
-            // A missing or non-numeric code gives no key, so admission refuses the row visibly.
-            code: label(Some(disorder.code)).unwrap_or_else(String::new),
+            code: label(Some(disorder.code)),
             name: label(disorder.name),
             disorder_type: term(disorder.disorder_type),
             date: date.to_owned(),
@@ -183,10 +182,12 @@ impl Row for Native {
             .collect()
     }
     fn keys(&self) -> Keys {
-        let exact = if !self.code.is_empty() && self.code.bytes().all(|b| b.is_ascii_digit()) {
-            vec![(KeyKind::Id, Self::key(&self.code).into())]
-        } else {
-            Vec::new()
+        // A missing or non-numeric code gives no key, so admission refuses the row visibly.
+        let exact = match self.code.as_deref() {
+            Some(code) if code.bytes().all(|b| b.is_ascii_digit()) => {
+                vec![(KeyKind::Id, Self::key(code).into())]
+            }
+            _ => Vec::new(),
         };
         Keys {
             exact,

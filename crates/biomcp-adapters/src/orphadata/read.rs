@@ -41,7 +41,10 @@ pub fn epidemiology(
     let keys: Vec<&str> = keys.iter().map(String::as_str).collect();
     let (rows, _) = super::bundle::read(leg, Find::AnyExact(KeyKind::Id, &keys))?;
     for code in codes {
-        let rows: Vec<&SetRow<Native>> = rows.iter().filter(|r| r.value.code == code).collect();
+        let rows: Vec<&SetRow<Native>> = rows
+            .iter()
+            .filter(|r| r.value.code.as_deref() == Some(code))
+            .collect();
         if !rows.is_empty() {
             let id: Curie = Native::key(code)
                 .parse()
