@@ -30,6 +30,7 @@ const ALLELE: Endpoint = SPEC
     .get("/allele")
     .json_rejections()
     .fresh(biomcp_fetch::Freshness::Days(1));
+const ALLELES: Endpoint = SPEC.get("/alleles").fresh(biomcp_fetch::Freshness::Days(1));
 const FIELDS: &str = "none+@id+communityStandardTitle+genomicAlleles+transcriptAlleles.MANE+externalRecords.dbSNP+externalRecords.ClinVarVariations";
 /// Checked service result including a source validation code.
 #[derive(Debug)]
@@ -48,6 +49,36 @@ pub fn hgvs(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
 /// Read a canonical source record directly, without another resolver.
 pub fn by_id(leg: &Leg<'_>, input: &str) -> Result<Resolution, RequestError> {
     Ok(map::allele(read(leg, input, true)?, Some(input)))
+}
+/// Find the registry alleles that state one exact ClinVar variation as their own record.
+/// Rows that do not carry that variation are left out; no other resolver is consulted.
+pub fn by_clinvar(leg: &Leg<'_>, variation: u64) -> Result<Vec<Resolution>, RequestError> {
+    let id = variation.to_string();
+    let reply = leg
+        .call(
+            &ALLELES,
+            Input::Params(&[
+                ("ClinVar.variationId", Arg::Text(&id)),
+                ("fields", Arg::Text(FIELDS)),
+            ]),
+            biomcp_fetch::Read::<raw::Alleles>::json(),
+        )?
+        .value;
+    let expected = format!("clinvar:{id}");
+    Ok(reply
+        .0
+        .into_iter()
+        .map(|allele| map::allele(allele, None))
+        .filter(|row| match row {
+            Resolution::Found(row) => row
+                .value
+                .identity
+                .ids
+                .iter()
+                .any(|id| id.to_string() == expected),
+            _ => true,
+        })
+        .collect())
 }
 fn read(leg: &Leg<'_>, input: &str, by_id: bool) -> Result<raw::Allele, RequestError> {
     read_fields(leg, input, by_id, FIELDS)

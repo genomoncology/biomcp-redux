@@ -13,8 +13,8 @@ pub use native::{Component, Record, Reference, Value};
 pub struct Annotation {
     /// Exact identity with optional native alias proof.
     pub card: biomcp_types::DiseaseCard,
-    /// Component-attributed native synonyms.
-    pub synonyms: Vec<biodata::DiseaseSynonym>,
+    /// One row per distinct synonym text, listing every other component row that states it.
+    pub synonyms: Vec<biomcp_types::DiseaseSynonymItem>,
     /// Every native cross-reference with its original source field predicate.
     pub xrefs: Vec<biodata::DiseaseRelation>,
     /// Direct component parents, without ancestors or alternatives.
@@ -23,6 +23,32 @@ pub struct Annotation {
 /// Read and map one exact annotation without additional source requests.
 pub fn annotation(leg: &Leg<'_>, id: &Curie) -> Result<crate::Mapped<Annotation>, RequestError> {
     map::annotation(get(leg, id)?)
+}
+/// Read direct parents' own labels in one batch; ancestors are never read.
+/// Keys are the parent identifiers; a parent without a self-stated label is left out.
+pub fn parent_labels(
+    leg: &Leg<'_>,
+    ids: &[Curie],
+) -> Result<crate::Mapped<std::collections::HashMap<String, biodata::Text>>, RequestError> {
+    let mut keys: Vec<Box<str>> = Vec::new();
+    for id in ids {
+        let key: Box<str> = id.to_string().into();
+        if supported_id(&key) && !keys.contains(&key) {
+            keys.push(key);
+        }
+    }
+    if keys.is_empty() {
+        return Ok(map::labels(raw::LabelHits(Vec::new()), &[]));
+    }
+    let fields = crate::disease_sources::components::allowed_fields(leg, LABEL_FIELDS)?;
+    let hits = leg
+        .call(
+            &LABELS,
+            Input::Params(&[("ids", Arg::Ids(&keys)), ("fields", Arg::Text(&fields))]),
+            biomcp_fetch::Read::<raw::LabelHits>::json(),
+        )?
+        .value;
+    Ok(map::labels(hits, ids))
 }
 use std::time::Duration;
 /// Publisher policy shared by health, admission and response outcomes.
@@ -42,6 +68,11 @@ pub static SPEC: SourceSpec = SourceSpec {
 };
 const GET: biomcp_fetch::Endpoint = SPEC.get("/disease").fresh(Freshness::Days(7));
 const FIELDS: &str = "mondo,disease_ontology";
+const LABELS: biomcp_fetch::Endpoint = SPEC
+    .post_form("/disease")
+    .idempotent()
+    .fresh(Freshness::Days(7));
+const LABEL_FIELDS: &str = "mondo.mondo,mondo.label,disease_ontology.doid,disease_ontology.name";
 /// Whether an identifier belongs to the publisher's implemented exact namespaces.
 pub fn supported_id(id: &str) -> bool {
     id.split_once(':').is_some_and(|(namespace, local)| {

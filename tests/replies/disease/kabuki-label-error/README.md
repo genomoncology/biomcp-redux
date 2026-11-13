@@ -1,0 +1,1 @@
+Synthetic response-only failure. The MONDO:0016512 annotation is the unchanged public reply in `disease/kabuki`. Only the parent-label batch request keeps its recorded request wrapper; its replies are replaced by synthetic HTTP 500s, so the parents return unnamed and the reply is partial. It does not assert that MyDisease failed.

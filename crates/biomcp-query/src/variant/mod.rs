@@ -39,6 +39,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let spec = source(query);
     let population = identity::requested(query) && !cx.fetch.disabled(Source::Gnomad);
     let found = identity::read(cx, query, deadline);
+    let resolver = found.resolver.unwrap_or(spec.source);
     deadline = deadline.after_stage(found.elapsed);
     let found_resolution = identity_resolution(&found);
     let mut dropped = found.dropped;
@@ -50,7 +51,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
     let mut sources = found.sources;
     let mut local = found.local;
     if query.sections().is_empty()
-        && spec.source == Source::AlleleRegistry
+        && resolver == Source::AlleleRegistry
         && resolution == VariantResolution::Resolved
     {
         let (source, error) = enrich(
@@ -93,7 +94,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
                 query,
                 VariantCard {
                     resolution,
-                    source: spec.source,
+                    source: resolver,
                     candidates: candidates.into(),
                     rejection,
                 },

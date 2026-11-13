@@ -1,0 +1,35 @@
+{
+  "feature": "disease-mydisease",
+  "live_check": "synthetic response-only parent-label failure over an unchanged public annotation; no live source claim",
+  "story": "When the parent-name lookup fails, the hierarchy rows still return with their IDs, and the source and reply say the answer is incomplete.",
+  "replay": "disease/kabuki-label-error",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0016512",
+        "hierarchy",
+        "--source",
+        "mydisease"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/sources/0/state": "failed",
+        "/page/total": 4,
+        "/result/items/0/object": {
+          "equals": {
+            "id": "MONDO:0002254"
+          }
+        },
+        "/problems": {
+          "includes": {
+            "source": "mydisease",
+            "field": "parents.label: parent label lookup failed",
+            "code": "value.unknown"
+          }
+        }
+      }
+    }
+  ]
+}
