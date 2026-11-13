@@ -45,14 +45,14 @@ struct SearchFields {
         at FAERS_QUERY_MAX_BYTES (4096 bytes)."]
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     drug: Vec<Text>,
-    /// FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.
+    #[doc = "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     expand_drug_names: bool,
     #[doc = "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; \
         this searches only the names as typed. MAUDE and VAERS always search the text as typed."]
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     exact_term: bool,
-    /// Retained FAERS name resolution; follow the returned command without changing filters.
+    #[doc = "FAERS name snapshot.\nRetained FAERS name resolution; follow the returned command without changing filters."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     name_snapshot: Option<Text>,
     #[doc = "MAUDE manufacturer.\n\
