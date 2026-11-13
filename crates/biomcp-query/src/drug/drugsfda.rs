@@ -60,8 +60,8 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
-        total = Some(page.total);
         out.include_refusals(page.refusals);
+        total = Some(page.total);
         // Later pages keep this page's names, so the snapshot is kept only for an answer.
         let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(page.problems);
