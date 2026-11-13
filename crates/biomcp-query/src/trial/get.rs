@@ -115,7 +115,8 @@ fn say_unread(
     unread: &[(NctId, Option<biomcp_types::Reason>)],
     out: &mut Outcome,
 ) {
-    if unread.is_empty() {
+    // A single get's source reason already names the cause.
+    if unread.is_empty() || query.input().len() < 2 {
         return;
     }
     let named: Vec<String> = unread
