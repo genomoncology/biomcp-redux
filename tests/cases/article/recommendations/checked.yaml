@@ -10,7 +10,7 @@
         "recommendations",
         "17611497",
         "--pool",
-        "missing-evidence-pool"
+        "00000000000000000000000000000000"
       ],
       "exit": 3,
       "is_error": true,

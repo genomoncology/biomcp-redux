@@ -107,6 +107,8 @@ fn sample(key: &str, property: &Value, schema: &Value) -> Value {
         "diplotype" => json!("*1/*2"),
         "drug_id" => json!("RxNorm:1234"),
         "annotation_id" => json!("PA166104949"),
+        // A saved-result name has the store's form, so the command reaches its lookup.
+        "pool" | "snapshot" | "name_snapshot" => json!("0".repeat(64)),
         key if key.ends_with("_from") || key.ends_with("_to") => json!("2020-01-01"),
         "since" | "until" => json!("2020"),
         _ if node.get("type") == Some(&json!("boolean")) => json!(true),
