@@ -6,7 +6,9 @@ use biodata::{FaersSeriousness, ReportId, Text};
 use serde::{Deserialize, Serialize};
 mod counts;
 mod rows;
-pub use counts::{AdverseEventReactionCount, AdverseEventReactionCounts};
+pub use counts::{
+    AdverseEventReactionCount, AdverseEventReactionCounts, AdverseEventReceivedCount,
+};
 pub use rows::{
     AdverseEventDevice, AdverseEventDrug, AdverseEventIdentityCounts, AdverseEventNarrativeItem,
     AdverseEventPatient, AdverseEventReaction, AdverseEventReporter,
@@ -46,6 +48,10 @@ pub struct AdverseEventPage {
     /// Source reaction buckets when aggregation was requested; never report header rows.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reaction_counts: Option<AdverseEventReactionCounts>,
+    /// Report counts per receipt year or month, oldest first, every period in the requested
+    /// range listed; present only when a receipt-date aggregate was requested.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub received_counts: Option<Box<[AdverseEventReceivedCount]>>,
     /// Explicit analyzed reaction selector semantics when a reaction was supplied.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub reaction_match: Option<AdverseEventReactionMatch>,

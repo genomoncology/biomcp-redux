@@ -9,6 +9,9 @@ fn default_source() -> AdverseEventSource {
 fn default_limit() -> u32 {
     5
 }
+/// Receipt-date counts span at most this many calendar years, so one command stays within
+/// openFDA's request quota and the source deadline.
+pub const RECEIVED_COUNT_MAX_YEARS: u16 = 30;
 #[doc = " Search five report headers by default. MAUDE accepts device text or a manufacturer, \
     product-code or problem filter. One report may list several devices; filters may match \
     different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or \
@@ -69,11 +72,14 @@ struct SearchFields {
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
     source: AdverseEventSource,
-    #[doc = "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. \
+    #[doc = "Report counts by reaction or receipt date.\nUse reactions for FAERS source-native count buckets across matching reports; \
+        requires MedDRA. Use received-year or received-month for FAERS or MAUDE report counts by FDA receipt date \
+        between --received-from and --received-to, with the same names and filters as the search; a period \
+        the range or the source's data only partly covers is marked partial. \
         Counts are not rates or causal associations; a report may contribute to several terms. \
-        Requires MedDRA and offset zero."]
+        Requires offset zero."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSection::Reactions.required_component())))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventAggregate::components())))]
     aggregate: Option<AdverseEventAggregate>,
     /// Independent VAERS table; omitted means reported symptoms.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -89,11 +95,11 @@ struct SearchFields {
     #[doc = "FAERS seriousness flag.\nFAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     serious: Option<AdverseEventSerious>,
-    #[doc = "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day."]
+    #[doc = "First date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_from: Option<PartialDate>,
-    #[doc = "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day."]
+    #[doc = "Last date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
@@ -122,8 +128,27 @@ impl SearchFields {
         Ok(())
     }
     fn validate_aggregate(&self) -> Result<(), QueryInvalid> {
-        if self.aggregate.is_some() && self.source != AdverseEventSource::Faers {
+        let received = self
+            .aggregate
+            .is_some_and(AdverseEventAggregate::is_received);
+        if self.aggregate.is_some()
+            && self.source != AdverseEventSource::Faers
+            && !(received && self.source == AdverseEventSource::Maude)
+        {
             return Err(QueryInvalid::new(&["source", "aggregate"]));
+        }
+        if received
+            && !self
+                .received_from
+                .zip(self.received_to)
+                .is_some_and(|(from, to)| {
+                    to.year().saturating_sub(from.year()) < RECEIVED_COUNT_MAX_YEARS
+                })
+        {
+            return Err(
+                QueryInvalid::new(&["aggregate", "received_from", "received_to"])
+                    .with_message(crate::ErrorMessage::AdverseReceivedCounts),
+            );
         }
         if self.aggregate.is_some() && self.offset != 0 {
             return Err(QueryInvalid::new(&["aggregate", "offset"]));
@@ -264,6 +289,13 @@ impl AdverseEventSearch {
     /// Requested source-native aggregation, distinct from report discovery.
     pub fn aggregate(&self) -> Option<AdverseEventAggregate> {
         self.0.aggregate
+    }
+    /// The same search over a narrower receipt range inside the checked one.
+    pub fn within_received(&self, from: PartialDate, to: PartialDate) -> Self {
+        let mut q = self.clone();
+        q.0.received_from = Some(from);
+        q.0.received_to = Some(to);
+        q
     }
 
     /// Selected VAERS grouping.

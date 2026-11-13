@@ -99,6 +99,26 @@ impl AdverseEventSection {
         }
     }
 }
+impl AdverseEventAggregate {
+    /// Terminology this aggregate needs, independent of the search's own filters.
+    pub const fn required_component(self) -> Option<crate::Source> {
+        match self {
+            Self::Reactions => AdverseEventSection::Reactions.required_component(),
+            Self::ReceivedYear | Self::ReceivedMonth => None,
+        }
+    }
+    /// Whether this aggregate counts reports by FDA receipt date.
+    pub const fn is_received(self) -> bool {
+        matches!(self, Self::ReceivedYear | Self::ReceivedMonth)
+    }
+    #[cfg(feature = "schema")]
+    pub(crate) fn components() -> std::collections::BTreeMap<String, crate::Source> {
+        [Self::Reactions, Self::ReceivedYear, Self::ReceivedMonth]
+            .into_iter()
+            .filter_map(|value| Some((value.to_string(), value.required_component()?)))
+            .collect()
+    }
+}
 biodata::wire_enum! { described
     /// The count describes reports, never exposed people or causal events.
     ReportUnit {
@@ -140,9 +160,13 @@ impl AdverseEventSource {
     }
 }
 biodata::wire_enum! { described
-    /// Source-native aggregation of matching FAERS reports.
+    /// Source-native aggregation of matching FAERS or MAUDE reports.
     AdverseEventAggregate {
         /// Exact reaction-term buckets from openFDA; reports may contribute to several terms.
         Reactions => "reactions",
+        /// FDA receipt-date report counts summed to calendar years.
+        ReceivedYear => "received-year",
+        /// FDA receipt-date report counts summed to calendar months.
+        ReceivedMonth => "received-month",
     }
 }

@@ -110,6 +110,8 @@ singleton! {
         FaersDrugNames => "pass --drug once per literal name to search several names with OR; OR inside one --drug value \
             is not supported",
         FaersQueryLength => "FAERS_QUERY_MAX_BYTES is 4096 bytes for the escaped native query including filters; use fewer or shorter --drug names",
+        AdverseReceivedCounts => "--aggregate received-year or received-month needs --received-from and --received-to, \
+            at most 30 calendar years apart; example: --aggregate received-year --received-from 2021 --received-to 2025",
         AdverseText => "use: search adverse-event <TEXT>; text stays literal",
         AdverseOutcome => "--outcome is retired; use --serious death or --serious hospitalization for report flags and \
             reactions for native outcomes; the old hospitalization and disability mappings were wrong",
