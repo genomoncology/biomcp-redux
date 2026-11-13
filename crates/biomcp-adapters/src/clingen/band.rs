@@ -43,7 +43,7 @@ fn ends(cytoband: &str) -> Option<(Band<'_>, Band<'_>)> {
     };
     Some((first, last))
 }
-/// A query band lies inside a published span, or names a prefix of either end.
+/// A query band lies inside a published span, or it and either end band are one a prefix of the other.
 pub(super) fn contains(cytoband: &str, query: &Band<'_>) -> bool {
     let Some((first, last)) = ends(cytoband) else {
         return false;
@@ -54,7 +54,11 @@ pub(super) fn contains(cytoband: &str, query: &Band<'_>) -> bool {
     let Some(arm) = query.arm else {
         return true;
     };
-    let prefix = |end: &Band<'_>| end.arm == Some(arm) && end.digits.starts_with(&query.digits);
+    // 17q21 holds 17q21.3, and 17q21.31 lies within a region labelled 17q21.3.
+    let prefix = |end: &Band<'_>| {
+        end.arm == Some(arm)
+            && (end.digits.starts_with(&query.digits) || query.digits.starts_with(&end.digits))
+    };
     if prefix(&first) || prefix(&last) {
         return true;
     }
@@ -67,10 +71,6 @@ pub(super) fn contains(cytoband: &str, query: &Band<'_>) -> bool {
             };
             a == arm && *low <= query.digits && query.digits <= *high
         }
-        // Across the centromere, each arm runs from its end band to the centromere.
-        (Some(_), Some(_)) => [&first, &last]
-            .into_iter()
-            .any(|end| end.arm == Some(arm) && query.digits <= end.digits),
         _ => false,
     }
 }

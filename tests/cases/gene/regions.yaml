@@ -126,6 +126,32 @@
           "ISCA-37434"
         ]
       }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "17q21.31"
+      ],
+      "expect": {
+        "/result/regions/*/id": {
+          "includes": "ISCA-37420"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "15q14"
+      ],
+      "expect": {
+        "/result/regions/*/id": {
+          "excludes": "ISCA-37478"
+        }
+      }
     }
   ]
 }
