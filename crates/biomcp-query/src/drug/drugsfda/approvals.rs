@@ -71,15 +71,12 @@ fn history(
 ) -> Result<DrugRecords<DrugFdaSubmission>, RequestError> {
     let offset = query.section_offset().unwrap_or(0);
     let window = query.decision_window();
-    let (mut records, total) = row.submissions(
-        window,
-        offset,
-        query
-            .section_limit()
-            .unwrap_or(biomcp_types::DEFAULT_DRUG_APPROVALS_LIMIT),
-    )?;
+    let limit = query
+        .section_limit()
+        .unwrap_or(biomcp_types::DEFAULT_DRUG_APPROVALS_LIMIT);
+    let (mut records, total) = row.submissions(window, offset, limit)?;
     window_notice(window, total, row.submission_count(), out);
-    if records.len() > LETTER_ROWS {
+    if limit > LETTER_ROWS {
         guidance(LETTERS_SKIPPED.into(), out);
     } else {
         super::purpose::enrich(cx, &mut records, deadline, out)?;
@@ -137,11 +134,11 @@ fn window_notice(
     );
     guidance(message, out);
 }
-/// The most rows whose supplement letters one page reads: each efficacy supplement costs one
-/// FDA letter download, so a whole-history page reads none.
-const LETTER_ROWS: usize = 50;
-const LETTERS_SKIPPED: &str = "This page has more than 50 rows, so no supplement letters were read \
-    and rows carry no supplement_purpose. Ask for 50 rows or fewer, or one --document-id, to read them.";
+/// The largest page that reads supplement letters: each efficacy supplement costs one FDA letter
+/// download, so a page of more rows reads none.
+const LETTER_ROWS: u32 = 50;
+const LETTERS_SKIPPED: &str = "--section-limit above 50 reads no supplement letters, so rows carry \
+    no supplement_purpose. Ask for 50 rows or fewer, or one --document-id, to read them.";
 fn guidance(message: String, out: &mut Outcome) {
     if let Some(source) = out
         .sources
