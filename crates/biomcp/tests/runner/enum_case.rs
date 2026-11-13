@@ -574,7 +574,9 @@ fn context(
         ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
         ("search", "drug", "sort") => json!({"source":"drugsfda"}),
-        ("search", "adverse-event", "section") => json!({"source":"vaers", "text":"COVID19"}),
+        ("search", "adverse-event", "section" | "sort") => {
+            json!({"source":"vaers", "text":"COVID19"})
+        }
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
         _ => json!({}),
