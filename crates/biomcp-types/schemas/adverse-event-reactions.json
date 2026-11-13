@@ -26,7 +26,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
+          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only.",
           "x-positional": 1
         },
         "section_limit": {
@@ -150,6 +150,13 @@
           ],
           "description": "Source term label without invented CURIE."
         },
+        "unmapped_codes": {
+          "description": "Coded fields whose present value is not on openFDA's published list; a field the source omitted is never listed.",
+          "items": {
+            "$ref": "#/$defs/Reply_AdverseEventUnmappedCode"
+          },
+          "type": "array"
+        },
         "vocabulary_version": {
           "description": "Native vocabulary_version string; present empty values remain present.",
           "type": [
@@ -255,7 +262,7 @@
         " Native SPL set IDs.",
         " Native application numbers.",
         " Native device rows.",
-        " Complete native narrative rows."
+        " Complete native MAUDE narrative rows; openFDA's public FAERS data carries no case narrative."
       ]
     },
     "Reply_AdverseEventSource": {
@@ -271,6 +278,24 @@
         " Device event reports.",
         " Explicit CDC WONDER vaccine aggregate tables."
       ]
+    },
+    "Reply_AdverseEventUnmappedCode": {
+      "description": "One present coded value that is not on openFDA's published list for its field.",
+      "properties": {
+        "code": {
+          "description": "Unchanged source code.",
+          "type": "string"
+        },
+        "field": {
+          "description": "openFDA field name, such as `patient.patientsex`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "code"
+      ],
+      "type": "object"
     },
     "Reply_CacheProblem": {
       "description": "A local cache failure that leaves the provider outcome intact.",
