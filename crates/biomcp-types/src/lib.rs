@@ -204,8 +204,8 @@ pub use adverse_event::{
     AdverseEventReactionCount, AdverseEventReactionCounts, AdverseEventReactionMatch,
     AdverseEventReactions, AdverseEventRecords, AdverseEventReporter, AdverseEventSearch,
     AdverseEventSection, AdverseEventSerious, AdverseEventSeriousness, AdverseEventSource,
-    AdverseEventUnmappedCode, ReportUnit, VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow,
-    VaersScope, VaersSection, VaersSummary, vaers_vaccine_code,
+    AdverseEventUnmappedCode, MaudeEventType, ReportUnit, VAERS_INFLUENZA, VaersCell, VaersNotice,
+    VaersRow, VaersScope, VaersSection, VaersSummary, vaers_vaccine_code,
 };
 
 mod pgx;

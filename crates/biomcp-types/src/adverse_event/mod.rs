@@ -16,7 +16,7 @@ pub use response::{
 };
 pub use selectors::{
     AdverseEventAggregate, AdverseEventIdentifierSection, AdverseEventSection, AdverseEventSerious,
-    AdverseEventSource, ReportUnit,
+    AdverseEventSource, MaudeEventType, ReportUnit,
 };
 
 mod vaers;
