@@ -211,6 +211,8 @@ singleton! {
         DiseaseVariants => "dropped; use exact variant commands without disease fanout",
         DiseaseModels => "dropped; model-organism evidence is outside this disease slice",
         DiseasePrevalence => "dropped; prevalence is not SEER incidence or survival",
+        DiseasePrevalenceSource => "prevalence comes only from --source orphadata for a MONDO, DOID or Orphanet ID; \
+            use: get disease <CURIE> prevalence --source orphadata",
         DiseaseFunding => "dropped; grant amounts do not answer the disease care questions",
         DiseaseCivic => "dropped; use: get variant <ID> civic; no disease-name join",
         DiseaseDisgenet => "dropped; no indispensable disease question establishes this source",

@@ -32,4 +32,4 @@ macro_rules! selector {
     }
 }
 selector!(DiseaseOntology, "One explicit OLS ontology.", Mondo, {Mondo, Doid, Ncit});
-selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer});
+selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer, Orphadata});

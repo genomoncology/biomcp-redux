@@ -149,6 +149,8 @@ canonical_enum! {
         Cbioportal => "cbioportal",
         /// Cellosaurus cell line identity.
         Cellosaurus => "cellosaurus",
+        /// Orphadata Science epidemiology and natural-history files.
+        Orphadata => "orphadata",
     }
 }
 

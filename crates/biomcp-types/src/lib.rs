@@ -172,8 +172,9 @@ pub use query::{
 
 pub use response::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
-    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseaseSite, DiseaseSites,
-    DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseasePrevalence,
+    DiseaseSite, DiseaseSites, DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    OrphanetEpidemiology, OrphanetPrevalence,
 };
 mod drug;
 pub use drug::{

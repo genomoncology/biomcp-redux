@@ -97,6 +97,8 @@ pub enum DocumentMedia {
     Html,
     /// A JSON document.
     Json,
+    /// An XML document.
+    Xml,
 }
 impl RowFormat {
     pub(crate) fn media(self) -> &'static str {
@@ -247,6 +249,7 @@ impl DocumentMedia {
         match self {
             Self::Html => "text/html",
             Self::Json => "application/json",
+            Self::Xml => "application/xml",
         }
     }
 }
