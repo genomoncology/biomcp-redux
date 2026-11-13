@@ -273,10 +273,19 @@ impl crate::Leg<'_> {
             | crate::RowFormat::Json { .. }
             | crate::RowFormat::NativeCsv { .. } => 0,
             crate::RowFormat::Csv { banner_lines } => banner_lines,
+            // Every `#` line but the last is banner; the last names the columns.
+            crate::RowFormat::CommentedTsv => body
+                .split(|b| *b == b'\n')
+                .take_while(|line| line.starts_with(b"#"))
+                .count()
+                .saturating_sub(1),
         };
         let mut header = body;
         for _ in 0..banner {
             header = header.splitn(2, |b| *b == b'\n').nth(1).unwrap_or(&[]);
+        }
+        if matches!(format, crate::RowFormat::CommentedTsv) {
+            header = header.strip_prefix(b"#").unwrap_or(header);
         }
         let media = format.media();
         self.observed(

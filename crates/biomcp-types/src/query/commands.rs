@@ -312,7 +312,7 @@ macro_rules! command_types {
             GetGene(GeneGet) => (
                 "get", "gene", GeneGet, "gene-get", "biomcp.gene-get/2", GeneGet, "gene-get", "biomcp.gene-get/2", "biomcp.gene-get/2", 38, Direct
             );
-            /// Search human genes by name or identifier.
+            /// Search human genes by name, identifier or cytoband, and ClinGen dosage regions by cytoband or GRCh38 interval.
             SearchGene(GeneSearch) => (
                 "search", "gene", GeneSearch, "gene-search", "biomcp.gene-search/2", GeneSearch, "gene-search", "biomcp.gene-search/2",
                 "biomcp.gene-search/2", 39, Direct

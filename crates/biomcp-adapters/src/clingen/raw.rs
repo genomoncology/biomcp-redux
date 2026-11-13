@@ -97,3 +97,174 @@ impl Dosage {
         })
     }
 }
+/// One row of ClinGen's region curation list. Field names: <https://ftp.clinicalgenome.org/ClinGen_region_curation_list_GRCh38.tsv>
+#[derive(Debug, Deserialize)]
+pub(super) struct Region {
+    #[serde(rename = "ISCA ID")]
+    id: Option<Field<Text>>,
+    #[serde(rename = "ISCA Region Name")]
+    name: Option<Field<NativeText>>,
+    #[serde(rename = "cytoBand")]
+    cytoband: Option<Field<Text>>,
+    #[serde(rename = "Genomic Location")]
+    location: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency Score")]
+    haplo_score: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency Description")]
+    haplo_description: Option<Field<NativeText>>,
+    #[serde(rename = "Haploinsufficiency PMID1")]
+    haplo_pmid1: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID2")]
+    haplo_pmid2: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID3")]
+    haplo_pmid3: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID4")]
+    haplo_pmid4: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID5")]
+    haplo_pmid5: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency PMID6")]
+    haplo_pmid6: Option<Field<Text>>,
+    #[serde(rename = "Haploinsufficiency Disease ID")]
+    haplo_disease: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity Score")]
+    triplo_score: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity Description")]
+    triplo_description: Option<Field<NativeText>>,
+    #[serde(rename = "Triplosensitivity PMID1")]
+    triplo_pmid1: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID2")]
+    triplo_pmid2: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID3")]
+    triplo_pmid3: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID4")]
+    triplo_pmid4: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID5")]
+    triplo_pmid5: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity PMID6")]
+    triplo_pmid6: Option<Field<Text>>,
+    #[serde(rename = "Triplosensitivity Disease ID")]
+    triplo_disease: Option<Field<Text>>,
+    #[serde(rename = "Date Last Evaluated")]
+    date: Option<Field<Text>>,
+}
+/// Published GRCh38 location split into chromosome without `chr`, start and end.
+pub(super) fn bounds(location: &str) -> Option<(&str, u64, u64)> {
+    let (chromosome, range) = location.split_once(':')?;
+    let (start, end) = range.split_once('-')?;
+    let chromosome = chromosome.strip_prefix("chr").unwrap_or(chromosome);
+    match (start.parse(), end.parse()) {
+        (Ok(start), Ok(end)) => Some((chromosome, start, end)),
+        // A malformed location cannot overlap any interval; the row still answers band and ID searches.
+        _ => None,
+    }
+}
+impl Row for Region {
+    fn keys(&self) -> Keys {
+        let mut exact = Vec::new();
+        if let Some(id) = self.id.as_ref().and_then(Field::as_ref) {
+            exact.push((KeyKind::Id, id.as_str().into()));
+        }
+        // Band and interval searches both read a chromosome's rows, then filter them.
+        let chromosomes = [
+            self.cytoband
+                .as_ref()
+                .and_then(Field::as_ref)
+                .and_then(|band| super::band::parse(band.as_str()))
+                .map(|band| band.chromosome),
+            self.location
+                .as_ref()
+                .and_then(Field::as_ref)
+                .and_then(|location| bounds(location.as_str()))
+                .map(|(chromosome, _, _)| chromosome),
+        ];
+        let mut seen = Vec::new();
+        for chromosome in chromosomes.into_iter().flatten() {
+            let key = format!("chr{chromosome}");
+            if !seen.contains(&key) {
+                seen.push(key.clone());
+                exact.push((KeyKind::Xref, key.into()));
+            }
+        }
+        Keys {
+            exact,
+            words: Vec::new(),
+        }
+    }
+}
+impl Region {
+    pub(super) fn checked(self, problems: &mut Problems) -> Option<biomcp_types::ClinGenRegion> {
+        problems.record = None;
+        let id = problems.required_field("ISCA ID", self.id)?;
+        problems.record = Some(id.clone());
+        let haploinsufficiency = dosage(
+            problems,
+            "Haploinsufficiency",
+            self.haplo_score,
+            self.haplo_description,
+            [
+                self.haplo_pmid1,
+                self.haplo_pmid2,
+                self.haplo_pmid3,
+                self.haplo_pmid4,
+                self.haplo_pmid5,
+                self.haplo_pmid6,
+            ],
+            self.haplo_disease,
+        );
+        let triplosensitivity = dosage(
+            problems,
+            "Triplosensitivity",
+            self.triplo_score,
+            self.triplo_description,
+            [
+                self.triplo_pmid1,
+                self.triplo_pmid2,
+                self.triplo_pmid3,
+                self.triplo_pmid4,
+                self.triplo_pmid5,
+                self.triplo_pmid6,
+            ],
+            self.triplo_disease,
+        );
+        Some(biomcp_types::ClinGenRegion {
+            id,
+            name: problems.source_field("ISCA Region Name", self.name),
+            cytoband: problems.field("cytoBand", self.cytoband),
+            location: problems.field("Genomic Location", self.location),
+            haploinsufficiency,
+            triplosensitivity,
+            date: problems.field("Date Last Evaluated", self.date),
+        })
+    }
+}
+fn dosage(
+    problems: &mut Problems,
+    kind: &str,
+    score: Option<Field<Text>>,
+    description: Option<Field<NativeText>>,
+    pmids: [Option<Field<Text>>; 6],
+    disease: Option<Field<Text>>,
+) -> Option<biomcp_types::ClinGenRegionDosage> {
+    let field = format!("{kind} Score");
+    let score = problems.field(&field, score)?;
+    let score = problems.optional(&field, Some(score.as_str().parse::<u32>()))?;
+    let field = format!("{kind} PMID");
+    // A cell can hold several comma-separated PMIDs, as ISCA-37430's PMID1 does.
+    let pmids = pmids
+        .into_iter()
+        .filter_map(|pmid| problems.field(&field, pmid))
+        .collect::<Vec<_>>();
+    let pmids = pmids
+        .iter()
+        .flat_map(|cell| cell.as_str().split(','))
+        .map(str::trim)
+        .filter(|pmid| !pmid.is_empty())
+        .filter_map(|pmid| problems.optional(&field, Some(pmid.parse::<biodata::Pmid>())))
+        .collect();
+    Some(biomcp_types::ClinGenRegionDosage {
+        score,
+        description: problems.source_field(&format!("{kind} Description"), description),
+        pmids,
+        disease_id: problems.field(&format!("{kind} Disease ID"), disease),
+    })
+}
