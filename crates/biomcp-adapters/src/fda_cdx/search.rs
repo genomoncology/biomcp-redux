@@ -63,17 +63,8 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         // A row that mentions the asked application but joins nothing is named, not dropped.
         let digits = id.as_str().get(3..).unwrap_or_default();
         let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
-        for row in all
-            .iter()
-            .filter(|row| mentions(&row.value.relation, digits))
-        {
-            let found = conflicts_of(&row.value);
-            if found.is_empty() && applications(&row.value.relation).is_empty() {
-                // The text names it but no link carries an application number.
-                let (table, index) = place(&row.value.relation);
-                conflicts.push((table, index, "drug", ProblemCode::ValueUnknown));
-            }
-            conflicts.extend(found);
+        for row in all {
+            conflicts.extend(unjoined(&row.value, digits));
         }
     }
     let mut problems: Vec<Problem> = conflicts
@@ -100,6 +91,19 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         info,
         problems,
     })
+}
+/// Problems for a row that mentions the application digits but joins no application.
+fn unjoined(row: &super::raw::Native, digits: &str) -> Vec<(u8, u32, &'static str, ProblemCode)> {
+    if !mentions(&row.relation, digits) {
+        return Vec::new();
+    }
+    let mut found = conflicts_of(row);
+    if found.is_empty() && applications(&row.relation).is_empty() {
+        // The text names it but no link carries an application number.
+        let (table, index) = place(&row.relation);
+        found.push((table, index, "drug", ProblemCode::ValueUnknown));
+    }
+    found
 }
 /// Whether the row's drug cell text or a link address contains the application digits.
 fn mentions(row: &CompanionDiagnosticRelation, digits: &str) -> bool {
