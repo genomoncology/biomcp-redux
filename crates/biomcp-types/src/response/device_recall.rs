@@ -22,7 +22,8 @@ pub struct DeviceRecallHeader {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub initiated: Option<PartialDate>,
 }
-/// Exact recall details. Submission numbers belong only to this native recall record.
+/// Exact recall details. Submission numbers belong only to this native recall record;
+/// classification and the enforcement fields come from an exact enforcement recall_number match.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(inline))]
@@ -44,6 +45,21 @@ pub struct DeviceRecallCard {
     /// Classification from an exact enforcement recall_number match, absent without that match.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub classification: Option<Text>,
+    /// Native enforcement voluntary_mandated, such as whether the firm or FDA started the recall.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub voluntary_mandated: Option<Text>,
+    /// Native enforcement initial_firm_notification: how the firm first told its customers.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub initial_firm_notification: Option<Text>,
+    /// Native enforcement product_quantity, as the source spells it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub product_quantity: Option<Text>,
+    /// Native enforcement center_classification_date: the day FDA classified the recall.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub classified: Option<PartialDate>,
+    /// Native enforcement report_date: the day FDA published the recall in its enforcement report.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub reported: Option<PartialDate>,
     /// Top-level native 510(k) submission entries; harmonized openfda fields never enter this list.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub k_numbers: Option<Box<[Text]>>,

@@ -145,6 +145,12 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     if !row.names.is_empty() && fields.iter().all(|name| row.names.contains(name)) {
         return source_check(parsed, request, path);
     }
+    // A selected source's own row, so the suggested call keeps only names it carries.
+    let row = selected(request)
+        .and_then(|(_, id)| reply_row(id))
+        .unwrap_or(row);
+    let mut next = kept_step(parsed, &row);
+    next.push(help_step(path));
     Err(UsageError::Arguments(UsageArguments {
         argument: Some("--fields".into()),
         valid_values: row
@@ -153,9 +159,37 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
             .map(|name| biodata::Text::new(name).ok())
             .collect::<Option<Vec<_>>>()
             .map(Into::into),
-        next: vec![help_step(path)],
+        next,
         ..Default::default()
     }))
+}
+
+/// The same call with each chosen field the row lacks moved to its nearest, or dropped.
+fn kept_step(parsed: &crate::grammar::Parsed, row: &Row) -> Vec<Step> {
+    let mut chosen: Vec<&str> = Vec::new();
+    for name in &parsed.globals.fields {
+        let field = if row.names.contains(name) {
+            Some(name)
+        } else {
+            nearest(row, name)
+        };
+        if let Some(field) = field.filter(|field| !chosen.contains(&field.as_str())) {
+            chosen.push(field.as_str());
+        }
+    }
+    if chosen.is_empty() {
+        return Vec::new();
+    }
+    let Some(action) = &parsed.action else {
+        return Vec::new();
+    };
+    let Ok(mut step) = crate::spell::step(StepKind::Configure, action) else {
+        return Vec::new();
+    };
+    let mut args = step.args.into_vec();
+    args.insert(0, format!("--fields={}", chosen.join(",")).into());
+    step.args = args.into();
+    vec![step]
 }
 
 /// The source a search query selects, with the reply schema of its rows, when the
@@ -208,27 +242,7 @@ fn source_check(
     if fields.iter().all(|name| row.names.contains(name)) {
         return Ok(());
     }
-    let mut chosen: Vec<&str> = Vec::new();
-    for name in fields {
-        let field = if row.names.contains(name) {
-            Some(name)
-        } else {
-            nearest(&row, name)
-        };
-        if let Some(field) = field.filter(|field| !chosen.contains(&field.as_str())) {
-            chosen.push(field.as_str());
-        }
-    }
-    let mut next = Vec::new();
-    if !chosen.is_empty()
-        && let Some(action) = &parsed.action
-        && let Ok(mut step) = crate::spell::step(StepKind::Configure, action)
-    {
-        let mut args = step.args.into_vec();
-        args.insert(0, format!("--fields={}", chosen.join(",")).into());
-        step.args = args.into();
-        next.push(step);
-    }
+    let mut next = kept_step(parsed, &row);
     next.push(help_step(path));
     Err(UsageError::SourceSelector {
         source,

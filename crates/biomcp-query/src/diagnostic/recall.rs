@@ -109,12 +109,8 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet, id: &biodata::DeviceRecallNum
             crate::status::item(&mut out, true, false, false);
             out.include_refusals(mapped.refusals);
             out.problems.append(&mut mapped.problems);
-            match adapter::classification(&leg, id) {
-                Ok(mut classification) => {
-                    mapped.value.classification = classification.value;
-                    out.include_refusals(classification.refusals);
-                    out.problems.append(&mut classification.problems);
-                }
+            match adapter::enforcement(&leg, id, &mut mapped.value) {
+                Ok(mut problems) => out.problems.append(&mut problems),
                 Err(failure) => {
                     error = Some(failed(&mut out, Some(q.record().clone()), failure));
                     crate::status::item(&mut out, true, false, true);

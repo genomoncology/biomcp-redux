@@ -3010,7 +3010,7 @@
         },
         "regulatory": {
           "$ref": "#/$defs/Reply_Section_DrugRecords_AuthorizationEvent",
-          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+          "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes. For EMA,\neach record's `indication` is EMA's medicines-data `therapeutic_indication`: the web summary\nshown on the EPAR page, not the SmPC section 4.1 text, whose wording can differ."
         }
       },
       "required": [
