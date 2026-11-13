@@ -13,7 +13,7 @@ macro_rules! quotas {
     };
 }
 
-// Unspecified provider concurrency retains the existing conservative local in-flight ceiling.
+// Unspecified provider concurrency retains the conservative local in-flight ceiling of one, unless the entry's own comment sets another.
 // Bounded absence means docs/terms and provider-domain policy searches found no numeric limit.
 // EBI services also follow https://www.ebi.ac.uk/about/terms-of-use/ (revised 2026-10-14).
 quotas! {
