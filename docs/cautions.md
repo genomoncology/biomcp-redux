@@ -36,7 +36,7 @@ The `value.unknown` membership and method problems identify facts the structured
 
 Each estimate keeps Orphanet's type, qualification, class, mean value, geography, source text and validation status as published, with PubMed IDs taken from the source text. The mean value is per 100,000 people for a value-and-class estimate and a count for cases or families; a class-only estimate has no value. BioMCP neither pools nor ranks estimates. The reply records the file release date and version.
 
-Orphadata Science data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); every file states the licence, and sync refuses a file that states another. Cite Orphanet and the file release when you reuse the data. Orphadata's [legal notice](https://www.orphadata.com/legal-notice/) also asks that a tool or service built on its data and offered to others state that it uses Orphanet/Orphadata data.
+Orphadata Science data is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); every file states the licence, and sync refuses a file that states another. When you reuse it, cite it as Orphadata's [FAQ](https://sciences.orphadata.com/faq/) asks: "Orphadata Science: Free access data from Orphanet. © INSERM 1999. Available on https://sciences.orphadata.com/ . Data version [date of data version]", using the release date in the reply. Orphadata's [legal notice](https://www.orphadata.com/legal-notice/) also asks that an AI tool or service offered to others state that it uses Orphanet/Orphadata data, that its results may not truly reflect that data, and that Orphanet is not responsible for their quality.
 
 ## Cohort recurrence
 
