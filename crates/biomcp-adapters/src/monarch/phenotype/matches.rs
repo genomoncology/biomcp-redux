@@ -6,8 +6,8 @@ use biomcp_fetch::{
     Arg, BadReply, Freshness, Input, Leg, PathSegment, Read, ReplyMetadata, RequestError,
 };
 use biomcp_types::{
-    PhenotypeBestMatch, PhenotypeGroup, PhenotypeMatch, PhenotypeMatchMethod, PhenotypeMatchTerm,
-    PhenotypeMetric, PhenotypeSearch, PhenotypeSearchMode,
+    PHENOTYPE_MATCH_MAX, PhenotypeBestMatch, PhenotypeGroup, PhenotypeMatch, PhenotypeMatchMethod,
+    PhenotypeMatchTerm, PhenotypeMetric, PhenotypeSearch, PhenotypeSearchMode,
 };
 use std::collections::BTreeMap;
 
@@ -84,8 +84,14 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Ranked, RequestError
         .fresh(Freshness::Days(1));
     let wanted = metric(q.metric());
     let wanted_mode = mode(q.search_mode());
+    // A hybrid shortlist grows with the limit, so a small limit changes the order itself.
+    // Hybrid always asks for Monarch's full 50 rows and keeps the caller's first rows.
+    let asked = match q.search_mode() {
+        PhenotypeSearchMode::Hybrid => PHENOTYPE_MATCH_MAX,
+        PhenotypeSearchMode::Full => q.limit(),
+    };
     let args = [
-        ("limit", Arg::Num(q.limit().into())),
+        ("limit", Arg::Num(asked.into())),
         ("metric", Arg::Text(wanted)),
         ("search_mode", Arg::Text(wanted_mode)),
     ];
@@ -106,7 +112,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Ranked, RequestError
                 };
                 let metric_ok =
                     stated(|s| &s.metric, wanted) && stated(|s| &s.search_mode, wanted_mode);
-                if rows.0.len() > q.limit() as usize || !metric_ok {
+                if rows.0.len() > asked as usize || !metric_ok {
                     Err(BadReply)
                 } else {
                     Ok(())
@@ -115,10 +121,15 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Ranked, RequestError
             // An empty reply is not cached: it can also be a transient Monarch answer.
             .cache_if(&|rows| !rows.0.is_empty() && rows.0.iter().all(Row::admitted)),
     )?;
-    Ok(map(received.value, &terms, received.meta))
+    Ok(map(
+        received.value,
+        &terms,
+        q.limit() as usize,
+        received.meta,
+    ))
 }
 
-fn map(rows: Rows, terms: &[HpId], metadata: ReplyMetadata) -> Ranked {
+fn map(rows: Rows, terms: &[HpId], keep: usize, metadata: ReplyMetadata) -> Ranked {
     let empty = rows.0.is_empty();
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
@@ -141,6 +152,10 @@ fn map(rows: Rows, terms: &[HpId], metadata: ReplyMetadata) -> Ranked {
                 .search_settings
                 .and_then(Field::value)
                 .map(Settings::mapped);
+        }
+        // Rows past the caller's limit still name the terms Monarch knew.
+        if items.len() >= keep {
+            continue;
         }
         let id = row
             .subject

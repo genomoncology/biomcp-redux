@@ -103,7 +103,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PhenotypeMetric"))]
     metric: Option<PhenotypeMetric>,
-    /// HP IDs only: hybrid, the default, or full to score every entity.
+    /// HP IDs only: hybrid (default) or full, slower, scoring every entity.
     #[serde(
         default,
         deserialize_with = "crate::query::present",
