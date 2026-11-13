@@ -2130,7 +2130,7 @@
         },
         "group": {
           "$ref": "#/$defs/PhenotypeGroup",
-          "description": "For HP IDs only: rank Monarch's human genes (default) or diseases against the set."
+          "description": "HP IDs only: rank genes, the default, or diseases."
         },
         "limit": {
           "default": 5,
@@ -2142,7 +2142,7 @@
         },
         "metric": {
           "$ref": "#/$defs/PhenotypeMetric",
-          "description": "For HP IDs only: Monarch similarity metric, default ancestor-information-content."
+          "description": "HP IDs only: Monarch similarity metric. Default ancestor-information-content."
         },
         "offset": {
           "default": 0,

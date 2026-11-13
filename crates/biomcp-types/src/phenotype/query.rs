@@ -86,7 +86,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PhenotypeGroup"))]
     group: Option<PhenotypeGroup>,
-    /// HP IDs only: Monarch similarity metric. Default ancestor-information-content.
+    /// HP IDs only: the Monarch similarity metric to rank by.
     #[serde(
         default,
         deserialize_with = "crate::query::present",

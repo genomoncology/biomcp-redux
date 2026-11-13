@@ -388,11 +388,11 @@
       ]
     },
     "Reply_PhenotypeSearch": {
-      "description": "Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, \\\nto get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a \\\nranking orders source candidates; neither establishes a diagnosis.",
+      "description": "Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.",
       "properties": {
         "group": {
           "$ref": "#/$defs/Reply_PhenotypeGroup",
-          "description": "For HP IDs only: rank Monarch's human genes (default) or diseases against the set."
+          "description": "HP IDs only: rank genes, the default, or diseases."
         },
         "limit": {
           "default": 5,
@@ -404,7 +404,7 @@
         },
         "metric": {
           "$ref": "#/$defs/Reply_PhenotypeMetric",
-          "description": "For HP IDs only: Monarch similarity metric, default ancestor-information-content."
+          "description": "HP IDs only: Monarch similarity metric. Default ancestor-information-content."
         },
         "offset": {
           "default": 0,
