@@ -63,7 +63,10 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         // An unreadable row that mentions the asked application joins nothing, so name it.
         let digits = id.as_str().get(3..).unwrap_or_default();
         let (all, _) = super::bundle::read(leg, Find::Exact(KeyKind::Band, "all"))?;
-        for row in all.iter().filter(|row| mentions(&row.value.relation, digits)) {
+        for row in all
+            .iter()
+            .filter(|row| mentions(&row.value.relation, digits))
+        {
             conflicts.extend(conflicts_of(&row.value));
         }
     }
