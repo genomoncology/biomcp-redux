@@ -31,14 +31,17 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let mut regions = Vec::new();
     if let Some(find) = region_find(query) {
         let (result, source, error) = read_regions(cx, find);
-        states.push(state(result.is_ok(), source.state));
+        states.push(state(error.is_none(), source.state));
         sources.push(source);
         local = local.or(error.and_then(status::local));
-        if let Ok(mapped) = result {
-            dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
-            status::append(&mut problems, mapped.problems);
-            regions = mapped.value;
-        }
+        // A failed read is reported through the ClinGen source outcome and status above.
+        regions = result
+            .map(|mapped| {
+                dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+                status::append(&mut problems, mapped.problems);
+                mapped.value
+            })
+            .unwrap_or_default();
     }
     let regions_total = (regions.len() > MAX_REGIONS).then_some(regions.len() as u64);
     regions.truncate(MAX_REGIONS);

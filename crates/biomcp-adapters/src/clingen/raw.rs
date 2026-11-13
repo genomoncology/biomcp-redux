@@ -151,11 +151,12 @@ pub(super) struct Region {
 pub(super) fn bounds(location: &str) -> Option<(&str, u64, u64)> {
     let (chromosome, range) = location.split_once(':')?;
     let (start, end) = range.split_once('-')?;
-    Some((
-        chromosome.strip_prefix("chr").unwrap_or(chromosome),
-        start.parse().ok()?,
-        end.parse().ok()?,
-    ))
+    let chromosome = chromosome.strip_prefix("chr").unwrap_or(chromosome);
+    match (start.parse(), end.parse()) {
+        (Ok(start), Ok(end)) => Some((chromosome, start, end)),
+        // A malformed location cannot overlap any interval; the row still answers band and ID searches.
+        _ => None,
+    }
 }
 /// Both ends of a published cytoband span, such as 15q11.2-q13.1.
 fn bands(cytoband: &str) -> Vec<String> {

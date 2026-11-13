@@ -67,7 +67,8 @@ pub struct GeneSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.
+    /// Words matched against symbols, previous symbols, aliases and names;
+    /// a ClinGen ISCA ID, such as ISCA-37400, returns that region.
     #[serde(
         default,
         deserialize_with = "present",
@@ -83,7 +84,8 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Cytoband"))]
     band: Option<Cytoband>,
-    /// A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes.
+    /// A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that
+    /// overlap it; HGNC genes carry no coordinates, so it adds no genes.
     #[serde(
         default,
         deserialize_with = "present",
