@@ -176,7 +176,7 @@ fn empty_pair(leg: &Leg<'_>, q: &PgxGet) -> Option<String> {
     };
     let Some(pair) = page.items.first() else {
         return Some(format!(
-            "CPIC lists no {gene} pair with drug {drug}, so it has no recommendations for it; search pgx --gene {gene} lists the gene's pairs."
+            "CPIC lists no {gene} pair with drug {drug}, so it has no recommendations for it; search pgx --gene {gene} --source cpic lists the gene's pairs."
         ));
     };
     let name = pair
