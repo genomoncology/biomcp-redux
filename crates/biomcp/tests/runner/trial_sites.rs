@@ -1,10 +1,55 @@
 //! Old trial snapshot owner keys must refuse before decoding incompatible payloads.
 use super::{launch::Environment, response_cases::copy_capture, trial_get::command};
 type Check = Result<(), Box<dyn std::error::Error>>;
-pub(super) fn trial() -> libtest_mimic::Trial {
-    super::transcript::trial("trial-sites/sites/old-snapshot-owner-expires", || {
-        old_owner().map_err(|e| e.to_string().into())
-    })
+pub(super) fn trials() -> Vec<libtest_mimic::Trial> {
+    vec![
+        super::transcript::trial("trial-sites/sites/old-snapshot-owner-expires", || {
+            old_owner().map_err(|e| e.to_string().into())
+        }),
+        super::transcript::trial("trial-sites/sites/page-past-end-is-empty", || {
+            past_end().map_err(|e| e.to_string().into())
+        }),
+    ]
+}
+const LOCATIONS: &str = "/result/items/0/sections/locations/data";
+/// A full page of 100 sites reports the total; an offset past the last site is an empty page.
+fn past_end() -> Check {
+    let env = Environment::new()?;
+    let replay = env.root().join("recordings");
+    copy_capture("trial/get/NCT03734029", &replay, |_, _| {})?;
+    let args = ["get", "trial", "NCT03734029", "locations", "--limit", "100"].map(str::to_owned);
+    let first = command(&env, &args, &env.globals(Some(&replay), false), 0)?;
+    let page = first.pointer(LOCATIONS).ok_or("first locations page")?;
+    let returned = page
+        .get("items")
+        .and_then(serde_json::Value::as_array)
+        .map_or(0, Vec::len);
+    let total = page.get("total").and_then(serde_json::Value::as_u64);
+    if returned != 100 || total != Some(208) || page.get("continuation").is_none() {
+        return Err(format!("first page: {returned} sites, total {total:?}").into());
+    }
+    let mut next = super::action(&first, "page")?;
+    let at = next
+        .iter()
+        .position(|a| a == "--offset")
+        .ok_or("page action has no offset")?;
+    *next.get_mut(at + 1).ok_or("offset value")? = "400".into();
+    let after = command(&env, &next, &env.globals(Some(&replay), false), 0)?;
+    let page = after.pointer(LOCATIONS).ok_or("past-end locations page")?;
+    let number = |name: &str| page.get(name).and_then(serde_json::Value::as_u64);
+    if after.get("status").and_then(serde_json::Value::as_str) != Some("complete")
+        || number("total") != Some(208)
+        || number("offset") != Some(400)
+        || page
+            .get("items")
+            .and_then(serde_json::Value::as_array)
+            .is_some_and(|items| !items.is_empty())
+        || page.get("continuation").is_some_and(|c| !c.is_null())
+        || super::action(&after, "page").is_ok()
+    {
+        return Err(format!("past-end page: {after}").into());
+    }
+    Ok(())
 }
 fn old_owner() -> Check {
     for version in [1, 2, 3, 4] {

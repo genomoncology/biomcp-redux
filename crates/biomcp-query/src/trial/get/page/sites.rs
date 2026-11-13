@@ -3,6 +3,9 @@ use crate::Outcome;
 use biodata::Text;
 use biomcp_fetch::RequestError;
 use biomcp_types::{TrialContactRecord, TrialGet, TrialSection, TrialSections};
+/// Bytes for one locations page: room for the largest `--limit` (100) of typical sites,
+/// so the page holds what the caller asked for.
+const LOCATIONS_BUDGET: usize = 60_000;
 pub(super) fn render(
     query: &TrialGet,
     snapshot: &Snapshot,
@@ -16,7 +19,7 @@ pub(super) fn render(
     let d = &snapshot.detail;
     let id = d.card.nct_id;
     if requested(TrialSection::Locations) {
-        let mut page = records(query, &d.locations, 4500, serde_json::to_vec)?;
+        let mut page = records(query, &d.locations, LOCATIONS_BUDGET, serde_json::to_vec)?;
         continue_records(&mut page, query, id, TrialSection::Locations, pool);
         advance(
             query,

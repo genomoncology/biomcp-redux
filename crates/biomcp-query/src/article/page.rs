@@ -241,20 +241,14 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         .iter()
         .any(|r| r.item.pmid.is_none() && r.item.header.is_none());
     let returned = u32::try_from(rows.len()).unwrap_or(u32::MAX);
-    let total = u64::from(pool.info.size);
+    let held = u64::from(pool.info.size);
+    let total = source_total(&pool.sources).unwrap_or(held);
     out.page = Some(PageInfo {
         offset: query.offset(),
         returned,
         total,
         pool: Some(pool.info.clone()),
-        truncated: Some(pool.sources.iter().any(|s| {
-            s.count
-                .zip(s.retrieved_count)
-                .is_some_and(|(count, fetched)| count > u64::from(fetched))
-                || s.notices
-                    .iter()
-                    .any(|n| matches!(n, biomcp_types::SourceNotice::GraphTruncated { .. }))
-        })),
+        truncated: Some(truncated(&pool.sources)),
     });
     let items = rows.into_iter().map(|r| r.item).collect();
     out.body = match query {
@@ -264,9 +258,9 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
         })
         .with_query(q.clone()),
         Cursor::Edges(q, _) => (ArticleEdgePage { items }).with_query(q.clone()),
-        Cursor::Recommend(q) => (super::recommend::body(items, total == 0)).with_query(q.clone()),
+        Cursor::Recommend(q) => (super::recommend::body(items, held == 0)).with_query(q.clone()),
     };
-    actions(query, pool, returned, total, out);
+    actions(query, pool, returned, held, out);
     if let Cursor::Search(search) = query {
         super::next::search(search, total, partial, out);
     }
@@ -292,11 +286,34 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     }
 }
 
-fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, total: u64, out: &mut Outcome) {
+/// One source's own count when it matched more than the retrieved window holds.
+/// Several sources' counts are never summed; their union keeps the held size.
+fn source_total(sources: &[biomcp_types::SourceOutcome]) -> Option<u64> {
+    let [source] = sources else {
+        return None;
+    };
+    source
+        .count
+        .zip(source.retrieved_count)
+        .and_then(|(count, fetched)| (count > u64::from(fetched)).then_some(count))
+}
+/// Some source matched more than it returned, or still had graph pages.
+fn truncated(sources: &[biomcp_types::SourceOutcome]) -> bool {
+    sources.iter().any(|s| {
+        s.count
+            .zip(s.retrieved_count)
+            .is_some_and(|(count, fetched)| count > u64::from(fetched))
+            || s.notices
+                .iter()
+                .any(|n| matches!(n, biomcp_types::SourceNotice::GraphTruncated { .. }))
+    })
+}
+/// Page steps stay inside the held window, even when the source matched more.
+fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, held: u64, out: &mut Outcome) {
     if let Some(offset) = query
         .offset()
         .checked_add(returned)
-        .filter(|offset| u64::from(*offset) < total && returned > 0)
+        .filter(|offset| u64::from(*offset) < held && returned > 0)
     {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
@@ -408,7 +425,9 @@ pub(super) fn fetched<'a>(
     items: Vec<biomcp_types::ArticleItem>,
     out: &mut Outcome,
 ) {
-    let total = items.len() as u64;
+    let held = items.len() as u64;
+    let total = source_total(&out.sources).unwrap_or(held);
+    let cut = truncated(&out.sources);
     let mut items: Box<[_]> = items
         .into_iter()
         .skip(query.offset() as usize)
@@ -421,7 +440,7 @@ pub(super) fn fetched<'a>(
         returned: items.len() as u32,
         total,
         pool: None,
-        truncated: None,
+        truncated: cut.then_some(true),
     });
     out.body = match query {
         Cursor::Search(q) => ArticlePage {
@@ -430,7 +449,7 @@ pub(super) fn fetched<'a>(
         }
         .with_query(q.clone()),
         Cursor::Edges(q, _) => ArticleEdgePage { items }.with_query(q.clone()),
-        Cursor::Recommend(q) => super::recommend::body(items, total == 0).with_query(q.clone()),
+        Cursor::Recommend(q) => super::recommend::body(items, held == 0).with_query(q.clone()),
     };
     status::item(out, true, false, untitled);
 }
