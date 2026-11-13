@@ -1,0 +1,307 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20260101%20TO%2020261231%5D&limit=1&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794598152,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 391,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 365
+    }
+  },
+  "results": [
+    {
+      "safetyreportversion": "1",
+      "safetyreportid": "27315412",
+      "primarysourcecountry": "EU",
+      "occurcountry": "EU",
+      "transmissiondateformat": "102",
+      "transmissiondate": "20261008",
+      "reporttype": "2",
+      "serious": "1",
+      "seriousnessdeath": "2",
+      "seriousnesslifethreatening": "2",
+      "seriousnesshospitalization": "2",
+      "seriousnessdisabling": "2",
+      "seriousnesscongenitalanomali": "2",
+      "seriousnessother": "1",
+      "receivedateformat": "102",
+      "receivedate": "20260928",
+      "receiptdateformat": "102",
+      "receiptdate": "20260928",
+      "fulfillexpeditecriteria": "1",
+      "companynumb": "EU-ROCHE-10000678987",
+      "primarysource": {
+        "reportercountry": "EU",
+        "qualification": "3"
+      },
+      "sender": {
+        "sendertype": "6",
+        "senderorganization": "ROCHE"
+      },
+      "receiver": {
+        "receivertype": "6",
+        "receiverorganization": "FDA"
+      },
+      "patient": {
+        "reaction": [
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Hepatitis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Colitis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Infusion related reaction",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Arthritis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Skin toxicity",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Hypophysitis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Lymphadenopathy",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Myocarditis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Neuropathy peripheral",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Nephritis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Pancreatitis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Pneumonitis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "29.0",
+            "reactionmeddrapt": "Autoimmune thyroiditis",
+            "reactionoutcome": "6"
+          }
+        ],
+        "drug": [
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "ATEZOLIZUMAB",
+            "drugseparatedosagenumb": "1",
+            "drugindication": "Small cell lung cancer extensive stage",
+            "actiondrug": "5",
+            "drugrecurreadministration": "3",
+            "drugadditional": "3",
+            "activesubstance": {
+              "activesubstancename": "ATEZOLIZUMAB"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "DURVALUMAB",
+            "drugseparatedosagenumb": "1",
+            "drugindication": "Small cell lung cancer extensive stage",
+            "actiondrug": "5",
+            "drugrecurreadministration": "3",
+            "drugadditional": "3",
+            "activesubstance": {
+              "activesubstancename": "DURVALUMAB"
+            },
+            "openfda": {
+              "application_number": [
+                "BLA761069"
+              ],
+              "brand_name": [
+                "IMFINZI"
+              ],
+              "generic_name": [
+                "DURVALUMAB"
+              ],
+              "manufacturer_name": [
+                "AstraZeneca Pharmaceuticals LP"
+              ],
+              "product_ndc": [
+                "0310-4500",
+                "0310-4611"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "DURVALUMAB"
+              ],
+              "rxcui": [
+                "1919507",
+                "1919512",
+                "1919515",
+                "1919516"
+              ],
+              "spl_id": [
+                "5826517b-d2d2-4636-ad9c-0dc676abad9e"
+              ],
+              "spl_set_id": [
+                "8baba4ea-2855-42fa-9bd9-5a7548d4cec3"
+              ],
+              "package_ndc": [
+                "0310-4500-12",
+                "0310-4611-50"
+              ],
+              "nui": [
+                "N0000193338",
+                "N0000193337",
+                "N0000193336",
+                "M0001357"
+              ],
+              "pharm_class_epc": [
+                "Programmed Death Ligand-1 Blocker [EPC]"
+              ],
+              "pharm_class_moa": [
+                "Programmed Death Ligand-1 Antagonists [MoA]",
+                "Programmed Death Ligand-1-directed Antibody Interactions [MoA]"
+              ],
+              "pharm_class_cs": [
+                "Antibodies, Monoclonal [CS]"
+              ],
+              "unii": [
+                "28X28X9OKV"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "PEMBROLIZUMAB",
+            "drugseparatedosagenumb": "1",
+            "drugindication": "Small cell lung cancer extensive stage",
+            "actiondrug": "5",
+            "drugrecurreadministration": "3",
+            "drugadditional": "3",
+            "activesubstance": {
+              "activesubstancename": "PEMBROLIZUMAB"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "IPILIMUMAB",
+            "drugseparatedosagenumb": "1",
+            "drugindication": "Small cell lung cancer extensive stage",
+            "actiondrug": "5",
+            "drugrecurreadministration": "3",
+            "drugadditional": "3",
+            "activesubstance": {
+              "activesubstancename": "IPILIMUMAB"
+            },
+            "openfda": {
+              "application_number": [
+                "BLA125377"
+              ],
+              "brand_name": [
+                "YERVOY"
+              ],
+              "generic_name": [
+                "IPILIMUMAB"
+              ],
+              "manufacturer_name": [
+                "E.R. Squibb & Sons, L.L.C."
+              ],
+              "product_ndc": [
+                "0003-2327",
+                "0003-2328"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "IPILIMUMAB"
+              ],
+              "rxcui": [
+                "1657005",
+                "1657007",
+                "1657012",
+                "1657013"
+              ],
+              "spl_id": [
+                "72755838-4a55-4245-949e-16cea13f2584"
+              ],
+              "spl_set_id": [
+                "2265ef30-253e-11df-8a39-0800200c9a66"
+              ],
+              "package_ndc": [
+                "0003-2327-11",
+                "0003-2328-22"
+              ],
+              "nui": [
+                "N0000182635",
+                "N0000182634",
+                "N0000182157"
+              ],
+              "pharm_class_epc": [
+                "CTLA-4-directed Blocking Antibody [EPC]"
+              ],
+              "pharm_class_moa": [
+                "CTLA-4-directed Antibody Interactions [MoA]"
+              ],
+              "pharm_class_pe": [
+                "Increased T Lymphocyte Activation [PE]"
+              ],
+              "unii": [
+                "6T8C155666"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+      }
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20251015%20TO%2020251031%5D&limit=1&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794598157,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 371,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 31
+    }
+  },
+  "results": [
+    {
+      "safetyreportversion": "2",
+      "safetyreportid": "25984100",
+      "primarysourcecountry": "JP",
+      "occurcountry": "JP",
+      "transmissiondateformat": "102",
+      "transmissiondate": "20260117",
+      "reporttype": "1",
+      "serious": "1",
+      "seriousnessdeath": "2",
+      "seriousnesslifethreatening": "2",
+      "seriousnesshospitalization": "2",
+      "seriousnessdisabling": "2",
+      "seriousnesscongenitalanomali": "2",
+      "seriousnessother": "1",
+      "receivedateformat": "102",
+      "receivedate": "20251031",
+      "receiptdateformat": "102",
+      "receiptdate": "20251125",
+      "fulfillexpeditecriteria": "2",
+      "companynumb": "JP-Eisai-202509367_LEN-EC_P_1",
+      "primarysource": {
+        "reportercountry": "JP",
+        "qualification": "1"
+      },
+      "sender": {
+        "sendertype": "6",
+        "senderorganization": "EISAI"
+      },
+      "receiver": {
+        "receivertype": "6",
+        "receiverorganization": "FDA"
+      },
+      "patient": {
+        "patientagegroup": "6",
+        "patientsex": "2",
+        "reaction": [
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Myocarditis",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Pyrexia",
+            "reactionoutcome": "1"
+          },
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Blood creatine phosphokinase increased",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Dyspnoea",
+            "reactionoutcome": "6"
+          },
+          {
+            "reactionmeddraversionpt": "28.1",
+            "reactionmeddrapt": "Malignant neoplasm progression",
+            "reactionoutcome": "6"
+          }
+        ],
+        "drug": [
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "LENVIMA",
+            "drugauthorizationnumb": "206947",
+            "drugseparatedosagenumb": "1",
+            "drugdosagetext": "DOSE AND FREQUENCY UNKNOWN",
+            "drugdosageform": "Capsule, hard",
+            "drugadministrationroute": "048",
+            "drugindication": "Endometrial cancer",
+            "drugstartdateformat": "610",
+            "drugstartdate": "202510",
+            "drugenddateformat": "610",
+            "drugenddate": "202510",
+            "drugtreatmentduration": "1",
+            "drugtreatmentdurationunit": "804",
+            "actiondrug": "1",
+            "drugadditional": "1",
+            "activesubstance": {
+              "activesubstancename": "LENVATINIB"
+            }
+          },
+          {
+            "drugcharacterization": "2",
+            "medicinalproduct": "KEYTRUDA",
+            "drugstructuredosagenumb": "200",
+            "drugstructuredosageunit": "003",
+            "drugseparatedosagenumb": "1",
+            "drugintervaldosageunitnumb": "3",
+            "drugintervaldosagedefinition": "803",
+            "drugdosagetext": "2 COURSES",
+            "drugdosageform": "Solution for injection",
+            "drugadministrationroute": "042",
+            "drugindication": "Endometrial cancer",
+            "drugstartdateformat": "610",
+            "drugstartdate": "202510",
+            "drugenddateformat": "610",
+            "drugenddate": "202510",
+            "drugtreatmentduration": "1",
+            "drugtreatmentdurationunit": "804",
+            "actiondrug": "1",
+            "drugadditional": "1",
+            "activesubstance": {
+              "activesubstancename": "PEMBROLIZUMAB"
+            }
+          }
+        ],
+        "summary": {
+          "narrativeincludeclinical": "CASE EVENT DATE: 20251001"
+        }
+      }
+    }
+  ]
+}
+      }
+    }
+  ]
+}

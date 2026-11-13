@@ -1,0 +1,223 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20251015%20TO%2020251231%5D&count=receivedate",
+  "exchanges": [
+    {
+      "fetched": 1794598154,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 387,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28"
+  },
+  "results": [
+    {
+      "time": "20251015",
+      "count": 3
+    },
+    {
+      "time": "20251016",
+      "count": 4
+    },
+    {
+      "time": "20251017",
+      "count": 4
+    },
+    {
+      "time": "20251021",
+      "count": 1
+    },
+    {
+      "time": "20251023",
+      "count": 2
+    },
+    {
+      "time": "20251024",
+      "count": 3
+    },
+    {
+      "time": "20251027",
+      "count": 3
+    },
+    {
+      "time": "20251028",
+      "count": 2
+    },
+    {
+      "time": "20251029",
+      "count": 5
+    },
+    {
+      "time": "20251030",
+      "count": 2
+    },
+    {
+      "time": "20251031",
+      "count": 2
+    },
+    {
+      "time": "20251103",
+      "count": 1
+    },
+    {
+      "time": "20251104",
+      "count": 1
+    },
+    {
+      "time": "20251106",
+      "count": 2
+    },
+    {
+      "time": "20251107",
+      "count": 1
+    },
+    {
+      "time": "20251110",
+      "count": 2
+    },
+    {
+      "time": "20251112",
+      "count": 2
+    },
+    {
+      "time": "20251113",
+      "count": 1
+    },
+    {
+      "time": "20251116",
+      "count": 1
+    },
+    {
+      "time": "20251117",
+      "count": 1
+    },
+    {
+      "time": "20251118",
+      "count": 2
+    },
+    {
+      "time": "20251119",
+      "count": 5
+    },
+    {
+      "time": "20251121",
+      "count": 3
+    },
+    {
+      "time": "20251124",
+      "count": 3
+    },
+    {
+      "time": "20251125",
+      "count": 4
+    },
+    {
+      "time": "20251126",
+      "count": 3
+    },
+    {
+      "time": "20251127",
+      "count": 2
+    },
+    {
+      "time": "20251128",
+      "count": 5
+    },
+    {
+      "time": "20251129",
+      "count": 1
+    },
+    {
+      "time": "20251201",
+      "count": 3
+    },
+    {
+      "time": "20251202",
+      "count": 1
+    },
+    {
+      "time": "20251203",
+      "count": 3
+    },
+    {
+      "time": "20251204",
+      "count": 3
+    },
+    {
+      "time": "20251205",
+      "count": 3
+    },
+    {
+      "time": "20251207",
+      "count": 1
+    },
+    {
+      "time": "20251208",
+      "count": 1
+    },
+    {
+      "time": "20251209",
+      "count": 5
+    },
+    {
+      "time": "20251210",
+      "count": 2
+    },
+    {
+      "time": "20251211",
+      "count": 2
+    },
+    {
+      "time": "20251212",
+      "count": 3
+    },
+    {
+      "time": "20251214",
+      "count": 2
+    },
+    {
+      "time": "20251215",
+      "count": 1
+    },
+    {
+      "time": "20251216",
+      "count": 2
+    },
+    {
+      "time": "20251217",
+      "count": 2
+    },
+    {
+      "time": "20251218",
+      "count": 1
+    },
+    {
+      "time": "20251221",
+      "count": 2
+    },
+    {
+      "time": "20251225",
+      "count": 1
+    },
+    {
+      "time": "20251229",
+      "count": 1
+    },
+    {
+      "time": "20251230",
+      "count": 1
+    }
+  ]
+}
+      }
+    }
+  ]
+}

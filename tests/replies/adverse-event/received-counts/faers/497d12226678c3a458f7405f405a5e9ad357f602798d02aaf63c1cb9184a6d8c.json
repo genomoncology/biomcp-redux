@@ -1,0 +1,107 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20260901%20TO%2020261231%5D&count=receivedate",
+  "exchanges": [
+    {
+      "fetched": 1794606656,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 467,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28"
+  },
+  "results": [
+    {
+      "time": "20260902",
+      "count": 2
+    },
+    {
+      "time": "20260903",
+      "count": 1
+    },
+    {
+      "time": "20260904",
+      "count": 2
+    },
+    {
+      "time": "20260906",
+      "count": 1
+    },
+    {
+      "time": "20260907",
+      "count": 1
+    },
+    {
+      "time": "20260908",
+      "count": 1
+    },
+    {
+      "time": "20260909",
+      "count": 1
+    },
+    {
+      "time": "20260910",
+      "count": 3
+    },
+    {
+      "time": "20260911",
+      "count": 2
+    },
+    {
+      "time": "20260912",
+      "count": 1
+    },
+    {
+      "time": "20260914",
+      "count": 1
+    },
+    {
+      "time": "20260915",
+      "count": 1
+    },
+    {
+      "time": "20260916",
+      "count": 2
+    },
+    {
+      "time": "20260917",
+      "count": 4
+    },
+    {
+      "time": "20260921",
+      "count": 2
+    },
+    {
+      "time": "20260922",
+      "count": 3
+    },
+    {
+      "time": "20260923",
+      "count": 1
+    },
+    {
+      "time": "20260924",
+      "count": 1
+    },
+    {
+      "time": "20260925",
+      "count": 2
+    },
+    {
+      "time": "20260928",
+      "count": 3
+    }
+  ]
+}
+      }
+    }
+  ]
+}

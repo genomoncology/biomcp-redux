@@ -1,0 +1,368 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=%28%28patient.drug.openfda.generic_name%3A%22pembrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22pembrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22pembrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Lambrolizumab%22%20OR%20patient.drug.openfda.brand_name%3A%22Lambrolizumab%22%20OR%20patient.drug.medicinalproduct%3A%22Lambrolizumab%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22MK-3475%22%20OR%20patient.drug.openfda.brand_name%3A%22MK-3475%22%20OR%20patient.drug.medicinalproduct%3A%22MK-3475%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22Keytruda%22%20OR%20patient.drug.openfda.brand_name%3A%22Keytruda%22%20OR%20patient.drug.medicinalproduct%3A%22Keytruda%22%29%20OR%20%28patient.drug.openfda.generic_name%3A%22SCH-900475%22%20OR%20patient.drug.openfda.brand_name%3A%22SCH-900475%22%20OR%20patient.drug.medicinalproduct%3A%22SCH-900475%22%29%29%20AND%20patient.reaction.reactionmeddrapt%3A%22myocarditis%22%20AND%20receivedate%3A%5B20240101%20TO%2020241231%5D&limit=1&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794598147,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 339,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-10-28",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 433
+    }
+  },
+  "results": [
+    {
+      "safetyreportversion": "1",
+      "safetyreportid": "24793569",
+      "primarysourcecountry": "CH",
+      "occurcountry": "CH",
+      "transmissiondateformat": "102",
+      "transmissiondate": "20250115",
+      "reporttype": "1",
+      "serious": "1",
+      "seriousnessdeath": "2",
+      "seriousnesslifethreatening": "2",
+      "seriousnesshospitalization": "1",
+      "seriousnessdisabling": "2",
+      "seriousnesscongenitalanomali": "2",
+      "seriousnessother": "1",
+      "receivedateformat": "102",
+      "receivedate": "20241231",
+      "receiptdateformat": "102",
+      "receiptdate": "20241231",
+      "fulfillexpeditecriteria": "1",
+      "authoritynumb": "CH-SM-2024-17109",
+      "duplicate": "1",
+      "reportduplicate": {
+        "duplicatesource": "Swissmedic",
+        "duplicatenumb": "CH-SM-2024-17109"
+      },
+      "primarysource": {
+        "reportercountry": "CH",
+        "qualification": "3"
+      },
+      "sender": {
+        "sendertype": "1",
+        "senderorganization": "PFIZER"
+      },
+      "receiver": {
+        "receivertype": "6",
+        "receiverorganization": "FDA"
+      },
+      "patient": {
+        "patientonsetage": "71",
+        "patientonsetageunit": "801",
+        "patientsex": "1",
+        "reaction": [
+          {
+            "reactionmeddraversionpt": "27.1",
+            "reactionmeddrapt": "Immune-mediated encephalitis",
+            "reactionoutcome": "2"
+          },
+          {
+            "reactionmeddraversionpt": "27.1",
+            "reactionmeddrapt": "Immune-mediated myocarditis",
+            "reactionoutcome": "2"
+          },
+          {
+            "reactionmeddraversionpt": "27.1",
+            "reactionmeddrapt": "Immune-mediated hypophysitis",
+            "reactionoutcome": "2"
+          },
+          {
+            "reactionmeddraversionpt": "27.1",
+            "reactionmeddrapt": "Immune-mediated arthritis",
+            "reactionoutcome": "2"
+          },
+          {
+            "reactionmeddraversionpt": "27.1",
+            "reactionmeddrapt": "Dermatitis",
+            "reactionoutcome": "2"
+          }
+        ],
+        "drug": [
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "INLYTA",
+            "drugauthorizationnumb": "202324",
+            "drugdosageform": "Film-coated tablet",
+            "drugadministrationroute": "048",
+            "drugindication": "Metastatic renal cell carcinoma",
+            "drugstartdateformat": "102",
+            "drugstartdate": "20241017",
+            "drugenddateformat": "610",
+            "drugenddate": "202410",
+            "actiondrug": "1",
+            "drugadditional": "1",
+            "activesubstance": {
+              "activesubstancename": "AXITINIB"
+            },
+            "openfda": {
+              "application_number": [
+                "NDA202324"
+              ],
+              "brand_name": [
+                "INLYTA"
+              ],
+              "generic_name": [
+                "AXITINIB"
+              ],
+              "manufacturer_name": [
+                "U.S. Pharmaceuticals",
+                "Pfizer Laboratories Div Pfizer Inc"
+              ],
+              "product_ndc": [
+                "63539-026",
+                "63539-044",
+                "0069-0145",
+                "0069-0151"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "ORAL"
+              ],
+              "substance_name": [
+                "AXITINIB"
+              ],
+              "rxcui": [
+                "1243004",
+                "1243010",
+                "1243012",
+                "1243014"
+              ],
+              "spl_id": [
+                "0c63e82e-8c0d-4177-8748-20c2ece2b5e6",
+                "4382adc1-c177-44e4-988f-3f89ffecb676"
+              ],
+              "spl_set_id": [
+                "8a903e31-936e-4ed7-8a59-59f32374f338",
+                "84137882-e000-47da-bd5b-fa76ab3c76f9"
+              ],
+              "package_ndc": [
+                "63539-044-01",
+                "63539-044-02",
+                "63539-026-01",
+                "0069-0145-01",
+                "0069-0151-11"
+              ],
+              "nui": [
+                "N0000175605",
+                "N0000020000"
+              ],
+              "pharm_class_epc": [
+                "Kinase Inhibitor [EPC]"
+              ],
+              "pharm_class_moa": [
+                "Receptor Tyrosine Kinase Inhibitors [MoA]"
+              ],
+              "unii": [
+                "C9LVQ0YUXG"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "KEYTRUDA",
+            "drugadministrationroute": "040",
+            "drugindication": "Metastatic renal cell carcinoma",
+            "drugstartdateformat": "102",
+            "drugstartdate": "20241017",
+            "drugenddateformat": "610",
+            "drugenddate": "202410",
+            "actiondrug": "1",
+            "drugadditional": "1",
+            "activesubstance": {
+              "activesubstancename": "PEMBROLIZUMAB"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "OPDIVO",
+            "drugdosagetext": "UNK",
+            "drugadministrationroute": "040",
+            "drugstartdateformat": "610",
+            "drugstartdate": "202209",
+            "drugenddateformat": "102",
+            "drugenddate": "20241002",
+            "actiondrug": "1",
+            "drugadditional": "1",
+            "activesubstance": {
+              "activesubstancename": "NIVOLUMAB"
+            },
+            "openfda": {
+              "application_number": [
+                "BLA125554"
+              ],
+              "brand_name": [
+                "OPDIVO"
+              ],
+              "generic_name": [
+                "NIVOLUMAB"
+              ],
+              "manufacturer_name": [
+                "E.R. Squibb & Sons, L.L.C."
+              ],
+              "product_ndc": [
+                "0003-3734",
+                "0003-3772",
+                "0003-3774",
+                "0003-3756"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "NIVOLUMAB"
+              ],
+              "rxcui": [
+                "1657190",
+                "1657192",
+                "1657195",
+                "1657196",
+                "1991412",
+                "1991413",
+                "2569080",
+                "2569081"
+              ],
+              "spl_id": [
+                "1fce9e6a-6a7c-4fc0-a3a4-a0099f7bd2ce"
+              ],
+              "spl_set_id": [
+                "f570b9c4-6846-4de2-abfa-4d0a4ae4e394"
+              ],
+              "package_ndc": [
+                "0003-3772-11",
+                "0003-3774-12",
+                "0003-3734-13",
+                "0003-3756-14"
+              ],
+              "nui": [
+                "N0000191260",
+                "N0000191259"
+              ],
+              "pharm_class_epc": [
+                "Programmed Death Receptor-1 Blocking Antibody [EPC]"
+              ],
+              "pharm_class_moa": [
+                "Programmed Death Receptor-1-directed Antibody Interactions [MoA]"
+              ],
+              "unii": [
+                "31YO63LBSN"
+              ]
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "LENVATINIB",
+            "drugdosagetext": "START AT LEAST 08/2024, IF/WHEN STOP UNKNOWN",
+            "drugadministrationroute": "048",
+            "drugstartdateformat": "610",
+            "drugstartdate": "202408",
+            "actiondrug": "5",
+            "drugadditional": "3",
+            "activesubstance": {
+              "activesubstancename": "LENVATINIB"
+            }
+          },
+          {
+            "drugcharacterization": "1",
+            "medicinalproduct": "YERVOY",
+            "drugdosagetext": "UNK",
+            "drugenddateformat": "102",
+            "drugenddate": "20221111",
+            "actiondrug": "1",
+            "drugadditional": "1",
+            "activesubstance": {
+              "activesubstancename": "IPILIMUMAB"
+            },
+            "openfda": {
+              "application_number": [
+                "BLA125377"
+              ],
+              "brand_name": [
+                "YERVOY"
+              ],
+              "generic_name": [
+                "IPILIMUMAB"
+              ],
+              "manufacturer_name": [
+                "E.R. Squibb & Sons, L.L.C."
+              ],
+              "product_ndc": [
+                "0003-2327",
+                "0003-2328"
+              ],
+              "product_type": [
+                "HUMAN PRESCRIPTION DRUG"
+              ],
+              "route": [
+                "INTRAVENOUS"
+              ],
+              "substance_name": [
+                "IPILIMUMAB"
+              ],
+              "rxcui": [
+                "1657005",
+                "1657007",
+                "1657012",
+                "1657013"
+              ],
+              "spl_id": [
+                "72755838-4a55-4245-949e-16cea13f2584"
+              ],
+              "spl_set_id": [
+                "2265ef30-253e-11df-8a39-0800200c9a66"
+              ],
+              "package_ndc": [
+                "0003-2327-11",
+                "0003-2328-22"
+              ],
+              "nui": [
+                "N0000182635",
+                "N0000182634",
+                "N0000182157"
+              ],
+              "pharm_class_epc": [
+                "CTLA-4-directed Blocking Antibody [EPC]"
+              ],
+              "pharm_class_moa": [
+                "CTLA-4-directed Antibody Interactions [MoA]"
+              ],
+              "pharm_class_pe": [
+                "Increased T Lymphocyte Activation [PE]"
+              ],
+              "unii": [
+                "6T8C155666"
+              ]
+            }
+          }
+        ],
+        "summary": {
+          "narrativeincludeclinical": "CASE EVENT DATE: 20241021"
+        }
+      }
+    }
+  ]
+}
+      }
+    }
+  ]
+}

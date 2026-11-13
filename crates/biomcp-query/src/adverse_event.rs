@@ -21,7 +21,10 @@ pub(crate) fn search_command(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcom
     let out = if query.widens_drug_names()
         && !cx.fetch.disabled(Source::Faers)
         && !(cx.fetch.disabled(Source::Meddra)
-            && (query.reaction().is_some() || query.aggregate().is_some()))
+            && (query.reaction().is_some()
+                || query
+                    .aggregate()
+                    .is_some_and(|aggregate| aggregate.required_component().is_some())))
     {
         names::search(cx, query, &mut deadline)
     } else {
@@ -37,6 +40,12 @@ fn search<'a>(
     navigation_query: &AdverseEventSearch,
     deadline: biomcp_fetch::Deadline<'a>,
 ) -> Outcome {
+    if query
+        .aggregate()
+        .is_some_and(|aggregate| aggregate.is_received())
+    {
+        return counts::received(cx, query, navigation_query, deadline);
+    }
     if query.aggregate().is_some() {
         return counts::search(cx, query, navigation_query, deadline);
     }
@@ -64,6 +73,7 @@ fn search<'a>(
             dropped: false,
             body: (AdverseEventPage {
                 reaction_counts: None,
+                received_counts: None,
                 reaction_match: query
                     .reaction()
                     .map(|_| biomcp_types::AdverseEventReactionMatch::PhraseMatch),

@@ -1,13 +1,17 @@
 {
   "$defs": {
     "AdverseEventAggregate": {
-      "description": "Source-native aggregation of matching FAERS reports.",
+      "description": "Source-native aggregation of matching FAERS or MAUDE reports.",
       "enum": [
-        "reactions"
+        "reactions",
+        "received-year",
+        "received-month"
       ],
       "type": "string",
       "x-enum-descriptions": [
-        " Exact reaction-term buckets from openFDA; reports may contribute to several terms."
+        " Exact reaction-term buckets from openFDA; reports may contribute to several terms.",
+        " FDA receipt-date report counts summed to calendar years.",
+        " FDA receipt-date report counts summed to calendar months."
       ]
     },
     "AdverseEventSection": {
@@ -3119,8 +3123,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS reaction counts.\nUse reactions for source-native count buckets across matching reports. Counts are not rates or causal associations; a report may contribute to several terms. Requires MedDRA and offset zero.",
-          "x-required-component": "meddra"
+          "description": "Report counts.\nreactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero."
         },
         "command": {
           "const": "search-adverse-event",
@@ -3155,7 +3158,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Native report headers, counted FAERS reaction terms or VAERS rows; default five.",
+          "description": "Report headers, reaction terms or VAERS rows; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -3186,7 +3189,7 @@
         },
         "offset": {
           "default": 0,
-          "description": "Native report row offset; reaction counts require zero. VAERS needs its snapshot.",
+          "description": "Report row offset; counts need zero. VAERS needs its snapshot.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -3232,7 +3235,7 @@
               "type": "null"
             }
           ],
-          "description": "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD or YYYY-MM; a month starts on its first day.",
+          "description": "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day.",
           "format": "date"
         },
         "received_to": {
@@ -3244,7 +3247,7 @@
               "type": "null"
             }
           ],
-          "description": "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD or YYYY-MM; a month ends on its last day.",
+          "description": "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day.",
           "format": "date"
         },
         "section": {
