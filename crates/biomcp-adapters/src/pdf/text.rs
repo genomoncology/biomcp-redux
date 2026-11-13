@@ -1,6 +1,6 @@
 //! FDA-published PDF text; article downloads retain their existing behavior.
 use biomcp_fetch::{Leg, RequestError, SourceSpec};
-use biomcp_types::{PdfText, PdfTextState, Reason, Source};
+use biomcp_types::{PdfText, PdfTextState, Reason, Source, SourceNotice};
 /// Maximum pages admitted before extracting text.
 pub const MAX_PAGES: usize = 100;
 /// Maximum expanded stream or total extracted text size.
@@ -16,6 +16,27 @@ fn error(source: Source, reason: Reason) -> RequestError {
         retry_after: None,
     }
     .into()
+}
+/// Say that FDA refused one document download, with its URL and a retry step.
+///
+/// FDA answers some automated downloads with a client error (its abuse detection redirects them),
+/// and a later try often succeeds. BioMCP keeps its own client identity and only discloses the refusal.
+pub fn refusal(url: &biodata::Text, error: &RequestError) -> Option<SourceNotice> {
+    let RequestError::Source(source) = error else {
+        return None;
+    };
+    let status = source
+        .status
+        .filter(|status| source.reason == Reason::Rejected && (400..500).contains(status))?;
+    Some(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "FDA refused the download of {} (HTTP {status}). FDA refuses some automated downloads intermittently, so this does not show that the document is missing; retry later, or open the URL to check.",
+            url.as_str()
+        )
+        .into(),
+        retry_after_seconds: None,
+    })
 }
 /// Download only the FDA source's admitted origin, without credentials, and read embedded text.
 pub fn read(

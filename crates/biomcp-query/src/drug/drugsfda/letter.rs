@@ -47,7 +47,16 @@ pub(super) fn select(
     let offset = query.section_offset().unwrap_or(0);
     let result = pdf::read(&leg, &drugsfda::DOCUMENTS, url, offset);
     let error = result.as_ref().err().copied();
-    let report = status::source(Source::Drugsfda, leg.finish(), error);
+    let mut report = status::source(Source::Drugsfda, leg.finish(), error);
+    if let Some(notice) = error.and_then(|error| pdf::refusal(url, &error)) {
+        report.notices.push(notice);
+        out.next.push(crate::next::Step::run(
+            StepKind::Fresh,
+            &[Source::Drugsfda],
+            Request::GetDrug(query.clone()),
+            true,
+        ));
+    }
     // Both requests belong to Drugs@FDA; keep one source outcome and the document failure.
     if error.is_some()
         && let Some(source) = out

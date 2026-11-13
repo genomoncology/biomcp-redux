@@ -1,0 +1,66 @@
+{
+  "live_check": "Synthetic 404 text/html bodies replayed over the recorded P170019 SSED and NDA021588 letter id64255 requests; pm jobs j38804 and j38812 observed FDA redirecting these downloads to its abuse-detection apology page with HTTP 404",
+  "feature": "fda-document-text",
+  "story": "When FDA refuses a document download, the failed reply says FDA refused it, names the document URL and offers a retry; BioMCP keeps its own client identity.",
+  "replay": "diagnostic/fda-document-refused",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P170019",
+        "summary",
+        "--source",
+        "fda-pma"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "fda-pma",
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "rejected",
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "FDA refused the download of https://www.accessdata.fda.gov/cdrh_docs/pdf17/P170019B.pdf (HTTP 404). FDA refuses some automated downloads intermittently, so this does not show that the document is missing; retry later, or open the URL to check.",
+        "/next/*/kind": [
+          "fresh"
+        ],
+        "/next/0/args": [
+          "get",
+          "diagnostic",
+          "P170019",
+          "summary",
+          "--source",
+          "fda-pma",
+          "--fresh"
+        ]
+      },
+      "max_bytes": 2000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "NDA021588",
+        "approvals",
+        "--source",
+        "drugsfda",
+        "--document-id",
+        "64255"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "drugsfda",
+        "/sources/0/reason": "rejected",
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "FDA refused the download of http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/021588Orig1s056,s057ltr.pdf (HTTP 404). FDA refuses some automated downloads intermittently, so this does not show that the document is missing; retry later, or open the URL to check.",
+        "/next/*/kind": {
+          "includes": "fresh"
+        }
+      },
+      "max_bytes": 4000
+    }
+  ]
+}
