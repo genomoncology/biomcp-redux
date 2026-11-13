@@ -81,7 +81,18 @@ impl Native {
 }
 impl From<Native> for biomcp_types::DrugWhoRow {
     fn from(row: Native) -> Self {
+        use biomcp_types::WhoDateStatus::{NotPublished, Unreadable};
+        let (prequalified_on, prequalified_on_status) = if row.date.trim().is_empty() {
+            (None, Some(NotPublished))
+        } else {
+            match row.prequalified_date() {
+                Ok(date) => (Some(date), None),
+                Err(BadReply) => (None, Some(Unreadable)),
+            }
+        };
         Self {
+            prequalified_on,
+            prequalified_on_status,
             reference: row.reference,
             inn_dosage_form_strength: row.inn,
             product_type: row.product_type,
@@ -93,3 +104,7 @@ impl From<Native> for biomcp_types::DrugWhoRow {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "raw_tests.rs"]
+mod tests;

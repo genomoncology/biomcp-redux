@@ -187,7 +187,7 @@ pub use drug::{
     DrugRegulatory, DrugRegulatoryContext, DrugRegulatoryPart, DrugSearch, DrugSection,
     DrugSectionBody, DrugSectionPart, DrugSectionReply, DrugSections, DrugSource, DrugTargets,
     DrugTargetsPart, DrugWhoCard, DrugWhoGet, DrugWhoPage, DrugWhoRow, DrugXrefs, DrugXrefsPart,
-    OPENFDA_LABEL_HEADINGS,
+    OPENFDA_LABEL_HEADINGS, WhoDateStatus,
 };
 
 pub use query::{CheckedQuery, QueryInvalid};
@@ -219,7 +219,8 @@ pub use response::{
 };
 
 pub use response::{
-    DiagnosticClearance, DiagnosticPmaCard, DiagnosticPmaHeader, DiagnosticPmaRegulatory,
+    DecisionReading, DiagnosticClearance, DiagnosticPmaCard, DiagnosticPmaHeader,
+    DiagnosticPmaRegulatory,
 };
 
 /// Source-specific diagnostic page counting vocabulary.

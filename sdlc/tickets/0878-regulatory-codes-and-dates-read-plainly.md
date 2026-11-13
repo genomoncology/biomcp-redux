@@ -1,6 +1,7 @@
 # 0878 — regulatory-codes-and-dates-read-plainly
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 5d8b74001fc4360a6d90b3bb8b27f0fb3fb70bdf
 
 Milestone: 7
 
@@ -31,3 +32,10 @@ From bench 0041 reg-affairs smoke run on BioMCP b87cb3b3e (pm job j38923), `pers
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/`, `crates/biomcp-types/src/`, `tests/cases/`
+
+## Progress
+
+- Measured live 2026-11-13: openFDA's 510(k) data holds 492 DENG records, all with `decision_description` "Unknown"; SESK, SESU, SEKD, SESD and SESP are also "Unknown" there, but this ticket labels only DENG, whose meaning the DEN number states. WHO PQ's export has 657 rows; dolutegravir has 52, 20 of the first 50 with a blank Date of Prequalification (US FDA alternative listings), not 8 as the run log said.
+- 510(k) records now carry `decision_reading: "de-novo-granted"` when `decision_code` is DENG, beside openFDA's own `decision_description`; other codes get no reading.
+- WHO PQ rows now carry `prequalified_on` (YYYY-MM-DD, parsed from WHO's text, which stays in `date_of_prequalification`) and, for a blank cell, `prequalified_on_status: "not-published"`. A non-blank cell that is not a WHO day-month-year date gets `prequalified_on_status: "unreadable"` and no date (review fix; proved by the private mapper test `who_pq/raw_tests.rs` with made-up cells, since the live export has no such cell).
+- Proof: `tests/cases/diagnostic/510k-de-novo.yaml` (existing openFDA recording) and `tests/cases/drug/who-pq-dates-read.yaml` (WHO PQ export recorded live in a job).

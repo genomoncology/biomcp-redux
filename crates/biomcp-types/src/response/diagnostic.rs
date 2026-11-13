@@ -364,6 +364,9 @@ pub struct DiagnosticClearance {
     /// Native decision_description; missing and empty remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_description: Option<Box<str>>,
+    /// Plain reading of a decision_code whose openFDA decision_description does not name it; absent otherwise.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decision_reading: Option<DecisionReading>,
     /// Native decision_date; missing and empty remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_date: Option<Box<str>>,
@@ -375,6 +378,13 @@ pub struct DiagnosticClearance {
     pub product_code: Option<Box<str>>,
 }
 
+biodata::wire_enum! {
+    /// Plain reading of a 510(k) decision code.
+    DecisionReading {
+        /// Decision code DENG: FDA granted a De Novo request; openFDA describes it as Unknown.
+        DeNovoGranted => "de-novo-granted"
+    }
+}
 /// FDA-published SSED text for one PMA base application.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
