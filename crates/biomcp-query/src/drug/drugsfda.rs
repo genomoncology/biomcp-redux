@@ -13,6 +13,19 @@ mod letter;
 mod purpose;
 /// How the names were searched, for the one notice.
 const SEARCHED: &str = "one query at the typed name's step";
+/// The one notice for a newest-first page: the source orders every match before it pages.
+fn newest(total: Option<u64>) -> String {
+    let matches = total.map_or("all matching applications".to_owned(), |n| {
+        format!("all {n} matching applications")
+    });
+    format!(
+        "--sort newest: openFDA orders {matches}, not just this page, by their latest submission \
+         status date, newest first, ties by application number; applications with no dated \
+         submission come last. latest_submission shows that submission, which is often a \
+         labeling or efficacy supplement, not the original approval; original_approval gives \
+         the original approval date."
+    )
+}
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(
@@ -40,14 +53,17 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             query.applicant(),
             query.limit(),
             query.offset(),
+            query.sort(),
         ),
     };
     let error = result.as_ref().err().copied();
+    let mut total = None;
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
         out.include_refusals(page.refusals);
+        total = Some(page.total);
         // Later pages keep this page's names, so the snapshot is kept only for an answer.
         let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(page.problems);
@@ -71,26 +87,35 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         })
         .with_query(sent.clone());
     }
-    if let Some(applicant) = query.applicant()
-        && let Some(report) = out.sources.first_mut()
-    {
-        report
-            .notices
-            .push(biomcp_types::SourceNotice::RequestGuidance {
-                data_date: None,
-                message: format!(
-                    "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
-                    source::applicant_prefix(applicant)
-                )
-                .into(),
-                retry_after_seconds: None,
-            });
-    }
+    notices(query, total, &mut out);
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
     command.finish(deadline.remaining());
     out
+}
+
+/// State the applicant prefix searched and any requested order on the source.
+fn notices(query: &DrugSearch, total: Option<u64>, out: &mut Outcome) {
+    let Some(report) = out.sources.first_mut() else {
+        return;
+    };
+    let applicant = query.applicant().map(|applicant| {
+        format!(
+            "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
+            source::applicant_prefix(applicant)
+        )
+    });
+    let sort = query.sort().map(|_| newest(total));
+    for message in applicant.into_iter().chain(sort) {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: message.into(),
+                retry_after_seconds: None,
+            });
+    }
 }
 
 /// Search the name group at its step; after a refusal, search the typed name alone and keep it.
@@ -107,14 +132,21 @@ fn widened_page(
         query.applicant(),
         page,
         saved.step,
+        query.sort(),
     );
     saved.step = Some(step);
     if saved.names.len() < 2 || !super::search_names::rejected(result.as_ref().err()) {
         return result;
     }
     saved.reject(query);
-    let (result, step) =
-        source::search_widened(leg, (&saved.names, typed), query.applicant(), page, None);
+    let (result, step) = source::search_widened(
+        leg,
+        (&saved.names, typed),
+        query.applicant(),
+        page,
+        None,
+        query.sort(),
+    );
     saved.step = Some(step);
     result
 }

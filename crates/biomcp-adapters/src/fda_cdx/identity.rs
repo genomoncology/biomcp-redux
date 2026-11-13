@@ -40,7 +40,10 @@ fn applications(text: &str) -> Vec<FdaDrugApplication> {
     let mut words = tokens(text).peekable();
     while let Some(word) = words.next() {
         let value = if matches!(word, "NDA" | "BLA") {
-            words.peek().map(|v| format!("{word}{v}"))
+            // "NDA 211651/S010" names supplement 10 of application 211651.
+            words
+                .peek()
+                .map(|v| format!("{word}{}", v.split('/').next().unwrap_or_default()))
         } else {
             Some(word.to_owned())
         };

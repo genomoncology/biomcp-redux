@@ -56,6 +56,8 @@ struct Table {
     row: Vec<DiagnosticCell>,
     cell: Option<DiagnosticCell>,
     link: Option<DiagnosticCellLink>,
+    /// A paragraph or list item ended; its line break waits for following text.
+    pending_break: bool,
 }
 fn table(fragment: &str) -> Result<Vec<Vec<DiagnosticCell>>, BadReply> {
     let mut reader = Reader::from_str(fragment);
@@ -102,6 +104,7 @@ impl Table {
                 });
             }
             "br" => self.append("\n"),
+            "p" | "li" => self.pending_break = true,
             "a" if self.cell.is_some() => {
                 if self.link.is_some() {
                     return Err(BadReply);
@@ -129,10 +132,12 @@ impl Table {
                     c.links = links.into();
                 }
             }
+            "p" | "li" => self.pending_break = true,
             "td" | "th" => {
                 if self.link.is_some() {
                     return Err(BadReply);
                 }
+                self.pending_break = false;
                 self.row.push(self.cell.take().ok_or(BadReply)?);
             }
             "tr" => {
@@ -147,6 +152,14 @@ impl Table {
     }
     fn append(&mut self, value: &str) {
         if let Some(c) = &mut self.cell {
+            // FDA's group table lists each drug in its own <li> with no text between,
+            // so without a break "NDA 021743" and the next trade name read as one word.
+            if std::mem::take(&mut self.pending_break)
+                && !c.text.is_empty()
+                && !c.text.ends_with('\n')
+            {
+                c.text = format!("{}\n", c.text).into();
+            }
             c.text = format!("{}{value}", c.text).into();
         }
         if let Some(l) = &mut self.link {

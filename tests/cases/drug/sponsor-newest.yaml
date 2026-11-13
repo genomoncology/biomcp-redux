@@ -1,0 +1,125 @@
+{
+  "feature": "drug-approvals",
+  "story": "A sponsor's Drugs@FDA applications come newest first in one call: each row carries its latest submission's date, type, number and status and its original approval's date and number, the source total stays, and a notice states the order and warns that the latest submission is often a supplement; the next page keeps the order.",
+  "live_check": "public",
+  "verified": "Native openFDA Drugs@FDA replies recorded 2026-11-13 with biomcp --record in pm job j38975; bodies unchanged. Requests, byte counts and SHA-256 are in tests/replies/drug/sponsor-newest/README.md.",
+  "replay": "drug/sponsor-newest",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "NOVARTIS",
+        "--sort",
+        "newest",
+        "--limit",
+        "5"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "NOVARTIS",
+        "--sort",
+        "newest",
+        "--limit",
+        "5"
+      ],
+      "max_bytes": 6200,
+      "expect": {
+        "/status": "complete",
+        "/query/applicant": "NOVARTIS",
+        "/query/sort": "newest",
+        "/page/total": 204,
+        "/page/returned": 5,
+        "/result/total": 204,
+        "/result/items/*/id": [
+          "NDA212526",
+          "BLA125504",
+          "BLA761349",
+          "NDA218436",
+          "NDA215358"
+        ],
+        "/result/items/*/latest_submission/date": [
+          "2026-10-28",
+          "2026-10-15",
+          "2026-10-15",
+          "2026-10-06",
+          "2026-09-22"
+        ],
+        "/result/items/0/latest_submission/submission_type": "SUPPL",
+        "/result/items/0/latest_submission/submission_number": "11",
+        "/result/items/0/latest_submission/status": "AP",
+        "/result/items/*/original_approval/date": [
+          "2019-05-24",
+          "2015-01-21",
+          "2023-10-06",
+          "2025-09-30",
+          "2021-10-29"
+        ],
+        "/result/items/*/original_approval/submission_number": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--sort newest: openFDA orders all 204 matching applications, not just this page, by their latest submission status date, newest first, ties by application number; applications with no dated submission come last. latest_submission shows that submission, which is often a labeling or efficacy supplement, not the original approval; original_approval gives the original approval date."
+        }
+      }
+    },
+    {
+      "follow": "page",
+      "max_bytes": 6700,
+      "expect": {
+        "/query/sort": "newest",
+        "/query/offset": 5,
+        "/page/total": 204,
+        "/page/returned": 5,
+        "/result/items/*/id": [
+          "NDA021560",
+          "NDA214012",
+          "NDA215833",
+          "NDA050791",
+          "NDA019500"
+        ],
+        "/result/items/*/latest_submission/date": [
+          "2026-09-16",
+          "2026-08-19",
+          "2026-07-31",
+          "2026-07-29",
+          "2026-07-27"
+        ],
+        "/result/items/*/original_approval/date": [
+          "2010-04-20",
+          "2021-12-22",
+          "2022-03-23",
+          "2004-02-27",
+          "1986-12-15"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "mychem",
+        "imatinib",
+        "--sort",
+        "newest"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments"
+      }
+    }
+  ]
+}

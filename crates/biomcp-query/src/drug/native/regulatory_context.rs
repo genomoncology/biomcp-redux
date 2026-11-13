@@ -25,7 +25,7 @@ pub(super) fn attach(cx: &Ctx<'_>, query: &DrugGet, deadline: Deadline<'_>, out:
     };
     let limit = query.section_limit().unwrap_or(10);
     let leg = cx.fetch.leg(&drugsfda::SPEC, deadline).fresh(cx.fresh);
-    let reply = drugsfda::search(&leg, Some(&name), None, limit, 0);
+    let reply = drugsfda::search(&leg, Some(&name), None, limit, 0, None);
     let error = reply.as_ref().err().copied();
     let mut source = status::source(Source::Drugsfda, leg.finish(), error);
     source.notices.push(SourceNotice::RequestGuidance {
@@ -69,7 +69,7 @@ fn context(
         if row.name_rank(name.as_str()).is_none() {
             continue;
         }
-        let records = row.submissions(0, remaining)?;
+        let (records, _) = row.submissions((None, None), 0, remaining)?;
         remaining = remaining.saturating_sub(records.len() as u32);
         let total = row.submission_count() as u64;
         let truncated = (records.len() as u64) < total;

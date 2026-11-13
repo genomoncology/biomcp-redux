@@ -374,6 +374,13 @@
       ],
       "type": "string"
     },
+    "DrugFdaSort": {
+      "description": "Drugs@FDA application order; omitted keeps the source's own order.",
+      "enum": [
+        "newest"
+      ],
+      "type": "string"
+    },
     "DrugId": {
       "description": "A published native drug record identifier, without a consumer source prefix.",
       "pattern": "^(?:[A-Z][A-Z0-9_.-]*:)?[A-Za-z0-9][A-Za-z0-9_.-]*(/[A-Za-z0-9_.-]+)*$",
@@ -3615,6 +3622,18 @@
           "description": "Recall reason phrase.",
           "x-required-component": "fda-drug-recall"
         },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DrugFdaSort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\nOmit it for the source's own order.",
+          "x-required-component": "drugsfda"
+        },
         "source": {
           "$ref": "#/$defs/DrugSource",
           "default": "mychem",
@@ -3665,7 +3684,7 @@
           "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
         },
         "civic_profile": {
-          "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+          "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -3677,6 +3696,30 @@
         "command": {
           "const": "get-drug",
           "type": "string"
+        },
+        "decision_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
+          "x-required-component": "drugsfda"
+        },
+        "decision_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "To date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals.",
+          "x-required-component": "drugsfda"
         },
         "document_id": {
           "anyOf": [
@@ -3743,9 +3786,9 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Named section page size, refused on an identity-only card.",
+          "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
           "format": "uint32",
-          "maximum": 50,
+          "maximum": 200,
           "minimum": 1,
           "type": [
             "integer",
