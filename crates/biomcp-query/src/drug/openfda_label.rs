@@ -182,8 +182,9 @@ fn text_bytes(part: &Outcome) -> usize {
         biomcp_types::ReplyData::DrugLabel {
             body: Some(body), ..
         } => match &body.label {
-            Section::Data { data, .. } => serde_json::to_string(&data.text)
-                .map_or(0, |text| text.len().saturating_sub(2)),
+            Section::Data { data, .. } => {
+                serde_json::to_string(&data.text).map_or(0, |text| text.len().saturating_sub(2))
+            }
             _ => 0,
         },
         _ => 0,
