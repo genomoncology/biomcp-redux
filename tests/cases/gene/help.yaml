@@ -43,6 +43,7 @@
           "--limit",
           "--locus-group",
           "--offset",
+          "--region",
           "query"
         ],
         "/result/commands/0/examples": [

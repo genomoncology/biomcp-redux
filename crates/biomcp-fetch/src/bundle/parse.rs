@@ -54,7 +54,10 @@ pub(super) fn tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
 /// Leading `#` lines are a banner; the last of them names the columns.
 pub(super) fn commented_tsv<R: Row>(body: &[u8]) -> Result<ParsedRows, BadReply> {
     let text = std::str::from_utf8(body).map_err(|_| BadReply)?;
-    let banner = text.lines().take_while(|line| line.starts_with('#')).count();
+    let banner = text
+        .lines()
+        .take_while(|line| line.starts_with('#'))
+        .count();
     let header = text
         .lines()
         .nth(banner.checked_sub(1).ok_or(BadReply)?)

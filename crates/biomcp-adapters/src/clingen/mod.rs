@@ -209,8 +209,8 @@ pub fn regions(
     let mut refusals = crate::Refusal::None;
     let mut seen = std::collections::BTreeSet::new();
     let mut value = Vec::new();
-    for find in finds {
-        for row in leg.rows(&REGIONS, find)? {
+    for selector in finds {
+        for row in leg.rows(&REGIONS, selector)? {
             let Some(region) = row.checked(&mut problems) else {
                 refusals = crate::Refusal::Refused;
                 continue;
@@ -224,7 +224,7 @@ pub fn regions(
             {
                 continue;
             }
-            if seen.insert(region.id.clone()) {
+            if seen.insert(region.id.as_str().to_owned()) {
                 value.push(region);
             }
         }
