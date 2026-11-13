@@ -1,0 +1,47 @@
+{
+  "method": "GET",
+  "source": "hotspots",
+  "url": "https://www.cancerhotspots.org/api/hotspots/single/byGene/BRAF",
+  "exchanges": [
+    {
+      "fetched": 1792876427,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [
+          {
+            "hugoSymbol": "BRAF",
+            "transcriptId": "ENST00000288602",
+            "residue": "V600",
+            "tumorCount": 12,
+            "variantAminoAcid": {
+              "E": 8,
+              "K": 4
+            }
+          },
+          {
+            "hugoSymbol": "BRAF",
+            "transcriptId": "ENST00000288602",
+            "residue": "D594",
+            "tumorCount": 5,
+            "variantAminoAcid": {
+              "G": 5
+            }
+          },
+          {
+            "hugoSymbol": "BRAF",
+            "transcriptId": "ENST00000288602",
+            "residue": "G466",
+            "tumorCount": 3,
+            "variantAminoAcid": {
+              "A": 3
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

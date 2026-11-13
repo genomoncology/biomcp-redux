@@ -1,6 +1,7 @@
 # 0869 — hotspots-accept-a-caid
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9927c3f3326832406aeac29c1b5a648e3f7d1035
 
 Milestone: 7
 

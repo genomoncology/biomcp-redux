@@ -1,0 +1,44 @@
+{
+  "feature": "variant-hotspots",
+  "story": "A ClinGen CAid reaches the hotspots section through the gene on the allele's own MyVariant record and returns the same hotspot rows as the genomic HGVS input.",
+  "live_check": "synthetic",
+  "replay": "variant/hotspots-caid",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA123643",
+        "hotspots"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/hotspots/data/records/0/residue": "V600",
+        "/result/candidates/0/sections/hotspots/data/records/0/tumor_count": 12,
+        "/result/candidates/0/sections/hotspots/data/records/0/alternates/0/count": 8,
+        "/result/candidates/0/sections/hotspots/data/records/1/residue": "D594",
+        "/result/candidates/0/sections/hotspots/data/records/2/residue": "G466",
+        "/result/candidates/0/sections/hotspots/data/page/total": 3,
+        "/result/source": "car"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "chr7:g.140753336A>T",
+        "--build",
+        "GRCh38",
+        "hotspots"
+      ],
+      "expect": {
+        "/result/candidates/0/sections/hotspots/data/records/0/residue": "V600",
+        "/result/candidates/0/sections/hotspots/data/records/0/tumor_count": 12,
+        "/result/candidates/0/sections/hotspots/data/records/0/alternates/0/count": 8,
+        "/result/candidates/0/sections/hotspots/data/records/1/residue": "D594",
+        "/result/candidates/0/sections/hotspots/data/records/2/residue": "G466",
+        "/result/candidates/0/sections/hotspots/data/page/total": 3,
+        "/result/source": "myvariant"
+      }
+    }
+  ]
+}

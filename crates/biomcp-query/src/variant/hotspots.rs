@@ -10,7 +10,7 @@ pub(super) fn section(
     cx: &Ctx<'_>,
     query: &VariantGet,
     candidates: &[VariantHeader],
-    deadline: Deadline<'_>,
+    mut deadline: Deadline<'_>,
 ) -> (
     Section<VariantHotspots>,
     Vec<SourceOutcome>,
@@ -18,12 +18,25 @@ pub(super) fn section(
     Option<RequestError>,
     bool,
 ) {
-    let leg = cx
-        .fetch
-        .leg(&biomcp_adapters::hotspots::SPEC, deadline)
-        .fresh(cx.fresh);
+    let disabled = cx.fetch.disabled(Source::CancerHotspots);
+    let mut sources = Vec::new();
+    let mut problems = Vec::new();
+    let mut dropped = false;
+    let mut error = disabled.then_some(failure(Reason::Disabled));
+    let mut joined = Vec::new();
+    if !disabled
+        && !named(candidates)
+        && let Some(join) = registry_join(cx, candidates, &mut deadline)
+    {
+        sources.push(join.source);
+        problems.extend(join.problems);
+        dropped |= join.dropped;
+        error = join.error;
+        joined = join.rows;
+    }
     let genes = candidates
         .iter()
+        .chain(&joined)
         .flat_map(|c| {
             c.identity
                 .genes
@@ -37,13 +50,13 @@ pub(super) fn section(
             }
             genes
         });
+    let leg = cx
+        .fetch
+        .leg(&biomcp_adapters::hotspots::SPEC, deadline)
+        .fresh(cx.fresh);
     let mut rows = Vec::new();
-    let mut dropped = false;
-    let mut problems = Vec::new();
-    let disabled = cx.fetch.disabled(Source::CancerHotspots);
-    let mut error = disabled.then_some(failure(Reason::Disabled));
     for gene in &genes {
-        if disabled {
+        if error.is_some() {
             break;
         }
         match biomcp_adapters::hotspots::gene(&leg, gene) {
@@ -58,21 +71,73 @@ pub(super) fn section(
             }
         }
     }
-    if genes.is_empty() && !disabled {
+    if genes.is_empty() && error.is_none() {
         error = Some(failure(Reason::NoJoinId));
     }
     if rows.is_empty() && dropped && error.is_none() {
         error = Some(failure(Reason::BadReply));
     }
-    let source = status::source(Source::CancerHotspots, leg.finish(), error);
+    sources.push(status::source(Source::CancerHotspots, leg.finish(), error));
     let value = disclose(query, rows, error, &mut problems);
     (
         value,
-        vec![source],
+        sources,
         problems,
         error.and_then(status::local),
         dropped,
     )
+}
+
+fn named(candidates: &[VariantHeader]) -> bool {
+    candidates.iter().any(|c| {
+        !c.identity.genes.is_empty() || c.myvariant.as_ref().is_some_and(|v| !v.genes.is_empty())
+    })
+}
+
+struct Join {
+    rows: Vec<VariantHeader>,
+    source: SourceOutcome,
+    problems: Vec<Problem>,
+    error: Option<RequestError>,
+    dropped: bool,
+}
+
+/// A registry candidate (a CAid) names no gene; read the gene from MyVariant's
+/// record for the candidate's own genomic allele, the join the MyVariant sections use.
+fn registry_join(
+    cx: &Ctx<'_>,
+    candidates: &[VariantHeader],
+    deadline: &mut Deadline<'_>,
+) -> Option<Join> {
+    use biomcp_adapters::myvariant;
+    if cx.fetch.disabled(Source::MyVariant)
+        || candidates.iter().any(|c| c.source == Source::MyVariant)
+    {
+        return None;
+    }
+    let (id, build) = super::components::target(candidates)?;
+    let leg = cx.fetch.leg(&myvariant::SPEC, *deadline).fresh(cx.fresh);
+    let started = leg.remaining();
+    let result = myvariant::lookup(&leg, &id, build);
+    *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
+    let error = result.as_ref().err().copied();
+    let source = status::source(Source::MyVariant, leg.finish(), error);
+    let mut join = Join {
+        rows: Vec::new(),
+        source,
+        problems: Vec::new(),
+        error: None,
+        dropped: false,
+    };
+    match result {
+        Ok(found) => {
+            join.dropped = found.refusals == biomcp_adapters::Refusal::Refused;
+            join.problems = found.problems;
+            join.rows = found.value;
+        }
+        Err(e) => join.error = Some(e),
+    }
+    Some(join)
 }
 
 fn disclose(
