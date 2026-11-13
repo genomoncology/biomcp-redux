@@ -76,20 +76,8 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
             out.problems.extend(body.problems);
             let body = body.value;
             let found = body.is_some();
-            if let Some(partner) = query.partner()
-                && body.as_ref().is_some_and(|body| body.partners.is_empty())
-                && let Some(search) = crate::next::checked(
-                    DrugSearch::named(partner.clone(), DrugSource::Ddinter, 10),
-                    Source::Ddinter,
-                    &mut out.problems,
-                )
-            {
-                out.next.push(crate::next::Step::run(
-                    StepKind::Disambiguate,
-                    &[biomcp_types::Source::Ddinter],
-                    Request::SearchDrug(search),
-                    cx.fresh,
-                ));
+            if body.as_ref().is_some_and(|body| body.partners.is_empty()) {
+                partner_search(query, cx.fresh, &mut out);
             }
             out.body = biomcp_types::DrugInteractions::into_reply(
                 query.clone(),
@@ -131,6 +119,23 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
+}
+/// The DDInter name search for a partner DDInter's files do not name.
+fn partner_search(query: &DrugGet, fresh: bool, out: &mut Outcome) {
+    if let Some(partner) = query.partner()
+        && let Some(search) = crate::next::checked(
+            DrugSearch::named(partner.clone(), DrugSource::Ddinter, 10),
+            Source::Ddinter,
+            &mut out.problems,
+        )
+    {
+        out.next.push(crate::next::Step::run(
+            StepKind::Disambiguate,
+            &[biomcp_types::Source::Ddinter],
+            Request::SearchDrug(search),
+            fresh,
+        ));
+    }
 }
 fn page(
     query: &DrugGet,
