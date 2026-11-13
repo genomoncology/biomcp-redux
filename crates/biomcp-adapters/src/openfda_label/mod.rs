@@ -28,7 +28,17 @@ use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, Reque
 pub use biomcp_types::OPENFDA_LABEL_HEADINGS as HEADINGS;
 pub use map::{LabelChoice, LabelHolder, Record};
 use raw::Record as RawRecord;
-const LABEL: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
+/// Name lookups read 50 whole labels per page, and openFDA cannot return fewer fields.
+/// Live pages of 2026-11-12 reach 8.7 MiB for metformin, 10.4 MiB for rosuvastatin and
+/// 15.0 MiB for quetiapine, and one label reaches 574 KiB (aripiprazole), so 50 such labels
+/// fit in 28 MiB. Halving the page still left quetiapine at 7.5 MiB under the former 8 MiB
+/// body bound and doubled the requests. A larger page still fails as too-large, never trimmed.
+const PAGE_BYTES: u64 = 32 * 1024 * 1024;
+const LABEL: Endpoint = SPEC
+    .get("")
+    .fresh(Freshness::Days(1))
+    .bytes(PAGE_BYTES)
+    .json_absence();
 /// A source candidate page, preserving native order and source total.
 #[derive(Debug)]
 pub struct Page {

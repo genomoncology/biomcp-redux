@@ -1,7 +1,7 @@
 {
   "feature": "trial-nci",
   "live_check": "missing nightly NCI user-owned API key; retained native public-tier replies use an isolated replay key",
-  "story": "Exact organization trial total equals the separately captured organization count, with a compact header from a trial with 1273 sites.",
+  "story": "Exact organization trial total equals the separately captured organization count, with a compact header from a trial with 1273 sites. Chosen fields keep the NCI native phase.",
   "replay": "trial/nci/facility/native",
   "config": {
     "keys": {
@@ -36,6 +36,31 @@
         }
       },
       "max_bytes": 3500
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--source",
+        "nci",
+        "--facility",
+        "Dana-Farber Cancer Institute",
+        "--limit",
+        "1",
+        "--fields",
+        "phase"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/nct_id": "NCT05879926",
+        "/result/items/0/phase": "III",
+        "/result/items/0": {
+          "omits": [
+            "matched_site",
+            "brief_title"
+          ]
+        }
+      }
     }
   ]
 }

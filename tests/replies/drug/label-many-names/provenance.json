@@ -1,0 +1,79 @@
+{
+  "projection": "The skip=50 page is kept whole, as recorded: at 9.1 MB it passes the former 8 MiB body bound, which made this lookup fail as too-large. Every other reply keeps native identity, harmonized fields, product data and the indications section only (effective_time, id, openfda, set_id, spl_product_data_elements, version, indications_and_usage); meta and request identity are the original live reply's.",
+  "job": "j38824",
+  "sha256": "SHA-256 of each original reply body serialized as compact JSON",
+  "originals": [
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc",
+      "sha256": "4317476adf0b00864ce65551b9a48ce11beda8b1d03fbce1a636a518bbdf7a6e",
+      "status": 200,
+      "bytes": 7812419,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.spl_set_id%3A%2205999192-ebc6-4198-bd1e-f46abbfb4f8a%22&limit=1&sort=effective_time%3Adesc",
+      "sha256": "ef9a4a7fe878b83495cbad79f2f4e4d305b42bcc56a61fec2537bf2b07ef72e4",
+      "status": 200,
+      "bytes": 94997,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=50",
+      "sha256": "6e62162b8b3e3fafc7811997ce49982047ae560c8b8fd3a39fb1ac1be7868485",
+      "status": 200,
+      "bytes": 9148873,
+      "kept_whole": true,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=100",
+      "sha256": "cfc3b445ca6882746e882c566ed5598e88cce914037af6fcedc25b5ca6e7e2cd",
+      "status": 200,
+      "bytes": 6927616,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=150",
+      "sha256": "120b41e0342735d0e82d35543d19a4d230ec5828ae50b692164f2f81d32212ee",
+      "status": 200,
+      "bytes": 6353197,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=200",
+      "sha256": "ecbc92e14a6ca13281002c3d734e400f560fce8bf3321e6e8ce7ecfb6efe48d2",
+      "status": 200,
+      "bytes": 6527539,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=250",
+      "sha256": "9d142648dc53c62f085a93c6fcc5ca4f25d881b0f05f136e2fb368d5176e02b3",
+      "status": 200,
+      "bytes": 5592800,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=300",
+      "sha256": "6d61e14b81954ef101c0962b27b04f56b7ebdffdaacbee2d66bcc678b1e108b2",
+      "status": 200,
+      "bytes": 6011471,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    },
+    {
+      "url": "https://api.fda.gov/drug/label.json?search=openfda.brand_name%3A%22metformin%22%20OR%20openfda.generic_name%3A%22metformin%22&limit=50&sort=effective_time%3Adesc&skip=350",
+      "sha256": "72301baa82b356f63835f9eb86e7ba26c52accf25cb5602318f9b96313ff1689",
+      "status": 200,
+      "bytes": 5959586,
+      "kept_whole": false,
+      "retrieved": "2026-11-12"
+    }
+  ]
+}

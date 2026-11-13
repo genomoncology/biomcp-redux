@@ -1,6 +1,7 @@
 # 0867 — trial-fields-name-what-the-source-lacks
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9c802816dae7b38da1a543c713fb4ae558fcc5b3
 
 Milestone: 7
 

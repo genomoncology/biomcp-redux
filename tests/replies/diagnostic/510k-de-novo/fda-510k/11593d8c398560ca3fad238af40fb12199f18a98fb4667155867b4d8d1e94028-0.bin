@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-02",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "third_party_flag": "N",
+      "city": "New York",
+      "advisory_committee_description": "Pathology",
+      "address_1": "Dept. Of Pathology",
+      "address_2": "444 E 68th St. H505",
+      "statement_or_summary": "",
+      "product_code": "PZM",
+      "openfda": {
+        "registration_number": [
+          "3043050156",
+          "3011805506",
+          "3043140667",
+          "3003335080",
+          "3013200421",
+          "3024236768"
+        ],
+        "fei_number": [
+          "3043050156",
+          "3011805506",
+          "3043140667",
+          "3003335080",
+          "3013200421",
+          "3024236768"
+        ],
+        "device_name": "Next Generation Sequencing Based Tumor Profiling Test",
+        "medical_specialty_description": "Pathology",
+        "regulation_number": "866.6080",
+        "device_class": "2"
+      },
+      "zip_code": "10065",
+      "applicant": "Memorial Sloan-Kettering Cancer Center",
+      "decision_date": "2017-11-15",
+      "decision_code": "DENG",
+      "country_code": "US",
+      "device_name": "MSK-IMPACT (Integrated Mutation Profiling of Actionable Cancer Targets):a Hybridization-Capture Based Next Generation Sequencing Assay",
+      "advisory_committee": "PA",
+      "contact": "Christine  England",
+      "expedited_review_flag": "",
+      "k_number": "DEN170058",
+      "state": "NY",
+      "date_received": "2017-09-25",
+      "review_advisory_committee": "PA",
+      "postal_code": "10065",
+      "decision_description": "Unknown",
+      "clearance_type": "Direct"
+    }
+  ]
+}

@@ -22,7 +22,7 @@ struct GetFields<I = Text> {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: I,
     /// Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-    /// 510(k) K number or device recall Z-NNNN-YYYY.
+    /// 510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
     source: DiagnosticGetSource,
     /// GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
     /// WHO, 510(k) and device recalls have no sections; omit for the card.
@@ -66,7 +66,8 @@ impl TryFrom<GetFields> for DiagnosticGet {
                 DiagnosticId::Recall(v.id.as_str().parse().map_err(|_| invalid())?)
             }
             DiagnosticGetSource::Fda510k => {
-                if !v.id.as_str().starts_with('K') {
+                // openFDA's 510(k) endpoint holds K numbers and De Novo DEN numbers.
+                if !["K", "DEN"].iter().any(|p| v.id.as_str().starts_with(p)) {
                     return Err(invalid());
                 }
                 DiagnosticId::Clearance(v.id.as_str().parse().map_err(|_| invalid())?)

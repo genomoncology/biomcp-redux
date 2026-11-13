@@ -126,7 +126,7 @@
       "expect": {
         "": {
           "includes_all_of": [
-            "Fields: ",
+            "Fields by --source: ",
             "always kept: "
           ]
         }
