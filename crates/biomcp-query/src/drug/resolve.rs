@@ -320,7 +320,6 @@ fn fda(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
     )
 }
 fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, DrugHeader)>) {
-    let generic = std::cell::Cell::new(false);
     let (out, mut candidates) = native_names(
         cx,
         query,
@@ -331,7 +330,6 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
             let mut candidates = Vec::new();
             for row in &page.window.rows {
                 if let Some(matched) = row.exact_name_match(get.input()) {
-                    generic.set(generic.get() || matched != DrugNameMatch::Brand);
                     candidates.push((super::label_choice::rank(matched, row), row.header()?));
                 }
             }
@@ -344,9 +342,7 @@ fn label(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank
             })
         },
     );
-    if generic.get() {
-        super::label_choice::generic_name(&mut candidates);
-    }
+    super::label_choice::generic_name(&mut candidates);
     (out, candidates)
 }
 
