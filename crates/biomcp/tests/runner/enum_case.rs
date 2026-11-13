@@ -577,6 +577,7 @@ fn context(
         ("search", "adverse-event", "section" | "sort") => {
             json!({"source":"vaers", "text":"COVID19"})
         }
+        ("search", "adverse-event", "event_type") => json!({"source":"maude"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
         _ => json!({}),
