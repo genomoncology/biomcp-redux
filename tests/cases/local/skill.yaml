@@ -21,6 +21,8 @@
         "": {
           "includes_all_of": [
             "Use `biomcp help COMMAND ENTITY`",
+            "Sections are words after the ID",
+            "When a page reports a total, stop paging at it.",
             "Process exit codes:"
           ]
         }

@@ -230,7 +230,9 @@ impl DrugApprovals {
 pub struct DrugRegulatory {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
-    /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
+    /// Existing typed section state, preserving empty, unavailable and skipped outcomes. For EMA,
+    /// each record's `indication` is EMA's medicines-data `therapeutic_indication`: the web summary
+    /// shown on the EPAR page, not the SmPC section 4.1 text, whose wording can differ.
     pub regulatory: Section<DrugRecords<AuthorizationEvent>>,
     /// The source's own published description of each date role in these records.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]

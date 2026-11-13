@@ -23,6 +23,11 @@ pub(super) struct Record {
 pub(super) struct Enforcement {
     pub recall_number: DeviceRecallNumber,
     pub classification: Option<Field<String>>,
+    pub voluntary_mandated: Option<Field<String>>,
+    pub initial_firm_notification: Option<Field<String>>,
+    pub product_quantity: Option<Field<String>>,
+    pub center_classification_date: Option<Field<String>>,
+    pub report_date: Option<Field<String>>,
 }
 pub(super) trait Identity {
     fn id(&self) -> &DeviceRecallNumber;
