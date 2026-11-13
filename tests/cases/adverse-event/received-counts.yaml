@@ -257,8 +257,7 @@
       "run": [
         "search",
         "adverse-event",
-        "insulin",
-        "pump",
+        "insulin pump",
         "--source",
         "maude",
         "--aggregate",
@@ -288,8 +287,7 @@
       "run": [
         "search",
         "adverse-event",
-        "insulin",
-        "pump",
+        "insulin pump",
         "--source",
         "maude",
         "--received-from",
