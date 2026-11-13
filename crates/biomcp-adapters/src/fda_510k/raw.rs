@@ -20,21 +20,22 @@ impl Record {
             record: crate::mapped::record(&self.k_number),
             list: Vec::new(),
         };
-        let mut value = biomcp_types::DiagnosticClearance {
+        let device_name = p.field("device_name", self.device_name);
+        let applicant = p.field("applicant", self.applicant);
+        let decision_code: Option<Box<str>> = p.field("decision_code", self.decision_code);
+        let value = biomcp_types::DiagnosticClearance {
             k_number: self.k_number,
-            decision_reading: None,
-            device_name: p.field("device_name", self.device_name),
-            applicant: p.field("applicant", self.applicant),
-            decision_code: p.field("decision_code", self.decision_code),
+            // openFDA describes DENG as "Unknown"; the native description stays beside this reading.
+            decision_reading: (decision_code.as_deref() == Some("DENG"))
+                .then_some(biomcp_types::DecisionReading::DeNovoGranted),
+            device_name,
+            applicant,
+            decision_code,
             decision_description: p.field("decision_description", self.decision_description),
             decision_date: p.field("decision_date", self.decision_date),
             date_received: p.field("date_received", self.date_received),
             product_code: p.field("product_code", self.product_code),
         };
-        // openFDA describes DENG as "Unknown"; the native description stays beside this reading.
-        if value.decision_code.as_deref() == Some("DENG") {
-            value.decision_reading = Some(biomcp_types::DecisionReading::DeNovoGranted);
-        }
         crate::Mapped {
             refusals: crate::Refusal::None,
             value,

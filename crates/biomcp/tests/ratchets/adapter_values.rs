@@ -130,10 +130,6 @@ const REVIEWED_ABSENCES: &[(&str, &str)] = &[
         "release_date: ) = > Some ( date . to_string ( ) ) , Err ( _ ) = > None ,",
     ),
     (
-        "crates/biomcp-adapters/src/who_pq/raw.rs",
-        "from: - > Self { let prequalified_on = row . prequalified_date ( ) . ok ( )",
-    ),
-    (
         "crates/biomcp-adapters/src/gnomad/map.rs",
         "constraint: ) > ( field , None ) ; return None ; } Err ( _ ) = > return None",
     ),

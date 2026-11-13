@@ -81,12 +81,15 @@ impl Native {
 }
 impl From<Native> for biomcp_types::DrugWhoRow {
     fn from(row: Native) -> Self {
-        let prequalified_on = row.prequalified_date().ok();
-        let prequalified_on_status = row
-            .date
-            .trim()
-            .is_empty()
-            .then_some(biomcp_types::WhoDateStatus::NotPublished);
+        use biomcp_types::WhoDateStatus::{NotPublished, Unreadable};
+        let (prequalified_on, prequalified_on_status) = if row.date.trim().is_empty() {
+            (None, Some(NotPublished))
+        } else {
+            match row.prequalified_date() {
+                Ok(date) => (Some(date), None),
+                Err(BadReply) => (None, Some(Unreadable)),
+            }
+        };
         Self {
             prequalified_on,
             prequalified_on_status,
@@ -101,3 +104,7 @@ impl From<Native> for biomcp_types::DrugWhoRow {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "raw_tests.rs"]
+mod tests;
