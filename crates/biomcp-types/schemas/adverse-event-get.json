@@ -27,7 +27,7 @@
         " Native SPL set IDs.",
         " Native application numbers.",
         " Native device rows.",
-        " Complete native narrative rows."
+        " Complete native MAUDE narrative rows; openFDA's public FAERS data carries no case narrative."
       ]
     },
     "ReportId": {
@@ -73,7 +73,7 @@
       ],
       "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns; help get adverse-event",
       "x-positional": 1,
-      "x-section-rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only."
+      "x-section-rule": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only."
     },
     "section_limit": {
       "default": 5,

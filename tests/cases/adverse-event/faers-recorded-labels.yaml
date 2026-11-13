@@ -1,0 +1,76 @@
+{
+  "feature": "adverse-event-get",
+  "story": "A fatal myocarditis FAERS card labels seriousness 1 and the age unit with openFDA's own words, leaves the undocumented 2 unlabelled, and shows the case event date openFDA carries in place of a narrative; an off-list drug role code is named as unmapped.",
+  "live_check": "public",
+  "replay": "adverse-event/faers-recorded-labels",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "27298481"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/seriousness/death": "1",
+        "/result/seriousness/death_label": "The adverse event resulted in death",
+        "/result/seriousness/lifethreatening": "2",
+        "/result/seriousness": {
+          "omits": [
+            "lifethreatening_label",
+            "hospitalization_label",
+            "disabling_label",
+            "congenitalanomali_label",
+            "other_label"
+          ]
+        },
+        "/result/patient/age/value": 76.0,
+        "/result/patient/age/unit": "801",
+        "/result/patient/age_unit_label": "Year",
+        "/result/patient/sex_label": "Male",
+        "/result/case_event_date": "CASE EVENT DATE: 20260810",
+        "/result/available_sections": {
+          "equals": [
+            "drugs",
+            "reactions"
+          ]
+        },
+        "/result": {
+          "omits": [
+            "unmapped_codes"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "22814945",
+        "drugs"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/drugs/records/1/role": "5",
+        "/result/drugs/records/1/unmapped_codes": {
+          "equals": [
+            {
+              "field": "patient.drug.drugcharacterization",
+              "code": "5"
+            }
+          ]
+        },
+        "/result/drugs/records/1": {
+          "omits": [
+            "role_label"
+          ]
+        },
+        "/result/drugs/records/0": {
+          "omits": [
+            "unmapped_codes"
+          ]
+        }
+      }
+    }
+  ]
+}

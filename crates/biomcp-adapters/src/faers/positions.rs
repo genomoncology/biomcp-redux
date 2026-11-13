@@ -27,6 +27,16 @@ impl Positions {
                 .is_none_or(|p| p.check(report.reactions.len()))
     }
 }
+/// Native values the shared report type does not hold.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct Extras {
+    /// Unchanged `patient.summary.narrativeincludeclinical`; openFDA fills it with the case event date only.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub case_event_date: Option<Box<str>>,
+    /// Unchanged `patient.patientonsetageunit`, kept so an off-list unit still shows its code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub age_unit: Option<Box<str>>,
+}
 /// Checked report values and their unchanged native row positions.
 #[derive(Debug)]
 pub(super) struct Report {
@@ -34,4 +44,6 @@ pub(super) struct Report {
     pub data: biodata::FaersReport,
     /// Positions omitted from the admitted row arrays.
     pub positions: Positions,
+    /// Native values beside the shared report.
+    pub extras: Extras,
 }

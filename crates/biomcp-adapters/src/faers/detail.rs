@@ -14,6 +14,8 @@ pub struct Detail {
     pub report: Option<FaersReport>,
     /// Native positions for independently rejected report rows.
     pub positions: super::Positions,
+    /// Native values beside the shared report.
+    pub extras: super::Extras,
     /// Credential-free URL used for this successful request.
     pub report_url: biodata::Text,
     /// Metadata belongs to the original source reply.
@@ -56,16 +58,18 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
     .ok_or(biomcp_fetch::InputError::Serialization)?;
     let report_url =
         biodata::Text::new(&url).map_err(|_| biomcp_fetch::InputError::Serialization)?;
-    let (report, positions, problems, refusals) = match report {
+    let (report, positions, extras, problems, refusals) = match report {
         Some(mapped) => (
             Some(mapped.value.data),
             mapped.value.positions,
+            mapped.value.extras,
             mapped.problems,
             mapped.refusals,
         ),
         None => (
             None,
             super::Positions::default(),
+            super::Extras::default(),
             Vec::new(),
             crate::Refusal::None,
         ),
@@ -75,6 +79,7 @@ pub fn get(leg: &Leg<'_>, id: &ReportId) -> Result<Detail, RequestError> {
         problems,
         report,
         positions,
+        extras,
         report_url,
         metadata,
     })

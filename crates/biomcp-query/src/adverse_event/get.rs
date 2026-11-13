@@ -15,6 +15,7 @@ struct Saved(
     Vec<biomcp_types::Problem>,
     #[serde(default)] faers::Positions,
     #[serde(default)] bool,
+    #[serde(default)] faers::Extras,
 );
 pub(super) fn get(cx: &Ctx<'_>, q: &AdverseEventGet) -> Outcome {
     let mut out = super::unsupported();
@@ -91,6 +92,7 @@ fn read(
             detail.problems,
             detail.positions,
             detail.refusals == biomcp_adapters::Refusal::Refused,
+            detail.extras,
         );
         let snapshot = crate::publish::keep(
             source_snapshot::write(cx, &key(q)?, &saved, &out.sources, deadline),
@@ -116,5 +118,5 @@ fn render_saved(
             .any(|s| s.state == biomcp_types::SourceState::Stale);
         crate::status::item(out, true, false, unavailable);
     };
-    render::render(q, saved.0, saved.1, snapshot, saved.4, out)
+    render::render(q, saved.0, saved.1, snapshot, saved.4, saved.6, out)
 }

@@ -257,7 +257,7 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
     // j13008: compact CLI/MCP maxima; every ceiling is measured bytes plus15%.
     let names = match (section, status) {
         (_, "usage") => ("faers-envelope-143", "faers-envelope-143"),
-        ("card", "complete") => ("faers-envelope-1442", "faers-envelope-1320"),
+        ("card", "complete") => ("faers-envelope-1647", "faers-envelope-1525"),
         ("card", "absent") => ("faers-envelope-298", "faers-envelope-183"),
         ("card", "failed") => ("faers-envelope-428", "faers-envelope-313"),
         ("drugs", "failed") => ("faers-envelope-419", "faers-envelope-304"),
