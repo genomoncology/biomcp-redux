@@ -29,13 +29,13 @@
               "haploinsufficiency": {
                 "score": 3,
                 "description": "Sufficient evidence for dosage pathogenicity",
-                "pmids": [20301775, 39257254, 30767844, 24352232],
+                "pmids": ["20301775", "39257254", "30767844", "24352232"],
                 "disease_id": "MONDO:0012756"
               },
               "triplosensitivity": {
                 "score": 3,
                 "description": "Sufficient evidence for dosage pathogenicity",
-                "pmids": [38605127, 26629640, 21731881, 27410714, 30767844, 24352232],
+                "pmids": ["38605127", "26629640", "21731881", "27410714", "30767844", "24352232"],
                 "disease_id": "MONDO:0013847"
               },
               "date": "2026-03-18"
@@ -48,13 +48,13 @@
               "haploinsufficiency": {
                 "score": 3,
                 "description": "Sufficient evidence for dosage pathogenicity",
-                "pmids": [38605127, 27240531, 20808231, 19966786, 30767844, 23325106],
+                "pmids": ["38605127", "27240531", "20808231", "19966786", "30767844", "23325106"],
                 "disease_id": "MONDO:0013267"
               },
               "triplosensitivity": {
                 "score": 1,
                 "description": "Little evidence for dosage pathogenicity",
-                "pmids": [38605127, 27240531, 20808231, 30803986]
+                "pmids": ["38605127", "27240531", "20808231", "30803986"]
               },
               "date": "2026-03-18"
             }

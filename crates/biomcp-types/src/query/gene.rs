@@ -67,7 +67,7 @@ pub struct GeneSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Words matched against symbols, previous symbols, aliases and names.
+    /// Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.
     #[serde(
         default,
         deserialize_with = "present",
@@ -75,7 +75,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "Text", extend("x-positional" = 0)))]
     query: Option<Text>,
-    /// A cytoband prefix.
+    /// A cytoband prefix. Also lists ClinGen dosage regions in that band.
     #[serde(
         default,
         deserialize_with = "present",

@@ -123,7 +123,7 @@ Commands:
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code or problem filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
   drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
-  gene           Search genes by text, cytoband, or their intersection.
+  gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
   variant        Discover source candidates using one declared selector, without interpreting free text.
@@ -1500,7 +1500,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 ## biomcp search gene
 
 ```text
-Search genes by text, cytoband, or their intersection.
+Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
 
 Usage: biomcp search gene [OPTIONS] [query]
 
@@ -1537,6 +1537,9 @@ Options:
       --config <config>
           Read configuration from this file. Example: --config config.json.
 
+      --region <region>
+          A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes.
+
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1551,16 +1554,17 @@ Options:
 
 ```
 
-Search human genes by name or identifier. Sources: hgnc.
+Search human genes by name, identifier or cytoband, and ClinGen dosage regions by cytoband or GRCh38 interval. Sources: clingen, hgnc.
 
-- `--band`: A cytoband prefix. Value form: string. Example: --band 9p21.3. Command sources: hgnc; source restrictions in the field description apply.
-- `--limit`: Number of results per page. Value form: integer. Example: --limit 50. Command sources: hgnc; source restrictions in the field description apply.
+- `--band`: A cytoband prefix. Value form: string. Example: --band 9p21.3. Command sources: clingen, hgnc; source restrictions in the field description apply.
+- `--limit`: Number of results per page. Value form: integer. Example: --limit 50. Command sources: clingen, hgnc; source restrictions in the field description apply.
 - `--locus-group`: Optional HGNC locus group intersected with the selector; help search gene
 Optional HGNC locus group intersected with the selector.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --locus-group pseudogene. Command sources: hgnc; source restrictions in the field description apply.
-- `--offset`: Number of results to skip. Value form: integer. Example: --offset 24. Command sources: hgnc; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --locus-group pseudogene. Command sources: clingen, hgnc; source restrictions in the field description apply.
+- `--offset`: Number of results to skip. Value form: integer. Example: --offset 24. Command sources: clingen, hgnc; source restrictions in the field description apply.
 - `query`: Words matched against symbols, previous symbols, aliases and names.
 Form: search gene QUERY; not --query.
+- `--region`: A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes. Value form: string. Example: --region chr16:29600000-29700000. Command sources: clingen, hgnc; source restrictions in the field description apply.
 
 ## biomcp search article
 

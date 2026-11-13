@@ -5422,9 +5422,14 @@
           "required": [
             "band"
           ]
+        },
+        {
+          "required": [
+            "region"
+          ]
         }
       ],
-      "description": "Search human genes by name or identifier.",
+      "description": "Search human genes by name, identifier or cytoband, and ClinGen dosage regions by cytoband or GRCh38 interval.",
       "properties": {
         "band": {
           "$ref": "#/$defs/Cytoband",
@@ -5457,6 +5462,10 @@
           "$ref": "#/$defs/Text",
           "description": "Words matched against symbols, previous symbols, aliases and names.",
           "x-positional": 0
+        },
+        "region": {
+          "$ref": "#/$defs/VariantRegion",
+          "description": "A GRCh38 interval, such as chr16:29600000-30200000. Selects ClinGen dosage regions that overlap it; HGNC genes carry no coordinates, so it adds no genes."
         }
       },
       "required": [

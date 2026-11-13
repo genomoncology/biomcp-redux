@@ -31,3 +31,8 @@ In the rare-disease persona run of 2026-11-13 (biomed-agent-bench `personas/rare
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/clingen/`, `crates/biomcp-query/`, `crates/biomcp-types/`, `tests/cases/`, `docs/`
+
+## Progress
+
+- Measured live in job j39284 (2026-11-13): the code-mode agent's file is `https://ftp.clinicalgenome.org/ClinGen_region_curation_list_GRCh38.tsv`, 98,881 bytes, `text/tab-separated-values`, 513 ISCA rows. Five `#` banner lines; the fifth names 23 columns (`#ISCA ID`, region name, `cytoBand`, `Genomic Location`, haploinsufficiency and triplosensitivity score, description, PMID1-6 and disease ID, `Date Last Evaluated`). A GRCh37 twin (99,039 bytes) sits beside it. ClinGen's terms page releases all curated content, dosage included, under CC0 1.0, as for the gene files. `search.clinicalgenome.org` has no region export (`/kb/gene-dosage/region/download` returns 500). 16p11.2 holds six rows: ISCA-37400 and ISCA-37486 with the values in the raw log, plus four gnomAD-SV population regions.
+- Changed: `search gene` gains ClinGen regions. `--band` returns the regions whose band span starts with the prefix, a new `--region chr16:START-END` (GRCh38) returns the regions that overlap the interval, and a query that is an ISCA ID returns that region. They come back under `result.regions` (at most 50, `regions_total` when more matched), each with ID, name, cytoband, location, haploinsufficiency and triplosensitivity score, description, PMIDs and disease ID, and date. `sync clingen` now syncs the region file too. `search gene --region` was a retired 0.x spelling; it is accepted again.
