@@ -125,7 +125,7 @@ So shrinking the text buys room once. Fixing how the limits are set removes the 
 
 ### PM decision, 2026-11-13
 
-Fixes 1 and 2 go ahead now, in this ticket. The 0836 limits came from a review (`sdlc/records/2026-11-11-token-gap-root-cause.md`), not from Ian, and their cost is real but their numbers are main's size on the day. Fix 1: first-read ceilings get 5% room over the 0836 measured sizes; growth inside the room needs no ask, growth past it needs a PM ruling, and the map stays out of the first read. Fix 2: the per-tool typed budget rises to 2,400, with the 48 KiB all-tools cap kept as the guard. Fixes 3 and 4 wait until fix 1's room runs low. 0904 plans one measuring job for its growth. Reach: the exact-size ratchet habit is mailed to Jarvis.
+Fixes 1 and 2 go ahead now, in this ticket. The 0836 limits came from a review (`sdlc/records/2026-11-11-token-gap-root-cause.md`), not from Ian, and their cost is real but their numbers are main's size on the day. Fix 1: first-read ceilings get 5% room over the 0836 measured sizes; growth inside the room needs no ask, growth past it needs a PM ruling, and the map stays out of the first read. Fix 2: the per-tool typed budget rises to 2,400, with the all-tools cap kept as the guard (128 KiB since 0763; the decision first said 48 KiB in error). Fixes 3 and 4 wait until fix 1's room runs low. 0904 plans one measuring job for its growth. Reach: the exact-size ratchet habit is mailed to Jarvis.
 
 ### Fixes 1 and 2 done, 2026-11-13
 
