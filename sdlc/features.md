@@ -74,7 +74,7 @@ drug-help: Discover source-scoped drug sections, selectors and explicit bundle s
 diagnostic-gtr: Explicitly synchronize the complete GTR pair and read exact native test candidates, literal test-name matches with whole words first, cards and relation pages without implicit synchronization or clinical inference.
 adverse-event-search: Search a FAERS drug name together with its bounded source-stated other names by default, or only as typed with --exact-term, with frozen continuations and one disclosure of the names searched; MAUDE and VAERS search as typed; native report totals and reaction buckets never become sums per name, derived rates or causal interpretation.
 cpic-pgx: Read explicit CPIC gene pairs, identity, native recommendations, guideline references and declared diplotype mappings without clinical inference.
-maude-reports: Search native device phrases, manufacturer phrases, exact product codes and product problem phrases and read exact native cards, device rows and complete narratives with source terms and independent count units.
+maude-reports: Search native device phrases, manufacturer phrases, exact product codes, product problem phrases and event types and read exact native cards, device rows and complete narratives with source terms and independent count units.
 adverse-event-get: Read one exact FAERS report and independently page retained drug, reaction and original identifier arrays without causal or product identity inference.
 diagnostic-cdx: Explicitly synchronize both FDA companion tables and search whole physical association rows using their own checked identifiers.
 adverse-event-retirements: Retired adverse-event inputs return fixed guidance before requests.
