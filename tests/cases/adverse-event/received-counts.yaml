@@ -1,8 +1,8 @@
 {
   "feature": "adverse-event-search",
   "live_check": "public",
-  "story": "One search returns FAERS or MAUDE report counts per FDA receipt year or month, from openFDA's daily receipt-date counts over the whole range in one request, with the same widened drug names and filters as the search. Each year equals the report total of the same search dated to that year; a year the source has not finished is marked partial.",
-  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-13 (job j39406). openFDA's count=receivedate returns every daily bucket of the range with no limit sent (no cap: aspirin 2004-2025 gave 846,202 reports summed from 7,359 daily buckets in one reply, equal to the dated search total), and refuses a limit above 100 without an API key. The per-year counts 142, 198, 319, 433 and 512 equal the pv-scientist run's five dated searches and the recorded dated search totals; openFDA's last update was 2026-10-28, so 2026 is partial.",
+  "story": "One search returns FAERS or MAUDE report counts per FDA receipt year or month, from openFDA's daily receipt-date counts over the whole range in one request, with the same widened drug names and filters as the search. Each year equals the report total of the same search dated to that year; a year the source has not finished is marked partial. Periods that start after the source's last update are left out.",
+  "verified": "The actual CLI recorded these replies from the public sources on 2026-11-13 (job j39406). openFDA's count=receivedate returns every daily bucket of the range with no limit sent (no cap: aspirin 2004-2025 gave 846,202 reports summed from 7,359 daily buckets in one reply, equal to the dated search total), and refuses a limit above 100 without an API key. The per-year counts 142, 198, 319, 433 and 512 equal the pv-scientist run's five dated searches and the recorded dated search totals; openFDA's last update was 2026-10-28, so 2026 is partial. The clipping steps were recorded the same way (job j39564): with openFDA last updated 2026-10-28, September 2026 has 35 reports, October 0 (partial), and November and December are left out.",
   "replay": "adverse-event/received-counts",
   "steps": [
     {
@@ -300,6 +300,55 @@
       "expect": {
         "/status": "complete",
         "/page/total": 10022
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--aggregate",
+        "received-month",
+        "--received-from",
+        "2026-09",
+        "--received-to",
+        "2026-12"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/source_updated": "2026-10-28",
+        "/result/received_counts": [
+          {
+            "received": "2026-09",
+            "count": 35
+          },
+          {
+            "received": "2026-10",
+            "count": 0,
+            "partial": true
+          }
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pembrolizumab",
+        "--reaction",
+        "myocarditis",
+        "--received-from",
+        "2026-10",
+        "--received-to",
+        "2026-10",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0
       }
     },
     {

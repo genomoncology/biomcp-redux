@@ -109,7 +109,7 @@
           "description": "Explicit analyzed reaction selector semantics when a reaction was supplied."
         },
         "received_counts": {
-          "description": "Report counts per receipt year or month, oldest first, every period in the requested\nrange listed; present only when a receipt-date aggregate was requested.",
+          "description": "Report counts per receipt year or month, oldest first, every period of the requested\nrange listed up to the source's last update; present only when a receipt-date aggregate\nwas requested.",
           "items": {
             "$ref": "#/$defs/Reply_AdverseEventReceivedCount"
           },
