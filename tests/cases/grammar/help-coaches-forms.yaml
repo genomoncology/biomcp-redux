@@ -1,7 +1,7 @@
 {
   "live_check": "local-only command help and validation; no source requests",
   "feature": "query-validation",
-  "story": "Help and errors steer the guesses a regulatory run made: a filter names the only sources that serve it, a section is a bare word after the ID, and unknown --fields names come back as the same call with the names the rows carry.",
+  "story": "Help and errors steer the guesses a regulatory run made: a filter names the only sources that serve it, a section is a bare word after the ID, and unknown --fields names come back as the same call with the names the rows carry, or the selected source's names when one is chosen.",
   "steps": [
     {
       "run": [
@@ -83,6 +83,31 @@
           "2023",
           "--source",
           "who-pq"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "melanoma",
+        "--source",
+        "ctgov",
+        "--fields",
+        "phase,title,bogus"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--fields",
+        "/next/0/args": [
+          "--fields=phases,title",
+          "search",
+          "trial",
+          "melanoma",
+          "--source",
+          "ctgov"
         ]
       }
     }

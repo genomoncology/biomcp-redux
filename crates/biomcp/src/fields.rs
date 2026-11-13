@@ -145,6 +145,10 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
     if !row.names.is_empty() && fields.iter().all(|name| row.names.contains(name)) {
         return source_check(parsed, request, path);
     }
+    // A selected source's own row, so the suggested call keeps only names it carries.
+    let row = selected(request)
+        .and_then(|(_, id)| reply_row(id))
+        .unwrap_or(row);
     let mut next = kept_step(parsed, &row);
     next.push(help_step(path));
     Err(UsageError::Arguments(UsageArguments {

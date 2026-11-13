@@ -21,6 +21,12 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
         };
         let shape = usage_form(command);
         let selectable = command.arguments.iter().any(|a| a.name == "--source");
+        let flags = command
+            .arguments
+            .iter()
+            .filter(|a| a.name.starts_with("--"))
+            .map(|a| a.name.clone())
+            .collect::<Vec<_>>();
         for argument in &mut command.arguments {
             if !argument.choices.is_empty() && argument.value_type != "boolean" {
                 argument.description.push('\n');
@@ -31,7 +37,9 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             if !argument.name.starts_with("--") {
                 // Agents guess `--section`; say the word goes bare in its place.
                 if argument.position.is_some() {
-                    let flag = if argument.aliases.is_empty() {
+                    let flag = if argument.aliases.is_empty()
+                        && !flags.contains(&format!("--{}", argument.name))
+                    {
                         format!("; not --{}", argument.name)
                     } else {
                         String::new()
@@ -51,7 +59,10 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             let scope = if sources.is_empty() {
                 "Local command option; independent of source selection.".into()
             } else if only.is_empty() {
-                "Any command source; source restrictions in the field description apply.".into()
+                format!(
+                    "Command sources: {}; source restrictions in the field description apply.",
+                    sources.iter().cloned().collect::<Vec<_>>().join(", ")
+                )
             } else {
                 // The schema's source fact, so a filter names the sources that serve it.
                 format!("Only with --source {}.", or_list(&only))
@@ -101,18 +112,9 @@ fn only_sources(
     name: &str,
     sources: &std::collections::BTreeSet<String>,
 ) -> Vec<String> {
-    let fact = schema
-        .get("properties")
-        .and_then(|fields| fields.get(name.trim_start_matches('-').replace('-', "_")))
-        .and_then(|property| property.get("x-required-component"));
-    let required = fact
-        .and_then(serde_json::Value::as_array)
-        .map(Vec::as_slice)
-        .or_else(|| fact.map(std::slice::from_ref))
-        .unwrap_or_default()
+    let required = crate::mcp::typed::catalog::argument_sources(schema, name)
         .iter()
-        .filter_map(serde_json::Value::as_str)
-        .map(str::to_owned)
+        .map(ToString::to_string)
         .collect::<Vec<_>>();
     // A component that is no selectable source (a vocabulary) leaves the option general.
     if required.is_empty()
