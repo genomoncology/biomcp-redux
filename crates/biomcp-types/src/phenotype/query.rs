@@ -45,6 +45,15 @@ biodata::wire_enum! { described
         PhenodigmScore => "phenodigm-score",
     }
 }
+biodata::wire_enum! { described
+    /// Which Monarch entities are scored against a set of HP terms.
+    PhenotypeSearchMode {
+        /// Monarch's default: score only a shortlist prefiltered by Jaccard overlap.
+        Hybrid => "hybrid",
+        /// Score every entity in the group; slower.
+        Full => "full",
+    }
+}
 /// Monarch returns at most this many ranked rows for a set of HP terms, with no further pages.
 pub const PHENOTYPE_MATCH_MAX: u32 = 50;
 fn monarch() -> PhenotypeSource {
@@ -94,6 +103,14 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PhenotypeMetric"))]
     metric: Option<PhenotypeMetric>,
+    /// HP IDs only: hybrid, the default, or full to score every entity.
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "PhenotypeSearchMode"))]
+    search_mode: Option<PhenotypeSearchMode>,
 }
 crate::query::validation::checked_query!(PhenotypeSearch, SearchFields);
 impl TryFrom<SearchFields> for PhenotypeSearch {
@@ -113,8 +130,14 @@ impl TryFrom<SearchFields> for PhenotypeSearch {
                 return Err(QueryInvalid::new(&["offset"])
                     .with_message(crate::ErrorMessage::PhenotypeSetOffset));
             }
-        } else if v.group.is_some() || v.metric.is_some() {
-            let field = if v.group.is_some() { "group" } else { "metric" };
+        } else if v.group.is_some() || v.metric.is_some() || v.search_mode.is_some() {
+            let field = if v.group.is_some() {
+                "group"
+            } else if v.metric.is_some() {
+                "metric"
+            } else {
+                "search_mode"
+            };
             return Err(
                 QueryInvalid::new(&[field]).with_message(crate::ErrorMessage::PhenotypeSetOptions)
             );
@@ -245,6 +268,16 @@ impl PhenotypeSearch {
         self.0
             .metric
             .unwrap_or(PhenotypeMetric::AncestorInformationContent)
+    }
+    /// Which entities Monarch scores for an HP ID set.
+    pub fn search_mode(&self) -> PhenotypeSearchMode {
+        self.0.search_mode.unwrap_or(PhenotypeSearchMode::Hybrid)
+    }
+    /// The same ranking with another search mode.
+    pub fn with_search_mode(&self, mode: PhenotypeSearchMode) -> Self {
+        let mut q = self.clone();
+        q.0.search_mode = Some(mode);
+        q
     }
 }
 impl crate::Paged for PhenotypeSearch {

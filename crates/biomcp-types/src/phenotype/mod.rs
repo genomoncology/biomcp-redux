@@ -5,7 +5,7 @@ use biodata::{
 };
 pub use query::{
     PHENOTYPE_MATCH_MAX, PhenotypeGet, PhenotypeGroup, PhenotypeMetric, PhenotypeSearch,
-    PhenotypeSection, PhenotypeSource,
+    PhenotypeSearchMode, PhenotypeSection, PhenotypeSource,
 };
 use serde::{Deserialize, Serialize};
 /// Independent source identity card and its available sections.
@@ -73,6 +73,9 @@ pub struct PhenotypeMatches {
     pub method: Option<PhenotypeMatchMethod>,
     /// Monarch returns at most this many ranked rows and no further pages; an entity outside them is unranked here, not absent from Monarch.
     pub source_limit: u32,
+    /// What Monarch's stated search mode can leave out of the ranking.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub note: Option<Box<str>>,
     /// Applicable publisher component terms.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,

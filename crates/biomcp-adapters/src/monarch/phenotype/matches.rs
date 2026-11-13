@@ -7,7 +7,7 @@ use biomcp_fetch::{
 };
 use biomcp_types::{
     PhenotypeBestMatch, PhenotypeGroup, PhenotypeMatch, PhenotypeMatchMethod, PhenotypeMatchTerm,
-    PhenotypeMetric, PhenotypeSearch,
+    PhenotypeMetric, PhenotypeSearch, PhenotypeSearchMode,
 };
 use std::collections::BTreeMap;
 
@@ -20,6 +20,8 @@ pub struct Ranked {
     pub terms: Vec<PhenotypeMatchTerm>,
     /// Queried terms Monarch did not know; Monarch ranks without them.
     pub unknown: Vec<HpId>,
+    /// Monarch returned no row at all, which it does when it knows none of the terms.
+    pub empty: bool,
     /// Monarch's stated settings from the first row.
     pub method: Option<PhenotypeMatchMethod>,
     /// Rejected optional fields.
@@ -28,6 +30,27 @@ pub struct Ranked {
     pub refusals: crate::Refusal,
     /// Original retrieval metadata.
     pub metadata: ReplyMetadata,
+}
+
+/// Monarch's similarity search: a full search took 4.5 to 19.3 s when measured on
+/// 2026-11-13, beyond the 15 s that suits other Monarch reads; the command budget still caps it.
+pub static SPEC: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
+    destinations: biomcp_fetch::Destinations::Primary,
+    user_agent: None,
+    source: biomcp_types::Source::Monarch,
+    base: super::super::SPEC.base,
+    terms: super::super::SPEC.terms,
+    quota: &crate::quotas::MONARCH,
+    key: biomcp_fetch::KeyUse::None,
+    deadline: std::time::Duration::from_secs(30),
+};
+
+/// Monarch's search mode spelling.
+fn mode(mode: PhenotypeSearchMode) -> &'static str {
+    match mode {
+        PhenotypeSearchMode::Hybrid => "hybrid",
+        PhenotypeSearchMode::Full => "full",
+    }
 }
 
 /// Monarch's group spelling.
@@ -52,7 +75,7 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Ranked, RequestError
     crate::disease_sources::components::monarch(leg)?;
     let terms = q.terms().ok_or(biomcp_fetch::InputError::Path)?;
     let termset = terms.iter().map(HpId::as_str).collect::<Vec<_>>().join(",");
-    let endpoint = super::super::SPEC
+    let endpoint = SPEC
         .get("/v3/api/semsim/search")
         .with_segments(&[
             PathSegment::new(&termset)?,
@@ -60,35 +83,43 @@ pub fn search(leg: &Leg<'_>, q: &PhenotypeSearch) -> Result<Ranked, RequestError
         ])
         .fresh(Freshness::Days(1));
     let wanted = metric(q.metric());
+    let wanted_mode = mode(q.search_mode());
     let args = [
         ("limit", Arg::Num(q.limit().into())),
         ("metric", Arg::Text(wanted)),
+        ("search_mode", Arg::Text(wanted_mode)),
     ];
     let received = leg.call(
         &endpoint,
         Input::Params(&args),
         Read::<Rows>::json()
             .check(&|rows| {
-                let metric_ok = rows.0.iter().all(|row| {
-                    row.search_settings
-                        .as_ref()
-                        .and_then(Field::as_ref)
-                        .and_then(|settings| settings.metric.as_ref())
-                        .and_then(Field::as_ref)
-                        .is_none_or(|stated| stated.as_ref() == wanted)
-                });
+                let stated = |field: fn(&Settings) -> &Option<Field<Box<str>>>, value: &str| {
+                    rows.0.iter().all(|row| {
+                        row.search_settings
+                            .as_ref()
+                            .and_then(Field::as_ref)
+                            .and_then(|settings| field(settings).as_ref())
+                            .and_then(Field::as_ref)
+                            .is_none_or(|stated| stated.as_ref() == value)
+                    })
+                };
+                let metric_ok =
+                    stated(|s| &s.metric, wanted) && stated(|s| &s.search_mode, wanted_mode);
                 if rows.0.len() > q.limit() as usize || !metric_ok {
                     Err(BadReply)
                 } else {
                     Ok(())
                 }
             })
-            .cache_if(&|rows| rows.0.iter().all(Row::admitted)),
+            // An empty reply is not cached: it can also be a transient Monarch answer.
+            .cache_if(&|rows| !rows.0.is_empty() && rows.0.iter().all(Row::admitted)),
     )?;
     Ok(map(received.value, &terms, received.meta))
 }
 
 fn map(rows: Rows, terms: &[HpId], metadata: ReplyMetadata) -> Ranked {
+    let empty = rows.0.is_empty();
     let mut problems = Vec::new();
     let mut refusals = crate::Refusal::None;
     let mut labels = Labels::new();
@@ -146,8 +177,7 @@ fn map(rows: Rows, terms: &[HpId], metadata: ReplyMetadata) -> Ranked {
         });
         problems.append(&mut found.list);
     }
-    let none_ranked = items.is_empty() && refusals == crate::Refusal::None;
-    let unknown = unknown(terms, &labels, termset_seen, none_ranked);
+    let unknown = unknown(terms, &labels, termset_seen);
     let terms = terms
         .iter()
         .map(|term| PhenotypeMatchTerm {
@@ -159,6 +189,7 @@ fn map(rows: Rows, terms: &[HpId], metadata: ReplyMetadata) -> Ranked {
         items,
         terms,
         unknown,
+        empty,
         method,
         problems,
         refusals,
@@ -203,15 +234,14 @@ fn best_matches(
     out
 }
 /// Monarch lists a term it does not know without a label and ranks without it.
-/// An empty reply names no term: one known term always ranks entities, so none was known.
-fn unknown(terms: &[HpId], labels: &Labels, termset_seen: bool, none_ranked: bool) -> Vec<HpId> {
+fn unknown(terms: &[HpId], labels: &Labels, termset_seen: bool) -> Vec<HpId> {
     let mut out: Vec<HpId> = Vec::new();
     for term in terms {
         let unlabeled = match labels.get(term.as_str()) {
             Some(label) => label.is_none(),
             None => termset_seen,
         };
-        if (none_ranked || unlabeled) && !out.contains(term) {
+        if unlabeled && !out.contains(term) {
             out.push(term.clone());
         }
     }
