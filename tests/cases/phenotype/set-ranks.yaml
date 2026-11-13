@@ -22,7 +22,7 @@
         "/result/items/0/best_matches/1/term": "HP:0001252",
         "/result/items/0/best_matches/1/matched": "HP:0008936",
         "/result/items/1/id": "HGNC:15772",
-        "/result/items/1/score": 12.029876925256653,
+        "/result/items/1/score": 12.029876925256652,
         "/result/items/2/id": "HGNC:14074",
         "/result/terms/2/label": "Seizure",
         "/result/method/metric": "ancestor_information_content",
