@@ -715,7 +715,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
 HP IDs only: the Monarch similarity metric to rank by.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric ancestor-information-content. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
 - `--search-mode`: HP IDs only: hybrid (default) or full, slower, scoring; help search phenotype
 HP IDs only: hybrid (default) or full, slower, scoring every entity.
