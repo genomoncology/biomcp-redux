@@ -138,7 +138,12 @@ pub(super) fn refusal(
         n if n <= SHOWN => format!("Its letter documents: {}.", letters.join(", ")),
         n => format!(
             "Its letter documents include {} ({n} in all; the approvals section lists each one).",
-            letters[..SHOWN].join(", ")
+            letters
+                .iter()
+                .take(SHOWN)
+                .map(String::as_str)
+                .collect::<Vec<_>>()
+                .join(", ")
         ),
     };
     if let Some(source) = out

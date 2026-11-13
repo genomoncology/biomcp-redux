@@ -118,6 +118,17 @@ fn widened_page(
     saved.step = Some(step);
     result
 }
+/// A failed reply whose source still reads ok would name no cause; give the source the reason.
+fn name_failure(out: &mut Outcome, error: biomcp_fetch::RequestError) {
+    if let Some(reason) = status::reason(error)
+        && let Some(source) = out
+            .sources
+            .iter_mut()
+            .find(|s| s.source == Source::Drugsfda && s.state == SourceState::Ok)
+    {
+        source.set_status(biomcp_types::SourceStatus::Failed(Some(reason)));
+    }
+}
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let (is_approvals, mut out) = empty_get(query);
     if !query.supports_sections() {
@@ -165,15 +176,7 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
                 ) {
                     crate::status::item(&mut out, false, true, false);
                     out.local = status::local(error);
-                    // A failed reply whose source still reads ok would name no cause.
-                    if let Some(reason) = status::reason(error)
-                        && let Some(source) = out
-                            .sources
-                            .iter_mut()
-                            .find(|s| s.source == Source::Drugsfda && s.state == SourceState::Ok)
-                    {
-                        source.set_status(biomcp_types::SourceStatus::Failed(Some(reason)));
-                    }
+                    name_failure(&mut out, error);
                 }
             } else {
                 if let Some(request) = crate::next::checked(
