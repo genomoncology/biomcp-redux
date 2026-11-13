@@ -2,7 +2,7 @@
 
 Generated from the source quota registry. Run `make docs-generate` to update.
 
-Defaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.
+Defaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling of one in flight, except where a row below says otherwise. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.
 
 | Source | Keyless default / ceiling | Keyed default / ceiling | In flight default / ceiling | Policy checked |
 | --- | --- | --- | --- | --- |
