@@ -1,0 +1,185 @@
+{
+  "live_check": "Monarch semantic similarity search replies captured live 2026-11-13 from api-v3.monarchinitiative.org",
+  "feature": "phenotype-set-ranking",
+  "story": "A counselor's three HP IDs return Monarch's one ranked list of genes or diseases with each score, the metric named and Monarch's 50-row limit stated; an HP ID Monarch does not know is refused instead of silently dropped.",
+  "replay": "phenotype/set-ranks",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/schema": "biomcp.phenotype-matches/1",
+        "/result/items/0/rank": 1,
+        "/result/items/0/id": "HGNC:4226",
+        "/result/items/0/label": "GDI1",
+        "/result/items/0/score": 12.681392140685496,
+        "/result/items/0/best_matches/1/term": "HP:0001252",
+        "/result/items/0/best_matches/1/matched": "HP:0008936",
+        "/result/items/1/id": "HGNC:15772",
+        "/result/items/1/score": 12.029876925256653,
+        "/result/items/2/id": "HGNC:14074",
+        "/result/terms/2/label": "Seizure",
+        "/result/method/metric": "ancestor_information_content",
+        "/result/method/search_mode": "hybrid",
+        "/result/source_limit": 50,
+        "/next/0/args": [
+          "get",
+          "gene",
+          "HGNC:4226"
+        ]
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--group",
+        "diseases",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/group": "diseases",
+        "/result/items/0/id": "MONDO:0010451",
+        "/result/items/0/score": 13.682450613729127,
+        "/result/items/1/id": "MONDO:0859263",
+        "/result/method/metric": "ancestor_information_content",
+        "/result/source_limit": 50,
+        "/next/0/args": [
+          "get",
+          "disease",
+          "MONDO:0010451",
+          "--section-limit",
+          "5"
+        ]
+      },
+      "max_bytes": 3500
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:0001252,HP:0001250",
+        "--metric",
+        "phenodigm-score",
+        "--limit",
+        "2"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "HGNC:15772",
+        "/result/items/0/score": 3.153784757657971,
+        "/result/method/metric": "phenodigm_score"
+      },
+      "max_bytes": 3500
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263,HP:9999999",
+        "--limit",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "text",
+        "/error/message": "Monarch has no term for an HP ID in this set and would rank without it; check each ID with the next steps, or rank only the IDs Monarch knows",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:9999999"
+        ],
+        "/next/1/args": [
+          "search",
+          "phenotype",
+          "HP:0001263",
+          "--limit",
+          "1"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:9999999",
+        "--limit",
+        "1"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "text",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:9999999"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "seizure",
+        "--group",
+        "genes"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--group",
+        "/error/message": "--group and --metric rank genes or diseases for HP IDs only; give the text as HP IDs separated by commas, such as: search phenotype HP:0001263,HP:0001250 --group genes"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001250",
+        "--offset",
+        "5"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/option": "--offset",
+        "/error/message": "Monarch returns one ranked list of at most 50 rows for a set of HP IDs and has no further pages; drop --offset and raise --limit up to 50"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "phenotype",
+        "HP:0001263",
+        "HP:0001252",
+        "HP:0001250"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/next/0/args": [
+          "search",
+          "phenotype",
+          "HP:0001263 HP:0001252 HP:0001250"
+        ]
+      }
+    }
+  ]
+}

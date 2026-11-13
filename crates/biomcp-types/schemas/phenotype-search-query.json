@@ -1,5 +1,31 @@
 {
   "$defs": {
+    "PhenotypeGroup": {
+      "description": "The Monarch entity group ranked against a set of HP terms.",
+      "enum": [
+        "genes",
+        "diseases"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's Human Genes group.",
+        " Monarch's Human Diseases group."
+      ]
+    },
+    "PhenotypeMetric": {
+      "description": "A Monarch similarity metric for ranking against a set of HP terms.",
+      "enum": [
+        "ancestor-information-content",
+        "jaccard-similarity",
+        "phenodigm-score"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Information content of the most informative shared ancestor, Monarch's default.",
+        " Jaccard similarity of the ancestor sets.",
+        " Phenodigm score, the geometric mean of the other two."
+      ]
+    },
     "PhenotypeSource": {
       "description": "One independent term publisher.",
       "enum": [
@@ -16,8 +42,12 @@
   "$id": "biomcp.phenotype-search-query/1",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.",
+  "description": "Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, \\\nto get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a \\\nranking orders source candidates; neither establishes a diagnosis.",
   "properties": {
+    "group": {
+      "$ref": "#/$defs/PhenotypeGroup",
+      "description": "For HP IDs only: rank Monarch's human genes (default) or; help search phenotype\nFor HP IDs only: rank Monarch's human genes (default) or diseases against the set."
+    },
     "limit": {
       "default": 5,
       "description": "Maximum native headers, default five.",
@@ -26,9 +56,13 @@
       "minimum": 1,
       "type": "integer"
     },
+    "metric": {
+      "$ref": "#/$defs/PhenotypeMetric",
+      "description": "For HP IDs only: Monarch similarity metric, default; help search phenotype\nFor HP IDs only: Monarch similarity metric, default ancestor-information-content."
+    },
     "offset": {
       "default": 0,
-      "description": "Native source row offset.",
+      "description": "Native source row offset; a ranked HP ID set has no further pages.",
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
@@ -39,7 +73,7 @@
       "description": "Monarch only; HPO search is unsupported; help search phenotype\nMonarch only; HPO search is unsupported."
     },
     "text": {
-      "description": "Unchanged literal term search text.",
+      "description": "Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.",
       "minLength": 1,
       "type": "string",
       "x-positional": 0

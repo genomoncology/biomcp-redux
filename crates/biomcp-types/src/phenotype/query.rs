@@ -53,9 +53,9 @@ fn monarch() -> PhenotypeSource {
 fn five() -> u32 {
     5
 }
-/// Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, \
-/// to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a \
-/// ranking orders source candidates; neither establishes a diagnosis.
+#[doc = " Search literal human HP term candidates through Monarch with bounded native pages, or give only HP \
+    IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term \
+    lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -78,7 +78,7 @@ struct SearchFields {
     /// Native source row offset; a ranked HP ID set has no further pages.
     #[serde(default)]
     offset: u32,
-    /// For HP IDs only: rank Monarch's human genes (default) or diseases against the set.
+    /// HP IDs only: rank genes, the default, or diseases.
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -86,7 +86,7 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PhenotypeGroup"))]
     group: Option<PhenotypeGroup>,
-    /// For HP IDs only: Monarch similarity metric, default ancestor-information-content.
+    /// HP IDs only: Monarch similarity metric. Default ancestor-information-content.
     #[serde(
         default,
         deserialize_with = "crate::query::present",

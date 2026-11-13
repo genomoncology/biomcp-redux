@@ -701,6 +701,32 @@
         " ClinPGx annotation records."
       ]
     },
+    "PhenotypeGroup": {
+      "description": "The Monarch entity group ranked against a set of HP terms.",
+      "enum": [
+        "genes",
+        "diseases"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's Human Genes group.",
+        " Monarch's Human Diseases group."
+      ]
+    },
+    "PhenotypeMetric": {
+      "description": "A Monarch similarity metric for ranking against a set of HP terms.",
+      "enum": [
+        "ancestor-information-content",
+        "jaccard-similarity",
+        "phenodigm-score"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Information content of the most informative shared ancestor, Monarch's default.",
+        " Jaccard similarity of the ancestor sets.",
+        " Phenodigm score, the geometric mean of the other two."
+      ]
+    },
     "PhenotypeSection": {
       "description": "A named source term section.",
       "enum": [
@@ -2102,6 +2128,10 @@
           "const": "search-phenotype",
           "type": "string"
         },
+        "group": {
+          "$ref": "#/$defs/PhenotypeGroup",
+          "description": "For HP IDs only: rank Monarch's human genes (default) or diseases against the set."
+        },
         "limit": {
           "default": 5,
           "description": "Maximum native headers, default five.",
@@ -2110,9 +2140,13 @@
           "minimum": 1,
           "type": "integer"
         },
+        "metric": {
+          "$ref": "#/$defs/PhenotypeMetric",
+          "description": "For HP IDs only: Monarch similarity metric, default ancestor-information-content."
+        },
         "offset": {
           "default": 0,
-          "description": "Native source row offset.",
+          "description": "Native source row offset; a ranked HP ID set has no further pages.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
@@ -2123,7 +2157,7 @@
           "description": "Monarch only; HPO search is unsupported."
         },
         "text": {
-          "description": "Unchanged literal term search text.",
+          "description": "Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.",
           "minLength": 1,
           "type": "string",
           "x-positional": 0
