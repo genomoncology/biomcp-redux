@@ -122,13 +122,15 @@ fn estimate(row: &NativePrevalence, cx: &mut Problems) -> OrphanetPrevalence {
         value: cx.text("ValMoy", value),
         geography: cx.text("PrevalenceGeographic", row.geography.as_deref()),
         source: cx.text("Source", row.source.as_deref()),
-        // PubMed IDs are written as `NNNN[PMID]` in the underscore-separated source text.
+        // PubMed IDs end an underscore-separated part as `NNNN[PMID]`, sometimes spaced or
+        // after a label, such as `18442953 [PMID]` or `Source: 33080481[PMID]`.
         pmids: row
             .source
             .iter()
             .flat_map(|source| source.split('_'))
             .filter_map(|part| part.trim().strip_suffix("[PMID]"))
-            .filter(|id| !id.is_empty() && id.bytes().all(|b| b.is_ascii_digit()))
+            .filter_map(|id| id.trim_end().rsplit(|c: char| !c.is_ascii_digit()).next())
+            .filter(|id| !id.is_empty())
             .filter_map(|id| cx.checked_text("Source", Some(id)))
             .collect(),
         validation: cx.text("PrevalenceValidationStatus", row.validation.as_deref()),

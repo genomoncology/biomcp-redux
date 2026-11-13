@@ -92,6 +92,7 @@ use biomcp_test_support::network_stub;
 mod normalization;
 mod oncokb;
 mod oncokb_context;
+mod orphadata_sync;
 mod output_stream;
 mod pathway_budgets;
 mod pathway_commands;
@@ -272,6 +273,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(bundle_wait::trials());
     trials.extend(bundle_refresh::trials());
     trials.extend(bundle_sync::trials());
+    trials.extend(orphadata_sync::trials());
     trials.push(hgnc_sync::live_trial());
     trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
