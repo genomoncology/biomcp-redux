@@ -158,7 +158,10 @@
         "/result/method/search_mode": "full",
         "/result/items": {
           "count": 2
-        }
+        },
+        "/result/items/0/id": "HGNC:15772",
+        "/result/items/0/score": 3.153784757657971,
+        "/result/items/1/id": "HGNC:15505"
       },
       "max_bytes": 4200
     },
@@ -180,7 +183,10 @@
         "/result/method/search_mode": "full",
         "/result/items": {
           "count": 2
-        }
+        },
+        "/result/items/0/id": "HGNC:10866",
+        "/result/items/0/score": 0.852916465317422,
+        "/result/items/1/id": "HGNC:15772"
       },
       "max_bytes": 4200
     },
