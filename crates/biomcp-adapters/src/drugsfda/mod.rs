@@ -23,7 +23,7 @@ mod raw;
 mod wire;
 use biodata::{DrugId, DrugIdentityLevel, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
-use biomcp_types::{DrugHeader, DrugSource};
+use biomcp_types::{DrugFdaSort, DrugHeader, DrugSource};
 pub use map::Application;
 use raw::Application as RawApplication;
 pub(crate) use raw::date;
@@ -59,26 +59,24 @@ pub fn search(
     applicant: Option<&Text>,
     limit: u32,
     offset: u32,
+    sort: Option<DrugFdaSort>,
 ) -> Result<Page, RequestError> {
     let names: Vec<Text> = text.cloned().into_iter().collect();
-    let exact = page(
-        leg,
-        &selector(&names, applicant, NameStep::Exact),
-        limit,
-        offset,
-        None,
-    )?;
+    let at = |step| {
+        let selector = selector(&names, applicant, step);
+        page(leg, &selector, sort, limit, offset, None)
+    };
+    let exact = at(NameStep::Exact)?;
     if exact.total > 0 || text.is_none() {
         return Ok(exact);
     }
-    page(
-        leg,
-        &selector(&names, applicant, NameStep::Words),
-        limit,
-        offset,
-        None,
-    )
+    at(NameStep::Words)
 }
+
+/// The native sort that orders applications by their latest submission status date. The source
+/// sorts a many-valued field by its largest value; the application number breaks ties so pages
+/// stay stable.
+const NEWEST: &str = "submissions.submission_status_date:desc,application_number:asc";
 
 /// BioMCP's own bound on one native Drugs@FDA request, so a name group stays one request.
 const NAME_QUERY_MAX_BYTES: usize = 4096;
@@ -144,8 +142,18 @@ pub fn search_widened(
     applicant: Option<&Text>,
     (limit, offset): (u32, u32),
     selected: Option<NameStep>,
+    sort: Option<DrugFdaSort>,
 ) -> (Result<Page, RequestError>, NameStep) {
-    let at = |step| page(leg, &selector(names, applicant, step), limit, offset, None);
+    let at = |step| {
+        page(
+            leg,
+            &selector(names, applicant, step),
+            sort,
+            limit,
+            offset,
+            None,
+        )
+    };
     if let Some(step) = selected {
         return (at(step), step);
     }
@@ -159,6 +167,7 @@ pub fn search_widened(
         match page(
             leg,
             &selector(typed, applicant, NameStep::Exact),
+            None,
             1,
             0,
             None,
@@ -183,6 +192,7 @@ pub fn search_names(
     page(
         leg,
         &format!("products.brand_name:{name} OR products.active_ingredients.name:{name}"),
+        None,
         limit,
         offset,
         None,
@@ -196,6 +206,7 @@ pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
     page(
         leg,
         &format!("application_number:{}", literal(&id.to_string())),
+        None,
         1,
         0,
         Some(id),
@@ -204,6 +215,7 @@ pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
 fn page(
     leg: &Leg<'_>,
     selector: &str,
+    sort: Option<DrugFdaSort>,
     limit: u32,
     offset: u32,
     id: Option<&DrugId>,
@@ -215,6 +227,9 @@ fn page(
         ("search", Arg::Text(selector)),
         ("limit", Arg::Num(limit.into())),
     ];
+    if let Some(DrugFdaSort::Newest) = sort {
+        args.push(("sort", Arg::Text(NEWEST)));
+    }
     if offset > 0 {
         args.push(("skip", Arg::Num(offset.into())));
     }

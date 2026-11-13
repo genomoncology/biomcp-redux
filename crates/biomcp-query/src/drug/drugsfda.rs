@@ -13,6 +13,10 @@ mod letter;
 mod purpose;
 /// How the names were searched, for the one notice.
 const SEARCHED: &str = "one query at the typed name's step";
+/// The one notice for a newest-first page.
+const NEWEST: &str = "--sort newest orders applications by their latest submission status date, \
+    newest first, ties by application number; applications with no dated submission come last. \
+    latest_submission shows that submission.";
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(
@@ -40,6 +44,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             query.applicant(),
             query.limit(),
             query.offset(),
+            query.sort(),
         ),
     };
     let error = result.as_ref().err().copied();
@@ -86,6 +91,17 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 retry_after_seconds: None,
             });
     }
+    if query.sort().is_some()
+        && let Some(report) = out.sources.first_mut()
+    {
+        report
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: NEWEST.into(),
+                retry_after_seconds: None,
+            });
+    }
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
@@ -107,14 +123,21 @@ fn widened_page(
         query.applicant(),
         page,
         saved.step,
+        query.sort(),
     );
     saved.step = Some(step);
     if saved.names.len() < 2 || !super::search_names::rejected(result.as_ref().err()) {
         return result;
     }
     saved.reject(query);
-    let (result, step) =
-        source::search_widened(leg, (&saved.names, typed), query.applicant(), page, None);
+    let (result, step) = source::search_widened(
+        leg,
+        (&saved.names, typed),
+        query.applicant(),
+        page,
+        None,
+        query.sort(),
+    );
     saved.step = Some(step);
     result
 }

@@ -10,8 +10,8 @@ pub use civic::{
     DrugOncokbLookup, DrugOncokbMissing,
 };
 pub use fda::{
-    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaPage, DrugFdaProduct,
-    DrugFdaProperty, DrugFdaSubmission, DrugFdaSupplementPurpose,
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission, DrugFdaPage,
+    DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission, DrugFdaSupplementPurpose,
 };
 mod query;
 mod response;
@@ -23,7 +23,7 @@ pub use response::{
     DrugInteractions, DrugLabel, DrugLabelFragment, DrugLabelText, DrugNameResolution, DrugPage,
     DrugRecords, DrugRegulatory, DrugRegulatoryContext, DrugTargets, DrugXrefs,
 };
-pub use search::DrugSearch;
+pub use search::{DrugFdaSort, DrugSearch};
 mod sections;
 pub use sections::{
     DrugApprovalsPart, DrugCivicPart, DrugIndicationsPart, DrugInteractionsPart, DrugLabelPart,
