@@ -89,6 +89,13 @@ impl Outcome {
                 ReplyData::NciTrialPage {
                     body: Some(body), ..
                 } => body.condition_resolution.is_some(),
+                // A provider's own rejection messages say why normalization failed.
+                ReplyData::VariantNormalization {
+                    body: Some(body), ..
+                } => body
+                    .results
+                    .iter()
+                    .any(|result| !result.messages.is_empty()),
                 _ => false,
             }
     }

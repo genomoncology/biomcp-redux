@@ -75,7 +75,16 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         }
         continuation(out, cx, q, rows.rejected != 0, offset);
     } else {
-        let (rows, profile, gene) = studies::mutations(leg, q)?;
+        let (rows, profile, gene) = match studies::mutations(leg, q) {
+            Ok(found) => found,
+            Err(error) => {
+                if let Some(usage) = profile_refused(leg, q, error)? {
+                    out.body = ReplyData::Usage(usage);
+                    return Ok(());
+                }
+                return Err(error);
+            }
+        };
         let page = page_info(&rows.window);
         let offset = rows.window.next_offset();
         out.include_refusals(rows.window.refusals());
@@ -104,6 +113,36 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         continuation(out, cx, &query, rows.rejected != 0, offset);
     }
     Ok(())
+}
+/// A non-mutation profile is the caller's choice to fix, not a source outage.
+fn profile_refused(
+    leg: &Leg<'_>,
+    q: &StudyGet,
+    error: RequestError,
+) -> Result<Option<biomcp_types::UsageError>, RequestError> {
+    let Some(asked) = q.molecular_profile() else {
+        return Ok(None);
+    };
+    if crate::status::reason(error) != Some(biomcp_types::Reason::Unavailable) {
+        return Ok(None);
+    }
+    let valid = studies::mutation_profiles(leg, q)?;
+    if valid.is_empty() || valid.contains(asked) {
+        return Ok(None);
+    }
+    let values = valid
+        .iter()
+        .map(|id| biodata::Text::new(id.as_str()))
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|_| error)?;
+    Ok(Some(biomcp_types::UsageError::Arguments(
+        biomcp_types::UsageArguments {
+            argument: Some("--molecular-profile".into()),
+            message: Some(biomcp_types::ErrorMessage::StudyMutationProfile),
+            valid_values: Some(values.into()),
+            next: Vec::new(),
+        },
+    )))
 }
 fn page_info<T>(window: &biomcp_adapters::NativeWindow<T>) -> PageInfo {
     PageInfo {

@@ -324,7 +324,7 @@ fn snapshots(env: &Environment, first: &Value) -> Check {
         ));
     }
     let mut tampered = next.clone();
-    *tampered.get_mut(index + 1).ok_or("snapshot value")? = "synthetic-missing".into();
+    *tampered.get_mut(index + 1).ok_or("snapshot value")? = "0".repeat(64);
     let reply = invoke(env, tampered, 3)?;
     super::action(&reply, "restart")?;
     for source in ["mychem", "drugcentral"] {

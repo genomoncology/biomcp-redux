@@ -23,7 +23,7 @@
         "references",
         "1111",
         "--pool",
-        "missing"
+        "00000000000000000000000000000000"
       ],
       "expect": {
         "/error/code": "pool.expired"
