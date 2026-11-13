@@ -1,0 +1,33 @@
+{
+  "feature": "study-rows",
+  "live_check": "Native public cBioPortal API replies captured unchanged on 2026-11-13; API schema https://www.cbioportal.org/api/v3/api-docs.",
+  "replay": "study/cna-profile",
+  "story": "Study mutations refuse a copy-number profile as a usage error naming the study's mutation profiles, not as a source outage.",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "study",
+        "brca_tcga",
+        "mutations",
+        "--gene",
+        "POLQ",
+        "--molecular-profile",
+        "brca_tcga_gistic",
+        "--section-limit",
+        "5"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--molecular-profile",
+        "/error/valid_values": [
+          "brca_tcga_mutations"
+        ],
+        "/error/message": "the mutations section reads only a mutation profile of this study; choose --molecular-profile from valid_values"
+      }
+    }
+  ]
+}
