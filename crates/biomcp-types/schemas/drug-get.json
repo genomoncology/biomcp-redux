@@ -114,7 +114,7 @@
       "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
     },
     "civic_profile": {
-      "description": "Selected native CIViC molecular profile for a drug-scoped claim stream.",
+      "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
       "format": "uint64",
       "maximum": 2147483647,
       "minimum": 1,
@@ -212,7 +212,7 @@
       "x-positional": 1
     },
     "section_limit": {
-      "description": "Named section page size, refused on an identity-only card; 200 for Drugs@FDA approvals.",
+      "description": "Named section page size, refused on an identity-only card.\nAt most 50 rows, or 200 for Drugs@FDA approvals.",
       "format": "uint32",
       "maximum": 200,
       "minimum": 1,

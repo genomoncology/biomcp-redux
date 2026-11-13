@@ -3121,6 +3121,7 @@ Options:
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-profile <civic_profile>
+          CIViC profile.
           Selected native CIViC molecular profile for a drug-scoped claim stream.
 
       --decision-from <decision_from>
@@ -3173,7 +3174,8 @@ Options:
           [possible values: true, false]
 
       --section-limit <section_limit>
-          Named section page size, refused on an identity-only card; 200 for Drugs@FDA approvals.
+          Named section page size, refused on an identity-only card.
+          At most 50 rows, or 200 for Drugs@FDA approvals.
 
       --section-offset <section_offset>
           Named section continuation, refused on an identity-only card.
@@ -3192,7 +3194,8 @@ Source continuation cursor for that exact drug, profile and claim collection. Va
 CIViC collection.
 Independent source evidence or assertion collection within the selected profile.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--civic-profile`: Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--civic-profile`: CIViC profile.
+Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--decision-from`: From date.
 Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-from 2024-01-01. Only with --source drugsfda.
 - `--decision-to`: To date.
@@ -3218,7 +3221,8 @@ Explicit source application product number, only for approvals. Value form: stri
 - `section`: Source sections; help get drug
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get drug INPUT SECTION...; not --section.
-- `--section-limit`: Named section page size, refused on an identity-only card; 200 for Drugs@FDA approvals. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--section-limit`: Named section page size, refused on an identity-only card.
+At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Omit to infer the source of an unambiguous section; identity or; help get drug
 Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
