@@ -1,0 +1,5089 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22lamivudine%22%20OR%20products.active_ingredients.name%3A%22lamivudine%22&limit=50",
+  "exchanges": [
+    {
+      "fetched": 1794597965,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 405,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 50,
+      "total": 145
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20191029",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60723",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/211284Orig1s002ltr.pdf",
+              "date": "20191030",
+              "type": "Letter"
+            },
+            {
+              "id": "60736",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211284s002lbl.pdf",
+              "date": "20191030",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20181116",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "56513",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/211284s000lbl.pdf",
+              "date": "20181120",
+              "type": "Label"
+            },
+            {
+              "id": "56521",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/211284Orig1s000ltr.pdf",
+              "date": "20181120",
+              "type": "Letter"
+            },
+            {
+              "id": "56750",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2018/211284Orig1s000TOC.html",
+              "date": "20181217",
+              "type": "Review"
+            },
+            {
+              "id": "63114",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/357_211284 lamivudine-tenofovir DD clinical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric DD Summary Review"
+            },
+            {
+              "id": "63115",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/358_211284 lamivudine-tenofovir clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190410",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "58299",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/211284Orig1s001ltr.pdf",
+              "date": "20190412",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA211284",
+      "sponsor_name": "CHARTWELL RX",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TEMIXYS",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20231222",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "77162",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/204311s000lbl.pdf",
+              "date": "20231227",
+              "type": "Label"
+            },
+            {
+              "id": "77163",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/204311s000lbl.pdf#page=34",
+              "date": "20231227",
+              "type": "Medication Guide"
+            },
+            {
+              "id": "79310",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2024/204311Orig1s000TOC.html",
+              "date": "20240802",
+              "type": "Review"
+            },
+            {
+              "id": "10323",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/204311Orig1s000ltr.pdf",
+              "date": "20231227",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA204311",
+      "sponsor_name": "PHARMOBEDIENT",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 60MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET, FOR SUSPENSION",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20241203",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "81203",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/218383Orig1s000TAltr.pdf",
+              "date": "20250210",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA218383",
+      "sponsor_name": "LUPIN LTD",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "30MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "60MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "5MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20120331",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "20190924",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20190924",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20190924",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20190924",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20190924",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20111117",
+          "submission_class_code": "N/A",
+          "submission_class_code_description": "Not Applicable",
+          "application_docs": [
+            {
+              "id": "43378",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2011/202032Orig1s000Approv.pdf",
+              "date": "20120127",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20190924",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA202032",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20121016",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 3/4",
+          "submission_class_code_description": "Type 3 - New Dosage Form and Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "32366",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/203076Orig1s000ltr.pdf",
+              "date": "20121018",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA203076",
+      "sponsor_name": "CIPLA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; NEVIRAPINE; ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            },
+            {
+              "name": "NEVIRAPINE",
+              "strength": "50MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "60MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL SUSPENSION",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20200527",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20170328",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20200527",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA206151",
+      "sponsor_name": "AUROBINDO PHARMA",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20120131",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "10042",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/202381s000ltr.pdf",
+              "date": "20120203",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA202381",
+      "sponsor_name": "MYLAN LABS",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "60MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20260507",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "85878",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/219804Orig1s000TAltr.pdf",
+              "date": "20260505",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA219804",
+      "sponsor_name": "ASPEN SA OPERATIONS (PTY) LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, LAMIVUDINE and TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "LAMIVUDINE"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20250416",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "32668",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/205412Orig1s000TAltr.pdf",
+              "date": "20140929",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20151222",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA205412",
+      "sponsor_name": "HETERO LABS LTD V",
+      "openfda": {
+        "application_number": [
+          "ANDA205412"
+        ],
+        "brand_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "generic_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Camber Pharmaceuticals, Inc."
+        ],
+        "product_ndc": [
+          "31722-838"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "602393"
+        ],
+        "spl_id": [
+          "366cb4c4-0386-17b7-e063-6394a90a5fd1"
+        ],
+        "spl_set_id": [
+          "e8988924-c18c-4e91-ab79-2d84e72bfa0d"
+        ],
+        "package_ndc": [
+          "31722-838-30"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20191007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20161121",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20191007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA206974",
+      "sponsor_name": "SOMERSET THERAPS LLC",
+      "openfda": {
+        "application_number": [
+          "ANDA206974"
+        ],
+        "brand_name": [
+          "LAMIVUDINE"
+        ],
+        "generic_name": [
+          "LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Ingenus Pharmaceuticals, LLC"
+        ],
+        "product_ndc": [
+          "50742-623",
+          "50742-624"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "199147",
+          "349491"
+        ],
+        "spl_id": [
+          "723a8db6-baa2-47f7-a352-0ed4c25a184e"
+        ],
+        "spl_set_id": [
+          "47f8be59-178c-4bad-96a4-a5c82784f308"
+        ],
+        "package_ndc": [
+          "50742-623-60",
+          "50742-624-60"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20220811",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA216223",
+      "sponsor_name": "LAURUS LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "600MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20150813",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20110525"
+        }
+      ],
+      "application_number": "ANDA079081",
+      "sponsor_name": "CHARTWELL RX",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE AND ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190812",
+          "application_docs": [
+            {
+              "id": "31409",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2007/079079TAs000ltr.pdf",
+              "date": "20080109",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA079079",
+      "sponsor_name": "PHARMOBEDIENT",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE AND ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20170328",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "45927",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/204990Orig1s000TAltr.pdf",
+              "date": "20161122",
+              "type": "Letter"
+            },
+            {
+              "id": "47791",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/204990Orig1s000ltr.pdf",
+              "date": "20170330",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20200224",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20200224",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20240614",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20200224",
+          "review_priority": "UNKNOWN",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        }
+      ],
+      "application_number": "ANDA204990",
+      "sponsor_name": "CHARTWELL RX",
+      "openfda": {
+        "application_number": [
+          "ANDA204990"
+        ],
+        "brand_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "generic_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Lupin Pharmaceuticals, Inc."
+        ],
+        "product_ndc": [
+          "68180-288"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "602393"
+        ],
+        "spl_id": [
+          "61b0304c-2258-40ed-9fc8-bc363b0906f6"
+        ],
+        "spl_set_id": [
+          "1d8e7bb9-8624-4739-9719-fe25109d6365"
+        ],
+        "package_ndc": [
+          "68180-288-09",
+          "68180-288-33",
+          "68180-288-06"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20070313",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "28680",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2007/021838s000TAltr.pdf",
+              "date": "20070315",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021838",
+      "sponsor_name": "STRIDES ACROLAB",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "STAVUDINE; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "STAVUDINE",
+              "strength": "40MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20151113",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "10615",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/207369Orig1s000TAltr.pdf",
+              "date": "20151119",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA207369",
+      "sponsor_name": "HETERO LABS LTD V",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "TBD",
+          "brand_name": "ABACAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "60MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20080320",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "28679",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2008/021837s000,022177s000ltr.pdf",
+              "date": "20080324",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021837",
+      "sponsor_name": "STRIDES ARCOLAB",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "STAVUDINE; LAMIVUDINE; NEVIRAPINE",
+          "active_ingredients": [
+            {
+              "name": "STAVUDINE",
+              "strength": "40MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "NEVIRAPINE",
+              "strength": "200MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20110304",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "32042",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/200623s000TAltr.pdf",
+              "date": "20110310",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA200623",
+      "sponsor_name": "CIPLA LIMITED",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "20190722",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20120515",
+          "submission_class_code": "UNKNOWN"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20190722",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20190722",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20190722",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20190722",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA202418",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE AND ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230814",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "75078",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/217070Orig1s000TAltr.pdf",
+              "date": "20230815",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA217070",
+      "sponsor_name": "AUROBINDO PHARMA USA",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "60MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "5MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20230615",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "74508",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/205551s31,215413s02lbl.pdf",
+              "date": "20230616",
+              "type": "Label"
+            },
+            {
+              "id": "74521",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215413Orig1s002;205551Orig1s031ltr.pdf",
+              "date": "20230616",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20220330",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "70670",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/215413Orig1s000ltr.pdf",
+              "date": "20220331",
+              "type": "Letter"
+            },
+            {
+              "id": "70675",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/215413s000lbl.pdf",
+              "date": "20220331",
+              "type": "Label"
+            },
+            {
+              "id": "71048",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/215413Orig1s000TOC.html",
+              "date": "20220512",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83968",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/215413s005lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83969",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/215413s005lbl.pdf#page=56",
+              "date": "20251029",
+              "type": "Medication Guide"
+            },
+            {
+              "id": "83985",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/205551Orig1s034;215413Orig1s005ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78165",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2024/205551s032,215413s003lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72288",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/205551Orig1s029,215413Orig1s001ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72302",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/205551s029,215413s001lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA215413",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA215413"
+        ],
+        "brand_name": [
+          "TRIUMEQ PD"
+        ],
+        "generic_name": [
+          "ABACAVIR SULFATE, DOLUTEGRAVIR SODIUM, LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-258",
+          "49702-231"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "rxcui": [
+          "1546888",
+          "1546894",
+          "2598348",
+          "2598352"
+        ],
+        "spl_id": [
+          "4018a8c7-db0d-481e-b50a-a469ba32ec4b"
+        ],
+        "spl_set_id": [
+          "2997739a-aa91-42aa-a206-a70e2db7b84f"
+        ],
+        "package_ndc": [
+          "49702-231-13",
+          "49702-258-37",
+          "49702-272-59"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "1Q1V9V5WYQ",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TRIUMEQ PD",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 60MG BASE"
+            },
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 5MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET, FOR SUSPENSION",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20070313",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "28714",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2007/021854s000ltr.pdf",
+              "date": "20070315",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021854",
+      "sponsor_name": "STRIDES ACROLAB",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "STAVUDINE; LAMIVUDINE W/NEVIRAPINE",
+          "active_ingredients": [
+            {
+              "name": "STAVUDINE",
+              "strength": "40MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "NEVIRAPINE",
+              "strength": "200MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20210625",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "67963",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/212303Orig1s000TAltr.pdf",
+              "date": "20210629",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA212303",
+      "sponsor_name": "LUPIN PHARMS",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "LAMIVUDINE"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20200514",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "63454",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/213038Orig1s000ltr.pdf",
+              "date": "20200608",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA213038",
+      "sponsor_name": "LAURUS",
+      "openfda": {
+        "application_number": [
+          "ANDA213038"
+        ],
+        "brand_name": [
+          "EFAVIRENZ, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE"
+        ],
+        "generic_name": [
+          "EFAVIRENZ, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE"
+        ],
+        "manufacturer_name": [
+          "Laurus Labs Limited"
+        ],
+        "product_ndc": [
+          "42385-929"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "EFAVIRENZ",
+          "LAMIVUDINE",
+          "TENOFOVIR DISOPROXIL FUMARATE"
+        ],
+        "rxcui": [
+          "2001424"
+        ],
+        "spl_id": [
+          "80228c3a-152e-4170-9469-b4e13b137bcb"
+        ],
+        "spl_set_id": [
+          "98342153-b9de-4318-aac4-9f8d19590cd7"
+        ],
+        "package_ndc": [
+          "42385-929-30",
+          "42385-929-90",
+          "42385-929-18",
+          "42385-929-31",
+          "42385-929-91",
+          "42385-929-82"
+        ],
+        "nui": [
+          "N0000175463",
+          "N0000175460",
+          "N0000009948",
+          "N0000190118",
+          "N0000187064",
+          "N0000185504",
+          "N0000182140",
+          "N0000182141",
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Human Immunodeficiency Virus 1 Non-Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Non-Nucleoside Reverse Transcriptase Inhibitors [MoA]",
+          "Cytochrome P450 3A Inducers [MoA]",
+          "Cytochrome P450 2B6 Inducers [MoA]",
+          "Cytochrome P450 2C9 Inhibitors [MoA]",
+          "Cytochrome P450 2C19 Inhibitors [MoA]",
+          "Cytochrome P450 3A4 Inhibitors [MoA]",
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "JE6H2O27P8",
+          "2T8Q726O95",
+          "OTT9J7900I"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "EFAVIRENZ, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "EFAVIRENZ",
+              "strength": "400MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20241219",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA212663",
+      "sponsor_name": "MACLEODS PHARMS",
+      "openfda": {
+        "application_number": [
+          "ANDA212663"
+        ],
+        "brand_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "generic_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Macleods Pharmaceuticals Limited"
+        ],
+        "product_ndc": [
+          "33342-440"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "602393"
+        ],
+        "spl_id": [
+          "42b22ad0-4838-43fd-9bf7-f22dafc7c352"
+        ],
+        "spl_set_id": [
+          "d36624c8-d773-4f99-81fc-433fae17feb3"
+        ],
+        "package_ndc": [
+          "33342-440-07",
+          "33342-440-02",
+          "33342-440-98",
+          "33342-440-14"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20240919",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "20",
+          "submission_status": "AP",
+          "submission_status_date": "20230419",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20240919",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20150917",
+          "application_docs": [
+            {
+              "id": "31414",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2008/079124s000ltr.pdf",
+              "date": "20080428",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA079124",
+      "sponsor_name": "HETERO LABS LTD III",
+      "openfda": {
+        "application_number": [
+          "ANDA079124"
+        ],
+        "brand_name": [
+          "LAMIVUDINE AND ZIDOVUDINE"
+        ],
+        "generic_name": [
+          "LAMIVUDINE AND ZIDOVUDINE"
+        ],
+        "manufacturer_name": [
+          "Camber Pharmaceuticals, Inc."
+        ],
+        "product_ndc": [
+          "31722-506"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE",
+          "ZIDOVUDINE"
+        ],
+        "rxcui": [
+          "200082"
+        ],
+        "spl_id": [
+          "e8ca069d-b3f8-35bf-e053-2a95a90a0699"
+        ],
+        "spl_set_id": [
+          "f80bd0f3-47eb-4b82-a633-4536cf376cf6"
+        ],
+        "package_ndc": [
+          "31722-506-60",
+          "31722-506-05"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95",
+          "4B9XT59T7S"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE AND ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20090316",
+          "application_docs": [
+            {
+              "id": "31468",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2009/090433s000ltr.pdf",
+              "date": "20090319",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA090433",
+      "sponsor_name": "ALKEM LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20190716",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20150513"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20190716",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA079128",
+      "sponsor_name": "PHARMOBEDIENT",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE AND ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20120615",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "32318",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/202814s000ltr.pdf",
+              "date": "20120618",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA202814",
+      "sponsor_name": "CIPLA LIMITED",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "60MG"
+            }
+          ],
+          "dosage_form": "TABLET, FOR SUSPENSION",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20250820",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20250820",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20141031",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "32441",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/203564Orig1s000ltr.pdf",
+              "date": "20141105",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "20250820",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20250820",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20250820",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA203564",
+      "sponsor_name": "CHARTWELL MOLECULAR",
+      "openfda": {
+        "application_number": [
+          "ANDA203564"
+        ],
+        "brand_name": [
+          "LAMIVUDINE"
+        ],
+        "generic_name": [
+          "LAMIVUDINE ORAL"
+        ],
+        "manufacturer_name": [
+          "Chartwell RX, LLC",
+          "Chartwell Govermental & Specialty RX, LLC."
+        ],
+        "product_ndc": [
+          "62135-706",
+          "68999-706"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "199148"
+        ],
+        "spl_id": [
+          "472f29d3-cf7e-0a76-e063-6294a90a9e7a",
+          "476c3997-b596-17d2-e063-6394a90a6ca1"
+        ],
+        "spl_set_id": [
+          "ef9977cb-ec91-46d7-b769-d26decfd6fe7",
+          "b23aea53-324b-4ff2-8736-639e4045e388"
+        ],
+        "package_ndc": [
+          "62135-706-37",
+          "62135-706-30",
+          "62135-706-24",
+          "68999-706-30",
+          "68999-706-24"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "10MG/ML"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "SOLUTION",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AA"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190321",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA211306",
+      "sponsor_name": "ANNORA",
+      "openfda": {
+        "application_number": [
+          "ANDA211306"
+        ],
+        "brand_name": [
+          "LAMIVUDINE"
+        ],
+        "generic_name": [
+          "LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Camber Pharmaceuticals, Inc."
+        ],
+        "product_ndc": [
+          "31722-001"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "205328"
+        ],
+        "spl_id": [
+          "2b449c4a-56db-0d5f-e063-6394a90ad576"
+        ],
+        "spl_set_id": [
+          "e90671c6-7fff-48f4-8898-29f02d049c8b"
+        ],
+        "package_ndc": [
+          "31722-001-60",
+          "31722-001-02"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "100MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20220725",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA216332",
+      "sponsor_name": "LAURUS",
+      "openfda": {
+        "application_number": [
+          "ANDA216332"
+        ],
+        "brand_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "generic_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Laurus Labs Limited"
+        ],
+        "product_ndc": [
+          "42385-962"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "602393"
+        ],
+        "spl_id": [
+          "6ce5a446-f6a1-4efe-8a69-fd6ddf1a8ab2"
+        ],
+        "spl_set_id": [
+          "d12e80eb-906c-4932-bb03-b4060ba1d31c"
+        ],
+        "package_ndc": [
+          "42385-962-30",
+          "42385-962-90",
+          "42385-962-18"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "TA",
+          "submission_status_date": "20161214",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20190926",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20190926",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20180419",
+          "application_docs": [
+            {
+              "id": "31471",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2009/090457s000ltr.pdf",
+              "date": "20090807",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA090457",
+      "sponsor_name": "STRIDES PHARMA",
+      "openfda": {
+        "application_number": [
+          "ANDA090457"
+        ],
+        "brand_name": [
+          "LAMIVUDINE"
+        ],
+        "generic_name": [
+          "LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Strides Pharma Science Limited"
+        ],
+        "product_ndc": [
+          "64380-710",
+          "64380-711"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "199147",
+          "349491"
+        ],
+        "spl_id": [
+          "67507c75-76f9-490c-9366-1c2be4955d7d"
+        ],
+        "spl_set_id": [
+          "ac824c7e-9c9f-487b-ad2f-d50eaef5cbda"
+        ],
+        "package_ndc": [
+          "64380-710-03",
+          "64380-711-04"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        },
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20161121",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "32451",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/203586Orig1s000TAltr.pdf",
+              "date": "20150217",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA203586",
+      "sponsor_name": "BRECKENRIDGE",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20110105",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "32056",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/200748s000ltr.pdf",
+              "date": "20110107",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA200748",
+      "sponsor_name": "MATRIX LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "60MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190315",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "58031",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/210649s000lbl.pdf",
+              "date": "20190319",
+              "type": "Label"
+            },
+            {
+              "id": "58032",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/210649Orig1s000ltr.pdf",
+              "date": "20190319",
+              "type": "Letter"
+            },
+            {
+              "id": "60158",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/210649Orig1s000TOC.html",
+              "date": "20190930",
+              "type": "Review"
+            },
+            {
+              "id": "62976",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/392_210649 efavirenz  medical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "62977",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/391_210649 efavirenz, lamivudine, tenofovir disoproxil fumarate clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA210649",
+      "sponsor_name": "MACLEODS PHARMS",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "EFAVIRENZ, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "EFAVIRENZ",
+              "strength": "400MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "30",
+          "submission_status": "AP",
+          "submission_status_date": "20120312",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "27066",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/021205s030ltr.pdf",
+              "date": "20120313",
+              "type": "Letter"
+            },
+            {
+              "id": "36352",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2012/021205s030lbl.pdf",
+              "date": "20120312",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20060811",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "36348",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2006/021205s014lbl.pdf",
+              "date": "20060814",
+              "type": "Label"
+            },
+            {
+              "id": "42029",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2006/021205_S014_TRIZIVIR_AP.pdf",
+              "date": "20070709",
+              "type": "Review"
+            },
+            {
+              "id": "4635",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/021205s014LTR.pdf",
+              "date": "20060818",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "9",
+          "submission_status": "AP",
+          "submission_status_date": "20031031",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "42025",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/021205_S009_TRIZIVIR_AP.pdf",
+              "date": "20070709",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20060510",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "42028",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2006/021205_S012_TRIZIVIR_AP.pdf",
+              "date": "20070709",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20021008",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "27060",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21205slr007ltr.pdf",
+              "date": "20021008",
+              "type": "Letter"
+            },
+            {
+              "id": "36346",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21205s7lbl.pdf",
+              "date": "20021008",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20031126",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "42026",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2003/021205_S010_TRIZIVIR_AP.pdf",
+              "date": "20070709",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20020724",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "42024",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/021205_S005_TRIZIVIR_AP.pdf",
+              "date": "20070709",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20020604",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "42023",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-205s003_Trizivir.html",
+              "date": "20050308",
+              "type": "Review"
+            },
+            {
+              "id": "4633",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21205s3,s4ltr.pdf",
+              "date": "20040301",
+              "type": "Letter"
+            },
+            {
+              "id": "36344",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21205s003lbl.pdf",
+              "date": "20020604",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20010713",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "37",
+          "submission_status": "AP",
+          "submission_status_date": "20180427",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "53985",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/021205Orig1s037ltr.pdf",
+              "date": "20180503",
+              "type": "Letter"
+            },
+            {
+              "id": "54871",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/021205s037lbl.pdf",
+              "date": "20180712",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "29",
+          "submission_status": "AP",
+          "submission_status_date": "20111118",
+          "review_priority": "901 REQUIRED",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "27065",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/021205s029ltr.pdf",
+              "date": "20111122",
+              "type": "Letter"
+            },
+            {
+              "id": "36351",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/021205s029lbl.pdf",
+              "date": "20111125",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "35",
+          "submission_status": "AP",
+          "submission_status_date": "20170224",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "47367",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/021205s035lbl.pdf",
+              "date": "20170228",
+              "type": "Label"
+            },
+            {
+              "id": "47437",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/021205Orig1s035ltr.pdf",
+              "date": "20170303",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "41",
+          "submission_status": "AP",
+          "submission_status_date": "20210217",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66284",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/021205Orig1s041ltr.pdf",
+              "date": "20210218",
+              "type": "Letter"
+            },
+            {
+              "id": "66293",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/021205s041lbl.pdf",
+              "date": "20210218",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "31",
+          "submission_status": "AP",
+          "submission_status_date": "20120518",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "4638",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/021205s031ltr.pdf",
+              "date": "20120522",
+              "type": "Letter"
+            },
+            {
+              "id": "36353",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2012/021205s031lbl.pdf",
+              "date": "20120522",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "23",
+          "submission_status": "AP",
+          "submission_status_date": "20110331",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "36350",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2011/021205s023lbl.pdf",
+              "date": "20110401",
+              "type": "Label"
+            },
+            {
+              "id": "4637",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/021205s023ltr.pdf",
+              "date": "20110404",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20090309",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "4636",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2009/021205s021ltr.pdf",
+              "date": "20090311",
+              "type": "Letter"
+            },
+            {
+              "id": "14632",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2009/021205s021lbl.pdf",
+              "date": "20090403",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20050513",
+          "review_priority": "UNKNOWN",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "42027",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2005/021205_S011_TRIZIVIR_AP.pdf",
+              "date": "20070709",
+              "type": "Review"
+            },
+            {
+              "id": "27061",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2005/021205s011ltr.pdf",
+              "date": "20050517",
+              "type": "Letter"
+            },
+            {
+              "id": "36347",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2005/021205s011lbl.pdf",
+              "date": "20050517",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20020813",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "4634",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21205slr006ltr.pdf",
+              "date": "20020813",
+              "type": "Letter"
+            },
+            {
+              "id": "21506",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-205s006_Trizivir.html",
+              "date": "20050308",
+              "type": "Review"
+            },
+            {
+              "id": "36345",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2002/21205s6lbl.pdf",
+              "date": "20020813",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20020604",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "27059",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21205s3,s4ltr.pdf",
+              "date": "20040301",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20001114",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "42021",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2000/21-205_Trizinir.html",
+              "date": "20040328",
+              "type": "Review"
+            },
+            {
+              "id": "27058",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2000/21-205.pdf_Trizinir_Approv.pdf",
+              "date": "20040628",
+              "type": "Letter"
+            },
+            {
+              "id": "36343",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2000/21-205.pdf_Trizinir_Prntlbl.pdf",
+              "date": "20040628",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20020205",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "42022",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2002/21-205s002_Trizivir.html",
+              "date": "20050408",
+              "type": "Review"
+            },
+            {
+              "id": "4632",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2002/21205s2ltr.pdf",
+              "date": "20020205",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "38",
+          "submission_status": "AP",
+          "submission_status_date": "20190510",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "58695",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/021205Orig1s038ltr.pdf",
+              "date": "20190514",
+              "type": "Letter"
+            },
+            {
+              "id": "58709",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/021205s038lbl.pdf",
+              "date": "20190515",
+              "type": "Label"
+            },
+            {
+              "id": "58710",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2019/021205s038lbl.pdf#page=34",
+              "date": "20190515",
+              "type": "Medication Guide"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "36",
+          "submission_status": "AP",
+          "submission_status_date": "20170315",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "47600",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/021205Orig1s036ltr.pdf",
+              "date": "20170320",
+              "type": "Letter"
+            },
+            {
+              "id": "48059",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/021205s036lbl.pdf",
+              "date": "20170418",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "28",
+          "submission_status": "AP",
+          "submission_status_date": "20110513",
+          "review_priority": "N/A",
+          "submission_class_code": "REMS",
+          "submission_class_code_description": "REMS",
+          "application_docs": [
+            {
+              "id": "27064",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2011/020977s022,020978s026,021205s028,021652s013ltr.pdf",
+              "date": "20110517",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "34",
+          "submission_status": "AP",
+          "submission_status_date": "20150930",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "4639",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/021205Orig1s034ltr.pdf",
+              "date": "20151002",
+              "type": "Letter"
+            },
+            {
+              "id": "36354",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/021205s034lbl.pdf",
+              "date": "20151007",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20070507",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "36349",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2007/021205s018lbl.pdf",
+              "date": "20070509",
+              "type": "Label"
+            },
+            {
+              "id": "27062",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2007/021205s018ltr.pdf",
+              "date": "20070509",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "24",
+          "submission_status": "AP",
+          "submission_status_date": "20100804",
+          "review_priority": "N/A",
+          "submission_class_code": "REMS",
+          "submission_class_code_description": "REMS",
+          "application_docs": [
+            {
+              "id": "27063",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2010/020977s020,020978s024,021205s024,021652s011ltr.pdf",
+              "date": "20100810",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021205",
+      "sponsor_name": "VIIV HLTHCARE",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TRIZIVIR",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 300MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190305",
+          "application_docs": [
+            {
+              "id": "31370",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2009/078545s000ltr.pdf",
+              "date": "20090624",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA078545",
+      "sponsor_name": "PHARMOBEDIENT",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20080129",
+          "application_docs": [
+            {
+              "id": "9191",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2008/078850TAltr.pdf",
+              "date": "20080130",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA078850",
+      "sponsor_name": "INVAGEN PHARMS",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20190725",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20230607",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20190725",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20170328",
+          "application_docs": [
+            {
+              "id": "9321",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/091144s000ltr.pdf",
+              "date": "20120202",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20230607",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA091144",
+      "sponsor_name": "CIPLA",
+      "openfda": {
+        "application_number": [
+          "ANDA091144"
+        ],
+        "brand_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "generic_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Cipla USA Inc."
+        ],
+        "product_ndc": [
+          "69097-362"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "602393"
+        ],
+        "spl_id": [
+          "1a48f22b-e37b-4221-9f99-a9e149279630"
+        ],
+        "spl_set_id": [
+          "c0488bee-2f18-4e2e-8e11-68543c023dec"
+        ],
+        "package_ndc": [
+          "69097-362-02"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78179",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/211994s021lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20220120",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "69944",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211994s012s013lbl.pdf",
+              "date": "20220121",
+              "type": "Label"
+            },
+            {
+              "id": "69949",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/211994Orig1s012,s013ltr.pdf",
+              "date": "20220121",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20200324",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "62312",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/211994Orig1s004ltr.pdf",
+              "date": "20200325",
+              "type": "Letter"
+            },
+            {
+              "id": "62314",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/211994s004lbl.pdf",
+              "date": "20200325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66860",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/211994Orig1s011ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66876",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/211994s011lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20240405",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "78083",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/211994Orig1s018, s019ltr.pdf",
+              "date": "20240408",
+              "type": "Letter"
+            },
+            {
+              "id": "78090",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/211994s018s019lbl.pdf",
+              "date": "20240408",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20200806",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "64230",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/211994Orig1s006,s007ltr.pdf",
+              "date": "20200807",
+              "type": "Letter"
+            },
+            {
+              "id": "64240",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/211994s006s007lbl.pdf",
+              "date": "20200807",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20230125",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "73294",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/211994Orig1s014ltr.pdf",
+              "date": "20230126",
+              "type": "Letter"
+            },
+            {
+              "id": "73325",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/211994s014lbl.pdf",
+              "date": "20230130",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20191024",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60671",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/211994Orig1s005ltr.pdf",
+              "date": "20191025",
+              "type": "Letter"
+            },
+            {
+              "id": "60681",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211994s005lbl.pdf",
+              "date": "20191025",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "20",
+          "submission_status": "AP",
+          "submission_status_date": "20231103",
+          "review_priority": "N/A",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "76551",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/211994Orig1s020correctedltr.pdf",
+              "date": "20231113",
+              "type": "Letter"
+            },
+            {
+              "id": "76555",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/211994Orig1s020correctedlbl.pdf",
+              "date": "20231113",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20220120",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "69945",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211994s012s013lbl.pdf",
+              "date": "20220121",
+              "type": "Label"
+            },
+            {
+              "id": "69948",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/211994Orig1s012,s013ltr.pdf",
+              "date": "20220121",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20210301",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "66447",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/211994Orig1s010ltr.pdf",
+              "date": "20210302",
+              "type": "Letter"
+            },
+            {
+              "id": "66453",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/211994s010lbl.pdf",
+              "date": "20210302",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "19",
+          "submission_status": "AP",
+          "submission_status_date": "20240405",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "78084",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/211994Orig1s018, s019ltr.pdf",
+              "date": "20240408",
+              "type": "Letter"
+            },
+            {
+              "id": "78094",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/211994s018s019lbl.pdf",
+              "date": "20240409",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "23",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83974",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/211994s023lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83987",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/211994Orig1s023ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190408",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "58267",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211994s000lbl.pdf",
+              "date": "20190410",
+              "type": "Label"
+            },
+            {
+              "id": "58279",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/211994Orig1s000ltr.pdf",
+              "date": "20190410",
+              "type": "Letter"
+            },
+            {
+              "id": "59165",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/211994Orig1s000TOC.html",
+              "date": "20190624",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72290",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/211994Orig1s015ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72305",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211994s015lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20200806",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "64231",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/211994Orig1s006,s007ltr.pdf",
+              "date": "20200807",
+              "type": "Letter"
+            },
+            {
+              "id": "64239",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/211994s006s007lbl.pdf",
+              "date": "20200807",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA211994",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA211994"
+        ],
+        "brand_name": [
+          "DOVATO"
+        ],
+        "generic_name": [
+          "DOLUTEGRAVIR SODIUM AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-246"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DOLUTEGRAVIR SODIUM",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "2122519",
+          "2122526"
+        ],
+        "spl_id": [
+          "9b88da25-ebce-49ae-8c8a-dcee6f465957"
+        ],
+        "spl_set_id": [
+          "68e45422-43ed-4cfb-9356-fae88d14a53a"
+        ],
+        "package_ndc": [
+          "49702-246-13",
+          "49702-246-33",
+          "49702-246-62"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "1Q1V9V5WYQ",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "DOVATO",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20081219",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "7199",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2008/022295s000ltr.pdf",
+              "date": "20090106",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA022295",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "60MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20090723",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "7200",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2009/022296s000ltr.pdf",
+              "date": "20090731",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA022296",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "60MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20050527"
+        }
+      ],
+      "application_number": "ANDA077357",
+      "sponsor_name": "RANBAXY",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20100708",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3/4",
+          "submission_class_code_description": "Type 3 - New Dosage Form and Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "32059",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2010/200793s000ltr.pdf",
+              "date": "20100806",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA200793",
+      "sponsor_name": "MATRIX LABS",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE/NEVIRAPINE/ZIDOVUDINE TABLETS",
+          "active_ingredients": [
+            {
+              "name": "Lamivudine",
+              "strength": "30MG"
+            },
+            {
+              "name": "Nevirapine",
+              "strength": "50MG"
+            },
+            {
+              "name": "Zidovudine",
+              "strength": "60MG"
+            }
+          ],
+          "dosage_form": "TABLET, FOR SUSPENSION",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20231006",
+          "application_docs": [
+            {
+              "id": "31533",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2012/091475s000ltr.pdf",
+              "date": "20120531",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA091475",
+      "sponsor_name": "HETERO LABS LTD III",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "10MG/ML"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "SOLUTION",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AA"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20150928",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "40473",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/205551s004lbl.pdf",
+              "date": "20151007",
+              "type": "Label"
+            },
+            {
+              "id": "10460",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/205551Orig1s004ltr.pdf",
+              "date": "20150930",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20170327",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "47733",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/205551s010lbl.pdf",
+              "date": "20170328",
+              "type": "Label"
+            },
+            {
+              "id": "47761",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/205551Orig1s010ltr.pdf",
+              "date": "20170329",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20150805",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "10459",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/205551Orig1s002ltr.pdf",
+              "date": "20150810",
+              "type": "Letter"
+            },
+            {
+              "id": "19656",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/205551s002lbl.pdf",
+              "date": "20150807",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "29",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72300",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/205551s029,215413s001lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            },
+            {
+              "id": "72314",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/205551Orig1s029,215413Orig1s001ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "25",
+          "submission_status": "AP",
+          "submission_status_date": "20210301",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "66445",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/205551Orig1s025ltr.pdf",
+              "date": "20210302",
+              "type": "Letter"
+            },
+            {
+              "id": "66451",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/205551s025lbl.pdf",
+              "date": "20210302",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "31",
+          "submission_status": "AP",
+          "submission_status_date": "20230615",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "74507",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/205551s31,215413s02lbl.pdf",
+              "date": "20230616",
+              "type": "Label"
+            },
+            {
+              "id": "74522",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215413Orig1s002;205551Orig1s031ltr.pdf",
+              "date": "20230616",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55422",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/205551s014s015lbl.pdf",
+              "date": "20180910",
+              "type": "Label"
+            },
+            {
+              "id": "55451",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/205551Orig1s014s015REPLACEMENTLtr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20200324",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "62310",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/205551Orig1s021ltr.pdf",
+              "date": "20200325",
+              "type": "Letter"
+            },
+            {
+              "id": "62315",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/205551s021lbl.pdf",
+              "date": "20200325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20180511",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "54178",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/205551s013lbl.pdf",
+              "date": "20180514",
+              "type": "Label"
+            },
+            {
+              "id": "54200",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/205551Orig1s013ltr.pdf",
+              "date": "20180516",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20160421",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "40474",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/205551s005lbl.pdf",
+              "date": "20160427",
+              "type": "Label"
+            },
+            {
+              "id": "10461",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/205551Orig1s005ltr.pdf",
+              "date": "20160422",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20140822",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "43490",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2014/205551Orig1s000TOC.html",
+              "date": "20150811",
+              "type": "Review"
+            },
+            {
+              "id": "19655",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2014/205551s000lbl.pdf",
+              "date": "20140826",
+              "type": "Label"
+            },
+            {
+              "id": "32684",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/205551Orig1s000ltr.pdf",
+              "date": "20140827",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20171121",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "50483",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/205551s011lbl.pdf",
+              "date": "20171124",
+              "type": "Label"
+            },
+            {
+              "id": "50500",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/205551Orig1s011ltr.pdf",
+              "date": "20171127",
+              "type": "Letter"
+            },
+            {
+              "id": "51221",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/209_205551S11_clinical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "51222",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/210_205551S11_clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20150615",
+          "review_priority": "STANDARD",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "28",
+          "submission_status": "AP",
+          "submission_status_date": "20220330",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "70666",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/205551Orig1s028ltr.pdf",
+              "date": "20220331",
+              "type": "Letter"
+            },
+            {
+              "id": "70671",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/205551Orig1s028lbl.pdf",
+              "date": "20220331",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "34",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83970",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/205551s034lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83971",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/205551s034lbl.pdf#page=56",
+              "date": "20251029",
+              "type": "Medication Guide"
+            },
+            {
+              "id": "83984",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/205551Orig1s034;215413Orig1s005ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "26",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66857",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/205551Orig1s026ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66865",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/205551s026lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "32",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78163",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/205551s032,215413s003lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            },
+            {
+              "id": "78172",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/205551Orig1s032; 215413Orig1s003ltr.pdf",
+              "date": "20240419",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "16",
+          "submission_status": "AP",
+          "submission_status_date": "20190503",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "58598",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/205551s016lbl.pdf",
+              "date": "20190507",
+              "type": "Label"
+            },
+            {
+              "id": "58610",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/205551Orig1s016ltr.pdf",
+              "date": "20190508",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "22",
+          "submission_status": "AP",
+          "submission_status_date": "20191024",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60669",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/205551Orig1s022ltr.pdf",
+              "date": "20191025",
+              "type": "Letter"
+            },
+            {
+              "id": "60689",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/205551s022lbl.pdf",
+              "date": "20191028",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55421",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/205551s014s015lbl.pdf",
+              "date": "20180910",
+              "type": "Label"
+            },
+            {
+              "id": "55450",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/205551Orig1s014s015REPLACEMENTLtr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20160401",
+          "review_priority": "STANDARD",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        }
+      ],
+      "application_number": "NDA205551",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA205551"
+        ],
+        "brand_name": [
+          "TRIUMEQ"
+        ],
+        "generic_name": [
+          "ABACAVIR SULFATE, DOLUTEGRAVIR SODIUM, LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-231",
+          "49702-258"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "DOLUTEGRAVIR SODIUM",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "1546888",
+          "1546894",
+          "2598348",
+          "2598352"
+        ],
+        "spl_id": [
+          "4018a8c7-db0d-481e-b50a-a469ba32ec4b"
+        ],
+        "spl_set_id": [
+          "2997739a-aa91-42aa-a206-a70e2db7b84f"
+        ],
+        "package_ndc": [
+          "49702-231-13",
+          "49702-258-37",
+          "49702-272-59"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "1Q1V9V5WYQ",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TRIUMEQ",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20181115"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20230418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20200107",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20230418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling"
+        }
+      ],
+      "application_number": "ANDA090159",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "openfda": {
+        "application_number": [
+          "ANDA090159"
+        ],
+        "brand_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "generic_name": [
+          "ABACAVIR AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "Aurobindo Pharma Limited"
+        ],
+        "product_ndc": [
+          "65862-335"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "602393"
+        ],
+        "spl_id": [
+          "7fbb109d-29d0-4439-b4ef-00c587cc6099"
+        ],
+        "spl_set_id": [
+          "deda1a24-2f51-4601-9881-347f47270940"
+        ],
+        "package_ndc": [
+          "65862-335-30",
+          "65862-335-10"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription",
+          "te_code": "AB"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20060306",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "28900",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/021943s000_ltr.pdf",
+              "date": "20060323",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021943",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; ZIDOVUDINE",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "EFAVIRENZ",
+              "strength": "600MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20060726",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "28901",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2006/021944s000LTR.pdf",
+              "date": "20060804",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA021944",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "LAMIVUDINE; ZIDOVUDINE; ABACAVIR",
+          "active_ingredients": [
+            {
+              "name": "LAMIVUDINE",
+              "strength": "150MG"
+            },
+            {
+              "name": "ZIDOVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "ABACAVIR",
+              "strength": "300MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    }
+  ]
+}
+      }
+    }
+  ]
+}

@@ -29,6 +29,19 @@ pub(super) fn request(
         Rewrite::GetDrug => {
             if value.get("source").and_then(Value::as_str) == Some("who-pq") {
                 decode_query(value).map(Request::GetWhoMedicine)
+            } else if markets(&value) {
+                // The markets section takes a name alone, so any other option is named as refused.
+                let refused: Vec<&str> = value
+                    .as_object()
+                    .into_iter()
+                    .flat_map(|fields| fields.keys())
+                    .map(String::as_str)
+                    .filter(|key| !matches!(*key, "input" | "section"))
+                    .collect();
+                if !refused.is_empty() {
+                    return Err(QueryInvalid::new(&refused));
+                }
+                decode_query(value).map(Request::GetDrugMarkets)
             } else {
                 decode_query(value).map(Request::GetDrug)
             }
@@ -73,6 +86,15 @@ pub(super) fn request(
                 decode_query(value).map(Request::SearchCellLine)
             }
         }
+    }
+}
+
+/// A drug get whose sections name markets is the markets request, which refuses anything else.
+fn markets(value: &Value) -> bool {
+    match value.get("section") {
+        Some(Value::String(section)) => section == "markets",
+        Some(Value::Array(sections)) => sections.iter().any(|s| s.as_str() == Some("markets")),
+        _ => false,
     }
 }
 

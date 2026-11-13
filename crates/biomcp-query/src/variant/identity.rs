@@ -17,6 +17,8 @@ pub(super) struct Identity {
     pub rejection: Option<biodata::Text>,
     pub error: Option<RequestError>,
     pub elapsed: std::time::Duration,
+    /// Source whose rows were kept, when it differs from the input's own resolver.
+    pub resolver: Option<Source>,
 }
 pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> Identity {
     let mut found = Identity::default();
@@ -94,10 +96,79 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
         // The source error and its outcome were retained above.
         Err(_) => return found,
     }
-    if found.rows.len() == 1 && spec.source == Source::MyVariant {
+    if !clinvar_registry(cx, query, deadline.after_stage(found.elapsed), &mut found)
+        && found.rows.len() == 1
+        && spec.source == Source::MyVariant
+    {
         canonical(cx, deadline.after_stage(found.elapsed), &mut found);
     }
     found
+}
+/// A ClinVar variation that MyVariant has not indexed yet can still name its allele
+/// through the registry's own ClinVar cross-reference; no allele is inferred locally.
+/// Returns whether the registry was consulted.
+fn clinvar_registry(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    found: &mut Identity,
+) -> bool {
+    if !found.rows.is_empty()
+        || found.rejection.is_some()
+        || query.input().namespace() != biomcp_types::VariantNamespace::ClinVar
+    {
+        return false;
+    }
+    let native = query.input().source_id();
+    let Some(Ok(variation)) = native
+        .as_ref()
+        .strip_prefix("clinvar:")
+        .map(str::parse::<u64>)
+    else {
+        return false;
+    };
+    let leg = cx
+        .fetch
+        .leg(&allele_registry::SPEC, deadline)
+        .fresh(cx.fresh);
+    let started = leg.remaining();
+    let result = allele_registry::by_clinvar(&leg, variation);
+    found.elapsed += started.saturating_sub(leg.remaining());
+    let report = leg.finish();
+    let rows = match result {
+        Ok(rows) => {
+            found
+                .sources
+                .push(status::source(Source::AlleleRegistry, report, None));
+            rows
+        }
+        Err(error) => {
+            found
+                .sources
+                .push(status::source(Source::AlleleRegistry, report, Some(error)));
+            found.local = found.local.or(status::local(error));
+            found.reason = found.reason.or(status::reason(error));
+            return true;
+        }
+    };
+    for row in rows {
+        match row {
+            allele_registry::Resolution::Found(mapped) => {
+                found.dropped |= mapped.refusals == biomcp_adapters::Refusal::Refused;
+                found.problems.extend(mapped.problems);
+                found.rows.push(mapped.value);
+            }
+            allele_registry::Resolution::Rejected(_) => {}
+            allele_registry::Resolution::Refused(problems) => {
+                found.dropped = true;
+                found.problems.extend(problems);
+            }
+        }
+    }
+    if !found.rows.is_empty() {
+        found.resolver = Some(Source::AlleleRegistry);
+    }
+    true
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
     let [row] = found.rows.as_mut_slice() else {

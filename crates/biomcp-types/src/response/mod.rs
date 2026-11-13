@@ -165,7 +165,7 @@ mod disease;
 pub use disease::{
     DiseaseAssociationItem, DiseaseCard, DiseaseConcept, DiseaseGenes, DiseaseHeader,
     DiseaseHierarchy, DiseaseIncidence, DiseasePage, DiseasePhenotypes, DiseasePrevalence,
-    DiseaseSite, DiseaseSites, DiseaseSurvival, DiseaseSynonyms, DiseaseXrefs,
+    DiseaseSite, DiseaseSites, DiseaseSurvival, DiseaseSynonymItem, DiseaseSynonyms, DiseaseXrefs,
     OrphanetEpidemiology, OrphanetPrevalence,
 };
 

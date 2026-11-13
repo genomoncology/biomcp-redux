@@ -77,3 +77,30 @@ pub(super) struct Component {
     pub consider: Option<Field<Box<[Field<Curie>]>>>,
     pub replaced_by: Option<Field<Box<[Field<Curie>]>>>,
 }
+
+/// Batch reply for direct-parent labels; each hit names the query it answers.
+#[derive(Debug, Deserialize)]
+#[serde(transparent)]
+pub(super) struct LabelHits(pub Vec<LabelHit>);
+impl Reply for LabelHits {
+    fn check(&self) -> Result<(), BadReply> {
+        if self.0.iter().any(|hit| hit.query.is_empty()) {
+            Err(BadReply)
+        } else {
+            Ok(())
+        }
+    }
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct LabelHit {
+    pub query: String,
+    pub mondo: Option<Field<LabelComponent>>,
+    pub disease_ontology: Option<Field<LabelComponent>>,
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct LabelComponent {
+    #[serde(alias = "mondo", alias = "doid")]
+    pub id: Option<Field<Curie>>,
+    #[serde(alias = "name")]
+    pub label: Option<Field<NativeText>>,
+}

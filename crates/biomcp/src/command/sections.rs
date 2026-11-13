@@ -165,6 +165,8 @@ impl Reply for Part<'_> {
             DrugSection::Interactions => {
                 self.wrap::<DrugInteractions, _>(query, None, DrugSectionPart::Interactions)
             }
+            // The markets section is its own request; a drug get never carries it.
+            DrugSection::Markets => None,
         }
     }
     fn drug_xrefs(self, query: DrugGet, body: Option<DrugXrefs>) -> Self::Output {

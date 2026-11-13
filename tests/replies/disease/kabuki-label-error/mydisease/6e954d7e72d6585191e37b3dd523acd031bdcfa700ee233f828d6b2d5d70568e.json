@@ -1,0 +1,44 @@
+{
+  "method": "POST",
+  "source": "mydisease",
+  "url": "https://mydisease.info/v1/disease",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "50df5837532f70f95235e03243d8643fa10ccc92d5aed7f6564ffa8009c7e180"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794589357,
+      "status": 500,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "BioMCP synthetic upstream failure."
+      }
+    },
+    {
+      "fetched": 1794589357,
+      "status": 500,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "BioMCP synthetic upstream failure."
+      }
+    },
+    {
+      "fetched": 1794589357,
+      "status": 500,
+      "content_type": "text/html",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "BioMCP synthetic upstream failure."
+      }
+    }
+  ]
+}

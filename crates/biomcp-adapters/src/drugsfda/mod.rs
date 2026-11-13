@@ -74,6 +74,19 @@ pub fn search_names(
         None,
     )
 }
+/// The application's Drugs@FDA overview page, which FDA keys by the number without its NDA, ANDA
+/// or BLA prefix.
+pub fn application_url(id: &DrugId) -> Result<Text, RequestError> {
+    let id = id.to_string();
+    let number = ["NDA", "ANDA", "BLA"]
+        .iter()
+        .find_map(|prefix| id.strip_prefix(prefix))
+        .ok_or_else(|| biomcp_fetch::bad_reply(Source::Drugsfda, None))?;
+    Text::new(&format!(
+        "https://www.accessdata.fda.gov/scripts/cder/daf/index.cfm?event=overview.process&ApplNo={number}"
+    ))
+    .map_err(|_| biomcp_fetch::bad_reply(Source::Drugsfda, None))
+}
 /// Read exactly the named native application; reject a wrong identity before caching it.
 pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
     if !DrugSource::Drugsfda.accepts(id) {

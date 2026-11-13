@@ -1,0 +1,72 @@
+{
+  "feature": "maude-reports",
+  "live_check": "public",
+  "story": "A caller counts MAUDE malfunction reports for a device in a receipt window in one call; an unknown event type is refused with the valid values.",
+  "verified": "Recorded live 2026-11-13 in job j39399 from openFDA device/event (dataset 2026-11-04). Original recording SHA256 7559bbb78885af735f40d92a63b10459420b5db9496fbf5647353587c30a1d02. The Git copy keeps the request, exchange metadata, meta block and the report's mdr_report_key, report_number, event_type and dates; it omits device rows (GMDN terms), narrative, patient and manufacturer contact fields. Remaining source values are unchanged. Live job j39358 found the same window split Malfunction 295358, Injury 49029, Death 212, Other 96, summing to the unfiltered 344695.",
+  "replay": "adverse-event/maude-event-type",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "infusion pump",
+        "--source",
+        "maude",
+        "--event-type",
+        "malfunction",
+        "--received-from",
+        "2025-11-01",
+        "--received-to",
+        "2026-11-01",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/event_type": "malfunction",
+        "/result/source_query": "device.generic_name:\"infusion pump\" AND event_type.exact:\"Malfunction\" AND date_received:[20251101 TO 20261101]",
+        "/page/total": 295358,
+        "/result/items/0/id": "51243987",
+        "/result/items/0/event_type": "Malfunction"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "infusion pump",
+        "--source",
+        "maude",
+        "--event-type",
+        "broken"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--event-type",
+        "/error/valid_values": [
+          "malfunction",
+          "injury",
+          "death",
+          "other"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "aspirin",
+        "--event-type",
+        "death"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/valid_values": [
+          "maude"
+        ]
+      }
+    }
+  ]
+}

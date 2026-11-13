@@ -1,0 +1,3830 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22dolutegravir%22%20OR%20products.active_ingredients.name%3A%22dolutegravir%22&limit=50",
+  "exchanges": [
+    {
+      "fetched": 1794592762,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 456,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 50,
+      "total": 36
+    }
+  },
+  "results": [
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20241203",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "81203",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/218383Orig1s000TAltr.pdf",
+              "date": "20250210",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA218383",
+      "sponsor_name": "LUPIN LTD",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "30MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "60MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "5MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20260507",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "85878",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/219804Orig1s000TAltr.pdf",
+              "date": "20260505",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA219804",
+      "sponsor_name": "ASPEN SA OPERATIONS (PTY) LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, LAMIVUDINE and TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "LAMIVUDINE"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20220811",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA216223",
+      "sponsor_name": "LAURUS LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "600MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230119",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "73261",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/214544Orig1s000TAltr.pdf",
+              "date": "20230120",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA214544",
+      "sponsor_name": "LUPIN LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR; EMTRICITABINE; TENOFOVIR ALAFENAMIDE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "EMTRICITABINE",
+              "strength": "200MG"
+            },
+            {
+              "name": "TENOFOVIR ALAFENAMIDE",
+              "strength": "25MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20210316",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "66801",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/214566Orig1s000TA_ltr.pdf",
+              "date": "20210317",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA214566",
+      "sponsor_name": "MACLEODS PHARMS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "10MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL SUSPENSION",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230814",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "75078",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/217070Orig1s000TAltr.pdf",
+              "date": "20230815",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA217070",
+      "sponsor_name": "AUROBINDO PHARMA USA",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR; DOLUTEGRAVIR; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR",
+              "strength": "60MG"
+            },
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "5MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20230615",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "74508",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/205551s31,215413s02lbl.pdf",
+              "date": "20230616",
+              "type": "Label"
+            },
+            {
+              "id": "74521",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215413Orig1s002;205551Orig1s031ltr.pdf",
+              "date": "20230616",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20220330",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "70670",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/215413Orig1s000ltr.pdf",
+              "date": "20220331",
+              "type": "Letter"
+            },
+            {
+              "id": "70675",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/215413s000lbl.pdf",
+              "date": "20220331",
+              "type": "Label"
+            },
+            {
+              "id": "71048",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2022/215413Orig1s000TOC.html",
+              "date": "20220512",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83968",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/215413s005lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83969",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/215413s005lbl.pdf#page=56",
+              "date": "20251029",
+              "type": "Medication Guide"
+            },
+            {
+              "id": "83985",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/205551Orig1s034;215413Orig1s005ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78165",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2024/205551s032,215413s003lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72288",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/205551Orig1s029,215413Orig1s001ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72302",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2022/205551s029,215413s001lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA215413",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA215413"
+        ],
+        "brand_name": [
+          "TRIUMEQ PD"
+        ],
+        "generic_name": [
+          "ABACAVIR SULFATE, DOLUTEGRAVIR SODIUM, LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-258",
+          "49702-231"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "rxcui": [
+          "1546888",
+          "1546894",
+          "2598348",
+          "2598352"
+        ],
+        "spl_id": [
+          "4018a8c7-db0d-481e-b50a-a469ba32ec4b"
+        ],
+        "spl_set_id": [
+          "2997739a-aa91-42aa-a206-a70e2db7b84f"
+        ],
+        "package_ndc": [
+          "49702-231-13",
+          "49702-258-37",
+          "49702-272-59"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "1Q1V9V5WYQ",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TRIUMEQ PD",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 60MG BASE"
+            },
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 5MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET, FOR SUSPENSION",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20210625",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "67963",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/212303Orig1s000TAltr.pdf",
+              "date": "20210629",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA212303",
+      "sponsor_name": "LUPIN PHARMS",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "LAMIVUDINE"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20180706",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA209602",
+      "sponsor_name": "MYLAN LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20190516",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "TA",
+          "submission_status_date": "20220804",
+          "review_priority": "UNKNOWN",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        }
+      ],
+      "application_number": "ANDA210963",
+      "sponsor_name": "LAURUS LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230526",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "74405",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215448Orig1s000TAltr.pdf",
+              "date": "20230530",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA215448",
+      "sponsor_name": "AUROBINDO PHARMA USA",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, EMTRICITABINE and TENOFOVIR ALAFENAMIDE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR, EMTRICITABINE and TENOFOVIR ALAFENAMIDE",
+              "strength": "50MG/200MG/25MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78179",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/211994s021lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20220120",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "69944",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211994s012s013lbl.pdf",
+              "date": "20220121",
+              "type": "Label"
+            },
+            {
+              "id": "69949",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/211994Orig1s012,s013ltr.pdf",
+              "date": "20220121",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20200324",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "62312",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/211994Orig1s004ltr.pdf",
+              "date": "20200325",
+              "type": "Letter"
+            },
+            {
+              "id": "62314",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/211994s004lbl.pdf",
+              "date": "20200325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66860",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/211994Orig1s011ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66876",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/211994s011lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20240405",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "78083",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/211994Orig1s018, s019ltr.pdf",
+              "date": "20240408",
+              "type": "Letter"
+            },
+            {
+              "id": "78090",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/211994s018s019lbl.pdf",
+              "date": "20240408",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20200806",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "64230",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/211994Orig1s006,s007ltr.pdf",
+              "date": "20200807",
+              "type": "Letter"
+            },
+            {
+              "id": "64240",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/211994s006s007lbl.pdf",
+              "date": "20200807",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20230125",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "73294",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/211994Orig1s014ltr.pdf",
+              "date": "20230126",
+              "type": "Letter"
+            },
+            {
+              "id": "73325",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/211994s014lbl.pdf",
+              "date": "20230130",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20191024",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60671",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/211994Orig1s005ltr.pdf",
+              "date": "20191025",
+              "type": "Letter"
+            },
+            {
+              "id": "60681",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211994s005lbl.pdf",
+              "date": "20191025",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "20",
+          "submission_status": "AP",
+          "submission_status_date": "20231103",
+          "review_priority": "N/A",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)",
+          "application_docs": [
+            {
+              "id": "76551",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/211994Orig1s020correctedltr.pdf",
+              "date": "20231113",
+              "type": "Letter"
+            },
+            {
+              "id": "76555",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2023/211994Orig1s020correctedlbl.pdf",
+              "date": "20231113",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20220120",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "69945",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211994s012s013lbl.pdf",
+              "date": "20220121",
+              "type": "Label"
+            },
+            {
+              "id": "69948",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/211994Orig1s012,s013ltr.pdf",
+              "date": "20220121",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20210301",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "66447",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/211994Orig1s010ltr.pdf",
+              "date": "20210302",
+              "type": "Letter"
+            },
+            {
+              "id": "66453",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/211994s010lbl.pdf",
+              "date": "20210302",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "19",
+          "submission_status": "AP",
+          "submission_status_date": "20240405",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "78084",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/211994Orig1s018, s019ltr.pdf",
+              "date": "20240408",
+              "type": "Letter"
+            },
+            {
+              "id": "78094",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/211994s018s019lbl.pdf",
+              "date": "20240409",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "23",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83974",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/211994s023lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83987",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/211994Orig1s023ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20190408",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "58267",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/211994s000lbl.pdf",
+              "date": "20190410",
+              "type": "Label"
+            },
+            {
+              "id": "58279",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/211994Orig1s000ltr.pdf",
+              "date": "20190410",
+              "type": "Letter"
+            },
+            {
+              "id": "59165",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2019/211994Orig1s000TOC.html",
+              "date": "20190624",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72290",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/211994Orig1s015ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72305",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/211994s015lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20200806",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "64231",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/211994Orig1s006,s007ltr.pdf",
+              "date": "20200807",
+              "type": "Letter"
+            },
+            {
+              "id": "64239",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/211994s006s007lbl.pdf",
+              "date": "20200807",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA211994",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA211994"
+        ],
+        "brand_name": [
+          "DOVATO"
+        ],
+        "generic_name": [
+          "DOLUTEGRAVIR SODIUM AND LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-246"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DOLUTEGRAVIR SODIUM",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "2122519",
+          "2122526"
+        ],
+        "spl_id": [
+          "9b88da25-ebce-49ae-8c8a-dcee6f465957"
+        ],
+        "spl_set_id": [
+          "68e45422-43ed-4cfb-9356-fae88d14a53a"
+        ],
+        "package_ndc": [
+          "49702-246-13",
+          "49702-246-33",
+          "49702-246-62"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "1Q1V9V5WYQ",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "DOVATO",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20150928",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "40473",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/205551s004lbl.pdf",
+              "date": "20151007",
+              "type": "Label"
+            },
+            {
+              "id": "10460",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/205551Orig1s004ltr.pdf",
+              "date": "20150930",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "10",
+          "submission_status": "AP",
+          "submission_status_date": "20170327",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "47733",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/205551s010lbl.pdf",
+              "date": "20170328",
+              "type": "Label"
+            },
+            {
+              "id": "47761",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/205551Orig1s010ltr.pdf",
+              "date": "20170329",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20150805",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "10459",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/205551Orig1s002ltr.pdf",
+              "date": "20150810",
+              "type": "Letter"
+            },
+            {
+              "id": "19656",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/205551s002lbl.pdf",
+              "date": "20150807",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "29",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72300",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/205551s029,215413s001lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            },
+            {
+              "id": "72314",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/205551Orig1s029,215413Orig1s001ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "25",
+          "submission_status": "AP",
+          "submission_status_date": "20210301",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "66445",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/205551Orig1s025ltr.pdf",
+              "date": "20210302",
+              "type": "Letter"
+            },
+            {
+              "id": "66451",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/205551s025lbl.pdf",
+              "date": "20210302",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "31",
+          "submission_status": "AP",
+          "submission_status_date": "20230615",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "74507",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2023/205551s31,215413s02lbl.pdf",
+              "date": "20230616",
+              "type": "Label"
+            },
+            {
+              "id": "74522",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215413Orig1s002;205551Orig1s031ltr.pdf",
+              "date": "20230616",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "15",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55422",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/205551s014s015lbl.pdf",
+              "date": "20180910",
+              "type": "Label"
+            },
+            {
+              "id": "55451",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/205551Orig1s014s015REPLACEMENTLtr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "21",
+          "submission_status": "AP",
+          "submission_status_date": "20200324",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "62310",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/205551Orig1s021ltr.pdf",
+              "date": "20200325",
+              "type": "Letter"
+            },
+            {
+              "id": "62315",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/205551s021lbl.pdf",
+              "date": "20200325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20180511",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "54178",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/205551s013lbl.pdf",
+              "date": "20180514",
+              "type": "Label"
+            },
+            {
+              "id": "54200",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/205551Orig1s013ltr.pdf",
+              "date": "20180516",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20160421",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "40474",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/205551s005lbl.pdf",
+              "date": "20160427",
+              "type": "Label"
+            },
+            {
+              "id": "10461",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/205551Orig1s005ltr.pdf",
+              "date": "20160422",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20140822",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "43490",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2014/205551Orig1s000TOC.html",
+              "date": "20150811",
+              "type": "Review"
+            },
+            {
+              "id": "19655",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2014/205551s000lbl.pdf",
+              "date": "20140826",
+              "type": "Label"
+            },
+            {
+              "id": "32684",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/205551Orig1s000ltr.pdf",
+              "date": "20140827",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20171121",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "50483",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/205551s011lbl.pdf",
+              "date": "20171124",
+              "type": "Label"
+            },
+            {
+              "id": "50500",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/205551Orig1s011ltr.pdf",
+              "date": "20171127",
+              "type": "Letter"
+            },
+            {
+              "id": "51221",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/209_205551S11_clinical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "51222",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/210_205551S11_clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20150615",
+          "review_priority": "STANDARD",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "28",
+          "submission_status": "AP",
+          "submission_status_date": "20220330",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "70666",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/205551Orig1s028ltr.pdf",
+              "date": "20220331",
+              "type": "Letter"
+            },
+            {
+              "id": "70671",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/205551Orig1s028lbl.pdf",
+              "date": "20220331",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "34",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83970",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/205551s034lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83971",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/205551s034lbl.pdf#page=56",
+              "date": "20251029",
+              "type": "Medication Guide"
+            },
+            {
+              "id": "83984",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/205551Orig1s034;215413Orig1s005ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "26",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66857",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/205551Orig1s026ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66865",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/205551s026lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "32",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78163",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/205551s032,215413s003lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            },
+            {
+              "id": "78172",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/205551Orig1s032; 215413Orig1s003ltr.pdf",
+              "date": "20240419",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "16",
+          "submission_status": "AP",
+          "submission_status_date": "20190503",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "58598",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/205551s016lbl.pdf",
+              "date": "20190507",
+              "type": "Label"
+            },
+            {
+              "id": "58610",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/205551Orig1s016ltr.pdf",
+              "date": "20190508",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "22",
+          "submission_status": "AP",
+          "submission_status_date": "20191024",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60669",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/205551Orig1s022ltr.pdf",
+              "date": "20191025",
+              "type": "Letter"
+            },
+            {
+              "id": "60689",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/205551s022lbl.pdf",
+              "date": "20191028",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55421",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/205551s014s015lbl.pdf",
+              "date": "20180910",
+              "type": "Label"
+            },
+            {
+              "id": "55450",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/205551Orig1s014s015REPLACEMENTLtr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20160401",
+          "review_priority": "STANDARD",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        }
+      ],
+      "application_number": "NDA205551",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA205551"
+        ],
+        "brand_name": [
+          "TRIUMEQ"
+        ],
+        "generic_name": [
+          "ABACAVIR SULFATE, DOLUTEGRAVIR SODIUM, LAMIVUDINE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-231",
+          "49702-258"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "ABACAVIR SULFATE",
+          "DOLUTEGRAVIR SODIUM",
+          "LAMIVUDINE"
+        ],
+        "rxcui": [
+          "1546888",
+          "1546894",
+          "2598348",
+          "2598352"
+        ],
+        "spl_id": [
+          "4018a8c7-db0d-481e-b50a-a469ba32ec4b"
+        ],
+        "spl_set_id": [
+          "2997739a-aa91-42aa-a206-a70e2db7b84f"
+        ],
+        "package_ndc": [
+          "49702-231-13",
+          "49702-258-37",
+          "49702-272-59"
+        ],
+        "nui": [
+          "N0000175656",
+          "N0000175462",
+          "N0000009947"
+        ],
+        "pharm_class_epc": [
+          "Hepatitis B Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]",
+          "Human Immunodeficiency Virus Nucleoside Analog Reverse Transcriptase Inhibitor [EPC]"
+        ],
+        "pharm_class_moa": [
+          "Nucleoside Reverse Transcriptase Inhibitors [MoA]"
+        ],
+        "unii": [
+          "J220T4J9Q2",
+          "1Q1V9V5WYQ",
+          "2T8Q726O95"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TRIUMEQ",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR SULFATE",
+              "strength": "EQ 600MG BASE"
+            },
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20180305",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA209658",
+      "sponsor_name": "CIPLA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20170802",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "49248",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/209670Orig1s000TAltr.pdf",
+              "date": "20170804",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA209670",
+      "sponsor_name": "MYLAN PHARMS INC",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, LAMIVUDINE, AND TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230113",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "73408",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/213120Orig1s000TAltr.pdf",
+              "date": "20230208",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA213120",
+      "sponsor_name": "LUPIN LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR; RILPIVIRINE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/25MG"
+            },
+            {
+              "name": "RILPIVIRINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "16",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55417",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/204790s016s018lbl.pdf",
+              "date": "20180910",
+              "type": "Label"
+            },
+            {
+              "id": "55443",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/204790Orig1s016s018Ltr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "30",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72285",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/204790Orig1s030,213983Orig1s003ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72298",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/204790s030,213983s003lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20171121",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "50480",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/204790s014lbl.pdf",
+              "date": "20171124",
+              "type": "Label"
+            },
+            {
+              "id": "50499",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/204790Orig1s014ltr.pdf",
+              "date": "20171127",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20130812",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 1",
+          "submission_class_code_description": "Type 1 - New Molecular Entity",
+          "application_docs": [
+            {
+              "id": "43479",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/204790Orig1s000TOC.html",
+              "date": "20130913",
+              "type": "Review"
+            },
+            {
+              "id": "52614",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/204790_dolutegravir_Tivicay_Clinical Rev_PREA.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "52615",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/204790 dolutegravir clinical prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Medical Review"
+            },
+            {
+              "id": "52616",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/204790_dolutegravir_Tivicay_Stat Rev_PREA.pdf",
+              "date": "19000101",
+              "type": "Pediatric Statistical Review"
+            },
+            {
+              "id": "10395",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2013/204790Orig1s000ltr.pdf",
+              "date": "20130820",
+              "type": "Letter"
+            },
+            {
+              "id": "19599",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2013/204790lbl.pdf",
+              "date": "20130819",
+              "type": "Label"
+            },
+            {
+              "id": "24481",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2013/204790Orig1S000SumR.pdf",
+              "date": "20130913",
+              "type": "Summary Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20161220",
+          "review_priority": "STANDARD",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "20160609",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "52618",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/204790 dolutegravir clinical CDTL prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric CDTL Review"
+            },
+            {
+              "id": "52619",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/204790 dolutegravir clinpharm prea.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            },
+            {
+              "id": "54054",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/pediatric/204790 dolutegravir_Tivicay_ClinPharm_PREA.pdf",
+              "date": "19000101",
+              "type": "Pediatric Clinical Pharmacology Review"
+            },
+            {
+              "id": "19602",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/204790Orig1s008lbl.pdf",
+              "date": "20160610",
+              "type": "Label"
+            },
+            {
+              "id": "32593",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/204790Orig1s008ltr.pdf",
+              "date": "20160610",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20151105",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "29",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66855",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/204790Orig1s029,213983Orig1s001ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66863",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/204790s029,213983s001lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20150730",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20141219",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "19600",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2014/204790s002lbl.pdf",
+              "date": "20150108",
+              "type": "Label"
+            },
+            {
+              "id": "32591",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/204790Orig1s002ltr.pdf",
+              "date": "20141224",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "33",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83975",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/204790s033lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            },
+            {
+              "id": "83982",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/204790Orig1s033;213983Orig1s006ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "25",
+          "submission_status": "AP",
+          "submission_status_date": "20200612",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "63565",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/204790s025lbl.pdf",
+              "date": "20200615",
+              "type": "Label"
+            },
+            {
+              "id": "63573",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/204790Orig1s025ltr.pdf",
+              "date": "20200616",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "31",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78161",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/204790s031,213983s004lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            },
+            {
+              "id": "78170",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/204790Orig1s031; 213983Orig1s004ltr.pdf",
+              "date": "20240419",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "23",
+          "submission_status": "AP",
+          "submission_status_date": "20200324",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "62325",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/204790s023lbl.pdf",
+              "date": "20200325",
+              "type": "Label"
+            },
+            {
+              "id": "62331",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/204790orig1s023ltr.pdf",
+              "date": "20200325",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20170327",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "47734",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/204790s013lbl.pdf",
+              "date": "20170328",
+              "type": "Label"
+            },
+            {
+              "id": "47763",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/204790Orig1s013ltr.pdf",
+              "date": "20170329",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20161108",
+          "review_priority": "STANDARD",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20160422",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "40423",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2016/204790s007lbl.pdf",
+              "date": "20160429",
+              "type": "Label"
+            },
+            {
+              "id": "32592",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2016/204790Orig1s007ltr.pdf",
+              "date": "20160426",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "5",
+          "submission_status": "AP",
+          "submission_status_date": "20150805",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "10396",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2015/204790Orig1s005ltr.pdf",
+              "date": "20150810",
+              "type": "Letter"
+            },
+            {
+              "id": "19601",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2015/204790s005lbl.pdf",
+              "date": "20150807",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "28",
+          "submission_status": "AP",
+          "submission_status_date": "20210709",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "68050",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/204790s028,213983s002lbl.pdf",
+              "date": "20210712",
+              "type": "Label"
+            },
+            {
+              "id": "68062",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/204790Orig1s028; 213983Orig1s002ltr.pdf",
+              "date": "20210713",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20140829",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "MANUF (CMC)",
+          "submission_class_code_description": "Manufacturing (CMC)"
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "34",
+          "submission_status": "AP",
+          "submission_status_date": "20260825",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "87045",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/204790Orig1s034,213983Orig1s007ltr.pdf",
+              "date": "20260827",
+              "type": "Letter"
+            },
+            {
+              "id": "87089",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/204790s034lbl.pdf",
+              "date": "20260901",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20140512",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "40422",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2014/204790s001lbl.pdf",
+              "date": "20140513",
+              "type": "Label"
+            },
+            {
+              "id": "32590",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2014/204790Orig1s001ltr.pdf",
+              "date": "20140513",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "18",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55416",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/204790s016s018lbl.pdf",
+              "date": "20180910",
+              "type": "Label"
+            },
+            {
+              "id": "55444",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/204790Orig1s016s018Ltr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "24",
+          "submission_status": "AP",
+          "submission_status_date": "20191024",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60668",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/204790Orig1s024ltr.pdf",
+              "date": "20191025",
+              "type": "Letter"
+            },
+            {
+              "id": "60691",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/204790s024lbl.pdf",
+              "date": "20191028",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA204790",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA204790"
+        ],
+        "brand_name": [
+          "TIVICAY"
+        ],
+        "generic_name": [
+          "DOLUTEGRAVIR SODIUM"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-226",
+          "49702-255",
+          "49702-227",
+          "49702-228"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DOLUTEGRAVIR SODIUM"
+        ],
+        "rxcui": [
+          "1433873",
+          "1433879",
+          "1796077",
+          "1796079",
+          "1796081",
+          "1796083",
+          "2374562",
+          "2374566"
+        ],
+        "spl_id": [
+          "5037ffdb-75d0-4abb-bd21-0a1b5920042f"
+        ],
+        "spl_set_id": [
+          "63df5af3-b8ac-4e76-9830-2dbb340af922"
+        ],
+        "package_ndc": [
+          "49702-255-37",
+          "49702-226-13",
+          "49702-227-13",
+          "49702-228-13"
+        ],
+        "unii": [
+          "1Q1V9V5WYQ"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "Yes",
+          "brand_name": "TIVICAY",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 10MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        },
+        {
+          "product_number": "003",
+          "reference_drug": "Yes",
+          "brand_name": "TIVICAY",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 25MG BASE **Federal Register determination that product was not discontinued or withdrawn for safety or effectiveness reasons**"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Discontinued"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TIVICAY",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20250630",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA210391",
+      "sponsor_name": "CIPLA LIMITED",
+      "products": [
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR, DOLUTEGRAVIR, LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR, DOLUTEGRAVIR, LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR, DOLUTEGRAVIR, LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR, DOLUTEGRAVIR, LAMIVUDINE",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230718",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "74788",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215187Orig1s000TAltr.pdf",
+              "date": "20230719",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA215187",
+      "sponsor_name": "LUPIN PHARMS",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR;LAMIVUDINE;TENOFOVIR ALAFENAMIDE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR ALAFENAMIDE",
+              "strength": "25MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20201006",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "64858",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/213556Orig1s000TA_ltr.pdf",
+              "date": "20201007",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA213556",
+      "sponsor_name": "SHANGHAI DESANA BIO-PHARMACEUTICALS CO LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR, LAMIVUDINE AND TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20200612",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 3",
+          "submission_class_code_description": "Type 3 - New Dosage Form",
+          "application_docs": [
+            {
+              "id": "63566",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/213983s000lbl.pdf",
+              "date": "20200615",
+              "type": "Label"
+            },
+            {
+              "id": "63574",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/213983Orig1s000ltr.pdf",
+              "date": "20200616",
+              "type": "Letter"
+            },
+            {
+              "id": "65174",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2020/213983Orig1s000TOC.html",
+              "date": "20201109",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "6",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83983",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/204790Orig1s033;213983Orig1s006ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            },
+            {
+              "id": "83991",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/213983s006lbl.pdf",
+              "date": "20251029",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78162",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/204790s031,213983s004lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            },
+            {
+              "id": "78171",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/204790Orig1s031; 213983Orig1s004ltr.pdf",
+              "date": "20240419",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20210709",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "68051",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/204790s028,213983s002lbl.pdf",
+              "date": "20210712",
+              "type": "Label"
+            },
+            {
+              "id": "68063",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/204790Orig1s028; 213983Orig1s002ltr.pdf",
+              "date": "20210713",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20260825",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "87046",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2026/204790Orig1s034,213983Orig1s007ltr.pdf",
+              "date": "20260827",
+              "type": "Letter"
+            },
+            {
+              "id": "87088",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2026/213983s007lbl.pdf",
+              "date": "20260901",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "3",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72286",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/204790Orig1s030,213983Orig1s003ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72299",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/204790s030,213983s003lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66856",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/204790Orig1s029,213983Orig1s001ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66864",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/204790s029,213983s001lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA213983",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA213983"
+        ],
+        "brand_name": [
+          "TIVICAY PD"
+        ],
+        "generic_name": [
+          "DOLUTEGRAVIR SODIUM"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-255",
+          "49702-226",
+          "49702-227",
+          "49702-228"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DOLUTEGRAVIR SODIUM"
+        ],
+        "rxcui": [
+          "1433873",
+          "1433879",
+          "1796077",
+          "1796079",
+          "1796081",
+          "1796083",
+          "2374562",
+          "2374566"
+        ],
+        "spl_id": [
+          "5037ffdb-75d0-4abb-bd21-0a1b5920042f"
+        ],
+        "spl_set_id": [
+          "63df5af3-b8ac-4e76-9830-2dbb340af922"
+        ],
+        "package_ndc": [
+          "49702-255-37",
+          "49702-226-13",
+          "49702-227-13",
+          "49702-228-13"
+        ],
+        "unii": [
+          "1Q1V9V5WYQ"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "TIVICAY PD",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 5MG BASE"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET, FOR SUSPENSION",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20210322",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA214397",
+      "sponsor_name": "MACLEODS PHARMS LTD",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 25MG BASE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 10MG BASE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20160919",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA208355",
+      "sponsor_name": "AUROBINDO PHARMA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "50MG"
+            }
+          ],
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20250612",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA219623",
+      "sponsor_name": "EMCURE PHARMS LTD",
+      "products": [
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR AND LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20190201",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "57577",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/210787Orig1s000TAltr.pdf",
+              "date": "20190213",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA210787",
+      "sponsor_name": "LAURUS LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR; LAMIVUDINE; TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG"
+            },
+            {
+              "name": "LAMIVUDINE",
+              "strength": "300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20190913",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA212179",
+      "sponsor_name": "MICRO LABS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20241205",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA212181",
+      "sponsor_name": "EMCURE PHARMS LTD",
+      "products": [
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+              "strength": "600MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20190325",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "58076",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/210796Orig1s000TAltr.pdf",
+              "date": "20190326",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA210796",
+      "sponsor_name": "MACLEODS PHARMS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR; LAMIVUDINE; TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "LAMIVUDINE"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20220330",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "70669",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/212527Orig1s000TAltr.pdf",
+              "date": "20220331",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA212527",
+      "sponsor_name": "CIPLA USA INC.",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR LAMIVUDINE TENOFOVIR ALAFENAMIDE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR LAMIVUDINE TENOFOVIR ALAFENAMIDE",
+              "strength": "EQ 50MG BASE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20250612",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA210811",
+      "sponsor_name": "CIPLA LIMITED",
+      "products": [
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM AND ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+              "strength": "600MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM AND ABACAVIR SULFATE AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR || DOLUTEGRAVIR || LAMIVUDINE",
+              "strength": "300MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20210518",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN",
+          "application_docs": [
+            {
+              "id": "67810",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/210812Orig1s000TA_ltr.pdf",
+              "date": "20210615",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "ANDA210812",
+      "sponsor_name": "CIPLA LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR SODIUM",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "50MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230428",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 5",
+          "submission_class_code_description": "Type 5 - New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "74128",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/215319Orig1s000TAltr.pdf",
+              "date": "20230501",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA215319",
+      "sponsor_name": "LAURUS GENERICS INC",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "5MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "FILM",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        },
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "10MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "FILM",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20250917",
+          "review_priority": "STANDARD",
+          "submission_class_code": "UNKNOWN"
+        }
+      ],
+      "application_number": "ANDA217830",
+      "sponsor_name": "MACLEODS PHARMACEUTICALS LTD",
+      "products": [
+        {
+          "product_number": "003",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR, DOLUTEGRAVIR AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR, DOLUTEGRAVIR, LAMIVUDINE",
+              "strength": "30MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        },
+        {
+          "product_number": "002",
+          "reference_drug": "No",
+          "brand_name": "ABACAVIR, DOLUTEGRAVIR AND LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "ABACAVIR, DOLUTEGRAVIR, LAMIVUDINE",
+              "strength": "5MG"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": null,
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230712",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "74752",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/211868Orig1s000TAltr.pdf",
+              "date": "20230713",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA211868",
+      "sponsor_name": "EMCURE PHARMS LTD",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR; LAMIVUDINE; TENOFOVIR DISOPROXIL FUMARATE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "LAMIVUDINE"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "TA",
+          "submission_status_date": "20230914",
+          "review_priority": "STANDARD",
+          "submission_class_code": "TYPE 4/5",
+          "submission_class_code_description": "New Combination and New Formulation or New Manufacturer",
+          "application_docs": [
+            {
+              "id": "75474",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2023/217016Orig1s000TA_ltr.pdf",
+              "date": "20230915",
+              "type": "Letter"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA217016",
+      "sponsor_name": "STRIDES PHARMA",
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "No",
+          "brand_name": "DOLUTEGRAVIR; TENOFOVIR DISOPROXIL FUMARATE; LAMIVUDINE",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR",
+              "strength": "50MG/300MG/300MG"
+            },
+            {
+              "name": "TENOFOVIR DISOPROXIL FUMARATE"
+            },
+            {
+              "name": "LAMIVUDINE"
+            }
+          ],
+          "reference_standard": "No",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "None (Tentative Approval)"
+        }
+      ]
+    },
+    {
+      "submissions": [
+        {
+          "submission_type": "ORIG",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20171121",
+          "review_priority": "PRIORITY",
+          "submission_class_code": "TYPE 4",
+          "submission_class_code_description": "Type 4 - New Combination",
+          "application_docs": [
+            {
+              "id": "50479",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2017/210192s000lbl.pdf",
+              "date": "20171124",
+              "type": "Label"
+            },
+            {
+              "id": "50503",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2017/210192Orig1s000ltr.pdf",
+              "date": "20171127",
+              "type": "Letter"
+            },
+            {
+              "id": "54738",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/nda/2017/210192Orig1s000TOC.html",
+              "date": "20180702",
+              "type": "Review"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "8",
+          "submission_status": "AP",
+          "submission_status_date": "20191024",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "60670",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2019/210192Orig1s008ltr.pdf",
+              "date": "20191025",
+              "type": "Letter"
+            },
+            {
+              "id": "60680",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2019/210192s008lbl.pdf",
+              "date": "20191025",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "17",
+          "submission_status": "AP",
+          "submission_status_date": "20251028",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "83972",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2025/210192s017lbl.pdf",
+              "date": "20251028",
+              "type": "Label"
+            },
+            {
+              "id": "83986",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2025/210192Orig1s017ltr.pdf",
+              "date": "20251029",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "4",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55430",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/210192s002s004lbl.pdf",
+              "date": "20180911",
+              "type": "Label"
+            },
+            {
+              "id": "55449",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/210192Orig1s002s004Ltr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "2",
+          "submission_status": "AP",
+          "submission_status_date": "20180906",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "55429",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/210192s002s004lbl.pdf",
+              "date": "20180911",
+              "type": "Label"
+            },
+            {
+              "id": "55448",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/210192Orig1s002s004Ltr.pdf",
+              "date": "20180912",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "13",
+          "submission_status": "AP",
+          "submission_status_date": "20221007",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "72289",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2022/210192Orig1s013ltr.pdf",
+              "date": "20221011",
+              "type": "Letter"
+            },
+            {
+              "id": "72304",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2022/210192s013lbl.pdf",
+              "date": "20221011",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "11",
+          "submission_status": "AP",
+          "submission_status_date": "20210709",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "68052",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/210192s011lbl.pdf",
+              "date": "20210712",
+              "type": "Label"
+            },
+            {
+              "id": "68058",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/210192Orig1s011ltr.pdf",
+              "date": "20210713",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "7",
+          "submission_status": "AP",
+          "submission_status_date": "20200714",
+          "review_priority": "STANDARD",
+          "submission_class_code": "EFFICACY",
+          "submission_class_code_description": "Efficacy",
+          "application_docs": [
+            {
+              "id": "63928",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2020/210192s007lbl.pdf",
+              "date": "20200715",
+              "type": "Label"
+            },
+            {
+              "id": "63962",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2020/210192Orig1s007ltr.pdf",
+              "date": "20200720",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "1",
+          "submission_status": "AP",
+          "submission_status_date": "20180117",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "51081",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2018/210192s001lbl.pdf",
+              "date": "20180118",
+              "type": "Label"
+            },
+            {
+              "id": "51864",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2018/210192Orig1s001ltr.pdf",
+              "date": "20180126",
+              "type": "Letter"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "14",
+          "submission_status": "AP",
+          "submission_status_date": "20240418",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "78167",
+              "url": "https://www.accessdata.fda.gov/drugsatfda_docs/appletter/2024/210192Orig1s014ltr.pdf",
+              "date": "20240419",
+              "type": "Letter"
+            },
+            {
+              "id": "78178",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2024/210192s014lbl.pdf",
+              "date": "20240419",
+              "type": "Label"
+            }
+          ]
+        },
+        {
+          "submission_type": "SUPPL",
+          "submission_number": "12",
+          "submission_status": "AP",
+          "submission_status_date": "20210323",
+          "review_priority": "STANDARD",
+          "submission_class_code": "LABELING",
+          "submission_class_code_description": "Labeling",
+          "application_docs": [
+            {
+              "id": "66858",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/appletter/2021/210192Orig1s012ltr.pdf",
+              "date": "20210324",
+              "type": "Letter"
+            },
+            {
+              "id": "66875",
+              "url": "http://www.accessdata.fda.gov/drugsatfda_docs/label/2021/210192s012lbl.pdf",
+              "date": "20210325",
+              "type": "Label"
+            }
+          ]
+        }
+      ],
+      "application_number": "NDA210192",
+      "sponsor_name": "VIIV HLTHCARE",
+      "openfda": {
+        "application_number": [
+          "NDA210192"
+        ],
+        "brand_name": [
+          "JULUCA"
+        ],
+        "generic_name": [
+          "DOLUTEGRAVIR SODIUM AND RILPIVIRINE HYDROCHLORIDE"
+        ],
+        "manufacturer_name": [
+          "ViiV Healthcare Company"
+        ],
+        "product_ndc": [
+          "49702-242"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "DOLUTEGRAVIR SODIUM",
+          "RILPIVIRINE HYDROCHLORIDE"
+        ],
+        "rxcui": [
+          "1989500",
+          "1989506"
+        ],
+        "spl_id": [
+          "19269bd8-a858-414a-80b5-9acba5aa9fd7"
+        ],
+        "spl_set_id": [
+          "806653d1-bf35-4924-b999-ad5d21821cc1"
+        ],
+        "package_ndc": [
+          "49702-242-13"
+        ],
+        "unii": [
+          "1Q1V9V5WYQ",
+          "212WAX8KDD"
+        ]
+      },
+      "products": [
+        {
+          "product_number": "001",
+          "reference_drug": "Yes",
+          "brand_name": "JULUCA",
+          "active_ingredients": [
+            {
+              "name": "DOLUTEGRAVIR SODIUM",
+              "strength": "EQ 50MG BASE"
+            },
+            {
+              "name": "RILPIVIRINE HYDROCHLORIDE",
+              "strength": "EQ 25MG BASE"
+            }
+          ],
+          "reference_standard": "Yes",
+          "dosage_form": "TABLET",
+          "route": "ORAL",
+          "marketing_status": "Prescription"
+        }
+      ]
+    }
+  ]
+}
+      }
+    }
+  ]
+}

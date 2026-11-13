@@ -93,6 +93,25 @@ pub struct DiseaseAssociationItem {
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub components: Box<[ComponentLabel]>,
 }
+/// One synonym text, stated by its first source row and by any other rows listed with it.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct DiseaseSynonymItem {
+    /// The first source row stating this text, with its own scope and record.
+    #[serde(flatten)]
+    pub synonym: DiseaseSynonym,
+    /// Other source rows stating the same text, ignoring letter case, each with its own spelling, scope and record.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub also_stated_by: Box<[DiseaseSynonym]>,
+}
+impl From<DiseaseSynonym> for DiseaseSynonymItem {
+    fn from(synonym: DiseaseSynonym) -> Self {
+        Self {
+            synonym,
+            also_stated_by: Box::default(),
+        }
+    }
+}
 
 /// One Orphanet epidemiology estimate exactly as Orphadata publishes it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -163,7 +182,7 @@ page!(
 page!(
     disease,
     DiseaseSynonyms,
-    DiseaseSynonym,
+    DiseaseSynonymItem,
     DiseaseGet,
     "biomcp.disease-synonyms/5",
     "One publisher synonym page with scope and language."

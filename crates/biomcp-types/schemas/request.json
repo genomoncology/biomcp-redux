@@ -425,7 +425,8 @@
         "label",
         "approvals",
         "regulatory",
-        "interactions"
+        "interactions",
+        "markets"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -436,7 +437,8 @@
         " One exact native label heading.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved."
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ]
     },
     "DrugSource": {
@@ -581,6 +583,22 @@
         " Pseudogene.",
         " Phenotype.",
         " HGNC's stated other group."
+      ]
+    },
+    "MaudeEventType": {
+      "description": "MAUDE report event type, matched on native event_type.",
+      "enum": [
+        "malfunction",
+        "injury",
+        "death",
+        "other"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Native Malfunction reports.",
+        " Native Injury reports.",
+        " Native Death reports.",
+        " Native Other reports."
       ]
     },
     "MyVariantQuery": {
@@ -3067,12 +3085,24 @@
           },
           "type": "array"
         },
+        "event_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MaudeEventType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other.",
+          "x-required-component": "gmdn"
+        },
         "exact_term": {
           "description": "Search typed drug names only.\nFAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed.",
           "type": "boolean"
         },
         "expand_drug_names": {
-          "description": "FAERS: accepted for one release and changes nothing; FAERS widens drug names by default.",
+          "description": "FAERS no-op.\nFAERS: accepted for one release and changes nothing; FAERS widens drug names by default.",
           "type": "boolean"
         },
         "limit": {
@@ -3104,7 +3134,7 @@
               "type": "null"
             }
           ],
-          "description": "Retained FAERS name resolution; follow the returned command without changing filters."
+          "description": "FAERS name snapshot.\nRetained FAERS name resolution; follow the returned command without changing filters."
         },
         "offset": {
           "default": 0,
@@ -3840,6 +3870,35 @@
         "command",
         "input",
         "source"
+      ],
+      "type": "object"
+    },
+    {
+      "additionalProperties": false,
+      "description": "Get drug and medicine details.",
+      "properties": {
+        "command": {
+          "const": "get-drug-markets",
+          "type": "string"
+        },
+        "input": {
+          "$ref": "#/$defs/Text",
+          "description": "Complete brand or generic name, looked up in each market's source on its own.",
+          "x-positional": 0
+        },
+        "section": {
+          "description": "The markets section, alone; it takes no source.",
+          "items": {
+            "$ref": "#/$defs/DrugSection"
+          },
+          "type": "array",
+          "x-positional": 1
+        }
+      },
+      "required": [
+        "command",
+        "input",
+        "section"
       ],
       "type": "object"
     },
