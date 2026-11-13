@@ -28,7 +28,6 @@ const GENE: &[(&str, ErrorMessage)] = &[
 const SEARCH: &[(&str, ErrorMessage)] = &[
     ("--type", ErrorMessage::LocusGroup),
     ("--chromosome", ErrorMessage::Band),
-    ("--region", ErrorMessage::Dropped),
     ("--pathway", ErrorMessage::Dropped),
     ("--go", ErrorMessage::Dropped),
 ];

@@ -45,7 +45,7 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
             Oncokb,
             AlleleRegistry,
         ],
-        ("search", "gene") => &[Hgnc],
+        ("search", "gene") => &[Hgnc, ClinGen],
         ("get", "gene") => &[
             Hgnc, MyGene, UniProt, Civic, ClinGen, Gencc, Gnomad, Hpa, Reactome, Oncokb,
         ],

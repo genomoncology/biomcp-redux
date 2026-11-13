@@ -30,13 +30,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     }
     let mut regions = Vec::new();
     if let Some(find) = region_find(query) {
-        let leg = cx
-            .fetch
-            .leg(&clingen::REGION_SPEC, cx.fetch.deadline(cx.budget))
-            .fresh(cx.fresh);
-        let result = clingen::regions(&leg, find);
-        let error = result.as_ref().err().copied();
-        let source = status::source(Source::ClinGen, leg.finish(), error);
+        let (result, source, error) = read_regions(cx, find);
         states.push(state(result.is_ok(), source.state));
         sources.push(source);
         local = local.or(error.and_then(status::local));
@@ -97,6 +91,24 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
             local,
         },
     )
+}
+type Regions = biomcp_adapters::Mapped<Vec<biomcp_types::ClinGenRegion>>;
+fn read_regions(
+    cx: &Ctx<'_>,
+    find: clingen::RegionFind<'_>,
+) -> (
+    Result<Regions, RequestError>,
+    biomcp_types::SourceOutcome,
+    Option<RequestError>,
+) {
+    let leg = cx
+        .fetch
+        .leg(&clingen::REGION_SPEC, cx.fetch.deadline(cx.budget))
+        .fresh(cx.fresh);
+    let result = clingen::regions(&leg, find);
+    let error = result.as_ref().err().copied();
+    let source = status::source(Source::ClinGen, leg.finish(), error);
+    (result, source, error)
 }
 /// A band prefix such as 16p reaches many regions; the rest need a narrower selector.
 const MAX_REGIONS: usize = 50;

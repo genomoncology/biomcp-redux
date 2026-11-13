@@ -76,7 +76,7 @@ pub struct ClinGenRegion {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinGenRegionDosage {
     /// ClinGen score: 0 no evidence, 1 little, 2 some, 3 sufficient evidence for dosage pathogenicity, 30 autosomal recessive, 40 dosage sensitivity unlikely.
-    pub score: u8,
+    pub score: u32,
     /// Source description of the score.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<Text>,

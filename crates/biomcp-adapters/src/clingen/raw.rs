@@ -255,7 +255,7 @@ fn dosage(
 ) -> Option<biomcp_types::ClinGenRegionDosage> {
     let field = format!("{kind} Score");
     let score = problems.field(&field, score)?;
-    let score = problems.optional(&field, Some(score.as_str().parse::<u8>()))?;
+    let score = problems.optional(&field, Some(score.as_str().parse::<u32>()))?;
     let field = format!("{kind} PMID");
     let pmids = pmids
         .into_iter()
