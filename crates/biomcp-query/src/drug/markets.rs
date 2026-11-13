@@ -27,6 +27,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
             DrugMarketState::Failed => Status::Failed,
         }),
     );
+    // Sync calls (EMA, WHO PQ at most), then each multi-match market's list call, then record calls,
+    // so the five-step cap never drops a list call; each row carries its record number and URL.
+    out.next.sort_by_key(|step| (step.0 != StepKind::Sync, step.0 != StepKind::Disambiguate));
     out.body = DrugMarkets {
         markets: markets.into(),
     }
@@ -180,6 +183,8 @@ fn unanswered(mut row: DrugMarket, sub: &Outcome, source: Source) -> DrugMarket 
             .filter(|s| s.source == source)
             .or(failed)
             .and_then(|s| s.reason);
+    } else {
+        row.matches = Some(0);
     }
     row
 }

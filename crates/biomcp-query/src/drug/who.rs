@@ -91,12 +91,16 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugWhoGet) -> Outcome {
     out
 }
 
+/// The WHO PQ sync call when the WHO bundle is missing or stale; once, beside other markets' reads.
 fn sync_step(out: &mut Outcome) {
-    if out
-        .sources
+    let stale = out.sources.iter().any(|s| {
+        s.source == Source::WhoPq && matches!(s.state, SourceState::Syncing | SourceState::Stale)
+    });
+    let listed = out
+        .next
         .iter()
-        .any(|s| matches!(s.state, SourceState::Syncing | SourceState::Stale))
-    {
+        .any(|step| step.0 == StepKind::Sync && step.2.contains(&Source::WhoPq));
+    if stale && !listed {
         out.next.push(crate::next::Step::new(
             StepKind::Sync,
             &[biomcp_types::Source::WhoPq],
@@ -129,26 +133,18 @@ pub(super) fn market(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket
     let error = result.as_ref().err().copied();
     let read = status::source(Source::WhoPq, leg.finish(), error);
     command.finish(deadline.remaining());
-    if matches!(read.state, SourceState::Syncing | SourceState::Stale) {
-        out.next.push(crate::next::Step::new(
-            StepKind::Sync,
-            &[Source::WhoPq],
-            Action::Sync {
-                bundle: Bundle::WHO_PQ,
-            },
-        ));
-    }
+    let reason = read.reason;
+    markets::add_source(out, read);
+    sync_step(out);
     let rows = match result {
         Ok(rows) => rows,
         Err(_) => {
             row.state = DrugMarketState::Failed;
-            row.reason = read.reason;
+            row.reason = reason;
             out.local = out.local.or(error.and_then(status::local));
-            markets::add_source(out, read);
             return row;
         }
     };
-    markets::add_source(out, read);
     row.matches = Some(rows.len() as u64);
     let Some(chosen) = earliest(&rows) else {
         return row;
