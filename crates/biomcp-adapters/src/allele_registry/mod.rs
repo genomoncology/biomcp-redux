@@ -30,9 +30,7 @@ const ALLELE: Endpoint = SPEC
     .get("/allele")
     .json_rejections()
     .fresh(biomcp_fetch::Freshness::Days(1));
-const ALLELES: Endpoint = SPEC
-    .get("/alleles")
-    .fresh(biomcp_fetch::Freshness::Days(1));
+const ALLELES: Endpoint = SPEC.get("/alleles").fresh(biomcp_fetch::Freshness::Days(1));
 const FIELDS: &str = "none+@id+communityStandardTitle+genomicAlleles+transcriptAlleles.MANE+externalRecords.dbSNP+externalRecords.ClinVarVariations";
 /// Checked service result including a source validation code.
 #[derive(Debug)]

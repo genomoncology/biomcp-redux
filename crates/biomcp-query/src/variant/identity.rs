@@ -96,26 +96,36 @@ pub(super) fn read(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>) -> 
         // The source error and its outcome were retained above.
         Err(_) => return found,
     }
-    if found.rows.is_empty()
-        && found.rejection.is_none()
-        && query.input().namespace() == biomcp_types::VariantNamespace::ClinVar
+    if !clinvar_registry(cx, query, deadline.after_stage(found.elapsed), &mut found)
+        && found.rows.len() == 1
+        && spec.source == Source::MyVariant
     {
-        clinvar_registry(cx, query, deadline.after_stage(found.elapsed), &mut found);
-    } else if found.rows.len() == 1 && spec.source == Source::MyVariant {
         canonical(cx, deadline.after_stage(found.elapsed), &mut found);
     }
     found
 }
 /// A ClinVar variation that MyVariant has not indexed yet can still name its allele
 /// through the registry's own ClinVar cross-reference; no allele is inferred locally.
-fn clinvar_registry(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>, found: &mut Identity) {
+/// Returns whether the registry was consulted.
+fn clinvar_registry(
+    cx: &Ctx<'_>,
+    query: &VariantGet,
+    deadline: Deadline<'_>,
+    found: &mut Identity,
+) -> bool {
+    if !found.rows.is_empty()
+        || found.rejection.is_some()
+        || query.input().namespace() != biomcp_types::VariantNamespace::ClinVar
+    {
+        return false;
+    }
     let native = query.input().source_id();
-    let Some(variation) = native
+    let Some(Ok(variation)) = native
         .as_ref()
         .strip_prefix("clinvar:")
-        .and_then(|v| v.parse::<u64>().ok())
+        .map(str::parse::<u64>)
     else {
-        return;
+        return false;
     };
     let leg = cx
         .fetch
@@ -124,13 +134,23 @@ fn clinvar_registry(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>, fo
     let started = leg.remaining();
     let result = allele_registry::by_clinvar(&leg, variation);
     found.elapsed += started.saturating_sub(leg.remaining());
-    let error = result.as_ref().err().copied();
-    found
-        .sources
-        .push(status::source(Source::AlleleRegistry, leg.finish(), error));
-    found.local = found.local.or(error.and_then(status::local));
-    found.reason = found.reason.or(error.and_then(status::reason));
-    let Ok(rows) = result else { return };
+    let report = leg.finish();
+    let rows = match result {
+        Ok(rows) => {
+            found
+                .sources
+                .push(status::source(Source::AlleleRegistry, report, None));
+            rows
+        }
+        Err(error) => {
+            found
+                .sources
+                .push(status::source(Source::AlleleRegistry, report, Some(error)));
+            found.local = found.local.or(status::local(error));
+            found.reason = found.reason.or(status::reason(error));
+            return true;
+        }
+    };
     for row in rows {
         match row {
             allele_registry::Resolution::Found(mapped) => {
@@ -148,6 +168,7 @@ fn clinvar_registry(cx: &Ctx<'_>, query: &VariantGet, deadline: Deadline<'_>, fo
     if !found.rows.is_empty() {
         found.resolver = Some(Source::AlleleRegistry);
     }
+    true
 }
 fn canonical(cx: &Ctx<'_>, deadline: Deadline<'_>, found: &mut Identity) {
     let [row] = found.rows.as_mut_slice() else {

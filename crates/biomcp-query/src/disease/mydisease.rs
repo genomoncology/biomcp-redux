@@ -14,16 +14,15 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     let leg = cx.fetch.leg(&mydisease::SPEC, deadline).fresh(cx.fresh);
     let mut reply = mydisease::annotation(&leg, id);
     let mut label_problems = Vec::new();
-    if matches!(query.section(), Some(DiseaseSection::Hierarchy))
-        && let Ok(mapped) = reply.as_mut()
-    {
+    let hierarchy = matches!(query.section(), Some(DiseaseSection::Hierarchy));
+    for mapped in reply.iter_mut().filter(|_| hierarchy) {
         let page = mapped
             .value
             .parents
             .iter_mut()
             .skip(query.section_offset() as usize)
             .take(query.section_limit() as usize);
-        label(&leg, id, page.collect(), &mut label_problems);
+        label(&leg, page.collect(), &mut label_problems);
     }
     let error = reply.as_ref().err().copied();
     let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
@@ -43,7 +42,6 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
 /// Name each direct parent on the page from its own record in one batch; an unnamed parent keeps its ID.
 fn label(
     leg: &biomcp_fetch::Leg<'_>,
-    id: &biodata::Curie,
     parents: Vec<&mut biodata::DiseaseRelation>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) {
@@ -59,7 +57,7 @@ fn label(
         }
         Err(_) => problems.push(biomcp_types::Problem {
             source: Source::MyDisease,
-            record: biodata::Text::new(&id.to_string()).ok(),
+            record: None,
             field: "parents.label: parent label lookup failed".into(),
             code: biomcp_types::ProblemCode::ValueUnknown,
         }),
