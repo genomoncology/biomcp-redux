@@ -45,7 +45,7 @@
         "/result/items/0/latest_submission/status": "AP",
         "/sources/0/state": "ok",
         "/sources/0/notices/*/message": {
-          "includes": "--sort newest orders applications by their latest submission status date, newest first, ties by application number; applications with no dated submission come last. latest_submission shows that submission."
+          "includes": "--sort newest: openFDA orders all 204 matching applications, not just this page, by their latest submission status date, newest first, ties by application number; applications with no dated submission come last. latest_submission shows that submission."
         }
       }
     },

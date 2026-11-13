@@ -13,10 +13,17 @@ mod letter;
 mod purpose;
 /// How the names were searched, for the one notice.
 const SEARCHED: &str = "one query at the typed name's step";
-/// The one notice for a newest-first page.
-const NEWEST: &str = "--sort newest orders applications by their latest submission status date, \
-    newest first, ties by application number; applications with no dated submission come last. \
-    latest_submission shows that submission.";
+/// The one notice for a newest-first page: the source orders every match before it pages.
+fn newest(total: Option<u64>) -> String {
+    let matches = total.map_or("all matching applications".to_owned(), |n| {
+        format!("all {n} matching applications")
+    });
+    format!(
+        "--sort newest: openFDA orders {matches}, not just this page, by their latest submission \
+         status date, newest first, ties by application number; applications with no dated \
+         submission come last. latest_submission shows that submission."
+    )
+}
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = empty(
@@ -48,6 +55,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         ),
     };
     let error = result.as_ref().err().copied();
+    let total = result.as_ref().ok().map(|page| page.total);
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
@@ -76,7 +84,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         })
         .with_query(sent.clone());
     }
-    notices(query, &mut out);
+    notices(query, total, &mut out);
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
@@ -85,7 +93,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
 }
 
 /// State the applicant prefix searched and any requested order on the source.
-fn notices(query: &DrugSearch, out: &mut Outcome) {
+fn notices(query: &DrugSearch, total: Option<u64>, out: &mut Outcome) {
     let Some(report) = out.sources.first_mut() else {
         return;
     };
@@ -95,7 +103,7 @@ fn notices(query: &DrugSearch, out: &mut Outcome) {
             source::applicant_prefix(applicant)
         )
     });
-    let sort = query.sort().map(|_| NEWEST.to_owned());
+    let sort = query.sort().map(|_| newest(total));
     for message in applicant.into_iter().chain(sort) {
         report
             .notices

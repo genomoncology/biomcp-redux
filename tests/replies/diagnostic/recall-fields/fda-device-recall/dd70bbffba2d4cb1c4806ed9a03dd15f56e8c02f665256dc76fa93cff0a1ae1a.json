@@ -1,0 +1,42 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%22Z-1747-2025%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794576416,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 145,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "status": "Ongoing",
+              "classification": "Class II",
+              "product_type": "Devices",
+              "event_id": "96621",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "recall_number": "Z-1747-2025",
+              "product_quantity": "4 units",
+              "recall_initiation_date": "20250409",
+              "center_classification_date": "20250512",
+              "report_date": "20250521"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
