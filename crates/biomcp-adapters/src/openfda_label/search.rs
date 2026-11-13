@@ -38,21 +38,33 @@ pub fn search_indication(
     };
     Search { page, free_text }
 }
-/// Retain native word-search candidates for strict complete-name and approved single-term get matching.
-pub fn search_names(
-    leg: &Leg<'_>,
-    name: &Text,
-    limit: u32,
-    offset: u32,
-) -> Result<Page, RequestError> {
-    let name = literal(name.as_str());
-    page(
-        leg,
-        &format!("openfda.brand_name:{name} OR openfda.generic_name:{name}"),
-        limit,
-        offset,
-        None,
-    )
+/// Labels per name page; openFDA's largest page.
+const NAME_PAGE: u32 = 50;
+/// Read every native word-search page for strict complete-name and approved single-term get
+/// matching, in source order. The first page gives openFDA's total; the rest overlap within
+/// openFDA's pacing, since one name can match hundreds of labels and each page takes about a
+/// second to arrive (0871).
+pub fn search_names(leg: &Leg<'_>, name: &Text) -> Result<Vec<Page>, RequestError> {
+    let selector = {
+        let name = literal(name.as_str());
+        format!("openfda.brand_name:{name} OR openfda.generic_name:{name}")
+    };
+    let first = page(leg, &selector, NAME_PAGE, 0, None)?;
+    let Some(next) = first.window.next_offset() else {
+        return Ok(vec![first]);
+    };
+    let total = first.window.total().unwrap_or_default();
+    let offsets: Vec<u32> = (next..)
+        .step_by(NAME_PAGE as usize)
+        .take_while(|offset| u64::from(*offset) < total)
+        .collect();
+    let mut pages = vec![first];
+    for found in leg.batch(&offsets, |child, offset| {
+        page(child, &selector, NAME_PAGE, *offset, None)
+    }) {
+        pages.push(found?);
+    }
+    Ok(pages)
 }
 fn discover(
     leg: &Leg<'_>,

@@ -134,8 +134,9 @@ quotas! {
     OPENTARGETS = Quota::new(SourceKey::declare("opentargets"), Rate::per_second(1), None, 1);
 
     /// Checked 2026-11-01: https://open.fda.gov/apis/authentication/ . Published limits: 240/minute per IP keyless or per key keyed. Separate daily quotas:
-    /// 1000 keyless, 120000 keyed; provider enforces these and transport honors Retry-After.
-    OPENFDA = Quota::new(SourceKey::declare("openfda"), Rate::per_second(4), Some(Rate::per_second(4)), 1);
+    /// 1000 keyless, 120000 keyed; provider enforces these and transport honors Retry-After. No concurrency limit is published; allow four reads to
+    /// overlap, still paced at 240/minute, so a label name lookup's many slow 50-label pages do not wait on each other.
+    OPENFDA = Quota::new(SourceKey::declare("openfda"), Rate::per_second(4), Some(Rate::per_second(4)), 4);
 
     /// Checked 2026-11-01: https://www.ema.europa.eu/en/about-us/about-website/legal-notice . No published numeric limit found in service
     /// documentation/terms and provider-domain policy search; retain conservative local ceiling.
