@@ -125,3 +125,8 @@ So shrinking the text buys room once. Fixing how the limits are set removes the 
 ### PM decision, 2026-11-13
 
 Fixes 1 and 2 go ahead now, in this ticket. The 0836 limits came from a review (`sdlc/records/2026-11-11-token-gap-root-cause.md`), not from Ian, and their cost is real but their numbers are main's size on the day. Fix 1: first-read ceilings get 5% room over the 0836 measured sizes; growth inside the room needs no ask, growth past it needs a PM ruling, and the map stays out of the first read. Fix 2: the per-tool typed budget rises to 2,400, with the 48 KiB all-tools cap kept as the guard. Fixes 3 and 4 wait until fix 1's room runs low. 0904 plans one measuring job for its growth. Reach: the exact-size ratchet habit is mailed to Jarvis.
+
+### Fixes 1 and 2 done, 2026-11-13
+
+- First-read ceilings in `scripts/check_front_map.py` now keep 0836's measured sizes and a 5% room as named values, rounded up: skill 5,835, single 3,853, hosted single 2,644, typed 2,110, hosted 2,096. The comment says growth inside the room needs no ask, growth past it needs a PM ruling, and the command map stays out of the first read. No first-read text changed.
+- The typed per-tool budget (`ACTION_BUDGET`, `crates/biomcp/tests/runner/typed_schemas.rs`) rose from 2,000 to 2,400, and `sdlc/planning/typed-mcp-tools.md` says so. The all-tools cap is unchanged; it is 128 KiB (`DEFAULT_TYPED_DEFINITION_BYTES`, raised from 48 KiB by 0763), not the 48 KiB the decision above names.

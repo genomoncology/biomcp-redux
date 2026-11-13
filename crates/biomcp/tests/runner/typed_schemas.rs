@@ -178,8 +178,11 @@ pub(super) fn size(tool: &Value) -> usize {
         + field(tool, "inputSchema").to_string().chars().count()
 }
 /// One action's description and schema. The names agents guess for search text, record IDs
-/// and sections are accepted without being advertised, so they cost nothing here.
-const ACTION_BUDGET: usize = 2000;
+/// and sections are accepted without being advertised, so they cost nothing here. 2,000 was a
+/// design target, not a client limit; ticket 0905 raised it to 2,400 so a new filter need not trim
+/// other descriptions. The all-tools definition cap (`DEFAULT_TYPED_DEFINITION_BYTES`, 128 KiB
+/// since ticket 0763) still guards clients that load every tool.
+const ACTION_BUDGET: usize = 2400;
 /// The name an action advertises for a registry field: `query` for search text and `id`
 /// for the record ID.
 fn advertised<'a>(verb: &str, schema: &Value, key: &'a str) -> &'a str {
