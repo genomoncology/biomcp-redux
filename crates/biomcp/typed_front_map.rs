@@ -220,7 +220,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     (
         "phenotype",
         "Human phenotypes, signs and symptoms as ontology terms: find a term; read its \
-         synonyms, parents and the diseases and genes linked to it",
+         synonyms, parents and the diseases and genes linked to it; rank genes or diseases \
+         against a set of HP IDs",
         &[
             ("search", "search_phenotype", ""),
             ("get", "get_phenotype", ""),

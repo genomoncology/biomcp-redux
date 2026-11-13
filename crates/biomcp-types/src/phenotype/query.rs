@@ -25,13 +25,37 @@ biodata::wire_enum! { described
         Genes => "genes",
     }
 }
+biodata::wire_enum! { described
+    /// The Monarch entity group ranked against a set of HP terms.
+    PhenotypeGroup {
+        /// Monarch's Human Genes group.
+        Genes => "genes",
+        /// Monarch's Human Diseases group.
+        Diseases => "diseases",
+    }
+}
+biodata::wire_enum! { described
+    /// A Monarch similarity metric for ranking against a set of HP terms.
+    PhenotypeMetric {
+        /// Information content of the most informative shared ancestor, Monarch's default.
+        AncestorInformationContent => "ancestor-information-content",
+        /// Jaccard similarity of the ancestor sets.
+        JaccardSimilarity => "jaccard-similarity",
+        /// Phenodigm score, the geometric mean of the other two.
+        PhenodigmScore => "phenodigm-score",
+    }
+}
+/// Monarch returns at most this many ranked rows for a set of HP terms, with no further pages.
+pub const PHENOTYPE_MATCH_MAX: u32 = 50;
 fn monarch() -> PhenotypeSource {
     PhenotypeSource::Monarch
 }
 fn five() -> u32 {
     5
 }
-/// Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.
+/// Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, \
+/// to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a \
+/// ranking orders source candidates; neither establishes a diagnosis.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
@@ -41,7 +65,7 @@ pub struct PhenotypeSearch(SearchFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct SearchFields {
-    /// Unchanged literal term search text.
+    /// Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.
     #[cfg_attr(feature = "schema", schemars(length(min=1), extend("x-positional" = 0)))]
     text: Box<str>,
     /// Monarch only; HPO search is unsupported.
@@ -51,9 +75,25 @@ struct SearchFields {
     #[serde(default = "five")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,
-    /// Native source row offset.
+    /// Native source row offset; a ranked HP ID set has no further pages.
     #[serde(default)]
     offset: u32,
+    /// For HP IDs only: rank Monarch's human genes (default) or diseases against the set.
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "PhenotypeGroup"))]
+    group: Option<PhenotypeGroup>,
+    /// For HP IDs only: Monarch similarity metric, default ancestor-information-content.
+    #[serde(
+        default,
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "PhenotypeMetric"))]
+    metric: Option<PhenotypeMetric>,
 }
 crate::query::validation::checked_query!(PhenotypeSearch, SearchFields);
 impl TryFrom<SearchFields> for PhenotypeSearch {
@@ -68,8 +108,27 @@ impl TryFrom<SearchFields> for PhenotypeSearch {
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
+        if terms(&v.text).is_some() {
+            if v.offset != 0 {
+                return Err(QueryInvalid::new(&["offset"])
+                    .with_message(crate::ErrorMessage::PhenotypeSetOffset));
+            }
+        } else if v.group.is_some() || v.metric.is_some() {
+            let field = if v.group.is_some() { "group" } else { "metric" };
+            return Err(QueryInvalid::new(&[field])
+                .with_message(crate::ErrorMessage::PhenotypeSetOptions));
+        }
         Ok(Self(v))
     }
+}
+/// HP IDs when every comma- or space-separated word is one, in caller order.
+fn terms(text: &str) -> Option<Vec<HpId>> {
+    let ids = text
+        .split(|c: char| c == ',' || c.is_whitespace())
+        .filter(|word| !word.is_empty())
+        .map(|word| word.parse::<HpId>().ok())
+        .collect::<Option<Vec<_>>>()?;
+    (!ids.is_empty()).then_some(ids)
 }
 #[doc = " Read an exact HP term from HPO or Monarch, or page native source sections. A term lookup \
     answers terminology; an association answers what its publisher asserts. Neither \
@@ -171,6 +230,29 @@ impl PhenotypeSearch {
     /// Native offset.
     pub fn offset(&self) -> u32 {
         self.0.offset
+    }
+    /// HP IDs in caller order, repetitions kept, when the text is only HP IDs.
+    pub fn terms(&self) -> Option<Vec<HpId>> {
+        terms(&self.0.text)
+    }
+    /// Ranked group for an HP ID set.
+    pub fn group(&self) -> PhenotypeGroup {
+        self.0.group.unwrap_or(PhenotypeGroup::Genes)
+    }
+    /// Ranking metric for an HP ID set.
+    pub fn metric(&self) -> PhenotypeMetric {
+        self.0.metric.unwrap_or(PhenotypeMetric::AncestorInformationContent)
+    }
+    /// The same ranking for other HP IDs, keeping group, metric and limit.
+    pub fn with_terms(&self, terms: &[HpId]) -> Result<Self, QueryInvalid> {
+        let mut fields = self.0.clone();
+        fields.text = terms
+            .iter()
+            .map(HpId::as_str)
+            .collect::<Vec<_>>()
+            .join(",")
+            .into();
+        Self::try_from(fields)
     }
 }
 impl crate::Paged for PhenotypeSearch {
