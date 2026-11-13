@@ -342,6 +342,16 @@
       ],
       "type": "string"
     },
+    "DiseaseSearchSource": {
+      "description": "An explicit disease search source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer"
+      ],
+      "type": "string"
+    },
     "DiseaseSection": {
       "description": "One named disease page.",
       "enum": [
@@ -351,7 +361,8 @@
         "genes",
         "phenotypes",
         "incidence",
-        "survival"
+        "survival",
+        "prevalence"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -361,7 +372,8 @@
         " Native gene association rows.",
         " Native phenotype association rows.",
         " Native stage incidence rows.",
-        " Annual survival rows."
+        " Annual survival rows.",
+        " Orphanet prevalence, age of onset and inheritance."
       ]
     },
     "DiseaseSource": {
@@ -370,7 +382,8 @@
         "ols",
         "mydisease",
         "monarch",
-        "seer"
+        "seer",
+        "orphadata"
       ],
       "type": "string"
     },
@@ -3355,7 +3368,7 @@
           "description": "Exactly one ontology, default MONDO."
         },
         "source": {
-          "$ref": "#/$defs/DiseaseSource",
+          "$ref": "#/$defs/DiseaseSearchSource",
           "default": "ols",
           "description": "One explicit source, default OLS."
         },

@@ -1315,16 +1315,16 @@ Options:
 
 ```
 
-Search diseases and their identifiers. Sources: monarch, mydisease, ols, orphadata, seer.
+Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
 
-- `--limit`: Maximum source rows on one page. Value form: integer. Example: --limit 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--offset`: Source row offset. Value form: integer. Example: --offset 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--limit`: Maximum source rows on one page. Value form: integer. Example: --limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--offset`: Source row offset. Value form: integer. Example: --offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--ontology`: Exactly one ontology, default MONDO; help search disease
 Exactly one ontology, default MONDO.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `--source`: One explicit source, default OLS; help search disease
 One explicit source, default OLS.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
 - `text`: Exact source search text; optional site-name filter for SEER.
 Form: search disease TEXT; not --text.
 
