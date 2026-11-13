@@ -170,8 +170,7 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         let id = get_id(&v, statistic)?;
-        if (v.section == Some(DiseaseSection::Prevalence)) != (v.source == DiseaseSource::Orphadata)
-        {
+        if v.section == Some(DiseaseSection::Prevalence) && v.source != DiseaseSource::Orphadata {
             return Err(QueryInvalid::new(&["source", "section"])
                 .with_message(crate::ErrorMessage::DiseasePrevalenceSource));
         }
