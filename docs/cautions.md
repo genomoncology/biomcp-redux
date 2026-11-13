@@ -79,6 +79,8 @@ FAERS `search adverse-event --aggregate reactions` requests openFDA's exact reac
 
 The drug index is its absolute position in the report. Missing retained reports offer an explicit restart. Drug roles belong to each original drug row, and reaction labels carry separate MedDRA terms. Report counts and identifiers do not establish causation or a marketed-product identity.
 
+A FAERS card, drug row or reaction row keeps every source code and puts the word from [openFDA's published field list](https://open.fda.gov/fields/drugevent.yaml) beside it: sex, age unit (800 to 805), reporter qualification, drug role, action taken and reaction outcome. openFDA's role list holds only 1 to 3, so roles `4` and `5` count as off-list; ICH E2B(R3) defines role 4 as "drug not administered". A present code that is not on that list has no word and is named in `unmapped_codes` with its code; a field the source left out is never listed there. An off-list age unit also drops the age, because a number without its unit cannot be read, and the reply carries a problem for it. openFDA publishes no code list for the six seriousness flags: it documents each as `1` when the event had that result "and absent otherwise". The data also carries `2`, which openFDA does not document. A `1` carries openFDA's own wording, such as "The adverse event resulted in death"; a `2` stays unlabelled and is not counted as off-list. openFDA's public FAERS data carries no case narrative: `patient.summary.narrativeincludeclinical` holds only the case event date, which the card shows unchanged as `case_event_date`.
+
 ## Local bundles
 
 HGNC and ClinGen reads can synchronize absent or stale bundles under `auto_sync_max_bytes`. Offline mode never synchronizes. EMA, GTR, WHO and cBioPortal studies read explicitly synchronized stored bundles and never synchronize on read. Missing stored bundles offer an explicit sync command; stale stored rows remain readable with a stale marker. A hosted server answers from its stored copy past the refresh date without the stale marker, and the reply states the date that copy was retrieved.
@@ -132,6 +134,10 @@ Text matches literally and case-insensitively in native study IDs, names and des
 ## Phenotype sections
 
 Each section returns five rows by default; `--section-limit` and `--section-offset` select a local page. Missing source fields remain unavailable, and empty source arrays remain empty collections. A synonym, cross reference or hierarchy link supplies no clinical equivalence.
+
+## Phenotype set rankings
+
+`search phenotype HP:0001263,HP:0001252,HP:0001250` sends the HP IDs, in order and with repeats, to Monarch's semantic similarity search and returns its one ranked list of human genes, or diseases with `--group diseases`. Each row keeps Monarch's score, its two direction scores and each queried term's best match; the reply names Monarch's metric, directionality and search mode. Monarch returns at most 50 rows and no further pages, so a gene outside them is unranked here, not absent from Monarch. Monarch's default hybrid mode scores only a Jaccard-prefiltered set, so a richly annotated gene can be left out; each hybrid reply says so and offers the same ranking with `--search-mode full`, which scores every entity and is slower. Monarch ranks without an HP ID it does not know, so BioMCP refuses that set and offers the known IDs. Monarch ranks nothing when it knows none of the IDs, and that refusal says so. A rank orders candidates; it is no diagnosis.
 
 ## GWAS thresholds
 

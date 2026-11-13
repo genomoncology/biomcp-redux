@@ -103,6 +103,7 @@ study-files: Read bounded native DataHub file references and study license links
 phenotype-sections: A caller pages native source synonyms, cross references and direct hierarchy links from one retained term reply.
 pathway-wikipathways-genes: Read exact human pathway GeneProduct data nodes from bounded publisher GPML and page the retained relation without name-based identifier inference.
 phenotype-associations: A caller pages exact direct Monarch disease and human gene association rows without clinical inference or identity repair.
+phenotype-set-ranking: A caller gives a set of HP IDs and reads Monarch's one ranked list of human genes or diseases, with each score, the metric named and Monarch's 50-row limit stated; a set holding an HP ID Monarch does not know is refused.
 gwas-get: Read exact Catalog association and study records and their independent native context sections.
 pathway-retirements: Retired pathway spellings return fixed supported routes before any source request.
 pathway-failures: Source faults and foreign identities retain failed or rejected outcomes without cache admission.

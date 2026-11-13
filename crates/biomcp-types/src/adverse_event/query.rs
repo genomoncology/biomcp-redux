@@ -408,7 +408,9 @@ struct GetFields {
     #[serde(default = "default_source")]
     #[cfg_attr(feature = "schema", schemars(with="str", extend("enum"=["faers", "maude"])))]
     source: AdverseEventSource,
-    /// FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.
+    #[doc = "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. \
+        openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date \
+        holds the case event date. Omitted means card only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<AdverseEventSection>,

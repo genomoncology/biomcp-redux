@@ -37,7 +37,7 @@
         " Native SPL set IDs.",
         " Native application numbers.",
         " Native device rows.",
-        " Complete native narrative rows."
+        " Complete native MAUDE narrative rows; openFDA's public FAERS data carries no case narrative."
       ]
     },
     "AdverseEventSerious": {
@@ -717,6 +717,44 @@
       "x-enum-descriptions": [
         " CPIC source-native records.",
         " ClinPGx annotation records."
+      ]
+    },
+    "PhenotypeGroup": {
+      "description": "The Monarch entity group ranked against a set of HP terms.",
+      "enum": [
+        "genes",
+        "diseases"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's Human Genes group.",
+        " Monarch's Human Diseases group."
+      ]
+    },
+    "PhenotypeMetric": {
+      "description": "A Monarch similarity metric for ranking against a set of HP terms.",
+      "enum": [
+        "ancestor-information-content",
+        "jaccard-similarity",
+        "phenodigm-score"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Information content of the most informative shared ancestor, Monarch's default.",
+        " Jaccard similarity of the ancestor sets.",
+        " Phenodigm score, the geometric mean of the other two."
+      ]
+    },
+    "PhenotypeSearchMode": {
+      "description": "Which Monarch entities are scored against a set of HP terms.",
+      "enum": [
+        "hybrid",
+        "full"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's default: score only a shortlist prefiltered by Jaccard overlap.",
+        " Score every entity in the group; slower."
       ]
     },
     "PhenotypeSection": {
@@ -2130,6 +2168,10 @@
           "const": "search-phenotype",
           "type": "string"
         },
+        "group": {
+          "$ref": "#/$defs/PhenotypeGroup",
+          "description": "HP IDs only: rank genes, the default, or diseases."
+        },
         "limit": {
           "default": 5,
           "description": "Maximum native headers, default five.",
@@ -2138,12 +2180,20 @@
           "minimum": 1,
           "type": "integer"
         },
+        "metric": {
+          "$ref": "#/$defs/PhenotypeMetric",
+          "description": "HP IDs only: the Monarch similarity metric to rank by."
+        },
         "offset": {
           "default": 0,
-          "description": "Native source row offset.",
+          "description": "Native source row offset; a ranked HP ID set has no further pages.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "search_mode": {
+          "$ref": "#/$defs/PhenotypeSearchMode",
+          "description": "HP IDs only: hybrid (default) or slower full."
         },
         "source": {
           "$ref": "#/$defs/PhenotypeSource",
@@ -2151,7 +2201,7 @@
           "description": "Monarch only; HPO search is unsupported."
         },
         "text": {
-          "description": "Unchanged literal term search text.",
+          "description": "Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.",
           "minLength": 1,
           "type": "string",
           "x-positional": 0
@@ -3303,7 +3353,7 @@
               "type": "null"
             }
           ],
-          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. Omitted means card only.",
+          "description": "FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only.",
           "x-positional": 1
         },
         "section_limit": {

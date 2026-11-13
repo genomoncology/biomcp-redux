@@ -220,6 +220,18 @@
       "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
       "type": "string"
     },
+    "Reply_PhenotypeGroup": {
+      "description": "The Monarch entity group ranked against a set of HP terms.",
+      "enum": [
+        "genes",
+        "diseases"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's Human Genes group.",
+        " Monarch's Human Diseases group."
+      ]
+    },
     "Reply_PhenotypeHeader": {
       "description": "One native term search candidate, without a selected identity.",
       "properties": {
@@ -270,6 +282,20 @@
       ],
       "type": "object"
     },
+    "Reply_PhenotypeMetric": {
+      "description": "A Monarch similarity metric for ranking against a set of HP terms.",
+      "enum": [
+        "ancestor-information-content",
+        "jaccard-similarity",
+        "phenodigm-score"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Information content of the most informative shared ancestor, Monarch's default.",
+        " Jaccard similarity of the ancestor sets.",
+        " Phenodigm score, the geometric mean of the other two."
+      ]
+    },
     "Reply_PhenotypePage": {
       "description": "Native HP search header page, without local ranking.",
       "properties": {
@@ -300,8 +326,12 @@
       "type": "object"
     },
     "Reply_PhenotypeSearch": {
-      "description": "Search literal human HP term candidates through Monarch with bounded native pages. A term lookup answers terminology and does not establish a diagnosis.",
+      "description": "Search literal human HP term candidates through Monarch with bounded native pages, or give only HP IDs, comma-separated, to get Monarch's one ranked list of genes or diseases most similar to that set. A term lookup answers terminology and a ranking orders source candidates; neither establishes a diagnosis.",
       "properties": {
+        "group": {
+          "$ref": "#/$defs/Reply_PhenotypeGroup",
+          "description": "HP IDs only: rank genes, the default, or diseases."
+        },
         "limit": {
           "default": 5,
           "description": "Maximum native headers, default five.",
@@ -310,12 +340,20 @@
           "minimum": 1,
           "type": "integer"
         },
+        "metric": {
+          "$ref": "#/$defs/Reply_PhenotypeMetric",
+          "description": "HP IDs only: the Monarch similarity metric to rank by."
+        },
         "offset": {
           "default": 0,
-          "description": "Native source row offset.",
+          "description": "Native source row offset; a ranked HP ID set has no further pages.",
           "format": "uint32",
           "minimum": 0,
           "type": "integer"
+        },
+        "search_mode": {
+          "$ref": "#/$defs/Reply_PhenotypeSearchMode",
+          "description": "HP IDs only: hybrid (default) or slower full."
         },
         "source": {
           "$ref": "#/$defs/Reply_PhenotypeSource",
@@ -323,7 +361,7 @@
           "description": "Monarch only; HPO search is unsupported."
         },
         "text": {
-          "description": "Unchanged literal term search text.",
+          "description": "Unchanged literal term search text, or HP IDs separated by commas to rank genes or diseases for the set.",
           "minLength": 1,
           "type": "string",
           "x-positional": 0
@@ -333,6 +371,18 @@
         "text"
       ],
       "type": "object"
+    },
+    "Reply_PhenotypeSearchMode": {
+      "description": "Which Monarch entities are scored against a set of HP terms.",
+      "enum": [
+        "hybrid",
+        "full"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Monarch's default: score only a shortlist prefiltered by Jaccard overlap.",
+        " Score every entity in the group; slower."
+      ]
     },
     "Reply_PhenotypeSource": {
       "description": "One independent term publisher.",

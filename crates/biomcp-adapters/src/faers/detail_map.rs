@@ -8,6 +8,7 @@ type Patient = (
     Box<[FaersDrug]>,
     Box<[FaersReaction]>,
     super::Positions,
+    super::Extras,
 );
 pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> {
     let mut problems = crate::mapped::Problems {
@@ -34,13 +35,14 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         || seriousness.congenitalanomali.is_some()
         || seriousness.other.is_some();
     let raw_patient = problems.field("patient", r.patient);
-    let (patient, drugs, reactions, positions) = match raw_patient {
+    let (patient, drugs, reactions, positions, extras) = match raw_patient {
         Some(p) => patient(p, &mut problems, &mut refusals),
         None => (
             None,
             Box::default(),
             Box::default(),
             super::Positions::default(),
+            super::Extras::default(),
         ),
     };
     let value = FaersReport {
@@ -69,6 +71,7 @@ pub(super) fn report(r: raw::Report) -> crate::Mapped<super::positions::Report> 
         value: super::positions::Report {
             data: value,
             positions,
+            extras,
         },
         problems: problems.list,
     }
@@ -78,6 +81,17 @@ fn patient(
     problems: &mut crate::mapped::Problems,
     refusals: &mut crate::Refusal,
 ) -> Patient {
+    let age_unit = p
+        .patientonsetageunit
+        .as_ref()
+        .and_then(crate::raw::Field::as_ref)
+        .cloned();
+    let case_event_date = problems.field("patient.summary", p.summary).and_then(|s| {
+        problems.field(
+            "patient.summary.narrativeincludeclinical",
+            s.narrativeincludeclinical,
+        )
+    });
     let patient = Some(FaersPatient {
         age: age(problems, p.patientonsetage, p.patientonsetageunit),
         sex: problems.field("patient.patientsex", p.patientsex),
@@ -112,6 +126,10 @@ fn patient(
         super::Positions {
             drugs: drug_positions,
             reactions: reaction_positions,
+        },
+        super::Extras {
+            case_event_date,
+            age_unit,
         },
     )
 }
@@ -179,10 +197,17 @@ fn drug(r: raw::Drug, p: &mut crate::mapped::Problems) -> FaersDrug {
 fn age(
     p: &mut crate::mapped::Problems,
     value: Option<crate::raw::Field<String>>,
-    unit: Option<crate::raw::Field<biodata::FaersAgeUnit>>,
+    unit: Option<crate::raw::Field<Box<str>>>,
 ) -> Option<biodata::WithUnit<biodata::FiniteNumber, biodata::FaersAgeUnit>> {
     let supplied = unit.is_some();
-    let unit = p.field("patient.patientonsetageunit", unit);
+    let unit = p
+        .field("patient.patientonsetageunit", unit)
+        .and_then(|code| {
+            p.optional(
+                "patient.patientonsetageunit",
+                Some(code.parse::<biodata::FaersAgeUnit>()),
+            )
+        });
     let raw = p.field("patient.patientonsetage", value)?;
     let value = p.optional(
         "patient.patientonsetage",

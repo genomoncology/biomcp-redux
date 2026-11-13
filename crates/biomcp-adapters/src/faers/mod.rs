@@ -29,7 +29,7 @@ mod detail_raw;
 
 mod positions;
 pub mod words;
-pub use positions::Positions;
+pub use positions::{Extras, Positions};
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;

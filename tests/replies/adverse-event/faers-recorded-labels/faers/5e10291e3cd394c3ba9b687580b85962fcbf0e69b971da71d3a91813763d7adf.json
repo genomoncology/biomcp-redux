@@ -1,0 +1,110 @@
+{
+  "method": "GET",
+  "source": "faers",
+  "url": "https://api.fda.gov/drug/event.json?search=safetyreportid%3A%2222814945%22&limit=5&skip=0&sort=receivedate%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794596823,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-10-28",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "safetyreportversion": "1",
+              "safetyreportid": "22814945",
+              "primarysourcecountry": "US",
+              "transmissiondateformat": "102",
+              "transmissiondate": "20231029",
+              "reporttype": "1",
+              "serious": "2",
+              "seriousnessdeath": "2",
+              "seriousnesslifethreatening": "2",
+              "seriousnesshospitalization": "2",
+              "seriousnessdisabling": "2",
+              "seriousnesscongenitalanomali": "2",
+              "seriousnessother": "2",
+              "receivedate": "20230810",
+              "receiptdate": "20230810",
+              "fulfillexpeditecriteria": "3",
+              "authoritynumb": "FDA-CDER-CTU-2023-58400",
+              "primarysource": {
+                "reportercountry": "US",
+                "qualification": "3"
+              },
+              "sender": {
+                "sendertype": "2",
+                "senderorganization": "FDA-Public Use"
+              },
+              "receiver": {
+                "receivertype": "6",
+                "receiverorganization": "FDA"
+              },
+              "patient": {
+                "patientsex": "2",
+                "reaction": [
+                  {
+                    "reactionmeddraversionpt": "26.0",
+                    "reactionmeddrapt": "Injection site pain"
+                  },
+                  {
+                    "reactionmeddraversionpt": "26.0",
+                    "reactionmeddrapt": "Device leakage"
+                  },
+                  {
+                    "reactionmeddraversionpt": "26.0",
+                    "reactionmeddrapt": "Accidental exposure to product"
+                  },
+                  {
+                    "reactionmeddraversionpt": "26.0",
+                    "reactionmeddrapt": "Incorrect dose administered by device"
+                  }
+                ],
+                "drug": [
+                  {
+                    "drugcharacterization": "1",
+                    "medicinalproduct": "HYQVIA",
+                    "drugstructuredosagenumb": "45",
+                    "drugstructuredosageunit": "002",
+                    "drugseparatedosagenumb": "1",
+                    "drugintervaldosageunitnumb": "3",
+                    "drugintervaldosagedefinition": "803",
+                    "drugdosagetext": "OTHER FREQUENCY : EVERY 3 WEEKS;?",
+                    "drugadministrationroute": "058",
+                    "drugindication": "Immunoglobulin therapy",
+                    "drugstartdateformat": "610",
+                    "drugstartdate": "202204",
+                    "activesubstance": {
+                      "activesubstancename": "HUMAN IMMUNOGLOBULIN G\\HYALURONIDASE (HUMAN RECOMBINANT)"
+                    }
+                  },
+                  {
+                    "drugcharacterization": "5",
+                    "medicinalproduct": "DEVICE",
+                    "activesubstance": {
+                      "activesubstancename": "DEVICE"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

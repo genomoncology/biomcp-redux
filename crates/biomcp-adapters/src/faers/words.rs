@@ -1,5 +1,6 @@
 //! Words for coded FAERS values, copied from openFDA's published field reference:
-//! <https://open.fda.gov/apis/drug/event/searchable-fields/>. Native codes stay in every reply.
+//! <https://open.fda.gov/apis/drug/event/searchable-fields/>, downloadable as
+//! <https://open.fda.gov/fields/drugevent.yaml>. Native codes stay in every reply.
 
 /// One published code list.
 pub type Words = &'static [(&'static str, &'static str)];
@@ -42,6 +43,38 @@ pub const ACTION_TAKEN: Words = &[
     ("5", "Unknown"),
     ("6", "Not applicable"),
 ];
+/// `patient.patientonsetageunit`.
+pub const AGE_UNIT: Words = &[
+    ("800", "Decade"),
+    ("801", "Year"),
+    ("802", "Month"),
+    ("803", "Week"),
+    ("804", "Day"),
+    ("805", "Hour"),
+];
+/// The six seriousness flags have no published code list. Each description reads
+/// "This value is `1` if the adverse event resulted in ..., and absent otherwise";
+/// these words are that clause. The data also carries `2`, which openFDA does not
+/// document, so `2` has no word and is not an off-list code either.
+pub const SERIOUSNESS_DEATH: Words = &[("1", "The adverse event resulted in death")];
+/// `seriousnesslifethreatening`; see [`SERIOUSNESS_DEATH`].
+pub const SERIOUSNESS_LIFETHREATENING: Words = &[(
+    "1",
+    "The adverse event resulted in a life threatening condition",
+)];
+/// `seriousnesshospitalization`; see [`SERIOUSNESS_DEATH`].
+pub const SERIOUSNESS_HOSPITALIZATION: Words =
+    &[("1", "The adverse event resulted in a hospitalization")];
+/// `seriousnessdisabling`; see [`SERIOUSNESS_DEATH`].
+pub const SERIOUSNESS_DISABLING: Words = &[("1", "The adverse event resulted in disability")];
+/// `seriousnesscongenitalanomali`; see [`SERIOUSNESS_DEATH`].
+pub const SERIOUSNESS_CONGENITALANOMALI: Words =
+    &[("1", "The adverse event resulted in a congenital anomaly")];
+/// `seriousnessother`; see [`SERIOUSNESS_DEATH`].
+pub const SERIOUSNESS_OTHER: Words = &[(
+    "1",
+    "The adverse event resulted in some other serious condition",
+)];
 /// `primarysource.qualification`.
 pub const REPORTER_QUALIFICATION: Words = &[
     ("1", "Physician"),
@@ -51,6 +84,10 @@ pub const REPORTER_QUALIFICATION: Words = &[
     ("5", "Consumer or non-health professional"),
 ];
 
+/// Whether a present code is missing from a published list; an omitted field is not off-list.
+pub fn off_list(words: Words, code: Option<&str>) -> bool {
+    code.is_some_and(|code| words.iter().all(|(known, _)| *known != code))
+}
 /// The published word for a code; a code outside the list has none.
 pub fn label(words: Words, code: Option<&str>) -> Option<Box<str>> {
     let code = code?;
