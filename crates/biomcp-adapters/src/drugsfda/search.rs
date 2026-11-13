@@ -1,8 +1,7 @@
 //! Drugs@FDA application search by name group, applicant prefix and requested order.
-use super::{Page, applicant_prefix, literal, page};
+use super::{Order, Page, applicant_prefix, literal, page};
 use biodata::Text;
 use biomcp_fetch::{Leg, RequestError};
-use biomcp_types::DrugFdaSort;
 /// Discover exact brand or ingredient names, then try their native word fields after a zero total.
 /// An applicant narrows either tier by a native sponsor_name prefix wildcard, or selects alone.
 pub fn search(
@@ -11,15 +10,15 @@ pub fn search(
     applicant: Option<&Text>,
     limit: u32,
     offset: u32,
-    sort: Option<DrugFdaSort>,
+    order: Order,
 ) -> Result<Page, RequestError> {
     let names: Vec<Text> = text.cloned().into_iter().collect();
     let at = |step| {
         let selector = selector(&names, applicant, step);
-        page(leg, &selector, sort, limit, offset, None)
+        page(leg, &selector, order, limit, offset, None)
     };
     let exact = at(NameStep::Exact)?;
-    if exact.total > 0 || text.is_none() {
+    if exact.found() || text.is_none() {
         return Ok(exact);
     }
     at(NameStep::Words)
@@ -89,13 +88,13 @@ pub fn search_widened(
     applicant: Option<&Text>,
     (limit, offset): (u32, u32),
     selected: Option<NameStep>,
-    sort: Option<DrugFdaSort>,
+    order: Order,
 ) -> (Result<Page, RequestError>, NameStep) {
     let at = |step| {
         page(
             leg,
             &selector(names, applicant, step),
-            sort,
+            order,
             limit,
             offset,
             None,
@@ -107,14 +106,14 @@ pub fn search_widened(
     let exact = at(NameStep::Exact);
     let found = match &exact {
         Err(_) => return (exact, NameStep::Exact),
-        Ok(page) => page.total > 0,
+        Ok(page) => page.found(),
     };
     if found && names.len() > 1 {
         let typed = std::slice::from_ref(typed);
         match page(
             leg,
             &selector(typed, applicant, NameStep::Exact),
-            None,
+            Order::default(),
             1,
             0,
             None,

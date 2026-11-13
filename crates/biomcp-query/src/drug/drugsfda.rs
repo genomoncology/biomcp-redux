@@ -5,8 +5,8 @@ use biodata::Text;
 use biomcp_adapters::{drugsfda as source, received_date};
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DrugCard, DrugFdaPage, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource, Request, Source,
-    SourceState, StepKind,
+    DrugCard, DrugFdaPage, DrugFdaSort, DrugGet, DrugPage, DrugSearch, DrugSection, DrugSource,
+    Request, Source, SourceState, SourceStatus, StepKind,
 };
 mod approvals;
 mod letter;
@@ -25,6 +25,33 @@ fn newest(total: Option<u64>) -> String {
          labeling or efficacy supplement, not the original approval; original_approval gives \
          the original approval date."
     )
+}
+/// How BioMCP ordered or windowed a whole read, which openFDA cannot do itself.
+fn whole_notices(query: &DrugSearch, matched: u64, kept: u64) -> Vec<String> {
+    if matched > source::WHOLE_MOST {
+        return vec![format!(
+            "{matched} applications match, more than the {} BioMCP reads to order or window \
+             by original approval, so none are returned. Narrow the search with a drug name or \
+             a longer --applicant.",
+            source::WHOLE_MOST
+        )];
+    }
+    let mut notices = Vec::new();
+    if query.sort() == Some(DrugFdaSort::OriginalApproval) {
+        notices.push(format!(
+            "--sort original-approval: openFDA cannot sort on one submission, so BioMCP read all \
+             {matched} matching applications and ordered them by original_approval date, newest \
+             first, ties by application number; applications without one come last."
+        ));
+    }
+    if query.approved_from().is_some() || query.approved_to().is_some() {
+        notices.push(format!(
+            "--approved-from/--approved-to: BioMCP read all {matched} matching applications and \
+             kept the {kept} whose original_approval date falls in the window, inclusive; the \
+             total counts those."
+        ));
+    }
+    notices
 }
 
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -53,17 +80,25 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
             query.applicant(),
             query.limit(),
             query.offset(),
-            query.sort(),
+            order(query),
         ),
     };
     let error = result.as_ref().err().copied();
     let mut total = None;
+    let mut matched = None;
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
     if let Ok(page) = result {
         out.include_refusals(page.refusals);
         total = Some(page.total);
+        matched = page.matched;
+        // Too many matches to order: the source answered, but this search has no rows.
+        if page.matched.is_some_and(|n| n > source::WHOLE_MOST)
+            && let Some(report) = out.sources.iter_mut().find(|s| s.source == Source::Drugsfda)
+        {
+            report.set_status(SourceStatus::Failed(Some(biomcp_types::Reason::TooLarge)));
+        }
         // Later pages keep this page's names, so the snapshot is kept only for an answer.
         let sent = super::widen::retain(cx, query, widened.as_ref(), deadline, true, &mut out);
         out.problems.extend(page.problems);
@@ -87,7 +122,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         })
         .with_query(sent.clone());
     }
-    notices(query, total, &mut out);
+    notices(query, total, matched, &mut out);
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
@@ -95,8 +130,17 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     out
 }
 
+/// The adapter's order and window for this search.
+fn order(query: &DrugSearch) -> source::Order {
+    source::Order {
+        sort: query.sort(),
+        approved_from: query.approved_from(),
+        approved_to: query.approved_to(),
+    }
+}
+
 /// State the applicant prefix searched and any requested order on the source.
-fn notices(query: &DrugSearch, total: Option<u64>, out: &mut Outcome) {
+fn notices(query: &DrugSearch, total: Option<u64>, matched: Option<u64>, out: &mut Outcome) {
     let Some(report) = out.sources.first_mut() else {
         return;
     };
@@ -106,8 +150,9 @@ fn notices(query: &DrugSearch, total: Option<u64>, out: &mut Outcome) {
             source::applicant_prefix(applicant)
         )
     });
-    let sort = query.sort().map(|_| newest(total));
-    for message in applicant.into_iter().chain(sort) {
+    let sort = (query.sort() == Some(DrugFdaSort::Newest)).then(|| newest(total));
+    let whole = matched.map(|n| whole_notices(query, n, total.unwrap_or(0)));
+    for message in applicant.into_iter().chain(sort).chain(whole.into_iter().flatten()) {
         report
             .notices
             .push(biomcp_types::SourceNotice::RequestGuidance {
@@ -132,7 +177,7 @@ fn widened_page(
         query.applicant(),
         page,
         saved.step,
-        query.sort(),
+        order(query),
     );
     saved.step = Some(step);
     if saved.names.len() < 2 || !super::search_names::rejected(result.as_ref().err()) {
@@ -145,7 +190,7 @@ fn widened_page(
         query.applicant(),
         page,
         None,
-        query.sort(),
+        order(query),
     );
     saved.step = Some(step);
     result

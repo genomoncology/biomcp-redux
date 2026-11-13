@@ -37,7 +37,7 @@ impl RawApplication {
         }
     }
     /// The earliest dated ORIG submission with status AP, lowest submission number on a tie.
-    fn original_approval(&self) -> Option<DrugFdaOriginalApproval> {
+    pub(super) fn original_approval(&self) -> Option<DrugFdaOriginalApproval> {
         self.submissions
             .iter()
             .filter(|s| {
