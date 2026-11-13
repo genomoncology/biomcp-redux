@@ -1004,11 +1004,11 @@ Options:
 
       --prequalified-from <prequalified_from>
           First WHO IVD year, YYYY.
-          Inclusive Year prequalification; WHO IVD only. WHO publishes only the year, so the window is whole years.
+          Inclusive; WHO IVD publishes only the year.
 
       --prequalified-to <prequalified_to>
           Last WHO IVD year, YYYY.
-          Inclusive Year prequalification; WHO IVD only. WHO publishes only the year, so the window is whole years.
+          Inclusive; WHO IVD publishes only the year.
 
       --product-code <product_code>
           FDA product code.
@@ -1063,9 +1063,9 @@ Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry pr
 Source trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case. Value form: string. Example: --name 'FoundationOne CDx'. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--prequalified-from`: First WHO IVD year, YYYY.
-Inclusive Year prequalification; WHO IVD only. WHO publishes only the year, so the window is whole years. Value form: string. Example: --prequalified-from 2023. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+Inclusive; WHO IVD publishes only the year. Value form: string. Example: --prequalified-from 2023. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--prequalified-to`: Last WHO IVD year, YYYY.
-Inclusive Year prequalification; WHO IVD only. WHO publishes only the year, so the window is whole years. Value form: string. Example: --prequalified-to 2023. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+Inclusive; WHO IVD publishes only the year. Value form: string. Example: --prequalified-to 2023. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string. Example: --product-code ABC. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
 - `--source`: Source diagnostic source; help search diagnostic

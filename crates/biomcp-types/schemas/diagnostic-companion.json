@@ -504,7 +504,7 @@
               "type": "null"
             }
           ],
-          "description": "First WHO IVD year, YYYY.\nInclusive Year prequalification; WHO IVD only. WHO publishes only the year, so the window is whole years.",
+          "description": "First WHO IVD year, YYYY.\nInclusive; WHO IVD publishes only the year.",
           "x-required-component": "who-ivd"
         },
         "prequalified_to": {
@@ -516,7 +516,7 @@
               "type": "null"
             }
           ],
-          "description": "Last WHO IVD year, YYYY.\nInclusive Year prequalification; WHO IVD only. WHO publishes only the year, so the window is whole years.",
+          "description": "Last WHO IVD year, YYYY.\nInclusive; WHO IVD publishes only the year.",
           "x-required-component": "who-ivd"
         },
         "product_code": {
