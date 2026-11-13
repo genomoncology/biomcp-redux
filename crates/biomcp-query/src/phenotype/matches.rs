@@ -4,7 +4,7 @@ use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGet, PHENOTYPE_MATCH_MAX, PhenotypeGet, PhenotypeGroup, PhenotypeMatches,
+    DiseaseGet, PHENOTYPE_MATCH_MAX, PhenotypeGroup, PhenotypeMatches, PhenotypeMetric,
     PhenotypeSearch, ReplyData, Request, Source, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
@@ -51,38 +51,45 @@ fn body(q: &PhenotypeSearch, body: Option<PhenotypeMatches>) -> ReplyData {
 }
 /// Monarch would silently rank without an unknown term, so the set is refused.
 fn refuse(out: &mut Outcome, q: &PhenotypeSearch, unknown: &[biodata::HpId]) {
-    out.body = ReplyData::Usage(biomcp_types::UsageError::Arguments(
-        biomcp_types::UsageArguments {
-            argument: Some("text".into()),
-            message: Some(biomcp_types::ErrorMessage::PhenotypeSetUnknown),
-            valid_values: None,
-            next: Vec::new(),
-        },
-    ));
-    for id in unknown {
-        let get = PhenotypeGet::new(id.clone());
-        out.next.push(crate::next::Step::new(
-            StepKind::Disambiguate,
-            &[Source::Hpo],
-            run(Request::GetPhenotype(get)),
-        ));
-    }
+    let step = |kind, args: Vec<String>| biomcp_types::Step {
+        kind,
+        args: args.into_iter().map(Into::into).collect(),
+    };
+    let mut next: Vec<_> = unknown
+        .iter()
+        .map(|id| {
+            step(
+                StepKind::Disambiguate,
+                vec!["get".into(), "phenotype".into(), id.to_string()],
+            )
+        })
+        .collect();
     let known: Vec<_> = q
         .terms()
         .unwrap_or_default()
         .into_iter()
         .filter(|term| !unknown.contains(term))
+        .map(|term| term.to_string())
         .collect();
-    if !known.is_empty()
-        && let Some(search) =
-            crate::next::checked(q.with_terms(&known), Source::Monarch, &mut out.problems)
-    {
-        out.next.push(crate::next::Step::new(
-            StepKind::Restart,
-            &[Source::Monarch],
-            run(Request::SearchPhenotype(search)),
-        ));
+    if !known.is_empty() {
+        let mut args = vec!["search".into(), "phenotype".into(), known.join(",")];
+        if q.group() != PhenotypeGroup::Genes {
+            args.extend(["--group".into(), q.group().as_str().into()]);
+        }
+        if q.metric() != PhenotypeMetric::AncestorInformationContent {
+            args.extend(["--metric".into(), q.metric().as_str().into()]);
+        }
+        args.extend(["--limit".into(), q.limit().to_string()]);
+        next.push(step(StepKind::Restart, args));
     }
+    out.body = ReplyData::Usage(biomcp_types::UsageError::Arguments(
+        biomcp_types::UsageArguments {
+            argument: Some("text".into()),
+            message: Some(biomcp_types::ErrorMessage::PhenotypeSetUnknown),
+            valid_values: None,
+            next,
+        },
+    ));
 }
 fn pivots(out: &mut Outcome, group: PhenotypeGroup, rows: &[biomcp_types::PhenotypeMatch]) {
     for row in rows {

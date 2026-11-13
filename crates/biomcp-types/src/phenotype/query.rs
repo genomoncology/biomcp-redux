@@ -246,17 +246,6 @@ impl PhenotypeSearch {
             .metric
             .unwrap_or(PhenotypeMetric::AncestorInformationContent)
     }
-    /// The same ranking for other HP IDs, keeping group, metric and limit.
-    pub fn with_terms(&self, terms: &[HpId]) -> Result<Self, QueryInvalid> {
-        let mut fields = self.0.clone();
-        fields.text = terms
-            .iter()
-            .map(HpId::as_str)
-            .collect::<Vec<_>>()
-            .join(",")
-            .into();
-        Self::try_from(fields)
-    }
 }
 impl crate::Paged for PhenotypeSearch {
     type Offset = u32;
