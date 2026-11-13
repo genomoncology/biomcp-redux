@@ -269,6 +269,28 @@
           "description": "Native combined INN, Dosage Form and Strength cell; never split or interpreted.",
           "type": "string"
         },
+        "prequalified_on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Date of Prequalification as YYYY-MM-DD; absent when the native cell is blank or not a whole date."
+        },
+        "prequalified_on_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_WhoDateStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Present only when WHO's Date of Prequalification cell is blank."
+        },
         "product_type": {
           "description": "Native Product Type, retained even when empty.",
           "type": "string"
@@ -1006,6 +1028,13 @@
         "noncommercial",
         "licensed",
         "per-record"
+      ],
+      "type": "string"
+    },
+    "Reply_WhoDateStatus": {
+      "description": "Why a WHO row carries no prequalification date.",
+      "enum": [
+        "not-published"
       ],
       "type": "string"
     }
