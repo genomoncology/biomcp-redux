@@ -9,6 +9,16 @@ fn default_source() -> DrugSource {
 fn default_limit() -> u32 {
     10
 }
+/// Drugs@FDA application order; omitted keeps the source's own order.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["newest"])))]
+pub enum DrugFdaSort {
+    /// Latest submission status date first, ties by application number; applications with no
+    /// dated submission last.
+    Newest,
+}
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
     WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. \
@@ -66,6 +76,13 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     applicant: Option<Text>,
+    #[doc = "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;"]
+    /// applications with no dated submission come last. That latest date is often a labeling or
+    /// efficacy supplement, not the original approval; each row's original_approval gives that.
+    /// Omit it for the source's own order.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
+    sort: Option<DrugFdaSort>,
     /// Recall firm phrase.
     /// Matches the published firm literally.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -141,6 +158,9 @@ impl TryFrom<SearchFields> for DrugSearch {
         }
         if fields.applicant.is_some() && fields.source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["applicant", "source"]));
+        }
+        if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
+            return Err(QueryInvalid::new(&["sort", "source"]));
         }
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
         if who_dates && fields.source != DrugSource::WhoPq {
@@ -226,6 +246,7 @@ impl DrugSearch {
             limit,
             offset: 0,
             applicant: None,
+            sort: None,
             firm: None,
             classification: None,
             status: None,
@@ -266,6 +287,10 @@ impl DrugSearch {
     /// Start of a Drugs@FDA sponsor name, matched by the source without letter case.
     pub fn applicant(&self) -> Option<&Text> {
         self.0.applicant.as_ref()
+    }
+    /// Requested Drugs@FDA application order; none keeps the source order.
+    pub fn sort(&self) -> Option<DrugFdaSort> {
+        self.0.sort
     }
     /// Selected native recall filter.
     pub fn firm(&self) -> Option<&Text> {

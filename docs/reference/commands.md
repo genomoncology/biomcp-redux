@@ -1424,6 +1424,14 @@ Options:
       --reason <reason>
           Recall reason phrase.
 
+      --sort <sort>
+          Drugs@FDA order; help search drug
+          Drugs@FDA order.
+          newest: each application's latest submission status date first, ties by application number;
+          applications with no dated submission come last. That latest date is often a labeling or
+          efficacy supplement, not the original approval; each row's original_approval gives that.
+          Omit it for the source's own order.
+
       --source <source>
           Selected source; help search drug
           Selected source.
@@ -1475,6 +1483,13 @@ then label text (including indications) when no names match; source matches need
 Harmonized recall names match but never become display names.
 Form: search drug QUERY; not --query.
 - `--reason`: Recall reason phrase. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Only with --source fda-drug-recall.
+- `--sort`: Drugs@FDA order; help search drug
+Drugs@FDA order.
+newest: each application's latest submission status date first, ties by application number;
+applications with no dated submission come last. That latest date is often a labeling or
+efficacy supplement, not the original approval; each row's original_approval gives that.
+Omit it for the source's own order.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort newest. Only with --source drugsfda.
 - `--source`: Selected source; help search drug
 Selected source.
 

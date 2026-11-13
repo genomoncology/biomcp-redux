@@ -3,8 +3,8 @@ use super::raw::{Application as RawApplication, Product, Submission};
 use biodata::{Attribution, AuthorizationDate, AuthorizationEvent};
 use biomcp_fetch::RequestError;
 use biomcp_types::{
-    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaProduct, DrugFdaProperty,
-    DrugFdaSubmission,
+    DrugFdaCandidate, DrugFdaDocument, DrugFdaIngredient, DrugFdaLatestSubmission,
+    DrugFdaOriginalApproval, DrugFdaProduct, DrugFdaProperty, DrugFdaSubmission,
 };
 impl RawApplication {
     /// Expose an application name only when all native products share exact brand wording.
@@ -24,7 +24,56 @@ impl RawApplication {
             name,
             identity,
             products: self.products.iter().map(Product::mapped).collect(),
+            latest_submission: self.newest_first().into_iter().next().and_then(|s| {
+                Some(DrugFdaLatestSubmission {
+                    date: s.submission_status_date?,
+                    submission_type: s.submission_type.clone(),
+                    submission_number: s.submission_number.clone(),
+                    status: s.submission_status.clone(),
+                    submission_class_code: s.submission_class_code.clone(),
+                })
+            }),
+            original_approval: self.original_approval(),
         }
+    }
+    /// The earliest dated ORIG submission with status AP, lowest submission number on a tie.
+    fn original_approval(&self) -> Option<DrugFdaOriginalApproval> {
+        self.submissions
+            .iter()
+            .filter(|s| {
+                s.submission_type
+                    .as_ref()
+                    .is_some_and(|t| t.as_str() == "ORIG")
+                    && s.submission_status
+                        .as_ref()
+                        .is_some_and(|t| t.as_str() == "AP")
+            })
+            .filter_map(|s| s.submission_status_date.map(|date| (date, s)))
+            .min_by(|(a, x), (b, y)| {
+                a.to_string().cmp(&b.to_string()).then_with(|| {
+                    submission_number_key(x.submission_number.as_str())
+                        .cmp(&submission_number_key(y.submission_number.as_str()))
+                })
+            })
+            .map(|(date, s)| DrugFdaOriginalApproval {
+                date,
+                submission_number: s.submission_number.clone(),
+            })
+    }
+    /// Submissions by newest status date, then descending submission number; undated rows last.
+    fn newest_first(&self) -> Vec<&Submission> {
+        let mut rows: Vec<_> = self.submissions.iter().collect();
+        let date_key = |s: &Submission| {
+            s.submission_status_date
+                .map(|d| (d.year(), d.month(), d.day()))
+        };
+        rows.sort_by(|a, b| {
+            date_key(b).cmp(&date_key(a)).then_with(|| {
+                submission_number_key(b.submission_number.as_str())
+                    .cmp(&submission_number_key(a.submission_number.as_str()))
+            })
+        });
+        rows
     }
 }
 impl Product {
@@ -206,18 +255,9 @@ impl Application {
         offset: u32,
         limit: u32,
     ) -> Result<Box<[DrugFdaSubmission]>, RequestError> {
-        let mut rows: Vec<_> = self.0.submissions.iter().collect();
-        let date_key = |s: &Submission| {
-            s.submission_status_date
-                .map(|d| (d.year(), d.month(), d.day()))
-        };
-        rows.sort_by(|a, b| {
-            date_key(b).cmp(&date_key(a)).then_with(|| {
-                submission_number_key(b.submission_number.as_str())
-                    .cmp(&submission_number_key(a.submission_number.as_str()))
-            })
-        });
-        rows.into_iter()
+        self.0
+            .newest_first()
+            .into_iter()
             .skip(offset as usize)
             .take(limit as usize)
             .map(|s| s.mapped(&self.0))
