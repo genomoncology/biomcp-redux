@@ -1,0 +1,31 @@
+{
+  "feature": "variant-population",
+  "live_check": "public",
+  "story": "A ClinVar variation that MyVariant has not indexed resolves through the registry's own ClinVar cross-reference, so its population section matches its CAid's.",
+  "verified": "MyVariant, ClinGen Allele Registry CC0 and gnomAD r4 CC0 replies recorded live on 2026-11-13 with no key.",
+  "replay": "variant/clinvar-registry",
+  "steps": [
+    {
+      "run": ["get", "variant", "clinvar:5020581", "population"],
+      "expect": {
+        "/status": "complete",
+        "/result/resolution": "resolved",
+        "/result/source": "car",
+        "/result/candidates/0/record/id": "CA59804330",
+        "/result/candidates/0/identity/ids": {"includes": "clinvar:5020581"},
+        "/result/candidates/0/sections/population/state": "data",
+        "/result/candidates/0/sections/population/data/variant": "2-166058578-C-G",
+        "/result/candidates/0/sections/population/data/exome/ac": 1,
+        "/result/candidates/0/sections/population/data/exome/an": 1429918
+      }
+    },
+    {
+      "run": ["get", "variant", "CA59804330", "population"],
+      "expect": {
+        "/result/candidates/0/sections/population/data/variant": "2-166058578-C-G",
+        "/result/candidates/0/sections/population/data/exome/ac": 1,
+        "/result/candidates/0/sections/population/data/exome/an": 1429918
+      }
+    }
+  ]
+}

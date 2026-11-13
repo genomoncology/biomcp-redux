@@ -1,0 +1,27 @@
+{
+  "feature": "disease-mydisease",
+  "live_check": "public",
+  "story": "A caller reads Kabuki syndrome's parents with their own labels and each synonym once, in one call per section.",
+  "verified": "MyDisease MONDO CC BY 4.0 and Disease Ontology CC0 replies recorded live on 2026-11-13 with no key.",
+  "replay": "disease/kabuki",
+  "steps": [
+    {
+      "run": ["get", "disease", "MONDO:0016512", "synonyms", "--source", "mydisease", "--section-limit", "50"],
+      "expect": {
+        "/page/total": 5,
+        "/result/items/*/value": ["Kabuki make-up syndrome", "KMS", "Niikawa-Kuroki syndrome", "NKS", "Kabuki make up syndrome"],
+        "/result/items/1/attribution/source": "mondo",
+        "/result/items/4/attribution/source": "doid"
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0016512", "hierarchy", "--source", "mydisease"],
+      "expect": {
+        "/page/total": 4,
+        "/result/items/*/object/id": ["MONDO:0002254", "MONDO:0003847", "MONDO:0015159", "DOID:225"],
+        "/result/items/*/object/label": ["syndromic disease", "hereditary disease", "multiple congenital anomalies/dysmorphic syndrome-intellectual disability", "syndrome"],
+        "/result/items/3/attribution/source": "doid"
+      }
+    }
+  ]
+}

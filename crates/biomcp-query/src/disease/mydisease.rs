@@ -17,7 +17,13 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     if matches!(query.section(), Some(DiseaseSection::Hierarchy))
         && let Ok(mapped) = reply.as_mut()
     {
-        label(&leg, id, &mut mapped.value.parents, &mut label_problems);
+        let page = mapped
+            .value
+            .parents
+            .iter_mut()
+            .skip(query.section_offset() as usize)
+            .take(query.section_limit() as usize);
+        label(&leg, id, page.collect(), &mut label_problems);
     }
     let error = reply.as_ref().err().copied();
     let mut out = empty(biomcp_types::DiseaseCard::into_reply(query.clone(), None));
@@ -34,11 +40,11 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     command.finish(deadline.remaining());
     out
 }
-/// Name each direct parent from its own record in one batch; an unnamed parent keeps its ID.
+/// Name each direct parent on the page from its own record in one batch; an unnamed parent keeps its ID.
 fn label(
     leg: &biomcp_fetch::Leg<'_>,
     id: &biodata::Curie,
-    parents: &mut [biodata::DiseaseRelation],
+    parents: Vec<&mut biodata::DiseaseRelation>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) {
     let ids: Vec<_> = parents.iter().map(|row| row.object.id.clone()).collect();
