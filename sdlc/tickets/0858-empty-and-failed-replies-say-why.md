@@ -28,6 +28,12 @@ From the bench 0039 persona review (2026-11-12, runs on BioMCP 58d83b6da), `pers
 
 - Defers: new sources; the fixes for the underlying data gaps.
 
+## Amendment, 2026-11-12
+
+From bench 0040's rerun, reproduced on main 59150d16d (`sdlc/records/2026-11-12-persona-rerun-failures.md`):
+
+- Article PDF fails with no reason while its only source reports ok (failure #21, msl log :95-96).
+
 ## Changes
 
 - Changes: `crates/biomcp-query/src/`, `tests/cases/`

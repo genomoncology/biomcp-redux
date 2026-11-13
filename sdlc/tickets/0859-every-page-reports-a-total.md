@@ -28,6 +28,12 @@ From the bench 0039 persona review (2026-11-12, runs on BioMCP 58d83b6da), `pers
 
 - Defers: distance sort for locations (BioMCP 0083).
 
+## Amendment, 2026-11-12
+
+From bench 0040's rerun, reproduced on main 59150d16d (`sdlc/records/2026-11-12-persona-rerun-failures.md`):
+
+- Trial locations: `--limit 50` returns 20 sites, and an offset past the end is a usage error instead of an empty page (failure #16); Europe PMC reports the retrieved pool (100) as the total where the source says 188 (failure #20).
+
 ## Changes
 
 - Changes: `crates/biomcp-query/src/`, `crates/biomcp-adapters/src/`, `tests/cases/`

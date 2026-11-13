@@ -28,6 +28,12 @@ From the bench 0039 persona review (2026-11-12, runs on BioMCP 58d83b6da), `pers
 
 - Defers: naming the bad value in every usage error (0855's Defers).
 
+## Amendment, 2026-11-12
+
+From bench 0040's rerun, reproduced on main 59150d16d (`sdlc/records/2026-11-12-persona-rerun-failures.md`):
+
+- Four more cases: an error naming `--gene` when it was not passed (#15); blaming cBioPortal when the profile asked for is copy-number (#22); "expired" for something that never existed (#23); a generic refusal of `--fields` on `get trial` (#24).
+
 ## Changes
 
 - Changes: `crates/biomcp-query/src/`, `crates/biomcp/src/`, `tests/cases/`
