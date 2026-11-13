@@ -1,14 +1,14 @@
 //! Monarch's one ranked list of genes or diseases for a set of HP terms.
+use super::matches_raw::{BestMatch, Row, Rows, Settings, Term};
 use crate::raw::Field;
-use biodata::{Curie, FiniteNumber, HpId};
+use biodata::HpId;
 use biomcp_fetch::{
-    Arg, BadReply, Freshness, Input, Leg, PathSegment, Read, Reply, ReplyMetadata, RequestError,
+    Arg, BadReply, Freshness, Input, Leg, PathSegment, Read, ReplyMetadata, RequestError,
 };
 use biomcp_types::{
     PhenotypeBestMatch, PhenotypeGroup, PhenotypeMatch, PhenotypeMatchMethod, PhenotypeMatchTerm,
     PhenotypeMetric, PhenotypeSearch,
 };
-use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// Ranked rows, the queried terms as Monarch knew them, and retrieval metadata.
@@ -216,122 +216,4 @@ fn unknown(terms: &[HpId], labels: &Labels, termset_seen: bool, none_ranked: boo
         }
     }
     out
-}
-#[derive(Debug, Deserialize)]
-#[serde(transparent)]
-struct Rows(Vec<Row>);
-impl Reply for Rows {
-    fn check(&self) -> Result<(), BadReply> {
-        Ok(())
-    }
-}
-#[derive(Debug, Deserialize)]
-struct Row {
-    subject: Option<Subject>,
-    score: Option<Field<FiniteNumber>>,
-    subject_to_object_score: Option<Field<FiniteNumber>>,
-    object_to_subject_score: Option<Field<FiniteNumber>>,
-    similarity: Option<Field<Similarity>>,
-    search_settings: Option<Field<Settings>>,
-}
-impl Row {
-    fn admitted(&self) -> bool {
-        self.subject
-            .as_ref()
-            .and_then(|s| s.id.as_ref())
-            .and_then(Field::as_ref)
-            .is_some()
-            && self.score.as_ref().and_then(Field::as_ref).is_some()
-    }
-}
-#[derive(Debug, Default, Deserialize)]
-struct Subject {
-    id: Option<Field<Curie>>,
-    category: Option<Field<Curie>>,
-    name: Option<Field<Box<str>>>,
-}
-#[derive(Debug, Deserialize)]
-struct Similarity {
-    object_termset: Option<Field<BTreeMap<String, Field<Term>>>>,
-    object_best_matches: Option<Field<BTreeMap<String, Field<BestMatch>>>>,
-}
-#[derive(Debug, Deserialize)]
-struct Term {
-    label: Option<Field<Box<str>>>,
-}
-#[derive(Debug, Deserialize)]
-struct BestMatch {
-    match_source: Option<Field<Curie>>,
-    match_target: Option<Field<Curie>>,
-    match_target_label: Option<Field<Box<str>>>,
-    match_subsumer: Option<Field<Curie>>,
-    match_subsumer_label: Option<Field<Box<str>>>,
-    score: Option<Field<FiniteNumber>>,
-}
-impl BestMatch {
-    fn mapped(
-        &self,
-        term: &HpId,
-        problems: &mut crate::mapped::Problems,
-    ) -> Option<PhenotypeBestMatch> {
-        let source = self.match_source.as_ref().and_then(Field::as_ref);
-        let matched = self.match_target.as_ref().and_then(Field::as_ref);
-        let (Some(source), Some(matched)) = (source, matched) else {
-            crate::mapped::push_problem(
-                &mut problems.list,
-                problems.source,
-                problems.record.clone(),
-                "similarity.object_best_matches",
-            );
-            return None;
-        };
-        if source.as_str() != term.as_str() {
-            crate::mapped::push_problem(
-                &mut problems.list,
-                problems.source,
-                problems.record.clone(),
-                "similarity.object_best_matches.match_source",
-            );
-            return None;
-        }
-        Some(PhenotypeBestMatch {
-            term: source.clone(),
-            matched: matched.clone(),
-            matched_label: self
-                .match_target_label
-                .as_ref()
-                .and_then(Field::as_ref)
-                .cloned(),
-            ancestor: self
-                .match_subsumer
-                .as_ref()
-                .and_then(Field::as_ref)
-                .cloned(),
-            ancestor_label: self
-                .match_subsumer_label
-                .as_ref()
-                .and_then(Field::as_ref)
-                .cloned(),
-            score: self.score.as_ref().and_then(Field::as_ref).copied(),
-        })
-    }
-}
-#[derive(Debug, Deserialize)]
-struct Settings {
-    engine: Option<Field<Box<str>>>,
-    metric: Option<Field<Box<str>>>,
-    directionality: Option<Field<Box<str>>>,
-    search_mode: Option<Field<Box<str>>>,
-    information_content: Option<Field<Box<str>>>,
-}
-impl Settings {
-    fn mapped(self) -> PhenotypeMatchMethod {
-        PhenotypeMatchMethod {
-            metric: self.metric.and_then(Field::value),
-            directionality: self.directionality.and_then(Field::value),
-            search_mode: self.search_mode.and_then(Field::value),
-            information_content: self.information_content.and_then(Field::value),
-            engine: self.engine.and_then(Field::value),
-        }
-    }
 }

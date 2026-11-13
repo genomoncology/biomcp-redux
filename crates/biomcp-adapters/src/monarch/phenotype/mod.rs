@@ -3,6 +3,7 @@ use biomcp_fetch::{Input, Read};
 pub mod associations;
 mod counts;
 pub mod matches;
+mod matches_raw;
 mod raw;
 mod sections;
 use biodata::{Attribution, PhenotypeCard, PhenotypeHeader, Text};
