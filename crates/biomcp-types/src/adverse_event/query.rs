@@ -86,7 +86,9 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(title = "VAERS table.", extend("x-positional" = 1)))]
     section: Option<super::VaersSection>,
-    #[doc = "VAERS order.\nreports: largest count first; omit for source order."]
+    #[doc = "VAERS order.\nreports: BioMCP orders the whole CDC WONDER table, not just the page, by its \
+        Events Reported count, largest first; equal counts keep the source's order. Counts, percents \
+        and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Vaers)))]
     sort: Option<super::VaersSort>,
@@ -110,8 +112,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "date")))]
     received_to: Option<PartialDate>,
-    #[doc = "Page size.
-Report headers, reaction terms or VAERS rows; default five."]
+    /// Report headers, reaction terms or VAERS rows; default five.
     #[serde(default = "default_limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
     limit: u32,

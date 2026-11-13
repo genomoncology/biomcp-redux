@@ -17,7 +17,8 @@ biodata::wire_enum! { described
 biodata::wire_enum! { described
     /// Local VAERS row order; omitted keeps CDC WONDER's own order.
     VaersSort {
-        /// Largest count first.
+        /// Most Events Reported first across the whole source table; equal counts and rows
+        /// without a count keep the source's order.
         Reports => "reports",
     }
 }
