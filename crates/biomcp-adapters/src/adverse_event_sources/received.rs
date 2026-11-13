@@ -9,7 +9,7 @@ use biomcp_types::{
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// Report counts per receipt period, oldest first, with every period in the range listed.
+/// Report counts per receipt period, oldest first.
 #[derive(Debug)]
 pub struct ReceivedPage {
     /// One row per year or month of the requested range.
@@ -180,7 +180,8 @@ pub fn counts(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<ReceivedPage,
     })
 }
 
-/// Every year or month of the range, oldest first, with zeros and partial periods marked.
+/// Every year or month of the range up to the source's last update, oldest first, with zeros and
+/// partial periods marked.
 fn periods(
     aggregate: AdverseEventAggregate,
     (from, to): (PartialDate, PartialDate),
@@ -192,8 +193,14 @@ fn periods(
             || last.to_string() > to.to_string()
             || updated.is_some_and(|date| date.to_string() < last.to_string())
     };
+    // Periods that start after the source's last update hold no reports yet, so they are left out.
+    let started =
+        |first: PartialDate| updated.is_none_or(|date| first.to_string() <= date.to_string());
     let mut items = Vec::new();
     for year in from.year()..=to.year() {
+        if !started(date(year, 1, 1)?) {
+            break;
+        }
         if aggregate == AdverseEventAggregate::ReceivedYear {
             items.push(AdverseEventReceivedCount {
                 received: year.to_string().into(),
@@ -213,6 +220,9 @@ fn periods(
             12
         };
         for month in first_month..=last_month {
+            if !started(date(year, month, 1)?) {
+                break;
+            }
             items.push(AdverseEventReceivedCount {
                 received: format!("{year:04}-{month:02}").into(),
                 count: months.get(&(year, month)).copied().unwrap_or(0),
