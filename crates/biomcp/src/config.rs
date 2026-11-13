@@ -200,6 +200,16 @@ pub(crate) fn drug_label_bytes(settings: &Settings) -> usize {
         .and_then(|file| file.drug_label_bytes)
         .unwrap_or(biomcp_query::LABEL_BYTES)
 }
+pub(crate) fn transcript_fit_deadline(settings: &Settings) -> std::time::Duration {
+    settings
+        .as_ref()
+        .ok()
+        .and_then(Option::as_ref)
+        .and_then(|file| file.transcript_fit_seconds)
+        .map_or(biomcp_query::FIT_DEADLINE, |seconds| {
+            std::time::Duration::from_secs(seconds.get().into())
+        })
+}
 pub(crate) fn request_defaults(
     settings: &Settings,
     request: &biomcp_types::Request,

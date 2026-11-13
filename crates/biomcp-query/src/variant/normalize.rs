@@ -25,15 +25,18 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         })
         .collect();
     let mut rows = crate::fan_out::run(jobs);
+    let mut calls: Vec<(Box<str>, SourceOutcome)> = Vec::new();
+    for (_, source, _) in &rows {
+        calls.push((query.hgvs().into(), source.clone()));
+    }
     let mut next = Vec::new();
-    let fit_source = transcript_fit(cx, query, deadline, &mut rows, &mut next);
-    let mut sources = Vec::new();
+    transcript_fit(cx, query, deadline, &mut rows, &mut calls, &mut next);
     let mut results = Vec::new();
     let mut local = None;
     let mut more = false;
     let mut states = Vec::new();
     let mut problems = Vec::new();
-    for (mapped, source, error) in rows {
+    for (mapped, _, error) in rows {
         problems.extend(mapped.problems);
         let mut result = mapped.value;
         states.push(
@@ -48,10 +51,9 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         );
         more |= page(&mut result, query);
         results.push(result);
-        sources.push(source);
         local = local.or(error);
     }
-    sources.extend(fit_source);
+    let sources = once_each(calls, &mut problems);
     if more {
         next.push(crate::next::Step::run(
             StepKind::Page,
@@ -175,33 +177,37 @@ fn mismatched(result: &NormalizationResult) -> bool {
 }
 
 /// After a reference mismatch, VariantValidator names the gene's transcripts where the
-/// given base fits. Each distinct allele among them is resolved by the same service and
-/// offered as the next step; the mismatch itself stays as the service reported it.
+/// given base fits, within its own deadline. Each distinct allele among them is resolved by
+/// the same services at once, and the next step reads that allele's ClinVar record; the
+/// mismatch itself stays as the service reported it. Each call's source state joins `calls`.
 fn transcript_fit(
     cx: &Ctx<'_>,
     query: &VariantNormalize,
     deadline: Deadline<'_>,
     rows: &mut Vec<Row>,
+    calls: &mut Vec<(Box<str>, SourceOutcome)>,
     next: &mut Vec<crate::next::Step>,
-) -> Option<SourceOutcome> {
+) {
     if query.offset() != 0
         || !variantvalidator::fits_apply(query.hgvs())
         || cx.fetch.disabled(variantvalidator::SPEC.source)
         || !rows.iter().any(|(mapped, _, _)| mismatched(&mapped.value))
     {
-        return None;
+        return;
     }
     let build = query.build().unwrap_or(biodata::Build::GRCh38);
     let leg = cx
         .fetch
-        .leg(&variantvalidator::SPEC, deadline)
+        .leg(&variantvalidator::SPEC, deadline.child(cx.fit_deadline))
         .fresh(cx.fresh);
     let result = variantvalidator::transcript_fits(&leg, query.hgvs(), build);
     let error = result.as_ref().err().copied();
-    let outcome = status::source(variantvalidator::SPEC.source, leg.finish(), error);
-    let found = match result {
-        Ok(found) => found,
-        Err(_) => return Some(outcome),
+    calls.push((
+        query.hgvs().into(),
+        status::source(variantvalidator::SPEC.source, leg.finish(), error),
+    ));
+    let Ok(found) = result else {
+        return;
     };
     let mut fits = found.value;
     // Lowest accession number first: the longest-standing RefSeq record of the allele.
@@ -220,39 +226,111 @@ fn transcript_fit(
         .take(FIT_ALLELES)
         .filter_map(|fit| query.with_hgvs(fit.hgvs.as_str()))
         .collect();
-    let mut extra = Vec::new();
+    let mut jobs: Vec<Box<dyn FnOnce() -> Row + Send + '_>> = Vec::new();
     for (mapped, _, _) in rows.iter_mut() {
         if !mismatched(&mapped.value) {
             continue;
         }
         mapped.value.fits = fits.clone().into();
-        let spec = selected(NormalizationSource::All)
+        let Some(spec) = selected(NormalizationSource::All)
             .into_iter()
-            .find(|spec| spec.source == mapped.value.source);
+            .find(|spec| spec.source == mapped.value.source)
+        else {
+            continue;
+        };
         for retry in &retried {
-            if let Some(spec) = spec {
+            jobs.push(Box::new(move || {
                 let mut row = service(cx, retry, spec, deadline);
                 row.0.value.hgvs = Some(retry.hgvs().into());
-                extra.push(row);
-            }
+                row
+            }));
         }
+    }
+    let extra = crate::fan_out::run(jobs);
+    for (mapped, source, _) in &extra {
+        let hgvs = mapped.value.hgvs.as_ref().map_or(query.hgvs(), |hgvs| hgvs.as_str());
+        calls.push((hgvs.into(), source.clone()));
     }
     rows.extend(extra);
     if let Some((mapped, _, _)) = rows.first_mut() {
         mapped.problems.extend(found.problems);
     }
     for retry in retried {
+        // The Allele Registry ID when that service resolved the allele, else its HGVS.
+        let input = registry_id(rows, retry.hgvs()).unwrap_or(retry.hgvs());
+        let Some(get) = input.parse().ok().and_then(|input| {
+            biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None).ok()
+        }) else {
+            continue;
+        };
+        let get = get.with_sections(vec![biomcp_types::VariantSection::Clinvar].into());
         next.push(crate::next::Step::run(
             StepKind::Disambiguate,
-            &selected(query.source())
-                .iter()
-                .map(|spec| spec.source)
-                .collect::<Vec<_>>(),
-            Request::VariantNormalize(retry),
+            &super::next_sources(cx.fetch, &get),
+            Request::GetVariant(get),
             false,
         ));
     }
-    Some(outcome)
+}
+
+/// The ClinGen Allele Registry ID of the row resolved on `hgvs`, from its `@id` mapping.
+fn registry_id<'r>(rows: &'r [Row], hgvs: &str) -> Option<&'r str> {
+    rows.iter()
+        .filter(|(mapped, _, _)| {
+            mapped.value.source == biomcp_types::Source::AlleleRegistry
+                && mapped.value.outcome == VariantResolution::Resolved
+                && mapped.value.hgvs.as_ref().is_some_and(|row| row.as_str() == hgvs)
+        })
+        .flat_map(|(mapped, _, _)| mapped.value.mappings.iter())
+        .filter(|mapping| mapping.field.as_str() == "@id")
+        .find_map(|mapping| mapping.value.as_str().rsplit_once("/allele/"))
+        .map(|(_, id)| id)
+        .filter(|id| id.starts_with("CA"))
+}
+
+/// One entry per source, with the state of its last call and every call's notices. Each
+/// earlier state that differs stays in `problems`, under the description that call was for.
+fn once_each(
+    calls: Vec<(Box<str>, SourceOutcome)>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<SourceOutcome> {
+    let mut last: Vec<(Box<str>, SourceOutcome)> = Vec::new();
+    let mut earlier = Vec::new();
+    for (hgvs, mut call) in calls {
+        match last.iter_mut().find(|(_, seen)| seen.source == call.source) {
+            Some(seen) => {
+                for notice in std::mem::take(&mut seen.1.notices) {
+                    if !call.notices.contains(&notice) {
+                        call.notices.push(notice);
+                    }
+                }
+                earlier.push(std::mem::replace(seen, (hgvs, call)));
+            }
+            None => last.push((hgvs, call)),
+        }
+    }
+    for (hgvs, call) in earlier {
+        let state = call.status();
+        if last
+            .iter()
+            .any(|(_, seen)| seen.source == call.source && seen.status() == state)
+        {
+            continue;
+        }
+        let view = biomcp_types::SourceStatusView::from(state);
+        let field = match view.reason {
+            Some(reason) => format!("state: {}, {reason}", view.state),
+            None => format!("state: {}", view.state),
+        };
+        let problem = biomcp_types::Problem {
+            source: call.source,
+            record: biomcp_types::Text::new(&hgvs).ok(),
+            field: field.into(),
+            code: biomcp_types::ProblemCode::ValueUnknown,
+        };
+        status::append(problems, [problem]);
+    }
+    last.into_iter().map(|(_, source)| source).collect()
 }
 
 fn accession_order(hgvs: &str) -> (u64, u32) {

@@ -44,6 +44,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
                 fresh: false,
                 drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
                 label_bytes: biomcp_query::LABEL_BYTES,
+                fit_deadline: biomcp_query::FIT_DEADLINE,
             },
             &query
         )
@@ -68,6 +69,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
         fresh: false,
         drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
         label_bytes: biomcp_query::LABEL_BYTES,
+        fit_deadline: biomcp_query::FIT_DEADLINE,
     };
     let outcome = run(&cx, &query);
     assert_eq!(outcome.status(), Status::Partial);
@@ -160,6 +162,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
             fresh: false,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
+            fit_deadline: biomcp_query::FIT_DEADLINE,
         },
         &query,
     );
@@ -207,6 +210,7 @@ fn concurrent_replay_annotations_and_bundle_publication_keep_checked_sections() 
                 fresh: false,
                 drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
                 label_bytes: biomcp_query::LABEL_BYTES,
+                fit_deadline: biomcp_query::FIT_DEADLINE,
             },
             &query,
         );

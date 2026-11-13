@@ -24,7 +24,7 @@ Read this service’s independent result and explicit requested assembly. Compar
 
 ## When the reference base does not match
 
-A lab report can name a gene and a c. change from a transcript other than the one you tried. When a service reports a reference mismatch, the reply lists in `fits` the gene's other RefSeq transcripts where VariantValidator found the given base, resolves each distinct allele with the same service, and offers it as a `next` step. Follow that transcript; do not change the base to match the reference, because that names a different variant.
+A lab report can name a gene and a c. change from a transcript other than the one you tried. When a service reports a reference mismatch, the reply lists in `fits` the gene's other RefSeq transcripts where VariantValidator found the given base, resolves each distinct allele with the same service, and offers a `next` step that reads that allele's ClinVar record, by its ClinGen allele ID when CAR resolved it. Follow that step; do not change the base to match the reference, because that names a different variant.
 
 ## Next
 

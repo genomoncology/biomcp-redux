@@ -15,6 +15,7 @@ fn run(fetch: &Fetch, query: AuthorPapersQuery) -> biomcp_query::Outcome {
             ncbi_email: None,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
+            fit_deadline: biomcp_query::FIT_DEADLINE,
         },
         &Request::AuthorPapers(query),
     )
