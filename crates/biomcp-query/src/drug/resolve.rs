@@ -574,5 +574,6 @@ pub(super) fn within<'a>(cx: &Ctx<'a>, budget: std::time::Duration) -> Ctx<'a> {
         budget,
         fresh: cx.fresh,
         drug_name_limit: cx.drug_name_limit,
+        label_bytes: cx.label_bytes,
     }
 }

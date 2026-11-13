@@ -10,6 +10,8 @@ use biomcp_types::{
 mod names;
 mod search_page;
 const SOURCE: Source = Source::OpenfdaLabel;
+/// The request schema's largest section limit; the reply budget usually stops sooner.
+const MOST_FRAGMENTS: u32 = 50;
 pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let mut out = super::empty(
         (DrugPage {
@@ -212,7 +214,12 @@ fn select(
         return Ok(());
     }
     let offset = query.section_offset().unwrap_or(0);
-    let label = match record.label(heading, offset, query.section_limit().unwrap_or(1))? {
+    let label = match record.label(
+        heading,
+        offset,
+        query.section_limit().unwrap_or(MOST_FRAGMENTS),
+        cx.label_bytes,
+    )? {
         Some(mut data) => {
             data.retrieved = received_date(fetched);
             let returned = data.fragments.len() as u32;
