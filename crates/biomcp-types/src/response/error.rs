@@ -71,9 +71,12 @@ singleton! {
  SchemaUsage => "use biomcp schema to list known artifact IDs",
  Arguments => "expected a supported command with checked arguments",
  ArgumentGuidance => "option is missing or invalid; choose an accepted value or form and use the suggested help command",
- FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named sections instead",
- SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next step; run the suggested command",
- OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the suggested first-page command, then follow its next command",
+ FieldsSearchOnly => "--fields chooses columns of search rows only; drop --fields and read the record's named \
+ sections instead",
+ SavedNameUnknown => "no saved result has this name; --pool and --snapshot take only a name from a reply's next \
+ step; run the suggested command",
+ OffsetWithoutSaved => "a nonzero offset needs the --pool or --snapshot name from a reply's next step; run the \
+ suggested first-page command, then follow its next command",
  ArticleGetLimit => "get article takes 1 to 20 IDs per call; split a longer list into several calls",
  LabelSectionMissing => "add --label-section NAME with NAME from valid_values; example: biomcp get drug imatinib label \
  --label-section indications_and_usage",

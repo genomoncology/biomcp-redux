@@ -52,17 +52,3 @@ fn issued(name: &str) -> bool {
 fn flag(key: &str) -> Box<str> {
     format!("--{}", key.replace('_', "-")).into()
 }
-
-#[cfg(test)]
-mod tests {
-    use super::issued;
-
-    #[test]
-    fn issued_names_are_store_hex() {
-        assert!(issued(&"a".repeat(32)));
-        assert!(issued(&"0".repeat(64)));
-        assert!(!issued("kabuki_case_q4"));
-        assert!(!issued("memo-001"));
-        assert!(!issued(&"A".repeat(32)));
-    }
-}

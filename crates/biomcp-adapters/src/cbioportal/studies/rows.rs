@@ -227,57 +227,41 @@ fn gene(leg: &Leg<'_>, q: &StudyGet) -> Result<NcbiGeneId, RequestError> {
     NcbiGeneId::new(gene.entrez_gene_id)
         .map_err(|_| biomcp_fetch::bad_reply(Source::Cbioportal, None))
 }
-fn study_profiles(leg: &Leg<'_>, q: &StudyGet) -> Result<Vec<Profile>, RequestError> {
-    Ok(leg
-        .call(
-            &endpoint("/studies", &[q.id().as_str(), "molecular-profiles"])?,
-            Input::Params(&[("projection", Arg::Text("SUMMARY"))]),
-            Read::<Profiles>::json().check(&|p| {
-                if p.0.iter().all(|p| p.study_id == *q.id()) {
-                    Ok(())
-                } else {
-                    Err(BadReply)
-                }
-            }),
-        )?
+/// The study's mutation profiles, in source order.
+pub fn mutation_profiles(leg: &Leg<'_>, q: &StudyGet) -> Result<Vec<StudyProfileId>, RequestError> {
+    let check = |p: &Profiles| {
+        p.0.iter()
+            .all(|p| p.study_id == *q.id())
+            .then_some(())
+            .ok_or(BadReply)
+    };
+    let endpoint = endpoint("/studies", &[q.id().as_str(), "molecular-profiles"])?;
+    let params = [("projection", Arg::Text("SUMMARY"))];
+    let profiles = leg.call(
+        &endpoint,
+        Input::Params(&params),
+        Read::<Profiles>::json().check(&check),
+    )?;
+    Ok(profiles
         .value
-        .0)
-}
-fn mutation_profile(p: &Profile) -> bool {
-    p.molecular_alteration_type.as_str() == "MUTATION_EXTENDED"
+        .0
+        .into_iter()
+        .filter(|p| p.molecular_alteration_type.as_str() == "MUTATION_EXTENDED")
+        .map(|p| p.molecular_profile_id)
+        .collect())
 }
 fn profile(leg: &Leg<'_>, q: &StudyGet) -> Result<StudyProfileId, RequestError> {
-    let profile = study_profiles(leg, q)?
-        .into_iter()
-        .find(|p| {
-            mutation_profile(p)
-                && q.molecular_profile()
-                    .is_none_or(|id| *id == p.molecular_profile_id)
-        })
-        .ok_or(biomcp_fetch::SourceError {
-            source: Source::Cbioportal,
-            reason: biomcp_types::Reason::Unavailable,
-            status: None,
-            tls_cause: None,
-            retry_after: None,
-        })?
-        .molecular_profile_id;
-    Ok(profile)
-}
-/// The study's mutation profiles when the requested profile is not one of them.
-pub fn refused_profile(
-    leg: &Leg<'_>,
-    q: &StudyGet,
-) -> Result<Option<Box<[StudyProfileId]>>, RequestError> {
-    let Some(asked) = q.molecular_profile() else {
-        return Ok(None);
+    let unavailable = biomcp_fetch::SourceError {
+        source: Source::Cbioportal,
+        reason: biomcp_types::Reason::Unavailable,
+        status: None,
+        tls_cause: None,
+        retry_after: None,
     };
-    let mutation: Vec<_> = study_profiles(leg, q)?
+    let found = mutation_profiles(leg, q)?
         .into_iter()
-        .filter(mutation_profile)
-        .map(|p| p.molecular_profile_id)
-        .collect();
-    Ok((!mutation.is_empty() && !mutation.contains(asked)).then(|| mutation.into()))
+        .find(|id| q.molecular_profile().is_none_or(|asked| asked == id));
+    found.ok_or_else(|| unavailable.into())
 }
 
 fn acquired(time: Option<i64>) -> Result<Option<u64>, RequestError> {
