@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "who-ivd",
+  "url": "https://extranet.who.int/prequal/vitro-diagnostics/prequalified/in-vitro-diagnostics/export?page&_format=csv",
+  "exchanges": [
+    {
+      "fetched": 1794578291,
+      "status": 200,
+      "content_type": "text/csv; charset=UTF-8",
+      "delay_ms": 901,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "92e67f7834294bfa2c760074d13c8ee083e03b4e1a1571ad0aad3b36469b4109-0.bin"
+      }
+    }
+  ]
+}

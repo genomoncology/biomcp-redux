@@ -63,6 +63,7 @@ singleton! {
  --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>, then get variant <ID>",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
+ WhoIvdYears => "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY",
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",
  TooManyPmids => "citation ordering exceeds the PMID limit; narrow the search",

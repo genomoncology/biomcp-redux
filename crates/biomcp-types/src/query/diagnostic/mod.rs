@@ -3,7 +3,7 @@ mod search_validation;
 use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 pub use id::DiagnosticId;
-use search_validation::{validate_device, validate_recall};
+use search_validation::{validate_device, validate_recall, validate_who_years};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -132,6 +132,14 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
     decision_to: Option<PartialDate>,
+    #[doc = "WHO IVD year.\nFirst prequalification year included, YYYY; WHO publishes only the year."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
+    prequalified_from: Option<PartialDate>,
+    #[doc = "WHO IVD year.\nLast prequalification year included, YYYY; WHO publishes only the year."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
+    prequalified_to: Option<PartialDate>,
     /// Five results by default; at most fifty source rows or product headers.
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 50)))]
@@ -212,6 +220,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         {
             return Err(QueryInvalid::new(&["marker", "manufacturer"]));
         }
+        validate_who_years(&v)?;
         if v.device_id
             .as_ref()
             .is_some_and(|id| !(id.as_str().starts_with('P') || id.as_str().starts_with('K')))
@@ -249,6 +258,8 @@ impl DiagnosticSearch {
             initiated_from: None,
             initiated_to: None,
             classification: None,
+            prequalified_from: None,
+            prequalified_to: None,
             limit: limit(),
             offset: 0,
             bundle_revision: None,
@@ -322,6 +333,14 @@ impl DiagnosticSearch {
     /// Inclusive native decision range upper bound.
     pub fn decision_to(&self) -> Option<PartialDate> {
         self.0.decision_to
+    }
+    /// Inclusive WHO IVD prequalification year lower bound.
+    pub fn prequalified_from(&self) -> Option<PartialDate> {
+        self.0.prequalified_from
+    }
+    /// Inclusive WHO IVD prequalification year upper bound.
+    pub fn prequalified_to(&self) -> Option<PartialDate> {
+        self.0.prequalified_to
     }
     /// Native rows per page.
     pub fn limit(&self) -> u32 {
