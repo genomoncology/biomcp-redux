@@ -54,7 +54,7 @@
         },
         "limit": {
           "default": 5,
-          "description": "Native report headers, counted FAERS reaction terms or VAERS rows; default five.",
+          "description": "Page size.\nNative report headers, counted FAERS reaction terms or VAERS rows; default five.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
