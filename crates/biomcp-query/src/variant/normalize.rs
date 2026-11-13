@@ -181,6 +181,7 @@ fn transcript_fit(
     next: &mut Vec<crate::next::Step>,
 ) -> Option<SourceOutcome> {
     if query.offset() != 0
+        || !variantvalidator::fits_apply(query.hgvs())
         || cx.fetch.disabled(variantvalidator::SPEC.source)
         || !rows.iter().any(|(mapped, _, _)| mismatched(&mapped.value))
     {

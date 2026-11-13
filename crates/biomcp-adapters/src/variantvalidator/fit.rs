@@ -95,6 +95,11 @@ pub fn transcript_fits(
     })
 }
 
+/// Whether `transcript_fits` would ask anything: a RefSeq NM_ c. description.
+pub fn fits_apply(input: &str) -> bool {
+    parts(input).is_some()
+}
+
 fn parts(input: &str) -> Option<(&str, &str)> {
     let (reference, body) = input.split_once(':')?;
     let accession = reference
