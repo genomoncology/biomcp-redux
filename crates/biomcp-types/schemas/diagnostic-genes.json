@@ -111,7 +111,7 @@
         },
         "source": {
           "$ref": "#/$defs/Reply_DiagnosticGetSource",
-          "description": "Explicit source: GTR accession/version, WHO Product ID, PMA P number,\n510(k) K number or device recall Z-NNNN-YYYY."
+          "description": "Explicit source: GTR accession/version, WHO Product ID, PMA P number,\n510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY."
         },
         "supplement": {
           "anyOf": [

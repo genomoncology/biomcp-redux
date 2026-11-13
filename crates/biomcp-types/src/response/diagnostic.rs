@@ -350,7 +350,7 @@ pub struct DiagnosticPmaRegulatory {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(inline))]
 pub struct DiagnosticClearance {
-    /// Exact native K number.
+    /// Exact native K or De Novo DEN number.
     pub k_number: biodata::DiagnosticDeviceId,
     /// Native device_name; missing and empty remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]

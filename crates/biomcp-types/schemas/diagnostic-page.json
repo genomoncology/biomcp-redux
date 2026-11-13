@@ -163,7 +163,7 @@
                 },
                 "k_number": {
                   "$ref": "#/$defs/Reply_DiagnosticDeviceId",
-                  "description": "Exact native K number."
+                  "description": "Exact native K or De Novo DEN number."
                 },
                 "product_code": {
                   "description": "Native product_code; missing and empty remain distinct.",

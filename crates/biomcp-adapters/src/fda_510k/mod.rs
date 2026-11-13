@@ -24,7 +24,7 @@ pub static SPEC: SourceSpec = SourceSpec {
 pub struct Failure {
     /// Ordinary fetch failure and source outcome.
     pub error: RequestError,
-    /// A native row claimed another exact K number.
+    /// A native row claimed another exact K or DEN number.
     pub identity_conflict: bool,
 }
 /// Retrieve only the exact source-native clearance; no harmonized fields enter the projection.
