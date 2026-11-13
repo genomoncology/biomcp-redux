@@ -3319,7 +3319,7 @@ Options:
           [possible values: json, md]
 
       --limit <limit>
-          Whole-record count per source collection page; text fragments follow the text budget.
+          Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3360,7 +3360,7 @@ Options:
 Get clinical trial details. Sources: ctgov, nci.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
-- `--limit`: Whole-record count per source collection page; text fragments follow the text budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
 - `--section`: Optional intact source sections. Default cards only; diseases; help get trial

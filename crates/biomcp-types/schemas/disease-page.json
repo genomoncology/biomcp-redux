@@ -320,7 +320,7 @@
           "type": "integer"
         },
         "total": {
-          "description": "Total matching identities held by this snapshot.",
+          "description": "Total matches: the source's own count when one source states more than the snapshot holds, otherwise the identities held by this snapshot.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"

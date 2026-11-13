@@ -1,0 +1,34 @@
+{
+  "live_check": "public",
+  "feature": "article-search",
+  "story": "A Europe PMC search reports Europe PMC's own hit count as the total, says the retrieved window is cut short and gives the next page",
+  "replay": "article/search/access-rights",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "tebentafusp",
+        "--source",
+        "europepmc",
+        "--exact-term",
+        "--limit",
+        "3"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1078,
+        "/page/returned": 3,
+        "/page/truncated": true,
+        "/page/pool/size": 100,
+        "/sources/0/source": "europepmc",
+        "/sources/0/count": 1078,
+        "/sources/0/retrieved_count": 100,
+        "/next/*/kind": {
+          "includes": "page"
+        }
+      }
+    }
+  ],
+  "verified": "Same recorded request identities as article/search/access-rights.yaml: the 2026-11-11 Europe PMC lite search page for tebentafusp states hitCount 1,078 and holds 100 rows. The total is Europe PMC's hitCount, not the 100-row window."
+}

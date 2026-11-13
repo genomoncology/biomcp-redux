@@ -20,7 +20,7 @@ pub struct PageInfo {
     pub offset: u32,
     /// Results returned on this page.
     pub returned: u32,
-    /// Total matching identities held by this snapshot.
+    /// Total matches: the source's own count when one source states more than the snapshot holds, otherwise the identities held by this snapshot.
     pub total: u64,
     /// Optional pooled snapshot.
     #[serde(skip_serializing_if = "Option::is_none")]

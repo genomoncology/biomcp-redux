@@ -19,7 +19,10 @@
       "expect": {
         "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/returned": 10,
         "/result/candidates/0/sections/civic/data/profiles/0/evidence_page/total": 48,
-        "/result/candidates/0/sections/civic/data/profiles/0/assertion_page/returned": 5
+        "/result/candidates/0/sections/civic/data/profiles/0/assertion_page/returned": 5,
+        "/next/*/kind": {
+          "includes": "page"
+        }
       }
     },
     {
