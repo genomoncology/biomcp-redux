@@ -30,7 +30,7 @@
         "--limit",
         "5"
       ],
-      "max_bytes": 30000,
+      "max_bytes": 6000,
       "expect": {
         "/status": "complete",
         "/query/applicant": "NOVARTIS",
@@ -51,7 +51,7 @@
     },
     {
       "follow": "page",
-      "max_bytes": 30000,
+      "max_bytes": 6400,
       "expect": {
         "/query/sort": "newest",
         "/query/offset": 5,
