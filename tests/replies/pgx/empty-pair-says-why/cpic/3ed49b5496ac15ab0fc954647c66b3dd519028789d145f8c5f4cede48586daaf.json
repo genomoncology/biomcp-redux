@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/pair_view?select=%2A&genesymbol=eq.UGT1A1&drugid=eq.RxNorm%3A11289&order=pairid.asc&limit=1&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794538137,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "*/0",
+      "delay_ms": 146,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": []
+      }
+    }
+  ]
+}
