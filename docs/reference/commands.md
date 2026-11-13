@@ -1101,8 +1101,8 @@ Arguments:
 
 Options:
       --aggregate <aggregate>
-          Counts by reaction or receipt date; help search adverse-event
-          Counts by reaction or receipt date.
+          Report counts; help search adverse-event
+          Report counts.
           reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
 
       --format <format>
@@ -1138,7 +1138,7 @@ Options:
           Read configuration from this file. Example: --config config.json.
 
       --limit <limit>
-          Native report headers, counted FAERS reaction terms or VAERS rows; default five.
+          Report headers, reaction terms or VAERS rows; default five.
 
       --manufacturer <manufacturer>
           MAUDE manufacturer.
@@ -1148,7 +1148,7 @@ Options:
           Retained FAERS name resolution; follow the returned command without changing filters.
 
       --offset <offset>
-          Native report row offset; reaction counts require zero. VAERS needs its snapshot.
+          Report row offset; counts need zero. VAERS needs its snapshot.
 
       --problem <problem>
           MAUDE product problem.
@@ -1175,11 +1175,11 @@ Options:
           FAERS MedDRA term phrase match, not exact equality.
 
       --received-from <received_from>
-          First date, YYYY[-MM[-DD]].
+          First date, YYYY-MM[-DD].
           Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day.
 
       --received-to <received_to>
-          Last date, YYYY[-MM[-DD]].
+          Last date, YYYY-MM[-DD].
           Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day.
 
       --serious <serious>
@@ -1200,8 +1200,8 @@ Options:
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
 
-- `--aggregate`: Counts by reaction or receipt date; help search adverse-event
-Counts by reaction or receipt date.
+- `--aggregate`: Report counts; help search adverse-event
+Report counts.
 reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--drug`: FAERS drug names; OR.
@@ -1209,20 +1209,20 @@ FAERS drug name, widened like the main text; repeat --drug for OR. A standalone 
 - `--exact-term`: Search typed drug names only.
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--expand-drug-names`: FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--limit`: Source report headers, counted FAERS reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--manufacturer`: MAUDE manufacturer.
 MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--name-snapshot`: Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--offset`: Source report row offset; reaction counts require zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--offset`: Report row offset; counts need zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--problem`: MAUDE product problem.
 MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--product-code`: MAUDE product codes; OR.
 MAUDE exact source device.device_report_product_code; repeated codes join with OR. Value form: repeatable values (repeat the flag). Example: --product-code ABC. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--reaction`: FAERS MedDRA phrase.
 FAERS MedDRA term phrase match, not exact equality. Value form: string. Example: --reaction 'synthetic reaction'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--received-from`: First date, YYYY[-MM[-DD]].
+- `--received-from`: First date, YYYY-MM[-DD].
 Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--received-to`: Last date, YYYY[-MM[-DD]].
+- `--received-to`: Last date, YYYY-MM[-DD].
 Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `section`: VAERS table; help search adverse-event
 Listed choices accept any letter case; replies use their listed spelling.

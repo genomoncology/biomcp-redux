@@ -91,7 +91,7 @@
           "type": "null"
         }
       ],
-      "description": "Counts by reaction or receipt date; help search adverse-event\nCounts by reaction or receipt date.\nreactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero."
+      "description": "Report counts; help search adverse-event\nReport counts.\nreactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero."
     },
     "drug": {
       "description": "FAERS drug names; OR.\nFAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped native query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes).",
@@ -110,7 +110,7 @@
     },
     "limit": {
       "default": 5,
-      "description": "Native report headers, counted FAERS reaction terms or VAERS rows; default five.",
+      "description": "Report headers, reaction terms or VAERS rows; default five.",
       "format": "uint32",
       "maximum": 50,
       "minimum": 1,
@@ -141,7 +141,7 @@
     },
     "offset": {
       "default": 0,
-      "description": "Native report row offset; reaction counts require zero. VAERS needs its snapshot.",
+      "description": "Report row offset; counts need zero. VAERS needs its snapshot.",
       "format": "uint32",
       "minimum": 0,
       "type": "integer"
@@ -187,7 +187,7 @@
           "type": "null"
         }
       ],
-      "description": "First date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day."
+      "description": "First date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day."
     },
     "received_to": {
       "anyOf": [
@@ -198,7 +198,7 @@
           "type": "null"
         }
       ],
-      "description": "Last date, YYYY[-MM[-DD]].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day."
+      "description": "Last date, YYYY-MM[-DD].\nInclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day."
     },
     "section": {
       "anyOf": [
