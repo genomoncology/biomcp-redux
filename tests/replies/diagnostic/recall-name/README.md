@@ -1,0 +1,10 @@
+# Device recall search by device name
+
+The replies were recorded from the public openFDA device recall and device enforcement endpoints on 2026-11-13 by `biomcp --record` in pm job j39528, without a key. Git holds a projection of each body: recall and event numbers, recalling firm, product code, FDA status, initiation date, product description, reason, root cause category and submission numbers from the recall records; recall number and classification from the enforcement records; the dataset dates and the native counts. Address, contact, action, distribution, quantity and lot text is omitted. No row or value is invented.
+
+| Request | Status | Recorded bytes | SHA-256 of the recorded file |
+| --- | --- | --- | --- |
+| `https://api.fda.gov/device/recall.json?search=product_description%3A%22infusion%20pump%22%20AND%20event_date_initiated%3A%5B2021-11-13%20TO%202026-11-13%5D&limit=5&skip=0&sort=event_date_initiated%3Adesc` | 200 | 389,825 | `e5fbe1966ce76fe8b029a13ba7bbe8193894ffd0afde16e0a7a27872aae98194` |
+| `https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%28%22Z-2723-2026%22%20OR%20%22Z-2724-2026%22%20OR%20%22Z-2580-2026%22%20OR%20%22Z-2312-2026%22%20OR%20%22Z-2201-2026%22%29&limit=5&skip=0` | 200 | 306,250 | `5c0aba894b97400631de5773a1648b0028d4f641fa8efee1e9711f3c51c9c921` |
+
+The search is the persona question "infusion-pump recalls over five years" (biomed-agent-bench pv-scientist run of 2026-11-13, report Q8). openFDA's own device enforcement endpoint gives the same total for `product_description:"infusion pump"` over that window (87). Read live on 2026-11-13: `product_code:FRN` alone counts 721 recall records and `product_description:"infusion pump"` alone 517, of which 309 carry FRN, so a name and a product code select different sets. The plural `"infusion pumps"` counts 191, because openFDA does not stem. Inside a quoted phrase openFDA answers HTTP 400 to `! # $ ; ? ^ | ~`, the backtick and any letter outside ASCII, while `"infusion pump "` counts the same 517 as `"infusion pump"`; the case's second step therefore replays the same request for `infusion pump!`.

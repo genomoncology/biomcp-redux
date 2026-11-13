@@ -27,8 +27,9 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
     }
     // openFDA answers HTTP 400 to a letter outside ASCII, so the name is refused before the request.
     if v.name.as_ref().is_some_and(|v| !v.as_str().is_ascii()) {
-        return Err(QueryInvalid::new(&["name"])
-            .with_message(crate::ErrorMessage::DeviceRecallNameAscii));
+        return Err(
+            QueryInvalid::new(&["name"]).with_message(crate::ErrorMessage::DeviceRecallNameAscii)
+        );
     }
     if v.classification.is_some() && v.product_code.is_some() {
         return Err(QueryInvalid::new(&["product_code", "classification"])

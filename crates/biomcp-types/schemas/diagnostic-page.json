@@ -228,6 +228,28 @@
             "identity_status": {
               "const": "device-recall",
               "type": "string"
+            },
+            "product_description": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native product_description of the recall record; a device name search matches this text."
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native reason_for_recall of the recall record."
             }
           },
           "required": [
@@ -487,6 +509,13 @@
             "$ref": "#/$defs/Reply_DiagnosticCandidate"
           },
           "type": "array"
+        },
+        "source_query": {
+          "description": "Exact openFDA search expression sent for a device recall page; it names the field each filter matched.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "type": "object"
@@ -747,11 +776,12 @@
               "type": "null"
             }
           ],
-          "description": "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; text inside GTR lab_test_name, ignoring case.",
+          "description": "Native test or device name.\nNative trade_name (PMA) or device_name (510(k)) phrase; device recall product_description phrase, without plural or synonym expansion; text inside GTR lab_test_name, ignoring case.",
           "x-required-component": [
             "gtr",
             "fda-pma",
-            "fda-510k"
+            "fda-510k",
+            "fda-device-recall"
           ]
         },
         "offset": {
