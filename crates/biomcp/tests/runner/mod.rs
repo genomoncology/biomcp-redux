@@ -272,7 +272,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(configuration::trials());
     trials.extend(bundle_wait::trials());
     trials.extend(bundle_refresh::trials());
-    trials.extend(bundle_sync::trials().into_iter().chain(orphadata_sync::trials()));
+    trials.extend(bundle_sync::trials());
     trials.push(hgnc_sync::live_trial());
     trials.extend(source_pacing::trials());
     trials.extend(recurrence::trials());
@@ -353,6 +353,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(drug_name_load::trials());
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
+    trials.extend(orphadata_sync::trials());
     trials
 }
 
