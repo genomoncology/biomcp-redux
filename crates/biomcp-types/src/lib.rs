@@ -128,7 +128,8 @@ pub use response::{
     NciTrialItem, NciTrialPage,
 };
 pub use response::{
-    NormalizationField, NormalizationMessage, NormalizationResult, VariantNormalization,
+    NormalizationField, NormalizationMessage, NormalizationResult, TranscriptFit,
+    VariantNormalization,
 };
 pub use response::{RecurrenceGranularity, RecurrenceStudy, RecurrenceTerms, VariantRecurrence};
 pub use response::{

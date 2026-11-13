@@ -5393,7 +5393,8 @@ Options:
 
       --hgvs <hgvs>
           Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
-          Checked for reference and syntax only; no full HGVS parser.
+          Checked for reference and syntax only; no full HGVS parser. After a reference
+          mismatch, VariantValidator names the gene's transcripts where the base fits.
 
       --limit <limit>
           Source mapping rows per service, with typed continuation for remaining rows.
@@ -5431,7 +5432,8 @@ Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, var
 Caller assembly; required when VariantValidator is selected.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
-Checked for reference and syntax only; no full HGVS parser. Value form: string. Example: --hgvs 'NM_004333.4:c.1799T>A'. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+Checked for reference and syntax only; no full HGVS parser. After a reference
+mismatch, VariantValidator names the gene's transcripts where the base fits. Value form: string. Example: --hgvs 'NM_004333.4:c.1799T>A'. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--limit`: Source mapping rows per service, with typed continuation for remaining rows. Value form: integer. Example: --limit 10. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--offset`: Source mapping rows to skip per service. Value form: integer. Example: --offset 0. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
 - `--source`: Explicit service; all preserves independent results; help variant normalize
