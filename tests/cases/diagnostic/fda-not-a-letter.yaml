@@ -3,7 +3,7 @@
   "live_check": "public",
   "story": "A document ID that is not a letter, or that the application does not list, leaves the approvals section unavailable with the reason and the application's letter IDs, instead of a bare failure.",
   "verified": "openFDA Drugs@FDA reply for NDA202155 (ELIQUIS) recorded 2026-11-12 by biomcp --record; document 68968 is the s034 Label. Before 0858 the reply was status failed with drugsfda state ok and no result, problem or next step (bench 0039 pt-committee log :82).",
-  "replay": "drug/approvals-document-not-letter",
+  "replay": "diagnostic/fda-not-a-letter",
   "steps": [
     {
       "run": [

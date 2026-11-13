@@ -2,9 +2,30 @@
   "feature": "cpic-pgx",
   "live_check": "public",
   "story": "An empty recommendation table for one gene and drug says why from CPIC's own pair row, such as a provisional pair.",
-  "verified": "CPIC API replies recorded 2026-11-12 by biomcp --record: UGT1A1 with irinotecan (RxNorm:51499) has no recommendation rows, and its pair_view row is provisional with no guideline. Before 0858 the reply was a complete empty table with no reason (bench 0039 tumor-board log :265-270).",
+  "verified": "CPIC API replies recorded 2026-11-12 by biomcp --record: UGT1A1 with atazanavir (RxNorm:343047) has four recommendation rows and no notice; UGT1A1 with irinotecan (RxNorm:51499) has none, and its pair_view row is provisional with no guideline. Before 0858 the reply was a complete empty table with no reason (bench 0039 tumor-board log :265-270).",
   "replay": "pgx/empty-pair-says-why",
   "steps": [
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--gene",
+        "UGT1A1",
+        "--source",
+        "cpic",
+        "--drug-id",
+        "RxNorm:343047",
+        "--section-limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 4,
+        "/result/items/0/drugid": "RxNorm:343047"
+      },
+      "max_bytes": 3000
+    },
     {
       "run": [
         "get",

@@ -3,7 +3,7 @@
   "live_check": "public",
   "story": "A label section the label does not carry says so and lists the sections the label has, instead of coming back as a bare empty section.",
   "verified": "openFDA label reply for the RASONQUE (daraxonrasib) SPL set 13a65923-d072-4dac-8620-8eabbf8c3641, recorded 2026-11-12 by biomcp --record; openFDA's own record has no boxed_warning field. Before 0858 the reply was label state empty with no reason (bench 0039 life-sciences-ci log :40-43).",
-  "replay": "drug/label-absent-section",
+  "replay": "drug/label-section-absent",
   "steps": [
     {
       "run": [
