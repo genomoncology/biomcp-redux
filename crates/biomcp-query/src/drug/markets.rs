@@ -1,17 +1,14 @@
 //! One drug name looked up in each market's own source, one row per market. Each row keeps its
 //! source's record, status and date role; no record or date is joined across markets.
 use super::resolve::within;
-use crate::{Action, Bundle, Ctx, Outcome, status};
+use crate::{Ctx, Outcome, status};
 use biodata::{AuthorizationDate, PartialDate, Text};
-use biomcp_adapters::{drugsfda, who_pq};
+use biomcp_adapters::drugsfda;
 use biomcp_types::{
     DrugGet, DrugHeader, DrugMarket, DrugMarketState, DrugMarkets, DrugMarketsGet, DrugSearch,
-    DrugSection, DrugSource, DrugWhoGet, DrugWhoRow, ReplyBody, ReplyData, Request, Section,
+    DrugSection, DrugSource, ReplyBody, ReplyData, Request, Section,
     Source, SourceState, Status, StepKind,
 };
-
-/// How the WHO row is chosen among the products WHO lists under the name.
-const WHO_CHOICE: &str = "earliest Date of Prequalification among WHO rows whose INN, dosage form and strength cell names the input; export order on a tie; undated rows last";
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     let mut out = status::empty(DrugMarkets::into_reply(query.clone(), None));
@@ -20,7 +17,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     let markets = [
         fda(&within(cx, deadline.remaining()), name, &mut out),
         ema(&within(cx, deadline.remaining()), name, &mut out),
-        who(&within(cx, deadline.remaining()), name, &mut out),
+        super::who::market(&within(cx, deadline.remaining()), name, &mut out),
     ];
     status::get(
         &mut out,
@@ -37,7 +34,7 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DrugMarketsGet) -> Outcome {
     out
 }
 
-fn row(source: DrugSource) -> DrugMarket {
+pub(super) fn row(source: DrugSource) -> DrugMarket {
     DrugMarket {
         source,
         state: DrugMarketState::NoRecord,
@@ -146,70 +143,6 @@ fn ema(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
     row
 }
 
-fn who(cx: &Ctx<'_>, name: &Text, out: &mut Outcome) -> DrugMarket {
-    let mut row = row(DrugSource::WhoPq);
-    let Ok(search) = DrugSearch::named(name.clone(), DrugSource::WhoPq, 10) else {
-        return row;
-    };
-    let command = cx.fetch.command_deadline(cx.budget);
-    let deadline = command.deadline();
-    let leg = cx.fetch.leg(&who_pq::SPEC, deadline).fresh(cx.fresh);
-    let result = who_pq::search(&leg, &search);
-    let error = result.as_ref().err().copied();
-    let read = status::source(Source::WhoPq, leg.finish(), error);
-    command.finish(deadline.remaining());
-    if matches!(read.state, SourceState::Syncing | SourceState::Stale) {
-        out.next.push(crate::next::Step::new(
-            StepKind::Sync,
-            &[Source::WhoPq],
-            Action::Sync {
-                bundle: Bundle::WHO_PQ,
-            },
-        ));
-    }
-    let rows = match result {
-        Ok(rows) => rows,
-        Err(_) => {
-            row.state = DrugMarketState::Failed;
-            row.reason = read.reason;
-            out.local = out.local.or(error.and_then(status::local));
-            add_source(out, read);
-            return row;
-        }
-    };
-    add_source(out, read);
-    row.matches = Some(rows.len() as u64);
-    let Some(chosen) = earliest(&rows) else {
-        return row;
-    };
-    row.state = DrugMarketState::Found;
-    row.record = Some(chosen.reference.clone());
-    row.name = text(&chosen.inn_dosage_form_strength);
-    row.holder = text(&chosen.applicant);
-    row.first_approval = chosen
-        .prequalified_on
-        .and_then(|date| dated("date_of_prequalification", date));
-    row.url = who_pq::product_url(&chosen.reference);
-    row.choice = Some(WHO_CHOICE.into());
-    section_step(
-        out,
-        Source::WhoPq,
-        Request::GetWhoMedicine(DrugWhoGet::new(chosen.reference.clone())),
-        cx.fresh,
-    );
-    alternatives(out, &row, name, cx.fresh);
-    row
-}
-
-/// The first row with the earliest prequalification date; undated rows only when none is dated.
-fn earliest(rows: &[DrugWhoRow]) -> Option<&DrugWhoRow> {
-    let key = |date: &PartialDate| (date.year(), date.month(), date.day());
-    rows.iter()
-        .filter(|row| row.prequalified_on.is_some())
-        .min_by_key(|row| row.prequalified_on.as_ref().map(key))
-        .or_else(|| rows.first())
-}
-
 /// A source the market could not read, or one that answered without a record.
 fn unanswered(mut row: DrugMarket, sub: &Outcome, source: Source) -> DrugMarket {
     let failed = sub
@@ -253,7 +186,7 @@ fn absorb(out: &mut Outcome, sub: &Outcome) {
     }
 }
 
-fn add_source(out: &mut Outcome, source: biomcp_types::SourceOutcome) {
+pub(super) fn add_source(out: &mut Outcome, source: biomcp_types::SourceOutcome) {
     if !out
         .sources
         .iter()
@@ -263,7 +196,7 @@ fn add_source(out: &mut Outcome, source: biomcp_types::SourceOutcome) {
     }
 }
 
-fn section_step(out: &mut Outcome, source: Source, request: Request, fresh: bool) {
+pub(super) fn section_step(out: &mut Outcome, source: Source, request: Request, fresh: bool) {
     out.next.push(crate::next::Step::run(
         StepKind::Section,
         &[source],
@@ -273,7 +206,7 @@ fn section_step(out: &mut Outcome, source: Source, request: Request, fresh: bool
 }
 
 /// When several records match, the call that lists them all.
-fn alternatives(out: &mut Outcome, row: &DrugMarket, name: &Text, fresh: bool) {
+pub(super) fn alternatives(out: &mut Outcome, row: &DrugMarket, name: &Text, fresh: bool) {
     if row.matches.is_some_and(|n| n > 1)
         && let Ok(search) = DrugSearch::named(name.clone(), row.source, 10)
     {
@@ -296,13 +229,13 @@ fn distinct(values: impl Iterator<Item = Text>) -> Box<[Text]> {
     seen.into()
 }
 
-fn dated(role: &str, date: PartialDate) -> Option<AuthorizationDate> {
+pub(super) fn dated(role: &str, date: PartialDate) -> Option<AuthorizationDate> {
     Some(AuthorizationDate {
         role: role.parse().ok()?,
         date,
     })
 }
 
-fn text(value: &str) -> Option<Text> {
+pub(super) fn text(value: &str) -> Option<Text> {
     Text::new(value.trim()).ok()
 }
