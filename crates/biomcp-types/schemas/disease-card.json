@@ -471,7 +471,8 @@
         "genes",
         "phenotypes",
         "incidence",
-        "survival"
+        "survival",
+        "prevalence"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -481,7 +482,8 @@
         " Native gene association rows.",
         " Native phenotype association rows.",
         " Native stage incidence rows.",
-        " Annual survival rows."
+        " Annual survival rows.",
+        " Orphanet prevalence, age of onset and inheritance."
       ]
     },
     "Reply_DiseaseSource": {
@@ -490,7 +492,8 @@
         "ols",
         "mydisease",
         "monarch",
-        "seer"
+        "seer",
+        "orphadata"
       ],
       "type": "string"
     },
@@ -750,7 +753,8 @@
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
-        " Cellosaurus cell line identity."
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -825,7 +829,8 @@
         "cpic",
         "clinpgx",
         "cbioportal",
-        "cellosaurus"
+        "cellosaurus",
+        "orphadata"
       ]
     },
     "Reply_SourceNotice": {

@@ -351,7 +351,8 @@
         "genes",
         "phenotypes",
         "incidence",
-        "survival"
+        "survival",
+        "prevalence"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -361,7 +362,8 @@
         " Native gene association rows.",
         " Native phenotype association rows.",
         " Native stage incidence rows.",
-        " Annual survival rows."
+        " Annual survival rows.",
+        " Orphanet prevalence, age of onset and inheritance."
       ]
     },
     "DiseaseSource": {
@@ -370,7 +372,8 @@
         "ols",
         "mydisease",
         "monarch",
-        "seer"
+        "seer",
+        "orphadata"
       ],
       "type": "string"
     },

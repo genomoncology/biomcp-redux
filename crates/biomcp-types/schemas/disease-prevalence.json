@@ -1,0 +1,1373 @@
+{
+  "$defs": {
+    "Reply_Attribution": {
+      "description": "Provenance for one source record.",
+      "properties": {
+        "approved": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source approval date."
+        },
+        "evaluated": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source evaluation date."
+        },
+        "published": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source publication date."
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native assertion record."
+        },
+        "release": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Dataset release."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Source responsible for the claim."
+        },
+        "submitter": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source submitter or panel."
+        },
+        "url": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source record link.",
+          "format": "uri"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Record version."
+        }
+      },
+      "required": [
+        "source"
+      ],
+      "type": "object"
+    },
+    "Reply_CacheProblem": {
+      "description": "A local cache failure that leaves the provider outcome intact.",
+      "enum": [
+        "busy",
+        "database",
+        "encoding",
+        "filesystem",
+        "internal",
+        "limit",
+        "snapshot",
+        "version"
+      ],
+      "type": "string"
+    },
+    "Reply_ComponentLabel": {
+      "description": "Terms attached to a named carried component on a consumer response.",
+      "properties": {
+        "component": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Native component name."
+        },
+        "terms": {
+          "$ref": "#/$defs/Reply_ComponentTerms",
+          "description": "Canonical publisher terms."
+        }
+      },
+      "required": [
+        "component",
+        "terms"
+      ],
+      "type": "object"
+    },
+    "Reply_ComponentTerms": {
+      "description": "Terms attached to one independently licensed source component.",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Publisher terms name."
+        },
+        "url": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Publisher terms page.",
+          "format": "uri"
+        },
+        "usage": {
+          "$ref": "#/$defs/Reply_Use",
+          "description": "Publisher use category."
+        }
+      },
+      "required": [
+        "usage",
+        "name",
+        "url"
+      ],
+      "type": "object"
+    },
+    "Reply_Curie": {
+      "description": "Checked prefix:local ontology identifier.",
+      "pattern": "^[A-Za-z0-9_.-]+:[^:/\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f][^:\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\x00-\\x1f\\x7f-\\x9f]*$",
+      "type": "string"
+    },
+    "Reply_DiseaseEndpoint": {
+      "description": "One native endpoint with an identifier and an optional source label.\nNative associations use this reference because a source may omit a display label.",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Reply_Curie",
+          "description": "Exact source identifier."
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source label when supplied."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "Reply_DiseaseGet": {
+      "description": "Exact concept or native SEER site with independently paged section.",
+      "properties": {
+        "age_range": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native age-range code."
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Requested native dataset selector, not proof of returned membership."
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Exact ontology CURIE or a SEER site code or name.",
+          "x-positional": 0
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Survival-only interval code."
+        },
+        "ontology": {
+          "$ref": "#/$defs/Reply_DiseaseOntology",
+          "default": "mondo",
+          "description": "One OLS ontology."
+        },
+        "period": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Incidence-only native period code."
+        },
+        "race": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native race code."
+        },
+        "section": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DiseaseSection"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "One named section; absent means identity card only.",
+          "x-positional": 1
+        },
+        "section_limit": {
+          "description": "Native rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5.",
+          "format": "uint32",
+          "maximum": 50,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "section_offset": {
+          "default": 0,
+          "description": "Native row offset within the selected section.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Native sex code."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_DiseaseSource",
+          "default": "mydisease",
+          "description": "Default MyDisease; no automatic fallback."
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object",
+      "x-reply-query-titles": [
+        "DiseaseSearch"
+      ]
+    },
+    "Reply_DiseaseOntology": {
+      "description": "One explicit OLS ontology.",
+      "enum": [
+        "mondo",
+        "doid",
+        "ncit"
+      ],
+      "type": "string"
+    },
+    "Reply_DiseasePrevalence": {
+      "description": "Orphanet epidemiology for each linked Orphanet disorder, without pooling or ranking estimates.",
+      "properties": {
+        "components": {
+          "description": "Applicable component use terms, independent of row provenance.",
+          "items": {
+            "$ref": "#/$defs/Reply_ComponentLabel"
+          },
+          "type": "array"
+        },
+        "items": {
+          "description": "Native source rows; totals in the envelope count rows, not distinct entities.",
+          "items": {
+            "$ref": "#/$defs/Reply_OrphanetEpidemiology"
+          },
+          "type": "array"
+        },
+        "links": {
+          "description": "Orphanet links of a MONDO or DOID concept; empty when an Orphanet code was requested.",
+          "items": {
+            "$ref": "#/$defs/Reply_DiseaseRelation"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "Reply_DiseaseRelation": {
+      "description": "A publisher relation with distinct endpoints and predicate.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Reply_Attribution",
+          "description": "Publisher record and version."
+        },
+        "description": {
+          "description": "Unchanged native cross-reference description when supplied.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "object": {
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
+          "description": "Native object."
+        },
+        "predicate": {
+          "$ref": "#/$defs/Reply_Curie",
+          "description": "Publisher predicate, without equivalence promotion."
+        },
+        "subject": {
+          "$ref": "#/$defs/Reply_DiseaseEndpoint",
+          "description": "Native subject."
+        }
+      },
+      "required": [
+        "subject",
+        "predicate",
+        "object",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "Reply_DiseaseSection": {
+      "description": "One named disease page.",
+      "enum": [
+        "synonyms",
+        "xrefs",
+        "hierarchy",
+        "genes",
+        "phenotypes",
+        "incidence",
+        "survival",
+        "prevalence"
+      ],
+      "type": "string",
+      "x-enum-descriptions": [
+        " Publisher scoped synonyms.",
+        " Native cross references.",
+        " Native parent relations.",
+        " Native gene association rows.",
+        " Native phenotype association rows.",
+        " Native stage incidence rows.",
+        " Annual survival rows.",
+        " Orphanet prevalence, age of onset and inheritance."
+      ]
+    },
+    "Reply_DiseaseSource": {
+      "description": "An explicit disease source without fallback.",
+      "enum": [
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "orphadata"
+      ],
+      "type": "string"
+    },
+    "Reply_OrphanetEpidemiology": {
+      "description": "One Orphanet disorder's epidemiology and natural history from the synchronized Orphadata files.",
+      "properties": {
+        "attribution": {
+          "$ref": "#/$defs/Reply_Attribution",
+          "description": "Orphadata record and file release."
+        },
+        "disorder_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher disorder type, such as disease or malformation syndrome."
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Curie",
+          "description": "Orphanet disorder as `Orphanet:<ORPHAcode>`."
+        },
+        "inheritance": {
+          "description": "Types of inheritance in file order.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher disorder name."
+        },
+        "onset": {
+          "description": "Average ages of onset in file order.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "prevalence": {
+          "description": "Prevalence and incidence estimates in file order.",
+          "items": {
+            "$ref": "#/$defs/Reply_OrphanetPrevalence"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "attribution"
+      ],
+      "type": "object"
+    },
+    "Reply_OrphanetPrevalence": {
+      "description": "One Orphanet epidemiology estimate exactly as Orphadata publishes it.",
+      "properties": {
+        "class": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher prevalence class, such as `1-9 / 100 000`."
+        },
+        "geography": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Geographic area of the estimate."
+        },
+        "id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher estimate identifier."
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Estimate type, such as point prevalence, prevalence at birth, annual incidence or cases/families."
+        },
+        "pmids": {
+          "description": "PubMed identifiers written in the source text.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "qualification": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whether the publisher gives a value and class, a class only, or counted cases or families."
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher source text, such as `15108197[PMID]` or `[EXPERT]`."
+        },
+        "validation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher validation status."
+        },
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Publisher mean value as written: per 100,000 people for a value-and-class estimate, a count for\ncases or families. Omitted for a class-only estimate, where the file writes 0.0."
+        }
+      },
+      "type": "object"
+    },
+    "Reply_PageInfo": {
+      "description": "Search counts after filtering and deduplication.",
+      "properties": {
+        "offset": {
+          "description": "Skipped results.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pool": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PoolInfo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional pooled snapshot."
+        },
+        "returned": {
+          "description": "Results returned on this page.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "total": {
+          "description": "Total matches: the source's own count when one source states more than the snapshot holds, otherwise the identities held by this snapshot.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "truncated": {
+          "description": "Matching source count exceeded the retrieved window.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "offset",
+        "returned",
+        "total"
+      ],
+      "type": "object"
+    },
+    "Reply_PartialDate": {
+      "description": "A Gregorian date preserving year, month or day precision. The parser additionally validates the calendar day, including leap years.",
+      "pattern": "^(?!0000)[0-9]{4}(-(0[1-9]|1[0-2])(-(0[1-9]|[12][0-9]|3[01]))?)?$",
+      "type": "string"
+    },
+    "Reply_PoolInfo": {
+      "description": "Fixed lifetime and size of a stored search snapshot.",
+      "properties": {
+        "created": {
+          "description": "Publication wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "expires": {
+          "description": "Fixed expiry wall time in Unix seconds.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "id": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Opaque snapshot identifier."
+        },
+        "size": {
+          "description": "Number of ordered identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "size",
+        "created",
+        "expires"
+      ],
+      "type": "object"
+    },
+    "Reply_Problem": {
+      "description": "A field that could not be accepted from a source record.",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/Reply_ProblemCode",
+          "description": "Why the field value was not accepted."
+        },
+        "field": {
+          "description": "The biodata field name.",
+          "type": "string"
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The record's canonical identifier, when known."
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "The source that supplied the record."
+        }
+      },
+      "required": [
+        "source",
+        "field",
+        "code"
+      ],
+      "type": "object"
+    },
+    "Reply_ProblemCode": {
+      "description": "A stable code for a rejected field value.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " The field value was not recognized.",
+        " Native collection exceeds the admitted complete source page.",
+        " A source repeats one exact identity with incompatible records."
+      ],
+      "x-extensible-enum": [
+        "value.unknown",
+        "collection.incomplete",
+        "identity.conflict"
+      ]
+    },
+    "Reply_Reason": {
+      "description": "Why a source could not supply data.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " The requested record was not found.",
+        " The public bucket does not hold an open text record.",
+        " Publisher response is not a PDF.",
+        " The local reader does not support the file or container format.",
+        " The response exceeds an explicit reader resource bound.",
+        " The source limited the request rate.",
+        " The local source quota refused admission without a network request.",
+        " The source was unavailable.",
+        " Platform or configured certificate verification failed.",
+        " Connecting to or negotiating the configured proxy failed.",
+        " The source rejected the request.",
+        " The reply could not be used.",
+        " The request exhausted its deadline.",
+        " Network access was disabled.",
+        " A required credential was absent.",
+        " The source was disabled.",
+        " No recording matched the request.",
+        " The source data was being synchronized.",
+        " Identity lacks the identifier required to join this source."
+      ],
+      "x-extensible-enum": [
+        "not-found",
+        "not-open",
+        "not-pdf",
+        "unsupported",
+        "too-large",
+        "rate-limited",
+        "local-quota",
+        "unavailable",
+        "tls",
+        "proxy",
+        "rejected",
+        "bad-reply",
+        "deadline-exceeded",
+        "offline",
+        "no-key",
+        "disabled",
+        "replay-miss",
+        "syncing",
+        "no-join-id"
+      ]
+    },
+    "Reply_Source": {
+      "description": "A source of BioMCP data, identified by its canonical short name.",
+      "type": "string",
+      "x-enum-descriptions": [
+        " HGNC.",
+        " MyGene.info.",
+        " Reactome.",
+        " WikiPathways published pathway catalogs.",
+        " Human Protein Atlas.",
+        " UniProt.",
+        " Integrated InterPro entries.",
+        " Complex Portal.",
+        " gnomAD.",
+        " ClinVar component source policy.",
+        " ClinGen Evidence Repository.",
+        " GWAS Catalog v2.",
+        " ClinGen.",
+        " GenCC submitter assessments.",
+        " PubMed.",
+        " Europe PMC.",
+        " NCBI LitVar2.",
+        " NCBI LitSense2.",
+        " Semantic Scholar.",
+        " ORCID public registry.",
+        " PMC Open Access bucket.",
+        " NIH iCite.",
+        " PubTator.",
+        " ClinicalTrials.gov.",
+        " NCI Clinical Trials Search.",
+        " CIViC.",
+        " Cancer Hotspots residue recurrence.",
+        " AlphaGenome.",
+        " OncoKB.",
+        " MyVariant.info aggregation.",
+        " ClinGen Allele Registry.",
+        " Mutalyzer.",
+        " VariantValidator.",
+        " MyChem.info aggregation.",
+        " ChEMBL native records and carried component.",
+        " Open Targets.",
+        " openFDA SPL labels.",
+        " Drugs@FDA application records.",
+        " European Medicines Agency.",
+        " WHO finished pharmaceutical products.",
+        " DDInter interaction records.",
+        " MyChem DrugBank Open identity subset only.",
+        " MyChem DrugCentral component.",
+        " MyChem Guide to Pharmacology component.",
+        " MyChem UNII identities.",
+        " MyChem NDC package identities.",
+        " MyChem openFDA cross-references only.",
+        " Ontology Lookup Service.",
+        " MyDisease.info aggregation.",
+        " Monarch associations.",
+        " SEER Explorer.",
+        " MONDO published ontology content.",
+        " Disease Ontology published content.",
+        " NCI Thesaurus ontology content.",
+        " HPO-published annotations.",
+        " Reviewed Orphadata Science content.",
+        " Separately licensed OMIM payload only.",
+        " openFDA FAERS drug adverse event reports.",
+        " CDC WONDER vaccine report summaries.",
+        " openFDA MAUDE device event reports.",
+        " Source-reported MedDRA reaction labels and versions.",
+        " Source-carried GMDN device terminology.",
+        " NCBI Genetic Testing Registry public reports.",
+        " WHO prequalified in vitro diagnostics.",
+        " FDA companion diagnostic device tables.",
+        " openFDA premarket approval submissions.",
+        " FDA native 510(k) clearance records.",
+        " openFDA medical device product recall records.",
+        " FDA drug enforcement recall records.",
+        " Clinical Pharmacogenetics Implementation Consortium.",
+        " ClinPGx pharmacogenomics annotations.",
+        " Public cBioPortal with study-specific reuse terms.",
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files."
+      ],
+      "x-extensible-enum": [
+        "hgnc",
+        "mygene",
+        "reactome",
+        "wikipathways",
+        "hpa",
+        "uniprot",
+        "interpro",
+        "complex-portal",
+        "gnomad",
+        "clinvar",
+        "erepo",
+        "gwas",
+        "clingen",
+        "gencc",
+        "pubmed",
+        "europepmc",
+        "litvar",
+        "litsense",
+        "semantic-scholar",
+        "orcid",
+        "pmc-oa",
+        "icite",
+        "pubtator",
+        "ctgov",
+        "nci",
+        "civic",
+        "hotspots",
+        "alphagenome",
+        "oncokb",
+        "myvariant",
+        "car",
+        "mutalyzer",
+        "variantvalidator",
+        "mychem",
+        "chembl",
+        "opentargets",
+        "openfda-label",
+        "drugsfda",
+        "ema",
+        "who-pq",
+        "ddinter",
+        "drugbank-open",
+        "drugcentral",
+        "gtopdb",
+        "unii",
+        "ndc",
+        "openfda-xref",
+        "ols",
+        "mydisease",
+        "monarch",
+        "seer",
+        "mondo",
+        "doid",
+        "ncit",
+        "hpo",
+        "orphanet",
+        "omim",
+        "faers",
+        "vaers",
+        "maude",
+        "meddra",
+        "gmdn",
+        "gtr",
+        "who-ivd",
+        "fda-cdx",
+        "fda-pma",
+        "fda-510k",
+        "fda-device-recall",
+        "fda-drug-recall",
+        "cpic",
+        "clinpgx",
+        "cbioportal",
+        "cellosaurus",
+        "orphadata"
+      ]
+    },
+    "Reply_SourceNotice": {
+      "description": "A source notice or request recovery step.",
+      "oneOf": [
+        {
+          "description": "Source-stated spellings actually searched.",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied name."
+            },
+            "kind": {
+              "const": "drug-name-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "Why the names were expanded or retained.",
+              "type": "string"
+            },
+            "names": {
+              "description": "Names actually searched; ambiguous identities retain the typed name only.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "names",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Variant spellings and registry fields actually searched.",
+          "properties": {
+            "codon": {
+              "description": "Codon forms searched, which match trials written for any change at that position.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            },
+            "input": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Whole caller-supplied variant or criteria text."
+            },
+            "kind": {
+              "const": "variant-search",
+              "type": "string"
+            },
+            "message": {
+              "description": "What was searched, where, and how to search the typed text only.",
+              "type": "string"
+            },
+            "spellings": {
+              "description": "Spellings of the same change actually searched, including the typed text.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "input",
+            "spellings",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Local request limits, source observations and recovery guidance.",
+          "properties": {
+            "data_date": {
+              "description": "Retained publisher dataset date, independent of acquisition and record events.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "kind": {
+              "const": "request-guidance",
+              "type": "string"
+            },
+            "message": {
+              "description": "Reviewed guidance; any quoted provider wording remains source data.",
+              "type": "string"
+            },
+            "retry_after_seconds": {
+              "description": "Seconds left before another source request may be admitted.",
+              "format": "uint64",
+              "minimum": 0,
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Registered conditions lack the literal words requested in a condition search.",
+          "properties": {
+            "kind": {
+              "const": "condition-word-mismatch",
+              "type": "string"
+            },
+            "message": {
+              "description": "The source searches several fields and can expand terms; no expansion cause is inferred.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A checked provider answer survived a local cache failure.",
+          "properties": {
+            "kind": {
+              "const": "cache-problem",
+              "type": "string"
+            },
+            "reason": {
+              "$ref": "#/$defs/Reply_CacheProblem",
+              "description": "Bounded local failure without paths or database diagnostics."
+            }
+          },
+          "required": [
+            "kind",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source still has graph pages after the bounded fetch window.",
+          "properties": {
+            "fallback": {
+              "$ref": "#/$defs/Reply_Text",
+              "description": "Default-source command offering another graph view."
+            },
+            "kind": {
+              "const": "graph-truncated",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "fallback"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "An empty LitVar lookup can be repeated with a caller-supplied rsID.",
+          "properties": {
+            "kind": {
+              "const": "litvar-rsid-hint",
+              "type": "string"
+            },
+            "message": {
+              "description": "Guidance that never supplies or infers an rsID.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "PubMed supplied a named ESearch warning without changing its phrases.",
+          "properties": {
+            "kind": {
+              "const": "pubmed-warning",
+              "type": "string"
+            },
+            "name": {
+              "description": "Original provider warning name, including names added by PubMed later.",
+              "type": "string"
+            },
+            "phrases": {
+              "description": "Original provider phrases, preserving whitespace and quotes.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "name"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "PubMed did not index these words.",
+          "properties": {
+            "kind": {
+              "const": "not-found-words",
+              "type": "string"
+            },
+            "words": {
+              "description": "Whole source words.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply_SourceOutcome": {
+      "description": "One source's outcome with source notices and request guidance.",
+      "properties": {
+        "count": {
+          "description": "Provider matching count.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "notices": {
+          "description": "Source notices and request recovery guidance.",
+          "items": {
+            "$ref": "#/$defs/Reply_SourceNotice"
+          },
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Reason"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Failure or stale-fallback reason."
+        },
+        "retrieved_count": {
+          "description": "Number of retrieved identities.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reply_Source",
+          "description": "Asked source."
+        },
+        "state": {
+          "$ref": "#/$defs/Reply_SourceState",
+          "description": "Retained state."
+        },
+        "term": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact provider search term."
+        },
+        "terms": {
+          "description": "Publisher terms name from the source registry.",
+          "type": "string"
+        },
+        "terms_url": {
+          "description": "Publisher page documenting the terms.",
+          "format": "uri",
+          "type": "string"
+        },
+        "use": {
+          "$ref": "#/$defs/Reply_Use",
+          "description": "Reviewed source use category; publisher terms remain authoritative."
+        }
+      },
+      "required": [
+        "source",
+        "use",
+        "terms",
+        "terms_url",
+        "state"
+      ],
+      "type": "object"
+    },
+    "Reply_SourceState": {
+      "description": "State of a source actually asked by the command.",
+      "enum": [
+        "ok",
+        "stale",
+        "syncing",
+        "failed",
+        "skipped"
+      ],
+      "type": "string"
+    },
+    "Reply_Status": {
+      "description": "Overall command outcome.",
+      "enum": [
+        "complete",
+        "partial",
+        "absent",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "Reply_Step": {
+      "description": "A command argument list spelled from a typed action.",
+      "properties": {
+        "args": {
+          "description": "CLI and MCP arguments.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "kind": {
+          "$ref": "#/$defs/Reply_StepKind",
+          "description": "Purpose of the action."
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "type": "object"
+    },
+    "Reply_StepKind": {
+      "description": "Purpose of an available next command.",
+      "enum": [
+        "restart",
+        "section",
+        "sort",
+        "page",
+        "fresh",
+        "disambiguate",
+        "pivot",
+        "sync",
+        "key",
+        "configure"
+      ],
+      "type": "string"
+    },
+    "Reply_Text": {
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    },
+    "Reply_Use": {
+      "description": "Reviewed source-use category, without inferring rights in individual records.",
+      "enum": [
+        "open",
+        "attribution",
+        "noncommercial",
+        "licensed",
+        "per-record"
+      ],
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.disease-prevalence/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "One versioned command response; schema identity comes only from its body type.\nJSON readers ignore unknown fields and unknown growable enum values within a major.",
+  "properties": {
+    "local_error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_CacheProblem"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Bounded local cache failure, independent of provider outcomes."
+    },
+    "next": {
+      "description": "Available next commands.",
+      "items": {
+        "$ref": "#/$defs/Reply_Step"
+      },
+      "type": "array"
+    },
+    "page": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_PageInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Search page metadata."
+    },
+    "problems": {
+      "description": "Rejected source fields.",
+      "items": {
+        "$ref": "#/$defs/Reply_Problem"
+      },
+      "type": "array"
+    },
+    "query": {
+      "$ref": "#/$defs/Reply_DiseaseGet",
+      "description": "Parsed query."
+    },
+    "result": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Reply_DiseasePrevalence"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Answer when available."
+    },
+    "schema": {
+      "const": "biomcp.disease-prevalence/1",
+      "type": "string"
+    },
+    "sources": {
+      "description": "Sources actually asked.",
+      "items": {
+        "$ref": "#/$defs/Reply_SourceOutcome"
+      },
+      "type": "array"
+    },
+    "status": {
+      "$ref": "#/$defs/Reply_Status",
+      "description": "Overall outcome."
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "query"
+  ],
+  "title": "Envelope",
+  "type": "object"
+}
