@@ -58,12 +58,7 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
         {
             faers_filter = true;
         }
-        if adverse
-            && matches!(
-                flag,
-                "--manufacturer" | "--product-code" | "--problem" | "--event-type"
-            )
-        {
+        if adverse && matches!(flag, "--manufacturer" | "--product-code" | "--problem") {
             maude_filter = true;
         }
         if adverse && let Some(found) = super::find(FLAGS, flag) {
