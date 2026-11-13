@@ -75,10 +75,10 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
     Ok(map::resolve(fetch(leg, input, build)?, input))
 }
 
-/// Native service descriptions, warnings and version metadata.
-pub use normalization::normalize;
 /// The gene's RefSeq transcripts on which VariantValidator accepts a mismatched change.
 pub use fit::transcript_fits;
+/// Native service descriptions, warnings and version metadata.
+pub use normalization::normalize;
 
 /// Complete source policy and command declaration.
 pub(crate) mod decl;
