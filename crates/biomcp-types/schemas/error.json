@@ -215,6 +215,7 @@
         "dropped; use exact variant commands without disease fanout",
         "dropped; model-organism evidence is outside this disease slice",
         "dropped; prevalence is not SEER incidence or survival",
+        "prevalence comes only from --source orphadata for a MONDO, DOID or Orphanet ID; use: get disease <CURIE> prevalence --source orphadata",
         "dropped; grant amounts do not answer the disease care questions",
         "dropped; use: get variant <ID> civic; no disease-name join",
         "dropped; no indispensable disease question establishes this source",
@@ -411,7 +412,8 @@
         " Clinical Pharmacogenetics Implementation Consortium.",
         " ClinPGx pharmacogenomics annotations.",
         " Public cBioPortal with study-specific reuse terms.",
-        " Cellosaurus cell line identity."
+        " Cellosaurus cell line identity.",
+        " Orphadata Science epidemiology and natural-history files."
       ],
       "x-extensible-enum": [
         "hgnc",
@@ -486,7 +488,8 @@
         "cpic",
         "clinpgx",
         "cbioportal",
-        "cellosaurus"
+        "cellosaurus",
+        "orphadata"
       ]
     },
     "Reply_Step": {

@@ -18,7 +18,6 @@ const SECTIONS: &[(&str, ErrorMessage)] = &[
     ("diagnostics", ErrorMessage::DiseaseDiagnostics),
     ("variants", ErrorMessage::DiseaseVariants),
     ("models", ErrorMessage::DiseaseModels),
-    ("prevalence", ErrorMessage::DiseasePrevalence),
     ("funding", ErrorMessage::DiseaseFunding),
     ("civic", ErrorMessage::DiseaseCivic),
     ("disgenet", ErrorMessage::DiseaseDisgenet),

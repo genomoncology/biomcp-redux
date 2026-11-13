@@ -5,6 +5,8 @@ pub(crate) mod monarch;
 pub(crate) mod mydisease;
 /// OLS source-owned identity and discovery outcomes.
 pub(crate) mod ols;
+/// Orphanet epidemiology through stated Orphanet links.
+pub(crate) mod orphadata;
 mod page;
 /// Native SEER site and statistics pages.
 pub(crate) mod seer;
@@ -25,6 +27,9 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet) -> Outcome {
         }
         (biomcp_types::DiseaseId::Concept(id), DiseaseSource::Monarch) => {
             monarch::get(cx, query, id)
+        }
+        (biomcp_types::DiseaseId::Concept(id), DiseaseSource::Orphadata) => {
+            orphadata::get(cx, query, id)
         }
         (biomcp_types::DiseaseId::SeerSite(id), biomcp_types::DiseaseSource::Seer) => {
             seer::get(cx, query, id)

@@ -3115,27 +3115,27 @@ Options:
 
 ```
 
-Get disease details and source statistics. Sources: monarch, mydisease, ols, seer.
+Get disease details and source statistics. Sources: monarch, mydisease, ols, orphadata, seer.
 
-- `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `id`: Exact ontology CURIE or a SEER site code or name.
 Form: get disease ID SECTION; not --id.
-- `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `--ontology`: One OLS ontology; help get disease
 One OLS ontology.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `section`: One named section; absent means identity card only; help get disease
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get disease ID SECTION; not --section.
-- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 - `--source`: Default MyDisease; no automatic fallback; help get disease
 Default MyDisease; no automatic fallback.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
 
 One named section; absent means identity card only.
 
@@ -3146,6 +3146,7 @@ One named section; absent means identity card only.
 - `phenotypes`: Source phenotype association rows.
 - `incidence`: Source stage incidence rows.
 - `survival`: Annual survival rows.
+- `prevalence`: Orphanet prevalence, age of onset and inheritance.
 
 ## biomcp get drug
 
@@ -5498,7 +5499,7 @@ Arguments:
           Local source bundle to synchronize.
 
           [default: hgnc]
-          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx]
+          [possible values: hgnc, clingen, gencc, wikipathways, cbioportal-studies, ema, ddinter, who-pq, gtr, who-ivd, fda-cdx, orphadata]
 
 Options:
       --format <format>
@@ -9235,6 +9236,7 @@ Commands:
   gtr
   who-ivd
   fda-cdx
+  orphadata
 
 Options:
       --format <format>
@@ -9685,6 +9687,44 @@ Options:
 ```
 
 Describe help sync fda-cdx.
+
+
+## biomcp help sync orphadata
+
+```text
+Usage: biomcp help sync orphadata [OPTIONS]
+
+Options:
+      --format <format>
+          Choose JSON or Markdown output; configuration can change the default.
+
+          [default: json]
+          [possible values: json, md]
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
+
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+```
+
+Describe help sync orphadata.
 
 
 ## biomcp help skill

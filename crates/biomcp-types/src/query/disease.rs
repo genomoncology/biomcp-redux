@@ -22,6 +22,8 @@ biodata::wire_enum! { described
         Incidence => "incidence",
         /// Annual survival rows.
         Survival => "survival",
+        /// Orphanet prevalence, age of onset and inheritance.
+        Prevalence => "prevalence",
     }
 }
 fn default_limit() -> u32 {
@@ -46,6 +48,10 @@ struct SearchFields {
     text: Option<Box<str>>,
     /// One explicit source, default OLS.
     #[serde(default)]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(with = "source::DiseaseSearchSource", extend("default" = "ols"))
+    )]
     source: DiseaseSource,
     /// Exactly one ontology, default MONDO.
     #[serde(
@@ -168,6 +174,18 @@ impl TryFrom<GetFields> for DiseaseGet {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         let id = get_id(&v, statistic)?;
+        // Name the ID, not the section word: prevalence is a valid section, and the message
+        // names the one source that serves it.
+        if v.section == Some(DiseaseSection::Prevalence) && v.source != DiseaseSource::Orphadata {
+            return Err(QueryInvalid::new(&["id", "section"])
+                .with_message(crate::ErrorMessage::DiseasePrevalenceSource));
+        }
+        if v.source == DiseaseSource::Orphadata
+            && !matches!(&id, DiseaseId::Concept(id) if orphadata_id(id.as_str()))
+        {
+            return Err(QueryInvalid::new(&["source", "id"])
+                .with_message(crate::ErrorMessage::DiseasePrevalenceSource));
+        }
         if v.source != DiseaseSource::Seer
             && [
                 &v.sex,
@@ -227,6 +245,16 @@ impl TryFrom<GetFields> for DiseaseGet {
     }
 }
 
+/// Orphadata reads an Orphanet code directly, or a MONDO or DOID concept through its Orphanet links.
+fn orphadata_id(id: &str) -> bool {
+    id.split_once(':').is_some_and(|(prefix, local)| {
+        ["MONDO", "DOID", "Orphanet", "ORPHA"]
+            .iter()
+            .any(|p| p.eq_ignore_ascii_case(prefix))
+            && !local.is_empty()
+            && local.bytes().all(|b| b.is_ascii_digit())
+    })
+}
 /// Bind the record to a SEER site or an ontology concept, naming the real fault.
 fn get_id(v: &GetFields<Text>, statistic: bool) -> Result<DiseaseId, QueryInvalid> {
     Ok(if v.source == DiseaseSource::Seer {
@@ -350,6 +378,24 @@ impl DiseaseGet {
         })
     }
 
+    /// Read Orphanet epidemiology for an exact concept or Orphanet code.
+    pub fn orphadata_prevalence(id: biodata::Curie) -> Result<Self, QueryInvalid> {
+        Self::try_from(GetFields {
+            id: Text::new(id.as_str()).map_err(|_| QueryInvalid::new(&["id"]))?,
+            source: DiseaseSource::Orphadata,
+            ontology: None,
+            section: Some(DiseaseSection::Prevalence),
+            section_limit: None,
+            section_offset: 0,
+            sex: None,
+            race: None,
+            age_range: None,
+            dataset: None,
+            period: None,
+            interval: None,
+        })
+    }
+
     /// Original edge-admitted spelling for source record attribution.
     pub fn record(&self) -> &Text {
         &self.record
@@ -457,6 +503,7 @@ impl DiseaseSection {
             Self::Hierarchy => &[Source::MyDisease],
             Self::Genes | Self::Phenotypes => &[Source::Monarch],
             Self::Incidence | Self::Survival => &[Source::Seer],
+            Self::Prevalence => &[Source::Orphadata],
         }
     }
 }

@@ -1,0 +1,66 @@
+{
+  "feature": "disease-orphadata",
+  "live_check": "public",
+  "story": "A counselor reads Kabuki syndrome's cited Orphanet prevalence and inheritance through MONDO's Orphanet link, and a concept without an Orphanet link says so.",
+  "verified": "Orphadata files cut to Kabuki syndrome from the 2026-06-23 release, fetched 2026-11-13; MyDisease replies recorded live the same day. See tests/replies/disease/orphadata/README.md.",
+  "replay": "disease/orphadata",
+  "steps": [
+    {
+      "run": ["sync", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/query/source": "orphadata",
+        "/result/rows": 2
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0016512", "prevalence", "--source", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/result/links/0/object/id": "ORPHANET:2322",
+        "/result/items/0/id": "Orphanet:2322",
+        "/result/items/0/label": "Kabuki syndrome",
+        "/result/items/0/prevalence/*/kind": ["Prevalence at birth", "Prevalence at birth", "Point prevalence", "Prevalence at birth"],
+        "/result/items/0/prevalence/*/value": ["1.16", "1.16", "3.1", "3.1"],
+        "/result/items/0/prevalence/*/class": ["1-9 / 100 000", "1-9 / 100 000", "1-9 / 100 000", "1-9 / 100 000"],
+        "/result/items/0/prevalence/*/geography": ["New Zealand", "Australia", "Europe", "Japan"],
+        "/result/items/0/prevalence/*/source": ["15108197[PMID]", "15108197[PMID]", "[EXPERT]_21882399[PMID]", "3067577[PMID]"],
+        "/result/items/0/prevalence/2/pmids": ["21882399"],
+        "/result/items/0/prevalence/*/validation": ["Validated", "Validated", "Validated", "Validated"],
+        "/result/items/0/onset": ["Antenatal", "Infancy", "Neonatal"],
+        "/result/items/0/inheritance": ["Autosomal dominant", "Not applicable"],
+        "/result/items/0/attribution/release": "2026-06-23 07:57:58",
+        "/sources/*/source": ["mydisease", "orphadata"],
+        "/sources/*/state": ["ok", "ok"],
+        "/sources/1/terms": "CC BY 4.0; cite Orphadata. BioMCP uses Orphanet/Orphadata data; its results may not truly reflect that data, and Orphanet is not responsible for their quality",
+        "/sources/1/terms_url": "https://www.orphadata.com/legal-notice/"
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0007254", "prevalence", "--source", "orphadata"],
+      "exit": 1,
+      "expect": {
+        "/status": "absent",
+        "/page/total": 0,
+        "/sources/1/source": "orphadata",
+        "/sources/1/state": "skipped",
+        "/sources/1/reason": "no-join-id"
+      }
+    },
+    {
+      "run": ["get", "disease", "Orphanet:2322", "prevalence", "--source", "orphadata"],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/prevalence/*/value": ["1.16", "1.16", "3.1", "3.1"],
+        "/sources/*/source": ["orphadata"]
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:0016512"],
+      "expect": {
+        "/status": "complete",
+        "/next/3/args": ["get", "disease", "MONDO:0016512", "prevalence", "--section-limit", "5", "--source", "orphadata"]
+      }
+    }
+  ]
+}

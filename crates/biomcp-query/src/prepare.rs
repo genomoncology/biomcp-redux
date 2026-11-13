@@ -53,10 +53,11 @@ fn get_supported(source: DiseaseSource, section: Option<DiseaseSection>, id: &st
             section,
             Some(DiseaseSection::Incidence | DiseaseSection::Survival)
         ),
+        DiseaseSource::Orphadata => section == Some(DiseaseSection::Prevalence),
     }
 }
 /// Every disease section, in declaration order.
-const DISEASE_SECTIONS: [DiseaseSection; 7] = [
+const DISEASE_SECTIONS: [DiseaseSection; 8] = [
     DiseaseSection::Synonyms,
     DiseaseSection::Xrefs,
     DiseaseSection::Hierarchy,
@@ -64,6 +65,7 @@ const DISEASE_SECTIONS: [DiseaseSection; 7] = [
     DiseaseSection::Phenotypes,
     DiseaseSection::Incidence,
     DiseaseSection::Survival,
+    DiseaseSection::Prevalence,
 ];
 /// A source that serves only named sections, read without one: the sections it serves.
 fn disease_sections(action: &Action) -> Option<UsageError> {

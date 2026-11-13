@@ -32,4 +32,7 @@ macro_rules! selector {
     }
 }
 selector!(DiseaseOntology, "One explicit OLS ontology.", Mondo, {Mondo, Doid, Ncit});
-selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer});
+selector!(DiseaseSource, "An explicit disease source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer, Orphadata});
+// The sources disease search advertises; Orphadata only reads a known concept's prevalence.
+#[cfg(feature = "schema")]
+selector!(DiseaseSearchSource, "An explicit disease search source without fallback.", Ols, {Ols, MyDisease, Monarch, Seer});

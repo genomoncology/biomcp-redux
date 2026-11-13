@@ -76,6 +76,14 @@ steps:
 - run:
   - help
   - sync
+  - orphadata
+  - --unrecognized-argument
+  exit: 2
+  expect:
+    /error/code: usage.arguments
+- run:
+  - help
+  - sync
   - who-ivd
   - --unrecognized-argument
   exit: 2
