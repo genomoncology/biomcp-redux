@@ -11,7 +11,7 @@
         "pembrolizumab"
       ],
       "starts_within": {
-        "/page/total": 1200
+        "/page/total": 450
       },
       "expect": {
         "/status": "complete",
