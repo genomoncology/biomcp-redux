@@ -330,3 +330,32 @@ fn request_boundaries_reject_missing_text_null_limits_invalid_dates_and_removed_
         assert!(serde_json::from_value::<AdverseEventSearch>(date).is_ok());
     }
 }
+/// Every header field belongs to some source's row list, and each listed name is a field.
+#[test]
+fn row_fields_cover_the_header() {
+    let full: biomcp_types::AdverseEventHeader = serde_json::from_value(json!({
+        "id": "1",
+        "source": "faers",
+        "version": "1",
+        "serious": "1",
+        "serious_label": "x",
+        "event_type": "x",
+        "first_received": "x"
+    }))
+    .unwrap();
+    let value = serde_json::to_value(full).unwrap();
+    let mut keys: Vec<&str> = value
+        .as_object()
+        .unwrap()
+        .keys()
+        .map(String::as_str)
+        .collect();
+    keys.sort_unstable();
+    let mut listed: Vec<&str> = biomcp_types::AdverseEventHeader::ROW_FIELDS
+        .iter()
+        .flat_map(|(_, names)| names.iter().copied())
+        .collect();
+    listed.sort_unstable();
+    listed.dedup();
+    assert_eq!(keys, listed);
+}

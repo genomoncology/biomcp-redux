@@ -329,30 +329,3 @@ impl ResponseBody for AdverseEventIdentifiers {
     const SCHEMA: &'static str = "biomcp.adverse-event-identifiers/4";
     type Query = AdverseEventGet;
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    /// Every header field belongs to some source's row list, and each listed name is a field.
-    #[test]
-    fn row_fields_cover_the_header() {
-        let full = AdverseEventHeader {
-            id: serde_json::from_value(serde_json::json!("1")).unwrap(),
-            source: AdverseEventSource::Faers,
-            version: Some("1".into()),
-            serious: Some("1".into()),
-            serious_label: Some("x".into()),
-            event_type: Some("x".into()),
-            first_received: Some("x".into()),
-        };
-        let value = serde_json::to_value(full).unwrap();
-        let mut keys: Vec<&str> = value.as_object().unwrap().keys().map(String::as_str).collect();
-        keys.sort_unstable();
-        let mut listed: Vec<&str> = AdverseEventHeader::ROW_FIELDS
-            .iter()
-            .flat_map(|(_, names)| names.iter().copied())
-            .collect();
-        listed.sort_unstable();
-        listed.dedup();
-        assert_eq!(keys, listed);
-    }
-}
