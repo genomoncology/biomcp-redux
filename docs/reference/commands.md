@@ -1601,6 +1601,12 @@ Options:
       --region <region>
           A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes.
 
+      --regions-only[=<regions_only>]
+          Return only the ClinGen dosage regions that the band, interval or ISCA ID matches, without gene rows.
+
+          [default: false]
+          [possible values: true, false]
+
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1626,6 +1632,7 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `query`: Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.
 Form: search gene QUERY; not --query.
 - `--region`: A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes. Value form: string. Example: --region chr16:29600000-29700000. Command sources: clingen, hgnc; source restrictions in the field description apply.
+- `--regions-only`: Return only the ClinGen dosage regions that the band, interval or ISCA ID matches, without gene rows. Value form: boolean. Example: --regions-only. Command sources: clingen, hgnc; source restrictions in the field description apply.
 
 ## biomcp search article
 
