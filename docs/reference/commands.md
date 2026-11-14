@@ -3228,16 +3228,19 @@ Options:
       --evidence-level <evidence_level>...
           A–E; help get drug
           A–E
-          Native CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
+          Native CIViC evidence levels; repeat to include several levels.
+          Only with --source civic on get drug, and the civic section on get variant.
 
       --evidence-status <evidence_status>
           Status; help get drug
           Status
-          Native CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
+          Native CIViC evidence status; omitted preserves the source's existing default.
+          Only with --source civic on get drug, and the civic section on get variant.
 
       --label-section <label_section>
           Exact openFDA SPL fields.
-          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Only with --source openfda-label.
+          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+          Only with --source openfda-label.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3287,17 +3290,20 @@ Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 1
 and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get drug
 A–E
-Source CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
+Source CIViC evidence levels; repeat to include several levels.
+Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-status`: Status; help get drug
 Status
-Source CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
+Source CIViC evidence status; omitted preserves the source's existing default.
+Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `input`: Source ID, brand or generic name.
 Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
-Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Only with --source openfda-label. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+Only with --source openfda-label. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `section`: Source sections; help get drug
@@ -3593,12 +3599,14 @@ Options:
       --evidence-level <evidence_level>...
           A–E; help get variant
           A–E
-          Native CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
+          Native CIViC evidence levels; repeat to include several levels.
+          Only with --source civic on get drug, and the civic section on get variant.
 
       --evidence-status <evidence_status>
           Status; help get variant
           Status
-          Native CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
+          Native CIViC evidence status; omitted preserves the source's existing default.
+          Only with --source civic on get drug, and the civic section on get variant.
 
       --limit <limit>
           Candidate rows per page; more remain reachable through typed next commands.
@@ -3654,11 +3662,13 @@ CIViC disease name text; CIViC matches it natively against evidence and assertio
 CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string. Example: --drug erlotinib. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get variant
 A–E
-Source CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
+Source CIViC evidence levels; repeat to include several levels.
+Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-status`: Status; help get variant
 Status
-Source CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
+Source CIViC evidence status; omitted preserves the source's existing default.
+Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.

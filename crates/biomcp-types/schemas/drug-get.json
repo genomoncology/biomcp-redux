@@ -161,7 +161,7 @@
       "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda."
     },
     "evidence_level": {
-      "description": "A–E\nNative CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.",
+      "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.\nOnly with --source civic on get drug, and the civic section on get variant.",
       "items": {
         "$ref": "#/$defs/CivicEvidenceLevel"
       },
@@ -176,7 +176,7 @@
           "type": "null"
         }
       ],
-      "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant."
+      "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
     },
     "input": {
       "$ref": "#/$defs/DrugId"
@@ -190,7 +190,7 @@
           "type": "null"
         }
       ],
-      "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Only with --source openfda-label.",
+      "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label.",
       "x-comma-separated": true
     },
     "product_number": {
