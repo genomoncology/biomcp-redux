@@ -28,6 +28,10 @@
           ],
           "description": "Immutable stored bundle revision retained by a continuation."
         },
+        "find": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "PMA summary: case-insensitive literal text to find; section offset then counts passages."
+        },
         "id": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Exact native identity, including version for GTR.",
@@ -118,6 +122,16 @@
         "document": {
           "$ref": "#/$defs/Reply_PdfText",
           "description": "Mechanical document text with explicit extraction state."
+        },
+        "hits": {
+          "description": "Passages matching a find, in document order; the page counts passages.",
+          "items": {
+            "$ref": "#/$defs/Reply_PdfTextHit"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
         }
       },
       "required": [
@@ -195,7 +209,7 @@
           "description": "Extraction outcome; no-text includes scanned PDFs and does not imply OCR."
         },
         "text": {
-          "description": "Verbatim extracted text in document order; omitted when unavailable.",
+          "description": "Verbatim extracted text in document order; omitted when unavailable or when a find returns passages.",
           "type": [
             "string",
             "null"
@@ -218,6 +232,26 @@
         "state",
         "offset",
         "total"
+      ],
+      "type": "object"
+    },
+    "Reply_PdfTextHit": {
+      "description": "One verbatim passage that contains the found text.",
+      "properties": {
+        "fragment": {
+          "description": "Zero-based text fragment holding the passage start; read it with the fragment offset.",
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "text": {
+          "description": "Extracted lines from the matching line through the following lines, in document order.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fragment",
+        "text"
       ],
       "type": "object"
     },

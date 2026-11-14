@@ -26,7 +26,7 @@ pub struct PdfText {
 pub struct PdfTextHit {
     /// Zero-based text fragment holding the passage start; read it with the fragment offset.
     pub fragment: u32,
-    /// Extracted lines from the matching line through the following lines, in document order.
+    /// Verbatim extracted text from shortly before the match through at most 3,072 escaped bytes.
     pub text: Box<str>,
 }
 biodata::wire_enum! {
