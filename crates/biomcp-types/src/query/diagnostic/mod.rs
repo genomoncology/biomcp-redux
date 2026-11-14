@@ -128,7 +128,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     classification: Option<crate::DrugRecallClassification>,
-    #[doc = "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case, hyphens and spaces."]
+    #[doc = "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, \
+    ignoring letter case, hyphens and spaces."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = NAME_SOURCES)))]
     name: Option<Text>,

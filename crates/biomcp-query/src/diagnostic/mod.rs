@@ -132,7 +132,9 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
         && q.name().is_some()
         && let Some(source) = out.sources.last_mut()
     {
-        source.notices.push(recall::guidance(GTR_NAME_NOTICE.into()));
+        source
+            .notices
+            .push(recall::guidance(GTR_NAME_NOTICE.into()));
     }
     command.finish(deadline.remaining());
     out

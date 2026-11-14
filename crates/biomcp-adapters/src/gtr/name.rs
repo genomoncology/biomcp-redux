@@ -19,7 +19,8 @@ fn fold(text: &str) -> (String, Vec<(usize, usize)>) {
     for (at, c) in text.char_indices().filter(|(_, c)| !skipped(*c)) {
         for lower in c.to_lowercase() {
             out.push(lower);
-            spans.extend(std::iter::repeat_n((at, at + c.len_utf8()), lower.len_utf8()));
+            let span = (at, at + c.len_utf8());
+            spans.extend(std::iter::repeat_n(span, lower.len_utf8()));
         }
     }
     (out, spans)
@@ -39,7 +40,8 @@ pub(super) fn contains(name: &str, query: &str) -> bool {
 fn whole_word(name: &str, needle: &str) -> bool {
     let (folded, spans) = fold(name);
     folded.match_indices(needle).any(|(at, _)| {
-        let (start, end) = (spans[at].0, spans[at + needle.len() - 1].1);
+        let start = spans.get(at).map_or(0, |v| v.0);
+        let end = spans.get(at + needle.len() - 1).map_or(name.len(), |v| v.1);
         let before = name.get(..start).and_then(|v| v.chars().next_back());
         let after = name.get(end..).and_then(|v| v.chars().next());
         !before.is_some_and(char::is_alphanumeric) && !after.is_some_and(char::is_alphanumeric)
