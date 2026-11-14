@@ -66,9 +66,8 @@ pub(super) fn header(
             .collect(),
         specimens: xml
             .filter(|x| x.id == v.test_accession_ver)
-            .map(|x| &x.specimens[..])
-            .unwrap_or_default()
-            .iter()
+            .into_iter()
+            .flat_map(|x| x.specimens.iter())
             .filter_map(|value| optional(value, "SpecimenType", v, problems))
             .collect(),
         url: Text::new(&format!(
@@ -91,9 +90,8 @@ pub(super) fn card(
     let header = header(v, xml, problems)?;
     let laboratory_certifications: Box<[_]> = lab
         .filter(|lab| *lab.id == *v.lab_id)
-        .map(|lab| &lab.certifications[..])
-        .unwrap_or_default()
-        .iter()
+        .into_iter()
+        .flat_map(|lab| lab.certifications.iter())
         .filter_map(|c| {
             Some(biomcp_types::GtrLabCertification {
                 name: optional(&c.name, "LabCertification/Name", v, problems)?,

@@ -97,7 +97,7 @@ pub(super) fn rows(
                 }
             }
             Event::End(_) => {
-                end(&mut s, emit);
+                end(&mut s, emit)?;
                 s.stack.pop();
             }
             Event::Text(text) => {
@@ -135,7 +135,7 @@ pub(super) fn rows(
     }
 }
 /// Close the element on top of the stack, emitting a lab or test that has kept values.
-fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) {
+fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) -> Result<(), BadReply> {
     if let Some((leaf, value)) = s.leaf.take() {
         let value = value.trim().to_owned();
         match leaf {
@@ -158,7 +158,7 @@ fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) {
                 }
             }
         }
-        return;
+        return Ok(());
     }
     if s.under(&["GTRLabData", "GTRLab", "LabCertification"]) {
         if let Some(cert) = s.cert.take()
@@ -171,26 +171,34 @@ fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) {
             && !list.is_empty()
         {
             let named = list.iter().all(|c| !c.name.is_empty());
-            emit(id.filter(|_| named).and_then(|id| {
-                serde_json::to_string(&Lab {
-                    xml_lab: &id,
-                    certifications: &list,
+            let row = id
+                .filter(|_| named)
+                .map(|id| {
+                    serde_json::to_string(&Lab {
+                        xml_lab: &id,
+                        certifications: &list,
+                    })
                 })
-                .ok()
-            }));
+                .transpose()
+                .map_err(|_| BadReply)?;
+            emit(row);
         }
     } else if s.under(&["GTRLabData", "GTRLabTest"])
         && let Some((id, list)) = s.test.take()
         && !list.is_empty()
     {
-        emit(id.and_then(|id| {
-            serde_json::to_string(&Test {
-                xml_test: &id,
-                specimens: &list,
+        let row = id
+            .map(|id| {
+                serde_json::to_string(&Test {
+                    xml_test: &id,
+                    specimens: &list,
+                })
             })
-            .ok()
-        }));
+            .transpose()
+            .map_err(|_| BadReply)?;
+        emit(row);
     }
+    Ok(())
 }
 fn attr(tag: &quick_xml::events::BytesStart<'_>, name: &str) -> Result<Option<String>, BadReply> {
     for attr in tag.attributes() {

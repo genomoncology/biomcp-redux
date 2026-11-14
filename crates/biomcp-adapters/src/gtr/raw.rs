@@ -15,21 +15,18 @@ pub(super) enum Native {
 }
 /// Written by `xml::rows` with an already checked accession/version.
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub(super) struct XmlTest {
     #[serde(rename = "xml_test")]
     pub id: GtrTestId,
     pub specimens: Vec<Box<str>>,
 }
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub(super) struct XmlLab {
     #[serde(rename = "xml_lab")]
     pub id: Box<str>,
     pub certifications: Vec<XmlCertification>,
 }
 #[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields)]
 pub(super) struct XmlCertification {
     pub name: Box<str>,
     pub number: Option<Box<str>>,

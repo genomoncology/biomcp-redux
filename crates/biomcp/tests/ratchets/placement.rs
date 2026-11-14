@@ -304,6 +304,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
+        "crates/biomcp-fetch/tests/bundle/streamed.rs",
+        "Exercise streamed gzip XML parts and their decoded bound through the public transport API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/bundle/shutdown.rs",
         "Cancel and join server-owned bundle work while preserving caller cancellation independence and published rows through the public Fetch API.",
     ),

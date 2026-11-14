@@ -24,7 +24,7 @@ impl<R: Read> Read for Bounded<R> {
         let want = buf
             .len()
             .min(usize::try_from(self.left).unwrap_or(usize::MAX));
-        let n = self.inner.read(&mut buf[..want])?;
+        let n = self.inner.read(buf.get_mut(..want).unwrap_or_default())?;
         self.left -= n as u64;
         Ok(n)
     }
