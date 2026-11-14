@@ -128,24 +128,13 @@ pub fn ancestors(leg: &Leg<'_>, id: &HpId) -> Result<Option<Ancestors>, RequestE
             term(&mut problems, entity, Some(curie))
         })
         .collect();
-    let text = |value: &str| {
-        crate::mapped::text(value).map_err(|_| RequestError::Input(InputError::Serialization))
-    };
     Ok(Some(Ancestors {
         items,
         refusals,
         obsolete,
         replaced_by,
         problems: problems.list,
-        components: vec![ComponentLabel {
-            component: text(component.name)?,
-            terms: ComponentTerms {
-                usage: component.terms.usage,
-                name: text(component.terms.name)?,
-                url: text(component.terms.url)?,
-            },
-        }]
-        .into(),
+        components: vec![label(component)?].into(),
         metadata: received.meta,
     }))
 }
@@ -168,4 +157,18 @@ fn term(
         None => None,
     };
     Some(PhenotypeAncestor { id: curie, label })
+}
+/// The HPO terms OLS carries for this reply.
+fn label(component: &crate::registry::Component) -> Result<ComponentLabel, RequestError> {
+    let text = |value: &str| {
+        crate::mapped::text(value).map_err(|_| RequestError::Input(InputError::Serialization))
+    };
+    Ok(ComponentLabel {
+        component: text(component.name)?,
+        terms: ComponentTerms {
+            usage: component.terms.usage,
+            name: text(component.terms.name)?,
+            url: text(component.terms.url)?,
+        },
+    })
 }
