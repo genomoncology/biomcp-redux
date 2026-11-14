@@ -86,6 +86,7 @@ fn fact_context(entity: &str, key: &str) -> Value {
         ("pgx", "drug_id") => json!({"section":"recommendations"}),
         ("drug", "decision_from" | "decision_to") => json!({"section":"approvals"}),
         ("variant", "tumor_type") => json!({"build":"GRCh38"}),
+        ("adverse-event", "sort") => json!({"text":"COVID19"}),
         _ => json!({}),
     }
 }
@@ -574,7 +575,9 @@ fn context(
         ("search", "diagnostic", "classification") => json!({"source":"fda-device-recall"}),
         ("search", "drug", "name_selector") => json!({"source":"chembl"}),
         ("search", "drug", "sort") => json!({"source":"drugsfda"}),
-        ("search", "adverse-event", "section") => json!({"source":"vaers", "text":"COVID19"}),
+        ("search", "adverse-event", "section" | "sort") => {
+            json!({"source":"vaers", "text":"COVID19"})
+        }
         ("search", "adverse-event", "event_type") => json!({"source":"maude"}),
         ("search", "trial", "biomarker_use") => json!({"source":"nci", "biomarker_code":"C96022"}),
         ("search", "variant", _) => json!({"gene":"KRAS", "protein":"p.G12D"}),
