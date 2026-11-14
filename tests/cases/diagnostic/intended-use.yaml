@@ -1,0 +1,108 @@
+{
+  "feature": "device-approval-search",
+  "live_check": "public",
+  "story": "A PMA search takes an intended-use phrase, matched on the approval-order statement FDA publishes (ao_statement); the persona's cell-free question returns openFDA's 12 PMA records, Shield P230009 among them, and source_query names the field. The same phrase as a trade name still finds nothing, and the phrase is refused for 510(k), whose openFDA records have no intended-use text.",
+  "verified": "Native openFDA device PMA replies recorded 2026-11-14 by biomcp --record in pm jobs j40449 and j40467. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. The intended-use reply omits applicant address fields and the harmonized openfda block; the trade-name reply is byte for byte. Recorded sizes and SHA-256 are in tests/replies/diagnostic/intended-use/README.md. No rows or values invented.",
+  "replay": "diagnostic/intended-use",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--intended-use",
+        "cell-free",
+        "--limit",
+        "10"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--intended-use",
+        "cell-free",
+        "--limit",
+        "10"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/intended_use": "cell-free",
+        "/page/total": 12,
+        "/page/returned": 10,
+        "/result/count_unit": "device-submissions",
+        "/result/source_query": "ao_statement:\"cell-free\"",
+        "/result/items/*/header/pma_number": [
+          "P250029",
+          "P250027",
+          "P260004",
+          "P200010",
+          "P200010",
+          "P120019",
+          "P230009",
+          "P210040",
+          "P200016",
+          "P200006"
+        ],
+        "/result/items/6/header/trade_name": "Shield",
+        "/result/items/0/header/trade_name": "SimpleScreen CRC",
+        "/next/*/kind": {
+          "includes": "page"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--name",
+        "cell-free"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/name": "cell-free",
+        "/page/total": 0,
+        "/result/source_query": "trade_name:\"cell-free\""
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--intended-use",
+        "cell-free"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--intended-use",
+        "/error/message": "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so use --name for the 510(k) device_name"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--intended-use",
+        "Nestlé"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--intended-use",
+        "/error/message": "--intended-use needs ASCII letters or digits, such as e for é, because openFDA refuses other letters in a phrase"
+      }
+    }
+  ]
+}
