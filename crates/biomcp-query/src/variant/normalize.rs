@@ -206,8 +206,10 @@ fn transcript_fit(
         query.hgvs().into(),
         status::source(variantvalidator::SPEC.source, leg.finish(), error),
     ));
-    let Ok(found) = result else {
-        return;
+    let found = match result {
+        Ok(found) => found,
+        // The failure is already in the call's source state.
+        Err(_) => return,
     };
     let mut fits = found.value;
     // Lowest accession number first: the longest-standing RefSeq record of the allele.
@@ -226,19 +228,39 @@ fn transcript_fit(
         .take(FIT_ALLELES)
         .filter_map(|fit| query.with_hgvs(fit.hgvs.as_str()))
         .collect();
+    let mut problems = found.problems;
+    retry(cx, deadline, &fits, &retried, rows, calls);
+    lead_on(cx, rows, &retried, next, &mut problems);
+    if let Some((mapped, _, _)) = rows.first_mut() {
+        mapped.problems.extend(problems);
+    }
+}
+
+/// List the fits on each mismatched row and resolve every fitting allele with that row's
+/// service, all at once.
+fn retry(
+    cx: &Ctx<'_>,
+    deadline: Deadline<'_>,
+    fits: &[biomcp_types::TranscriptFit],
+    retried: &[VariantNormalize],
+    rows: &mut Vec<Row>,
+    calls: &mut Vec<(Box<str>, SourceOutcome)>,
+) {
     let mut jobs: Vec<Box<dyn FnOnce() -> Row + Send + '_>> = Vec::new();
+    let mut asked = Vec::new();
     for (mapped, _, _) in rows.iter_mut() {
         if !mismatched(&mapped.value) {
             continue;
         }
-        mapped.value.fits = fits.clone().into();
+        mapped.value.fits = fits.to_vec().into();
         let Some(spec) = selected(NormalizationSource::All)
             .into_iter()
             .find(|spec| spec.source == mapped.value.source)
         else {
             continue;
         };
-        for retry in &retried {
+        for retry in retried {
+            asked.push(retry.hgvs());
             jobs.push(Box::new(move || {
                 let mut row = service(cx, retry, spec, deadline);
                 row.0.value.hgvs = Some(retry.hgvs().into());
@@ -247,24 +269,29 @@ fn transcript_fit(
         }
     }
     let extra = crate::fan_out::run(jobs);
-    for (mapped, source, _) in &extra {
-        let hgvs = mapped
-            .value
-            .hgvs
-            .as_ref()
-            .map_or(query.hgvs(), |hgvs| hgvs.as_str());
+    for (hgvs, (_, source, _)) in asked.into_iter().zip(&extra) {
         calls.push((hgvs.into(), source.clone()));
     }
     rows.extend(extra);
-    if let Some((mapped, _, _)) = rows.first_mut() {
-        mapped.problems.extend(found.problems);
-    }
+}
+
+/// For each fitting allele, the next step reads its ClinVar record: by the Allele Registry
+/// ID when that service resolved it, else by the fitting HGVS.
+fn lead_on(
+    cx: &Ctx<'_>,
+    rows: &[Row],
+    retried: &[VariantNormalize],
+    next: &mut Vec<crate::next::Step>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) {
     for retry in retried {
-        // The Allele Registry ID when that service resolved the allele, else its HGVS.
         let input = registry_id(rows, retry.hgvs()).unwrap_or(retry.hgvs());
-        let Some(get) = input.parse().ok().and_then(|input| {
-            biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None).ok()
-        }) else {
+        let source = variantvalidator::SPEC.source;
+        let Some(input) = crate::next::checked(input.parse(), source, problems) else {
+            continue;
+        };
+        let get = biomcp_types::VariantGet::new(input, biomcp_types::VariantResolver::Car, None);
+        let Some(get) = crate::next::checked(get, source, problems) else {
             continue;
         };
         let get = get.with_sections(vec![biomcp_types::VariantSection::Clinvar].into());
@@ -297,7 +324,7 @@ fn registry_id<'r>(rows: &'r [Row], hgvs: &str) -> Option<&'r str> {
 }
 
 /// One entry per source, with the state of its last call and every call's notices. Each
-/// earlier state that differs stays in `problems`, under the description that call was for.
+/// earlier state that differs stays in `problems`, naming the description that call was for.
 fn once_each(
     calls: Vec<(Box<str>, SourceOutcome)>,
     problems: &mut Vec<biomcp_types::Problem>,
@@ -327,12 +354,12 @@ fn once_each(
         }
         let view = biomcp_types::SourceStatusView::from(state);
         let field = match view.reason {
-            Some(reason) => format!("state: {}, {reason}", view.state),
-            None => format!("state: {}", view.state),
+            Some(reason) => format!("state for {hgvs}: {}, {reason}", view.state),
+            None => format!("state for {hgvs}: {}", view.state),
         };
         let problem = biomcp_types::Problem {
             source: call.source,
-            record: biodata::Text::new(&hgvs).ok(),
+            record: None,
             field: field.into(),
             code: biomcp_types::ProblemCode::ValueUnknown,
         };

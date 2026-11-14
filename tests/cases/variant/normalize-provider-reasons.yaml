@@ -18,8 +18,7 @@
         "/problems": {
           "includes": {
             "source": "car",
-            "record": "NM_001165963.4:c.4729T>C",
-            "field": "state: failed, rejected",
+            "field": "state for NM_001165963.4:c.4729T>C: failed, rejected",
             "code": "value.unknown"
           }
         },
