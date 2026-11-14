@@ -65,8 +65,8 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 1953,
-      "max_tokens": 489,
+      "max_bytes": 1992,
+      "max_tokens": 498,
       "run": [
         "help",
         "get",

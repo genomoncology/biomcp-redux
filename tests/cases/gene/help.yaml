@@ -29,7 +29,7 @@
           "equals": "Requested section words, preserving caller order and repetitions.\nTrailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs."
         }
       },
-      "max_bytes": 2024,
+      "max_bytes": 2064,
       "run": [
         "help",
         "get",

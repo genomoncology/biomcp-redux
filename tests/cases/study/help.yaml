@@ -35,7 +35,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 2718
+          "max_bytes": 2757
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -63,7 +63,7 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 2718,
+      "max_bytes": 2757,
       "run": [
         "help",
         "get",

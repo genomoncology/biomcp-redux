@@ -1256,7 +1256,7 @@ FAERS MedDRA term phrase match, not exact equality. Value form: string; example:
 Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day. Value form: string; example: --received-from 2024-01-01.
 - `--received-to`: Last date, YYYY-MM[-DD].
 Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day. Value form: string; example: --received-to 2024-12-31.
-- `section`: VAERS table
+- `section`: VAERS table.
 Form: search adverse-event TEXT SECTION; not --section.
 - `--serious`: FAERS seriousness flag.
 FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome. Value form: string; example: --serious death.
@@ -2374,7 +2374,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `id`: One exact primary accession or qualified source ID.
 Form: get cell-line ID SECTION; not --id.
-- `section`: Omit for the default card; all returns bounded first pages
+- `section`: Omit for the default card; all returns bounded first pages… (full rule with the sections).
 Form: get cell-line ID SECTION; not --section.
 - `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three. Value form: integer; example: --section-limit 25.
 - `--section-offset`: Offset within each independently requested collection. Value form: integer; example: --section-offset 1.
@@ -2447,7 +2447,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `id`: Qualified association ID or exact GCST study accession.
 Form: get gwas ID SECTION; not --id.
-- `section`: Association loci or study associations and ancestries
+- `section`: Association loci or study associations and ancestries… (full rule with the sections).
 Form: get gwas ID SECTION; not --section.
 - `--section-limit`: Maximum source relation rows. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Source relation row offset. Value form: integer; example: --section-offset 0.
@@ -2514,7 +2514,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 Form: get protein INPUT...; not --input.
-- `--section`: Select source sections or all bounded first pages; function Value form: repeatable values (repeat the flag); example: --section function.
+- `--section`: Select source sections or all bounded first pages; function… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section function.
 - `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer; example: --section-limit 2.
 
 Select source sections or all bounded first pages; function keeps one whole text record.
@@ -2591,7 +2591,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `id`: Exact HP identifier.
 Form: get phenotype ID SECTION; not --id.
-- `section`: Absent means the source identity card
+- `section`: Absent means the source identity card… (full rule with the sections).
 Form: get phenotype ID SECTION; not --section.
 - `--section-limit`: Default five text/link rows or one complete association row. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Source section row offset. Value form: integer; example: --section-offset 0.
@@ -2667,7 +2667,7 @@ Options apply to every listed source unless their description restricts them.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 Form: get pathway ID SECTION; not --id.
 - `--pool`: Retained snapshot, when continuing a source relation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `section`: Omit for the card; WikiPathways has summary and genes
+- `section`: Omit for the card; WikiPathways has summary and genes… (full rule with the sections).
 Form: get pathway ID SECTION; not --section.
 - `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer; example: --section-limit 5.
 - `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer; example: --section-offset 0.
@@ -2743,7 +2743,7 @@ Options apply to every listed source unless their description restricts them.
 - `id`: Exact source study ID; no default or repair.
 Form: get study ID SECTION; not --id.
 - `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
-- `section`: Omit for the card; all returns bounded first pages only
+- `section`: Omit for the card; all returns bounded first pages only… (full rule with the sections).
 Form: get study ID SECTION; not --section.
 - `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Offset within one named section; all requires zero. Value form: integer; example: --section-offset 45.
@@ -2836,7 +2836,7 @@ Options apply to every listed source unless their description restricts them.
 - `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: --drug-id RxNorm:343047; only with --source cpic.
 - `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
 - `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: --kind clinical; only with --source clinpgx.
-- `section`: One named section; omitted means the CPIC gene card
+- `section`: One named section; omitted means the CPIC gene card… (full rule with the sections).
 Form: get pgx SECTION; not --section.
 - `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Offset within the selected section. Value form: integer; example: --section-offset 0.
@@ -2918,7 +2918,7 @@ Options apply to every listed source unless their description restricts them.
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value).
 - `id`: Exact source identity, including version for GTR.
 Form: get diagnostic ID SECTION; not --id.
-- `section`: GTR: genes, conditions, methods. PMA: regulatory,
+- `section`: GTR: genes, conditions, methods. PMA: regulatory,… (full rule with the sections).
 Form: get diagnostic ID SECTION; not --section.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Zero-based source row or fragment offset. Value form: integer; example: --section-offset 5.
@@ -3003,7 +3003,7 @@ Options apply to every listed source unless their description restricts them.
 - `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer; example: --drug-index 0.
 - `id`: Published report ID with no source prefix.
 Form: get adverse-event ID SECTION; not --id.
-- `section`: FAERS owns drugs, reactions and identifiers; MAUDE owns
+- `section`: FAERS owns drugs, reactions and identifiers; MAUDE owns… (full rule with the sections).
 Form: get adverse-event ID SECTION; not --section.
 - `--section-limit`: Whole source rows per section page. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Offset within the selected source section. Value form: integer; example: --section-offset 0.
@@ -3112,7 +3112,7 @@ Form: get disease ID SECTION; not --id.
 - `--ontology`: One OLS ontology. Value form: string; example: --ontology mondo.
 - `--period`: Incidence-only source period code. Value form: string; example: --period 5.
 - `--race`: Source race code. Value form: string; example: --race 1.
-- `section`: One named section; absent means identity card only
+- `section`: One named section; absent means identity card only… (full rule with the sections).
 Form: get disease ID SECTION; not --section.
 - `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer; example: --section-limit 1.
 - `--section-offset`: Source row offset within the selected section. Value form: integer; example: --section-offset 1.
@@ -3274,7 +3274,7 @@ Keeps only the pairs with that drug. A name DDInter does not use is tried under 
 names other sources state for it, as the drug itself is. Value form: string; example: --partner DDInter5; only with --source ddinter.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string; example: --product-number 001.
-- `section`: Source sections
+- `section`: Source sections.
 Form: get drug INPUT SECTION...; not --section.
 - `--section-limit`: Named section page size, refused on an identity-only card.
 At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer; example: --section-limit 2.
@@ -3343,7 +3343,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: Gene symbols or checked identifiers, in input order.
 Form: get gene INPUT...; not --input.
-- `--section`: Requested section words, preserving caller order and repetitions Value form: repeatable values (repeat the flag); example: --section protein.
+- `--section`: Requested section words, preserving caller order and repetitions… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section protein.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
@@ -3408,7 +3408,7 @@ Options apply to every listed source unless their description restricts them.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
 Form: get article INPUT...; not --input.
-- `--section`: Requested section words; trailing words and --section share Value form: repeatable values (repeat the flag); example: --section annotations.
+- `--section`: Requested section words; trailing words and --section share… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section annotations.
 
 Requested section words; trailing words and --section share this field.
 
@@ -3487,7 +3487,7 @@ Form: get trial INPUT...; not --input.
 - `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
 - `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
 - `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--section`: Optional intact source sections. Default cards only; diseases Value form: repeatable values (repeat the flag); example: --section outcomes.
+- `--section`: Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes.
 - `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
@@ -3637,7 +3637,7 @@ Form: get variant INPUT SECTION...; not --input.
 - `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 0.
 - `--resolver`: Resolver.
 Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
-- `section`: Sections
+- `section`: Sections.
 Form: get variant INPUT SECTION...; not --section.
 - `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
@@ -3771,7 +3771,7 @@ Form: author papers ID SECTION; not --id.
 - `--limit`: Bounded row count. Value form: integer; example: --limit 5.
 - `--offset`: Source or retained collection offset. Value form: integer; example: --offset 0.
 - `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `section`: Detailed disclosure when requested
+- `section`: Detailed disclosure when requested… (full rule with the sections).
 Form: author papers ID SECTION; not --section.
 
 Detailed disclosure when requested.
@@ -4895,8 +4895,7 @@ Options apply to every listed source unless their description restricts them.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article references PMID; not --pmid.
 - `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
-- `--source`: Graph source; iCite remains the default; help article citations
-Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
+- `--source`: Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article citation-evidence
 

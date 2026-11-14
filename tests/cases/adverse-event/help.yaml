@@ -5,7 +5,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 7912
+          "max_bytes": 7914
         },
         "/result": {
           "sentences_once": true
@@ -41,7 +41,7 @@
           "count": 1
         }
       },
-      "max_bytes": 7912,
+      "max_bytes": 7914,
       "run": [
         "help",
         "search",
@@ -51,7 +51,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 3475
+          "max_bytes": 3514
         },
         "/result": {
           "sentences_once": true
@@ -92,7 +92,7 @@
           "includes": "FAERS owns drugs, reactions and identifiers; MAUDE owns… (full rule with the sections).\nForm: get adverse-event ID SECTION; not --section."
         }
       },
-      "max_bytes": 3475,
+      "max_bytes": 3514,
       "run": [
         "help",
         "get",
