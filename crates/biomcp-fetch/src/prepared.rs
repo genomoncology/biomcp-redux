@@ -21,6 +21,7 @@ pub(crate) struct Prepared {
     pub(crate) identity_encoding: bool,
     pub(crate) double_gzip: bool,
     pub(crate) stall_limit: Option<std::time::Duration>,
+    pub(crate) wait_throttle: bool,
     pub(crate) publisher: bool,
     pub(crate) exact_count: bool,
 }
@@ -68,6 +69,7 @@ impl Prepared {
             identity_encoding: false,
             double_gzip: false,
             stall_limit: None,
+            wait_throttle: false,
             publisher: false,
             exact_count: false,
         }

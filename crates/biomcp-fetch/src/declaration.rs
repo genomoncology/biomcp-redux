@@ -43,6 +43,7 @@ impl SourceSpec {
             identity_encoding: false,
             double_gzip: false,
             stall_limit: None,
+            wait_throttle: false,
             octet_stream: None,
             publisher: false,
             byte_limit: None,
@@ -103,6 +104,7 @@ pub struct Endpoint {
     pub(crate) identity_encoding: bool,
     pub(crate) double_gzip: bool,
     pub(crate) stall_limit: Option<Duration>,
+    pub(crate) wait_throttle: bool,
     pub(crate) octet_stream: Option<&'static str>,
     pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
@@ -261,6 +263,12 @@ impl Endpoint {
     /// Send one more request when a first try is unfinished after `limit`, keeping the first open; the first finished reply wins.
     pub const fn stall_retry(mut self, limit: Duration) -> Self {
         self.stall_limit = Some(limit);
+        self
+    }
+    /// Retry a 429 reply that names its retry time for as long as the budget allows, rather than
+    /// a fixed number of attempts: a source shares its keyless limit with every client on the IP.
+    pub const fn wait_throttle(mut self) -> Self {
+        self.wait_throttle = true;
         self
     }
     /// Attempt this endpoint once, without retries for status or transport failures.
