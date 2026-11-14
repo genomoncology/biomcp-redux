@@ -67,6 +67,7 @@ fn relations(
         list: named.map(|n| n.problems.clone()).unwrap_or_default(),
     };
     let mut refusals = named.map_or(crate::Refusal::None, |n| n.refusals);
+    let listed = condition_tests(leg, query, &info, &mut cx, &mut refusals)?;
     for row in rows {
         if let Native::Refused(r) = &row.value
             && r.matches(query)
@@ -77,6 +78,7 @@ fn relations(
         if let Native::Relation(r) = row.value
             && let Some(relation) = map::relation(&r, &mut cx, &mut refusals)
             && matches(&r, query)
+            && listed.as_ref().is_none_or(|ids| ids.contains(&r.id))
             && let Some(name_match) = named.map_or(Some(None), |n| n.matched(&r.id).map(Some))
             && seen.insert(r.id.clone())
         {
@@ -144,6 +146,42 @@ fn cards(
         })
         .collect()
 }
+/// With a gene selector, the tests that list the condition too; the page keeps the gene relation (0949).
+fn condition_tests(
+    leg: &Leg<'_>,
+    query: &DiagnosticSearch,
+    info: &BundleInfo,
+    cx: &mut crate::mapped::Problems,
+    refusals: &mut crate::Refusal,
+) -> Result<Option<HashSet<GtrTestId>>, RequestError> {
+    let Some(id) = query.condition_id().filter(|_| gene_selected(query)) else {
+        return Ok(None);
+    };
+    let (rows, other) = bundle::read(leg, Find::Exact(KeyKind::Xref, id.as_str()))?;
+    if other.content_revision != info.content_revision {
+        return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
+    }
+    let mut ids = HashSet::new();
+    for row in rows {
+        match row.value {
+            Native::Refused(r) if r.matches(query) => {
+                *refusals = crate::Refusal::Refused;
+                r.disclose(cx);
+            }
+            Native::Relation(r) if condition(&r, id.as_str()) => {
+                ids.insert(r.id);
+            }
+            _ => {}
+        }
+    }
+    Ok(Some(ids))
+}
+pub(super) fn gene_selected(q: &DiagnosticSearch) -> bool {
+    q.gene().is_some() || q.gene_id().is_some()
+}
+fn condition(r: &Relation, id: &str) -> bool {
+    r.object == Object::Condition && format!("MedGen:{}", r.medgen) == id
+}
 fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
     q.test_type()
         .is_none_or(|v| r.test_type.as_ref().and_then(crate::raw::Field::as_ref) == Some(&v))
@@ -151,9 +189,7 @@ fn matches(r: &Relation, q: &DiagnosticSearch) -> bool {
             .is_none_or(|v| r.object == Object::Gene && &*r.gene_symbol == v.as_str())
         && q.gene_id()
             .is_none_or(|v| r.object == Object::Gene && *r.object_id == v.to_string())
-        && q.condition_id().is_none_or(|v| {
-            r.object == Object::Condition && format!("MedGen:{}", r.medgen) == v.as_str()
-        })
+        && (gene_selected(q) || q.condition_id().is_none_or(|v| condition(r, v.as_str())))
 }
 fn candidate(
     r: &Relation,
