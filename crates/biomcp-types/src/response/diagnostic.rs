@@ -46,6 +46,9 @@ pub struct GtrHeader {
     /// Native method categories in source order, such as deletion/duplication analysis.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub method_categories: Box<[Text]>,
+    /// Specimen types in source order from GTR's XML release `gtr_ftp.xml.gz`, for this exact accession and version; absent when it lists none.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub specimens: Box<[Text]>,
     /// Source record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
@@ -180,9 +183,29 @@ pub struct GtrCard {
     pub state_licenses: Box<str>,
     /// Whole original license number list, independently retained.
     pub state_license_numbers: Box<str>,
+    /// The laboratory's certifications (such as CLIA, CAP and ISO15189) as GTR's XML release lists them; state licenses stay in `state_licenses`.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub laboratory_certifications: Box<[GtrLabCertification]>,
+    /// The GTR file that `header.specimens` and `laboratory_certifications` came from; absent when neither is present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
+    pub xml_release_url: Option<Text>,
     /// Source-supported named pages.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
+}
+/// One laboratory certification as published; an expiration date is shown, never judged.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrLabCertification {
+    /// Certification name, such as CLIA or CAP.
+    pub name: Text,
+    /// Certification number.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub number: Option<Text>,
+    /// Published expiration date.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expiration_date: Option<Text>,
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

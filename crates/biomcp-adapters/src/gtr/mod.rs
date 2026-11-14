@@ -5,6 +5,7 @@ mod map;
 mod name;
 mod raw;
 mod search;
+mod xml;
 use biomcp_fetch::{KeyUse, SourceSpec, Terms};
 use biomcp_types::{Source, Use};
 pub(crate) use bundle::state as bundle_state;

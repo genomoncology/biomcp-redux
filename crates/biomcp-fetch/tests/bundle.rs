@@ -448,3 +448,6 @@ mod resume;
 
 #[path = "bundle/shutdown.rs"]
 mod shutdown;
+
+#[path = "bundle/streamed.rs"]
+mod streamed;

@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "source": "gtr",
+  "url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/gtr_ftp.xml.gz",
+  "exchanges": [
+    {
+      "status": 200,
+      "content_type": "application/x-gzip",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "9bca34b7f4d412e51c71488f982836c31242e4ee6b02bc9917bbf9ca5a61b0a9-0.bin"
+      }
+    }
+  ]
+}
