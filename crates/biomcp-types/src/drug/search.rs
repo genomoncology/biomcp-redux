@@ -289,7 +289,11 @@ impl DrugSearch {
 fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {
     let window = fields.approved_from.is_some() || fields.approved_to.is_some();
     if window && fields.source != DrugSource::Drugsfda {
-        return Err(QueryInvalid::new(&["approved_from", "approved_to", "source"]));
+        return Err(QueryInvalid::new(&[
+            "approved_from",
+            "approved_to",
+            "source",
+        ]));
     }
     if fields
         .approved_from

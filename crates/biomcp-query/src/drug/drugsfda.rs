@@ -95,7 +95,10 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         matched = page.matched;
         // Too many matches to order: the source answered, but this search has no rows.
         if page.matched.is_some_and(|n| n > source::WHOLE_MOST)
-            && let Some(report) = out.sources.iter_mut().find(|s| s.source == Source::Drugsfda)
+            && let Some(report) = out
+                .sources
+                .iter_mut()
+                .find(|s| s.source == Source::Drugsfda)
         {
             report.set_status(SourceStatus::Failed(Some(biomcp_types::Reason::TooLarge)));
         }
@@ -152,7 +155,11 @@ fn notices(query: &DrugSearch, total: Option<u64>, matched: Option<u64>, out: &m
     });
     let sort = (query.sort() == Some(DrugFdaSort::Newest)).then(|| newest(total));
     let whole = matched.map(|n| whole_notices(query, n, total.unwrap_or(0)));
-    for message in applicant.into_iter().chain(sort).chain(whole.into_iter().flatten()) {
+    for message in applicant
+        .into_iter()
+        .chain(sort)
+        .chain(whole.into_iter().flatten())
+    {
         report
             .notices
             .push(biomcp_types::SourceNotice::RequestGuidance {

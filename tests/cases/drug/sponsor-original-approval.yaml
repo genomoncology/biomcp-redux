@@ -1,6 +1,6 @@
 {
   "feature": "drug-approvals",
-  "story": "A sponsor's Drugs@FDA applications come newest original approval first: BioMCP reads every match, because openFDA cannot sort on one submission, orders them by original_approval date with rows lacking one last, and pages them with the total; an approval window keeps only applications first approved in it and counts them; a match set too large to read is refused as too-large with its count.",
+  "story": "A sponsor's Drugs@FDA applications come newest original approval first: BioMCP reads every match, because openFDA cannot sort on one submission, orders them by original_approval date with rows lacking one last, and pages them with the total; an approval window, given as days or whole years, keeps only applications first approved in it and counts them; a match set too large to read is refused as too-large with its count.",
   "live_check": "public",
   "verified": "Native openFDA Drugs@FDA replies recorded 2026-11-13 with biomcp --record in pm job j39749; bodies unchanged. Requests, byte counts and SHA-256 are in tests/replies/drug/sponsor-original-approval/README.md. The expected order and window were computed separately from the recorded body.",
   "replay": "drug/sponsor-original-approval",
@@ -396,6 +396,41 @@
         "/sources/0/notices/*/message": {
           "includes": "--approved-from/--approved-to: BioMCP read all 204 matching applications and kept the 4 whose original_approval date falls in the window, inclusive; the total counts those."
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "NOVARTIS",
+        "--sort",
+        "original-approval",
+        "--approved-from",
+        "2023",
+        "--approved-to",
+        "2023"
+      ],
+      "max_bytes": 4920,
+      "expect": {
+        "/status": "complete",
+        "/query/approved_from": "2023",
+        "/query/approved_to": "2023",
+        "/page/total": 4,
+        "/result/items/*/id": [
+          "NDA218276",
+          "BLA761349",
+          "NDA217513",
+          "NDA217514"
+        ],
+        "/result/items/*/original_approval/date": [
+          "2023-12-05",
+          "2023-10-06",
+          "2023-03-16",
+          "2023-03-16"
+        ]
       }
     },
     {

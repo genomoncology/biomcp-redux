@@ -35,7 +35,14 @@ pub(super) fn page(
         return Ok(all);
     }
     while (all.records.len() as u64) < matched {
-        let next = read(leg, selector, Some(native), READ, all.records.len() as u32, None)?;
+        let next = read(
+            leg,
+            selector,
+            Some(native),
+            READ,
+            all.records.len() as u32,
+            None,
+        )?;
         if next.records.is_empty() {
             break;
         }
@@ -85,6 +92,8 @@ fn within(order: Order, date: Option<PartialDate>) -> bool {
     let Some(date) = date.map(|d| key(d, (0, 0))) else {
         return false;
     };
-    order.approved_from.is_none_or(|from| date >= key(from, (1, 1)))
+    order
+        .approved_from
+        .is_none_or(|from| date >= key(from, (1, 1)))
         && order.approved_to.is_none_or(|to| date <= key(to, (12, 31)))
 }
