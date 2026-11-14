@@ -60,6 +60,10 @@ pub const SERIOUS: Words = &[
     ),
     ("2", "The adverse event did not result in any of the above"),
 ];
+/// Short words for `serious` on every FAERS row and section header, drawn from
+/// [`SERIOUS`]: `1` is serious and `2` is not; the header's field description
+/// carries openFDA's full sentences once.
+pub const SERIOUS_SHORT: Words = &[("1", "serious"), ("2", "not serious")];
 /// The six seriousness flags have no published code list. Each description reads
 /// "This value is `1` if the adverse event resulted in ..., and absent otherwise";
 /// the `1` words are that clause. The data also carries `2` on most reports, which

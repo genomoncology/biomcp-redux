@@ -101,7 +101,7 @@ fn header(v: raw::Header, problems: &mut crate::mapped::Problems) -> AdverseEven
         id: v.safetyreportid,
         source: AdverseEventSource::Faers,
         version: problems.field("safetyreportversion", v.safetyreportversion),
-        serious_label: super::words::label(super::words::SERIOUS, serious.as_deref()),
+        serious_label: super::words::label(super::words::SERIOUS_SHORT, serious.as_deref()),
         serious,
         event_type: None,
         first_received: problems.field("receivedate", v.receivedate),

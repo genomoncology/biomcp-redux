@@ -28,7 +28,7 @@ pub struct AdverseEventHeader {
     /// Native serious string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub serious: Option<Box<str>>,
-    /// FAERS only: openFDA's published words for `serious` `1` or `2`; absent for any other code.
+    /// FAERS only: `serious` for `1` and `not serious` for `2`; absent for any other code. openFDA defines `1` as "The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition" and `2` as "The adverse event did not result in any of the above".
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub serious_label: Option<Box<str>>,
     /// Native event_type string; present empty values remain present.

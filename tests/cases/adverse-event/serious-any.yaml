@@ -23,7 +23,7 @@
         "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND serious:1",
         "/result/items/0/id": "26940567",
         "/result/items/0/serious": "1",
-        "/result/items/0/serious_label": "The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition",
+        "/result/items/0/serious_label": "serious",
         "/result/items": {
           "count": 1
         },

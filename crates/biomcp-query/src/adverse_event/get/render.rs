@@ -33,7 +33,7 @@ pub(super) fn render(
         source: AdverseEventSource::Faers,
         version: r.safetyreportversion.clone(),
         serious: r.serious.clone(),
-        serious_label: label(words::SERIOUS, r.serious.as_deref()),
+        serious_label: label(words::SERIOUS_SHORT, r.serious.as_deref()),
         event_type: None,
         first_received: r.receivedate.clone(),
     };

@@ -344,7 +344,7 @@
           ]
         },
         "serious_label": {
-          "description": "FAERS only: openFDA's published words for `serious` `1` or `2`; absent for any other code.",
+          "description": "FAERS only: `serious` for `1` and `not serious` for `2`; absent for any other code. openFDA defines `1` as \"The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition\" and `2` as \"The adverse event did not result in any of the above\".",
           "type": [
             "string",
             "null"
