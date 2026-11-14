@@ -2,7 +2,10 @@
 use super::{empty, problem, recovery};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::ols;
-use biomcp_types::{PhenotypeAncestors, PhenotypeGet, ReplyBody, Request, Source};
+use biomcp_types::{
+    PhenotypeAncestor, PhenotypeAncestors, PhenotypeGet, PhenotypeSection, ReplyBody, Request,
+    Source, StepKind,
+};
 pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -15,10 +18,14 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     out.local = error.and_then(status::local);
     match reply {
         Ok(Some(page)) => {
+            out.include_refusals(page.refusals);
             out.problems.extend(page.problems);
             let items = super::sections::page(&mut out, q, &page.items);
+            replacements(&mut out, &page.replaced_by);
             out.body = (PhenotypeAncestors {
                 items,
+                obsolete: page.obsolete.then_some(true),
+                replaced_by: page.replaced_by.into(),
                 components: page.components,
                 fetched: page
                     .metadata
@@ -34,4 +41,19 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     recovery(&mut out, Request::GetPhenotype(q.clone()));
     command.finish(deadline.remaining());
     out
+}
+/// An obsolete term has no ancestors; its named replacement does.
+fn replacements(out: &mut Outcome, terms: &[PhenotypeAncestor]) {
+    for term in terms {
+        // A replacement outside HP gets no step; the reply still names it.
+        if let Ok(id) = term.id.to_string().parse::<biodata::HpId>()
+            && let Ok(request) = PhenotypeGet::new(id).with_section(PhenotypeSection::Ancestors)
+        {
+            out.next.push(crate::next::Step::new(
+                StepKind::Section,
+                &[Source::Ols],
+                super::run(Request::GetPhenotype(request)),
+            ));
+        }
+    }
 }
