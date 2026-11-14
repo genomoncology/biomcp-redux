@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 0931: regenerate declarations, run the GTR cases, or time one live GTR sync with the XML part.
+# 0931: regenerate declarations, run the gate or the GTR cases, or time one live GTR sync.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export RUSTUP_TOOLCHAIN=1.95.0
@@ -11,6 +11,9 @@ case "${1:-cases}" in
     echo '----- BEGIN PATCH -----'
     git diff --binary
     echo '----- END PATCH -----'
+    ;;
+  gate)
+    make --keep-going landing-gate docs-check schema-release-check
     ;;
   cases)
     cargo test --locked -p biomcp-fetch --test bundle
