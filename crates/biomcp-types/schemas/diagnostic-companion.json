@@ -15,7 +15,7 @@
       "type": "string"
     },
     "Reply_CompanionDiagnosticRow": {
-      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells. Both kinds also carry the row date and shared cell names copied as text from FDA's original cells.",
+      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.\nBoth kinds also carry the row date and shared cell names copied as text from FDA's original cells.",
       "oneOf": [
         {
           "description": "One complete native individual table row.",

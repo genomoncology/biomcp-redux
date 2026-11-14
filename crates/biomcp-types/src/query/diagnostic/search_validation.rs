@@ -8,7 +8,7 @@ fn device_source(v: &SearchFields) -> bool {
 }
 
 /// Row-date window and order belong to the stored FDA companion table only.
-pub(super) fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
+fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
     let fields = ["source", "date_from", "date_to", "sort"];
     let asked = v.date_from.is_some() || v.date_to.is_some() || v.sort.is_some();
     if asked && v.source != DiagnosticSearchSource::FdaCdx {
@@ -88,6 +88,7 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 }
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
+    validate_cdx_dates(v)?;
     // openFDA publishes intended-use text (ao_statement) for PMA only; its 510(k) records have none (live, 2026-11-14).
     if let Some(text) = &v.intended_use {
         if v.source != DiagnosticSearchSource::FdaPma {

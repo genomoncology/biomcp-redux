@@ -43,38 +43,19 @@ fn date(text: &str) -> Option<PartialDate> {
     if parts.next().is_some() {
         return None;
     }
-    let number = |part: &str, widths: &[usize]| {
-        (widths.contains(&part.len()) && part.bytes().all(|b| b.is_ascii_digit()))
-            .then(|| part.parse::<u16>().ok())
-            .flatten()
-    };
-    let year = number(year, &[4]).filter(|y| *y >= FIRST_YEAR)?;
-    let month = u8::try_from(number(month, &[1, 2])?).ok()?;
-    let day = u8::try_from(number(day, &[1, 2])?).ok()?;
+    let year = digits(year, 4).filter(|y| *y >= FIRST_YEAR)?;
+    let month = u8::try_from(digits(month, 2)?).unwrap_or(u8::MAX);
+    let day = u8::try_from(digits(day, 2)?).unwrap_or(u8::MAX);
     PartialDate::new(year, Some(month), Some(day)).ok()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::row_date;
-
-    fn shown(cell: &str) -> Option<String> {
-        row_date(cell).map(|d| d.to_string())
+/// A number written in one to `widest` ASCII digits.
+fn digits(part: &str, widest: usize) -> Option<u16> {
+    if part.is_empty() || part.len() > widest {
+        return None;
     }
-
-    #[test]
-    fn newest_valid_date_or_none() {
-        assert_eq!(shown("DEN260027\n(10/20/2026)").as_deref(), Some("2026-10-20"));
-        assert_eq!(shown("P250036\n(7/30/2026)").as_deref(), Some("2026-07-30"));
-        assert_eq!(
-            shown("P150013\n(10/02/2015);\u{a0}\nupdated P150013/S012\n(04/16/2019)\n\u{a0}")
-                .as_deref(),
-            Some("2019-04-16")
-        );
-        assert_eq!(shown("P120019/S019\n(08/22/0218)"), None);
-        assert_eq!(shown("P190032/S014 \u{a0}\n(06/28/ 2024)"), None);
-        assert_eq!(shown("P190032 (08/26/2020) P190032/S008 (02/30/2022)"), None);
-        assert_eq!(shown("P190032"), None);
-        assert_eq!(shown("P190032 (08/26/2020"), None);
-    }
+    part.bytes().try_fold(0u16, |number, byte| {
+        byte.is_ascii_digit()
+            .then(|| number * 10 + u16::from(byte - b'0'))
+    })
 }

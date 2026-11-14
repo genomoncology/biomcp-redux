@@ -424,9 +424,10 @@ impl ResponseBody for DiagnosticSummary {
     type Query = DiagnosticGet;
 }
 
-/// A physical companion-table row; the two table layouts cannot acquire each other’s cells. Both kinds also carry the row date and shared cell names copied as text from FDA's original cells.
+/// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
+/// Both kinds also carry the row date and shared cell names copied as text from FDA's original cells.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(tag = "kind", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum CompanionDiagnosticRow {
     /// One complete native individual table row.

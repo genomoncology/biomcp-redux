@@ -3,7 +3,7 @@ mod search_validation;
 use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 pub use id::DiagnosticId;
-use search_validation::{validate_cdx_dates, validate_device, validate_recall, validate_who_years};
+use search_validation::{validate_device, validate_recall, validate_who_years};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -108,7 +108,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     biomarker: Option<Text>,
-    #[doc = "First row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems."]
+    #[doc = "First row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only. \
+    Undated rows are left out and named in problems."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     date_from: Option<PartialDate>,
@@ -189,7 +190,6 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.condition_id.is_some()
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
-        validate_cdx_dates(&v)?;
         let who = v.marker.is_some() || v.manufacturer.is_some();
         let dates = v.initiated_from.is_some() || v.initiated_to.is_some();
         validate_device(&v, gtr || cdx || v.marker.is_some() || dates)?;

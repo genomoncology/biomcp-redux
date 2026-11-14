@@ -219,10 +219,10 @@ pub use query::{
 };
 pub use response::{
     CompanionDiagnosticRow, CompanionShared, DiagnosticCandidate, DiagnosticCard,
-    DiagnosticCompanion, DiagnosticConditions,
-    DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
-    DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
-    DiagnosticSupplements, GtrCard, GtrHeader, GtrNameMatch, GtrNativeStatus,
+    DiagnosticCompanion, DiagnosticConditions, DiagnosticGenes, DiagnosticLaboratory,
+    DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory, DiagnosticRegulatoryField,
+    DiagnosticRegulatoryFragment, DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader,
+    GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{
