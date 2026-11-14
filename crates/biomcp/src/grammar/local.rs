@@ -155,7 +155,7 @@ pub(super) fn housekeeping_commands() -> [Command; 4] {
                     .after_help("Example: biomcp source list"),
             ),
         Command::new("version").after_help("Example: biomcp version")
-            .about("Print version; --verbose adds build, schema and path provenance. No source requests or key reads.")
+            .about("Print version; --verbose adds build and path provenance. No source requests or key reads.")
             .arg(
                 super::boolean_argument(Arg::new("verbose")
                     .long("verbose")
