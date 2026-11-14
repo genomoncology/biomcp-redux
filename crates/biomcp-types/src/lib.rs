@@ -221,7 +221,7 @@ pub use response::{
     DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
     DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
     DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
-    DiagnosticSupplements, GtrCard, GtrHeader, GtrNameMatch, GtrNativeStatus,
+    DiagnosticSupplements, GtrCard, GtrHeader, GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{

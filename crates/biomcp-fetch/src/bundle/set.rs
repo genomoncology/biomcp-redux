@@ -79,19 +79,28 @@ impl Fetch {
         let mut rejections = Vec::new();
         let mut revision = Sha256::new();
         let mut bytes = 0_u64;
+        // Streamed parts have their own ceiling; the shared one covers every other part.
+        let mut held = 0_u64;
         for part in set.parts {
             let format = part.format.unwrap_or(set.format);
+            let streamed = matches!(format, RowFormat::StreamedXml { .. });
             let limit = match format {
                 RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
+                RowFormat::StreamedXml { max_bytes, .. } => {
+                    max_bytes.min(super::MAX_STREAMED_BYTES)
+                }
                 _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
             };
             let endpoint = set.spec.get(part.path).bytes(limit).fresh(Freshness::Never);
+            // The body check keeps its rows, so a part is decoded once.
+            let checked = std::cell::RefCell::new(None);
             let check = |body: &[u8]| {
                 let parsed = parse::part_rows::<R>(body, format, part.name)
                     .map_err(|_| biomcp_types::Reason::BadReply)?;
                 if parsed.is_empty() {
                     return Err(biomcp_types::Reason::BadReply);
                 }
+                checked.replace(Some(parsed));
                 Ok(())
             };
             let read = crate::Read::bytes().validate_body(&check);
@@ -104,7 +113,10 @@ impl Fetch {
                 .value
                 .0;
             bytes = bytes.saturating_add(body.len() as u64);
-            if bytes > super::MAX_BUNDLE_BYTES {
+            if !streamed {
+                held = held.saturating_add(body.len() as u64);
+            }
+            if held > super::MAX_BUNDLE_BYTES {
                 return Err(leg
                     .failure(biomcp_types::Reason::BadReply, Some(200))
                     .into());
@@ -113,8 +125,11 @@ impl Fetch {
             revision.update(part.path.as_bytes());
             revision.update((body.len() as u64).to_be_bytes());
             revision.update(&body);
-            let rows = parse::part_rows::<R>(&body, format, part.name)
-                .map_err(|_| leg.failure(biomcp_types::Reason::BadReply, Some(200)))?;
+            let rows = match checked.into_inner() {
+                Some(rows) => rows,
+                None => parse::part_rows::<R>(&body, format, part.name)
+                    .map_err(|_| leg.failure(biomcp_types::Reason::BadReply, Some(200)))?,
+            };
             rejections.extend(rows.rejections.into_iter().map(|mut rejection| {
                 rejection.reason = format!("{}: {}", part.name, rejection.reason);
                 rejection

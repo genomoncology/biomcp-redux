@@ -31,7 +31,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         || query.condition_id().is_some()
         || query.test_type().is_some();
     match named {
-        Some(named) if !selected => super::name::page(named, query),
+        Some(named) if !selected => super::name::page(leg, named, query),
         named => relations(leg, query, named.as_ref()),
     }
 }
@@ -118,12 +118,17 @@ fn cards(
         return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
     }
     let mut by_id: HashMap<GtrTestId, Vec<_>> = HashMap::new();
+    let mut xml = HashMap::new();
     for row in versions {
-        if let Native::Version(v) = row.value {
-            by_id
+        match row.value {
+            Native::Version(v) => by_id
                 .entry(v.test_accession_ver.clone())
                 .or_default()
-                .push(v);
+                .push(v),
+            Native::Specimens(x) => {
+                xml.entry(x.id.clone()).or_insert(x);
+            }
+            _ => {}
         }
     }
     page.iter()
@@ -133,6 +138,7 @@ fn cards(
                 relation.clone(),
                 *name_match,
                 by_id.get(&r.id).map(Vec::as_slice).unwrap_or_default(),
+                xml.get(&r.id),
                 problems,
             )
         })
@@ -154,11 +160,12 @@ fn candidate(
     relation: biodata::GtrTestRelation,
     name_match: Option<biomcp_types::GtrNameMatch>,
     versions: &[Box<biodata::GtrTestVersion>],
+    xml: Option<&super::raw::XmlTest>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<DiagnosticCandidate, RequestError> {
     Ok(match versions {
         [v] if v.now_current.as_ref() == "1" => DiagnosticCandidate::Resolved {
-            header: map::header(v, problems)?,
+            header: map::header(v, xml, problems)?,
             matched: Some(relation),
             name_match,
         },

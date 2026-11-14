@@ -7,6 +7,7 @@ mod read;
 pub(crate) mod refresh;
 mod replay;
 mod set;
+mod streamed;
 mod transfer;
 pub use set::{BundlePart, BundleSet, SetRow};
 pub(crate) mod store;
@@ -14,6 +15,10 @@ use crate::{Fetch, Freshness, RequestError, SourceSpec};
 use std::marker::PhantomData;
 /// Maximum unencoded published bundle size.
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
+/// Ceiling for one streamed gzip XML part, counted apart from `MAX_BUNDLE_BYTES` (0931: GTR's XML is 176 MiB).
+pub const MAX_STREAMED_BYTES: u64 = 512 * 1024 * 1024;
+/// Ceiling for one streamed part's decoded XML, which is read once and never held (0931: GTR's is 1.8 GiB).
+pub const MAX_STREAMED_DECODED_BYTES: u64 = 8 * 1024 * 1024 * 1024;
 /// A decoded bundle row supplies its own search keys.
 pub trait Row: serde::de::DeserializeOwned {
     /// Refuse a refresh when native rows exist but none survive admission.
@@ -22,6 +27,13 @@ pub trait Row: serde::de::DeserializeOwned {
     const MAX_BYTES: u64 = MAX_BUNDLE_BYTES;
     /// Decode a complete source document before any row is published.
     fn decode_document(_body: &[u8]) -> Result<Vec<String>, crate::BadReply> {
+        Err(crate::BadReply)
+    }
+    /// Read a streamed XML part once, emitting each kept row; `None` records a rejected element.
+    fn stream_xml(
+        _xml: &mut dyn std::io::BufRead,
+        _emit: &mut dyn FnMut(Option<String>),
+    ) -> Result<(), crate::BadReply> {
         Err(crate::BadReply)
     }
     /// Return the row’s exact and word search keys.
@@ -91,6 +103,13 @@ pub enum RowFormat {
         /// Maximum complete published body size.
         max_bytes: u64,
     },
+    /// Gzip XML decoded as a stream by `Row::stream_xml`; only emitted rows are kept.
+    StreamedXml {
+        /// Maximum gzip body size, bounded by `MAX_STREAMED_BYTES` instead of the set ceiling.
+        max_bytes: u64,
+        /// Maximum decoded XML size, bounded by `MAX_STREAMED_DECODED_BYTES`.
+        max_decoded_bytes: u64,
+    },
 }
 /// Publisher representation consumed by a source-owned document decoder.
 #[derive(Clone, Copy, Debug)]
@@ -109,6 +128,7 @@ impl RowFormat {
         match self {
             Self::Document { media } => media.media(),
             Self::Json { .. } => "application/json",
+            Self::StreamedXml { .. } => "application/xml",
             Self::Tsv | Self::CommentedTsv | Self::NativeTsv { .. } => "text/tab-separated-values",
             Self::Csv { .. } | Self::NativeCsv { .. } => "text/csv",
         }

@@ -7,7 +7,41 @@ use serde::Deserialize;
 pub(super) enum Native {
     Version(Box<GtrTestVersion>),
     Relation(Relation),
+    /// Specimen types of one exact test version from the XML release.
+    Specimens(XmlTest),
+    /// One laboratory's certifications from the XML release.
+    Lab(XmlLab),
     Refused(Refused),
+}
+/// Written by `xml::rows` with an already checked accession/version.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct XmlTest {
+    #[serde(rename = "xml_test")]
+    pub id: GtrTestId,
+    pub specimens: Vec<Box<str>>,
+}
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct XmlLab {
+    #[serde(rename = "xml_lab")]
+    pub id: Box<str>,
+    pub certifications: Vec<XmlCertification>,
+}
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct XmlCertification {
+    pub name: Box<str>,
+    pub number: Option<Box<str>>,
+    pub expiration_date: Option<Box<str>>,
+}
+/// Exact key of a test's XML specimen row alone, without its relation rows.
+pub(super) fn specimens_key(id: &GtrTestId) -> String {
+    format!("gtr-specimens:{id}")
+}
+/// Exact key of a laboratory's XML row, joined from the version row's `lab_id`.
+pub(super) fn lab_key(lab_id: &str) -> String {
+    format!("gtr-lab:{lab_id}")
 }
 /// Keep only actual native keys for a scoped identity refusal.
 #[derive(Debug, Deserialize)]
@@ -97,10 +131,18 @@ pub(super) enum Object {
     Condition,
 }
 impl Row for Native {
+    fn stream_xml(
+        xml: &mut dyn std::io::BufRead,
+        emit: &mut dyn FnMut(Option<String>),
+    ) -> Result<(), biomcp_fetch::BadReply> {
+        super::xml::rows(xml, emit)
+    }
     fn check_part(&self, part: &str) -> Result<(), biomcp_fetch::BadReply> {
         if matches!(
             (self, part),
-            (Self::Version(_), "versions") | (Self::Relation(_), "relations")
+            (Self::Version(_), "versions")
+                | (Self::Relation(_), "relations")
+                | (Self::Specimens(_) | Self::Lab(_), "xml")
         ) || matches!((self, part),
             (Self::Refused(r), "versions") if r.test_accession_ver.is_some() && r.accession.is_none()
         ) || matches!((self, part),
@@ -123,6 +165,8 @@ impl Row for Native {
             .collect::<Vec<_>>();
         match self {
             Self::Version(_) => exact.push((KeyKind::Band, "versions".into())),
+            Self::Lab(lab) => exact.push((KeyKind::Xref, lab_key(&lab.id).into())),
+            Self::Specimens(x) => exact.push((KeyKind::Xref, specimens_key(&x.id).into())),
             Self::Refused(r) if r.test_accession_ver.is_some() => {
                 exact.push((KeyKind::Band, "versions".into()));
             }
@@ -177,6 +221,8 @@ impl Native {
         match self {
             Self::Version(v) => Some(&v.test_accession_ver),
             Self::Relation(v) => Some(&v.id),
+            Self::Specimens(v) => Some(&v.id),
+            Self::Lab(_) => None,
             Self::Refused(v) => v
                 .accession
                 .as_ref()

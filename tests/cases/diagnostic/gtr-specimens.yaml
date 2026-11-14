@@ -1,0 +1,93 @@
+{
+  "verified": "GTR gtr_ftp.xml.gz (Last-Modified 2026-11-11) fetched live on 2026-11-14 and cut to the labs and tests of the EGFR replay: each GTRLab keeps its attributes and LabCertification elements, each GTRLabTest its attributes and Specimen element, values unchanged. NCBI E-utilities esummary db=gtr id=560508 the same day listed the same five specimens and CAP 7154701.",
+  "live_check": "public replies cut to one gene's tests; no live provider call",
+  "feature": "diagnostic-gtr",
+  "story": "A lab director building a send-out test menu and validation packet sees each GTR test's specimen types on its search row, and on the card the lab's CLIA and CAP numbers with their expiration dates and the GTR file they came from, without going to E-utilities.",
+  "replay": "diagnostic/gtr-egfr",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 227,
+      "expect": {
+        "/schema": "biomcp.sync/7"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000560508.11",
+        "--source",
+        "gtr"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "GTR000560508.11",
+        "--source",
+        "gtr"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/result/kind": "gtr-test",
+        "/result/header/specimens": {
+          "count": 5
+        },
+        "/result/header/specimens/*": {
+          "equals": [
+            "Dried blood spot (DBS) card",
+            "Fibroblasts",
+            "Isolated DNA",
+            "Peripheral (whole) blood",
+            "Saliva"
+          ]
+        },
+        "/result/laboratory_certifications/*/name": {
+          "equals": [
+            "CLIA",
+            "CAP"
+          ]
+        },
+        "/result/laboratory_certifications/1/number": "7154701",
+        "/result/laboratory_certifications/1/expiration_date": "2026-10-26",
+        "/result/clia_number": "05D0981414",
+        "/result/xml_release_url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/gtr_ftp.xml.gz"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--name",
+        "CancerNext"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/result/items/0/header/id": "GTR000560508.11",
+        "/result/items/0/header/specimens/4": "Saliva"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--name",
+        "CancerNext-Expanded"
+      ],
+      "max_bytes": 3000,
+      "expect": {
+        "/result/items/0/header/id": "GTR000560508.11",
+        "/result/items/0/header/specimens/0": "Dried blood spot (DBS) card"
+      }
+    }
+  ]
+}
