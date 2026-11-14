@@ -40,7 +40,7 @@ full-suite:
 	+$(PYTHON) scripts/landing_gate.py --full
 
 # Keep these sequential even when the caller uses make -j.
-.PHONY: pre-job check-cheap proof gate-stage-check
+.PHONY: pre-job check-cheap proof tool-proofs gate-stage-check
 pre-job: check-cheap
 
 LINT_GOALS = unused-dependencies check-no-default-features lint-workspace lint-tools lint-rustdoc
@@ -55,6 +55,10 @@ shell-check:
 
 proof: pre-job
 	$(PYTHON) scripts/trials.py --target tools --proofs $(PROOFS)
+
+# The gates run the whole tooling-proof catalog; pre-job has already linted it (0944).
+tool-proofs:
+	$(PYTHON) scripts/trials.py --target tools --proofs --all
 
 gate-stage-check:
 	$(PYTHON) -m unittest scripts.test_gate_stages

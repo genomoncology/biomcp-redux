@@ -68,10 +68,13 @@ def main():
     parser.add_argument("--case-file", action="append", default=[], metavar="RELATIVE/PATH.yaml",
                         help="select one exact case-relative path from the runner catalog; repeatable")
     parser.add_argument("--proofs", action="store_true", help="select the separate tooling-proof catalog in tools; routine Rust CLI/MCP trials use --target cases")
+    parser.add_argument("--all", action="store_true", help="with --target tools --proofs, run the whole tooling-proof catalog")
     parser.add_argument("--list", action="store_true", help="list literal names without preparing the product")
     parser.add_argument("names", nargs="*", help="exact names copied from the selected runner's --list")
     args = parser.parse_args()
-    if not args.list and not args.names and not args.case_file:
+    if args.all and (not args.proofs or args.names or args.list):
+        parser.error("--all requires --target tools --proofs and no names")
+    if not args.list and not args.all and not args.names and not args.case_file:
         parser.error("trial selection requires exact names from --list")
     if args.proofs and args.target != "tools":
         parser.error("--proofs requires --target tools")
@@ -105,7 +108,11 @@ def main():
                 shutil.copy2(executable, cwd / executable.name)
                 executable = cwd / executable.name
             os.environ["BIOMCP_TEST_EXECUTABLE"] = str(executable)
-        run_selected(target, cwd, args.names, prepare, case_files=args.case_file)
+        if args.all:
+            prepare()
+            subprocess.run(target, cwd=cwd, check=True)
+        else:
+            run_selected(target, cwd, args.names, prepare, case_files=args.case_file)
 
 
 if __name__ == "__main__":

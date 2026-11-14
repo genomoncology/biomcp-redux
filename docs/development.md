@@ -44,9 +44,9 @@ To add a command, add a row to `CHECKS` in `scripts/nightly_live_check.py`. Keep
 
 ## Check a change
 
-`make landing-gate` is the check every landing runs. It stops at the first failed stage and prints each stage's time. It runs `make rights`, `audit` and `secrets`, which take seconds and need no build, then `pre-job` (`check_docs.py`, shell, format, lint and structure ratchets), workflow lint, then `make cases`, the whole outside-in CLI and MCP suite on a plain build without coverage instrumentation.
+`make landing-gate` is the check every landing runs. It stops at the first failed stage and prints each stage's time. It runs `make rights`, `audit` and `secrets`, which take seconds and need no build, then `pre-job` (`check_docs.py`, shell, format, lint and structure ratchets), workflow lint, then `make cases`, the whole outside-in CLI and MCP suite on a plain build without coverage instrumentation. Then `make tool-proofs` runs the whole `tools --proofs` catalog, so a broken proof fails the gate.
 
-`make full-suite` is the one command for a final release. It adds the documentation and release tool checks, the tensor proto check, the complete secret history, the library tests and the coverage report. Run it through a job before starting the release workflow. That workflow covers installed packages and other platforms. The mutation run below is a separate release step and runs nowhere else.
+`make full-suite` is the one command for a final release. It adds the documentation and release tool checks, the tensor proto check, the complete secret history, the library tests, the tooling proofs and the coverage report. Run it through a job before starting the release workflow. That workflow covers installed packages and other platforms. The mutation run below is a separate release step and runs nowhere else.
 
 ## Measure command coverage
 

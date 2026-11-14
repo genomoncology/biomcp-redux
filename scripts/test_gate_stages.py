@@ -75,9 +75,9 @@ class GateStages(unittest.TestCase):
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
         landing = ['rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
-                   'changed-library-tests']
+                   'tool-proofs', 'changed-library-tests']
         full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
-                'tensor-proto-check', 'library-tests', 'coverage']
+                'tensor-proto-check', 'library-tests', 'tool-proofs', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
             tools = Path(temporary)
             make = tools / 'make'
@@ -86,6 +86,7 @@ class GateStages(unittest.TestCase):
             make.chmod(0o755)
             env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']}
             for arguments, stages, failing in (([], landing, 'none'), ([], landing, 'cases'),
+                                               ([], landing, 'tool-proofs'),
                                                ([], landing, 'secrets'), ([], landing, 'pre-job'),
                                                (['--full'], full, 'none')):
                 with self.subTest(arguments=arguments, failing=failing):
