@@ -36,11 +36,11 @@ macro_rules! collection {
         pub struct $name {
             /// Source and selected gene.
             pub header: PgxHeader,
+            /// Meaning and bounds of this collection.
+            pub page: PgxPageInfo,
             /// Complete native rows without duplicate summaries.
             #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
             pub items: Box<[$row]>,
-            /// Meaning and bounds of this collection.
-            pub page: PgxPageInfo,
         }
         impl ResponseBody for $name {
             const SCHEMA: &'static str = $schema;
@@ -64,21 +64,21 @@ pub enum PgxRecommendations {
     View {
         /// Selected gene and source.
         header: PgxHeader,
+        /// Native source collection scope.
+        page: PgxPageInfo,
         /// Complete view rows in source order.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxRecommendation]>,
-        /// Native source collection scope.
-        page: PgxPageInfo,
     },
     /// Exact drug selector uses the distinct native recommendation table.
     Table {
         /// Selected gene and source.
         header: PgxHeader,
+        /// Native source collection scope.
+        page: PgxPageInfo,
         /// Complete table rows without view-name enrichment.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxDrugRecommendation]>,
-        /// Native source collection scope.
-        page: PgxPageInfo,
     },
 }
 impl ResponseBody for PgxRecommendations {
@@ -121,31 +121,31 @@ pub enum PgxAnnotations {
     Clinical {
         /// Declared gene and source.
         header: PgxHeader,
+        /// Observed bounded collection scope.
+        page: PgxPageInfo,
         /// Complete clinical min records.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxAnnotationHeader]>,
-        /// Observed bounded collection scope.
-        page: PgxPageInfo,
     },
     /// Guideline references without invented full guidance.
     Guideline {
         /// Declared gene and source.
         header: PgxHeader,
+        /// Observed bounded collection scope.
+        page: PgxPageInfo,
         /// Complete guideline min references.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxAnnotationReference]>,
-        /// Observed bounded collection scope.
-        page: PgxPageInfo,
     },
     /// Label references without invented full guidance.
     Label {
         /// Declared gene and source.
         header: PgxHeader,
+        /// Observed bounded collection scope.
+        page: PgxPageInfo,
         /// Complete label min references.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxAnnotationReference]>,
-        /// Observed bounded collection scope.
-        page: PgxPageInfo,
     },
 }
 impl ResponseBody for PgxAnnotations {

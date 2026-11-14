@@ -27,6 +27,10 @@
             "Read help only when a reply still leaves you stuck",
             "Sections are words after the ID",
             "When a page reports a total, stop paging at it.",
+            "Where a get takes several sections, ask for all you need in one get.",
+            "Read its `total` before you report a count or call a list complete.",
+            "--source ddinter --partner",
+            "A `no-key` reply will not change on retry",
             "Process exit codes:"
           ]
         }
