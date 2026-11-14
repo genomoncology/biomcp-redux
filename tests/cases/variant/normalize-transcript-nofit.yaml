@@ -13,6 +13,7 @@
         "--hgvs",
         "NM_000059.4:c.5000A>C"
       ],
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/result/results": {

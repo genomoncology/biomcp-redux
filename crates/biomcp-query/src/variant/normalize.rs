@@ -248,7 +248,11 @@ fn transcript_fit(
     }
     let extra = crate::fan_out::run(jobs);
     for (mapped, source, _) in &extra {
-        let hgvs = mapped.value.hgvs.as_ref().map_or(query.hgvs(), |hgvs| hgvs.as_str());
+        let hgvs = mapped
+            .value
+            .hgvs
+            .as_ref()
+            .map_or(query.hgvs(), |hgvs| hgvs.as_str());
         calls.push((hgvs.into(), source.clone()));
     }
     rows.extend(extra);
@@ -279,7 +283,11 @@ fn registry_id<'r>(rows: &'r [Row], hgvs: &str) -> Option<&'r str> {
         .filter(|(mapped, _, _)| {
             mapped.value.source == biomcp_types::Source::AlleleRegistry
                 && mapped.value.outcome == VariantResolution::Resolved
-                && mapped.value.hgvs.as_ref().is_some_and(|row| row.as_str() == hgvs)
+                && mapped
+                    .value
+                    .hgvs
+                    .as_ref()
+                    .is_some_and(|row| row.as_str() == hgvs)
         })
         .flat_map(|(mapped, _, _)| mapped.value.mappings.iter())
         .filter(|mapping| mapping.field.as_str() == "@id")

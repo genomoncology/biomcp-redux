@@ -13,6 +13,7 @@
         "--hgvs",
         "NM_001165963.4:c.4729G>C"
       ],
+      "exit": 4,
       "expect": {
         "/status": "failed",
         "/result/results": {
