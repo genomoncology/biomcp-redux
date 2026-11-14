@@ -46,11 +46,11 @@ struct State {
 }
 impl State {
     fn under(&self, path: &[&str]) -> bool {
-        self.stack.len() >= path.len()
-            && self.stack[self.stack.len() - path.len()..]
-                .iter()
-                .zip(path)
-                .all(|(a, b)| a == b)
+        self.stack
+            .len()
+            .checked_sub(path.len())
+            .and_then(|start| self.stack.get(start..))
+            .is_some_and(|tail| tail.iter().zip(path).all(|(a, b)| a == b))
     }
 }
 
