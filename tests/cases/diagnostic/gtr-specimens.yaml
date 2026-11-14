@@ -10,11 +10,10 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 300000,
+      "max_bytes": 227,
       "expect": {
         "/schema": "biomcp.sync/7"
-      },
-      "full_output_bytes": true
+      }
     },
     {
       "run": [
@@ -31,7 +30,7 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 300000,
+      "max_bytes": 2575,
       "expect": {
         "/result/kind": "gtr-test",
         "/result/header/specimens": {
@@ -56,8 +55,7 @@
         "/result/laboratory_certifications/1/expiration_date": "2026-10-26",
         "/result/clia_number": "05D0981414",
         "/result/xml_release_url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/gtr_ftp.xml.gz"
-      },
-      "full_output_bytes": true
+      }
     },
     {
       "run": [
@@ -70,12 +68,11 @@
         "--name",
         "CancerNext"
       ],
-      "max_bytes": 300000,
+      "max_bytes": 2809,
       "expect": {
         "/result/items/0/header/id": "GTR000560508.11",
         "/result/items/0/header/specimens/4": "Saliva"
-      },
-      "full_output_bytes": true
+      }
     },
     {
       "run": [
@@ -86,12 +83,11 @@
         "--name",
         "CancerNext-Expanded"
       ],
-      "max_bytes": 300000,
+      "max_bytes": 2242,
       "expect": {
         "/result/items/0/header/id": "GTR000560508.11",
         "/result/items/0/header/specimens/0": "Dried blood spot (DBS) card"
-      },
-      "full_output_bytes": true
+      }
     }
   ]
 }
