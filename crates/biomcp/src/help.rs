@@ -76,13 +76,7 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
             .iter()
             .any(|(_, entity, _)| path.first().is_some_and(|word| word.as_str() == *entity));
     if entity {
-        for command in &mut commands {
-            // Option-wide lines leave with the options.
-            command.description = argument_details::without_option_lines(&command.description);
-            command.arguments.clear();
-            command.sections.clear();
-            command.section_rule = None;
-        }
+        commands.iter_mut().for_each(without_options);
         compact(&mut commands);
         if let Some(entity) = path.first()
             && let Some(page) = guide::tool_page(root, entity)?
@@ -99,6 +93,13 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         commands.insert(0, map);
     }
     Ok(Help { commands })
+}
+/// An entity page lists commands without their options, sections or option-wide lines.
+fn without_options(command: &mut HelpCommand) {
+    command.description = argument_details::without_option_lines(&command.description);
+    command.arguments.clear();
+    command.sections.clear();
+    command.section_rule = None;
 }
 /// Help on one section: its get command with that section, the options its sources take,
 /// and the examples that read it.

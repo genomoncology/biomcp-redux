@@ -54,35 +54,7 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 .filter(|_| selectable)
                 .map(|schema| only_sources(schema, &argument.name, &sources))
                 .unwrap_or_default();
-            // The schema's source fact, so a filter names the sources that serve it.
-            let scope = if only.is_empty() {
-                String::new()
-            } else {
-                format!("; only with --source {}", or_list(&only))
-            };
-            let form = if argument.value_type == "array" {
-                "repeatable values (repeat the flag)"
-            } else {
-                &argument.value_type
-            };
-            // One sentence per option that names the option, so no option repeats another's.
-            if argument.description.contains("Example: ") {
-                // The field's own example leads; the form joins its sentence.
-                argument.description = argument.description.replacen(
-                    "Example: ",
-                    &format!("Value form: {form}; example: "),
-                    1,
-                );
-                if !scope.is_empty() {
-                    argument
-                        .description
-                        .push_str(&format!(" Only with --source {}.", or_list(&only)));
-                }
-            } else {
-                argument
-                    .description
-                    .push_str(&format!(" Value form: {form}; example: {sample}{scope}."));
-            }
+            option_sentence(argument, &sample, &only);
         }
         // Lines that hold for every option are said once, on the command.
         if cased {
@@ -99,6 +71,37 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
                 SOURCE_OPTIONS
             });
         }
+    }
+}
+/// One sentence per option that names the option, so no option repeats another's.
+fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
+    let form = if argument.value_type == "array" {
+        "repeatable values (repeat the flag)"
+    } else {
+        &argument.value_type
+    };
+    if argument.description.contains("Example: ") {
+        // The field's own example leads; the form joins its sentence.
+        argument.description = argument.description.replacen(
+            "Example: ",
+            &format!("Value form: {form}; example: "),
+            1,
+        );
+        if !only.is_empty() {
+            argument
+                .description
+                .push_str(&format!(" Only with --source {}.", or_list(only)));
+        }
+    } else {
+        // The schema's source fact, so a filter names the sources that serve it.
+        let scope = if only.is_empty() {
+            String::new()
+        } else {
+            format!("; only with --source {}", or_list(only))
+        };
+        argument
+            .description
+            .push_str(&format!(" Value form: {form}; example: {sample}{scope}."));
     }
 }
 /// Said once per command page instead of after every option.

@@ -177,7 +177,7 @@ def main():
         schema_id = country["description"].rsplit("biomcp schema ", 1)[1].rstrip(".")
         query_schema = json.loads(run(binary, ["schema", schema_id], env))
         complete_choices = query_schema["properties"]["country"]["items"]["enum"]
-        require(f"{len(complete_choices)} allowed values." in country["description"],
+        require(f"{len(complete_choices)} allowed values " in country["description"],
                 f"search trial --country help does not state its {len(complete_choices)} allowed values")
         require("United States" in complete_choices, "country schema lacks United States")
         install = root / "installed"
