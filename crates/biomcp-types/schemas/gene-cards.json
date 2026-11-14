@@ -286,6 +286,10 @@
           "minimum": 0,
           "type": "integer"
         },
+        "scope": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "What the counts cover, in plain words."
+        },
         "term": {
           "$ref": "#/$defs/Reply_Text",
           "description": "ClinVar search term behind `records`; the other counts add classification and review filters."
@@ -298,6 +302,7 @@
       "required": [
         "build",
         "updated",
+        "scope",
         "term",
         "records",
         "germline",
