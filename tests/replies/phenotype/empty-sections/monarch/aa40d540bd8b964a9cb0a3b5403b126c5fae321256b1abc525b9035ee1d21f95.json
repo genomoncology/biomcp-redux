@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/entity/HP%3A9999999",
+  "exchanges": [
+    {
+      "fetched": 1794669373,
+      "status": 404,
+      "content_type": "application/json",
+      "delay_ms": 96,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"detail":"Entity not found"}
+      }
+    }
+  ]
+}

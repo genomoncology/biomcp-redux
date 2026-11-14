@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/association?object=HP%3A0000001&subject_category=biolink%3ADisease&direct=true&limit=1&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794669370,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 98,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"limit":1,"offset":0,"total":0,"items":[],"facet_fields":[],"facet_queries":[]}
+      }
+    }
+  ]
+}

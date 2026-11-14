@@ -2,12 +2,12 @@
 use super::{empty, problem, recovery, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
+use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection,
     Reason, ReplyData, Request, Source, StepKind,
 };
-use biomcp_fetch::RequestError;
 pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -18,7 +18,8 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         Ok(page) if page.total == 0 => Some(monarch::phenotype::get(&leg, q).map(|_| ()).err()),
         _ => None,
     };
-    let unknown = |e: &RequestError| matches!(e, RequestError::Source(s) if s.reason == Reason::NotFound);
+    let unknown =
+        |e: &RequestError| matches!(e, RequestError::Source(s) if s.reason == Reason::NotFound);
     let error = reply
         .as_ref()
         .err()

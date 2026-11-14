@@ -31,3 +31,10 @@ A phenotype section (synonyms, cross references, hierarchy, associations) asked 
 ## Changes
 
 - Changes: the phenotype section status code and its cases.
+
+## Progress
+
+- Measured live 2026-11-14 by curl: JAX HPO returns `synonyms: []` and `xrefs: []` for HP:0000001 and `xrefs: []` for HP:0000118, and 404 for HP:9999999. Monarch `/entity/HP:0000118` has `xref: null` (the old code turned a null section into `absent`, not only an empty one). Monarch's direct association page has total 0 both for HP:0000001 (held, no direct diseases or genes) and for HP:9999999 (unknown), so the page alone cannot tell them apart; `/entity` answers 200 and 404.
+- Changed: a synonyms, xrefs or hierarchy section is read only after the source returned the term, so it is now `complete` whether its list is empty or the source field is null (`sections.rs`); the ancestors section shares that page helper and drops its own override. A diseases or genes page with total 0 now reads Monarch's term once more: held is `complete`, 404 is `absent`, any other failure is `failed` with the source marked. Pages with rows make no extra call. `partial` for refused rows is unchanged; no schema change.
+- Recorded live in j40432; case `tests/cases/phenotype/empty-sections.yaml` covers HP:0000001 synonyms (HPO), HP:0000118 xrefs (HPO and Monarch), HP:0000001 diseases (all `complete`, empty) and HP:9999999 synonyms, Monarch xrefs and diseases (`absent`, exit 1).
+- Other entities that drift the same way (deferred, not changed): disease Monarch sections (`crates/biomcp-query/src/disease/monarch.rs:49`, total 0 is `absent`) and pathway relation pages (`crates/biomcp-query/src/pathway/relation.rs:218` and `:240`, total 0 is `absent`). `drug/who.rs:36` also calls an empty list `absent`, but it may be the identity lookup itself; not checked further.
