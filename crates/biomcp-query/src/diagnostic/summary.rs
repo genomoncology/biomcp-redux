@@ -6,9 +6,11 @@ use biomcp_types::{
     DiagnosticGet, DiagnosticSummary, PageInfo, PdfText, PdfTextHit, PdfTextState, ReplyBody,
     Request, StepKind,
 };
-/// Escaped bytes of one found passage: the matching line and the lines after it, which
-/// reach a numbered table set below its heading.
-const PASSAGE_BYTES: usize = 2048;
+/// Escaped bytes of one found passage, half a fragment: enough to reach a numbered table set
+/// below the heading that matched (P150047's Table 15 ends 1,741 bytes after its heading).
+const PASSAGE_BYTES: usize = 3072;
+/// Escaped bytes of text kept before a match.
+const LEAD_BYTES: usize = 512;
 /// Escaped bytes of one find page, the article text find page size.
 const FIND_BYTES: usize = 12_000;
 pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
@@ -135,42 +137,83 @@ fn found(
     }
     .with_query(q.clone())
 }
-/// Each matching line, or line whose match wraps onto the next, starts a passage of whole lines up to the passage size; a match inside
-/// an earlier passage adds none. Fragment numbers are those of continuable fragment reading.
+/// Each match starts a passage a short lead before it, running through the following text up to
+/// the passage size and ending at a line break after the match when one fits; a match inside an
+/// earlier passage adds none. Fragment numbers are those of continuable fragment reading.
 fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
     let starts = pdf::fragment_starts(text);
-    let lines: Vec<(usize, &str)> = text
-        .split_inclusive('\n')
-        .scan(0, |at, line| {
-            let start = *at;
-            *at += line.len();
-            Some((start, line))
-        })
-        .collect();
     let mut hits = Vec::new();
     let mut covered = 0;
-    for (index, (start, line)) in lines.iter().enumerate() {
-        // A phrase may wrap onto the next extracted line.
-        let wrapped = lines.get(index + 1).is_some_and(|(_, next)| {
-            crate::text_find::contains(&format!("{} {}", line.trim_end(), next.trim_start()), needles)
-        });
-        if *start < covered || !(crate::text_find::contains(line, needles) || wrapped) {
+    let mut line_start = 0;
+    let lines: Vec<&str> = text.split_inclusive('\n').collect();
+    for (index, line) in lines.iter().enumerate() {
+        let here = line_start;
+        line_start += line.len();
+        if here + line.len() <= covered {
             continue;
         }
-        let mut end = start + line.len();
-        let mut size = fda_pma::escaped_bytes(line);
-        for (_, next) in &lines[index + 1..] {
-            size += fda_pma::escaped_bytes(next);
-            if size > PASSAGE_BYTES {
-                break;
-            }
-            end += next.len();
-        }
+        // Search only text after the previous passage.
+        let skip = covered.saturating_sub(here);
+        let found = match first_match(&line[skip..], needles) {
+            Some(at) => Some(here + skip + at),
+            // A phrase may wrap onto the next extracted line; it then starts near this line's end.
+            None => lines.get(index + 1).and_then(|next| {
+                let joined = format!("{} {}", line.trim_end(), next.trim_start());
+                first_match(&joined, needles)
+                    .filter(|at| *at < line.trim_end().len())
+                    .map(|at| here + at)
+            }),
+        };
+        let Some(at) = found.filter(|at| *at >= covered) else {
+            continue;
+        };
+        let begin = lead(text, at).max(covered);
+        let end = passage_end(text, begin, at);
         covered = end;
         hits.push(PdfTextHit {
-            fragment: starts.partition_point(|s| *s <= *start).saturating_sub(1) as u32,
-            text: text[*start..end].trim_end().into(),
+            fragment: starts.partition_point(|s| *s <= begin).saturating_sub(1) as u32,
+            text: text[begin..end].trim().into(),
         });
     }
     hits
+}
+/// Byte position of the first case-insensitive match in the original spelling.
+fn first_match(line: &str, needles: &[String]) -> Option<usize> {
+    let lower = line.to_lowercase();
+    let start = needles.iter().filter_map(|needle| lower.find(needle.as_str())).min()?;
+    let mut lower_at = 0;
+    line.char_indices().find_map(|(byte, c)| {
+        let width: usize = c.to_lowercase().map(char::len_utf8).sum();
+        let found = (start < lower_at + width).then_some(byte);
+        lower_at += width;
+        found
+    })
+}
+/// Start up to the lead before the match, after a line break or space when one is there.
+fn lead(text: &str, at: usize) -> usize {
+    let mut begin = at.saturating_sub(LEAD_BYTES);
+    while !text.is_char_boundary(begin) {
+        begin += 1;
+    }
+    text[begin..at]
+        .rfind('\n')
+        .or_else(|| text[begin..at].find(' '))
+        .map_or(begin, |gap| begin + gap + 1)
+}
+/// End within the passage size, at the last line break after the match when there is one.
+fn passage_end(text: &str, begin: usize, at: usize) -> usize {
+    let mut size = 0;
+    let mut end = begin;
+    let mut line_end = None;
+    for (offset, c) in text[begin..].char_indices() {
+        size += fda_pma::escaped_bytes(c.encode_utf8(&mut [0; 4]));
+        if size > PASSAGE_BYTES {
+            break;
+        }
+        end = begin + offset + c.len_utf8();
+        if c == '\n' && end > at {
+            line_end = Some(end);
+        }
+    }
+    if end < text.len() { line_end.unwrap_or(end) } else { end }
 }
