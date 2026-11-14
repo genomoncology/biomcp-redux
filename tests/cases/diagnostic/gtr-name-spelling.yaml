@@ -82,7 +82,7 @@
         "--name",
         "ran"
       ],
-      "max_bytes": 3000,
+      "max_bytes": 1579,
       "expect": {
         "/page/total": 1,
         "/result/items/0/header/id": "GTR000593395.3",
