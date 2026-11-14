@@ -1,0 +1,13 @@
+feature: mcp-research
+live_check: "synthetic response-only shape test over the recorded Europe PMC core request identity; tests/replies/article/preprint/synthetic-backslash-doi/README.md"
+story: The research fetch tool's plain-text view keeps a backslash inside a fenced next step as written.
+replay: article/preprint/synthetic-backslash-doi
+steps:
+  - mcp_call:
+      name: fetch
+      arguments:
+        id: article PPR1064174 fulltext
+    expect:
+      /id: article PPR1064174 fulltext
+      /url: https://doi.org/10.1000/a\.b
+      /text: PLACEHOLDER

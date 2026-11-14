@@ -1,0 +1,59 @@
+{
+  "method": "GET",
+  "source": "europepmc",
+  "url": "https://www.ebi.ac.uk/europepmc/webservices/rest/article/PPR/PPR1064174?format=json&resultType=core",
+  "exchanges": [
+    {
+      "fetched": 1792854232,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 641,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "version": "6.9",
+          "hitCount": 1,
+          "request": {
+            "id": "PPR1064174",
+            "source": "PPR",
+            "resultType": "CORE"
+          },
+          "result": {
+            "id": "PPR1064174",
+            "source": "PPR",
+            "doi": "10.1000/a\\.b",
+            "title": "Synthetic preprint with a backslash DOI",
+            "license": 0
+          }
+        }
+      }
+    },
+    {
+      "fetched": 1792854233,
+      "status": 200,
+      "content_type": "application/json;charset=UTF-8",
+      "delay_ms": 101,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "version": "6.9",
+          "hitCount": 1,
+          "request": {
+            "id": "PPR1064174",
+            "source": "PPR",
+            "resultType": "CORE"
+          },
+          "result": {
+            "id": "PPR1064174",
+            "source": "PPR",
+            "doi": "10.1000/a\\.b",
+            "title": "Synthetic preprint with a backslash DOI",
+            "license": 0
+          }
+        }
+      }
+    }
+  ]
+}

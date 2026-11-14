@@ -1,0 +1,3 @@
+# Synthetic backslash DOI
+
+A shape test, so the reply is synthetic. The request identity is the live Europe PMC core request for PPR1064174 in `../live/`; the body is written by hand. It gives the preprint the DOI `10.1000/a\.b`, which no real record is known to hold, and a malformed `license`, so Europe PMC full text is refused without a full-text request. A card with a DOI and no PMID then offers the PDF next step by DOI, which puts a backslash in a fenced next step. The MCP case `mcp/fetch-keeps-fence-backslash` checks that the fetch tool's plain-text view keeps it. Values support no article or licensing conclusion.
