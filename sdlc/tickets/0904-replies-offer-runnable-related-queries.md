@@ -17,6 +17,7 @@ Evidence from that run (biomed-agent-bench `personas/reg-affairs/runs/2026-11-13
 - It sent `--bogus x` three times (calls 22, 29, 33) to get the list of valid options from the refusal. It was using errors as a menu.
 - Replies already carry `next` steps (section, page, pivot, disambiguate, configure). But 27 of the run's next steps were `configure` pointing to `help get drug` or `help search drug`, not to a command the agent could run.
 - The pharmacovigilance persona's round 2 (bench `personas/pv-scientist/runs/2026-11-13-r2/`, log.md:48-52) found no DDInter row for any pair in its triplet. The reply said no row does not mean safe, but offered no next step. The label's own drug-interactions section, which BioMCP already reads (`get drug X label --label-section drug_interactions`), is the related query the persona asked for.
+- Bot's run reader over four runs (2026-11-14, bench `personas/_eval/help-reads-2026-11-14.md`): when a refusal's next step was a runnable command, the agent ran it with no help read (reg-affairs r2 `--sort newest`; rare-disease r2 `variant normalize --source`, then `--build`). When the next step pointed at help, the agent read help. But one runnable next step was itself refused: rare-disease r2 session lines 66-74, `get disease MONDO:0013267 genes --section-limit 5`, whose refusal pointed only at `help get disease`. So the Proof must also show each offered command runs. Mid-run help reads are about 15-20% of help cost; the front-loaded reads are 0922 and 0923.
 
 ## Proof
 

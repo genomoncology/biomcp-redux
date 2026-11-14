@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-Every entity name that `help questions` prints works as a help target, so `help adverse_event` answers as `help adverse-event` does.
+Every entity name that `help questions` prints works as a help target, so `help adverse_event` answers as `help adverse-event` does. A help target that doesn't exist gets a next step to the nearest real page, never an unrelated one: `help COMMAND` (typed literally from the skill), `help interactions drug` and `help format` were pointed at `help version`, `help search` or `help trial` (bench `personas/_eval/help-reads-2026-11-14.md`, cause 5).
 
 ## Why
 
