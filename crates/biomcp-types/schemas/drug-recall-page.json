@@ -17,7 +17,8 @@
     "Reply_DrugFdaSort": {
       "description": "Drugs@FDA application order; omitted keeps the source's own order.",
       "enum": [
-        "newest"
+        "newest",
+        "original-approval"
       ],
       "type": "string"
     },
@@ -183,6 +184,30 @@
           "description": "Applicant name start; Drugs@FDA only.\nMatches native sponsor_name values starting with this text, ignoring letter case;\nno company-family or subsidiary inference. An optional name narrows the same search.",
           "x-required-component": "drugsfda"
         },
+        "approved_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original approval from, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date\nfalls in the window; BioMCP reads every match and counts the kept ones.",
+          "x-required-component": "drugsfda"
+        },
+        "approved_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original approval to, inclusive; Drugs@FDA only.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "x-required-component": "drugsfda"
+        },
         "classification": {
           "anyOf": [
             {
@@ -325,7 +350,7 @@
               "type": "null"
             }
           ],
-          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\nOmit it for the source's own order.",
+          "description": "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;\napplications with no dated submission come last. That latest date is often a labeling or\nefficacy supplement, not the original approval; each row's original_approval gives that.\noriginal-approval: each row's original_approval date first, ties by application number;\nrows without one come last. BioMCP reads every match and orders them.\nOmit it for the source's own order.",
           "x-required-component": "drugsfda"
         },
         "source": {
