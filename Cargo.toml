@@ -58,6 +58,8 @@ serde_json = { version = "1.0.154", features = ["float_roundtrip", "raw_value"] 
 toml = { version = "1.1.8", default-features = false, features = ["parse", "serde", "std"] }
 tempfile = "3.27.0"
 libtest-mimic = "0.8.2"
+# Test-only GFM reference renderer: source text in Markdown output must render inert.
+comrak = { version = "0.57.0", default-features = false }
 serde-saphyr = { version = "2.0.0", default-features = false, features = ["deserialize"] }
 
 rustls = { version = "0.23.46", default-features = false, features = ["ring", "std", "tls12"] }

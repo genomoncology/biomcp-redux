@@ -107,10 +107,7 @@ fn body(command: &Value, path: &str) -> String {
 }
 
 fn escape(text: &str) -> String {
-    super::escape(text)
-        .replace("&#58;", ":")
-        .replace("&#46;", ".")
-        .replace("&#64;", "@")
+    super::escape::product(text)
 }
 fn table(rows: &[Value], key: &str, title: &str, out: &mut String) {
     out.push_str(&format!("| {title} | Description |\n| --- | --- |\n"));
