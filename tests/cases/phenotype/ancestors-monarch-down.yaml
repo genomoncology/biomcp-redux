@@ -13,14 +13,18 @@
         "hierarchy"
       ],
       "expect": {
+        "/status": "failed",
         "/sources/0/source": "monarch",
-        "/next/0/args": [
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "unavailable",
+        "/next/1/args": [
           "get",
           "phenotype",
           "HP:0012469",
           "ancestors"
         ]
-      }
+      },
+      "exit": 4
     },
     {
       "run": [
