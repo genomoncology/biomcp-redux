@@ -31,10 +31,12 @@ The persona needed specimen and accreditation columns for its test menu and vali
 ## Changes
 
 - Changes: the GTR adapter, its card and row types, cases.
+- Changes (PM, 2026-11-14, option B approved within this ticket): the shared bulk download in `biomcp-fetch` gains a streamed gzip-XML part format with its own size limit, so GTR's set adds `gtr_ftp.xml.gz`. The XML is decoded as a stream and never held whole; only specimen rows (matched to exact test accession and version) and lab certification rows (with expiry dates) are kept. The existing 128 MiB ceiling for other sets and parts stays. The weekly GTR sync grows from about 57 MB to about 241 MB.
+- Not in this ticket: taking genes from a test's listed variants (see GTR000575663 below).
 
 ## Progress
 
-Design check, 2026-11-14 (no code yet; awaiting a source decision).
+Design check, 2026-11-14 (before the PM chose option B).
 
 - `test_version.gz` (read today) already has `CLIA_number`, and the card already shows it (`clia_number 05D0981414` for 560508). It has no specimen or CAP column.
 - No small GTR bulk file has specimens or CAP. `/pub/GTR/data/` holds `GTR_test_IDs.csv`, `labs_tests_by_country.txt`, `test_condition_gene.txt/.xlsx`, `test_version.gz`, `test_version_microbe.gz`, `tests_by_method_category.txt` and `gtr_ftp.xml.gz`; `xml_archive/` keeps monthly copies of the XML.
