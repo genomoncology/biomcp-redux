@@ -7,7 +7,12 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     discovery_aliases: &[],
     registry_order: Some(52),
     probe: Probe::Get("/api/ontologies", &[("size", Arg::Num(1))]),
-    components: &[MONDO_COMPONENT, DOID_COMPONENT, NCIT_COMPONENT, HP_COMPONENT],
+    components: &[
+        MONDO_COMPONENT,
+        DOID_COMPONENT,
+        NCIT_COMPONENT,
+        HP_COMPONENT,
+    ],
     auxiliary: &[],
     bundles: &[],
     guidance: Guidance {

@@ -36,7 +36,6 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         Some("hierarchy"),
         Some("diseases"),
         Some("genes"),
-        Some("ancestors"),
     ] {
         let mut value = json!({"id":"HP:0001250"});
         if let Some(section) = section {
@@ -47,45 +46,24 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         }
         let get: PhenotypeGet = serde_json::from_value(value.clone()).unwrap();
         let association = matches!(section, Some("diseases" | "genes"));
-        let ancestors = section == Some("ancestors");
         let monarch = association || section == Some("hierarchy");
-        let expected = if ancestors {
-            "ols"
-        } else if monarch {
-            "monarch"
-        } else {
-            "hpo"
-        };
         assert_eq!(
             get.source(),
-            if ancestors {
-                PhenotypeSource::Ols
-            } else if monarch {
+            if monarch {
                 PhenotypeSource::Monarch
             } else {
                 PhenotypeSource::Hpo
             }
         );
-        assert_eq!(
-            get.section_limit(),
-            if ancestors {
-                50
-            } else if association {
-                1
-            } else {
-                5
-            }
-        );
-        for source in ["hpo", "monarch", "ols"] {
+        assert_eq!(get.section_limit(), if association { 1 } else { 5 });
+        for source in ["hpo", "monarch"] {
             value
                 .as_object_mut()
                 .unwrap()
                 .insert("source".into(), json!(source));
-            let served = source == expected || (source == "monarch" && expected == "hpo");
             assert_eq!(
                 serde_json::from_value::<PhenotypeGet>(value.clone()).is_ok(),
-                served,
-                "{section:?} {source}"
+                source == "monarch" || !monarch
             );
         }
     }
@@ -98,17 +76,6 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         card.with_section(biomcp_types::PhenotypeSection::Synonyms)
             .is_ok()
     );
-    let ancestors = card
-        .with_section(biomcp_types::PhenotypeSection::Ancestors)
-        .unwrap();
-    assert_eq!(ancestors.source(), PhenotypeSource::Ols);
-    assert_eq!(ancestors.section_limit(), 50);
-    for bad in [
-        json!({"id":"HP:0001250","source":"ols"}),
-        json!({"id":"HP:0001250","section":"ancestors","snapshot":"x"}),
-    ] {
-        assert!(serde_json::from_value::<PhenotypeGet>(bad).is_err());
-    }
     for bad in [
         json!({"text":"x","source":"hpo"}),
         json!({"text":" "}),
@@ -123,6 +90,34 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         json!({"id":"HP:0001250","section":"similarity"}),
         json!({"id":"HP:0001250","section_limit":0}),
         json!({"id":"HP:0001250","source":null}),
+    ] {
+        assert!(serde_json::from_value::<PhenotypeGet>(bad).is_err());
+    }
+}
+
+#[test]
+fn ancestors_section_is_ols_only_with_fifty_rows() {
+    let get: PhenotypeGet =
+        serde_json::from_value(json!({"id":"HP:0012469","section":"ancestors"})).unwrap();
+    assert_eq!(get.source(), PhenotypeSource::Ols);
+    assert_eq!(get.section_limit(), 50);
+    for (source, ok) in [("ols", true), ("hpo", false), ("monarch", false)] {
+        let value = json!({"id":"HP:0012469","section":"ancestors","source":source});
+        assert_eq!(serde_json::from_value::<PhenotypeGet>(value).is_ok(), ok);
+    }
+    for section in ["synonyms", "hierarchy", "genes"] {
+        let value = json!({"id":"HP:0012469","section":section,"source":"ols"});
+        assert!(serde_json::from_value::<PhenotypeGet>(value).is_err());
+    }
+    let card = PhenotypeGet::new("HP:0012469".parse().unwrap());
+    let ancestors = card
+        .with_section(biomcp_types::PhenotypeSection::Ancestors)
+        .unwrap();
+    assert_eq!(ancestors.source(), PhenotypeSource::Ols);
+    assert_eq!(ancestors.section_limit(), 50);
+    for bad in [
+        json!({"id":"HP:0001250","source":"ols"}),
+        json!({"id":"HP:0001250","section":"ancestors","snapshot":"x"}),
     ] {
         assert!(serde_json::from_value::<PhenotypeGet>(bad).is_err());
     }

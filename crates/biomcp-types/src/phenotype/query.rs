@@ -231,9 +231,7 @@ impl TryFrom<GetFields> for PhenotypeGet {
         if matches!(
             v.section,
             Some(
-                PhenotypeSection::Diseases
-                    | PhenotypeSection::Genes
-                    | PhenotypeSection::Ancestors
+                PhenotypeSection::Diseases | PhenotypeSection::Genes | PhenotypeSection::Ancestors
             )
         ) && v.snapshot.is_some()
         {
