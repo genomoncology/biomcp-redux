@@ -267,12 +267,9 @@ enum Done {
     Ids(u64, Vec<u64>),
 }
 
-/// Count ClinVar records listing this NCBI Gene ID.
-pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, RequestError> {
-    let base = format!("{gene_id}[gid]");
-    let plp = format!("{base} AND ({P} OR {LP})");
-    let counts = [
-        base.clone(),
+fn count_terms(base: &str, plp: &str) -> [String; 10] {
+    [
+        base.to_owned(),
         format!("{base} AND {P}"),
         format!("{base} AND {LP}"),
         format!("{base} AND {P} AND {LP}"),
@@ -282,32 +279,57 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
         format!("{base} AND {B}"),
         format!("{base} AND {B} AND {LB}"),
         format!("{plp} AND {GRCH38}"),
-    ];
+    ]
+}
+
+fn run(child: &Leg<'_>, job: &Job) -> Result<Done, RequestError> {
+    Ok(match job {
+        Job::Info => {
+            let (build, updated) = info(child)?;
+            Done::Info(build, updated)
+        }
+        Job::Count(term) => Done::Count(count(child, term)?),
+        Job::Ids(term, start) => {
+            let (total, ids) = ids(child, term, *start)?;
+            Done::Ids(total, ids)
+        }
+    })
+}
+
+/// Split the overlapping property counts, in `count_terms` order, into disjoint buckets.
+fn germline(counts: [u64; 10]) -> ClinVarGermlineCounts {
+    let [records, p, lp, both, vus, conflicts, lb, b, b_lb, _] = counts;
+    ClinVarGermlineCounts {
+        pathogenic: p.saturating_sub(both),
+        likely_pathogenic: lp.saturating_sub(both),
+        pathogenic_likely_pathogenic: both,
+        uncertain_significance: vus,
+        conflicting: conflicts,
+        likely_benign: lb.saturating_sub(b_lb),
+        benign: b.saturating_sub(b_lb),
+        benign_likely_benign: b_lb,
+        other: records.saturating_sub(
+            (p + lp).saturating_sub(both) + vus + conflicts + (lb + b).saturating_sub(b_lb),
+        ),
+    }
+}
+
+/// Count ClinVar records listing this NCBI Gene ID.
+pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, RequestError> {
+    let base = format!("{gene_id}[gid]");
+    let plp = format!("{base} AND ({P} OR {LP})");
     let reviews: Vec<String> = REVIEW
         .iter()
         .map(|status| format!("{plp} AND \"{status}\"[rvst]"))
         .collect();
     let jobs: Vec<Job> = std::iter::once(Job::Info)
-        .chain(counts.into_iter().map(Job::Count))
+        .chain(count_terms(&base, &plp).into_iter().map(Job::Count))
         .chain(reviews.iter().map(|term| Job::Ids(term.clone(), 0)))
         .collect();
-    let run = |child: &Leg<'_>, job: &Job| -> Result<Done, RequestError> {
-        Ok(match job {
-            Job::Info => {
-                let (build, updated) = info(child)?;
-                Done::Info(build, updated)
-            }
-            Job::Count(term) => Done::Count(count(child, term)?),
-            Job::Ids(term, start) => {
-                let (total, ids) = ids(child, term, *start)?;
-                Done::Ids(total, ids)
-            }
-        })
-    };
     let mut release = None;
     let mut numbers = Vec::new();
     let mut lists = Vec::new();
-    for done in leg.batch(&jobs, &run) {
+    for done in leg.batch(&jobs, run) {
         match done? {
             Done::Info(build, updated) => release = Some((build, updated)),
             Done::Count(n) => numbers.push(n),
@@ -325,7 +347,7 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
                 .map(move |page| (index, Job::Ids(term.clone(), page * ID_PAGE)))
         })
         .unzip();
-    for (index, done) in owners.into_iter().zip(leg.batch(&more, &run)) {
+    for (index, done) in owners.into_iter().zip(leg.batch(&more, run)) {
         let Done::Ids(_, ids) = done? else {
             return Err(bad(BadReply));
         };
@@ -335,21 +357,9 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
             .1
             .extend(ids);
     }
-    let [records, p, lp, both, vus, conflicts, lb, b, b_lb, grch38] =
-        <[u64; 10]>::try_from(numbers.as_slice()).map_err(|_| bad(BadReply))?;
-    let germline = ClinVarGermlineCounts {
-        pathogenic: p.saturating_sub(both),
-        likely_pathogenic: lp.saturating_sub(both),
-        pathogenic_likely_pathogenic: both,
-        uncertain_significance: vus,
-        conflicting: conflicts,
-        likely_benign: lb.saturating_sub(b_lb),
-        benign: b.saturating_sub(b_lb),
-        benign_likely_benign: b_lb,
-        other: records.saturating_sub(
-            (p + lp).saturating_sub(both) + vus + conflicts + (lb + b).saturating_sub(b_lb),
-        ),
-    };
+    let numbers = <[u64; 10]>::try_from(numbers.as_slice()).map_err(|_| bad(BadReply))?;
+    let [records, p, lp, both, .., grch38] = numbers;
+    let germline = germline(numbers);
     let total = (p + lp).saturating_sub(both);
     let review = review_counts(leg, &lists, total)?;
     Ok(ClinVarGeneCounts {
