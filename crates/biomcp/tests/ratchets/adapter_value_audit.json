@@ -57,6 +57,14 @@
       "reason": "Bundle acquisition is internal transport provenance; nonnegative conversion cannot hide a provider field. Catalog metadata now maps through field problems."
     },
     {
+      "path": "crates/biomcp-adapters/src/fda_cdx/date.rs",
+      "site": "date: year , Some ( month ) , Some ( day ) ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "fda_cdx",
+      "reason": "A device-cell date that is not a real calendar day leaves the row undated; the original cell is kept and the row is named in problems with field date, so nothing reads as dated."
+    },
+    {
       "path": "crates/biomcp-adapters/src/cellosaurus/map.rs",
       "site": "card: ) , 3 ) , diseases : capped ( row . disease_list . unwrap_or_default ( )",
       "maximum": 1,

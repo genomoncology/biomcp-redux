@@ -79,7 +79,7 @@ pub use gene::QueryInvalid;
 mod diagnostic;
 pub use diagnostic::{
     DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch, DiagnosticSearchSource,
-    DiagnosticSection,
+    DiagnosticSection, DiagnosticSort,
 };
 
 mod pathway;
