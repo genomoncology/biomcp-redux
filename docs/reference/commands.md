@@ -3344,7 +3344,7 @@ Options:
 
 ```
 
-Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
+Get gene identities and source annotations. Sources: civic, clingen, clinvar, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -3359,6 +3359,7 @@ Trailing section words select sections. Use --section WORD to keep inputs that e
 - `civic`: CIViC gene curation.
 - `clingen`: ClinGen validity and dosage.
 - `gencc`: GenCC submitter assessments.
+- `clinvar`: ClinVar germline classification counts.
 - `constraint`: Population constraint metrics.
 - `expression`: Human Protein Atlas expression.
 - `pathways`: Human Reactome pathways.

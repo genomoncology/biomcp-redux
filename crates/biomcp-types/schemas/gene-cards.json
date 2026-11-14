@@ -253,6 +253,181 @@
       ],
       "type": "object"
     },
+    "Reply_ClinVarGeneCounts": {
+      "description": "ClinVar variation records (VCV) that list this gene, each counted once whatever its assemblies.\nRecords that also list other genes are included; somatic classifications are not counted.",
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "ClinVar database build that answered, as E-utilities einfo names it."
+        },
+        "germline": {
+          "$ref": "#/$defs/Reply_ClinVarGermlineCounts",
+          "description": "Records by aggregate germline classification; the buckets do not overlap."
+        },
+        "pathogenic_or_likely": {
+          "description": "Pathogenic, likely pathogenic and pathogenic/likely pathogenic records together.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pathogenic_or_likely_grch38": {
+          "description": "Of those, records with a GRCh38 position; the rest are placed only on GRCh37 or not at all.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pathogenic_or_likely_review": {
+          "$ref": "#/$defs/Reply_ClinVarReviewCounts",
+          "description": "Pathogenic or likely pathogenic records by their germline review status; the buckets do not overlap."
+        },
+        "records": {
+          "description": "Variation records that list this gene.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "term": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "ClinVar search term behind `records`; the other counts add classification and review filters."
+        },
+        "updated": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "ClinVar's last update of that build, in its own spelling."
+        }
+      },
+      "required": [
+        "build",
+        "updated",
+        "term",
+        "records",
+        "germline",
+        "pathogenic_or_likely",
+        "pathogenic_or_likely_grch38",
+        "pathogenic_or_likely_review"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinVarGermlineCounts": {
+      "description": "Disjoint germline classification counts in ClinVar's own terms.",
+      "properties": {
+        "benign": {
+          "description": "Benign.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "benign_likely_benign": {
+          "description": "Benign/Likely benign.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "conflicting": {
+          "description": "Conflicting classifications of pathogenicity.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "likely_benign": {
+          "description": "Likely benign.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "likely_pathogenic": {
+          "description": "Likely pathogenic.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "other": {
+          "description": "Every other record: no germline classification, not provided, risk factor and other terms.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pathogenic": {
+          "description": "Pathogenic.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "pathogenic_likely_pathogenic": {
+          "description": "Pathogenic/Likely pathogenic.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "uncertain_significance": {
+          "description": "Uncertain significance.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "pathogenic",
+        "likely_pathogenic",
+        "pathogenic_likely_pathogenic",
+        "uncertain_significance",
+        "conflicting",
+        "likely_benign",
+        "benign",
+        "benign_likely_benign",
+        "other"
+      ],
+      "type": "object"
+    },
+    "Reply_ClinVarReviewCounts": {
+      "description": "Disjoint germline review status counts.",
+      "properties": {
+        "expert_panel": {
+          "description": "Reviewed by expert panel (three stars).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "multiple_submitters": {
+          "description": "Criteria provided, multiple submitters, no conflicts (two stars).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "no_assertion_criteria": {
+          "description": "No assertion criteria provided (no stars).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "other": {
+          "description": "Records whose review status ClinVar's search did not place in one of the above.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "practice_guideline": {
+          "description": "Practice guideline (four stars).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "single_submitter": {
+          "description": "Criteria provided, single submitter (one star).",
+          "format": "uint64",
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "practice_guideline",
+        "expert_panel",
+        "multiple_submitters",
+        "single_submitter",
+        "no_assertion_criteria",
+        "other"
+      ],
+      "type": "object"
+    },
     "Reply_Constraint": {
       "description": "Source constraint metrics for the source's preferred transcript.",
       "properties": {
@@ -974,6 +1149,7 @@
         " CIViC gene curation.",
         " ClinGen validity and dosage.",
         " GenCC submitter assessments.",
+        " ClinVar germline classification counts.",
         " Population constraint metrics.",
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",
@@ -984,6 +1160,7 @@
         "civic",
         "clingen",
         "gencc",
+        "clinvar",
         "constraint",
         "expression",
         "pathways",
@@ -998,6 +1175,7 @@
         " CIViC gene curation.",
         " ClinGen validity and dosage.",
         " GenCC submitter assessments.",
+        " ClinVar germline classification counts.",
         " Population constraint metrics.",
         " Human Protein Atlas expression.",
         " Human Reactome pathways.",
@@ -1009,6 +1187,7 @@
         "civic",
         "clingen",
         "gencc",
+        "clinvar",
         "constraint",
         "expression",
         "pathways",
@@ -1040,6 +1219,17 @@
             }
           ],
           "description": "ClinGen validity and dosage assessments."
+        },
+        "clinvar": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Section_ClinVarGeneCounts"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ClinVar germline classification and review status counts."
         },
         "constraint": {
           "anyOf": [
@@ -2169,6 +2359,122 @@
           "properties": {
             "data": {
               "$ref": "#/$defs/Reply_ClinGenGene",
+              "description": "Whole section data."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "data",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "data"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "The source answered with no data.",
+          "properties": {
+            "record": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_SourceRecord"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Native entry, if any."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "empty",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "A requested source failed.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "unavailable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "User settings prevented the source request.",
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/Reply_Reason",
+              "description": "Typed reason."
+            },
+            "source": {
+              "$ref": "#/$defs/Reply_Source",
+              "description": "Source identity."
+            },
+            "state": {
+              "const": "skipped",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state",
+            "source",
+            "reason"
+          ],
+          "type": "object"
+        },
+        {
+          "description": "Entity facts rule this section out.",
+          "properties": {
+            "state": {
+              "const": "not-applicable",
+              "type": "string"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "type": "object"
+        }
+      ]
+    },
+    "Reply_Section_ClinVarGeneCounts": {
+      "description": "A requested section has exactly one state.",
+      "oneOf": [
+        {
+          "description": "The source returned data.",
+          "properties": {
+            "data": {
+              "$ref": "#/$defs/Reply_ClinVarGeneCounts",
               "description": "Whole section data."
             },
             "source": {
