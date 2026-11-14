@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=sponsor_name%3AEXAMPLE%2A&limit=1&sort=application_number%3Aasc",
+  "exchanges": [
+    {
+      "fetched": 1794613899,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-13",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 500
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA900001",
+              "sponsor_name": "EXAMPLE PHARMA",
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "19800101"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

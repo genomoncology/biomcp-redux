@@ -27,28 +27,35 @@ fn newest(total: Option<u64>) -> String {
     )
 }
 /// How BioMCP ordered or windowed a whole read, which openFDA cannot do itself.
-fn whole_notices(query: &DrugSearch, matched: u64, kept: u64) -> Vec<String> {
+fn whole_notices(query: &DrugSearch, matched: u64, read: Option<u64>, kept: u64) -> Vec<String> {
     if matched > source::WHOLE_MOST {
         return vec![format!(
             "{matched} applications match, more than the {} BioMCP reads to order or window \
              by original approval, so none are returned. Narrow the search with a drug name or \
-             a longer --applicant.",
+             a longer --applicant, or drop --sort original-approval and the approval window to \
+             page them in openFDA's own order.",
             source::WHOLE_MOST
         )];
     }
+    let read = match read {
+        Some(read) if read < matched => format!(
+            "only {read} of the {matched} matching applications, because a later openFDA read \
+             came back empty, so this reply is partial,"
+        ),
+        _ => format!("all {matched} matching applications"),
+    };
     let mut notices = Vec::new();
     if query.sort() == Some(DrugFdaSort::OriginalApproval) {
         notices.push(format!(
-            "--sort original-approval: openFDA cannot sort on one submission, so BioMCP read all \
-             {matched} matching applications and ordered them by original_approval date, newest \
-             first, ties by application number; applications without one come last."
+            "--sort original-approval: openFDA cannot sort on one submission, so BioMCP read \
+             {read} and ordered them by original_approval date, newest first, ties by \
+             application number; applications without one come last."
         ));
     }
     if query.approved_from().is_some() || query.approved_to().is_some() {
         notices.push(format!(
-            "--approved-from/--approved-to: BioMCP read all {matched} matching applications and \
-             kept the {kept} whose original_approval date falls in the window, inclusive; the \
-             total counts those."
+            "--approved-from/--approved-to: BioMCP read {read} and kept the {kept} whose \
+             original_approval date falls in the window, inclusive; the total counts those."
         ));
     }
     notices
@@ -86,6 +93,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let error = result.as_ref().err().copied();
     let mut total = None;
     let mut matched = None;
+    let mut read = None;
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Drugsfda, leg.finish(), error));
@@ -93,6 +101,11 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         out.include_refusals(page.refusals);
         total = Some(page.total);
         matched = page.matched;
+        read = page.read;
+        // A whole read that stopped early orders or windows only what it read.
+        out.dropped |= read
+            .zip(matched)
+            .is_some_and(|(read, matched)| read < matched);
         // Too many matches to order: the source answered, but this search has no rows.
         if page.matched.is_some_and(|n| n > source::WHOLE_MOST)
             && let Some(report) = out
@@ -125,7 +138,7 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         })
         .with_query(sent.clone());
     }
-    notices(query, total, matched, &mut out);
+    notices(query, total, (matched, read), &mut out);
     if let Some(saved) = widened {
         super::widen::finish(query, saved, SEARCHED, &mut out);
     }
@@ -143,7 +156,12 @@ fn order(query: &DrugSearch) -> source::Order {
 }
 
 /// State the applicant prefix searched and any requested order on the source.
-fn notices(query: &DrugSearch, total: Option<u64>, matched: Option<u64>, out: &mut Outcome) {
+fn notices(
+    query: &DrugSearch,
+    total: Option<u64>,
+    (matched, read): (Option<u64>, Option<u64>),
+    out: &mut Outcome,
+) {
     let Some(report) = out.sources.first_mut() else {
         return;
     };
@@ -154,7 +172,7 @@ fn notices(query: &DrugSearch, total: Option<u64>, matched: Option<u64>, out: &m
         )
     });
     let sort = (query.sort() == Some(DrugFdaSort::Newest)).then(|| newest(total));
-    let whole = matched.map(|n| whole_notices(query, n, total.unwrap_or(0)));
+    let whole = matched.map(|n| whole_notices(query, n, read, total.unwrap_or(0)));
     for message in applicant
         .into_iter()
         .chain(sort)
