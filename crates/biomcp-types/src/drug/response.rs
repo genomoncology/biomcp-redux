@@ -93,9 +93,8 @@ pub struct DrugPage {
 #[serde(bound(deserialize = "T: Deserialize<'de>"))]
 #[cfg_attr(feature = "schema", schemars(rename = "DrugRecords_{T}"))]
 pub struct DrugRecords<T> {
-    /// Native source rows in order.
-    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
-    pub records: Box<[T]>,
+    // Offset, total and truncation come before the rows (0937): an agent that reads only the
+    // start of a long reply sees that the rows are one page of more.
     /// Source row offset.
     pub offset: u32,
     /// Native total only when supplied.
@@ -104,6 +103,9 @@ pub struct DrugRecords<T> {
     /// Native source truncation indicator.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub truncated: Option<bool>,
+    /// Native source rows in order.
+    #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
+    pub records: Box<[T]>,
     /// Dataset or bundle revision.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub version: Option<Text>,

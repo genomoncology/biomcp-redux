@@ -343,3 +343,23 @@ fn registered_reply_ids_are_unique_and_read_their_concrete_envelope()
     assert!((reply.1)(&serde_json::to_vec(&wire)?).is_err());
     Ok(())
 }
+#[test]
+fn interaction_page_states_its_total_before_its_rows() -> Result<(), Box<dyn std::error::Error>> {
+    // 0937: an agent reading only the start of a long reply must see that the rows are one page.
+    let row = json!(
+        {"anchor":{"id":"DDInter1","namespace":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2",
+        "namespace":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter",
+        "record":"B-synthetic"}}
+    );
+    let page: biomcp_types::DrugRecords<biodata::DrugInteractionClaim> =
+        serde_json::from_value(json!({"records":[row],"offset":0,"total":614,"truncated":true}))?;
+    let text = serde_json::to_string(&page)?;
+    let rows = text.find("\"records\"").ok_or("records")?;
+    for field in ["\"offset\"", "\"total\"", "\"truncated\""] {
+        assert!(
+            text.find(field).ok_or(field)? < rows,
+            "{field} follows the rows: {text}"
+        );
+    }
+    Ok(())
+}
