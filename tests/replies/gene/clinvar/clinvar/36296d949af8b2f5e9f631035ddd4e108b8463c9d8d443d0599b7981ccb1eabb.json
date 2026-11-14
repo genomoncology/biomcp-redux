@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=672%5Bgid%5D%20AND%20%22clinsig%20has%20conflicts%22%5Bprop%5D&retmax=0&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1794679824,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 363,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"2933","retmax":"0","retstart":"0","idlist":[],"translationset":[],"translationstack":[{"term":"672[gid]","field":"gid","count":"16172","explode":"N"},{"term":"\"clinsig has conflicts\"[prop]","field":"prop","count":"184434","explode":"N"},"AND"],"querytranslation":"672[gid] AND \"clinsig has conflicts\"[prop]"}}
+      }
+    }
+  ]
+}

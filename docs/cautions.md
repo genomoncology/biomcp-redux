@@ -187,6 +187,12 @@ Each record keeps GenCC's submission ID, version, submitter, disease, inheritanc
 
 GenCC documents its new-format CSV export, weekly publication cadence, conditional requests and download policy on its [download page](https://thegencc.org/download). Its [terms](https://thegencc.org/terms) identify CC0 1.0 and request attribution to GenCC and its contributors. The [GenCC publication](https://pmc.ncbi.nlm.nih.gov/articles/PMC7613247/) describes the submission fields.
 
+## ClinVar gene counts
+
+`get gene BRCA1 clinvar` counts ClinVar variation records (VCV) that list the gene's NCBI Gene ID, each record once whatever its assemblies. Records that also list other genes count too: most BRCA1 records that list a second gene name a small variant that ClinVar also places in an overlapping regulatory element, not a large deletion. Classification buckets follow each record's aggregate germline classification and do not overlap; somatic clinical impact and oncogenicity are not counted. `pathogenic_or_likely_grch38` keeps the pathogenic or likely pathogenic records that have a GRCh38 position, which is what a GRCh38 row count of ClinVar's `variant_summary.txt.gz` gives; the rest are mostly exon-level deletions and duplications placed only on GRCh37.
+
+The counts come from E-utilities searches with `retmax=0`. ClinVar's review status search also matches somatic review statuses, so the pathogenic or likely pathogenic review buckets come from Variation ID lists, and the few records listed under more than one status are summarized to read their germline review status. `build` and `build_updated` name the ClinVar release that answered. Counts can differ by a few from a summary file of another release.
+
 ClinicalTrials.gov records keep valid fields when a status, date, phase or other nonidentity value cannot map. The reply reports a field problem and omits the rejected value. An invalid NCT ID excludes its study from a search page or fails that exact record request. Overall status values follow the [publisher enum metadata](https://clinicaltrials.gov/api/v2/studies/enums), including `TEMPORARILY_NOT_AVAILABLE`.
 
 The trial page, trial card, trial header and trial document result schemas change major versions because rejected source fields can now be null. Existing valid source values keep their wire representation.

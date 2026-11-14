@@ -1,5 +1,6 @@
 mod civic;
 mod clingen;
+mod clinvar;
 mod constraint;
 mod expression;
 mod gencc;
@@ -27,6 +28,7 @@ pub(super) enum SectionValue {
     Civic(Section<biomcp_types::CivicGene>),
     ClinGen(Section<biomcp_types::ClinGenGene>),
     Gencc(Section<biomcp_types::GenccGene>),
+    ClinVar(Section<biomcp_types::ClinVarGeneCounts>),
     Constraint(Section<biomcp_types::Constraint>),
     Expression(Section<biomcp_types::GeneExpression>),
     Pathways(Section<biomcp_types::Capped<biomcp_types::PathwayRef>>),
@@ -36,11 +38,12 @@ pub(super) enum SectionValue {
         bool,
     ),
 }
-const SECTIONS: [GeneSection; 8] = [
+const SECTIONS: [GeneSection; 9] = [
     GeneSection::Protein,
     GeneSection::Civic,
     GeneSection::ClinGen,
     GeneSection::Gencc,
+    GeneSection::ClinVar,
     GeneSection::Constraint,
     GeneSection::Expression,
     GeneSection::Pathways,
@@ -56,6 +59,7 @@ pub(super) fn requested(query: &GeneGet) -> Vec<GeneSection> {
                 GeneSectionWord::Civic => *section == GeneSection::Civic,
                 GeneSectionWord::ClinGen => *section == GeneSection::ClinGen,
                 GeneSectionWord::Gencc => *section == GeneSection::Gencc,
+                GeneSectionWord::ClinVar => *section == GeneSection::ClinVar,
                 GeneSectionWord::Constraint => *section == GeneSection::Constraint,
                 GeneSectionWord::Expression => *section == GeneSection::Expression,
                 GeneSectionWord::Pathways => *section == GeneSection::Pathways,
@@ -70,6 +74,7 @@ fn applicable(section: GeneSection, gene: &Gene) -> bool {
         GeneSection::Civic => true,
         GeneSection::ClinGen => true,
         GeneSection::Gencc => true,
+        GeneSection::ClinVar => gene.entrez_id.is_some(),
         GeneSection::Constraint => constraint::applicable(gene),
         GeneSection::Expression => expression::applicable(gene),
         GeneSection::Pathways => pathways::applicable(gene),
@@ -107,6 +112,9 @@ pub(super) fn prepare(query: &GeneGet, items: &mut [GeneItem]) -> Vec<(HgncId, G
                     .then_some(Section::NotApplicable),
                 clingen: requested
                     .contains(&GeneSection::ClinGen)
+                    .then_some(Section::NotApplicable),
+                clinvar: requested
+                    .contains(&GeneSection::ClinVar)
                     .then_some(Section::NotApplicable),
                 constraint: requested
                     .contains(&GeneSection::Constraint)
@@ -196,6 +204,15 @@ pub(super) fn jobs<'a>(
             super::get::Job::Section(gencc::run(cx, deadline, genes))
         }));
     }
+    if requested.contains(&GeneSection::ClinVar)
+        && genes
+            .iter()
+            .any(|(_, gene)| applicable(GeneSection::ClinVar, gene))
+    {
+        jobs.push(Box::new(move || {
+            super::get::Job::Section(clinvar::run(cx, deadline, genes))
+        }));
+    }
     if requested.contains(&GeneSection::Constraint)
         && genes
             .iter()
@@ -247,6 +264,7 @@ impl SectionValue {
             }
             Self::ClinGen(value) => matches!(value, Section::Unavailable { .. }),
             Self::Gencc(value) => matches!(value, Section::Unavailable { .. }),
+            Self::ClinVar(value) => matches!(value, Section::Unavailable { .. }),
             Self::Constraint(value) => matches!(value, Section::Unavailable { .. }),
             Self::Expression(value) => matches!(value, Section::Unavailable { .. }),
             Self::Pathways(value) => matches!(value, Section::Unavailable { .. }),
@@ -266,6 +284,7 @@ impl SectionValue {
                 Self::Civic(value) => sections.civic = Some(value.clone()),
                 Self::ClinGen(value) => sections.clingen = Some(value.clone()),
                 Self::Gencc(value) => sections.gencc = Some(value.clone()),
+                Self::ClinVar(value) => sections.clinvar = Some(value.clone()),
                 Self::Constraint(value) => sections.constraint = Some(value.clone()),
                 Self::Expression(value) => sections.expression = Some(value.clone()),
                 Self::Pathways(value) => sections.pathways = Some(value.clone()),

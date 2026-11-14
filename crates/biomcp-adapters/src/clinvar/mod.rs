@@ -1,6 +1,10 @@
 //! ClinVar VCV XML by a checked Variation ID, without text-search identity.
 use biomcp_fetch::{Input, Read};
 mod detail;
+mod gene;
+mod gene_reply;
+mod gene_review;
+pub use gene::gene_counts;
 mod map;
 mod raw;
 mod reference;
