@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "variantvalidator",
+  "url": "https://rest.variantvalidator.org/VariantValidator/variantvalidator/GRCh38/SCN1A%3Ac.4729G%3EC/NM_006920.6%7CNM_001165964.3%7CNM_001202435.3%7CNM_001353948.2%7CNM_001353949.2%7CNM_001353950.2%7CNM_001353951.2%7CNM_001353952.2%7CNM_001353954.2%7CNM_001353955.2%7CNM_001353957.2%7CNM_001353958.2%7CNM_001353960.2%7CNM_001353961.2?content-type=application%2Fjson",
+  "exchanges": [
+    {
+      "fetched": 1794589131,
+      "status": 500,
+      "content_type": "text/html",
+      "delay_ms": 60471,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "An internal server error occurred. Please try again later."
+      }
+    }
+  ]
+}

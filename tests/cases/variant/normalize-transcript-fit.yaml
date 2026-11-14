@@ -1,6 +1,6 @@
 {
   "feature": "variant-identity",
-  "live_check": "CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 (job j39152) for SCN1A c.4729T>C, which is valid on NM_006920.6 and was tried on the MANE transcript NM_001165963.4; CA284979 and its ClinVar record captured unchanged on 2026-11-13 (job j39768).",
+  "live_check": "CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 (jobs j39152 and j39921) for SCN1A c.4729T>C, which is valid on NM_006920.6 and was tried on the MANE transcript NM_001165963.4; CA284979 and its ClinVar record captured unchanged on 2026-11-13 (job j39768).",
   "replay": "variant/normalization/rejections",
   "story": "A reference mismatch on a gene's transcript names the transcripts where the base fits, resolves the allele there, and leads on to that allele's ClinVar record, so an agent does not change the base and land on a neighbouring variant.",
   "steps": [

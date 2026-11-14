@@ -1,6 +1,6 @@
 {
   "feature": "variant-identity",
-  "live_check": "synthetic: the VariantValidator fit reply for SCN1A c.4729G>C carries the status 500, body \"An internal server error occurred. Please try again later.\" and 60.5 s delay that VariantValidator gave twice in job j39173 on 2026-11-13, but its content type text/html was written by hand, because curl did not capture it. CAR's rejection and VariantValidator's transcript list were captured unchanged on 2026-11-13 (job j39768). The same fit query answered 200 in 1.9 s later that day.",
+  "live_check": "synthetic: the VariantValidator fit reply for SCN1A c.4729G>C carries the status 500, body \"An internal server error occurred. Please try again later.\" and 60.5 s delay that VariantValidator gave twice in job j39173 on 2026-11-13, but its content type text/html was written by hand, because curl did not capture it. CAR's rejection and VariantValidator's transcript list were captured unchanged on 2026-11-13 (job j39768). Its URL lists the transcripts in the order BioMCP now sends them (job j39921); the same fit query answered 200 in about 2 s later that day.",
   "replay": "variant/normalization/transcript-fit-server-error",
   "story": "When VariantValidator's fit query hangs and fails, the check gives up at its own short deadline and the mismatch stays as the service reported it, with no fits, no added result and no step.",
   "steps": [
