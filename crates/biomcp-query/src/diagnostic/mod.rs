@@ -9,6 +9,8 @@ mod next;
 mod pma;
 mod recall;
 mod summary;
+#[cfg(test)]
+mod summary_tests;
 mod who;
 pub(super) use crate::status::empty;
 use crate::{Action, Bundle, Ctx, Outcome, status};

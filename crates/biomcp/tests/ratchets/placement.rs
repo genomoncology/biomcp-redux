@@ -421,6 +421,10 @@ const ALLOWED: &[(&str, &str)] = &[
         before retained routes publish continuations.",
     ),
     (
+        "crates/biomcp-query/src/diagnostic/summary_tests.rs",
+        "Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand.",
+    ),
+    (
         "crates/biomcp-query/tests/gene_resolution.rs",
         "Mutate isolated cache freshness and preserve a local bundle failure under an API-only short command deadline.",
     ),
