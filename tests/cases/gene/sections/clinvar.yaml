@@ -15,7 +15,7 @@
         "/status": "complete",
         "/result/items/0/sections/clinvar/state": "data",
         "/result/items/0/sections/clinvar/data/build": "Build261108-1750.3",
-        "/result/items/0/sections/clinvar/data/updated": "2026/11/09 21:36",
+        "/result/items/0/sections/clinvar/data/build_updated": "2026/11/09 21:36",
         "/result/items/0/sections/clinvar/data/scope": "Each ClinVar variation record (VCV) that lists NCBI Gene 672, counted once whatever its assemblies, including records that also list other genes; aggregate germline classification only.",
         "/result/items/0/sections/clinvar/data/term": "672[gid]",
         "/result/items/0/sections/clinvar/data/records": 16172,

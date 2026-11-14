@@ -216,7 +216,7 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
     let review = review_counts(leg, &lists, total)?;
     Ok(ClinVarGeneCounts {
         build,
-        updated,
+        build_updated: updated,
         scope: crate::mapped::text(&format!(
             "Each ClinVar variation record (VCV) that lists NCBI Gene {gene_id}, counted once \
              whatever its assemblies, including records that also list other genes; aggregate \

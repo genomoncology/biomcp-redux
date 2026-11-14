@@ -8,7 +8,7 @@ pub struct ClinVarGeneCounts {
     /// ClinVar database build that answered, as E-utilities einfo names it.
     pub build: Text,
     /// ClinVar's last update of that build, in its own spelling.
-    pub updated: Text,
+    pub build_updated: Text,
     /// What the counts cover, in plain words.
     pub scope: Text,
     /// ClinVar search term behind `records`; the other counts add classification and review filters.
