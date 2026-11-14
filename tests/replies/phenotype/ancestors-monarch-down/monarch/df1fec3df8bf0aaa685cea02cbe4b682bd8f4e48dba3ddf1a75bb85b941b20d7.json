@@ -1,0 +1,37 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/entity/HP%3A0012469",
+  "exchanges": [
+    {
+      "status": 502,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
+    },
+    {
+      "status": 502,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
+    },
+    {
+      "status": 502,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {}
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "feature": "phenotype-ancestors",
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "story": "When OLS lists an ancestor without its ID, the reply is partial rather than a shorter complete list, so a missing ancestor never reads as a confident no.",
+  "verified": "Response-only edit of the OLS capture for HP:0012469 from pm job j40296: the curie field of linked entity HP_0011097 (Epileptic spasm) was deleted; request method and URL unchanged.",
+  "replay": "phenotype/ancestors-missing-id",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0012469",
+        "ancestors"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 6,
+        "/result/items/3/id": "HP:0001250",
+        "/result/items/4/id": "HP:0012638",
+        "/problems/0/source": "ols",
+        "/problems/0/field": "linkedEntities.curie",
+        "/sources/0/source": "ols"
+      }
+    }
+  ]
+}
