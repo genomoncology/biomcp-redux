@@ -20,9 +20,8 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         Ok(Some(page)) => {
             out.include_refusals(page.refusals);
             out.problems.extend(page.problems);
-            let items = super::sections::page(&mut out, q, &page.items);
             // OLS returned the term: a root or obsolete term has no ancestors but is not absent.
-            crate::status::item(&mut out, true, false, false);
+            let items = super::sections::page(&mut out, q, &page.items);
             replacements(&mut out, &page.replaced_by);
             out.body = (PhenotypeAncestors {
                 items,

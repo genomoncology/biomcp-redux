@@ -71,6 +71,9 @@ pub(super) fn prepare(
             .is_some_and(|args| args.first().is_some_and(|arg| arg == "search"))
         {
             step.expect.insert("/status".into(), json!("complete"));
+        } else if owner.feature == "phenotype-associations" {
+            // Monarch's recorded term read confirms HP:0001250, so no direct rows is complete (0929).
+            step.expect.insert("/status".into(), json!("complete"));
         } else {
             step.exit = 1;
             if owner.feature == "disease-seer" {

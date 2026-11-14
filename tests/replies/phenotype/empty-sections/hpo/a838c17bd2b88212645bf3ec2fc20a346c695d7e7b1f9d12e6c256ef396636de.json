@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hpo",
+  "url": "https://ontology.jax.org/api/hp/terms/HP%3A9999999",
+  "exchanges": [
+    {
+      "fetched": 1794669370,
+      "status": 404,
+      "content_type": "text/html",
+      "delay_ms": 120,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      }
+    }
+  ]
+}

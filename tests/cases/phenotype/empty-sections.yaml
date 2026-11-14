@@ -1,0 +1,115 @@
+{
+  "feature": "phenotype-sections",
+  "live_check": "public",
+  "story": "A term the source holds but whose section is empty comes back complete with an empty list, so an agent can tell \"this term has no synonyms\" from \"this term does not exist\"; an ID the source does not hold stays absent.",
+  "verified": "Captured live 2026-11-14 in pm job j40432. JAX HPO /api/hp/terms returns synonyms [] and xrefs [] for HP:0000001 (All), xrefs [] for HP:0000118, and 404 for HP:9999999. Monarch v3 /entity/HP:0000118 has xref null; /association?object=HP:0000001&subject_category=biolink:Disease&direct=true has total 0 while /entity/HP:0000001 is 200; HP:9999999 has association total 0 and /entity 404.",
+  "replay": "phenotype/empty-sections",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000001",
+        "synonyms"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/source": "hpo",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000118",
+        "xrefs"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/source": "hpo",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000118",
+        "xrefs",
+        "--source",
+        "monarch"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000001",
+        "diseases"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:9999999",
+        "synonyms"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "hpo",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:9999999",
+        "xrefs",
+        "--source",
+        "monarch"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:9999999",
+        "diseases"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    }
+  ]
+}

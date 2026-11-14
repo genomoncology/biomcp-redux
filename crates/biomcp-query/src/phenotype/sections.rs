@@ -2,8 +2,8 @@ use super::{record::Rows, run};
 use crate::Outcome;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
-    PhenotypeXrefs, ReplyData, Request, StepKind,
+    PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSource,
+    PhenotypeSynonyms, PhenotypeXrefs, ReplyData, Request, StepKind,
 };
 pub(super) fn empty(q: &PhenotypeGet) -> ReplyData {
     match q.section() {
@@ -17,6 +17,7 @@ pub(super) fn empty(q: &PhenotypeGet) -> ReplyData {
         _ => biomcp_types::PhenotypeTermCard::into_reply(q.clone(), None),
     }
 }
+/// Called only once the source returned the term; an unknown term never reaches here.
 pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, rows: Rows) {
     let components = rows.0.components.clone();
     let fetched = rows.4;
@@ -38,43 +39,35 @@ pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, ro
             out.body = (rows.0).with_query(echo.clone());
         }
         Some(PhenotypeSection::Synonyms) => {
-            if let Some(rows) = rows.1 {
-                let items = page(out, q, &rows);
-                out.body = (PhenotypeSynonyms {
-                    items,
-                    components,
-                    fetched,
-                })
-                .with_query(echo.clone());
-            } else {
-                unavailable(out);
-            }
+            let missing = rows.1.is_none();
+            let items = page(out, q, &rows.1.unwrap_or_default());
+            unsent(out, q, missing);
+            out.body = (PhenotypeSynonyms {
+                items,
+                components,
+                fetched,
+            })
+            .with_query(echo.clone());
         }
         Some(PhenotypeSection::Xrefs) => {
-            if let Some(rows) = rows.2 {
-                let items = page(out, q, &rows);
-                out.body = (PhenotypeXrefs {
-                    items,
-                    components,
-                    fetched,
-                })
-                .with_query(echo.clone());
-            } else {
-                unavailable(out);
-            }
+            let missing = rows.2.is_none();
+            let items = page(out, q, &rows.2.unwrap_or_default());
+            unsent(out, q, missing);
+            out.body = (PhenotypeXrefs {
+                items,
+                components,
+                fetched,
+            })
+            .with_query(echo.clone());
         }
         Some(PhenotypeSection::Hierarchy) => {
-            if let Some(rows) = rows.3 {
-                let items = page(out, q, &rows);
-                out.body = (PhenotypeHierarchy {
-                    items,
-                    components,
-                    fetched,
-                })
-                .with_query(echo.clone());
-            } else {
-                unavailable(out);
-            }
+            let items = page(out, q, &rows.3.unwrap_or_default());
+            out.body = (PhenotypeHierarchy {
+                items,
+                components,
+                fetched,
+            })
+            .with_query(echo.clone());
         }
         _ => unavailable(out),
     }
@@ -91,6 +84,12 @@ pub(super) fn ancestors(out: &mut Outcome, q: &PhenotypeGet) {
             &[biomcp_types::Source::Ols],
             run(Request::GetPhenotype(request)),
         ));
+    }
+}
+/// Monarch sends null for an empty list, but HPO sends `[]`, so a missing HPO list is unknown.
+fn unsent(out: &mut Outcome, q: &PhenotypeGet, missing: bool) {
+    if missing && q.source() == PhenotypeSource::Hpo {
+        crate::status::item(out, true, false, true);
     }
 }
 fn unavailable(out: &mut Outcome) {
@@ -120,9 +119,7 @@ pub(super) fn page<T: Clone>(out: &mut Outcome, q: &PhenotypeGet, rows: &[T]) ->
             run(Request::GetPhenotype(q.at_section_offset(next))),
         ));
     }
-    {
-        let absent = rows.is_empty();
-        crate::status::item(out, !absent, false, false);
-    }
+    // The source holds the term, so an empty section is a complete answer, not an absent term.
+    crate::status::item(out, true, false, false);
     items
 }

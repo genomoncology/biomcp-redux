@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hpo",
+  "url": "https://ontology.jax.org/api/hp/terms/HP%3A0000118",
+  "exchanges": [
+    {
+      "fetched": 1794669373,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 115,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"id":"HP:0000118","name":"Phenotypic abnormality","definition":"A phenotypic abnormality.","comment":"This is the root of the phenotypic abnormality subontology of the HPO.","descendantCount":19177,"synonyms":["Organ abnormality"],"xrefs":[],"publicationReferences":[],"translations":[{"language":"ZH","name":"表型异常","definition":"","status":"OFFICIAL"},{"language":"FR","name":"Anomalie phénotypique","definition":"une anomalie phénotypique","status":"OFFICIAL"},{"language":"ES","name":"Anomalía fenotípica","definition":"","status":"OFFICIAL"},{"language":"PT","name":"Anomalia fenotípica","definition":"","status":"OFFICIAL"},{"language":"NL","name":"Fenotypische abnormaliteit","definition":"","status":"CANDIDATE"},{"language":"CS","name":"Fenotypová abnormalita","definition":"Fenotypová abnormalita","status":"OFFICIAL"},{"language":"TR","name":"Fenotipik anormallik","definition":"Bir fenotipik anormallik","status":"OFFICIAL"}]}
+      }
+    }
+  ]
+}

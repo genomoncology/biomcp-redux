@@ -2,17 +2,29 @@
 use super::{empty, problem, recovery, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
+use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
     DiseaseGet, PageInfo, PhenotypeDiseases, PhenotypeGenes, PhenotypeGet, PhenotypeSection,
-    ReplyData, Request, Source, StepKind,
+    Reason, ReplyData, Request, Source, StepKind,
 };
 pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);
     let reply = monarch::phenotype::associations::get(&leg, q);
-    let error = reply.as_ref().err().copied();
+    // An empty page reads the same for an unknown term; only the term read tells them apart.
+    let held = match &reply {
+        Ok(page) if page.total == 0 => Some(monarch::phenotype::get(&leg, q).map(|_| ()).err()),
+        _ => None,
+    };
+    let unknown =
+        |e: &RequestError| matches!(e, RequestError::Source(s) if s.reason == Reason::NotFound);
+    let error = reply
+        .as_ref()
+        .err()
+        .copied()
+        .or(held.flatten().filter(|e| !unknown(e)));
     let mut out = empty(body(q, Vec::new(), Box::default(), None));
     out.sources
         .push(status::source(Source::Monarch, leg.finish(), error));
@@ -48,9 +60,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
                 .fetched
                 .and_then(|value| u64::try_from(value).ok()),
         );
-        {
-            let absent = page.total == 0;
-            crate::status::item(&mut out, !absent, false, false);
+        match held {
+            // Monarch holds the term: no direct associations is a complete answer.
+            None | Some(None) => crate::status::item(&mut out, true, false, false),
+            Some(Some(e)) => crate::status::item(&mut out, false, !unknown(&e), false),
         }
     }
     problem(&mut out, Source::Monarch, q.id().as_str().parse().ok());

@@ -1,0 +1,25 @@
+{
+  "feature": "phenotype-sections",
+  "live_check": "Edited shape test: the live HPO reply for HP:0000118 recorded in pm job j40432 (tests/replies/phenotype/empty-sections) with its \"xrefs\" key removed by hand. HPO really sends \"xrefs\": [] for this term; no live provider reply lacks the field.",
+  "story": "HPO sends an empty list as [], so a reply missing the xrefs list has changed shape: the section comes back partial with an empty page and a problem naming the field, not complete.",
+  "replay": "phenotype/hpo-missing-list",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000118",
+        "xrefs"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 0,
+        "/problems/*/field": {
+          "includes": "xrefs"
+        },
+        "/sources/0/source": "hpo",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}
