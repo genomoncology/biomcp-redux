@@ -24,7 +24,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 2601,
+      "max_bytes": 2613,
       "run": [
         "help",
         "search",
@@ -65,7 +65,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 2586,
+      "max_bytes": 2796,
       "run": [
         "help",
         "get",
