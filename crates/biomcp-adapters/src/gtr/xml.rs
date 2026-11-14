@@ -37,7 +37,7 @@ enum Leaf {
 }
 #[derive(Default)]
 struct State {
-    stack: Vec<Vec<u8>>,
+    stack: Vec<String>,
     lab: Option<(Option<String>, Vec<Certification>)>,
     /// Only `Type="Certification"`; state licenses are already on the card.
     cert: Option<Certification>,
@@ -50,7 +50,7 @@ impl State {
             && self.stack[self.stack.len() - path.len()..]
                 .iter()
                 .zip(path)
-                .all(|(a, b)| a.as_slice() == b.as_bytes())
+                .all(|(a, b)| a == b)
     }
 }
 
@@ -65,7 +65,7 @@ pub(super) fn rows(
     loop {
         match reader.read_event_into(&mut buf).map_err(|_| BadReply)? {
             Event::Start(tag) => {
-                let name = tag.name().as_ref().to_vec();
+                let name = tag.name().as_ref().to_owned();
                 s.stack.push(name);
                 if s.stack.len() > NESTING {
                     return Err(BadReply);
@@ -195,7 +195,7 @@ fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) {
 fn attr(tag: &quick_xml::events::BytesStart<'_>, name: &str) -> Result<Option<String>, BadReply> {
     for attr in tag.attributes() {
         let attr = attr.map_err(|_| BadReply)?;
-        if attr.key.as_ref() == name.as_bytes() {
+        if attr.key.as_ref() == name {
             let value = attr
                 .normalized_value(quick_xml::XmlVersion::Implicit1_0)
                 .map_err(|_| BadReply)?
