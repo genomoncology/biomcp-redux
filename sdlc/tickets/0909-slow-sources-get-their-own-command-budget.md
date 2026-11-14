@@ -46,3 +46,12 @@ Each source's deadline sits inside the whole command's budget, which defaults to
 - Also, two small cleanups from the 0895 review:
   - offer the VAERS sort step only when a snapshot exists (`crates/biomcp-query/src/adverse_event/vaers.rs:141`, guarded like the page step at :114), so "no new request" stays true;
   - say "percent of the N reports" in the sort notice and the percent field's description.
+
+## Progress
+
+- `SourceSpec` has an optional `command_budget`, and `SourceSpec::budget_for` gives the larger of the caller's budget and it. The VAERS command and the Monarch similarity command start their command deadline with it. Every other source declares none and keeps the 20 s default. The fetch layer's existing cap by a call's own end (hosted whole-call deadline, client cancellation) still applies, because `Fetch::command_deadline` bounds every budget by it.
+- VAERS: leg deadline and command budget 60 s. Monarch similarity: 30 s for both.
+- Measured live 2026-11-13 in pm job j39797: the CDC WONDER COVID-19 symptom table took 36.8 s and completed under the new budget. That reply is the new case `adverse-event/vaers-slow-reply`, which would time out at 20 s.
+- `crates/biomcp-fetch/tests/record/command_budget.rs` replays a 25 s reply: a source declaring 60 s succeeds with 35 s left, the same source without a declaration fails at 20 s, and a 5 s whole-call limit still wins over the declared 60 s.
+- Hosted HTTP keeps its whole-call deadline at `command_timeout_seconds`, so a hosted VAERS call still ends there unless the operator raises it.
+- 0895 cleanups: the sort step is offered only when a held table exists, and the sort notice and the percent field's description say the percent is of the report total (for example "percent of the 995,917 reports").
