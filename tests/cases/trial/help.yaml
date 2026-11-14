@@ -43,7 +43,7 @@
           "count": 1
         }
       },
-      "max_bytes": 14888,
+      "max_bytes": 11077,
       "run": [
         "help",
         "search",
@@ -78,9 +78,12 @@
           "all",
           "diseases",
           "summary"
-        ]
+        ],
+        "/result/commands/0/arguments/*/description": {
+          "includes": "Optional intact source sections. Default cards only; diseases… (full rule with the sections). Value form: repeatable values (repeat the flag); example: --section outcomes."
+        }
       },
-      "max_bytes": 4659,
+      "max_bytes": 4132,
       "run": [
         "help",
         "get",
@@ -99,7 +102,7 @@
           "count": 1
         }
       },
-      "max_bytes": 1362,
+      "max_bytes": 1278,
       "run": [
         "help",
         "trial",

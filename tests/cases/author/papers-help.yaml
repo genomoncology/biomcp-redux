@@ -18,7 +18,7 @@
           "author",
           "papers"
         ],
-        "/result/commands/0/description": "List an author's research papers. Sources: orcid, semantic-scholar.",
+        "/result/commands/0/description": "List an author's research papers. Sources: orcid, semantic-scholar.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -28,7 +28,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 2336,
+      "max_bytes": 2011,
       "run": [
         "help",
         "author",

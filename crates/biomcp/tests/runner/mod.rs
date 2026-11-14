@@ -121,6 +121,7 @@ mod cache_errors;
 mod snapshot_errors;
 mod source_queries;
 mod source_terms;
+mod source_text;
 mod store_clean;
 mod store_coexistence;
 mod study_catalog;
@@ -357,6 +358,7 @@ fn retained_source_trials() -> Vec<Trial> {
     trials.extend(protein_sections::trials());
     trials.push(protein_commands::refused_pool_trial());
     trials.extend(orphadata_sync::trials());
+    trials.extend(source_text::trials());
     trials
 }
 

@@ -1,6 +1,7 @@
 //! Literal source term discovery and independent exact term cards.
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
+mod ancestors;
 mod associations;
 mod matches;
 mod record;
@@ -17,6 +18,8 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
         Some(biomcp_types::PhenotypeSection::Diseases | biomcp_types::PhenotypeSection::Genes)
     ) {
         associations::get(cx, q)
+    } else if q.section() == Some(biomcp_types::PhenotypeSection::Ancestors) {
+        ancestors::get(cx, q)
     } else {
         record::get(cx, q)
     }

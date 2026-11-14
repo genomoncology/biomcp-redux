@@ -2041,6 +2041,22 @@
       "reason": "This existing optional query projection keeps its established None or fallback path. The refactor preserves the owning caller and independently retained source outcome; no new source record is silently admitted."
     },
     {
+      "path": "crates/biomcp-query/src/phenotype/ancestors.rs",
+      "site": "get: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "The OLS transport timestamp converts to an optional unsigned value; on overflow the reply omits only its fetched time, and the ancestor rows and source status stay."
+    },
+    {
+      "path": "crates/biomcp-query/src/phenotype/ancestors.rs",
+      "site": "get: . id ( ) . as_str ( ) . parse ( ) . ok ( )",
+      "maximum": 1,
+      "class": "legitimate_absence",
+      "owner": "phenotype",
+      "reason": "The optional problem record parses an already checked HP identifier. Its absence does not remove the OLS reply, its ancestor rows or its existing source problems."
+    },
+    {
       "path": "crates/biomcp-query/src/phenotype/associations.rs",
       "site": "get: . id ( ) . as_str ( ) . parse ( ) . ok ( )",
       "maximum": 1,

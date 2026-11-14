@@ -1,4 +1,5 @@
 use super::Step;
+mod members;
 use serde_json::Value;
 
 #[derive(Debug)]
@@ -6,6 +7,7 @@ pub(super) enum Assertion<'a> {
     Equals(&'a Value),
     Omits(&'a Value),
     Unique,
+    SentencesOnce,
     Nonincreasing,
     IncludesAllOf(&'a Value),
     Includes(&'a Value),
@@ -47,6 +49,9 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                     }
                     "unique" if expected == &Value::Bool(true) => {
                         assertions.push(Assertion::Unique)
+                    }
+                    "sentences_once" if expected == &Value::Bool(true) => {
+                        assertions.push(Assertion::SentencesOnce)
                     }
                     "omits" => {
                         let names = array(pointer, operator, expected)?;
@@ -426,7 +431,7 @@ impl Assertion<'_> {
         match self {
             Self::Equals(expected) => equal(pointer, expected, actual),
             Self::Omits(expected) => omits(pointer, expected, actual),
-            Self::Nonincreasing => nonincreasing(pointer, actual),
+            Self::Nonincreasing => members::nonincreasing(pointer, actual),
             Self::Unique => {
                 let values = array(pointer, "unique", actual)?;
                 for (index, value) in values.iter().enumerate() {
@@ -436,6 +441,7 @@ impl Assertion<'_> {
                 }
                 Ok(())
             }
+            Self::SentencesOnce => members::sentences_once(pointer, actual),
             Self::IncludesAllOf(expected) => {
                 let values = array(pointer, "includes_all_of", actual)?;
                 for value in array(pointer, "includes_all_of", expected)? {
@@ -519,20 +525,6 @@ fn ceiling(pointer: &str, key: &str, actual: usize, limit: Option<u64>) -> Resul
         return Err(format!(
             "{pointer} {key}: expected <= {limit}, actual {actual}"
         ));
-    }
-    Ok(())
-}
-
-fn nonincreasing(pointer: &str, actual: &Value) -> Result<(), String> {
-    let numbers: Vec<_> = array(pointer, "nonincreasing", actual)?
-        .iter()
-        .map(|v| {
-            v.as_u64()
-                .ok_or_else(|| format!("{pointer} nonincreasing: expected unsigned counts"))
-        })
-        .collect::<Result<_, _>>()?;
-    if numbers.windows(2).any(|pair| pair.first() < pair.get(1)) {
-        return Err(format!("{pointer} nonincreasing: count increased"));
     }
     Ok(())
 }

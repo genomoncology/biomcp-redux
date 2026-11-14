@@ -76,11 +76,7 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
             .iter()
             .any(|(_, entity, _)| path.first().is_some_and(|word| word.as_str() == *entity));
     if entity {
-        for command in &mut commands {
-            command.arguments.clear();
-            command.sections.clear();
-            command.section_rule = None;
-        }
+        commands.iter_mut().for_each(without_options);
         compact(&mut commands);
         if let Some(entity) = path.first()
             && let Some(page) = guide::tool_page(root, entity)?
@@ -97,6 +93,13 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         commands.insert(0, map);
     }
     Ok(Help { commands })
+}
+/// An entity page lists commands without their options, sections or option-wide lines.
+fn without_options(command: &mut HelpCommand) {
+    command.description = argument_details::without_option_lines(&command.description);
+    command.arguments.clear();
+    command.sections.clear();
+    command.section_rule = None;
 }
 /// Help on one section: its get command with that section, the options its sources take,
 /// and the examples that read it.
@@ -138,19 +141,24 @@ fn section_help(
                 argument.choices.retain(|choice| names.contains(choice));
             }
         }
+        // The section's own sources replace the command-wide source line; the case line stays.
+        let cased = command
+            .description
+            .lines()
+            .any(|line| line == crate::grammar::ENUM_CASE_GUIDANCE);
         command.description = format!("get {entity} {section}. Sources: {}.", names.join(", "));
+        if cased {
+            command.description.push('\n');
+            command
+                .description
+                .push_str(crate::grammar::ENUM_CASE_GUIDANCE);
+        }
         // An example that names neither the section nor its sources reads something else.
         command.examples.retain(|example| {
             example
                 .iter()
                 .any(|word| word == section || names.contains(word))
         });
-    }
-    // The section's own sources replace the command-wide source sentence.
-    for argument in &mut command.arguments {
-        if let Some(index) = argument.description.find(" Command sources: ") {
-            argument.description.truncate(index);
-        }
     }
     // Stable: the first recorded example that reads this section leads.
     command
@@ -163,9 +171,10 @@ fn section_help(
 /// Sources an option names after "Only with --source", from the schema or the source fact.
 fn only_sources(description: &str) -> Vec<biomcp_types::Source> {
     description
-        .split("Only with --source ")
+        .replace("Only with --source ", "only with --source ")
+        .split("only with --source ")
         .skip(1)
-        .filter_map(|rest| rest.split('.').next())
+        .filter_map(|rest| rest.split(['.', ';']).next())
         .flat_map(|list| list.split([',', ' ']))
         .filter_map(|word| word.parse().ok())
         .collect()
@@ -195,9 +204,11 @@ pub(crate) fn compact(commands: &mut [HelpCommand]) {
                     .iter()
                     .find(|(verb, entity, _)| command.command == [*verb, *entity])
             {
+                // Names the option, so two large lists on one page say different sentences.
                 argument.description.push_str(&format!(
-                    " {} allowed values. Full list: biomcp schema {schema}.",
-                    argument.choices.len()
+                    " {} allowed values for {}; full list: biomcp schema {schema}.",
+                    argument.choices.len(),
+                    argument.name
                 ));
                 argument.choices.clear();
             }
@@ -370,12 +381,20 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
     if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
+        let first = flags.keys().next().cloned().unwrap_or_default();
         return flags
-            .keys()
-            .map(|flag| {
+            .iter()
+            .map(|(flag, setting)| {
                 let mut value = argument(flag, node, root);
                 value.value_type = "boolean".into();
                 value.choices.clear();
+                // Flags that set one field share its text; the first flag carries it.
+                if *flag != first {
+                    value.description = match setting.as_str() {
+                        Some(setting) => format!("Same field as --{first}; sets it to {setting}."),
+                        None => format!("Same field as --{first}."),
+                    };
+                }
                 value
             })
             .collect();
