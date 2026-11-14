@@ -1,0 +1,53 @@
+{
+  "feature": "phenotype-ancestors",
+  "live_check": "public",
+  "story": "A counselor asks whether infantile spasms sits under seizure and reads every ancestor of HP:0012469 up to the HP root, with labels, from one OLS reply; turning Monarch off changes nothing.",
+  "verified": "HPO terms via EMBL-EBI OLS4 v2 classes?curie=HP:0012469, captured live 2026-11-14 in pm job j40162; reply body SHA256 of the recording 2520955c8aea2c4a4e5cbbe3cd9c5cdf3816f1be908b77a543d3f40e1fb60837. The directAncestor set equals OLS v1 /ancestors for this term (7 terms).",
+  "replay": "phenotype/ancestors",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0012469",
+        "ancestors"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 7,
+        "/page/returned": 7,
+        "/result/items/0/id": "HP:0000001",
+        "/result/items/1/id": "HP:0000118",
+        "/result/items/1/label": "Phenotypic abnormality",
+        "/result/items/3/id": "HP:0001250",
+        "/result/items/3/label": "Seizure",
+        "/result/items/6/id": "HP:0020219",
+        "/sources/0/source": "ols",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0012469",
+        "ancestors",
+        "--disable-sources",
+        "monarch"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 7,
+        "/page/returned": 7,
+        "/result/items/0/id": "HP:0000001",
+        "/result/items/1/id": "HP:0000118",
+        "/result/items/1/label": "Phenotypic abnormality",
+        "/result/items/3/id": "HP:0001250",
+        "/result/items/3/label": "Seizure",
+        "/result/items/6/id": "HP:0020219",
+        "/sources/0/source": "ols",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "feature": "phenotype-ancestors",
+  "live_check": "synthetic authored or response-edited replies; no live provider observation",
+  "story": "With Monarch failing, the one-hop hierarchy section points to the ancestors section, and that section is answered by OLS and names it.",
+  "verified": "Response-only edit of the Monarch entity capture for HP:0012469 from pm job j40162 (2026-11-14) to three HTTP 502 exchanges, the status Monarch returned during rare-disease round 2; request method and URL unchanged. The OLS reply is the unedited live capture also used by phenotype/ancestors.",
+  "replay": "phenotype/ancestors-monarch-down",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0012469",
+        "hierarchy"
+      ],
+      "expect": {
+        "/sources/0/source": "monarch",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0012469",
+          "ancestors"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0012469",
+        "ancestors"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 7,
+        "/page/returned": 7,
+        "/result/items/0/id": "HP:0000001",
+        "/result/items/1/id": "HP:0000118",
+        "/result/items/1/label": "Phenotypic abnormality",
+        "/result/items/3/id": "HP:0001250",
+        "/result/items/3/label": "Seizure",
+        "/result/items/6/id": "HP:0020219",
+        "/sources/0/source": "ols",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

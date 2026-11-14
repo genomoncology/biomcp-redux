@@ -234,7 +234,7 @@
           "x-positional": 1
         },
         "section_limit": {
-          "description": "Default five text/link rows or one complete association row.",
+          "description": "Default five text/link rows, one complete association row or 50 ancestors.",
           "format": "uint32",
           "maximum": 50,
           "minimum": 1,
@@ -249,11 +249,11 @@
         },
         "snapshot": {
           "$ref": "#/$defs/Reply_Text",
-          "description": "Retained exact source reply for local text and link pages; unsupported for diseases and genes."
+          "description": "Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors."
         },
         "source": {
           "$ref": "#/$defs/Reply_PhenotypeSource",
-          "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch."
+          "description": "HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for ancestors, otherwise Monarch."
         }
       },
       "required": [
@@ -339,7 +339,8 @@
         "xrefs",
         "hierarchy",
         "diseases",
-        "genes"
+        "genes",
+        "ancestors"
       ],
       "type": "string",
       "x-enum-descriptions": [
@@ -347,19 +348,22 @@
         " Native cross references.",
         " Native direct parent and child links.",
         " Native disease association rows.",
-        " Native human gene association rows."
+        " Native human gene association rows.",
+        " Every ancestor term up to the ontology root, from OLS."
       ]
     },
     "Reply_PhenotypeSource": {
       "description": "One independent term publisher.",
       "enum": [
         "hpo",
-        "monarch"
+        "monarch",
+        "ols"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Direct HPO term metadata.",
-        " Monarch term search and associations."
+        " Monarch term search and associations.",
+        " OLS ancestor lists for HP terms."
       ]
     },
     "Reply_PoolInfo": {
