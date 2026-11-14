@@ -26,7 +26,7 @@ Commands:
   sync        Synchronize a local source bundle.
   skill       Read embedded guidance and worked examples. No source requests. Overview and catalog are bounded by the embedded payload; install and status return one summary. Install writes only inside DIR and refuses symbolic links and parent traversal.
   source      List source names as JSON. No source requests or key reads.
-  version     Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
+  version     Print version; --verbose adds build and path provenance. No source requests or key reads.
   mcp-config  Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
   health      Report source terms and bounded reachability.
   store       Manage local cached replies and snapshots.
@@ -81,7 +81,7 @@ variant: Read source variant assertions, populations and recurrence.
 sync: Synchronize a local source bundle.
 skill: Read embedded guidance and worked examples
 source: List source names as JSON
-version: Print version; --verbose adds build, schema and path provenance
+version: Print version; --verbose adds build and path provenance
 mcp-config: Print MCP configuration with this executable’s absolute path
 health: Report source terms and bounded reachability.
 store: Manage local cached replies and snapshots.
@@ -5913,7 +5913,7 @@ List the source names a hosted request may leave out.
 ## biomcp version
 
 ```text
-Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
+Print version; --verbose adds build and path provenance. No source requests or key reads.
 
 Usage: biomcp version [OPTIONS]
 
@@ -5925,7 +5925,7 @@ Options:
           [possible values: json, md]
 
       --verbose[=<verbose>]
-          Include commit, target, schema versions, config and cache paths.
+          Include commit, target, config and cache paths.
 
           [default: false]
           [possible values: true, false]
@@ -5955,9 +5955,9 @@ Example: biomcp version
 
 ```
 
-Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
+Print version; --verbose adds build and path provenance. No source requests or key reads.
 
-- `--verbose`: Include commit, target, schema versions, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection.
+- `--verbose`: Include commit, target, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection.
 
 ## biomcp mcp-config
 

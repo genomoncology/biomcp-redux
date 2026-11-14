@@ -70,9 +70,8 @@ fn mcp_config(client: Client) -> io::Result<String> {
 fn version(verbose: bool, globals: &crate::grammar::Globals) -> io::Result<String> {
     let mut text = format!("biomcp {}\n", env!("CARGO_PKG_VERSION"));
     if verbose {
-        let versions = crate::schema::versions().join(", ");
         text.push_str(&format!(
-            "Commit: {}\nTarget: {}\nSchemas: {versions}\nConfig: {}\nCache: {}\n",
+            "Commit: {}\nTarget: {}\nConfig: {}\nCache: {}\n",
             env!("BIOMCP_BUILD_COMMIT"),
             env!("BIOMCP_BUILD_TARGET"),
             display_path(
