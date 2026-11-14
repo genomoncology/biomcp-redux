@@ -37,6 +37,9 @@ pub(crate) fn trials() -> Vec<Trial> {
                 .check("", &serde_json::json!([9, 9, 0]))
                 .map_err(Into::into)
         }),
+        transcript_trial("schema-discovery/starts-within-reads-raw-bytes", || {
+            super::assertions::offsets::proof().map_err(Into::into)
+        }),
         transcript_trial("schema-discovery/null-and-empty-boundaries", || {
             boundaries().map_err(Into::into)
         }),

@@ -42,11 +42,13 @@ biodata::wire_enum! {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugWhoPage {
+    // Totals come before the rows (0939): an agent that reads only the start of a long reply
+    // sees that the rows are one page of more.
+    /// Matching rows in the complete local snapshot.
+    pub total: u64,
     /// Bounded native rows in export order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[DrugWhoRow]>,
-    /// Matching rows in the complete local snapshot.
-    pub total: u64,
 }
 /// Source-scoped native rows for one exact WHO reference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

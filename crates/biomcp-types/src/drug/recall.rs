@@ -68,11 +68,13 @@ biodata::canonical_enum! {
 pub struct DrugRecallPage {
     /// Native count unit; no event deduplication or patient count.
     pub count_unit: DrugRecallCountUnit,
+    // Totals come before the rows (0939): an agent that reads only the start of a long reply
+    // sees that the rows are one page of more.
+    /// Number of native recall records.
+    pub total: u64,
     /// Native source order, without event deduplication.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[DrugRecallHeader]>,
-    /// Number of native recall records.
-    pub total: u64,
 }
 impl crate::ResponseBody for DrugRecallPage {
     const SCHEMA: &'static str = "biomcp.drug-recall-page/4";

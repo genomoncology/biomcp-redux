@@ -232,13 +232,15 @@ impl ResponseBody for AdverseEventMaudeCard {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "AdverseEventRecords_{T}"))]
 pub struct AdverseEventRecords<T> {
-    /// Source ordered whole rows.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub records: Box<[T]>,
+    // Totals come before the rows (0939): an agent that reads only the start of a long reply
+    // sees that the rows are one page of more.
     /// Native section offset.
     pub offset: u32,
     /// Complete selected section length, not report or patient count.
     pub total: u64,
+    /// Source ordered whole rows.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub records: Box<[T]>,
 }
 macro_rules! section {
     ($name:ident, $row:ty, $field:ident, $schema:literal) => {
@@ -293,13 +295,13 @@ section!(
 pub struct AdverseEventIdentifierRecords {
     /// Absolute native drug-array index within this report snapshot.
     pub drug_index: u32,
-    /// Published identifier strings without rewriting.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub records: Box<[Box<str>]>,
     /// Original array offset.
     pub offset: u32,
     /// Complete selected array length.
     pub total: u64,
+    /// Published identifier strings without rewriting.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub records: Box<[Box<str>]>,
 }
 macro_rules! identifiers {
     ($($variant:ident, $field:ident, $wire:literal);+ $(;)?) => {

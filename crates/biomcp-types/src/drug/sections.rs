@@ -61,12 +61,14 @@ pub struct DrugSectionReply<B> {
     /// The drug this part describes, only when it differs from the reply's identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub identity: Option<DrugHeader>,
-    /// Answer when available.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub result: Option<B>,
+    // The page comes before the result (0939): an agent that reads only the start of a long
+    // reply sees that the rows are one page of more.
     /// Section page metadata.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub page: Option<PageInfo>,
+    /// Answer when available.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub result: Option<B>,
     /// Sources actually asked.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<SourceOutcome>,

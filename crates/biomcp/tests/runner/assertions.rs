@@ -1,5 +1,6 @@
 use super::Step;
 mod members;
+pub(super) mod offsets;
 use serde_json::Value;
 
 #[derive(Debug)]
@@ -22,6 +23,7 @@ pub(super) type Expectations<'a> = Vec<(&'a str, &'a Value, Vec<Assertion<'a>>)>
 
 pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
     local_forms(step)?;
+    offsets::validate(step)?;
     if markdown(step) {
         markdown_forms(step)?;
     }
@@ -314,6 +316,7 @@ pub(super) fn check(
         stdout.len() - terms_bytes,
         step.max_bytes.map(|v| v as u64),
     )?;
+    offsets::check(stdout, step)?;
     if expectations.is_empty() && step.max_tokens.is_none() {
         return Ok(());
     }

@@ -39,6 +39,10 @@
         "--limit",
         "10"
       ],
+      "starts_within": {
+        "/page/total": 1200,
+        "/result/total": 1200
+      },
       "expect": {
         "/status": "complete",
         "/page/returned": 10,

@@ -43,6 +43,8 @@ apart from explicit format options. A missing or different pair fails. With
 JSON pointers, other operators, MCP parity and token ceilings remain unavailable
 for that text assertion form. Literal `stdout` still compares the complete output.
 
+A JSON step also accepts `starts_within`, a map from exact JSON pointers (no `*`) to byte counts. Each selected value must start before that byte of the raw output, so an agent that reads only the start of the reply sees it. MCP text lists fields alphabetically, so the same pointer can sit elsewhere in an `mcp` step.
+
 Arrays are ordered. Membership ignores multiplicity. Missing paths fail;
 explicit null is a value. Ordinary empty arrays can equal `[]`, have count zero,
 and fail membership normally. A missing rank member fails.

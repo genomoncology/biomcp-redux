@@ -18,11 +18,13 @@ pub struct DrugCivicStreams {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugCivicPage {
+    // Totals come before the rows (0939): an agent that reads only the start of a long reply
+    // sees that the rows are one page of more.
+    /// Stream totals and continuation, independent of every other stream.
+    pub page: CivicClaimPage<DrugGet>,
     /// Native claim order; each row carries the profile to which that claim belongs.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[DrugCivicClaim]>,
-    /// Stream totals and continuation, independent of every other stream.
-    pub page: CivicClaimPage<DrugGet>,
 }
 /// One native claim with its complete source therapy set and molecular profile.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
