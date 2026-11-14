@@ -1,0 +1,19 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=%2A&lookupkey-%3E%3ECYP2C19=not.is.null&drugid=eq.RxNorm%3A32968&order=id.asc&limit=5&offset=0&phenotypes-%3E%3ECYP2C19=eq.poor%20metabolizer",
+  "exchanges": [
+    {
+      "fetched": 1794670329,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "*/0",
+      "delay_ms": 125,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": []
+      }
+    }
+  ]
+}

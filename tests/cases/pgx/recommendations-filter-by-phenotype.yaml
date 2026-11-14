@@ -41,7 +41,7 @@
           }
         }
       },
-      "max_bytes": 9000
+      "max_bytes": 6689
     },
     {
       "run": [
@@ -71,7 +71,7 @@
         "/result/items/0/drugrecommendation": "Avoid clopidogrel if possible. Use prasugrel or ticagrelor at standard dose if no contraindication.",
         "/result/items/2/drugrecommendation": "Avoid clopidogrel if possible. Consider an alternative P2Y12 inhibitor at standard dose if clinically indicated and no contraindication."
       },
-      "max_bytes": 9000
+      "max_bytes": 4986
     },
     {
       "run": [
@@ -97,7 +97,7 @@
           "includes": "CPIC has no CYP2C19 recommendations for RxNorm:32968 with phenotype poor metabolizer; result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them."
         }
       },
-      "max_bytes": 3000
+      "max_bytes": 1287
     }
   ]
 }
