@@ -95,7 +95,7 @@ fn source_fields(hosted: &Value) -> Result<(), String> {
     let owners: [(&str, &[&str], &[&str]); 4] = [
         (
             "search_drug",
-            &["prequalified_from", "prequalified_to"],
+            &["prequalified_from", "prequalified_to", "therapeutic_area"],
             &["query", "indication", "firm"],
         ),
         (

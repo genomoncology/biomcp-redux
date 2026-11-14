@@ -21,6 +21,7 @@ biodata::canonical_enum! {
         /// Source-scoped regulator events.
         Regulatory => "regulatory",
         /// Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
+        /// DDInter's published files carry a level per pair and no management or mechanism text.
         Interactions => "interactions",
         /// One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
         Markets => "markets",
@@ -98,6 +99,12 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
+    #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]
+    /// Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+    /// names other sources state for it, as the drug itself is.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Ddinter)))]
+    partner: Option<Text>,
 }
 crate::query::validation::checked_query!(DrugGet, GetFields);
 impl TryFrom<GetFields> for DrugGet {
@@ -180,6 +187,12 @@ fn validate_sections(fields: &GetFields) -> Result<(), QueryInvalid> {
     }
     if fields.product_number.is_some() && !fields.section.contains(&DrugSection::Approvals) {
         return Err(QueryInvalid::new(&["product_number", "section"]));
+    }
+    if fields.partner.is_some()
+        && (fields.source != Some(DrugSource::Ddinter)
+            || fields.section.as_ref() != [DrugSection::Interactions])
+    {
+        return Err(QueryInvalid::new(&["partner", "source", "section"]));
     }
     if fields.source == Some(DrugSource::FdaDrugRecall) && !fields.section.is_empty() {
         return Err(QueryInvalid::new(&["source", "section"]));
@@ -302,6 +315,7 @@ impl DrugGet {
             civic_kind: None,
             civic_cursor: None,
             evidence_filter: Default::default(),
+            partner: None,
         }
         .try_into()
     }
@@ -384,6 +398,10 @@ impl DrugGet {
     /// Explicit section continuation offset.
     pub fn section_offset(&self) -> Option<u32> {
         self.fields.section_offset
+    }
+    /// The DDInter drug whose pairs with this drug the interactions section keeps.
+    pub fn partner(&self) -> Option<&Text> {
+        self.fields.partner.as_ref()
     }
 }
 

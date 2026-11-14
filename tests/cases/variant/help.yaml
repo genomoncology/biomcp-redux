@@ -15,7 +15,7 @@
         },
         "/result/commands/0/description": "Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator."
       },
-      "max_bytes": 9660
+      "max_bytes": 9778
     },
     {
       "run": [
@@ -41,7 +41,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2934
+      "max_bytes": 2987
     },
     {
       "run": [
@@ -54,7 +54,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2774
+      "max_bytes": 2827
     },
     {
       "run": [
@@ -67,7 +67,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2696
+      "max_bytes": 2806
     },
     {
       "run": [
@@ -80,7 +80,7 @@
           "count": 1
         }
       },
-      "max_bytes": 3636
+      "max_bytes": 3689
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

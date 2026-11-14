@@ -24,7 +24,7 @@ pub enum DrugFdaSort {
 }
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
-    WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. \
+    WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. \
     Drugs@FDA accepts a name or an applicant. Other sources require a name."]
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(try_from = "SearchFields")]
@@ -135,6 +135,16 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
     prequalified_to: Option<biodata::PartialDate>,
+    /// WHO PQ therapeutic area.
+    /// Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
+    #[serde(
+        default,
+        deserialize_with = "present_query",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoPq)))]
+    therapeutic_area: Option<Text>,
 
     /// Selected source.
     ///
@@ -187,11 +197,18 @@ impl TryFrom<SearchFields> for DrugSearch {
                 "source",
             ]));
         }
-        if fields.source == DrugSource::WhoPq && fields.query.is_none() && !who_dates {
-            return Err(
-                QueryInvalid::new(&["query", "prequalified_from", "prequalified_to"])
-                    .with_message(crate::ErrorMessage::WhoSearchArguments),
-            );
+        if fields.therapeutic_area.is_some() && fields.source != DrugSource::WhoPq {
+            return Err(QueryInvalid::new(&["therapeutic_area", "source"]));
+        }
+        let who_filters = who_dates || fields.therapeutic_area.is_some();
+        if fields.source == DrugSource::WhoPq && fields.query.is_none() && !who_filters {
+            return Err(QueryInvalid::new(&[
+                "query",
+                "therapeutic_area",
+                "prequalified_from",
+                "prequalified_to",
+            ])
+            .with_message(crate::ErrorMessage::WhoSearchFilters));
         }
         if fields
             .prequalified_from
@@ -208,7 +225,7 @@ impl TryFrom<SearchFields> for DrugSearch {
             fields.query.is_some()
                 || fields.indication.is_some()
                 || fields.applicant.is_some()
-                || (fields.source == DrugSource::WhoPq && who_dates),
+                || (fields.source == DrugSource::WhoPq && who_filters),
             fields.firm.is_some()
                 || fields.classification.is_some()
                 || fields.status.is_some()
@@ -251,6 +268,10 @@ impl DrugSearch {
     pub fn prequalified_to(&self) -> Option<biodata::PartialDate> {
         self.0.prequalified_to
     }
+    /// Words of WHO's own Therapeutic Area column.
+    pub fn therapeutic_area(&self) -> Option<&Text> {
+        self.0.therapeutic_area.as_ref()
+    }
     /// Construct a literal name search through the same checked fields as every input surface.
     pub fn named(query: Text, source: DrugSource, limit: u32) -> Result<Self, QueryInvalid> {
         SearchFields {
@@ -274,6 +295,7 @@ impl DrugSearch {
             initiated_to: None,
             prequalified_from: None,
             prequalified_to: None,
+            therapeutic_area: None,
             name_selector: None,
         }
         .try_into()

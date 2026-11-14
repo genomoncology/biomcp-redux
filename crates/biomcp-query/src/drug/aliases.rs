@@ -145,6 +145,48 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .collect()
 }
 
+/// Retry a DDInter partner DDInter does not name under each exact name another source states
+/// for it; the first name that DDInter names is the partner.
+pub(super) fn partner<T>(
+    cx: &Ctx<'_>,
+    input: &Text,
+    mut attempt: impl FnMut(&Text) -> Option<T>,
+) -> (Option<T>, Aliased) {
+    let (found, _, evidence) = with_aliases(cx, input, DrugSource::Ddinter, |card, name, _| {
+        attempt(name).map(|found| {
+            let message = format!(
+                "DDInter's files name no drug {:?}. {} record {} supplies the name {:?}; \
+                 the partner is DDInter's drug by that name.",
+                input.as_str(),
+                card.header.source,
+                card.header.id,
+                name.as_str()
+            );
+            (found, message)
+        })
+    });
+    let (found, message) = match found {
+        Some((found, message)) => (Some(found), Some(message)),
+        None => (None, None),
+    };
+    (found, Aliased { message, evidence })
+}
+
+/// The other-source lookups a partner retry made, and the name it used, if any.
+pub(super) struct Aliased {
+    message: Option<String>,
+    evidence: Evidence,
+}
+impl Aliased {
+    /// Add the lookups' source outcomes and say which name stood in for the partner.
+    pub(super) fn append(self, out: &mut Outcome) {
+        self.evidence.append(out, DrugSource::Ddinter);
+        if let Some(message) = self.message {
+            notice(out, DrugSource::Ddinter, message);
+        }
+    }
+}
+
 #[derive(Default)]
 struct Evidence {
     sources: Vec<SourceOutcome>,
