@@ -47,10 +47,20 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
 /// An obsolete term has no ancestors; its named replacement does.
 fn replacements(out: &mut Outcome, terms: &[PhenotypeAncestor]) {
     for term in terms {
-        // A replacement outside HP gets no step; the reply still names it.
-        if let Ok(id) = term.id.to_string().parse::<biodata::HpId>()
-            && let Ok(request) = PhenotypeGet::new(id).with_section(PhenotypeSection::Ancestors)
-        {
+        // A replacement outside HP gets no step, only a next-step problem; the reply still names it.
+        let id = crate::next::checked(
+            term.id.to_string().parse::<biodata::HpId>(),
+            Source::Ols,
+            &mut out.problems,
+        );
+        let request = id.and_then(|id| {
+            crate::next::checked(
+                PhenotypeGet::new(id).with_section(PhenotypeSection::Ancestors),
+                Source::Ols,
+                &mut out.problems,
+            )
+        });
+        if let Some(request) = request {
             out.next.push(crate::next::Step::new(
                 StepKind::Section,
                 &[Source::Ols],

@@ -37,7 +37,8 @@
         "/status": "absent",
         "/sources/0/source": "ols",
         "/sources/0/state": "ok"
-      }
+      },
+      "exit": 1
     }
   ]
 }
