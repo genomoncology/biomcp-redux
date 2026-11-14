@@ -1,5 +1,5 @@
 //! Shape check: a PMA summary find keeps every match on long extracted lines (synthetic text).
-use super::passages;
+use super::summary::passages;
 
 type Check = Result<(), Box<dyn std::error::Error>>;
 

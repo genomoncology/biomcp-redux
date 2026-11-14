@@ -145,7 +145,7 @@ fn found(
 /// Each match starts a passage a short lead before it, running through the following text up to
 /// the passage size and ending at a line break after the match when one fits; a match inside an
 /// earlier passage adds none. Fragment numbers are those of continuable fragment reading.
-fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
+pub(super) fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
     let starts = pdf::fragment_starts(text);
     let mut hits = Vec::new();
     let mut covered = 0;
@@ -231,6 +231,3 @@ fn passage_end(text: &str, begin: usize, at: usize) -> usize {
         end
     }
 }
-#[cfg(test)]
-#[path = "summary_tests.rs"]
-mod tests;
