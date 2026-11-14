@@ -1,8 +1,8 @@
 {
   "feature": "variant-identity",
-  "live_check": "CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 (job j39152) for SCN1A c.4729T>C, which is valid on NM_006920.6 and was tried on the MANE transcript NM_001165963.4.",
+  "live_check": "CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 (jobs j39152 and j39921) for SCN1A c.4729T>C, which is valid on NM_006920.6 and was tried on the MANE transcript NM_001165963.4; CA284979 and its ClinVar record captured unchanged on 2026-11-13 (job j39768).",
   "replay": "variant/normalization/rejections",
-  "story": "A reference mismatch on a gene's transcript names the transcripts where the base fits and resolves the allele there, so an agent does not change the base and land on a neighbouring variant.",
+  "story": "A reference mismatch on a gene's transcript names the transcripts where the base fits, resolves the allele there, and leads on to that allele's ClinVar record, so an agent does not change the base and land on a neighbouring variant.",
   "steps": [
     {
       "run": [
@@ -23,15 +23,25 @@
         "/result/results/1/outcome": "resolved",
         "/result/results/1/mappings/0/value": "http://reg.genome.network/allele/CA284979",
         "/result/results/1/mappings/7/value": "NM_001165963.4:c.4762T>C",
-        "/next/0/kind": "disambiguate",
-        "/next/0/args": [
-          "variant",
-          "normalize",
-          "--hgvs",
-          "NM_006920.6:c.4729T>C",
-          "--source",
-          "car"
-        ]
+        "/next": [
+          {
+            "kind": "disambiguate",
+            "args": [
+              "get",
+              "variant",
+              "CA284979",
+              "clinvar"
+            ]
+          }
+        ],
+        "/sources": {
+          "count": 2
+        },
+        "/sources/0/source": "car",
+        "/sources/0/state": "failed",
+        "/sources/1/source": "variantvalidator",
+        "/sources/1/state": "ok",
+        "/sources/0/reason": "rejected"
       }
     },
     {
@@ -50,13 +60,14 @@
         "/result/results/1/normalized": "NM_006920.6:c.4729T>C",
         "/result/results/1/mappings/0/value": "NM_006920.6(NP_008851.3):p.(Cys1577Arg)",
         "/next/0/args": [
+          "get",
           "variant",
-          "normalize",
-          "--hgvs",
           "NM_006920.6:c.4729T>C",
-          "--source",
-          "mutalyzer"
-        ]
+          "clinvar"
+        ],
+        "/sources": {
+          "count": 2
+        }
       }
     },
     {
@@ -77,15 +88,32 @@
         "/result/results/1/hgvs": "NM_006920.6:c.4729T>C",
         "/result/results/1/outcome": "resolved",
         "/next/0/args": [
+          "get",
           "variant",
-          "normalize",
-          "--build",
-          "GRCh38",
-          "--hgvs",
           "NM_006920.6:c.4729T>C",
-          "--source",
-          "variantvalidator"
-        ]
+          "clinvar"
+        ],
+        "/sources": {
+          "count": 1
+        },
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "rejected"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "variant",
+        "CA284979",
+        "clinvar"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/candidates/0/identity/ids": {
+          "includes": "clinvar:68552"
+        },
+        "/result/candidates/0/sections/clinvar/data/assertions/0/statement/attribution/record": "VCV000068552",
+        "/result/candidates/0/sections/clinvar/data/assertions/0/statement/classification/label": "Pathogenic/Likely pathogenic"
       }
     }
   ]

@@ -13,11 +13,23 @@ fn replay(dir: PathBuf) -> Fetch {
     })
     .unwrap()
 }
+/// The default context with a 20-second command budget.
+fn context(fetch: &Fetch) -> biomcp_query::Ctx<'_> {
+    biomcp_query::Ctx {
+        ncbi_email: None,
+        fetch,
+        budget: Duration::from_secs(20),
+        fresh: false,
+        drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
+        label_bytes: biomcp_query::LABEL_BYTES,
+        fit_deadline: biomcp_query::FIT_DEADLINE,
+    }
+}
 #[test]
 // Expire only the case-owned documented cache metadata.
 fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
     use biomcp_fetch::ReplayCache;
-    use biomcp_query::{Ctx, run};
+    use biomcp_query::run;
     use biomcp_types::{GeneGet, GeneSearch, ReplyData, Request, Source, SourceState, Status};
     let directory = tempfile::tempdir().unwrap();
     let case_path = directory.path().join("case");
@@ -35,21 +47,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
         ..Default::default()
     })
     .unwrap();
-    assert_eq!(
-        run(
-            &Ctx {
-                ncbi_email: None,
-                fetch: &fetch,
-                budget: Duration::from_secs(20),
-                fresh: false,
-                drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-                label_bytes: biomcp_query::LABEL_BYTES,
-            },
-            &query
-        )
-        .status(),
-        Status::Complete
-    );
+    assert_eq!(run(&context(&fetch), &query).status(), Status::Complete);
     drop(fetch);
     let database = rusqlite::Connection::open(case_path.join("replay.sqlite")).unwrap();
     database
@@ -61,14 +59,7 @@ fn stale_identity_and_annotation_sources_make_only_their_answers_partial() {
         ..Default::default()
     })
     .unwrap();
-    let cx = Ctx {
-        ncbi_email: None,
-        fetch: &fetch,
-        budget: Duration::from_secs(20),
-        fresh: false,
-        drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-        label_bytes: biomcp_query::LABEL_BYTES,
-    };
+    let cx = context(&fetch);
     let outcome = run(&cx, &query);
     assert_eq!(outcome.status(), Status::Partial);
     assert_eq!(outcome.sources[0].source, Source::Hgnc);
@@ -160,6 +151,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
             fresh: false,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
+            fit_deadline: biomcp_query::FIT_DEADLINE,
         },
         &query,
     );
@@ -181,7 +173,7 @@ fn clingen_local_failure_survives_later_source_deadline() {
 
 #[test]
 fn concurrent_replay_annotations_and_bundle_publication_keep_checked_sections() {
-    use biomcp_query::{Ctx, run};
+    use biomcp_query::run;
     use biomcp_types::{GeneGet, GeneSectionWord, Request, Status};
     let query = Request::GetGene(
         GeneGet::with_sections(
@@ -199,17 +191,7 @@ fn concurrent_replay_annotations_and_bundle_publication_keep_checked_sections() 
         let fetch = replay(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/replies/gene/clingen"),
         );
-        let outcome = run(
-            &Ctx {
-                ncbi_email: None,
-                fetch: &fetch,
-                budget: Duration::from_secs(20),
-                fresh: false,
-                drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-                label_bytes: biomcp_query::LABEL_BYTES,
-            },
-            &query,
-        );
+        let outcome = run(&context(&fetch), &query);
         assert_eq!(
             outcome.status(),
             Status::Complete,

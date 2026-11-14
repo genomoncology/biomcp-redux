@@ -1,0 +1,26 @@
+{
+  "method": "GET",
+  "source": "car",
+  "url": "https://reg.genome.network/allele?hgvs=NM_001321571.2%3Ac.1140T%3EC&fields=none%2B%40id%2BcommunityStandardTitle%2BgenomicAlleles%2BtranscriptAlleles.MANE%2BexternalRecords.dbSNP%2BexternalRecords.ClinVarVariations",
+  "exchanges": [
+    {
+      "fetched": 1794621973,
+      "status": 400,
+      "content_type": "application/json",
+      "delay_ms": 67,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "actualAllele": "A",
+  "description": "Given allele from reference sequence is incorrect. It does not match actual sequence at given position.",
+  "errorType": "IncorrectReferenceAllele",
+  "givenAllele": "T",
+  "message": "Reference allele does not match for NM_001321571.2[296138-0,296139+0), given=T, found=A.",
+  "referenceSequence": "NM_001321571.2",
+  "region": "[296138-0,296139+0)"
+}
+      }
+    }
+  ]
+}
