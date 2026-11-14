@@ -43,9 +43,8 @@ case "${1:-cases}" in
     start=$(date +%s)
     while kill -0 "$pid" 2>/dev/null; do
       rss=$(ps -o rss= -p "$pid" 2>/dev/null || true)
-      net=$(nettop -P -L 1 -p "$pid" -J bytes_in 2>/dev/null | tail -1 || true)
-      echo "t=$(( $(date +%s) - start )) rss_kib=${rss:-gone} net=${net:-?}"
-      sleep 0.25
+      echo "t=$(python3 -c "import time; print(round(time.time() - $start, 1))") rss_kib=${rss:-gone}"
+      sleep 0.2
     done
     wait "$pid"
     cat "$home/sync.json"
