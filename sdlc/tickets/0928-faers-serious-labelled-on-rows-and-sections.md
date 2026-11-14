@@ -31,3 +31,9 @@ FAERS search rows and the `drugs` and `reactions` section replies of `get advers
 ## Changes
 
 - Changes: FAERS search and section rendering, their schemas (optional field), cases.
+
+## Progress
+
+- `serious_label` moved into the shared report header (`AdverseEventHeader`), beside `serious`, with 0916's `SERIOUS` words. FAERS fills it on search rows, the card and every section (drugs, reactions, identifiers); MAUDE builds its header with no `serious` and no label. The card's own top-level `serious_label` from 0916 is gone, because the header now carries it; neither field is in the 1.0.0 baseline, which gains only an optional header field.
+- Search `--fields` help now lists fields by source, the way trial search does: `faers: first_received, id, serious, serious_label, source, version; maude: event_type, first_received, id, source`. The old single list also offered `serious` and `version` to MAUDE and `event_type` to FAERS, none of which those rows ever fill. The per-source names live in `AdverseEventHeader::ROW_FIELDS`, and a unit test fails if a header field is missing from every source's list or a listed name is not a header field. Asking `--source maude --fields serious_label` is still accepted and returns rows without it, as `serious` did before.
+- Proof from recorded real openFDA replies: `serious-any` (pembrolizumab row 26940567, `serious` `1`) and `faers-widened-names` (apixaban row, `serious` `2`) assert each sentence on a search row; `faers-recorded-labels` asserts it in the header of the card, of the drugs section of 22814945 (`2`) and of the reactions section of 27298481 (`1`); `maude-event-type` asserts its MAUDE row has neither `serious` nor `serious_label`.
