@@ -16,9 +16,9 @@ use std::marker::PhantomData;
 /// Maximum unencoded published bundle size.
 pub const MAX_BUNDLE_BYTES: u64 = 128 * 1024 * 1024;
 /// Ceiling for one streamed gzip XML part, counted apart from `MAX_BUNDLE_BYTES` (0931: GTR's XML is 176 MiB).
-pub const MAX_STREAMED_BYTES: u64 = 512 * 1024 * 1024;
+pub(crate) const MAX_STREAMED_BYTES: u64 = 512 * 1024 * 1024;
 /// Ceiling for one streamed part's decoded XML, which is read once and never held (0931: GTR's is 1.8 GiB).
-pub const MAX_STREAMED_DECODED_BYTES: u64 = 8 * 1024 * 1024 * 1024;
+pub(crate) const MAX_STREAMED_DECODED_BYTES: u64 = 8 * 1024 * 1024 * 1024;
 /// A decoded bundle row supplies its own search keys.
 pub trait Row: serde::de::DeserializeOwned {
     /// Refuse a refresh when native rows exist but none survive admission.
