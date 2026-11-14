@@ -9,10 +9,6 @@ pub(crate) fn find(name: &str) -> Option<&'static str> {
         .find_map(|(id, text)| (*id == name).then_some(*text))
 }
 
-pub(crate) fn versions() -> Vec<&'static str> {
-    SCHEMAS.iter().map(|(id, _)| *id).collect()
-}
-
 const CATALOG: &[(&str, &str)] = include!(concat!(env!("OUT_DIR"), "/schema-catalog.rs"));
 const REPLIES: &[(&str, &[&str])] = include!(concat!(env!("OUT_DIR"), "/schema-replies.rs"));
 

@@ -20,7 +20,11 @@
       "expect": {
         "": {
           "includes_all_of": [
-            "Use `biomcp help COMMAND ENTITY`",
+            "`biomcp get ENTITY ID [SECTION...]`",
+            "Variant, pgx, biomarker, organization and diagnostic search by flags, not text",
+            "never keys from the returned data",
+            "Run the command first. A refusal names the valid values and a next step: use them.",
+            "Read help only when a reply still leaves you stuck",
             "Sections are words after the ID",
             "When a page reports a total, stop paging at it.",
             "Process exit codes:"

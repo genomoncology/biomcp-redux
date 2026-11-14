@@ -14,30 +14,30 @@ pub struct AdverseEventPatient {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub age_unit_label: Option<Box<str>>,
 }
-/// Native seriousness flags with openFDA's own wording beside a `1`.
-/// openFDA documents only `1` for each flag ("absent otherwise"); the data also carries `2`, which has no published word and stays unlabelled.
+/// Native seriousness flags, each with a label beside its `1` or `2`.
+/// openFDA documents only `1` for each flag ("absent otherwise"); the data also carries `2`, labelled as the report not recording that result.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AdverseEventSeriousness {
     /// Unchanged native flag values.
     #[serde(flatten)]
     pub native: FaersSeriousness,
-    /// openFDA's wording for death `1`; absent for `2`, which openFDA does not document.
+    /// openFDA's wording for death `1`; for `2`, which openFDA does not document, says the report did not record that result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub death_label: Option<Box<str>>,
-    /// openFDA's wording for lifethreatening `1`; absent for `2`, which openFDA does not document.
+    /// openFDA's wording for lifethreatening `1`; for `2`, which openFDA does not document, says the report did not record that result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub lifethreatening_label: Option<Box<str>>,
-    /// openFDA's wording for hospitalization `1`; absent for `2`, which openFDA does not document.
+    /// openFDA's wording for hospitalization `1`; for `2`, which openFDA does not document, says the report did not record that result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hospitalization_label: Option<Box<str>>,
-    /// openFDA's wording for disabling `1`; absent for `2`, which openFDA does not document.
+    /// openFDA's wording for disabling `1`; for `2`, which openFDA does not document, says the report did not record that result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub disabling_label: Option<Box<str>>,
-    /// openFDA's wording for congenitalanomali `1`; absent for `2`, which openFDA does not document.
+    /// openFDA's wording for congenitalanomali `1`; for `2`, which openFDA does not document, says the report did not record that result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub congenitalanomali_label: Option<Box<str>>,
-    /// openFDA's wording for other `1`; absent for `2`, which openFDA does not document.
+    /// openFDA's wording for other `1`; for `2`, which openFDA does not document, says the report did not record that result.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub other_label: Option<Box<str>>,
 }

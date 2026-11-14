@@ -58,17 +58,18 @@ fn check() -> Check {
         }
         let output = run(&env, &["version", "--verbose", "--offline"], empty)?;
         let text = success(&output)?;
-        for field in ["Commit: ", "Target: ", "Schemas: ", "Config: ", "Cache: "] {
+        for field in ["Commit: ", "Target: ", "Config: ", "Cache: "] {
             if !text.contains(field) {
                 return Err(format!("missing {field}: {text}").into());
             }
         }
         if !text.contains(&format!("Commit: {}\n", env!("BIOMCP_BUILD_COMMIT")))
             || !text.contains(&format!("Target: {}\n", env!("BIOMCP_BUILD_TARGET")))
-            || !text.contains(<biomcp_types::Help as biomcp_types::ResponseBody>::SCHEMA)
-            || !text.contains("biomcp.error/4")
         {
-            return Err("verbose build or schema provenance differs from this artifact".into());
+            return Err("verbose build provenance differs from this artifact".into());
+        }
+        if text.contains("Schemas: ") || text.contains("biomcp.error/") {
+            return Err(format!("verbose output lists schemas: {text}").into());
         }
         if !empty {
             let actual = text
