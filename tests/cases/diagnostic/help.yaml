@@ -53,6 +53,7 @@
           "includes_all_of": [
             "--source",
             "--bundle-revision",
+            "--find",
             "id",
             "section",
             "--supplement",
@@ -60,7 +61,7 @@
             "--section-offset"
           ]
         },
-        "/result/commands/0/arguments/5/choices": [
+        "/result/commands/0/arguments/6/choices": [
           "gtr",
           "who-ivd",
           "fda-pma",
