@@ -87,12 +87,12 @@ fn exact_rate_cross_products_refuse_above_ceiling_and_preserve_small_positive_ra
         ),
         (
             "ncbi-eutils",
-            json!({"rate":{"requests":5,"seconds":2},"keyed_rate":{"requests":10,"seconds":1}}),
+            json!({"rate":{"requests":3,"seconds":1},"keyed_rate":{"requests":10,"seconds":1}}),
             true,
         ),
         (
             "ncbi-eutils",
-            json!({"rate":{"requests":3,"seconds":1}}),
+            json!({"rate":{"requests":4,"seconds":1}}),
             false,
         ),
         (

@@ -260,7 +260,10 @@ impl Leg<'_> {
             {
                 return Err(error.into());
             }
-            let wait = delay.unwrap_or_else(|| crate::retry::backoff(&prepared.identity, attempt));
+            // A zero or past retry time still waits the ordinary backoff, so no refusal is hammered.
+            let wait = delay
+                .unwrap_or_default()
+                .max(crate::retry::backoff(&prepared.identity, attempt));
             if !crate::retry::wait(wait, self.budget()) {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }

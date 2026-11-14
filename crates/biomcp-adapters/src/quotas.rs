@@ -61,8 +61,8 @@ quotas! {
 
     /// Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/books/NBK25497/ . Published limits: three per second per IP without a key, ten per second per key.
     /// Measured keyless 2026-11-14 (j40861): one process evenly spaced at three per second drew 429s on 2 to 5 of 17 ClinVar requests in every
-    /// read, as NCBI counts a fourth request inside a second; at five per two seconds no read drew one.
-    NCBI = Quota::new(SourceKey::declare("ncbi-eutils"), Rate::per_period(5, 2), Some(Rate::per_second(10)), 3);
+    /// read, as NCBI counts a fourth request inside a second; at five per two seconds no read drew one, so that is the keyless default.
+    NCBI = Quota::new(SourceKey::declare("ncbi-eutils"), Rate::per_second(3), Some(Rate::per_second(10)), 3).default_rate(Rate::per_period(5, 2));
 
     /// Checked 2026-11-01: https://groups.google.com/a/ebi.ac.uk/g/epmc-webservices/c/xcwqYEGosp4 . Published staff policy 2022-07-11: 10 per second AND
     /// 500 per minute; evenly space 500/minute. Per-IP scope confirmed at https://groups.google.com/a/ebi.ac.uk/g/epmc-webservices/c/cZLnV1JhCj8 .

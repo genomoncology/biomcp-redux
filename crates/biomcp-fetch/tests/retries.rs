@@ -78,7 +78,8 @@ fn retry_after_seconds_dates_and_malformed_fallback_replace_backoff() {
     for (value, minimum) in [
         ("1".to_owned(), 950),
         (future, 0),
-        ("Sun, 06 Nov 1994 08:49:37 GMT".to_owned(), 0),
+        ("0".to_owned(), 245),
+        ("Sun, 06 Nov 1994 08:49:37 GMT".to_owned(), 245),
         ("bad date".to_owned(), 245),
     ] {
         let server = Server::new();
@@ -102,6 +103,52 @@ fn retry_after_seconds_dates_and_malformed_fallback_replace_backoff() {
             assert!(retry.started.duration_since(started) >= Duration::from_millis(minimum));
             retry.ok();
             assert!(worker.join().unwrap().unwrap().answer);
+            assert!(server.requests.try_recv().is_err());
+        });
+    }
+}
+
+#[test]
+fn throttle_waits_outlast_three_attempts_only_where_declared() {
+    for wait_throttle in [true, false] {
+        let server = Server::new();
+        let spec = server.spec(quota(), KeyUse::None);
+        let endpoint = if wait_throttle {
+            spec.get("/answer").wait_throttle()
+        } else {
+            spec.get("/answer")
+        };
+        let fetch = Fetch::open(FetchConfig::default()).unwrap();
+        thread::scope(|scope| {
+            let worker = scope.spawn(|| {
+                fetch
+                    .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                    .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
+                    .map(|received| received.value)
+            });
+            let mut last = None;
+            for _ in 0..if wait_throttle { 4 } else { 3 } {
+                let request = server.next();
+                if let Some(previous) = last {
+                    // A zero retry time still waits the ordinary backoff.
+                    assert!(request.started.duration_since(previous) >= Duration::from_millis(245));
+                }
+                last = Some(request.started);
+                request.respond(429, "Retry-After: 0\r\n", "");
+            }
+            if wait_throttle {
+                server.next().ok();
+                assert!(worker.join().unwrap().unwrap().answer);
+            } else {
+                let error = worker.join().unwrap().unwrap_err();
+                let biomcp_fetch::RequestError::Source(error) = error else {
+                    panic!("expected provider failure: {error}");
+                };
+                assert_eq!(
+                    (error.reason, error.status),
+                    (Reason::RateLimited, Some(429))
+                );
+            }
             assert!(server.requests.try_recv().is_err());
         });
     }
