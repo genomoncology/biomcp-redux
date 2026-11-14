@@ -1,5 +1,6 @@
 mod civic;
 mod clingen;
+mod clinvar;
 mod gencc;
 pub use gencc::{GenccGene, GenccSubmission};
 mod constraint;
@@ -12,6 +13,7 @@ use crate::GeneSection;
 use crate::{GeneGet, GeneHeader, GeneInput, GeneResolution, GeneSearch};
 pub use civic::CivicGene;
 pub use clingen::{ClinGenGene, ClinGenRegion, ClinGenRegionDosage, ClinGenValidity};
+pub use clinvar::{ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts};
 pub use constraint::Constraint;
 pub use expression::{CancerPtpm, GeneExpression, RnaAbundance, RnaUnit, TissueNtpm};
 pub use oncokb::{Oncokb, OncokbCard, OncokbGeneType, OncokbTranscript};
@@ -130,6 +132,9 @@ pub struct GeneSections {
     /// GenCC assessments, retained separately for each submitter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gencc: Option<Section<GenccGene>>,
+    /// ClinVar germline classification and review status counts.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clinvar: Option<Section<ClinVarGeneCounts>>,
     /// Population constraint reported by gnomAD.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint: Option<Section<Constraint>>,
