@@ -38,3 +38,10 @@ The review of 0898 (2026-11-13) found the problem.
 ## Changes
 
 - Changes: `tests/replies/drug/who-pq-dates-read/`, `tests/replies/drug/markets/`, the two case files, and the READMEs beside them.
+
+## Progress
+
+- `tests/replies/drug/who-pq-dates-read/` and `tests/replies/drug/markets/` now share one synthetic 29-row export in the real export's shape (header, quoting, padded date cells, blank date cells, no final newline). References, applicants, strengths and dates are invented; no date in it appears in WHO's export of 2026-11-13. It keeps the edge cases: dolutegravir rows that start and end undated, a later-listed row dated before an earlier one, no imatinib row, and three lamivudine rows tied on the earliest date so export order picks the first.
+- The two cases assert the synthetic values: dolutegravir total 13, item 0 undated, item 5 SYN201 `22  Sep,  2013` read as 2013-09-22; markets WHO rows SYN201 (13 matches) and SYN101 (16 matches, 2001-06-07). What each case asserts about behaviour is unchanged.
+- Checking 0695's synthetic replies against the committed real export by date and strength found 35 hits in `who-dates` (its date cells were the real ones, with `10mg` strengths) and one in `who-synthetic` (Trastuzumab `150 mg` on `18  Dec,  2019`, the real BT-ON001 pair). `who-dates` dates now move to unused days in the same month, keeping windows, order and ties, and its strengths are `17mg`; `who-synthetic` uses `137 mg` on `23  Dec,  2019`. `who-dates.yaml` and `who-sync.yaml` follow.
+- Each of the four WHO replay directories has a README saying its rows are synthetic.

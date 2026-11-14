@@ -63,7 +63,7 @@
       "expect": {
         "/page/total": 1,
         "/result/items/0/reference": "SYN-0001",
-        "/result/items/0/date_of_prequalification": "18  Dec,  2019"
+        "/result/items/0/date_of_prequalification": "23  Dec,  2019"
       },
       "max_bytes": 3000
     }
