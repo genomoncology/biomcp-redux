@@ -93,3 +93,40 @@ fn streamed_part_keeps_emitted_rows_and_refuses_decoded_overflow() {
         .unwrap();
     assert_eq!(rows.len(), 1, "a refused refresh replaced the prior set");
 }
+
+#[test]
+fn a_stored_set_over_the_held_ceiling_copies_from_an_older_cache() {
+    let server = support::Server::new();
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("cache.sqlite");
+    let fetch = cached(&path);
+    let set = set(&server, XML.len() as u64);
+    std::thread::scope(|scope| {
+        let call = scope.spawn(|| fetch.sync_set(&set));
+        reply(&server, &gzip(XML.as_bytes()));
+        call.join().unwrap().unwrap();
+    });
+    drop(fetch);
+    // GTR's real set records about 245 MB, most of it a streamed part.
+    let size = 245_000_000_u32;
+    let database = rusqlite::Connection::open(&path).unwrap();
+    database
+        .execute(
+            "UPDATE bundle SET bytes=?1 WHERE name='streamed-xml'",
+            [size],
+        )
+        .unwrap();
+    drop(database);
+    let next = biomcp_fetch::Fetch::open(biomcp_fetch::FetchConfig {
+        cache: Some(dir.path().join("next.sqlite")),
+        cache_predecessors: vec![path],
+        ..Default::default()
+    })
+    .unwrap();
+    let leg = next.leg(set.spec, next.deadline(Duration::from_secs(2)));
+    let (rows, info) = leg
+        .stored_set_rows(&set, Find::Exact(KeyKind::Symbol, "BRAF"))
+        .unwrap();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(info.bytes, u64::from(size));
+}
