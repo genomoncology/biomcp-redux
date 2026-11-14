@@ -63,6 +63,9 @@ fn scenario(name: &'static str) -> Check {
     let stub = Stub::counted(
         move |request| {
             check_request(name, request)?;
+            if phenotype_read(request) {
+                return Ok(json!([{"phenotype":"Uncertain synthetic result"},{"phenotype":"Uncertain synthetic result"}]).to_string());
+            }
             let mut body = body.clone();
             if request.contains("offset=1") {
                 if name == "pairs" {
@@ -78,13 +81,21 @@ fn scenario(name: &'static str) -> Check {
             Ok(body.to_string())
         },
         move |request| {
-            if request.contains("offset=1") {
+            if phenotype_read(request) {
+                "Content-Range: 0-1/2\r\n".into()
+            } else if request.contains("offset=1") {
                 "Content-Range: 1-1/2\r\n".into()
             } else {
                 format!("Content-Range: {range}\r\n")
             }
         },
-        move |_| if total > returned { 206 } else { 200 },
+        move |request| {
+            if total > returned && !phenotype_read(request) {
+                206
+            } else {
+                200
+            }
+        },
     )?;
     let env = environment(&stub)?;
     let record = env.root().join("record");
@@ -104,11 +115,15 @@ fn scenario(name: &'static str) -> Check {
     verify_body(name, &cold, &original, total)?;
     markdown(&env, &args, cold.get("next").is_some())?;
     blocked(&env, &args, &record)?;
-    let expected = follow_page(&env, &cold, total)?;
+    // The table's first page also reads every row's phenotype once.
+    let expected = follow_page(&env, &cold, total)? + usize::from(name == "table");
     if stub.finish()?.len() != expected {
         return Err("warm cache or disabled call opened HTTP".into());
     }
     Ok(())
+}
+fn phenotype_read(request: &str) -> bool {
+    request.contains("select=phenotype%3Aphenotypes")
 }
 fn check_request(name: &str, r: &str) -> Check {
     if !r.to_ascii_lowercase().contains("prefer: count=exact") {
@@ -222,6 +237,12 @@ fn verify_body(name: &str, cold: &Value, original: &Value, total: usize) -> Chec
     }
     if name == "table" && cold.pointer("/result/representation") != Some(&json!("table")) {
         return Err("table confused with view".into());
+    }
+    if name == "table"
+        && cold.pointer("/result/phenotypes")
+            != Some(&json!([{"phenotype":"Uncertain synthetic result","rows":2}]))
+    {
+        return Err(format!("first page lost the phenotype list: {cold}"));
     }
     if name == "empty"
         && (cold.get("status") != Some(&json!("complete"))

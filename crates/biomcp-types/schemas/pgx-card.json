@@ -243,6 +243,18 @@
           "description": "One ClinPGx collection; clinical is the default only on annotations.",
           "x-required-component": "clinpgx"
         },
+        "phenotype": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only.",
+          "x-required-component": "cpic"
+        },
         "section": {
           "anyOf": [
             {

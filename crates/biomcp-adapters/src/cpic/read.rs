@@ -192,17 +192,22 @@ pub fn drug_recommendations(
         .ok_or(biomcp_fetch::InputError::Serialization)?;
     let drug = format!("eq.{id}");
     let key = format!("lookupkey->>{}", query.gene());
+    let filter = super::phenotypes::filter(query);
+    let mut args = vec![
+        ("select", Arg::Text("*")),
+        (key.as_str(), Arg::Text("not.is.null")),
+        ("drugid", Arg::Text(&drug)),
+        ("order", Arg::Text("id.asc")),
+        ("limit", Arg::Num(query.section_limit().into())),
+        ("offset", Arg::Num(query.section_offset().into())),
+    ];
+    if let Some((field, value)) = &filter {
+        args.push((field.as_str(), Arg::Text(value)));
+    }
     read::<super::raw::PgxDrugRecommendation>(
         leg,
         "/recommendation",
-        &[
-            ("select", Arg::Text("*")),
-            (&key, Arg::Text("not.is.null")),
-            ("drugid", Arg::Text(&drug)),
-            ("order", Arg::Text("id.asc")),
-            ("limit", Arg::Num(query.section_limit().into())),
-            ("offset", Arg::Num(query.section_offset().into())),
-        ],
+        &args,
         query.section_offset(),
         query.section_limit(),
         false,
@@ -212,6 +217,7 @@ pub fn drug_recommendations(
                     && r.lookupkey
                         .keys()
                         .any(|k| k.to_string() == query.gene().to_string())
+                    && super::phenotypes::matches(query, r.phenotypes.as_ref())
             }) && ordered(rows.iter().map(|r| r.id.id))
         },
     )

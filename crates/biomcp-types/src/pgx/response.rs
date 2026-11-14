@@ -28,6 +28,15 @@ pub struct PgxPageInfo {
     /// Provenance of total.
     pub total_kind: PgxTotalKind,
 }
+/// One phenotype CPIC lists for the gene and drug, with its count of recommendation rows.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PgxPhenotypeRows {
+    /// Native phenotype text for the gene; filter with --phenotype.
+    pub phenotype: Box<str>,
+    /// Recommendation rows with this phenotype, across all pages.
+    pub rows: u32,
+}
 macro_rules! collection {
     ($name:ident,$row:ty,$query:ty,$schema:literal) => {
         /// Independent source-ordered page of complete native records.
@@ -76,6 +85,9 @@ pub enum PgxRecommendations {
         header: PgxHeader,
         /// Native source collection scope.
         page: PgxPageInfo,
+        /// First page only: every phenotype CPIC lists for this gene and drug, in row order, with its row count.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        phenotypes: Box<[PgxPhenotypeRows]>,
         /// Complete table rows without view-name enrichment.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         items: Box<[PgxDrugRecommendation]>,

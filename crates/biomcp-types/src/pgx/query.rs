@@ -117,6 +117,10 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Cpic)))]
     drug_id: Option<Curie>,
+    /// Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Cpic)))]
+    phenotype: Option<Text>,
     /// One ClinPGx collection; clinical is the default only on annotations.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::ClinPgx)))]
@@ -159,6 +163,13 @@ impl TryFrom<GetFields> for PgxGet {
         if v.drug_id.is_some() && v.section != Some(PgxSection::Recommendations) {
             return Err(QueryInvalid::new(&["drug_id", "section"]));
         }
+        if v.phenotype.is_some() && v.section != Some(PgxSection::Recommendations) {
+            return Err(QueryInvalid::new(&["phenotype", "section"]));
+        }
+        if v.phenotype.is_some() && v.drug_id.is_none() {
+            return Err(QueryInvalid::new(&["phenotype", "drug_id"])
+                .with_message(crate::ErrorMessage::PgxPhenotype));
+        }
         if v.kind.is_some() && !annotations {
             return Err(QueryInvalid::new(&["kind", "section"]));
         }
@@ -184,6 +195,7 @@ impl PgxGet {
             section: None,
             diplotype: None,
             drug_id: None,
+            phenotype: None,
             kind: None,
             section_limit: None,
             section_offset: 0,
@@ -210,6 +222,10 @@ impl PgxGet {
     /// Checked drug_id selector.
     pub fn drug_id(&self) -> Option<&Curie> {
         self.0.drug_id.as_ref()
+    }
+    /// Exact CPIC phenotype filter.
+    pub fn phenotype(&self) -> Option<&Text> {
+        self.0.phenotype.as_ref()
     }
     /// Checked kind selector.
     pub fn kind(&self) -> Option<PgxAnnotationKind> {

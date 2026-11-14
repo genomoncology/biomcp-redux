@@ -1,6 +1,7 @@
 # 0936 — pgx-recommendations-filter-by-phenotype
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0f03bbb0b0d47adae9b4d01c4082d149a024eac3
 
 Milestone: 7
 
@@ -31,3 +32,13 @@ The persona reported CPIC's clopidogrel advice from the first page only (Ultrara
 ## Changes
 
 - Changes: the CPIC adapter, pgx get options, help, cases.
+
+## Progress
+
+- Measured: the persona ran `get pgx recommendations --drug-id RxNorm:32968 --gene CYP2C19 --source cpic` and piped it through `head -c 1800` (call record 90 of the bio run). That cut kept only the first two rows (Ultrarapid and Rapid Metabolizer). On f4f726674 the default page holds 5 of 24 rows, and `page.total` sits after the items, at byte 5,456 of 5,815, so it was never seen. No reply named the other phenotypes.
+- CPIC live, 2026-11-14: RxNorm:32968 has 24 CYP2C19 rows, three for each of eight phenotypes. The Poor Metabolizer rows (ids 8609171, 8609179, 8609187) say "Avoid clopidogrel if possible", and so do the Likely Poor Metabolizer rows. PostgREST's `phenotypes->>CYP2C19=eq.Poor Metabolizer` matches exactly and is case-sensitive, so "poor metabolizer" matches nothing. Across all of CPIC, one gene and drug has at most 206 rows. HLA-A and HLA-B rows carry no phenotype.
+- Changed: `get pgx recommendations` takes `--phenotype TEXT` (optional `phenotype` query field, CPIC only, recommendations with `--drug-id` only). It filters the drug table on the exact CPIC phenotype for the gene. The drug table's first page carries `result.phenotypes`, which lists each phenotype CPIC has for that gene and drug in row order with its row count. It sits right after the header, at byte 273 of the persona's call, with Poor Metabolizer at byte 550. When the page already holds every row of an unfiltered read, the list comes from those rows. Otherwise one extra read fetches it: `select=phenotype:phenotypes->>GENE`, limit 1,000, and it must be complete. A failed list read leaves the rows and adds a notice. A filter that matches nothing adds a notice that points at `result.phenotypes`. With no phenotypes at all, the existing pair notice applies.
+- Schemas: one optional query field and one optional reply field were added, and `make schema-generate` passed its compatibility check (j40460). Docs were regenerated in the same job. Cases: `tests/cases/pgx/recommendations-filter-by-phenotype.yaml` runs over replies recorded live in j40460 and j40474. `empty-pair-says-why` gained one recorded reply for its new phenotype-list read. The synthetic CPIC table runner now serves the phenotype read.
+- Overlap with 0937 (ticket/0937-skill-totals), which moves `page` before `items`: both branches edit the `PgxRecommendations::Table` variant in `crates/biomcp-types/src/pgx/response.rs`, and the generated `crates/biomcp-types/schemas/pgx-recommendations.json` may conflict too. Merge the variant as header, page, phenotypes, items, then regenerate the schemas.
+- Review fixes: HLA-B with abacavir (RxNorm:190521, checked live) has 2 rows whose `phenotypes` is `{}`. The list read now also returns the full row count. A filter on such a pair says that this gene's CPIC rows carry no phenotype, so `--phenotype` can't select them; the pair notice now appears only when the pair has 0 rows. A zero-row filter whose list read fails says the filter matched nothing and that the list read failed, and no longer says "the rows shown are complete". `--phenotype` without `--drug-id` is refused with a fixed message (new `PgxPhenotype` error message, a widened enum), so the gene-wide view can't return a silent empty page. The view filter was removed. The case gained an HLA-B step recorded live (j40522) and the refusal step.
+- Merged origin/main after 0937 landed. The only conflict was the Table variant in `crates/biomcp-types/src/pgx/response.rs`, now ordered header, page, phenotypes, items. Schemas and docs were regenerated through jobs.

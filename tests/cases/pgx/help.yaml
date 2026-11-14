@@ -60,6 +60,7 @@
             "--diplotype",
             "--kind",
             "--drug-id",
+            "--phenotype",
             "--annotation-id",
             "--section-limit",
             "--section-offset",
@@ -72,8 +73,8 @@
           "diplotype",
           "annotations"
         ],
-        "/result/commands/0/arguments/9/name": "--source",
-        "/result/commands/0/arguments/9/choices": [
+        "/result/commands/0/arguments/10/name": "--source",
+        "/result/commands/0/arguments/10/choices": [
           "cpic",
           "clinpgx"
         ]
