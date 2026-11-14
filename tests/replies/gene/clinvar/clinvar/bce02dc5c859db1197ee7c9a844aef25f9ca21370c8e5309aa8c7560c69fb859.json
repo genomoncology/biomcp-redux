@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=672%5Bgid%5D%20AND%20%28%22clinsig%20pathogenic%22%5Bprop%5D%20OR%20%22clinsig%20likely%20pathogenic%22%5Bprop%5D%29%20AND%201%3A999999999%5Bcpos%5D&retmax=0&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1794679825,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 119,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"4342","retmax":"0","retstart":"0","idlist":[],"translationset":[],"translationstack":[{"term":"672[gid]","field":"gid","count":"16172","explode":"N"},{"term":"\"clinsig pathogenic\"[prop]","field":"prop","count":"266550","explode":"N"},{"term":"\"clinsig likely pathogenic\"[prop]","field":"prop","count":"183668","explode":"N"},"OR","GROUP","AND",{"term":"000000000001[CHRPOS]","field":"CHRPOS","count":"0","explode":"N"},{"term":"000999999999[CHRPOS]","field":"CHRPOS","count":"0","explode":"N"},"RANGE","AND"],"querytranslation":"672[gid] AND (\"clinsig pathogenic\"[prop] OR \"clinsig likely pathogenic\"[prop]) AND 000000000001[CHRPOS] : 000999999999[CHRPOS]"}}
+      }
+    }
+  ]
+}
