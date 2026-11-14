@@ -155,9 +155,12 @@ pub(super) fn partner<T>(
     let (found, _, evidence) = with_aliases(cx, input, DrugSource::Ddinter, |card, name, _| {
         attempt(name).map(|found| {
             let message = format!(
-                "DDInter's files name no drug {input:?}. {} record {} supplies the name {name:?}; \
+                "DDInter's files name no drug {:?}. {} record {} supplies the name {:?}; \
                  the partner is DDInter's drug by that name.",
-                card.header.source, card.header.id
+                input.as_str(),
+                card.header.source,
+                card.header.id,
+                name.as_str()
             );
             (found, message)
         })
