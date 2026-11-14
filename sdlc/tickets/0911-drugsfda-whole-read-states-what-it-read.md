@@ -38,3 +38,9 @@ The review of 0900 (Drugs@FDA company search by original approval, 2026-11-13) f
   - those two files;
   - `tests/cases/drug/`;
   - optionally, the too-large message (`crates/biomcp-query/src/drug/drugsfda.rs:40-45`), which could say that dropping `--sort original-approval` or the window pages in openFDA's own order.
+
+## Progress
+
+- Measured live 2026-11-13: sponsor prefixes TEVA 798, SANDOZ 515, AUROBINDO 618, HIKMA 693, WATSON 1,053 applications. SANDOZ was chosen because its second read is small (15 rows, 124 KB) and two of those rows land on the first 50-row page. openFDA answers a read past the end with 404 "No matches found", which BioMCP already treats as a bad reply when the skip is below the total; so the early stop this ticket covers is a 200 read with no rows, which only a synthetic reply reproduces.
+- Changed: the adapter page now carries how many applications the whole read covered (`Page::read`). When that is fewer than matched, the search is partial and both notices say "read only N of the M matching applications, because a later openFDA read came back empty, so this reply is partial". A complete read keeps 0900's wording. The too-large notice now adds that dropping `--sort original-approval` and the approval window pages in openFDA's own order.
+- Proof: `tests/cases/drug/sponsor-original-approval.yaml` gains SANDOZ (515 matches, two reads, recorded in job j39970) for the first page and a 2022-2023 window, each checked against an order computed separately from the bodies; `tests/cases/drug/sponsor-read-partial.yaml` is the synthetic early stop (3 matched, 2 read).
