@@ -27,10 +27,11 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             .filter(|a| a.name.starts_with("--"))
             .map(|a| a.name.clone())
             .collect::<Vec<_>>();
-        let own = format!("; help {}", command.command.join(" "));
+        let own = command.command.join(" ");
+        let rule = command.section_rule.clone();
         let mut cased = false;
         for argument in &mut command.arguments {
-            drop_own_pointer(&mut argument.description, &own);
+            drop_pointer(&mut argument.description, &own, rule.as_deref());
             cased |= !argument.choices.is_empty() && argument.value_type != "boolean";
             if !argument.name.starts_with("--") {
                 // Agents guess `--section`; say the word goes bare in its place.
@@ -80,6 +81,10 @@ fn option_sentence(argument: &mut HelpArgument, sample: &str, only: &[String]) {
     } else {
         &argument.value_type
     };
+    // The option's own text ends its sentence before the form sentence starts.
+    if !argument.description.trim_end().ends_with('.') {
+        argument.description.push('.');
+    }
     if argument.description.contains("Example: ") {
         // The field's own example leads; the form joins its sentence.
         argument.description = argument.description.replacen(
@@ -124,23 +129,36 @@ pub(super) fn without_option_lines(description: &str) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
-/// A field's compact pointer to this same page says nothing here; its full text follows.
-fn drop_own_pointer(description: &mut String, own: &str) {
+/// A field's compact pointer to help says nothing when its full text follows on this page.
+/// A section field's line has no full text after it; when the section rule goes on, it says so.
+fn drop_pointer(description: &mut String, own: &str, rule: Option<&str>) {
     let mut lines = description.lines();
-    let Some(first) = lines.next() else {
-        return;
-    };
-    let Some(short) = first.strip_suffix(own) else {
+    let Some((short, target)) = lines.next().and_then(|first| first.rsplit_once("; help ")) else {
         return;
     };
     let rest = lines.collect::<Vec<_>>();
-    *description = match rest.first() {
-        Some(next) if next.starts_with(short.trim_end_matches('.')) => rest.join("\n"),
-        _ => std::iter::once(short)
-            .chain(rest)
-            .collect::<Vec<_>>()
-            .join("\n"),
+    let head = if rest
+        .first()
+        .is_some_and(|next| next.starts_with(short.trim_end_matches('.')))
+    {
+        None
+    } else if target == own {
+        let cut = rule
+            .and_then(|rule| rule.strip_prefix(short))
+            .is_some_and(|tail| !tail.is_empty());
+        Some(if cut {
+            format!("{short}… (full rule with the sections).")
+        } else {
+            format!("{}.", short.trim_end_matches('.'))
+        })
+    } else {
+        return;
     };
+    *description = head
+        .into_iter()
+        .chain(rest.into_iter().map(String::from))
+        .collect::<Vec<_>>()
+        .join("\n");
 }
 /// The command words, then each positional argument in order, as one call shape.
 fn usage_form(command: &HelpCommand) -> String {

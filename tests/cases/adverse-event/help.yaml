@@ -87,7 +87,10 @@
           "application-number",
           "devices",
           "narrative"
-        ]
+        ],
+        "/result/commands/0/arguments/*/description": {
+          "includes": "FAERS owns drugs, reactions and identifiers; MAUDE owns… (full rule with the sections).\nForm: get adverse-event ID SECTION; not --section."
+        }
       },
       "max_bytes": 3475,
       "run": [

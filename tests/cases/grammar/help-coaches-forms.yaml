@@ -23,7 +23,7 @@
       ],
       "expect": {
         "/result/commands/0/arguments/*/description": {
-          "includes": "Source sections\nForm: get drug INPUT SECTION...; not --section."
+          "includes": "Source sections.\nForm: get drug INPUT SECTION...; not --section."
         }
       }
     },
