@@ -1,6 +1,7 @@
 # 0923 — help-pages-say-each-thing-once
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 27fdc9c827a52a2b5e4dddbed65f874f23d907c4
 
 Milestone: 7
 
@@ -31,3 +32,12 @@ The bench's help-read analysis of 2026-11-14 (bench `personas/_eval/help-reads-2
 ## Changes
 
 - Changes: the help rendering code, help cases, size caps and generated docs.
+
+## Progress
+
+- 2026-11-14: Help now states command-wide lines once, on the command, in the shared help assembly (`crates/biomcp/src/help/argument_details.rs`), so every command's page benefits. "Command sources: …; source restrictions in the field description apply." after every option became one line, "Options apply to every listed source unless their description restricts them." (or the local-option line for commands without sources). "Listed choices accept any letter case…" after every option with choices became one line on the command. A field's compact pointer to the page being read ("…; help search adverse-event") is dropped, with the short line it duplicated. Per-option facts stay with their option as one sentence that names it: "Value form: string; example: --reaction 'x'; only with --source vaers." A flag pair that sets one field (article `--include-retracted`) points to the first flag instead of repeating its text, and large value lists name their option. Entity and overview pages drop the option-wide lines along with the options; section pages keep the case line.
+- Proof: `tests/cases/adverse-event/help.yaml` checks both adverse-event help pages with a new `sentences_once` case assertion (no sentence of two or more words appears twice), with a negative runner case for the operator. A library test (`grammar::reference::every_command_help_page_says_each_generated_sentence_once`) checks every command page; it allows only repeats the query schema's own text already makes (authored pairs such as diagnostic's two date-range descriptions), which remain on gwas, diagnostic, drug and variant pages.
+- Measured (offline JSON / Markdown bytes, main 9330e44bc → this branch): search adverse-event 8,961/7,532 → 6,880/5,418; get adverse-event 3,517/2,662 → 3,021/2,157; search trial 12,946/10,774 → 9,632/7,412; search drug 9,110/7,666 → 7,776/6,308; get drug 9,119/7,835 → 6,866/5,555; search article 9,379/7,866 → 6,763/5,223; search diagnostic 7,474/6,053 → 6,749/5,309; get variant 8,656/7,197 → 5,661/4,169. Help caps were re-measured with `scripts/refresh_help_cases.py` (measured + 15%, 0905): 59 caps fell, none rose. Query schemas and release/schema-baseline.json are unchanged; the typed MCP tool schemas don't read this text.
+- 2026-11-14, review fix: a section field's short line (the one that ended in a pointer to its own page) no longer ends mid-sentence or runs into "Value form". When the section rule goes on past it, the line ends "… (full rule with the sections)." (get adverse-event, get trial, get protein, get gene, get article and nine more); otherwise it ends with a full stop. Every option's own text now ends with a full stop before its "Value form" sentence. A pointer to another page is dropped too when the full text follows on this page (article references `--source` said "Graph source; iCite remains the default" twice). String checks in `tests/cases/adverse-event/help.yaml` (get adverse-event section) and `tests/cases/trial/help.yaml` (get trial --section). Caps re-measured again; against main all 59 help caps are still lower (get adverse-event 3,055 bytes JSON).
+- 2026-11-14, merge: merged origin/main (0916, 0921, 0922, 0924, 0926, 0927 landed since). Only the generated `docs/reference/commands.md` conflicted; it was regenerated with `make docs-generate` and now carries 0924's version wording with this ticket's help text. `scripts/check_front_map.py` merged cleanly (0922's skill checks plus this ticket's country check). No help caps moved.
+- 2026-11-14, second merge: merged origin/main again after 0908 (HPO ancestors) and 0925 (plain punctuation). `tests/cases/phenotype/help.yaml` conflicted: it keeps 0908's `ols` source and `ancestors` section with this ticket's two command-wide lines. The command reference was regenerated, and `scripts/refresh_help_cases.py` re-measured the caps: only the two phenotype caps moved, up for 0908's added content (search phenotype 2,601 → 2,613 bytes, get phenotype 2,586 → 2,796), both still below main's 3,669 and 3,039.

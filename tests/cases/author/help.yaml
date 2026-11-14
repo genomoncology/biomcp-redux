@@ -13,14 +13,14 @@
             "--pool"
           ]
         },
-        "/result/commands/0/description": "Search research paper authors. Sources: pubmed, semantic-scholar.\nFields: affiliations, counts, id, name. Choose some with --fields a,b (typed: fields list); always kept: id.",
+        "/result/commands/0/description": "Search research paper authors. Sources: pubmed, semantic-scholar.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: affiliations, counts, id, name. Choose some with --fields a,b (typed: fields list); always kept: id.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 2266,
+      "max_bytes": 1836,
       "run": [
         "help",
         "search",

@@ -16,7 +16,7 @@
         "drug",
         "approvals"
       ],
-      "max_bytes": 4226,
+      "max_bytes": 4031,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",
@@ -49,7 +49,7 @@
             "approvals"
           ]
         },
-        "/result/commands/0/description": "get drug approvals. Sources: drugsfda."
+        "/result/commands/0/description": "get drug approvals. Sources: drugsfda.\nListed choices accept any letter case; replies use their listed spelling."
       }
     },
     {
@@ -89,7 +89,7 @@
         "drug",
         "approvals"
       ],
-      "max_bytes": 4226,
+      "max_bytes": 4031,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",

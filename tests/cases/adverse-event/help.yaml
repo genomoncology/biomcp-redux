@@ -5,7 +5,10 @@
     {
       "expect": {
         "": {
-          "max_bytes": 10306
+          "max_bytes": 7914
+        },
+        "/result": {
+          "sentences_once": true
         },
         "/result/commands": {
           "count": 1
@@ -33,12 +36,12 @@
           "search",
           "adverse-event"
         ],
-        "/result/commands/0/description": "Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.\nFields: event_type, first_received, id, serious, source, version. Choose some with --fields a,b (typed: fields list); always kept: id, source.",
+        "/result/commands/0/description": "Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: event_type, first_received, id, serious, source, version. Choose some with --fields a,b (typed: fields list); always kept: id, source.",
         "/result/commands/0/examples": {
           "count": 1
         }
       },
-      "max_bytes": 10306,
+      "max_bytes": 7914,
       "run": [
         "help",
         "search",
@@ -48,7 +51,10 @@
     {
       "expect": {
         "": {
-          "max_bytes": 4045
+          "max_bytes": 3514
+        },
+        "/result": {
+          "sentences_once": true
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -81,9 +87,12 @@
           "application-number",
           "devices",
           "narrative"
-        ]
+        ],
+        "/result/commands/0/arguments/*/description": {
+          "includes": "FAERS owns drugs, reactions and identifiers; MAUDE owns… (full rule with the sections).\nForm: get adverse-event ID SECTION; not --section."
+        }
       },
-      "max_bytes": 4045,
+      "max_bytes": 3514,
       "run": [
         "help",
         "get",
@@ -91,6 +100,6 @@
       ]
     }
   ],
-  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command.",
+  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command, and says each sentence once: lines that hold for every option sit on the command.",
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout. Examples come from parsed case run steps; the existing example check executes every example over its own replay."
 }
