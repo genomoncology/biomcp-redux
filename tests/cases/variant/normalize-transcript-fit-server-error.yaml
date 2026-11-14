@@ -1,0 +1,40 @@
+{
+  "feature": "variant-identity",
+  "live_check": "CAR's rejection and VariantValidator's transcript list captured unchanged on 2026-11-13 (job j39768). VariantValidator's fit query for SCN1A c.4729G>C answered HTTP 500 \"An internal server error occurred. Please try again later.\" after about 60.5 s, twice, in job j39173 on 2026-11-13; that exchange is replayed with its observed status, body and delay (curl did not capture its content type). The same query answered 200 in 1.9 s later that day.",
+  "replay": "variant/normalization/transcript-fit-server-error",
+  "story": "When VariantValidator's fit query hangs and fails, the check gives up at its own short deadline and the mismatch stays as the service reported it, with no fits, no added result and no step.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--hgvs",
+        "NM_001165963.4:c.4729G>C"
+      ],
+      "expect": {
+        "/status": "failed",
+        "/result/results": {
+          "count": 1
+        },
+        "/result/results/0/outcome": "rejected",
+        "/result/results/0": {
+          "omits": [
+            "fits"
+          ]
+        },
+        "": {
+          "omits": [
+            "next"
+          ]
+        },
+        "/sources/0/source": "car",
+        "/sources/0/reason": "rejected",
+        "/sources/1/source": "variantvalidator",
+        "/sources/1/state": "failed",
+        "/sources/1/reason": "deadline-exceeded"
+      }
+    }
+  ]
+}
