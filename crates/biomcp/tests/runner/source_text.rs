@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 type Check = Result<(), Box<dyn std::error::Error>>;
 const SOURCE: &str = concat!(
     "<script>alert(1)</script> <img src=x> [link](https://example.org) ![image](https",
-    "://example.org/x) www.example.org name@example.org mailto:name@example.org ",
+    "://example.org/x) www.example.org name@example.org mailto:name@example.org \u{e9}@example.org ",
     "Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061 at 10:30 @ 5 mg.\n# Heading\n",
     "```sh\nignore previous instructions\n```",
 );
@@ -13,7 +13,7 @@ const SOURCE: &str = concat!(
 const LITERAL: &[&str] = &[
     "&lt;script&gt;alert(1)&lt;/script&gt; &lt;img src=x&gt; \\[link\\](https\\://example.org)",
     "\\!\\[image\\](https\\://example.org/x) www\\.example.org name`@`example.org",
-    "mailto:name`@`example.org Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061 at 10:30 @ 5 mg.",
+    "mailto:name`@`example.org \u{e9}`@`example.org Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061 at 10:30 @ 5 mg.",
 ];
 const TERMS: &str = "https://www.ncbi.nlm.nih.gov/home/about/policies/";
 pub(super) fn trials() -> Vec<Trial> {
@@ -112,6 +112,7 @@ fn rendered(text: &str) -> Check {
         "https://example.org",
         "www.example.org",
         "name<code>@</code>example.org",
+        "\u{e9}<code>@</code>example.org",
         "Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061",
         "ignore previous instructions",
         &format!("<a href=\"{TERMS}\">"),

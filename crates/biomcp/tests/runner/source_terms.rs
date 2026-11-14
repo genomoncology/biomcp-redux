@@ -9,7 +9,7 @@ pub(super) mod text {
         value.char_indices().map(|(at, ch)| {
             let rest = value.get(at..).unwrap_or_default();
             let www = value.get(at.saturating_sub(3)..at).is_some_and(|w| w.eq_ignore_ascii_case("www"));
-            let local = before.is_some_and(|c: char| c.is_ascii_alphanumeric() || ".+-_:".contains(c));
+            let local = before.is_some_and(|c: char| c.is_alphanumeric() || ".+-_:".contains(c));
             before = Some(ch);
             match ch {
             '&' => "&amp;".into(), '<' => "&lt;".into(), '>' => "&gt;".into(),

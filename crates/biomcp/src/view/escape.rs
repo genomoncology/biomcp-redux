@@ -11,7 +11,8 @@ pub(crate) fn product(text: &str) -> String {
 // GFM extended autolinks start at `www.` or `://` while inline parsing, so a
 // backslash escape stops them. Renderers find email autolinks after joining
 // adjacent text, so an escape cannot split one; the `@` after a character that
-// may end a GFM email local part (or a `mailto:`/`xmpp:` scheme) becomes a code span.
+// may end an email local part or a `mailto:`/`xmpp:` scheme becomes a code span.
+// Any Unicode letter or digit counts, since some GFM renderers accept them.
 fn write(text: &str, source: bool) -> String {
     let mut out = String::with_capacity(text.len());
     for (at, ch) in text.char_indices() {
@@ -33,7 +34,7 @@ fn write(text: &str, source: bool) -> String {
                 && text
                     .get(..at)
                     .and_then(|before| before.chars().next_back())
-                    .is_some_and(|c| c.is_ascii_alphanumeric() || ".+-_:".contains(c)) =>
+                    .is_some_and(|c| c.is_alphanumeric() || ".+-_:".contains(c)) =>
             {
                 out.push_str("`@`");
             }
