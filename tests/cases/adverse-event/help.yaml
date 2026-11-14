@@ -5,7 +5,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 7914
+          "max_bytes": 8024
         },
         "/result": {
           "sentences_once": true
@@ -36,12 +36,12 @@
           "search",
           "adverse-event"
         ],
-        "/result/commands/0/description": "Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: event_type, first_received, id, serious, source, version. Choose some with --fields a,b (typed: fields list); always kept: id, source.",
+        "/result/commands/0/description": "Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields by --source: faers: first_received, id, serious, serious_label, source, version (always kept: id, source); maude: event_type, first_received, id, source (always kept: id, source). Choose some with --fields a,b (typed: fields list).",
         "/result/commands/0/examples": {
           "count": 1
         }
       },
-      "max_bytes": 7914,
+      "max_bytes": 8024,
       "run": [
         "help",
         "search",

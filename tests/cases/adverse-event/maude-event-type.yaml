@@ -27,7 +27,13 @@
         "/result/source_query": "device.generic_name:\"infusion pump\" AND event_type.exact:\"Malfunction\" AND date_received:[20251101 TO 20261101]",
         "/page/total": 295358,
         "/result/items/0/id": "51243987",
-        "/result/items/0/event_type": "Malfunction"
+        "/result/items/0/event_type": "Malfunction",
+        "/result/items/0": {
+          "omits": [
+            "serious",
+            "serious_label"
+          ]
+        }
       }
     },
     {

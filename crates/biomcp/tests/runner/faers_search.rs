@@ -178,8 +178,8 @@ fn measure(value: &Value, args: &[String]) -> Check {
         )
     } else if value.pointer("/query/reaction").is_some() {
         (
-            crate::runner::output_limit("faers-search-envelope-2392")?,
-            crate::runner::output_limit("faers-search-envelope-2260")?,
+            crate::runner::output_limit("faers-search-envelope-2832")?,
+            crate::runner::output_limit("faers-search-envelope-2691")?,
         )
     } else if value.pointer("/query/received_from").is_some() {
         (

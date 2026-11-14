@@ -23,14 +23,15 @@
         "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND serious:1",
         "/result/items/0/id": "26940567",
         "/result/items/0/serious": "1",
+        "/result/items/0/serious_label": "serious",
         "/result/items": {
           "count": 1
         },
         "": {
-          "max_bytes": 1237
+          "max_bytes": 1263
         }
       },
-      "max_bytes": 1238
+      "max_bytes": 1264
     }
   ]
 }

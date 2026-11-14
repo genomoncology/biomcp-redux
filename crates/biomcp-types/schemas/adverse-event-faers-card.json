@@ -88,13 +88,6 @@
           ],
           "description": "Optional reporter facts."
         },
-        "serious_label": {
-          "description": "openFDA's published words for the header's `serious` code, `1` or `2`.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "seriousness": {
           "anyOf": [
             {
@@ -246,6 +239,13 @@
         },
         "serious": {
           "description": "Native serious string; present empty values remain present.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "serious_label": {
+          "description": "FAERS only: `serious` for `1` and `not serious` for `2`; absent for any other code. openFDA defines `1` as \"The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition\" and `2` as \"The adverse event did not result in any of the above\".",
           "type": [
             "string",
             "null"
