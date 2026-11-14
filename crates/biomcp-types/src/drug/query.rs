@@ -67,11 +67,11 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
     #[doc = "Exact openFDA SPL fields."]
-    /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+    /// Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Only with --source openfda-label.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-comma-separated" = true)))]
     label_section: Option<Text>,
-    #[doc = "FDA product number.\nExplicit native application product number, only for approvals."]
+    #[doc = "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     product_number: Option<Text>,
     #[doc = "From date.\nInclusive YYYY-MM-DD status date; Drugs@FDA approvals."]
@@ -83,17 +83,17 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     decision_to: Option<biodata::PartialDate>,
     #[doc = "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages"]
-    /// and 6144 escaped bytes per fragment. No-text scans are explicit.
+    /// and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     document_id: Option<Text>,
-    #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream."]
+    #[doc = "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
-    #[doc = "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."]
+    #[doc = "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile. Only with --source civic."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
-    #[doc = "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection."]
+    #[doc = "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection. Only with --source civic."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<Text>,
     #[serde(flatten)]

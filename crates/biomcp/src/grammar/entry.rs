@@ -192,6 +192,10 @@ fn typed_order<'a>(
     };
     let verb = root.find_subcommand(verb)?;
     let entity = verb.find_subcommand(entity)?;
+    // `get help` asks for help on get; the refusal already starts its step with help.
+    if verb.get_name() == "help" {
+        return Some(vec![entity.get_name().to_owned()]);
+    }
     Some(vec![
         verb.get_name().to_owned(),
         entity.get_name().to_owned(),
