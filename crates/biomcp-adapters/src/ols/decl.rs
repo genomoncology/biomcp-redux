@@ -7,7 +7,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     discovery_aliases: &[],
     registry_order: Some(52),
     probe: Probe::Get("/api/ontologies", &[("size", Arg::Num(1))]),
-    components: &[MONDO_COMPONENT, DOID_COMPONENT, NCIT_COMPONENT],
+    components: &[MONDO_COMPONENT, DOID_COMPONENT, NCIT_COMPONENT, HP_COMPONENT],
     auxiliary: &[],
     bundles: &[],
     guidance: Guidance {
@@ -99,4 +99,13 @@ pub(crate) const NCIT_COMPONENT: crate::registry::Component =
         biomcp_types::Source::Ncit,
         "ncit",
         crate::disease_sources::components::NCIT,
+    );
+
+/// HPO terms OLS serves for phenotype ancestor lists.
+pub(crate) const HP_COMPONENT: crate::registry::Component =
+    crate::disease_sources::components::component(
+        biomcp_types::Source::Ols,
+        biomcp_types::Source::Hpo,
+        "hp",
+        crate::disease_sources::components::HPO,
     );
