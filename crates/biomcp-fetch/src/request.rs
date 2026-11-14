@@ -349,8 +349,16 @@ impl Leg<'_> {
             body,
             retry_after,
         };
-        self.contain_response(prepared, &wire, &wire.body, status)
-            .map_err(Failure::Local)?;
+        if let Err(error) = self.contain_response(prepared, &wire, &wire.body, status) {
+            // NCBI's 429 names the api-key it throttled. A throttle reply is retried and never
+            // read, so it keeps its status and loses its body; any other reflection is refused.
+            if status != 429 {
+                return Err(Failure::Local(error));
+            }
+            wire.body.clear();
+            self.contain_response(prepared, &wire, &wire.body, status)
+                .map_err(Failure::Local)?;
+        }
         self.filter_wire(&mut wire, codec)?;
         if recording {
             self.record_wire(prepared, codec, &wire, started)

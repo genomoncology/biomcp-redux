@@ -255,6 +255,8 @@ biodata::canonical_enum! {
         ClinGen => "clingen",
         /// GenCC submitter assessments.
         Gencc => "gencc",
+        /// ClinVar germline classification counts.
+        ClinVar => "clinvar",
         /// Population constraint metrics.
         Constraint => "constraint",
         /// Human Protein Atlas expression.
@@ -278,6 +280,8 @@ biodata::canonical_enum! {
         ClinGen => "clingen",
         /// GenCC submitter assessments.
         Gencc => "gencc",
+        /// ClinVar germline classification counts.
+        ClinVar => "clinvar",
         /// Population constraint metrics.
         Constraint => "constraint",
         /// Human Protein Atlas expression.
@@ -298,6 +302,7 @@ impl GeneSection {
             Self::Civic => Source::Civic,
             Self::ClinGen => Source::ClinGen,
             Self::Gencc => Source::Gencc,
+            Self::ClinVar => Source::ClinVar,
             Self::Constraint => Source::Gnomad,
             Self::Expression => Source::Hpa,
             Self::Pathways => Source::Reactome,

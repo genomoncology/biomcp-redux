@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=672%5Bgid%5D%20AND%20%22clinsig%20pathogenic%22%5Bprop%5D&retmax=0&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1794679823,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 60,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"4398","retmax":"0","retstart":"0","idlist":[],"translationset":[],"translationstack":[{"term":"672[gid]","field":"gid","count":"16172","explode":"N"},{"term":"\"clinsig pathogenic\"[prop]","field":"prop","count":"266550","explode":"N"},"AND"],"querytranslation":"672[gid] AND \"clinsig pathogenic\"[prop]"}}
+      }
+    }
+  ]
+}

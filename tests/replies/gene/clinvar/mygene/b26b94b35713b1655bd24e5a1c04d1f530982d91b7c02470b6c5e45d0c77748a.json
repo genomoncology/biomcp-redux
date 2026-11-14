@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "031fe81da7a5e752698dd4069b99cec8d3de5686a60f853b1dfa2202fb1a4b66"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794679823,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 309,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"672","HGNC":"1100","_id":"672","_version":1,"entrezgene":"672","genomic_pos":{"chr":"17","end":43170245,"ensemblgene":"ENSG00000012048","start":43044292,"strand":-1},"genomic_pos_hg19":{"chr":"17","end":41277500,"start":41196312,"strand":-1},"summary":"This gene encodes a 190 kD nuclear phosphoprotein that plays a role in maintaining genomic stability, and it also acts as a tumor suppressor. The BRCA1 gene contains 22 exons spanning about 110 kb of DNA. The encoded protein combines with other tumor suppressors, DNA damage sensors, and signal transducers to form a large multi-subunit protein complex known as the BRCA1-associated genome surveillance complex (BASC). This gene product associates with RNA polymerase II, and through the C-terminal domain, also interacts with histone deacetylase complexes. This protein thus plays a role in transcription, DNA repair of double-stranded breaks, and recombination. Mutations in this gene are responsible for approximately 40% of inherited breast cancers and more than 80% of inherited breast and ovarian cancers. Alternative splicing plays a role in modulating the subcellular localization and physiological function of this gene. Many alternatively spliced transcript variants, some of which are disease-associated mutations, have been described for this gene, but the full-length natures of only some of these variants has been described. A related pseudogene, which is also located on chromosome 17, has been identified. [provided by RefSeq, May 2020]."}]
+      }
+    }
+  ]
+}
