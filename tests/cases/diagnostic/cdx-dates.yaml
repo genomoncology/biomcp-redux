@@ -15,11 +15,11 @@
         "/page/total": 244,
         "/result/items/0/index": 2,
         "/result/items/0/device_ids/0": "DEN260027",
-        "/result/items/0/date": "2026-10-20",
+        "/result/items/0/row_date": "2026-10-20",
         "/result/items/1/index": 0,
-        "/result/items/1/date": "2026-09-15",
+        "/result/items/1/row_date": "2026-09-15",
         "/result/items/2/device_ids/0": "P240040/S005",
-        "/result/items/2/date": "2026-09-09",
+        "/result/items/2/row_date": "2026-09-09",
         "/problems/*/field": ["date", "date"],
         "/problems/*/code": ["value.unknown", "value.unknown"],
         "/problems/*/record": [
@@ -33,7 +33,7 @@
       "expect": {
         "/page/total": 244,
         "/page/returned": 3,
-        "/result/items/0/date": "1997-12-30",
+        "/result/items/0/row_date": "1997-12-30",
         "/result/items/1/index": 48,
         "/result/items/1/device": "P120019/S019\n(08/22/0218)",
         "/result/items/2/index": 193
@@ -45,10 +45,10 @@
         "/page/total": 2,
         "/result/items/0/kind": "individual",
         "/result/items/0/index": 30,
-        "/result/items/0/date": "2026-07-01",
+        "/result/items/0/row_date": "2026-07-01",
         "/result/items/1/kind": "group",
         "/result/items/1/index": 0,
-        "/result/items/1/date": "2026-07-30",
+        "/result/items/1/row_date": "2026-07-30",
         "/result/items/1/indication": "Melanoma - Tissue",
         "/result/items/1/cells/Indication(s) - Sample Type/text": "Melanoma - Tissue",
         "/problems/*/record": [
@@ -64,7 +64,7 @@
         "/result/items/9/indication": "Non-Small Cell Lung Cancer (NSCLC) - Plasma",
         "/result/items/10/indication": "Non-Small Cell Lung Cancer (NSCLC) - Tissue or Plasma",
         "/result/items/*/indication": {"count": 15},
-        "/result/items/*/date": {"count": 15},
+        "/result/items/*/row_date": {"count": 15},
         "": {"omits": ["problems"]}
       }
     },

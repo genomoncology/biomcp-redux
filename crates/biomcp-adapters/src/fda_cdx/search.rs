@@ -216,7 +216,7 @@ fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> Comp
             drug_applications,
         } => CompanionDiagnosticRow::Individual {
             shared: CompanionShared {
-                date,
+                row_date: date,
                 diagnostic: text(&cells.diagnostic),
                 indication: text(&cells.indication),
                 device: text(&cells.device),
@@ -236,7 +236,7 @@ fn shared_row((native, date): (super::raw::Native, Option<PartialDate>)) -> Comp
             drug_applications,
         } => CompanionDiagnosticRow::Group {
             shared: CompanionShared {
-                date,
+                row_date: date,
                 diagnostic: text(&cells.diagnostic),
                 indication: text(&cells.indication),
                 device: text(&cells.device),

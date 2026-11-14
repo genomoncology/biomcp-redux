@@ -125,7 +125,7 @@ The `regulatory` section pages the selected row’s original statement fragments
 
 ## FDA companion tables
 
-Rows retain their whole cells and original links. Both tables also give `diagnostic`, `indication`, `device` and `drug` as cell text under one name. A row's `date` is the newest date printed in its own device cell, which may be a supplement's date rather than the first approval; a row whose cell prints no valid date has none and is named in `problems`, never guessed. `--sort date` and `--date-from`/`--date-to` read every matching row of the stored table before paging. Biomarker selection is unsupported for the group table. A companion row is not a treatment recommendation.
+Rows retain their whole cells and original links. Both tables also give `diagnostic`, `indication`, `device` and `drug` as cell text under one name. A row's `row_date` is the newest date printed in its own device cell, which may be a supplement's date rather than the first approval; a row whose cell prints no valid date has none and is named in `problems`, never guessed. `--sort date` and `--date-from`/`--date-to` read every matching row of the stored table before paging. Biomarker selection is unsupported for the group table. A companion row is not a treatment recommendation.
 
 ## FDA clearance records
 

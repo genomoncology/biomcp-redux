@@ -24,17 +24,6 @@
               "$ref": "#/$defs/Reply_CompanionIndividualCells",
               "description": "Whole cells keyed by this table’s exact headers."
             },
-            "date": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_PartialDate"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
-            },
             "device": {
               "description": "Device number and date cell text.",
               "type": [
@@ -87,6 +76,17 @@
               "const": "individual",
               "type": "string"
             },
+            "row_date": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_PartialDate"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
+            },
             "snapshot": {
               "description": "Immutable local snapshot revision, not a publisher row ID.",
               "type": "string"
@@ -106,17 +106,6 @@
             "cells": {
               "$ref": "#/$defs/Reply_CompanionGroupCells",
               "description": "Whole cells keyed by this table’s exact headers."
-            },
-            "date": {
-              "anyOf": [
-                {
-                  "$ref": "#/$defs/Reply_PartialDate"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
             },
             "device": {
               "description": "Device number and date cell text.",
@@ -169,6 +158,17 @@
             "kind": {
               "const": "group",
               "type": "string"
+            },
+            "row_date": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_PartialDate"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
             },
             "snapshot": {
               "description": "Immutable local snapshot revision, not a publisher row ID.",

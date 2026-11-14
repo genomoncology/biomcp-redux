@@ -473,7 +473,7 @@ pub enum CompanionDiagnosticRow {
 pub struct CompanionShared {
     /// Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems.
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub date: Option<PartialDate>,
+    pub row_date: Option<PartialDate>,
     /// Diagnostic name and manufacturer cell text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub diagnostic: Option<Box<str>>,
