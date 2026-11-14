@@ -38,7 +38,7 @@ impl Server {
         clippy::disallowed_types,
         reason = "Own the HTTP diagnostic receiver shared by concurrent test callers"
     )]
-    pub(super) fn configured_launch(
+    pub(in crate::runner) fn configured_launch(
         bind: &str,
         config: Option<Value>,
         replay: Option<std::path::PathBuf>,

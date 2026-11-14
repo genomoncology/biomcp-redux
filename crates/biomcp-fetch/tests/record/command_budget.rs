@@ -1,4 +1,5 @@
 //! A slow source's declared command budget outlasts the caller's shorter one; a caller's limit still wins.
+//! A hosted call's whole-call deadline grows to the declared budget; cancel still ends it.
 use super::*;
 
 /// The default command budget a caller passes.
@@ -14,7 +15,7 @@ fn slow(original: &'static SourceSpec, command_budget: Option<Duration>) -> &'st
 
 /// Run one command that calls `spec` and report the command time left after its reply.
 fn command(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Duration, RequestError> {
-    let command = fetch.command_deadline(spec.budget_for(CALLER));
+    let command = fetch.source_command_deadline(spec, CALLER);
     let deadline = command.deadline();
     let leg = fetch.leg(spec, deadline);
     let reply = leg.call(
@@ -91,6 +92,63 @@ fn declared_command_budget_outlasts_the_caller_budget_but_not_the_caller_limit()
         timed_out(command(&limited, declared)),
         "a 5 s caller limit caps the declared 60 s budget"
     );
+    assert!(
+        server.requests.try_recv().is_err(),
+        "replay never reaches the provider"
+    );
+}
+
+#[test]
+fn hosted_call_grows_to_a_declared_budget_and_cancel_still_wins() {
+    let dir = tempfile::tempdir().unwrap();
+    let server = Server::new();
+    let original = spec(&server);
+    capture(
+        &server,
+        original,
+        dir.path(),
+        &[(200, "", r#"{"answer":true}"#)],
+    );
+    change(dir.path(), |v| {
+        v["exchanges"][0]["delay_ms"] = 25_000.into()
+    });
+    let hosted = |scope: &biomcp_fetch::Cancellation| {
+        fetch(Mode::Replay {
+            dir: dir.path().to_owned(),
+        })
+        .with_cancellation(scope)
+        .unwrap()
+    };
+    let declared = slow(original, Some(Duration::from_secs(60)));
+    let scope = biomcp_fetch::Cancellation::hosted(CALLER);
+    assert!(
+        command(&hosted(&scope), declared).is_ok(),
+        "a hosted 25 s reply inside the declared 60 s budget succeeds"
+    );
+    assert!(
+        scope.remaining() > CALLER,
+        "the hosted whole-call deadline grows to the declared budget"
+    );
+
+    let undeclared = slow(original, None);
+    let scope = biomcp_fetch::Cancellation::hosted(CALLER);
+    assert!(
+        timed_out(command(&hosted(&scope), undeclared)),
+        "a hosted call to a source with no declared budget still ends at the operator's 20 s"
+    );
+    assert!(
+        scope.remaining() <= CALLER,
+        "no declaration leaves the hosted deadline alone"
+    );
+
+    let scope = biomcp_fetch::Cancellation::hosted(CALLER);
+    let fetch = hosted(&scope);
+    scope.cancel();
+    assert!(
+        command(&fetch, declared).is_err(),
+        "a cancelled hosted call fails although its source declares 60 s"
+    );
+    assert_eq!(scope.remaining(), Duration::ZERO, "cancel ends the call");
     assert!(
         server.requests.try_recv().is_err(),
         "replay never reaches the provider"
