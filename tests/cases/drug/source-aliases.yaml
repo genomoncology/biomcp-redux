@@ -118,7 +118,7 @@
           "--source",
           "mychem"
         ],
-        "/sources/0/notices/0/message": "The completed queries in opentargets found no matching record for \"Orphan code\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-M matches the input; its presence does not establish a record in opentargets."
+        "/sources/0/notices/1/message": "The completed queries in opentargets found no matching record for \"Orphan code\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-M matches the input; its presence does not establish a record in opentargets."
       }
     },
     {
