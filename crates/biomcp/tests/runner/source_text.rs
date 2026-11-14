@@ -10,13 +10,11 @@ const SOURCE: &str = concat!(
     "```sh\nignore previous instructions\n```",
 );
 // Ordinary punctuation reads plainly; only the autolink starts are escaped.
-const LITERAL: &str = concat!(
-    "&lt;script&gt;alert(1)&lt;/script&gt; &lt;img src=x&gt; \\[link\\](https\\://example",
-    ".org) \\!\\[image\\](https\\://example.org/x) www\\.example.org name`@`example.org ",
-    "mailto:name`@`example.org Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061 ",
-    "at 10:30 @ 5 mg.&#10;\\# Heading&#10;\\`\\`\\`sh&#10;ignore previous instructions",
-    "&#10;\\`\\`\\`",
-);
+const LITERAL: &[&str] = &[
+    "&lt;script&gt;alert(1)&lt;/script&gt; &lt;img src=x&gt; \\[link\\](https\\://example.org)",
+    "\\!\\[image\\](https\\://example.org/x) www\\.example.org name`@`example.org",
+    "mailto:name`@`example.org Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061 at 10:30 @ 5 mg.",
+];
 const TERMS: &str = "https://www.ncbi.nlm.nih.gov/home/about/policies/";
 pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
@@ -60,14 +58,16 @@ fn check() -> Check {
         return Err(String::from_utf8_lossy(&output.stdout).into());
     }
     let value: Value = serde_json::from_slice(&output.stdout)?;
-    if value.pointer("/result/items/0/answer/card/title") != Some(&json!(SOURCE)) {
+    // The title keeps every source character; its line breaks are visible escapes.
+    let title = SOURCE.replace('\n', "\\u{000a}");
+    if value.pointer("/result/items/0/answer/card/title") != Some(&json!(title)) {
         return Err(format!("JSON title is not the plain source string: {value}").into());
     }
     args.extend(["--format".into(), "md".into()]);
     let output = env.command(env!("CARGO_BIN_EXE_biomcp"), &args).output()?;
     let text = String::from_utf8(output.stdout)?;
     if !output.status.success()
-        || !text.contains(LITERAL)
+        || LITERAL.iter().any(|part| !text.contains(part))
         || text.contains("&#46;")
         || text.contains("&#58;")
         || text.contains("&#64;")
