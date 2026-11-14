@@ -123,6 +123,8 @@ The `regulatory` section pages the selected row’s original statement fragments
 
 `search diagnostic --source fda-pma --intended-use "cell-free"` matches the words of each submission's approval-order statement (`ao_statement`), the intended-use text FDA publishes, as one phrase; `--name` still matches only `trade_name`. Supplements carry their own statements, so one device can match more than once. The reply's `source_query` shows the exact openFDA expression and so the field each filter matched. openFDA publishes no intended-use text for 510(k) records, so `--intended-use` is refused for `--source fda-510k`. The phrase follows the same openFDA rules as a device recall name: no plurals or synonyms, refused punctuation spaced, and any non-ASCII character refused before the request.
 
+`search diagnostic --source fda-510k --classification-name "cell-free"` matches FDA's device classification name, the name of the device type its product code stands for, which openFDA adds to each 510(k) and De Novo record as `openfda.device_name`. It is not intended-use text: every device under one product code shares the name, so it finds devices of a kind, such as DEN230046 under "High Throughput Sequencing Based Tumor Profiling Test Of Circulating Cell-Free Nucleic Acids", while `--name` matches only the submitted `device_name`. The reply's `source_query` names the field. The phrase follows the same openFDA rules as `--intended-use`. PMA classification names are not searched.
+
 ## FDA companion tables
 
 Rows retain their whole cells and original links. Biomarker selection is unsupported for the group table. A companion row is not a treatment recommendation.

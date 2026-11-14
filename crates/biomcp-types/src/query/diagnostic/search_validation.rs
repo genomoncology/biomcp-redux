@@ -79,6 +79,18 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
                 .with_message(crate::ErrorMessage::DiagnosticIntendedUseAscii));
         }
     }
+    // FDA's classification name reaches 510(k) records through openFDA's harmonized block (live, 2026-11-14);
+    // PMA classification names are deferred (0941).
+    if let Some(text) = &v.classification_name {
+        if v.source != DiagnosticSearchSource::Fda510k {
+            return Err(QueryInvalid::new(&["source", "classification_name"])
+                .with_message(crate::ErrorMessage::DiagnosticClassificationName510k));
+        }
+        if !text.as_str().is_ascii() || !text.as_str().chars().any(char::is_alphanumeric) {
+            return Err(QueryInvalid::new(&["classification_name"])
+                .with_message(crate::ErrorMessage::DiagnosticClassificationNameAscii));
+        }
+    }
     if !device_source(v) {
         // GTR matches literal test names and device recalls their product description;
         // other non-device sources have no name field.

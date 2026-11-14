@@ -1,6 +1,7 @@
 # 0941 — fda-510k-search-by-classification-name
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2e5f5a1a4c2613742ed2a4943ba9ed195cfd2599
 
 Milestone: 7
 
@@ -31,3 +32,11 @@ Milestone: 7
 ## Changes
 
 - Changes: the 510(k) search adapter, the diagnostic search filter, help, cases.
+
+## Progress
+
+- 2026-11-14, measured live: openFDA 510(k) `openfda.device_name:"cell-free"` counts 4 records: DEN230046 PGDx elio plasma focus Dx and K260827 Oncomine Dx Express Test (SBY, "High Throughput Sequencing Based Tumor Profiling Test Of Circulating Cell-Free Nucleic Acids") and two Cell-Free DNA BCT blood tubes (QMA). `"cell free"` also counts 4. `device_name:"cell-free"` counts only the 2 blood tubes.
+- Design: a separate filter, `classification_name` (`--classification-name`), for `--source fda-510k` only. Widening `--intended-use` would make one flag mean the approval order's intended-use statement on PMA and the shared device-type name on 510(k); the classification name belongs to the product code, so every device under SBY matches whatever it is cleared for. A separate filter keeps both meanings honest and leaves 0930's refusal wording unchanged. `--classification` was already taken by the recall class, hence the longer name.
+- Changed: the filter is sent as `openfda.device_name:"PHRASE"` with 0930's `phrase()` rules, and `source_query` shows it. It is refused with a message for any other source (PMA classification names deferred) and for non-ASCII text. Schema change: one optional request field and two added error messages.
+- Proof: `tests/cases/diagnostic/fda-510k-classification-name.yaml` replays live replies recorded in jobs j40733 and j40739 (`tests/replies/diagnostic/classification-name/`): the classification-name search returns 4 records with DEN230046 and `source_query` `openfda.device_name:"cell-free"`; the `--name` control returns the 2 blood tubes. In j40733 the second `--record` into the same folder failed with `local.failure`; recorded alone in j40739 it succeeded.
+- Review fix: the case is renamed to sort after `device-approvals.yaml`, so the generated `--name` example stays 'FoundationOne CDx' (the example generator keeps the first case run that adds a flag), and the help line says the classification name is not the submitted `device_name` that `--name` matches.
