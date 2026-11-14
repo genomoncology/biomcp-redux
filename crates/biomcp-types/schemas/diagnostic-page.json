@@ -616,6 +616,18 @@
           "description": "FDA recall class.\nNative enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.",
           "x-required-component": "fda-device-recall"
         },
+        "classification_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA classification name phrase.\nPhrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type; 510(k) only.",
+          "x-required-component": "fda-510k"
+        },
         "condition_id": {
           "anyOf": [
             {

@@ -957,12 +957,16 @@ Options:
           FDA recall class.
           Native enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
-      --condition-id <condition_id>
-          Exact MedGen:CUI.
-          Exact MedGen:CUI identifier only.
+      --classification-name <classification_name>
+          FDA classification name phrase.
+          Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type; 510(k) only.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --condition-id <condition_id>
+          Exact MedGen:CUI.
+          Exact MedGen:CUI identifier only.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -987,10 +991,6 @@ Options:
           Exact gene symbol.
           Exact source gene_symbol field, without alias expansion.
 
-      --gene-id <gene_id>
-          Exact NCBI GeneID.
-          Exact source GeneID, exclusive with gene symbol.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1002,6 +1002,10 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --gene-id <gene_id>
+          Exact NCBI GeneID.
+          Exact source GeneID, exclusive with gene symbol.
 
       --initiated-from <initiated_from>
           First date, YYYY-MM-DD.
@@ -1067,6 +1071,8 @@ Exact table-0 biomarker cell; unsupported in the group table. Value form: string
 Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a.
 - `--classification`: FDA recall class.
 Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code. Value form: string; example: --classification 'Class I'; only with --source fda-device-recall.
+- `--classification-name`: FDA classification name phrase.
+Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type; 510(k) only. Value form: string; example: --classification-name <classification-name> (syntax; replace the placeholder with your retained value); only with --source fda-510k.
 - `--condition-id`: Exact MedGen:CUI.
 Exact MedGen:CUI identifier only. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
 - `--decision-from`: First date, YYYY-MM-DD.

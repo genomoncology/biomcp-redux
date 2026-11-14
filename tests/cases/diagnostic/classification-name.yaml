@@ -1,0 +1,89 @@
+{
+  "feature": "device-approval-search",
+  "live_check": "public",
+  "story": "A 510(k) search takes a phrase in FDA's device classification name, which openFDA adds to each 510(k) and De Novo record as openfda.device_name; the persona's cell-free question returns openFDA's 4 records, the de novo PGDx elio plasma focus Dx DEN230046 among them, and source_query names the field. The same phrase as a device name finds only the blood tubes, and the filter is refused for PMA and for non-ASCII text.",
+  "verified": "Native openFDA device 510(k) replies recorded 2026-11-14 by biomcp --record in pm job j40733. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Committed byte for byte; sizes and SHA-256 are in tests/replies/diagnostic/classification-name/README.md. No rows or values invented.",
+  "replay": "diagnostic/classification-name",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--classification-name",
+        "cell-free"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--classification-name",
+        "cell-free"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/classification_name": "cell-free",
+        "/page/total": 4,
+        "/result/count_unit": "device-submissions",
+        "/result/source_query": "openfda.device_name:\"cell-free\"",
+        "/result/items/*/header/k_number": {
+          "includes": "DEN230046"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--name",
+        "cell-free"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/name": "cell-free",
+        "/page/total": 2,
+        "/result/source_query": "device_name:\"cell-free\""
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--classification-name",
+        "cell-free"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--classification-name",
+        "/error/message": "--classification-name matches FDA's device classification name on 510(k) and De Novo records and needs --source fda-510k"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-510k",
+        "--classification-name",
+        "Nestlé"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--classification-name",
+        "/error/message": "--classification-name needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase"
+      }
+    }
+  ]
+}
