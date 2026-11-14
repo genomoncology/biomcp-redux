@@ -140,7 +140,8 @@ const REVIEWED_ABSENCES: &[(&str, &str)] = &[
     (
         "crates/biomcp-adapters/src/gnomad/map.rs",
         "constraint: ) > ( field , None ) ; return None ; } Err ( _ ) = > return None",
-    ),    (
+    ),
+    (
         "crates/biomcp-adapters/src/fda_cdx/date.rs",
         "date: year , Some ( month ) , Some ( day ) ) . ok ( )",
     ),

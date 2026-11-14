@@ -53,29 +53,7 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
             matching.push((native, date));
         }
     }
-    // The window and the order apply to every matching row of the snapshot, never to one page.
-    let whole = query.sort().is_some() || query.date_from().is_some() || query.date_to().is_some();
-    let mut conflicts = Vec::new();
-    if whole {
-        conflicts.extend(matching.iter().filter_map(undated));
-    }
-    matching.retain(|(_, date)| within(query, *date));
-    if query.sort().is_some() {
-        matching.sort_by(newest_first);
-    }
-    let total = matching.len() as u64;
-    let items = matching
-        .into_iter()
-        .skip(query.offset() as usize)
-        .take(query.limit() as usize)
-        .map(|row| {
-            conflicts.extend(conflicts_of(&row.0));
-            if !whole {
-                conflicts.extend(undated(&row));
-            }
-            shared_row(row)
-        })
-        .collect();
+    let (items, total, mut conflicts) = page(query, matching);
     if let Some(id) = query.drug_application() {
         // A row that mentions the asked application but joins nothing is named, not dropped.
         let digits = id.as_str().get(3..).unwrap_or_default();
@@ -109,6 +87,37 @@ pub fn search(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Search, Request
         problems,
     })
 }
+/// Window, order and page every matching row of the snapshot, never one page.
+fn page(
+    query: &DiagnosticSearch,
+    mut matching: Vec<Dated>,
+) -> (Box<[CompanionDiagnosticRow]>, u64, Vec<Conflict>) {
+    let whole = query.sort().is_some() || query.date_from().is_some() || query.date_to().is_some();
+    let mut conflicts = Vec::new();
+    if whole {
+        conflicts.extend(matching.iter().filter_map(undated));
+    }
+    matching.retain(|(_, date)| within(query, *date));
+    if query.sort().is_some() {
+        matching.sort_by(newest_first);
+    }
+    let total = matching.len() as u64;
+    let items: Box<[CompanionDiagnosticRow]> = matching
+        .into_iter()
+        .skip(query.offset() as usize)
+        .take(query.limit() as usize)
+        .map(|row| {
+            conflicts.extend(conflicts_of(&row.0));
+            if !whole {
+                conflicts.extend(undated(&row));
+            }
+            shared_row(row)
+        })
+        .collect();
+    (items, total, conflicts)
+}
+type Dated = (super::raw::Native, Option<PartialDate>);
+type Conflict = (u8, u32, &'static str, ProblemCode);
 /// Problems for a row that mentions the application digits but joins no application.
 fn unjoined(row: &super::raw::Native, digits: &str) -> Vec<(u8, u32, &'static str, ProblemCode)> {
     if !mentions(&row.relation, digits) {
