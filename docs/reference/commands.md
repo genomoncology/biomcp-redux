@@ -1415,11 +1415,9 @@ Options:
           An optional name query further narrows the same source search.
 
       --initiated-from <initiated_from>
-          Recall start day.
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
       --initiated-to <initiated_to>
-          Recall start day.
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
       --limit <limit>
@@ -1450,12 +1448,12 @@ Options:
           Native rows to skip.
 
       --prequalified-from <prequalified_from>
-          WHO PQ start date.
-          Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.
+          WHO PQ start date, inclusive.
+          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
 
       --prequalified-to <prequalified_to>
-          WHO PQ end date.
-          Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.
+          WHO PQ end date, inclusive.
+          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
 
       --reason <reason>
           Recall reason phrase.
@@ -1501,10 +1499,8 @@ Matches the published firm literally. Value form: string. Example: --firm Apotex
 - `--indication`: Exact label indication; openFDA labels only.
 Search the source Indications and Usage field without disease synonym expansion.
 An optional name query further narrows the same source search. Value form: string. Example: --indication melanoma. Only with --source openfda-label.
-- `--initiated-from`: Recall start day.
-Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Only with --source fda-drug-recall.
-- `--initiated-to`: Recall start day.
-Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Only with --source fda-drug-recall.
+- `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Only with --source fda-drug-recall.
+- `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Only with --source fda-drug-recall.
 - `--limit`: Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--name-selector`: ChEMBL name selector; help search drug
 ChEMBL name selector.
@@ -1513,10 +1509,10 @@ Listed choices accept any letter case; replies use their listed spelling. Value 
 - `--name-snapshot`: Label name page token.
 Follow the returned command with unchanged filters to keep the first page's names and step. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--prequalified-from`: WHO PQ start date.
-Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Only with --source who-pq.
-- `--prequalified-to`: WHO PQ end date.
-Inclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Only with --source who-pq.
+- `--prequalified-from`: WHO PQ start date, inclusive.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Only with --source who-pq.
+- `--prequalified-to`: WHO PQ end date, inclusive.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Only with --source who-pq.
 - `query`: Drug name phrase.
 FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
@@ -3229,8 +3225,10 @@ Options:
           [possible values: true, false]
 
       --partner <partner>
-          DDInter partner.
-          DDInter ID or full DDInter name; keeps only pairs with it.
+          Interaction partner.
+          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+          names other sources state for it, as the drug itself is.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3243,11 +3241,10 @@ Options:
           Explicit native application product number, only for approvals.
 
       --section-limit <section_limit>
-          Section page size.
-          Refused on an identity-only card. At most 50 rows, or 200 for Drugs@FDA approvals.
+          Named section page size, refused on an identity-only card.
+          At most 50 rows, or 200 for Drugs@FDA approvals.
 
       --section-offset <section_offset>
-          Section page offset.
           Named section continuation, refused on an identity-only card.
 
       --source <source>
@@ -3286,17 +3283,18 @@ Source-source ID or complete brand or generic name; WHO references retain source
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--partner`: DDInter partner.
-DDInter ID or full DDInter name; keeps only pairs with it. Value form: string. Example: --partner 'synthetic partnerfive'. Only with --source ddinter.
+- `--partner`: Interaction partner.
+A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+names other sources state for it, as the drug itself is. Value form: string. Example: --partner DDInter5. Only with --source ddinter.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `section`: Source sections; help get drug
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get drug INPUT SECTION...; not --section.
-- `--section-limit`: Section page size.
-Refused on an identity-only card. At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--section-offset`: Section page offset.
-Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--section-limit`: Named section page size, refused on an identity-only card.
+At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--source`: Omit to infer the source of an unambiguous section; identity or; help get drug
 Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.

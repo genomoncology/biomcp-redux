@@ -229,7 +229,7 @@
               "type": "null"
             }
           ],
-          "description": "Recall start day.\nInclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
         "initiated_to": {
@@ -241,7 +241,7 @@
               "type": "null"
             }
           ],
-          "description": "Recall start day.\nInclusive initiation day, YYYY-MM-DD; drug recalls only.",
+          "description": "Inclusive initiation day, YYYY-MM-DD; drug recalls only.",
           "x-required-component": "fda-drug-recall"
         },
         "limit": {
@@ -284,7 +284,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ start date.\nInclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "WHO PQ start date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
         },
         "prequalified_to": {
@@ -296,7 +296,7 @@
               "type": "null"
             }
           ],
-          "description": "WHO PQ end date.\nInclusive; accepts YYYY, YYYY-MM or YYYY-MM-DD.",
+          "description": "WHO PQ end date, inclusive.\nAccepts YYYY, YYYY-MM or YYYY-MM-DD.",
           "x-required-component": "who-pq"
         },
         "query": {
