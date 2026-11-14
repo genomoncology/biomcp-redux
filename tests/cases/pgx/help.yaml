@@ -18,7 +18,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.\nFields: clinpgxlevel, cpiclevel, drugid, drugname, genesymbol, guidelinename, guidelineurl, pairid, pgxtesting, pmids, provisional, usedforrecommendation. Choose some with --fields a,b (typed: fields list); always kept: genesymbol, pairid.",
+        "/result/commands/0/description": "Search pharmacogenomic gene and drug pairs. Sources: cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: clinpgxlevel, cpiclevel, drugid, drugname, genesymbol, guidelinename, guidelineurl, pairid, pgxtesting, pmids, provisional, usedforrecommendation. Choose some with --fields a,b (typed: fields list); always kept: genesymbol, pairid.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
@@ -33,8 +33,8 @@
           "cpic"
         ]
       },
-      "max_bytes": 2213,
-      "max_tokens": 554
+      "max_bytes": 1785,
+      "max_tokens": 447
     },
     {
       "run": [
@@ -51,7 +51,7 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.",
+        "/result/commands/0/description": "Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "--gene",
@@ -78,7 +78,7 @@
           "clinpgx"
         ]
       },
-      "max_bytes": 4129
+      "max_bytes": 3494
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

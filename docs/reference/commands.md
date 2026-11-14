@@ -89,16 +89,17 @@ key: Register and manage source credentials without showing values.
 serve: Serve MCP over standard input or HTTP.
 schema: List every schema identity and description with biomcp schema, or print one schema artifact with biomcp schema <id>.
 help: Describe commands and their arguments.
+Listed choices accept any letter case; replies use their listed spelling.
+Options are local to the command and independent of source selection.
 
-- `--format`: Choose JSON or Markdown output; configuration can change the default.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --format json. Local command option; independent of source selection.
-- `--disable-sources`: Exclude source names or source terms groups. Example: --disable-sources civic. Value form: string. Local command option; independent of source selection.
-- `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'. Value form: string. Local command option; independent of source selection.
-- `--config`: Read configuration from this file. Example: --config config.json. Value form: string. Local command option; independent of source selection.
-- `--offline`: Read local data without source requests. Value form: boolean. Example: --offline. Local command option; independent of source selection.
-- `--fresh`: Request fresh source data instead of cached replies. Value form: boolean. Example: --fresh. Local command option; independent of source selection.
-- `--help`: Print scoped command help without source requests. Value form: boolean. Example: --help. Local command option; independent of source selection.
-- `--version`: Print the installed version without source requests. Value form: boolean. Example: --version. Local command option; independent of source selection.
+- `--format`: Choose JSON or Markdown output; configuration can change the default. Value form: string; example: --format json.
+- `--disable-sources`: Exclude source names or source terms groups. Value form: string; example: --disable-sources civic.
+- `--source_pacing`: Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Value form: string; example: --source_pacing '{}'.
+- `--config`: Read configuration from this file. Value form: string; example: --config config.json.
+- `--offline`: Read local data without source requests. Value form: boolean; example: --offline.
+- `--fresh`: Request fresh source data instead of cached replies. Value form: boolean; example: --fresh.
+- `--help`: Print scoped command help without source requests. Value form: boolean; example: --help.
+- `--version`: Print the installed version without source requests. Value form: boolean; example: --version.
 
 ## biomcp search
 
@@ -215,14 +216,14 @@ Options:
 ```
 
 Search NCI biomarker concepts by name or synonym. Sources: nci.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--limit`: Maximum headers per local page. Value form: integer. Example: --limit 5. Command sources: nci; source restrictions in the field description apply.
-- `--name`: Source partial name or synonym search. Value form: string. Example: --name PD-L1. Command sources: nci; source restrictions in the field description apply.
-- `--offset`: Offset within the complete retained observation. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
-- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: nci; source restrictions in the field description apply.
-- `--source`: Explicit keyed NCI source; help search biomarker
-Explicit keyed NCI source.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
+- `--limit`: Maximum headers per local page. Value form: integer; example: --limit 5.
+- `--name`: Source partial name or synonym search. Value form: string; example: --name PD-L1.
+- `--offset`: Offset within the complete retained observation. Value form: integer; example: --offset 0.
+- `--pool`: Snapshot identity retained by continuation commands. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--source`: Explicit keyed NCI source. Value form: string; example: --source nci.
 
 ## biomcp search author
 
@@ -280,16 +281,16 @@ Options:
 ```
 
 Search research paper authors. Sources: pubmed, semantic-scholar.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--limit`: Bounded source page size. Value form: integer. Example: --limit 5. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Source offset. Value form: integer. Example: --offset 0. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Retained page identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--limit`: Bounded source page size. Value form: integer; example: --limit 5.
+- `--offset`: Source offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained page identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `query`: Exact query from the positional argument.
 Form: search author QUERY; not --query.
-- `--source`: Source; auto uses PubMed if Semantic Scholar is off; help search author
-Source; auto uses PubMed if Semantic Scholar is off.
-PubMed accepts names or topics and returns unresolved names on papers.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semanticscholar. Command sources: pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--source`: Source; auto uses PubMed if Semantic Scholar is off.
+PubMed accepts names or topics and returns unresolved names on papers. Value form: string; example: --source semanticscholar.
 
 ## biomcp search organization
 
@@ -369,22 +370,22 @@ Options:
 ```
 
 Search clinical research organizations. Sources: nci.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--city`: Source organization city. Value form: string. Example: --city Boston. Command sources: nci; source restrictions in the field description apply.
-- `--country`: Source organization country. Value form: string. Example: --country 'United States'. Command sources: nci; source restrictions in the field description apply.
-- `--distance`: Positive radius with explicit mi or km units. Value form: string. Example: --distance 10mi. Command sources: nci; source restrictions in the field description apply.
-- `--family`: Source organization family. Value form: string. Example: --family 'Dana-Farber/Harvard Cancer Center'. Command sources: nci; source restrictions in the field description apply.
-- `--lat`: Radius center latitude in degrees; requires lon and distance. Value form: string. Example: --lat 42.3469. Command sources: nci; source restrictions in the field description apply.
-- `--limit`: Five headers by default, at most fifty. Value form: integer. Example: --limit 5. Command sources: nci; source restrictions in the field description apply.
-- `--lon`: Radius center longitude in degrees; requires lat and distance. Value form: string. Example: --lon -71.1025. Command sources: nci; source restrictions in the field description apply.
-- `--name`: NCI partial organization name; names are not unique. Value form: string. Example: --name Dana-Farber. Command sources: nci; source restrictions in the field description apply.
-- `--offset`: Offset within the complete retained organization snapshot. Value form: integer. Example: --offset 0. Command sources: nci; source restrictions in the field description apply.
-- `--pool`: Snapshot identity retained by continuation commands. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: nci; source restrictions in the field description apply.
-- `--postal-code`: Source postal code. Value form: string. Example: --postal-code 02215. Command sources: nci; source restrictions in the field description apply.
-- `--source`: Explicit keyed NCI source; help search organization
-Explicit keyed NCI source.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
-- `--state`: Source state or province. Value form: string. Example: --state MA. Command sources: nci; source restrictions in the field description apply.
+- `--city`: Source organization city. Value form: string; example: --city Boston.
+- `--country`: Source organization country. Value form: string; example: --country 'United States'.
+- `--distance`: Positive radius with explicit mi or km units. Value form: string; example: --distance 10mi.
+- `--family`: Source organization family. Value form: string; example: --family 'Dana-Farber/Harvard Cancer Center'.
+- `--lat`: Radius center latitude in degrees; requires lon and distance. Value form: string; example: --lat 42.3469.
+- `--limit`: Five headers by default, at most fifty. Value form: integer; example: --limit 5.
+- `--lon`: Radius center longitude in degrees; requires lat and distance. Value form: string; example: --lon -71.1025.
+- `--name`: NCI partial organization name; names are not unique. Value form: string; example: --name Dana-Farber.
+- `--offset`: Offset within the complete retained organization snapshot. Value form: integer; example: --offset 0.
+- `--pool`: Snapshot identity retained by continuation commands. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--postal-code`: Source postal code. Value form: string; example: --postal-code 02215.
+- `--source`: Explicit keyed NCI source. Value form: string; example: --source nci.
+- `--state`: Source state or province. Value form: string; example: --state MA.
 
 ## biomcp search cell-line
 
@@ -455,17 +456,18 @@ Options:
 ```
 
 Search cell lines by name or identifier. Sources: cellosaurus.
+Options apply to every listed source unless their description restricts them.
 
-- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224). Value form: string. Example: --disease Melanoma. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean. Example: --exclude-derived. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string. Example: --gene KRAS. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--limit`: Source page size. Value form: integer. Example: --limit 25. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--mutation`: Cellosaurus variation text, as the source writes it (for example p.Gly12Asp). Value form: string. Example: --mutation p.Gly12Asp. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--offset`: Source start offset. Value form: integer. Example: --offset 0. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--protein`: Protein change, sent in the source's spelling (G12D is sent as p.Gly12Asp). Value form: string. Example: --protein G12D. Command sources: cellosaurus; source restrictions in the field description apply.
+- `--disease`: Cellosaurus disease: NCIt name or ID (for example Melanoma or C3224). Value form: string; example: --disease Melanoma.
+- `--exclude-derived`: Leave out lines derived from a parent line; needs another search term. Value form: boolean; example: --exclude-derived.
+- `--gene`: Cellosaurus variation gene, as the source writes it (for example KRAS). Value form: string; example: --gene KRAS.
+- `--limit`: Source page size. Value form: integer; example: --limit 25.
+- `--mutation`: Cellosaurus variation text, as the source writes it (for example p.Gly12Asp). Value form: string; example: --mutation p.Gly12Asp.
+- `--offset`: Source start offset. Value form: integer; example: --offset 0.
+- `--protein`: Protein change, sent in the source's spelling (G12D is sent as p.Gly12Asp). Value form: string; example: --protein G12D.
 - `query`: Exact source query from the positional argument.
 Form: search cell-line QUERY; not --query.
-- `--species`: Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606). Value form: string. Example: --species 'Homo sapiens'. Command sources: cellosaurus; source restrictions in the field description apply.
+- `--species`: Cellosaurus species: NCBI Taxonomy name or ID (for example Homo sapiens or 9606). Value form: string; example: --species 'Homo sapiens'.
 
 ## biomcp search gwas
 
@@ -557,22 +559,23 @@ Options:
 ```
 
 Search genetic associations in GWAS Catalog. Sources: gwas.
+Options apply to every listed source unless their description restricts them.
 
-- `--extended-geneset`: Source extended gene set; requires gene. Value form: boolean. Example: --extended-geneset. Command sources: gwas; source restrictions in the field description apply.
-- `--gene`: Exact source mapped gene; legacy positional query aliases this field. Value form: string. Example: --gene FGFR2. Command sources: gwas; source restrictions in the field description apply.
-- `--include-child-traits`: Source child-trait expansion; requires trait_id. Value form: boolean. Example: --include-child-traits. Command sources: gwas; source restrictions in the field description apply.
-- `--limit`: Maximum association rows. Value form: integer. Example: --limit 3. Command sources: gwas; source restrictions in the field description apply.
-- `--offset`: Source association offset. Value form: integer. Example: --offset 3. Command sources: gwas; source restrictions in the field description apply.
-- `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end. Value form: string. Example: --p-value 4e-254. Command sources: gwas; source restrictions in the field description apply.
-- `--pool`: Retained threshold walk identity; requires a threshold. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: gwas; source restrictions in the field description apply.
-- `--pubmed`: Exact source publication identity. Value form: string. Example: --pubmed 17529967. Command sources: gwas; source restrictions in the field description apply.
+- `--extended-geneset`: Source extended gene set; requires gene. Value form: boolean; example: --extended-geneset.
+- `--gene`: Exact source mapped gene; legacy positional query aliases this field. Value form: string; example: --gene FGFR2.
+- `--include-child-traits`: Source child-trait expansion; requires trait_id. Value form: boolean; example: --include-child-traits.
+- `--limit`: Maximum association rows. Value form: integer; example: --limit 3.
+- `--offset`: Source association offset. Value form: integer; example: --offset 3.
+- `--p-value`: Inclusive positive probability in scientific notation. Requires the default p-value-ascending order; no sort option is available. The qualifying total stays unknown until the ordered walk reaches its end. Value form: string; example: --p-value 4e-254.
+- `--pool`: Retained threshold walk identity; requires a threshold. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--pubmed`: Exact source publication identity. Value form: string; example: --pubmed 17529967.
 - `query`: Exact source mapped gene; legacy positional query aliases this field.
 Form: search gwas QUERY; not --query.
-- `--studies`: Return study records for the selected publication instead of associations. Value form: boolean. Example: --studies. Command sources: gwas; source restrictions in the field description apply.
-- `--study`: Exact source study accession. Value form: string. Example: --study GCST000035. Command sources: gwas; source restrictions in the field description apply.
-- `--trait`: Exact source efo_trait label; never searches reported_trait prose. Value form: string. Example: --trait 'breast carcinoma'. Command sources: gwas; source restrictions in the field description apply.
-- `--trait-id`: Exact source ontology identity. Value form: string. Example: --trait-id MONDO_0004989. Command sources: gwas; source restrictions in the field description apply.
-- `--variant`: Exact source rsID. Value form: string. Example: --variant rs2981582. Command sources: gwas; source restrictions in the field description apply.
+- `--studies`: Return study records for the selected publication instead of associations. Value form: boolean; example: --studies.
+- `--study`: Exact source study accession. Value form: string; example: --study GCST000035.
+- `--trait`: Exact source efo_trait label; never searches reported_trait prose. Value form: string; example: --trait 'breast carcinoma'.
+- `--trait-id`: Exact source ontology identity. Value form: string; example: --trait-id MONDO_0004989.
+- `--variant`: Exact source rsID. Value form: string; example: --variant rs2981582.
 
 ## biomcp search protein
 
@@ -635,14 +638,15 @@ Options:
 ```
 
 Search reviewed human proteins in UniProt. Sources: uniprot.
+Options apply to every listed source unless their description restricts them.
 
-- `--gene`: Exact source gene field, without identifier inference. Value form: string. Example: --gene BRAF. Command sources: uniprot; source restrictions in the field description apply.
-- `--limit`: Five rows by default; no more than 25. Value form: integer. Example: --limit 25. Command sources: uniprot; source restrictions in the field description apply.
-- `--offset`: Source/retained result offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Exact retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
+- `--gene`: Exact source gene field, without identifier inference. Value form: string; example: --gene BRAF.
+- `--limit`: Five rows by default; no more than 25. Value form: integer; example: --limit 25.
+- `--offset`: Source/retained result offset. Value form: integer; example: --offset 0.
+- `--pool`: Exact retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `query`: Exact text, exclusive with gene.
 Form: search protein QUERY; not --query.
-- `--reviewed`: Reviewed human scope stays enabled; unreviewed search is deferred. Value form: boolean. Example: --reviewed. Command sources: uniprot; source restrictions in the field description apply.
+- `--reviewed`: Reviewed human scope stays enabled; unreviewed search is deferred. Value form: boolean; example: --reviewed.
 
 ## biomcp search phenotype
 
@@ -708,21 +712,15 @@ Options:
 ```
 
 Search human phenotypes in HPO. Sources: hpo, monarch.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--group`: HP IDs only: rank genes, the default, or diseases; help search phenotype
-HP IDs only: rank genes, the default, or diseases.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
-HP IDs only: the Monarch similarity metric to rank by.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--search-mode`: HP IDs only: hybrid (default) or slower full; help search phenotype
-HP IDs only: hybrid (default) or slower full.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--source`: Monarch only; HPO search is unsupported; help search phenotype
-Monarch only; HPO search is unsupported.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--group`: HP IDs only: rank genes, the default, or diseases. Value form: string; example: --group diseases.
+- `--limit`: Maximum source headers, default five. Value form: integer; example: --limit 3.
+- `--metric`: HP IDs only: the Monarch similarity metric to rank by. Value form: string; example: --metric phenodigm-score.
+- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer; example: --offset 0.
+- `--search-mode`: HP IDs only: hybrid (default) or slower full. Value form: string; example: --search-mode full.
+- `--source`: Monarch only; HPO search is unsupported. Value form: string; example: --source monarch.
 - `text`: Unchanged exact term search text, or HP IDs separated by commas to rank genes or diseases for the set.
 Form: search phenotype TEXT; not --text.
 
@@ -790,18 +788,18 @@ Options:
 ```
 
 Search human biological pathways. Sources: reactome, wikipathways.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--fresh`: Request a new retained observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only. Value form: string. Example: --gene HGNC:1097. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--offset`: Source Reactome Start row or retained WikiPathways catalog offset. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--pool`: Retained snapshot identity for deterministic continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--fresh`: Request a new retained observation. Value form: boolean; example: --fresh.
+- `--gene`: Human gene input for exact resolution and UniProt mapping; Reactome only. Value form: string; example: --gene HGNC:1097.
+- `--limit`: Five rows by default, one to fifty. Reactome rows equals this limit without refill. Value form: integer; example: --limit 5.
+- `--offset`: Source Reactome Start row or retained WikiPathways catalog offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained snapshot identity for deterministic continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `query`: Exact source query; exclusive with gene and top-level discovery.
 Form: search pathway QUERY; not --query.
-- `--source`: Sources in caller order; repeated sources take turns; help search pathway
-Sources in caller order; repeated sources take turns without title joins.
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --source reactome. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene. Value form: boolean. Example: --top-level. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--source`: Sources in caller order; repeated sources take turns without title joins. Value form: repeatable values (repeat the flag); example: --source reactome.
+- `--top-level`: Source human Reactome top-level discovery, exclusive with text and gene. Value form: boolean; example: --top-level.
 
 ## biomcp search study
 
@@ -857,11 +855,12 @@ Options:
 ```
 
 Search cancer genomics studies in cBioPortal. Sources: cbioportal.
+Options apply to every listed source unless their description restricts them.
 
-- `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion. Value form: string. Example: --cancer-type mixed. Command sources: cbioportal; source restrictions in the field description apply.
-- `--limit`: Maximum headers per page. Value form: integer. Example: --limit 1. Command sources: cbioportal; source restrictions in the field description apply.
-- `--offset`: Zero-based offset in the checked snapshot. Value form: integer. Example: --offset 0. Command sources: cbioportal; source restrictions in the field description apply.
-- `--pool`: Opaque continuation retaining the catalog revision and selectors. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: cbioportal; source restrictions in the field description apply.
+- `--cancer-type`: Exact cBioPortal cancer-type code; no OncoTree conversion. Value form: string; example: --cancer-type mixed.
+- `--limit`: Maximum headers per page. Value form: integer; example: --limit 1.
+- `--offset`: Zero-based offset in the checked snapshot. Value form: integer; example: --offset 0.
+- `--pool`: Opaque continuation retaining the catalog revision and selectors. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `text`: Exact study ID, name or description text, without synonyms or typo repair.
 Form: search study TEXT; not --text.
 
@@ -919,14 +918,14 @@ Options:
 ```
 
 Search pharmacogenomic gene and drug pairs. Sources: cpic.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--cpic-level`: Exact source level, including compound levels such as B/C. Value form: string. Example: --cpic-level B/C. Command sources: cpic; source restrictions in the field description apply.
-- `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: cpic; source restrictions in the field description apply.
-- `--limit`: Rows per source page. Value form: integer. Example: --limit 1. Command sources: cpic; source restrictions in the field description apply.
-- `--offset`: Source source offset. Value form: integer. Example: --offset 0. Command sources: cpic; source restrictions in the field description apply.
-- `--source`: Required CPIC source; ClinPGx is not supported for search; help search pgx
-Required CPIC source; ClinPGx is not supported for search.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cpic. Command sources: cpic; source restrictions in the field description apply.
+- `--cpic-level`: Exact source level, including compound levels such as B/C. Value form: string; example: --cpic-level B/C.
+- `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
+- `--limit`: Rows per source page. Value form: integer; example: --limit 1.
+- `--offset`: Source source offset. Value form: integer; example: --offset 0.
+- `--source`: Required CPIC source; ClinPGx is not supported for search. Value form: string; example: --source cpic.
 
 ## biomcp search diagnostic
 
@@ -1055,55 +1054,51 @@ Options:
 ```
 
 Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `--biomarker`: Exact table-0 cell.
-Exact table-0 biomarker cell; unsupported in the group table. Value form: string. Example: --biomarker KRAS. Only with --source fda-cdx.
+Exact table-0 biomarker cell; unsupported in the group table. Value form: string; example: --biomarker KRAS; only with --source fda-cdx.
 - `--bundle-revision`: Stored bundle revision.
-Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--classification`: FDA recall class; help search diagnostic
-FDA recall class.
-Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class I'. Only with --source fda-device-recall.
+Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a.
+- `--classification`: FDA recall class.
+Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code. Value form: string; example: --classification 'Class I'; only with --source fda-device-recall.
 - `--condition-id`: Exact MedGen:CUI.
-Exact MedGen:CUI identifier only. Value form: string. Example: --condition-id MedGen:C2676676. Only with --source gtr.
+Exact MedGen:CUI identifier only. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
 - `--decision-from`: First date, YYYY-MM-DD.
-Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string. Example: --decision-from 2017-11-30. Only with --source fda-pma or fda-510k.
+Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string; example: --decision-from 2017-11-30; only with --source fda-pma or fda-510k.
 - `--decision-to`: Last date, YYYY-MM-DD.
-Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string. Example: --decision-to 2017-11-30. Only with --source fda-pma or fda-510k.
+Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string; example: --decision-to 2017-11-30; only with --source fda-pma or fda-510k.
 - `--device-id`: PMA or K identifier.
-Exact PMA application, application/supplement or source K identity. Value form: string. Example: --device-id P200010/S026. Only with --source fda-cdx.
+Exact PMA application, application/supplement or source K identity. Value form: string; example: --device-id P200010/S026; only with --source fda-cdx.
 - `--drug-application`: NDA/BLA application.
-Cell-owned typed NDA/BLA application. Value form: string. Example: --drug-application NDA208065. Only with --source fda-cdx.
+Cell-owned typed NDA/BLA application. Value form: string; example: --drug-application NDA208065; only with --source fda-cdx.
 - `--gene`: Exact gene symbol.
-Exact source gene_symbol field, without alias expansion. Value form: string. Example: --gene BRCA1. Only with --source gtr.
+Exact source gene_symbol field, without alias expansion. Value form: string; example: --gene BRCA1; only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.
-Exact source GeneID, exclusive with gene symbol. Value form: string. Example: --gene-id 672. Only with --source gtr.
+Exact source GeneID, exclusive with gene symbol. Value form: string; example: --gene-id 672; only with --source gtr.
 - `--initiated-from`: First date, YYYY-MM-DD.
-Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-from 2024-01-01. Only with --source fda-device-recall.
+Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-device-recall.
 - `--initiated-to`: Last date, YYYY-MM-DD.
-Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string. Example: --initiated-to 2024-12-31. Only with --source fda-device-recall.
-- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer. Example: --limit 50. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-to 2024-12-31; only with --source fda-device-recall.
+- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer; example: --limit 50.
 - `--manufacturer`: Manufacturer phrase.
-WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string. Example: --manufacturer 'Synthetic maker'. Only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.
+WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string; example: --manufacturer 'Synthetic maker'; only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.
 - `--marker`: WHO marker phrase.
-Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string. Example: --marker HIV. Only with --source who-ivd.
+Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string; example: --marker HIV; only with --source who-ivd.
 - `--name`: Source test or device name.
-Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name. Value form: string. Example: --name 'FoundationOne CDx'. Only with --source gtr, fda-pma, fda-510k or fda-device-recall.
-- `--offset`: Zero-based source result offset. Value form: integer. Example: --offset 5. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name. Value form: string; example: --name 'FoundationOne CDx'; only with --source gtr, fda-pma, fda-510k or fda-device-recall.
+- `--offset`: Zero-based source result offset. Value form: integer; example: --offset 5.
 - `--prequalified-from`: WHO IVD year.
-First prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-from 2023. Only with --source who-ivd.
+First prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-from 2023; only with --source who-ivd.
 - `--prequalified-to`: WHO IVD year.
-Last prequalification year included, YYYY; WHO publishes only the year. Value form: string. Example: --prequalified-to 2023. Only with --source who-ivd.
+Last prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-to 2023; only with --source who-ivd.
 - `--product-code`: FDA product code.
-Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string. Example: --product-code ABC. Only with --source fda-pma, fda-510k or fda-device-recall.
-- `--source`: Source diagnostic source; help search diagnostic
-Source diagnostic source.
-Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source fda-device-recall. Command sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--type`: Source test_type; help search diagnostic
-Source test_type.
-Exact source test_type value.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --type Research. Only with --source gtr.
+Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string; example: --product-code ABC; only with --source fda-pma, fda-510k or fda-device-recall.
+- `--source`: Source diagnostic source.
+Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery. Value form: string; example: --source fda-device-recall.
+- `--type`: Source test_type.
+Exact source test_type value. Value form: string; example: --type Research; only with --source gtr.
 
 ## biomcp search adverse-event
 
@@ -1232,54 +1227,45 @@ Options:
 ```
 
 Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.
-
-- `--aggregate`: Report counts; help search adverse-event
-Report counts.
-reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --aggregate reactions. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--drug`: FAERS drug names; OR.
-FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag). Example: --drug "synthetic\\B". Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--event-type`: MAUDE event type; help search adverse-event
-MAUDE event type.
-MAUDE report event type on source event_type: malfunction, injury, death or other.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --event-type malfunction. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--exact-term`: Search typed drug names only.
-FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean. Example: --exact-term. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--expand-drug-names`: FAERS no-op.
-FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean. Example: --expand-drug-names. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer. Example: --limit 1. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--manufacturer`: MAUDE manufacturer.
-MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string. Example: --manufacturer 'Synthetic maker'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--name-snapshot`: FAERS name snapshot.
-Retained FAERS name resolution; follow the returned command without changing filters. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--offset`: Report row offset; counts need zero. VAERS needs its snapshot. Value form: integer. Example: --offset 0. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--problem`: MAUDE product problem.
-MAUDE phrase on source product_problems. Value form: string. Example: --problem 'Synthetic problem'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--product-code`: MAUDE product codes; OR.
-MAUDE exact source device.device_report_product_code; repeated codes join with OR. Value form: repeatable values (repeat the flag). Example: --product-code ABC. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--reaction`: FAERS MedDRA phrase.
-FAERS MedDRA term phrase match, not exact equality. Value form: string. Example: --reaction 'synthetic reaction'. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--received-from`: First date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day. Value form: string. Example: --received-from 2024-01-01. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--received-to`: Last date, YYYY-MM[-DD].
-Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day. Value form: string. Example: --received-to 2024-12-31. Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `section`: VAERS table; help search adverse-event
 Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
+
+- `--aggregate`: Report counts.
+reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-month: FAERS or MAUDE reports per FDA receipt period between --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. Counts are reports, not rates or causes. Requires offset zero. Value form: string; example: --aggregate reactions.
+- `--drug`: FAERS drug names; OR.
+FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag); example: --drug "synthetic\\B".
+- `--event-type`: MAUDE event type.
+MAUDE report event type on source event_type: malfunction, injury, death or other. Value form: string; example: --event-type malfunction.
+- `--exact-term`: Search typed drug names only.
+FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean; example: --exact-term.
+- `--expand-drug-names`: FAERS no-op.
+FAERS: accepted for one release and changes nothing; FAERS widens drug names by default. Value form: boolean; example: --expand-drug-names.
+- `--limit`: Report headers, reaction terms or VAERS rows; default five. Value form: integer; example: --limit 1.
+- `--manufacturer`: MAUDE manufacturer.
+MAUDE manufacturer phrase on device.manufacturer_d_name. A report may list several devices; filters may match different devices. Value form: string; example: --manufacturer 'Synthetic maker'.
+- `--name-snapshot`: FAERS name snapshot.
+Retained FAERS name resolution; follow the returned command without changing filters. Value form: string; example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value).
+- `--offset`: Report row offset; counts need zero. VAERS needs its snapshot. Value form: integer; example: --offset 0.
+- `--problem`: MAUDE product problem.
+MAUDE phrase on source product_problems. Value form: string; example: --problem 'Synthetic problem'.
+- `--product-code`: MAUDE product codes; OR.
+MAUDE exact source device.device_report_product_code; repeated codes join with OR. Value form: repeatable values (repeat the flag); example: --product-code ABC.
+- `--reaction`: FAERS MedDRA phrase.
+FAERS MedDRA term phrase match, not exact equality. Value form: string; example: --reaction 'synthetic reaction'.
+- `--received-from`: First date, YYYY-MM[-DD].
+Inclusive FAERS or MAUDE FDA receipt lower bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year starts on its first day. Value form: string; example: --received-from 2024-01-01.
+- `--received-to`: Last date, YYYY-MM[-DD].
+Inclusive FAERS or MAUDE FDA receipt upper bound, YYYY-MM-DD, YYYY-MM or YYYY; a month or year ends on its last day. Value form: string; example: --received-to 2024-12-31.
+- `section`: VAERS table
 Form: search adverse-event TEXT SECTION; not --section.
-- `--serious`: FAERS seriousness flag; help search adverse-event
-FAERS seriousness flag.
-FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--serious`: FAERS seriousness flag.
+FAERS report flag: any uses the source seriousness flag; the specific flags can overlap. Never a reaction outcome. Value form: string; example: --serious death.
 - `--snapshot`: VAERS snapshot.
-Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
-- `--sort`: VAERS order; help search adverse-event
-VAERS order.
-reports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort reports. Only with --source vaers.
-- `--source`: Source; default FAERS; help search adverse-event
-Source; default FAERS.
-FAERS by default; VAERS accepts only exact supported vaccine names.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source maude. Command sources: faers, maude, vaers; source restrictions in the field description apply.
+Retained VAERS table for source-free continuation. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value).
+- `--sort`: VAERS order.
+reports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms. Value form: string; example: --sort reports; only with --source vaers.
+- `--source`: Source; default FAERS.
+FAERS by default; VAERS accepts only exact supported vaccine names. Value form: string; example: --source maude.
 - `text`: Drug, device or vaccine.
 FAERS drug name, searched with the drug's other names unless --exact-term; MAUDE device phrase or exact supported VAERS vaccine, both searched as typed.
 Form: search adverse-event TEXT SECTION; not --text.
@@ -1346,15 +1332,13 @@ Options:
 ```
 
 Search diseases and their identifiers. Sources: monarch, mydisease, ols, seer.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--limit`: Maximum source rows on one page. Value form: integer. Example: --limit 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--offset`: Source row offset. Value form: integer. Example: --offset 1. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--ontology`: Exactly one ontology, default MONDO; help search disease
-Exactly one ontology, default MONDO.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
-- `--source`: One explicit source, default OLS; help search disease
-One explicit source, default OLS.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, seer; source restrictions in the field description apply.
+- `--limit`: Maximum source rows on one page. Value form: integer; example: --limit 1.
+- `--offset`: Source row offset. Value form: integer; example: --offset 1.
+- `--ontology`: Exactly one ontology, default MONDO. Value form: string; example: --ontology mondo.
+- `--source`: One explicit source, default OLS. Value form: string; example: --source seer.
 - `text`: Exact source search text; optional site-name filter for SEER.
 Form: search disease TEXT; not --text.
 
@@ -1502,42 +1486,40 @@ Options:
 ```
 
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `--applicant`: Applicant name start; Drugs@FDA only.
 Matches source sponsor_name values starting with this text, ignoring letter case;
-no company-family or subsidiary inference. An optional name narrows the same search. Value form: string. Example: --applicant 'ALNYLAM PHARMS INC'. Only with --source drugsfda.
+no company-family or subsidiary inference. An optional name narrows the same search. Value form: string; example: --applicant 'ALNYLAM PHARMS INC'; only with --source drugsfda.
 - `--approved-from`: Original approval from, inclusive; Drugs@FDA only.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
-falls in the window; BioMCP reads every match and counts the kept ones. Value form: string. Example: --approved-from 2024-01-01. Only with --source drugsfda.
+falls in the window; BioMCP reads every match and counts the kept ones. Value form: string; example: --approved-from 2024-01-01; only with --source drugsfda.
 - `--approved-to`: Original approval to, inclusive; Drugs@FDA only.
-Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --approved-to 2023. Only with --source drugsfda.
-- `--classification`: Source FDA classification; drug recalls only; help search drug
-Source FDA classification; drug recalls only.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Only with --source fda-drug-recall.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --approved-to 2023; only with --source drugsfda.
+- `--classification`: Source FDA classification; drug recalls only. Value form: string; example: --classification 'Class II'; only with --source fda-drug-recall.
 - `--exact-term`: Search the typed name only.
 openFDA labels, Drugs@FDA, FDA drug recalls and EMA search the typed name together with
-the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean. Example: --exact-term. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+the drug's other names by default; this searches only the name as typed. Other sources search the name as typed. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: Accepted for one release; changes nothing.
-Sources that widen drug names do so by default. Value form: boolean. Example: --expand-drug-names. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Sources that widen drug names do so by default. Value form: boolean; example: --expand-drug-names.
 - `--firm`: Recall firm phrase.
-Matches the published firm literally. Value form: string. Example: --firm Apotex. Only with --source fda-drug-recall.
+Matches the published firm literally. Value form: string; example: --firm Apotex; only with --source fda-drug-recall.
 - `--indication`: Exact label indication; openFDA labels only.
 Search the source Indications and Usage field without disease synonym expansion.
-An optional name query further narrows the same source search. Value form: string. Example: --indication melanoma. Only with --source openfda-label.
-- `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-from 2024-01-01. Only with --source fda-drug-recall.
-- `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string. Example: --initiated-to 2024-12-31. Only with --source fda-drug-recall.
-- `--limit`: Source candidate rows per page. Value form: integer. Example: --limit 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--name-selector`: ChEMBL name selector; help search drug
-ChEMBL name selector.
-Omit to search the preferred name.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --name-selector preferred. Only with --source chembl.
+An optional name query further narrows the same source search. Value form: string; example: --indication melanoma; only with --source openfda-label.
+- `--initiated-from`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-drug-recall.
+- `--initiated-to`: Inclusive initiation day, YYYY-MM-DD; drug recalls only. Value form: string; example: --initiated-to 2024-12-31; only with --source fda-drug-recall.
+- `--limit`: Source candidate rows per page. Value form: integer; example: --limit 1.
+- `--name-selector`: ChEMBL name selector.
+Omit to search the preferred name. Value form: string; example: --name-selector preferred; only with --source chembl.
 - `--name-snapshot`: Label name page token.
-Follow the returned command with unchanged filters to keep the first page's names and step. Value form: string. Example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value). Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--offset`: Source rows to skip. Value form: integer. Example: --offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Follow the returned command with unchanged filters to keep the first page's names and step. Value form: string; example: --name-snapshot <name-snapshot> (syntax; replace the placeholder with your retained value).
+- `--offset`: Source rows to skip. Value form: integer; example: --offset 1.
 - `--prequalified-from`: WHO PQ start date, inclusive.
-Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-from 2020. Only with --source who-pq.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-from 2020; only with --source who-pq.
 - `--prequalified-to`: WHO PQ end date, inclusive.
-Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --prequalified-to 2020. Only with --source who-pq.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string; example: --prequalified-to 2020; only with --source who-pq.
 - `query`: Drug name phrase.
 FDA drug recalls, WHO date ranges, label indication and Drugs@FDA applicant searches allow no name.
 Drugs@FDA searches brands and ingredients,
@@ -1545,24 +1527,20 @@ exact names before word matches. openFDA labels search exact then word brand/gen
 then label text (including indications) when no names match; source matches need not be exact names.
 Harmonized recall names match but never become display names.
 Form: search drug QUERY; not --query.
-- `--reason`: Recall reason phrase. Value form: string. Example: --reason 'Lack of Sterility Assurance'. Only with --source fda-drug-recall.
-- `--sort`: Drugs@FDA order; help search drug
-Drugs@FDA order.
+- `--reason`: Recall reason phrase. Value form: string; example: --reason 'Lack of Sterility Assurance'; only with --source fda-drug-recall.
+- `--sort`: Drugs@FDA order.
 newest: each application's latest submission status date first, ties by application number;
 applications with no dated submission come last. That latest date is often a labeling or
 efficacy supplement, not the original approval; each row's original_approval gives that.
 original-approval: each row's original_approval date first, ties by application number;
 rows without one come last. BioMCP reads every match and orders them.
-Omit it for the source's own order.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort newest. Only with --source drugsfda.
-- `--source`: Selected source; help search drug
-Selected source.
+Omit it for the source's own order. Value form: string; example: --sort newest; only with --source drugsfda.
+- `--source`: Selected source.
 
-After an empty name lookup, existing sources may supply aliases.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--status`: Exact recall status. Value form: string. Example: --status Ongoing. Only with --source fda-drug-recall.
+After an empty name lookup, existing sources may supply aliases. Value form: string; example: --source ema.
+- `--status`: Exact recall status. Value form: string; example: --status Ongoing; only with --source fda-drug-recall.
 - `--therapeutic-area`: WHO PQ therapeutic area.
-Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology. Value form: string. Example: --therapeutic-area oncology. Only with --source who-pq.
+Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology. Value form: string; example: --therapeutic-area oncology; only with --source who-pq.
 
 ## biomcp search gene
 
@@ -1628,17 +1606,17 @@ Options:
 ```
 
 Search human genes by name, identifier or cytoband, and ClinGen dosage regions by cytoband or GRCh38 interval. Sources: clingen, hgnc.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--band`: A cytoband prefix. Also lists ClinGen dosage regions whose band span contains it, such as 15q12 in 15q11.2-q13.1. Value form: string. Example: --band 9p21.3. Command sources: clingen, hgnc; source restrictions in the field description apply.
-- `--limit`: Number of results per page. Value form: integer. Example: --limit 50. Command sources: clingen, hgnc; source restrictions in the field description apply.
-- `--locus-group`: Optional HGNC locus group intersected with the selector; help search gene
-Optional HGNC locus group intersected with the selector.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --locus-group pseudogene. Command sources: clingen, hgnc; source restrictions in the field description apply.
-- `--offset`: Number of results to skip. Value form: integer. Example: --offset 24. Command sources: clingen, hgnc; source restrictions in the field description apply.
+- `--band`: A cytoband prefix. Also lists ClinGen dosage regions whose band span contains it, such as 15q12 in 15q11.2-q13.1. Value form: string; example: --band 9p21.3.
+- `--limit`: Number of results per page. Value form: integer; example: --limit 50.
+- `--locus-group`: Optional HGNC locus group intersected with the selector. Value form: string; example: --locus-group pseudogene.
+- `--offset`: Number of results to skip. Value form: integer; example: --offset 24.
 - `query`: Words matched against symbols, previous symbols, aliases and names; a ClinGen ISCA ID, such as ISCA-37400, returns that region.
 Form: search gene QUERY; not --query.
-- `--region`: A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes. Value form: string. Example: --region chr16:29600000-29700000. Command sources: clingen, hgnc; source restrictions in the field description apply.
-- `--regions-only`: Return only the ClinGen dosage regions that the band, interval or ISCA ID matches, without gene rows. Value form: boolean. Example: --regions-only. Command sources: clingen, hgnc; source restrictions in the field description apply.
+- `--region`: A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes. Value form: string; example: --region chr16:29600000-29700000.
+- `--regions-only`: Return only the ClinGen dosage regions that the band, interval or ISCA ID matches, without gene rows. Value form: boolean; example: --regions-only.
 
 ## biomcp search article
 
@@ -1778,43 +1756,39 @@ Options:
 ```
 
 Search research articles and biomedical papers. Sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `--author`: PubMed/Europe PMC author words.
-PubMed and Europe PMC only: author words sent to the source's author field. Value form: string. Example: --author Carpten. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed and Europe PMC only: author words sent to the source's author field. Value form: string; example: --author Carpten.
 - `--disease`: Disease words.
-Available for command sources except LitVar. Value form: string. Example: --disease meningioma. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Available for command sources except LitVar. Value form: string; example: --disease meningioma.
 - `--drug`: Drug words.
-Available for command sources except LitVar. Value form: string. Example: --drug 'drug words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--exact-term`: Search the typed drug term without resolving its other names. Value form: boolean. Example: --exact-term. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Available for command sources except LitVar. Value form: string; example: --drug 'drug words'.
+- `--exact-term`: Search the typed drug term without resolving its other names. Value form: boolean; example: --exact-term.
 - `--gene`: Gene symbol or ID.
-Gene input; PubMed resolves it through HGNC. Value form: string. Example: --gene NF2. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Gene input; PubMed resolves it through HGNC. Value form: string; example: --gene NF2.
 - `--journal`: PubMed/Europe PMC journal words.
-PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string. Example: --journal 'journal words'. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--limit`: Maximum page length. Value form: integer. Example: --limit 5. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed and Europe PMC only: journal words sent to the source's journal field. Value form: string; example: --journal 'journal words'.
+- `--limit`: Maximum page length. Value form: integer; example: --limit 5.
 - `--no-preprints`: Exclude preprints.
-PubMed and Europe PMC only: exclude preprints using the source's source filter. Value form: boolean. Example: --no-preprints. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 5. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed and Europe PMC only: exclude preprints using the source's source filter. Value form: boolean; example: --no-preprints.
+- `--offset`: Number of pool items to skip. Value form: integer; example: --offset 5.
 - `--open-access`: Source open access.
-PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF. Value form: boolean. Example: --open-access. Only with --source pubmed, europepmc or semantic-scholar.
+PubMed, Europe PMC and Semantic Scholar only: require source open access; Semantic Scholar means a public PDF. Value form: boolean; example: --open-access; only with --source pubmed, europepmc or semantic-scholar.
 - `--pool`: Stable result snapshot.
-Stable snapshot from an earlier response. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--exclude-retracted`: Retraction filter; help search article
-Retraction filter.
-Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean. Example: --exclude-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--include-retracted`: Retraction filter; help search article
-Retraction filter.
-Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean. Example: --include-retracted. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+Stable snapshot from an earlier response. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--exclude-retracted`: Retraction filter.
+Include retracted papers by default. Exclusion is supported only by PubMed and Europe PMC. Value form: boolean; example: --exclude-retracted.
+- `--include-retracted`: Same field as --exclude-retracted; sets it to include. Value form: boolean; example: --include-retracted.
 - `--since`: First publication date.
-PubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date. Value form: string. Example: --since 2024. Only with --source pubmed, europepmc or semantic-scholar.
-- `--sort`: rank, date or citations; help search article
-rank, date or citations.
+PubMed, Europe PMC and Semantic Scholar only: inclusive lower publication-date bound; PubMed matches electronic or print date. Value form: string; example: --since 2024; only with --source pubmed, europepmc or semantic-scholar.
+- `--sort`: rank, date or citations.
 rank (default): source order; several sources take turns; source search cost.
 date: source search cost; PubMed means date added and Europe PMC means newest first; other sources refuse it.
 citations: most cited first across the whole pool; adds iCite calls, about 1 s per 1,000 PMIDs.
-All sources support citations.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort date. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--source`: Sources; default pubmed; help search article
-Sources; default pubmed.
+All sources support citations. Value form: string; example: --sort date.
+- `--source`: Sources; default pubmed.
 Sources to search in caller order, comma separated. Default: pubmed.
 Several sources take turns, remove duplicates and show every source rank.
 pubmed: keywords with PubMed MeSH mapping; dropped words appear as notices.
@@ -1822,19 +1796,16 @@ europepmc: words in open full text and preprints; incidental mentions are possib
 litvar: exact variant publications; requires --variant and a protein change needs --gene; unresolved inputs return candidates.
 semantic-scholar: broad discovery; a shared keyless pool may return 429; an optional free key raises the limit.
 litsense: sentence resemblance, not a match; unrelated hits and timeouts are possible.
-pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join.
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --source europepmc. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+pubtator: entity and word search including full text; needs the right entity ID; --gene uses HGNC Entrez identity and cannot run without that join. Value form: repeatable values (repeat the flag); example: --source europepmc.
 - `text`: Source search words.
 Words sent to each named source in its default fields; unsupported by LitVar, which requires a variant selector.
 Form: search article TEXT; not --text.
-- `--type`: Publication type; help search article
-Publication type.
-PubMed and Europe PMC only: source publication-type filter.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --type review. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--type`: Publication type.
+PubMed and Europe PMC only: source publication-type filter. Value form: string; example: --type review.
 - `--until`: Last publication date.
-PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string. Example: --until 2020. Only with --source pubmed, europepmc or semantic-scholar.
-- `--variant`: Variant words. Value form: string. Example: --variant rs121434592. Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
-- `--query`: Alias for positional article text. Value form: string. Example: --query <query> (syntax; replace the placeholder with your retained value). Command sources: europepmc, litsense, litvar, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+PubMed, Europe PMC and Semantic Scholar only: inclusive upper publication-date bound; PubMed matches electronic or print date. Value form: string; example: --until 2020; only with --source pubmed, europepmc or semantic-scholar.
+- `--variant`: Variant words. Value form: string; example: --variant rs121434592.
+- `--query`: Alias for positional article text. Value form: string; example: --query <query> (syntax; replace the placeholder with your retained value).
 
 ## biomcp search trial
 
@@ -2025,88 +1996,74 @@ Options:
 ```
 
 Search clinical trials. Sources: ctgov, nci.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `--age`: Age in years.
-ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer. Example: --age 18. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only; unstated source bounds count as no limit. Value form: integer; example: --age 18.
 - `--biomarker-code`: NCI NCIt code.
-Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string. Example: --biomarker-code C96022. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--biomarker-use`: NCI criterion; help search trial
-NCI criterion.
-Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --biomarker-use inclusion. Command sources: ctgov, nci; source restrictions in the field description apply.
+Exact NCIt biomarker concept listed by NCI in trial criteria; NCI source only. This listing does not establish biomarker positivity or patient eligibility. Value form: string; example: --biomarker-code C96022.
+- `--biomarker-use`: NCI criterion.
+Filter by NCI's source inclusion or exclusion criterion. Check each result's biomarker entry and reported problems. Value form: string; example: --biomarker-use inclusion.
 - `--condition`: Disease; NCI needs NCIt.
-Conditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers. Value form: repeatable values (repeat the flag). Example: --condition melanoma. Command sources: ctgov, nci; source restrictions in the field description apply.
+Conditions joined with OR. NCI needs NCIt codes such as C3224; use --condition-id for MONDO or DOID identifiers. Value form: repeatable values (repeat the flag); example: --condition melanoma.
 - `--condition-id`: MONDO/DOID/NCIT:C.
-Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string. Example: --condition-id NCIT:C3224. Command sources: ctgov, nci; source restrictions in the field description apply.
+Exact MONDO or DOID CURIE resolved by MyDisease; NCI also accepts explicit NCIT:C codes. Value form: string; example: --condition-id NCIT:C3224.
 - `--count-only`: Total.
-Source total only; no returned study rows. Value form: boolean. Example: --count-only. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--country`: Country label; help search trial
-Country label.
-Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter.
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --country 'United States'. Command sources: ctgov, nci; source restrictions in the field description apply.
+Source total only; no returned study rows. Value form: boolean; example: --count-only.
+- `--country`: Country label.
+Exact ClinicalTrials.gov country label; repeat for OR. Trials must list a site in a named country. NCI uses its source country filter. Value form: repeatable values (repeat the flag); example: --country 'United States'.
 - `--criteria`: Criteria text.
-ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment. Value form: string. Example: --criteria 'exact criteria'. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: search registry eligibility text with other variant spellings; no eligibility judgment. Value form: string; example: --criteria 'exact criteria'.
 - `--distance`: Radius, mi or km.
-ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string. Example: --distance 50mi. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: source distance with explicit mi or km units. Value form: string; example: --distance 50mi.
 - `--exact-condition`: Exact condition.
-Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean. Example: --exact-condition. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--exact-term`: Search typed drug names and variant text as written, without other names or spellings. Value form: boolean. Example: --exact-term. Command sources: ctgov, nci; source restrictions in the field description apply.
+Ask ClinicalTrials.gov to restrict matching to the registered condition phrase; its support is partial. Value form: boolean; example: --exact-condition.
+- `--exact-term`: Search typed drug names and variant text as written, without other names or spellings. Value form: boolean; example: --exact-term.
 - `--facility`: Facility.
-Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string. Example: --facility 'Dana-Farber Cancer Institute'. Command sources: ctgov, nci; source restrictions in the field description apply.
+Facility phrase; ClinicalTrials.gov broadens after zero exact matches. NCI matches exact names. Cannot combine with radius. Value form: string; example: --facility 'Dana-Farber Cancer Institute'.
 - `--gene`: Gene symbol/ID.
-ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string. Example: --gene BRAF. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: resolve one checked gene for registry text discovery; no eligibility judgment. Value form: string; example: --gene BRAF.
 - `--has-results`: Posted results.
-ClinicalTrials.gov only: require posted source results. Each row carries has_results. Value form: boolean. Example: --has-results. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: require posted source results. Each row carries has_results. Value form: boolean; example: --has-results.
 - `--id`: NCT identifier.
-ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters. Value form: string. Example: --id NCT05273554. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: exact NCT identity in a conjunction with other filters. Value form: string; example: --id NCT05273554.
 - `--intervention`: Treatment terms; OR.
-Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: repeatable values (repeat the flag). Example: --intervention pembrolizumab. Command sources: ctgov, nci; source restrictions in the field description apply.
+Intervention alternatives joined with OR; supported by ClinicalTrials.gov. Value form: repeatable values (repeat the flag); example: --intervention pembrolizumab.
 - `--keyword`: Text; OR.
-Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: repeatable values (repeat the flag). Example: --keyword survival. Command sources: ctgov, nci; source restrictions in the field description apply.
+Repeat for ClinicalTrials.gov general text alternatives joined with OR; different filters combine with AND. NCI accepts one keyword. Value form: repeatable values (repeat the flag); example: --keyword survival.
 - `--lat`: Latitude degrees.
-ClinicalTrials.gov only: radius center latitude in degrees. Value form: string. Example: --lat 42.3601. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: radius center latitude in degrees. Value form: string; example: --lat 42.3601.
 - `--limit`: Page size.
-Headers per page; NCI applies its own lower publisher limit. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
+Headers per page; NCI applies its own lower publisher limit. Value form: integer; example: --limit 1.
 - `--lon`: Longitude degrees.
-ClinicalTrials.gov only: radius center longitude in degrees. Value form: string. Example: --lon -71.0589. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: radius center longitude in degrees. Value form: string; example: --lon -71.0589.
 - `--next-page`: Page token.
-ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string. Example: --next-page <next-page> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov: follow the returned token, selectors and offset unchanged; unbound tokens need a fresh first page. Value form: string; example: --next-page <next-page> (syntax; replace the placeholder with your retained value).
 - `--offset`: Page offset.
-Zero-based offset of the first row in this continuation page. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--phase`: Source phase; help search trial
-Source phase.
-Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --phase 3. Command sources: ctgov, nci; source restrictions in the field description apply.
+Zero-based offset of the first row in this continuation page. Value form: integer; example: --offset 0.
+- `--phase`: Source phase.
+Exact source phase. ClinicalTrials.gov: 1, 2, 3, 4, early-1, not-applicable, 1/2, 2/3. NCI: NA, 0, I, I_II, II, II_III, III, IV. Value form: string; example: --phase 3.
 - `query`: Trial text.
 General registry discovery text.
 Form: search trial QUERY; not --query.
-- `--sex`: ClinicalTrials.gov only: registry sex facet; help search trial
-ClinicalTrials.gov only: registry sex facet.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sex ALL. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--source`: clinicaltrials/nci; help search trial
-clinicaltrials/nci.
-Explicit source; defaults to ClinicalTrials.gov and never falls back.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--sex`: ClinicalTrials.gov only: registry sex facet. Value form: string; example: --sex ALL.
+- `--source`: clinicaltrials/nci.
+Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 - `--sponsor`: Sponsor.
-ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string. Example: --sponsor 'MD Anderson'. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--sponsor-type`: Funding class; help search trial
-Funding class.
-ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sponsor-type other. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--status`: Source status; help search trial
-Source status.
-Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --status RECRUITING. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--study-type`: Study type; help search trial
-Study type.
-ClinicalTrials.gov only: exact registry study type.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --study-type INTERVENTIONAL. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: sponsor name; broadens after zero exact matches. Use --sponsor-type for the funding category. Value form: string; example: --sponsor 'MD Anderson'.
+- `--sponsor-type`: Funding class.
+ClinicalTrials.gov only: registry sponsor funding category; use --sponsor for a sponsor name. Value form: string; example: --sponsor-type other.
+- `--status`: Source status.
+Exact source status. NCI: Active, Administratively Complete, Approved, Closed to Accrual, Closed to Accrual and Intervention, Complete, INACTIVE, Enrolling by Invitation, Temporarily Closed to Accrual, Temporarily Closed to Accrual and Intervention, Withdrawn. ClinicalTrials.gov uses registry labels. Value form: string; example: --status RECRUITING.
+- `--study-type`: Study type.
+ClinicalTrials.gov only: exact registry study type. Value form: string; example: --study-type INTERVENTIONAL.
 - `--updated-since`: First date.
-ClinicalTrials.gov only: first included registry update date. Value form: string. Example: --updated-since <updated-since> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: first included registry update date. Value form: string; example: --updated-since <updated-since> (syntax; replace the placeholder with your retained value).
 - `--updated-until`: Last date.
-ClinicalTrials.gov only: last included registry update date. Value form: string. Example: --updated-until <updated-until> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: last included registry update date. Value form: string; example: --updated-until <updated-until> (syntax; replace the placeholder with your retained value).
 - `--variant`: Variant text.
-ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment. Value form: string. Example: --variant V600E. Command sources: ctgov, nci; source restrictions in the field description apply.
+ClinicalTrials.gov only: general text or criteria, with other spellings, and the codon with --gene; no eligibility judgment. Value form: string; example: --variant V600E.
 
 ## biomcp search variant
 
@@ -2185,25 +2142,21 @@ Options:
 ```
 
 Search genetic variants by gene, change or region. Sources: myvariant.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--build`: Optional caller assembly sent to MyVariant; regions; help search variant
-Optional caller assembly sent to MyVariant; regions require it explicitly.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: myvariant; source restrictions in the field description apply.
-- `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string. Example: --coding 'c.333G>T'. Command sources: myvariant; source restrictions in the field description apply.
-- `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string. Example: --condition 'Carcinoma of colon (CRC)'. Command sources: myvariant; source restrictions in the field description apply.
-- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Value form: string. Example: --gene EGFR. Command sources: myvariant; source restrictions in the field description apply.
-- `--has`: Require the selected component's identifier field. Only; help search variant
-Require the selected component's identifier field. Only source-proven mappings are offered.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --has clinvar. Command sources: myvariant; source restrictions in the field description apply.
-- `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates. Value form: integer. Example: --limit 50. Command sources: myvariant; source restrictions in the field description apply.
-- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer. Example: --offset 0. Command sources: myvariant; source restrictions in the field description apply.
-- `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string. Example: --protein L858R. Command sources: myvariant; source restrictions in the field description apply.
-- `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Value form: string. Example: --query CA123643. Command sources: myvariant; source restrictions in the field description apply.
-- `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string. Example: --region chr7:140453136-140453136. Command sources: myvariant; source restrictions in the field description apply.
-- `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string. Example: --review-status 'no assertion criteria provided'. Command sources: myvariant; source restrictions in the field description apply.
-- `--source`: Explicit source language; required for a raw query; help search variant
-Explicit source language; required for a raw query.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source myvariant. Command sources: myvariant; source restrictions in the field description apply.
+- `--build`: Optional caller assembly sent to MyVariant; regions require it explicitly. Value form: string; example: --build GRCh37.
+- `--coding`: Coding HGVS change searched literally in ClinVar with --gene, without choosing a transcript. Value form: string; example: --coding 'c.333G>T'.
+- `--condition`: Exact MyVariant clinvar.rcv.conditions.name phrase; source text is not a local diagnosis. Requires a declared protein or region selector. Value form: string; example: --condition 'Carcinoma of colon (CRC)'.
+- `--gene`: Checked gene symbol for the dbNSFP substitution or ClinVar coding/synonymous selector. Value form: string; example: --gene EGFR.
+- `--has`: Require the selected component's identifier field. Only source-proven mappings are offered. Value form: string; example: --has clinvar.
+- `--limit`: Source candidates per page, default 10, maximum 50; all candidates remain candidates. Value form: integer; example: --limit 50.
+- `--offset`: Source offset within this command's bounded result window; larger source totals remain visible. Value form: integer; example: --offset 0.
+- `--protein`: Explicit substitution or synonymous change using checked amino-acid codes. Value form: string; example: --protein L858R.
+- `--query`: Raw MyVariant query, passed and echoed unchanged when component policy allows; requires --source myvariant. With disabled components use declared selectors instead. Value form: string; example: --query CA123643.
+- `--region`: Exact one-based inclusive MyVariant region, such as chr7:55259500-55259600; requires --build. Value form: string; example: --region chr7:140453136-140453136.
+- `--review-status`: Exact MyVariant clinvar.rcv.review_status phrase; no star conversion. Requires a declared protein or region selector. Value form: string; example: --review-status 'no assertion criteria provided'.
+- `--source`: Explicit source language; required for a raw query. Value form: string; example: --source myvariant.
 
 ## biomcp get
 
@@ -2312,12 +2265,12 @@ Options:
 ```
 
 Get NCI biomarker concepts by code. Sources: nci.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `id`: Exact NCIt code, such as C96022.
 Form: get biomarker ID; not --id.
-- `--source`: NCI is the biomarker concept source; help get biomarker
-NCI is the biomarker concept source.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: nci; source restrictions in the field description apply.
+- `--source`: NCI is the biomarker concept source. Value form: string; example: --source nci.
 
 ## biomcp get author
 
@@ -2416,14 +2369,15 @@ Options:
 ```
 
 Get cell line details and cross-references. Sources: cellosaurus.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `id`: One exact primary accession or qualified source ID.
 Form: get cell-line ID SECTION; not --id.
-- `section`: Omit for the default card; all returns bounded first pages; help get cell-line
-Listed choices accept any letter case; replies use their listed spelling.
+- `section`: Omit for the default card; all returns bounded first pages
 Form: get cell-line ID SECTION; not --section.
-- `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three. Value form: integer. Example: --section-limit 25. Command sources: cellosaurus; source restrictions in the field description apply.
-- `--section-offset`: Offset within each independently requested collection. Value form: integer. Example: --section-offset 1. Command sources: cellosaurus; source restrictions in the field description apply.
+- `--section-limit`: Explicit row limit for each requested collection; source variation defaults to three. Value form: integer; example: --section-limit 25.
+- `--section-offset`: Offset within each independently requested collection. Value form: integer; example: --section-offset 1.
 
 Omit for the default card; all returns bounded first pages without an assay count.
 
@@ -2488,15 +2442,16 @@ Options:
 ```
 
 Get GWAS Catalog associations or studies. Sources: gwas.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `id`: Qualified association ID or exact GCST study accession.
 Form: get gwas ID SECTION; not --id.
-- `section`: Association loci or study associations and ancestries; help get gwas
-Listed choices accept any letter case; replies use their listed spelling.
+- `section`: Association loci or study associations and ancestries
 Form: get gwas ID SECTION; not --section.
-- `--section-limit`: Maximum source relation rows. Value form: integer. Example: --section-limit 1. Command sources: gwas; source restrictions in the field description apply.
-- `--section-offset`: Source relation row offset. Value form: integer. Example: --section-offset 0. Command sources: gwas; source restrictions in the field description apply.
-- `--snapshot`: Retained ancestry reply for a local page. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: gwas; source restrictions in the field description apply.
+- `--section-limit`: Maximum source relation rows. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Source relation row offset. Value form: integer; example: --section-offset 0.
+- `--snapshot`: Retained ancestry reply for a local page. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value).
 
 Association loci or study associations and ancestries.
 
@@ -2554,12 +2509,13 @@ Options:
 ```
 
 Get protein details and source annotations. Sources: complex-portal, hgnc, interpro, uniprot.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `input`: Source accessions or gene symbols, preserving caller order.
 Form: get protein INPUT...; not --input.
-- `--section`: Select source sections or all bounded first pages; function; help get protein
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section function. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
-- `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer. Example: --section-limit 2. Command sources: complex-portal, hgnc, interpro, uniprot; source restrictions in the field description apply.
+- `--section`: Select source sections or all bounded first pages; function Value form: repeatable values (repeat the flag); example: --section function.
+- `--section-limit`: First-page row limit; function keeps one whole source text record and does not page its paragraphs. Value form: integer; example: --section-limit 2.
 
 Select source sections or all bounded first pages; function keeps one whole text record.
 
@@ -2630,18 +2586,17 @@ Options:
 ```
 
 Get human phenotype details and relationships. Sources: hpo, monarch.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `id`: Exact HP identifier.
 Form: get phenotype ID SECTION; not --id.
-- `section`: Absent means the source identity card; help get phenotype
-Listed choices accept any letter case; replies use their listed spelling.
+- `section`: Absent means the source identity card
 Form: get phenotype ID SECTION; not --section.
-- `--section-limit`: Default five text/link rows or one complete association row. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--source`: HPO or Monarch for cards, synonyms and xrefs; Monarch only; help get phenotype
-HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--section-limit`: Default five text/link rows or one complete association row. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Source section row offset. Value form: integer; example: --section-offset 0.
+- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value).
+- `--source`: HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch. Value form: string; example: --source monarch.
 
 Absent means the source identity card.
 
@@ -2705,16 +2660,17 @@ Options:
 ```
 
 Get human pathway details. Sources: reactome, wikipathways.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--fresh`: Request a new source observation. Value form: boolean. Example: --fresh. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--fresh`: Request a new source observation. Value form: boolean; example: --fresh.
 - `id`: Exact human Reactome or WikiPathways identity without version suffixes.
 Form: get pathway ID SECTION; not --id.
-- `--pool`: Retained snapshot, when continuing a source relation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `section`: Omit for the card; WikiPathways has summary and genes; help get pathway
-Listed choices accept any letter case; replies use their listed spelling.
+- `--pool`: Retained snapshot, when continuing a source relation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `section`: Omit for the card; WikiPathways has summary and genes
 Form: get pathway ID SECTION; not --section.
-- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer. Example: --section-limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer. Example: --section-offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--section-limit`: Bounded initial section size; each all section has its own first page. Value form: integer; example: --section-limit 5.
+- `--section-offset`: Source relation offset for a selected genes or events section. Value form: integer; example: --section-offset 0.
 
 Omit for the card; WikiPathways has summary and genes sections.
 
@@ -2780,16 +2736,17 @@ Options:
 ```
 
 Get cancer genomics study details. Sources: cbioportal.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
+- `--gene`: Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations. Value form: string; example: --gene BRAF.
 - `id`: Exact source study ID; no default or repair.
 Form: get study ID SECTION; not --id.
-- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string. Example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations. Command sources: cbioportal; source restrictions in the field description apply.
-- `section`: Omit for the card; all returns bounded first pages only; help get study
-Listed choices accept any letter case; replies use their listed spelling.
+- `--molecular-profile`: Exact mutation profile ID; omitted selects the study's first mutation profile. Value form: string; example: --molecular-profile skcm_tcga_pan_can_atlas_2018_mutations.
+- `section`: Omit for the card; all returns bounded first pages only
 Form: get study ID SECTION; not --section.
-- `--section-limit`: Maximum records in each selected section. Value form: integer. Example: --section-limit 1. Command sources: cbioportal; source restrictions in the field description apply.
-- `--section-offset`: Offset within one named section; all requires zero. Value form: integer. Example: --section-offset 45. Command sources: cbioportal; source restrictions in the field description apply.
+- `--section-limit`: Maximum records in each selected section. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Offset within one named section; all requires zero. Value form: integer; example: --section-offset 45.
 
 Omit for the card; all returns bounded first pages only.
 
@@ -2871,23 +2828,20 @@ Options:
 ```
 
 Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
-
-- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string. Example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value). Only with --source clinpgx.
-- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string. Example: --diplotype '*1/*2A'. Only with --source cpic.
-- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string. Example: --drug-id RxNorm:343047. Only with --source cpic.
-- `--gene`: Explicit source gene symbol. Value form: string. Example: --gene DPYD. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--kind`: One ClinPGx collection; clinical is the default only on; help get pgx
-One ClinPGx collection; clinical is the default only on annotations.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --kind clinical. Only with --source clinpgx.
-- `section`: One named section; omitted means the CPIC gene card; help get pgx
 Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
+
+- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
+- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: --diplotype '*1/*2A'; only with --source cpic.
+- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: --drug-id RxNorm:343047; only with --source cpic.
+- `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
+- `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: --kind clinical; only with --source clinpgx.
+- `section`: One named section; omitted means the CPIC gene card
 Form: get pgx SECTION; not --section.
-- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer. Example: --section-limit 1. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--section-offset`: Offset within the selected section. Value form: integer. Example: --section-offset 0. Command sources: clinpgx, cpic; source restrictions in the field description apply.
-- `--snapshot`: Retained collection for local continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Only with --source clinpgx.
-- `--source`: Required source, checked against the section; help get pgx
-Required source, checked against the section.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cpic. Command sources: clinpgx, cpic; source restrictions in the field description apply.
+- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Offset within the selected section. Value form: integer; example: --section-offset 0.
+- `--snapshot`: Retained collection for local continuation. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
+- `--source`: Required source, checked against the section. Value form: string; example: --source cpic.
 
 One named section; omitted means the CPIC gene card.
 
@@ -2958,20 +2912,19 @@ Options:
 ```
 
 Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string. Example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value). Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value).
 - `id`: Exact source identity, including version for GTR.
 Form: get diagnostic ID SECTION; not --id.
-- `section`: GTR: genes, conditions, methods. PMA: regulatory,; help get diagnostic
-Listed choices accept any letter case; replies use their listed spelling.
+- `section`: GTR: genes, conditions, methods. PMA: regulatory,
 Form: get diagnostic ID SECTION; not --section.
-- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer. Example: --section-limit 2. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--section-offset`: Zero-based source row or fragment offset. Value form: integer. Example: --section-offset 5. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--source`: Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
-Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source who-ivd. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
-- `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string. Example: --supplement S020. Command sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd; source restrictions in the field description apply.
+- `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer; example: --section-limit 2.
+- `--section-offset`: Zero-based source row or fragment offset. Value form: integer; example: --section-offset 5.
+- `--source`: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY. Value form: string; example: --source who-ivd.
+- `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string; example: --supplement S020.
 
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
 WHO, 510(k) and device recalls have no sections; omit for the card.
@@ -3044,19 +2997,18 @@ Options:
 ```
 
 Get a drug, device or vaccine adverse event report. Sources: faers, maude.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer. Example: --drug-index 0. Command sources: faers, maude; source restrictions in the field description apply.
+- `--drug-index`: Absolute source-array index; required only for identifier sections. Value form: integer; example: --drug-index 0.
 - `id`: Published report ID with no source prefix.
 Form: get adverse-event ID SECTION; not --id.
-- `section`: FAERS owns drugs, reactions and identifiers; MAUDE owns; help get adverse-event
-Listed choices accept any letter case; replies use their listed spelling.
+- `section`: FAERS owns drugs, reactions and identifiers; MAUDE owns
 Form: get adverse-event ID SECTION; not --section.
-- `--section-limit`: Whole source rows per section page. Value form: integer. Example: --section-limit 1. Command sources: faers, maude; source restrictions in the field description apply.
-- `--section-offset`: Offset within the selected source section. Value form: integer. Example: --section-offset 0. Command sources: faers, maude; source restrictions in the field description apply.
-- `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude; source restrictions in the field description apply.
-- `--source`: FAERS by default; MAUDE is explicit; help get adverse-event
-FAERS by default; MAUDE is explicit.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source maude. Command sources: faers, maude; source restrictions in the field description apply.
+- `--section-limit`: Whole source rows per section page. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Offset within the selected source section. Value form: integer; example: --section-offset 0.
+- `--snapshot`: Checked retained report snapshot for source-free continuation. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value).
+- `--source`: FAERS by default; MAUDE is explicit. Value form: string; example: --source maude.
 
 FAERS owns drugs, reactions and identifiers; MAUDE owns devices and narrative. openFDA's public FAERS data carries no case narrative; the FAERS card's case_event_date holds the case event date. Omitted means card only.
 
@@ -3149,26 +3101,23 @@ Options:
 ```
 
 Get disease details and source statistics. Sources: monarch, mydisease, ols, orphadata, seer.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--age-range`: Source age-range code. Value form: string. Example: --age-range 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string. Example: --dataset 4. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--age-range`: Source age-range code. Value form: string; example: --age-range 1.
+- `--dataset`: Requested source dataset selector, not proof of returned membership. Value form: string; example: --dataset 4.
 - `id`: Exact ontology CURIE or a SEER site code or name.
 Form: get disease ID SECTION; not --id.
-- `--interval`: Survival-only interval code. Value form: string. Example: --interval 5. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--ontology`: One OLS ontology; help get disease
-One OLS ontology.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --ontology mondo. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--period`: Incidence-only source period code. Value form: string. Example: --period 5. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--race`: Source race code. Value form: string. Example: --race 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `section`: One named section; absent means identity card only; help get disease
-Listed choices accept any letter case; replies use their listed spelling.
+- `--interval`: Survival-only interval code. Value form: string; example: --interval 5.
+- `--ontology`: One OLS ontology. Value form: string; example: --ontology mondo.
+- `--period`: Incidence-only source period code. Value form: string; example: --period 5.
+- `--race`: Source race code. Value form: string; example: --race 1.
+- `section`: One named section; absent means identity card only
 Form: get disease ID SECTION; not --section.
-- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer. Example: --section-limit 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--section-offset`: Source row offset within the selected section. Value form: integer. Example: --section-offset 1. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--sex`: Source sex code. Value form: string. Example: --sex 3. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
-- `--source`: Default MyDisease; no automatic fallback; help get disease
-Default MyDisease; no automatic fallback.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source seer. Command sources: monarch, mydisease, ols, orphadata, seer; source restrictions in the field description apply.
+- `--section-limit`: Source rows per page: default 2 for Monarch genes, 1 for Monarch phenotypes, otherwise 5. Value form: integer; example: --section-limit 1.
+- `--section-offset`: Source row offset within the selected section. Value form: integer; example: --section-offset 1.
+- `--sex`: Source sex code. Value form: string; example: --sex 3.
+- `--source`: Default MyDisease; no automatic fallback. Value form: string; example: --source seer.
 
 One named section; absent means identity card only.
 
@@ -3291,53 +3240,46 @@ Options:
 ```
 
 Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `--civic-cursor`: CIViC continuation.
-Source continuation cursor for that exact drug, profile and claim collection. Only with --source civic. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--civic-kind`: CIViC collection; help get drug
-CIViC collection.
-Independent source evidence or assertion collection within the selected profile. Only with --source civic.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Source continuation cursor for that exact drug, profile and claim collection. Only with --source civic. Value form: string; example: --civic-cursor 0:A2.
+- `--civic-kind`: CIViC collection.
+Independent source evidence or assertion collection within the selected profile. Only with --source civic. Value form: string; example: --civic-kind evidence.
 - `--civic-profile`: CIViC profile.
-Selected source CIViC molecular profile for a drug-scoped claim stream. Only with --source civic. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Selected source CIViC molecular profile for a drug-scoped claim stream. Only with --source civic. Value form: integer; example: --civic-profile 1.
 - `--decision-from`: From date.
-Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-from 2024-01-01. Only with --source drugsfda.
+Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string; example: --decision-from 2024-01-01; only with --source drugsfda.
 - `--decision-to`: To date.
-Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-to 2024-12-31. Only with --source drugsfda.
+Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string; example: --decision-to 2024-12-31; only with --source drugsfda.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--evidence-level`: A–E; help get drug
-A–E
+and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string; example: --document-id 64255.
+- `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
-Only with --source civic on get drug, and the civic section on get variant.
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--evidence-status`: Status; help get drug
-Status
+Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
+- `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-Only with --source civic on get drug, and the civic section on get variant.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status accepted.
 - `input`: Source ID, brand or generic name.
 Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-Only with --source openfda-label. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Only with --source openfda-label. Value form: string; example: --label-section indications_and_usage.
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the
-names other sources state for it, as the drug itself is. Value form: string. Example: --partner DDInter5. Only with --source ddinter.
+names other sources state for it, as the drug itself is. Value form: string; example: --partner DDInter5; only with --source ddinter.
 - `--product-number`: FDA product number.
-Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `section`: Source sections; help get drug
-Listed choices accept any letter case; replies use their listed spelling.
+Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string; example: --product-number 001.
+- `section`: Source sections
 Form: get drug INPUT SECTION...; not --section.
 - `--section-limit`: Named section page size, refused on an identity-only card.
-At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer. Example: --section-limit 2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer. Example: --section-offset 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
-- `--source`: Omit to infer the source of an unambiguous section; identity or; help get drug
-Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+At most 50 rows, or 200 for Drugs@FDA approvals. Value form: integer; example: --section-limit 2.
+- `--section-offset`: Named section continuation, refused on an identity-only card. Value form: integer; example: --section-offset 1.
+- `--source`: Omit to infer the source of an unambiguous section; identity or mixed sections use MyChem. Value form: string; example: --source ema.
 
 Named disclosures of the selected source, each its own part of one reply; empty means identity only.
 
@@ -3396,11 +3338,12 @@ Options:
 ```
 
 Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `input`: Gene symbols or checked identifiers, in input order.
 Form: get gene INPUT...; not --input.
-- `--section`: Requested section words, preserving caller order and repetitions; help get gene
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section protein. Command sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot; source restrictions in the field description apply.
+- `--section`: Requested section words, preserving caller order and repetitions Value form: repeatable values (repeat the flag); example: --section protein.
 
 Requested section words, preserving caller order and repetitions.
 Trailing section words select sections. Use --section WORD to keep inputs that equal a section word as inputs.
@@ -3460,11 +3403,12 @@ Options:
 ```
 
 Get research article details. Sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `input`: PubMed, PMC or DOI identifiers in input order.
 Form: get article INPUT...; not --input.
-- `--section`: Requested section words; trailing words and --section share; help get article
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section annotations. Command sources: europepmc, icite, pmc-oa, pubmed, pubtator, semantic-scholar; source restrictions in the field description apply.
+- `--section`: Requested section words; trailing words and --section share Value form: repeatable values (repeat the flag); example: --section annotations.
 
 Requested section words; trailing words and --section share this field.
 
@@ -3535,17 +3479,16 @@ Options:
 ```
 
 Get clinical trial details. Sources: ctgov, nci.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
 - `input`: One to twenty exact NCT identifiers, in caller order.
 Form: get trial INPUT...; not --input.
-- `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer. Example: --limit 1. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer. Example: --offset 0. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--pool`: Checked stored source record, supplied by a continuation. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--section`: Optional intact source sections. Default cards only; diseases; help get trial
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --section outcomes. Command sources: ctgov, nci; source restrictions in the field description apply.
-- `--source`: Explicit source; defaults to ClinicalTrials.gov and never; help get trial
-Explicit source; defaults to ClinicalTrials.gov and never falls back.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source nci. Command sources: ctgov, nci; source restrictions in the field description apply.
+- `--limit`: Whole-record count per source collection page, up to 100; locations fill the page, other collections and text fragments also stop at their byte budget. Value form: integer; example: --limit 1.
+- `--offset`: Character offset for ClinicalTrials.gov eligibility or NCI summary; whole-record offset for other collections. Value form: integer; example: --offset 0.
+- `--pool`: Checked stored source record, supplied by a continuation. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--section`: Optional intact source sections. Default cards only; diseases Value form: repeatable values (repeat the flag); example: --section outcomes.
+- `--source`: Explicit source; defaults to ClinicalTrials.gov and never falls back. Value form: string; example: --source nci.
 
 Optional intact source sections. Default cards only; diseases and summary require NCI. NCI locations, contacts, references and documents are unsupported.
 
@@ -3667,48 +3610,39 @@ Options:
 ```
 
 Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--build`: Assembly; help get variant
-Assembly
-MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--build`: Assembly
+MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string; example: --build GRCh37.
 - `--civic-cursor`: Cursor
-Source CIViC cursor, retained unchanged. Value form: string. Example: --civic-cursor 0:E2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--civic-kind`: Claims; help get variant
-Claims
-Source CIViC claim collection within the selected profile.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer. Example: --civic-profile 12. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+Source CIViC cursor, retained unchanged. Value form: string; example: --civic-cursor 0:E2.
+- `--civic-kind`: Claims
+Source CIViC claim collection within the selected profile. Value form: string; example: --civic-kind evidence.
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer; example: --civic-profile 12.
 - `--disease`: Disease
-CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string. Example: --disease lung. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string; example: --disease lung.
 - `--drug`: Drug
-CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string. Example: --drug erlotinib. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--evidence-level`: A–E; help get variant
-A–E
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string; example: --drug erlotinib.
+- `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
-Only with --source civic on get drug, and the civic section on get variant.
-Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--evidence-status`: Status; help get variant
-Status
+Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.
+- `--evidence-status`: Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-Only with --source civic on get drug, and the civic section on get variant.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+Only with --source civic on get drug, and the civic section on get variant. Value form: string; example: --evidence-status submitted.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
 Form: get variant INPUT SECTION...; not --input.
-- `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer. Example: --limit 10. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--offset`: Candidate rows to skip in source order. Value form: integer. Example: --offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--resolver`: Resolver; help get variant
-Resolver.
-Resolver for reference-qualified notation; never repairs the input locally.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --resolver variantvalidator. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `section`: Sections; help get variant
-Listed choices accept any letter case; replies use their listed spelling.
+- `--limit`: Candidate rows per page; more remain reachable through typed next commands. Value form: integer; example: --limit 10.
+- `--offset`: Candidate rows to skip in source order. Value form: integer; example: --offset 0.
+- `--resolver`: Resolver.
+Resolver for reference-qualified notation; never repairs the input locally. Value form: string; example: --resolver variantvalidator.
+- `section`: Sections
 Form: get variant INPUT SECTION...; not --section.
-- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer. Example: --section-limit 2. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
-- `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer. Example: --section-offset 0. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+- `--section-limit`: Rows per named source section page; omitted uses the source default. Value form: integer; example: --section-limit 2.
+- `--section-offset`: Source rows to skip independently of identity candidate paging. Value form: integer; example: --section-offset 0.
 - `--tumor-type`: Tumor
-Explicit tumor context for keyed OncoKB annotation. Value form: string. Example: --tumor-type <tumor-type> (syntax; replace the placeholder with your retained value). Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
+Explicit tumor context for keyed OncoKB annotation. Value form: string; example: --tumor-type <tumor-type> (syntax; replace the placeholder with your retained value).
 
 Named source sections; omitted by default. Each calls its own source. all keeps bounded pages and source skips; it never enables a missing key.
 
@@ -3828,15 +3762,16 @@ Options:
 ```
 
 List an author's research papers. Sources: orcid, semantic-scholar.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--full`: Legacy alias for details; normalized on construction. Value form: boolean. Example: --full. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
+- `--full`: Legacy alias for details; normalized on construction. Value form: boolean; example: --full.
 - `id`: Exact qualified source record.
 Form: author papers ID SECTION; not --id.
-- `--limit`: Bounded row count. Value form: integer. Example: --limit 5. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Source or retained collection offset. Value form: integer. Example: --offset 0. Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: orcid, semantic-scholar; source restrictions in the field description apply.
-- `section`: Detailed disclosure when requested; help author papers
-Listed choices accept any letter case; replies use their listed spelling.
+- `--limit`: Bounded row count. Value form: integer; example: --limit 5.
+- `--offset`: Source or retained collection offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `section`: Detailed disclosure when requested
 Form: author papers ID SECTION; not --section.
 
 Detailed disclosure when requested.
@@ -4039,14 +3974,15 @@ Options:
 ```
 
 Get protein features by residue or region. Sources: uniprot.
+Options apply to every listed source unless their description restricts them.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein features ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
-- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
-- `--position`: Source one-based residue; zero fails during deserialization. Value form: integer. Example: --position 25. Command sources: uniprot; source restrictions in the field description apply.
-- `--type`: Exact UniProt source label, without an alias map. Value form: string. Example: --type Chain. Command sources: uniprot; source restrictions in the field description apply.
+- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--position`: Source one-based residue; zero fails during deserialization. Value form: integer; example: --position 25.
+- `--type`: Exact UniProt source label, without an alias map. Value form: string; example: --type Chain.
 
 ## biomcp protein isoforms
 
@@ -4099,12 +4035,13 @@ Options:
 ```
 
 Get protein isoforms and alternative products. Sources: uniprot.
+Options apply to every listed source unless their description restricts them.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein isoforms ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
-- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
+- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp protein domains
 
@@ -4160,13 +4097,14 @@ Options:
 ```
 
 Get protein domains and families from InterPro. Sources: interpro.
+Options apply to every listed source unless their description restricts them.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein domains ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: interpro; source restrictions in the field description apply.
-- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: interpro; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: interpro; source restrictions in the field description apply.
-- `--type`: Exact source InterPro type, not a normalized domain label. Value form: string. Example: --type <type> (syntax; replace the placeholder with your retained value). Command sources: interpro; source restrictions in the field description apply.
+- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--type`: Exact source InterPro type, not a normalized domain label. Value form: string; example: --type <type> (syntax; replace the placeholder with your retained value).
 
 ## biomcp protein complexes
 
@@ -4219,12 +4157,13 @@ Options:
 ```
 
 List protein complexes containing a protein. Sources: complex-portal.
+Options apply to every listed source unless their description restricts them.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein complexes ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply.
-- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: complex-portal; source restrictions in the field description apply.
+- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp protein complex-members
 
@@ -4280,13 +4219,14 @@ Options:
 ```
 
 List the members of a protein complex. Sources: complex-portal.
+Options apply to every listed source unless their description restricts them.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein complex-members ACCESSION; not --accession.
-- `--complex`: Exact complex whose source participants contain the anchor. Value form: string. Example: --complex CPX-715. Command sources: complex-portal; source restrictions in the field description apply.
-- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: complex-portal; source restrictions in the field description apply.
-- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: complex-portal; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: complex-portal; source restrictions in the field description apply.
+- `--complex`: Exact complex whose source participants contain the anchor. Value form: string; example: --complex CPX-715.
+- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp protein structures
 
@@ -4339,12 +4279,13 @@ Options:
 ```
 
 Get protein structure references from PDB. Sources: uniprot.
+Options apply to every listed source unless their description restricts them.
 
 - `accession`: Exact source protein sequence identity.
 Form: protein structures ACCESSION; not --accession.
-- `--limit`: Five rows by default, at most 25. Value form: integer. Example: --limit 1. Command sources: uniprot; source restrictions in the field description apply.
-- `--offset`: Source or retained page offset. Value form: integer. Example: --offset 0. Command sources: uniprot; source restrictions in the field description apply.
-- `--pool`: Retained collection identity. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: uniprot; source restrictions in the field description apply.
+- `--limit`: Five rows by default, at most 25. Value form: integer; example: --limit 1.
+- `--offset`: Source or retained page offset. Value form: integer; example: --offset 0.
+- `--pool`: Retained collection identity. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp protein sequence
 
@@ -4492,16 +4433,16 @@ Options:
 ```
 
 List genes in a biological pathway. Sources: reactome, wikipathways.
-
-- `details`: Include every physical entity context for these references;; help pathway genes
-Include every physical entity context for these references; never clips source text.
 Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
+
+- `details`: Include every physical entity context for these references; never clips source text.
 Form: pathway genes ID DETAILS; not --details.
 - `id`: Checked source-owned human pathway identity.
 Form: pathway genes ID DETAILS; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 5. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome, wikipathways; source restrictions in the field description apply.
-- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome, wikipathways; source restrictions in the field description apply.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 5.
+- `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
+- `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp pathway events
 
@@ -4554,12 +4495,13 @@ Options:
 ```
 
 List events within a biological pathway. Sources: reactome.
+Options apply to every listed source unless their description restricts them.
 
 - `id`: Checked source-owned human pathway identity.
 Form: pathway events ID; not --id.
-- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer. Example: --limit 50. Command sources: reactome; source restrictions in the field description apply.
-- `--offset`: Offset within the retained selected relation. Value form: integer. Example: --offset 0. Command sources: reactome; source restrictions in the field description apply.
-- `--pool`: Immutable relation snapshot. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: reactome; source restrictions in the field description apply.
+- `--limit`: Five complete relation rows by default, at most fifty. Value form: integer; example: --limit 50.
+- `--offset`: Offset within the retained selected relation. Value form: integer; example: --offset 0.
+- `--pool`: Immutable relation snapshot. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp article
 
@@ -4679,18 +4621,19 @@ Options:
 ```
 
 Read a research article supplementary file. Sources: pmc-oa, pubmed.
+Options apply to every listed source unless their description restricts them.
 
 - `file`: Exact file name from the supplements section.
 Form: article supplement INPUT FILE; not --file.
-- `--find`: Exact case-insensitive needle. Value form: string. Example: --find F1761I. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--find`: Exact case-insensitive needle. Value form: string; example: --find F1761I.
 - `input`: PubMed or PMC identity.
 Form: article supplement INPUT FILE; not --input.
-- `--offset`: Matching-row or text-fragment offset. Value form: integer. Example: --offset 3. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
-- `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
-- `--rows`: Inclusive original row range. Value form: string. Example: --rows 84-86. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
-- `--save`: Save the whole original document to an explicit file or existing folder. Example: --save article-output. Value form: string. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
-- `--sheet`: Sheet name for row selection. Value form: string. Example: --sheet ST2. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
-- `--variant`: Explicit protein substitution. Value form: string. Example: --variant P245S. Command sources: pmc-oa, pubmed; source restrictions in the field description apply.
+- `--offset`: Matching-row or text-fragment offset. Value form: integer; example: --offset 3.
+- `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean; example: --replace.
+- `--rows`: Inclusive original row range. Value form: string; example: --rows 84-86.
+- `--save`: Save the whole original document to an explicit file or existing folder. Value form: string; example: --save article-output.
+- `--sheet`: Sheet name for row selection. Value form: string; example: --sheet ST2.
+- `--variant`: Explicit protein substitution. Value form: string; example: --variant P245S.
 
 ## biomcp article pdf
 
@@ -4743,11 +4686,12 @@ Options:
 ```
 
 Save a research article PDF. Sources: semantic-scholar.
+Options apply to every listed source unless their description restricts them.
 
 - `input`: Article identity.
 Form: article pdf INPUT; not --input.
-- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean. Example: --replace. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--save`: Destination file or existing folder. Value form: string. Example: --save owned.pdf. Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean; example: --replace.
+- `--save`: Destination file or existing folder. Value form: string; example: --save owned.pdf.
 
 ## biomcp article text
 
@@ -4812,15 +4756,16 @@ Options:
 ```
 
 Get the abstract card by default, or explicitly read article body text. Sources: europepmc, pmc-oa, pubmed.
+Options apply to every listed source unless their description restricts them.
 
-- `--find`: Case-insensitive exact text to find. Value form: string. Example: --find AXIN2. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--find`: Case-insensitive exact text to find. Value form: string; example: --find AXIN2.
 - `input`: PubMed or PMC identity. DOI selectors are not accepted by the reader.
 Form: article text INPUT; not --input.
-- `--offset`: Number of matching rows already returned. Value form: integer. Example: --offset 0. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--part`: One-based outline part; omit reader selectors for the abstract card. Value form: integer. Example: --part 1. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean. Example: --replace. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--save`: Save the whole original document to an explicit file or existing folder. Example: --save article-output. Value form: string. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
-- `--variant`: Explicit checked protein substitution. Example: --variant p.V600E. Value form: string. Command sources: europepmc, pmc-oa, pubmed; source restrictions in the field description apply.
+- `--offset`: Number of matching rows already returned. Value form: integer; example: --offset 0.
+- `--part`: One-based outline part; omit reader selectors for the abstract card. Value form: integer; example: --part 1.
+- `--replace`: Replace an existing destination only when explicitly requested with save. Value form: boolean; example: --replace.
+- `--save`: Save the whole original document to an explicit file or existing folder. Value form: string; example: --save article-output.
+- `--variant`: Explicit checked protein substitution. Value form: string; example: --variant p.V600E.
 
 ## biomcp article citations
 
@@ -4877,15 +4822,15 @@ Options:
 ```
 
 List research papers citing an article. Sources: icite, pubmed, semantic-scholar.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--limit`: Maximum papers on one page. Value form: integer. Example: --limit 1. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 0. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--limit`: Maximum papers on one page. Value form: integer; example: --limit 1.
+- `--offset`: Number of pool items to skip. Value form: integer; example: --offset 0.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article citations PMID; not --pmid.
-- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--source`: Graph source; iCite remains the default; help article citations
-Graph source; iCite remains the default.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
+- `--source`: Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article references
 
@@ -4942,15 +4887,16 @@ Options:
 ```
 
 List research papers referenced by an article. Sources: icite, pubmed, semantic-scholar.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--limit`: Maximum papers on one page. Value form: integer. Example: --limit 1. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Number of pool items to skip. Value form: integer. Example: --offset 112. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--limit`: Maximum papers on one page. Value form: integer; example: --limit 1.
+- `--offset`: Number of pool items to skip. Value form: integer; example: --offset 112.
 - `pmid`: PMID, PMC or DOI; iCite accepts only a PMID.
 Form: article references PMID; not --pmid.
-- `--pool`: Fixed snapshot from an earlier page. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--pool`: Fixed snapshot from an earlier page. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `--source`: Graph source; iCite remains the default; help article citations
-Graph source; iCite remains the default.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source semantic-scholar. Command sources: icite, pubmed, semantic-scholar; source restrictions in the field description apply.
+Graph source; iCite remains the default. Value form: string; example: --source semantic-scholar.
 
 ## biomcp article citation-evidence
 
@@ -5012,15 +4958,16 @@ Options:
 ```
 
 Get research article citation evidence. Sources: pmc-oa, pubmed, semantic-scholar.
+Options apply to every listed source unless their description restricts them.
 
 - `cited`: Cited PMID, PMC identity or DOI.
 Form: article citation-evidence CITING CITED; not --cited.
 - `citing`: Citing PMID, PMC identity or DOI.
 Form: article citation-evidence CITING CITED; not --citing.
-- `--fulltext`: Include the citing paper's own explicit reference paragraphs. Value form: boolean. Example: --fulltext. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Context fragment position returned by the advancing step. Value form: integer. Example: --offset 0. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--paragraph-offset`: Full-text fragment position returned by the advancing step. Value form: integer. Example: --paragraph-offset 0. Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Stored checked source scan and original hit positions. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: pmc-oa, pubmed, semantic-scholar; source restrictions in the field description apply.
+- `--fulltext`: Include the citing paper's own explicit reference paragraphs. Value form: boolean; example: --fulltext.
+- `--offset`: Context fragment position returned by the advancing step. Value form: integer; example: --offset 0.
+- `--paragraph-offset`: Full-text fragment position returned by the advancing step. Value form: integer; example: --paragraph-offset 0.
+- `--pool`: Stored checked source scan and original hit positions. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 
 ## biomcp article recommendations
 
@@ -5076,11 +5023,12 @@ Options:
 ```
 
 Get related research article recommendations. Sources: semantic-scholar.
+Options apply to every listed source unless their description restricts them.
 
-- `--limit`: Maximum recommendations requested, in source order. Value form: integer. Example: --limit 5. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--negative`: Up to ten negative paper identities. Value form: repeatable values (repeat the flag). Example: --negative 33433946. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--offset`: Number of stored recommendations to skip. Value form: integer. Example: --offset 1. Command sources: semantic-scholar; source restrictions in the field description apply.
-- `--pool`: Fixed recommendation pool. Value form: string. Example: --pool <pool> (syntax; replace the placeholder with your retained value). Command sources: semantic-scholar; source restrictions in the field description apply.
+- `--limit`: Maximum recommendations requested, in source order. Value form: integer; example: --limit 5.
+- `--negative`: Up to ten negative paper identities. Value form: repeatable values (repeat the flag); example: --negative 33433946.
+- `--offset`: Number of stored recommendations to skip. Value form: integer; example: --offset 1.
+- `--pool`: Fixed recommendation pool. Value form: string; example: --pool <pool> (syntax; replace the placeholder with your retained value).
 - `seeds`: One to ten positive paper identities.
 Form: article recommendations SEEDS...; not --seeds.
 
@@ -5181,13 +5129,14 @@ Options:
 ```
 
 Save a clinical trial document. Sources: ctgov.
+Options apply to every listed source unless their description restricts them.
 
 - `file`: Exact filename from the registry manifest; never a URL or inferred path.
 Form: trial document INPUT FILE; not --file.
 - `input`: Exact registry identity.
 Form: trial document INPUT FILE; not --input.
-- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean. Example: --replace. Command sources: ctgov; source restrictions in the field description apply.
-- `--save`: Caller-owned file or existing folder. Value form: string. Example: --save protocol.pdf. Command sources: ctgov; source restrictions in the field description apply.
+- `--replace`: Replace an existing file only when explicitly requested. Value form: boolean; example: --replace.
+- `--save`: Caller-owned file or existing folder. Value form: string; example: --save protocol.pdf.
 
 ## biomcp variant
 
@@ -5297,19 +5246,17 @@ Options:
 ```
 
 Get genetic variant assertions from ClinVar or ClinGen. Sources: clinvar, erepo.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--assertion`: Source assertion accession or document ID. Value form: string. Example: --assertion PCER000001171. Command sources: clinvar, erepo; source restrictions in the field description apply.
-- `--build`: Identity lookup assembly; omitted uses the shared; help variant assertions
-Identity lookup assembly; omitted uses the shared GRCh38 default.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: clinvar, erepo; source restrictions in the field description apply.
+- `--assertion`: Source assertion accession or document ID. Value form: string; example: --assertion PCER000001171.
+- `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
 - `input`: Supported variant ID; resolves one ClinVar Variation ID or ERepo CAid through the shared resolver.
 Form: variant assertions INPUT; not --input.
-- `--limit`: Assertions per page; omitted uses the source default. Value form: integer. Example: --limit 1. Command sources: clinvar, erepo; source restrictions in the field description apply.
-- `--offset`: Assertions to skip in source order. Value form: integer. Example: --offset 0. Command sources: clinvar, erepo; source restrictions in the field description apply.
-- `--source`: One source assertion source; shared identity; help variant assertions
-One source assertion source; shared identity conversion precedes source access when needed.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source clinvar. Command sources: clinvar, erepo; source restrictions in the field description apply.
-- `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string. Example: --version 1.0.0. Command sources: clinvar, erepo; source restrictions in the field description apply.
+- `--limit`: Assertions per page; omitted uses the source default. Value form: integer; example: --limit 1.
+- `--offset`: Assertions to skip in source order. Value form: integer; example: --offset 0.
+- `--source`: One source assertion source; shared identity conversion precedes source access when needed. Value form: string; example: --source clinvar.
+- `--version`: VCV archive or ERepo document version; RCV/SCV selectors match a returned source version. Value form: string; example: --version 1.0.0.
 
 ## biomcp variant population
 
@@ -5373,18 +5320,16 @@ Options:
 ```
 
 Get genetic variant population frequencies. Sources: car, gnomad, mutalyzer, myvariant, variantvalidator.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--build`: Explicit source assembly when required by identity; help variant population
-Explicit source assembly when required by identity input.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
-- `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean. Example: --detail. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--build`: Explicit source assembly when required by identity input. Value form: string; example: --build GRCh38.
+- `--detail`: Read source ancestry groups, preserving overlapping groups individually. Value form: boolean; example: --detail.
 - `input`: Exact published allele identity; ambiguous candidates must first be selected.
 Form: variant population INPUT; not --input.
-- `--limit`: Maximum rows per page. Value form: integer. Example: --limit 3. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
-- `--offset`: Source rows to skip. Value form: integer. Example: --offset 10. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
-- `--resolver`: Resolver for reference-qualified input; help variant population
-Resolver for reference-qualified input.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --resolver variantvalidator. Command sources: car, gnomad, mutalyzer, myvariant, variantvalidator; source restrictions in the field description apply.
+- `--limit`: Maximum rows per page. Value form: integer; example: --limit 3.
+- `--offset`: Source rows to skip. Value form: integer; example: --offset 10.
+- `--resolver`: Resolver for reference-qualified input. Value form: string; example: --resolver variantvalidator.
 
 ## biomcp variant recurrence
 
@@ -5454,21 +5399,19 @@ Options:
 ```
 
 Get genetic variant observations in a cohort. Sources: cbioportal.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--build`: Identity lookup assembly; omitted uses the shared; help variant recurrence
-Identity lookup assembly; omitted uses the shared GRCh38 default.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh37. Command sources: cbioportal; source restrictions in the field description apply.
-- `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string. Example: --gene BRAF. Command sources: cbioportal; source restrictions in the field description apply.
+- `--build`: Identity lookup assembly; omitted uses the shared GRCh38 default. Value form: string; example: --build GRCh37.
+- `--gene`: HGNC symbol resolved to the source's Entrez gene identifier. Value form: string; example: --gene BRAF.
 - `input`: Variant identity resolving to one unique source-qualified genomic replacement with nonempty reference and alternate alleles (pure insertions and deletions are unavailable).
 Form: variant recurrence INPUT; not --input.
-- `--limit`: Source mutation rows per page, including excluded alleles. Value form: integer. Example: --limit 3. Command sources: cbioportal; source restrictions in the field description apply.
-- `--page`: Zero-based source page. Value form: integer. Example: --page 0. Command sources: cbioportal; source restrictions in the field description apply.
-- `--profile`: Explicit mutation molecular profile. Value form: string. Example: --profile msk_impact_2017_mutations. Command sources: cbioportal; source restrictions in the field description apply.
-- `--sample-set`: Explicit sample list; selected size is never an allele denominator. Value form: string. Example: --sample-set msk_impact_2017_all. Command sources: cbioportal; source restrictions in the field description apply.
-- `--source`: Explicit cohort source; help variant recurrence
-Explicit cohort source.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source cbioportal. Command sources: cbioportal; source restrictions in the field description apply.
-- `--study`: Explicit study; there is no default cohort. Value form: string. Example: --study msk_impact_2017. Command sources: cbioportal; source restrictions in the field description apply.
+- `--limit`: Source mutation rows per page, including excluded alleles. Value form: integer; example: --limit 3.
+- `--page`: Zero-based source page. Value form: integer; example: --page 0.
+- `--profile`: Explicit mutation molecular profile. Value form: string; example: --profile msk_impact_2017_mutations.
+- `--sample-set`: Explicit sample list; selected size is never an allele denominator. Value form: string; example: --sample-set msk_impact_2017_all.
+- `--source`: Explicit cohort source. Value form: string; example: --source cbioportal.
+- `--study`: Explicit study; there is no default cohort. Value form: string; example: --study msk_impact_2017.
 
 ## biomcp variant normalize
 
@@ -5527,18 +5470,16 @@ Options:
 ```
 
 Normalize reference-qualified genetic variant HGVS. Sources: car, mutalyzer, variantvalidator.
+Listed choices accept any letter case; replies use their listed spelling.
+Options apply to every listed source unless their description restricts them.
 
-- `--build`: Caller assembly; required when VariantValidator is; help variant normalize
-Caller assembly; required when VariantValidator is selected.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --build GRCh38. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+- `--build`: Caller assembly; required when VariantValidator is selected. Value form: string; example: --build GRCh38.
 - `--hgvs`: Reference-qualified HGVS, or chromosome genomic HGVS with an explicit build for CAR.
 Checked for reference and syntax only; no full HGVS parser. After a reference
-mismatch, VariantValidator names the gene's transcripts where the base fits. Value form: string. Example: --hgvs 'NM_004333.4:c.1799T>A'. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
-- `--limit`: Source mapping rows per service, with typed continuation for remaining rows. Value form: integer. Example: --limit 10. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
-- `--offset`: Source mapping rows to skip per service. Value form: integer. Example: --offset 0. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
-- `--source`: Explicit service; all preserves independent results; help variant normalize
-Explicit service; all preserves independent results without consensus.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source mutalyzer. Command sources: car, mutalyzer, variantvalidator; source restrictions in the field description apply.
+mismatch, VariantValidator names the gene's transcripts where the base fits. Value form: string; example: --hgvs 'NM_004333.4:c.1799T>A'.
+- `--limit`: Source mapping rows per service, with typed continuation for remaining rows. Value form: integer; example: --limit 10.
+- `--offset`: Source mapping rows to skip per service. Value form: integer; example: --offset 0.
+- `--source`: Explicit service; all preserves independent results without consensus. Value form: string; example: --source mutalyzer.
 
 ## biomcp sync
 
@@ -5585,9 +5526,9 @@ Options:
 ```
 
 Synchronize a local source bundle.
+Listed choices accept any letter case; replies use their listed spelling.
 
 - `bundle`: Local source bundle to synchronize.
-Listed choices accept any letter case; replies use their listed spelling.
 Form: sync BUNDLE; not --bundle.
 
 ## biomcp skill
@@ -5819,9 +5760,10 @@ Example: biomcp skill install biomcp-guidance
 ```
 
 Install into DIR/skills/biomcp; a skills or biomcp directory is accepted directly. Existing files remain unchanged without --force.
+Options are local to the command and independent of source selection.
 
 - `directory`: Directory to inspect or install BioMCP guidance.
-- `--force`: Repair managed files; retain unrelated files. Value form: boolean. Example: --force. Local command option; independent of source selection.
+- `--force`: Repair managed files; retain unrelated files. Value form: boolean; example: --force.
 
 ## biomcp source
 
@@ -5956,8 +5898,9 @@ Example: biomcp version
 ```
 
 Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
+Options are local to the command and independent of source selection.
 
-- `--verbose`: Include commit, target, schema versions, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection.
+- `--verbose`: Include commit, target, schema versions, config and cache paths. Value form: boolean; example: --verbose.
 
 ## biomcp mcp-config
 
@@ -6005,9 +5948,10 @@ Example: biomcp mcp-config
 ```
 
 Print MCP configuration with this executable’s absolute path. JSON formats name their top-level object and retain released client aliases. The codex client prints its shell registration command. No source requests or key reads.
+Listed choices accept any letter case; replies use their listed spelling.
+Options are local to the command and independent of source selection.
 
-- `--client`: Choose a JSON client or the codex shell registration command; default mcp-servers.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --client mcp-servers. Local command option; independent of source selection.
+- `--client`: Choose a JSON client or the codex shell registration command; default mcp-servers. Value form: string; example: --client mcp-servers.
 
 ## biomcp health
 
@@ -6273,11 +6217,12 @@ Example: biomcp key set oncokb
 ```
 
 Register one credential from a no-echo prompt or one standard-input line. Use --config PATH to choose the configuration file.
+Listed choices accept any letter case; replies use their listed spelling.
+Options are local to the command and independent of source selection.
 
 - `source`: Source credential name to register or remove.
-Listed choices accept any letter case; replies use their listed spelling.
 Form: key set SOURCE; not --source.
-- `--replace`: Replace an existing stored credential. Value form: boolean. Example: --replace. Local command option; independent of source selection.
+- `--replace`: Replace an existing stored credential. Value form: boolean; example: --replace.
 
 ## biomcp key remove
 
@@ -6323,9 +6268,9 @@ Example: biomcp key remove oncokb
 ```
 
 Remove a stored credential while preserving other settings.
+Listed choices accept any letter case; replies use their listed spelling.
 
 - `source`: Source credential name to register or remove.
-Listed choices accept any letter case; replies use their listed spelling.
 Form: key remove SOURCE; not --source.
 
 ## biomcp serve
@@ -6397,15 +6342,16 @@ Example: biomcp help serve
 ```
 
 Serve MCP over stdio or --http [ADDR]. Non-loopback binds require --allow-host HOST or http.allowed_hosts; neither authenticates callers. HTTP refuses sync, store clean and --fresh. Stdio saves refuse --replace. --hosted refuses file saves, health details, sync, store clean, --fresh and key commands on every transport with a usage.mcp_unavailable error. MCP revisions: 2026-07-28, 2025-11-25, 2025-06-18, 2025-03-26. --rate-share scales only keyed hosted source rates. Hosted HTTP calls have bounded work and one whole-call deadline. Send MCP-Protocol-Version on HTTP requests. Without it, initialize uses its requested legacy revision; other requests default to 2025-03-26. Unsupported headers return HTTP 400.
+Listed choices accept any letter case; replies use their listed spelling.
+Options are local to the command and independent of source selection.
 
-- `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --tool-mode single. Local command option; independent of source selection.
-- `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean. Example: --hosted. Local command option; independent of source selection.
-- `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string. Example: --rate-share 1. Local command option; independent of source selection.
-- `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string. Example: --http 127.0.0.1:8080. Local command option; independent of source selection.
-- `--http_max_calls`: Limit tool calls in flight. Example: --http_max_calls 8. Value form: string. Local command option; independent of source selection.
-- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls. Example: --http_max_connections 64. Value form: string. Local command option; independent of source selection.
-- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners. Example: --allow-host api.example.org. Value form: string. Local command option; independent of source selection.
+- `--tool-mode`: Advertise one CLI tool or generated typed command tools; default single. Value form: string; example: --tool-mode single.
+- `--hosted`: Refuse host file saves, health details and store or key changes over MCP. Value form: boolean; example: --hosted.
+- `--rate-share`: Use this share of keyed source rates in hosted mode (greater than 0, at most 1). Value form: string; example: --rate-share 1.
+- `--http`: Listen on an HTTP address; omit its value for the loopback default. Value form: string; example: --http 127.0.0.1:8080.
+- `--http_max_calls`: Limit tool calls in flight. Value form: string; example: --http_max_calls 8.
+- `--http_max_connections`: Limit open HTTP connections; must cover http_max_calls. Value form: string; example: --http_max_connections 64.
+- `--allow-host`: Allow an HTTP Host authority; required for non-loopback listeners. Value form: string; example: --allow-host api.example.org.
 
 ## biomcp schema
 
@@ -10395,9 +10341,9 @@ Options:
 ```
 
 Register and manage source credentials without showing values.
+Listed choices accept any letter case; replies use their listed spelling.
 
 - `source`: Credential source to describe.
-Listed choices accept any letter case; replies use their listed spelling.
 Form: help key SOURCE; not --source.
 
 ## biomcp help key list
@@ -12028,9 +11974,9 @@ Options:
 ```
 
 Describe help network.
+Listed choices accept any letter case; replies use their listed spelling.
 
 - `setting`: Network setting to describe.
-Listed choices accept any letter case; replies use their listed spelling.
 Form: help network SETTING; not --setting.
 
 ## biomcp help sources

@@ -17,14 +17,14 @@
             "--exclude-derived"
           ]
         },
-        "/result/commands/0/description": "Search cell lines by name or identifier. Sources: cellosaurus.\nFields: accession, category, diseases, name, species, variations. Choose some with --fields a,b (typed: fields list); always kept: accession, diseases, species.",
+        "/result/commands/0/description": "Search cell lines by name or identifier. Sources: cellosaurus.\nOptions apply to every listed source unless their description restricts them.\nFields: accession, category, diseases, name, species, variations. Choose some with --fields a,b (typed: fields list); always kept: accession, diseases, species.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 3291,
+      "max_bytes": 2627,
       "run": [
         "help",
         "search",
@@ -41,7 +41,7 @@
             "--section-offset"
           ]
         },
-        "/result/commands/0/description": "Get cell line details and cross-references. Sources: cellosaurus.",
+        "/result/commands/0/description": "Get cell line details and cross-references. Sources: cellosaurus.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -59,7 +59,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 2286,
+      "max_bytes": 2165,
       "run": [
         "help",
         "get",

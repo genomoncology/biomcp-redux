@@ -26,13 +26,13 @@
           "search",
           "pathway"
         ],
-        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nFields: id, name, revision, species, version. Choose some with --fields a,b (typed: fields list); always kept: id, species.",
+        "/result/commands/0/description": "Search human biological pathways. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: id, name, revision, species, version. Choose some with --fields a,b (typed: fields list); always kept: id, species.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
-      "max_bytes": 3456,
+      "max_bytes": 2712,
       "run": [
         "help",
         "search",
@@ -55,7 +55,7 @@
           "get",
           "pathway"
         ],
-        "/result/commands/0/description": "Get human pathway details. Sources: reactome, wikipathways.",
+        "/result/commands/0/description": "Get human pathway details. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -69,7 +69,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 2835,
+      "max_bytes": 2478,
       "run": [
         "help",
         "get",
@@ -91,13 +91,13 @@
           "pathway",
           "genes"
         ],
-        "/result/commands/0/description": "List genes in a biological pathway. Sources: reactome, wikipathways.",
+        "/result/commands/0/description": "List genes in a biological pathway. Sources: reactome, wikipathways.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
-      "max_bytes": 2023,
+      "max_bytes": 1700,
       "run": [
         "help",
         "pathway",
@@ -118,13 +118,13 @@
           "pathway",
           "events"
         ],
-        "/result/commands/0/description": "List events within a biological pathway. Sources: reactome.",
+        "/result/commands/0/description": "List events within a biological pathway. Sources: reactome.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/examples": {
           "count": 1
         },
         "/status": "complete"
       },
-      "max_bytes": 1504,
+      "max_bytes": 1322,
       "run": [
         "help",
         "pathway",

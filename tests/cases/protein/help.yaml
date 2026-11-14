@@ -29,7 +29,7 @@
           ]
         }
       },
-      "max_bytes": 2254
+      "max_bytes": 1897
     },
     {
       "run": [
@@ -67,7 +67,7 @@
         },
         "/result/commands/0/section_rule": "Select source sections or all bounded first pages; function keeps one whole text record."
       },
-      "max_bytes": 2484
+      "max_bytes": 2302
     },
     {
       "run": [
@@ -95,7 +95,7 @@
           ]
         }
       },
-      "max_bytes": 2081
+      "max_bytes": 1723
     },
     {
       "run": [
@@ -122,7 +122,7 @@
           ]
         }
       },
-      "max_bytes": 1828
+      "max_bytes": 1555
     },
     {
       "run": [
@@ -148,7 +148,7 @@
           ]
         }
       },
-      "max_bytes": 1466
+      "max_bytes": 1287
     },
     {
       "run": [
@@ -174,7 +174,7 @@
           ]
         }
       },
-      "max_bytes": 1500
+      "max_bytes": 1298
     },
     {
       "run": [
@@ -201,7 +201,7 @@
           ]
         }
       },
-      "max_bytes": 1854
+      "max_bytes": 1554
     },
     {
       "run": [
@@ -227,7 +227,7 @@
           ]
         }
       },
-      "max_bytes": 1470
+      "max_bytes": 1292
     },
     {
       "run": [

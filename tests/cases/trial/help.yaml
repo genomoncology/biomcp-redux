@@ -43,7 +43,7 @@
           "count": 1
         }
       },
-      "max_bytes": 14888,
+      "max_bytes": 11077,
       "run": [
         "help",
         "search",
@@ -80,7 +80,7 @@
           "summary"
         ]
       },
-      "max_bytes": 4659,
+      "max_bytes": 4093,
       "run": [
         "help",
         "get",
@@ -99,7 +99,7 @@
           "count": 1
         }
       },
-      "max_bytes": 1362,
+      "max_bytes": 1278,
       "run": [
         "help",
         "trial",
