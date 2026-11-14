@@ -21,7 +21,8 @@
         "": {
           "includes_all_of": [
             "`biomcp get ENTITY ID [SECTION...]`",
-            "Follow-ups take one record's ID",
+            "Variant, pgx, biomarker, organization and diagnostic search by flags, not text",
+            "never keys from the returned data",
             "Run the command first. A refusal names the valid values and a next step: use them.",
             "Read help only when a reply still leaves you stuck",
             "Sections are words after the ID",

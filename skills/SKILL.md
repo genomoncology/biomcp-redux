@@ -7,15 +7,15 @@ BioMCP retrieves source records on genes, variants, diseases, drugs, trials, art
 
 Commands:
 
-- `biomcp search ENTITY TEXT`: find records. `biomcp get ENTITY ID [SECTION...]`: read one record and its sections. Entities: gene, variant, disease, drug, trial, article, protein, pathway, phenotype, adverse-event, diagnostic, biomarker, cell-line, study, gwas, pgx, author; search also takes organization.
-- Follow-ups take one record's ID: `biomcp variant assertions|population|recurrence|normalize`, `protein features|isoforms|domains|complexes|structures|sequence`, `pathway genes|events`, `article text|citations|references|supplement`, `trial document`, `author papers`, `cell-line assay-count`.
+- `biomcp search ENTITY TEXT`: find records. `biomcp get ENTITY ID [SECTION...]`: read one record and its sections. Entities: gene, variant, disease, drug, trial, article, protein, pathway, phenotype, adverse-event, diagnostic, biomarker, cell-line, study, gwas, pgx, author; search also takes organization. Variant, pgx, biomarker, organization and diagnostic search by flags, not text: `biomcp search variant --gene BRAF --protein V600E`. Get pgx takes `--gene` and `--source`, not an ID; get diagnostic needs `--source`.
+- Follow-ups on one record: `biomcp variant assertions|population|recurrence|normalize`, `protein features|isoforms|domains|complexes|complex-members|structures|sequence`, `pathway genes|events`, `article text|citations|references|citation-evidence|recommendations|supplement|pdf`, `trial document`, `author papers`, `cell-line assay-count`. Some take flags beside or in place of an ID (`variant normalize` takes `--hgvs` and `--source`); a refusal names them.
 
-Run the command first. A refusal names the valid values and a next step: use them. Read help only when a reply still leaves you stuck, and read the one page you need, such as `biomcp help get drug`. Take names only from a reply or that page:
+Run the command first. A refusal names the valid values and a next step: use them. Read help only when a reply still leaves you stuck, and read the one page you need, such as `biomcp help get drug`. Take names only from a refusal or that help page, never keys from returned data:
 
 - Sections are words after the ID: `biomcp get drug BLA761445 approvals --source drugsfda`. Use `--section` only where help lists it.
 - One product's row in each market (Drugs@FDA, EMA, WHO prequalification), each from its own source: `biomcp get drug dolutegravir markets`.
 - A filter works only with the sources named after `Only with --source` or in its description.
-- `--fields` takes only the names help lists after `Fields:`.
+- `--fields` takes only names listed after `Fields:` in a refusal or in help, never keys from the returned data.
 - Follow returned `next` steps for pages and sections. When a page reports a total, stop paging at it.
 
 Preserve source identifiers, dates, terms and uncertainty. Errors differ from empty results: read `problems` and `next`.
