@@ -21,7 +21,7 @@ fn command(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Duration, Request
     let remaining = leg.remaining();
     command.finish(remaining);
     reply.map(|received| {
-        assert!(received.value.answer);
+        assert!(received.value.answer, "replayed answer");
         remaining
     })
 }
@@ -49,25 +49,44 @@ fn declared_command_budget_outlasts_the_caller_budget_but_not_the_caller_limit()
         })
     };
     let declared = slow(original, Some(Duration::from_secs(60)));
-    assert_eq!(declared.budget_for(CALLER), Duration::from_secs(60));
+    assert_eq!(
+        declared.budget_for(CALLER),
+        Duration::from_secs(60),
+        "a declared budget above the caller's wins"
+    );
     assert_eq!(
         declared.budget_for(Duration::from_secs(90)),
-        Duration::from_secs(90)
+        Duration::from_secs(90),
+        "a caller budget above the declared one wins"
     );
     assert_eq!(
         command(&replay(), declared).unwrap(),
-        Duration::from_secs(35)
+        Duration::from_secs(35),
+        "a 25 s reply inside a 60 s command budget succeeds"
     );
 
     let undeclared = slow(original, None);
-    assert_eq!(undeclared.budget_for(CALLER), CALLER);
-    assert!(timed_out(command(&replay(), undeclared)));
+    assert_eq!(
+        undeclared.budget_for(CALLER),
+        CALLER,
+        "no declaration keeps the caller's budget"
+    );
+    assert!(
+        timed_out(command(&replay(), undeclared)),
+        "a 25 s reply fails a 20 s command budget"
+    );
 
     let limited = replay()
         .with_cancellation(&biomcp_fetch::Cancellation::with_budget(
             Duration::from_secs(5),
         ))
         .unwrap();
-    assert!(timed_out(command(&limited, declared)));
-    assert!(server.requests.try_recv().is_err());
+    assert!(
+        timed_out(command(&limited, declared)),
+        "a 5 s caller limit caps the declared 60 s budget"
+    );
+    assert!(
+        server.requests.try_recv().is_err(),
+        "replay never reaches the provider"
+    );
 }
