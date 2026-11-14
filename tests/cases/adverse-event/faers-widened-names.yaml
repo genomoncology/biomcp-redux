@@ -18,6 +18,8 @@
       "expect": {
         "/status": "complete",
         "/page/total": 282308,
+        "/result/items/0/serious": "2",
+        "/result/items/0/serious_label": "The adverse event did not result in any of the above",
         "/sources/0/notices/1/names": [
           "apixaban",
           "Eliquis",

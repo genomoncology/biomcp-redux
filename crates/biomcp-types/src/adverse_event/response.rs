@@ -28,12 +28,35 @@ pub struct AdverseEventHeader {
     /// Native serious string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub serious: Option<Box<str>>,
+    /// FAERS only: openFDA's published words for `serious` `1` or `2`; absent for any other code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub serious_label: Option<Box<str>>,
     /// Native event_type string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub event_type: Option<Box<str>>,
     /// Native first_received string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first_received: Option<Box<str>>,
+}
+impl AdverseEventHeader {
+    /// The header fields each source's search rows can fill, for a per-source `--fields` list.
+    pub const ROW_FIELDS: [(AdverseEventSource, &'static [&'static str]); 2] = [
+        (
+            AdverseEventSource::Faers,
+            &[
+                "first_received",
+                "id",
+                "serious",
+                "serious_label",
+                "source",
+                "version",
+            ],
+        ),
+        (
+            AdverseEventSource::Maude,
+            &["event_type", "first_received", "id", "source"],
+        ),
+    ];
 }
 biodata::wire_enum! {
 /// Source reaction selector matching semantics.
@@ -84,9 +107,6 @@ impl ResponseBody for AdverseEventPage {
 pub struct AdverseEventFaersCard {
     /// Exact selected report identity.
     pub header: AdverseEventHeader,
-    /// openFDA's published words for the header's `serious` code, `1` or `2`.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub serious_label: Option<Box<str>>,
     /// Opaque checked retained-report snapshot identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub snapshot: Option<Text>,
@@ -308,4 +328,31 @@ identifiers! {
 impl ResponseBody for AdverseEventIdentifiers {
     const SCHEMA: &'static str = "biomcp.adverse-event-identifiers/4";
     type Query = AdverseEventGet;
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    /// Every header field belongs to some source's row list, and each listed name is a field.
+    #[test]
+    fn row_fields_cover_the_header() {
+        let full = AdverseEventHeader {
+            id: serde_json::from_value(serde_json::json!("1")).unwrap(),
+            source: AdverseEventSource::Faers,
+            version: Some("1".into()),
+            serious: Some("1".into()),
+            serious_label: Some("x".into()),
+            event_type: Some("x".into()),
+            first_received: Some("x".into()),
+        };
+        let value = serde_json::to_value(full).unwrap();
+        let mut keys: Vec<&str> = value.as_object().unwrap().keys().map(String::as_str).collect();
+        keys.sort_unstable();
+        let mut listed: Vec<&str> = AdverseEventHeader::ROW_FIELDS
+            .iter()
+            .flat_map(|(_, names)| names.iter().copied())
+            .collect();
+        listed.sort_unstable();
+        listed.dedup();
+        assert_eq!(keys, listed);
+    }
 }

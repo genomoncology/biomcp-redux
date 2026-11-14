@@ -77,11 +77,13 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
                 .into_iter()
                 .map(|v| {
                     problems.record = crate::mapped::record(&v.safetyreportid);
+                    let serious = problems.field("serious", v.serious);
                     AdverseEventHeader {
                         id: v.safetyreportid,
                         source: AdverseEventSource::Faers,
                         version: problems.field("safetyreportversion", v.safetyreportversion),
-                        serious: problems.field("serious", v.serious),
+                        serious_label: super::words::label(super::words::SERIOUS, serious.as_deref()),
+                        serious,
                         event_type: None,
                         first_received: problems.field("receivedate", v.receivedate),
                     }

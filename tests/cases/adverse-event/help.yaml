@@ -33,7 +33,7 @@
           "search",
           "adverse-event"
         ],
-        "/result/commands/0/description": "Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.\nFields: event_type, first_received, id, serious, source, version. Choose some with --fields a,b (typed: fields list); always kept: id, source.",
+        "/result/commands/0/description": "Search drug, device and vaccine adverse events. Sources: faers, maude, vaers.\nFields by --source: faers: first_received, id, serious, serious_label, source, version (always kept: id, source); maude: event_type, first_received, id, source (always kept: id, source). Choose some with --fields a,b (typed: fields list).",
         "/result/commands/0/examples": {
           "count": 1
         }

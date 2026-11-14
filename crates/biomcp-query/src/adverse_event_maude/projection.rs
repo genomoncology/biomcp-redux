@@ -171,6 +171,7 @@ fn header(row: &biodata::MaudeReport) -> biomcp_types::AdverseEventHeader {
         source: biomcp_types::AdverseEventSource::Maude,
         version: None,
         serious: None,
+        serious_label: None,
         event_type: row.event_type.clone(),
         first_received: row.date_received.clone(),
     }

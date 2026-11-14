@@ -88,13 +88,6 @@
           ],
           "description": "Optional reporter facts."
         },
-        "serious_label": {
-          "description": "openFDA's published words for the header's `serious` code, `1` or `2`.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "seriousness": {
           "anyOf": [
             {
@@ -246,6 +239,13 @@
         },
         "serious": {
           "description": "Native serious string; present empty values remain present.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "serious_label": {
+          "description": "FAERS only: openFDA's published words for `serious` `1` or `2`; absent for any other code.",
           "type": [
             "string",
             "null"

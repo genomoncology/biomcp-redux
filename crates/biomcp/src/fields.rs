@@ -206,6 +206,21 @@ fn selected(request: &Request) -> Option<(Source, &'static str)> {
 
 /// Rows of a search by source selector, when its sources return different rows.
 fn source_rows(verb: &str, entity: &str) -> Vec<(&'static str, Row)> {
+    if (verb, entity) == ("search", "adverse-event") {
+        // One row schema serves every source, but each source fills only its own fields.
+        let union = search_row(verb, entity);
+        return biomcp_types::AdverseEventHeader::ROW_FIELDS
+            .iter()
+            .map(|(source, names)| {
+                let keep = |name: &String| names.contains(&name.as_str());
+                let row = Row {
+                    names: union.names.iter().filter(|n| keep(n)).cloned().collect(),
+                    required: union.required.iter().filter(|n| keep(n)).cloned().collect(),
+                };
+                (source.as_str(), row)
+            })
+            .collect();
+    }
     if (verb, entity) != ("search", "trial") {
         return Vec::new();
     }
