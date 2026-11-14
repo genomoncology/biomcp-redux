@@ -511,7 +511,7 @@
           "type": "array"
         },
         "source_query": {
-          "description": "Exact openFDA search expression sent for a device recall page; it names the field each filter matched.",
+          "description": "Exact openFDA search expression sent for a PMA, 510(k) or device recall page; it names the field each filter matched.",
           "type": [
             "string",
             "null"
@@ -729,6 +729,18 @@
           ],
           "description": "Last date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only.",
           "x-required-component": "fda-device-recall"
+        },
+        "intended_use": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended-use text; FDA PMA only, since openFDA publishes no intended-use text for 510(k).",
+          "x-required-component": "fda-pma"
         },
         "limit": {
           "default": 5,

@@ -435,6 +435,18 @@
           "description": "Last date, YYYY-MM-DD.\nInclusive initiation date, YYYY-MM-DD; FDA device recalls only.",
           "x-required-component": "fda-device-recall"
         },
+        "intended_use": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended-use text; FDA PMA only, since openFDA publishes no intended-use text for 510(k).",
+          "x-required-component": "fda-pma"
+        },
         "limit": {
           "default": 5,
           "description": "Five results by default; at most fifty source rows or product headers.",
