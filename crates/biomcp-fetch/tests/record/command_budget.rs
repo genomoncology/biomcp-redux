@@ -16,10 +16,9 @@ fn slow(original: &'static SourceSpec, command_budget: Option<Duration>) -> &'st
 fn command(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Duration, RequestError> {
     let command = fetch.command_deadline(spec.budget_for(CALLER));
     let deadline = command.deadline();
-    let reply = fetch
-        .leg(spec, deadline)
-        .call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json());
-    let remaining = deadline.remaining();
+    let leg = fetch.leg(spec, deadline);
+    let reply = leg.call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json());
+    let remaining = leg.remaining();
     command.finish(remaining);
     reply.map(|received| {
         assert!(received.value.answer);
