@@ -1,0 +1,102 @@
+{
+  "verified": "GTR test_condition_gene.txt (Last-Modified 2026-11-05) fetched live on 2026-11-14 (job j40930) and cut to its 185 EGFR gene rows and 56 MedGen:C0007131 (non-small cell lung cancer) condition rows, unchanged; 19 tests list both. test_version.gz (Last-Modified 2026-11-05) was cut to those 222 tests' version rows and gtr_ftp.xml.gz (Last-Modified 2026-11-11) to their labs' certifications and tests' specimens, values unchanged.",
+  "live_check": "public replies cut to one gene's and one condition's rows; no live provider call",
+  "feature": "diagnostic-gtr",
+  "story": "A lab director building a send-out menu asks GTR for EGFR tests that list non-small cell lung cancer and gets the tests that list both, instead of a refusal that calls the gene invalid.",
+  "replay": "diagnostic/gtr-egfr-nsclc",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 200,
+      "expect": {
+        "/schema": "biomcp.sync/7"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--condition-id",
+        "MedGen:C0007131"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--condition-id",
+        "MedGen:C0007131"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/page/total": 19,
+        "/result/items/0/header/id": "GTR000500500.2",
+        "/result/items/0/matched/kind": "gene",
+        "/result/items/0/matched/relation/gene/ncbi_gene_id": "1956",
+        "/result/count_unit": "test-identities"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene-id",
+        "1956",
+        "--condition-id",
+        "MedGen:C0007131",
+        "--offset",
+        "15"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/page/total": 19,
+        "/page/returned": 4,
+        "/result/items/3/header/id": "GTR000619506.2"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--condition-id",
+        "MedGen:C0007131",
+        "--limit",
+        "1"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/page/total": 56,
+        "/result/items/0/matched/kind": "condition"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--limit",
+        "1"
+      ],
+      "max_bytes": 6000,
+      "expect": {
+        "/page/total": 185
+      }
+    }
+  ]
+}
