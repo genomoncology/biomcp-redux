@@ -150,8 +150,11 @@ pub(crate) fn search(
     let mut steps = Vec::new();
     // Regions follow every gene row, so the first step shows them alone.
     if regions
-        && let Some(regions) =
-            crate::next::checked(query.regions_only(), biomcp_types::Source::ClinGen, problems)
+        && let Some(regions) = crate::next::checked(
+            query.regions_only(),
+            biomcp_types::Source::ClinGen,
+            problems,
+        )
     {
         steps.push(crate::next::Step::run(
             StepKind::Section,

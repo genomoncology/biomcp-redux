@@ -263,7 +263,9 @@ fn region_count_precedes_gene_rows_in_both_serialized_orders() -> Check {
     let declared = serde_json::to_string(&page)?;
     let sorted = serde_json::to_string(&serde_json::to_value(&page)?)?;
     for text in [declared, sorted] {
-        let count = text.find("\"clingen_regions_matched\":6").ok_or("count missing")?;
+        let count = text
+            .find("\"clingen_regions_matched\":6")
+            .ok_or("count missing")?;
         let rows = text.find("\"items\"").ok_or("rows missing")?;
         assert!(count < rows, "{text}");
     }
