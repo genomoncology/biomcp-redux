@@ -60,20 +60,29 @@ pub(super) fn complete(commands: &mut [HelpCommand]) {
             } else {
                 format!("; only with --source {}", or_list(&only))
             };
-            let sample = if argument.description.contains("Example:") {
-                String::new()
-            } else {
-                format!("; example: {sample}")
-            };
             let form = if argument.value_type == "array" {
                 "repeatable values (repeat the flag)"
             } else {
                 &argument.value_type
             };
             // One sentence per option that names the option, so no option repeats another's.
-            argument
-                .description
-                .push_str(&format!(" Value form: {form}{sample}{scope}."));
+            if argument.description.contains("Example: ") {
+                // The field's own example leads; the form joins its sentence.
+                argument.description = argument.description.replacen(
+                    "Example: ",
+                    &format!("Value form: {form}; example: "),
+                    1,
+                );
+                if !scope.is_empty() {
+                    argument
+                        .description
+                        .push_str(&format!(" Only with --source {}.", or_list(&only)));
+                }
+            } else {
+                argument
+                    .description
+                    .push_str(&format!(" Value form: {form}; example: {sample}{scope}."));
+            }
         }
         // Lines that hold for every option are said once, on the command.
         if cased {

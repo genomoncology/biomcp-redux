@@ -310,8 +310,7 @@ fn every_rendered_flag_retains_its_schema_or_parser_description() -> Check {
         {
             assert!(
                 argument.description.contains("Value form:")
-                    && (argument.description.contains("; example:")
-                        || argument.description.contains("Example:")),
+                    && argument.description.contains("; example:"),
                 "{} {} lacks form/example metadata",
                 command.command.join(" "),
                 argument.name
@@ -354,7 +353,8 @@ fn every_command_help_page_says_each_generated_sentence_once() -> Check {
     let mut repeats = Vec::new();
     for (verb, entity, id) in super::command_paths() {
         let path = [verb.to_string(), entity.to_string()];
-        let schema = crate::schema::find(id).unwrap_or_default();
+        // Help words its source text as plain prose; compare the same words.
+        let schema = crate::help::source_prose(crate::schema::find(id).unwrap_or_default());
         for command in crate::help::dispatch(&parser, &path)?.commands {
             let mut counts = std::collections::BTreeMap::<&str, usize>::new();
             let texts = std::iter::once(&command.description)

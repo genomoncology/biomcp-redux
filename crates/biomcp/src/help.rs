@@ -203,9 +203,11 @@ pub(crate) fn compact(commands: &mut [HelpCommand]) {
                     .iter()
                     .find(|(verb, entity, _)| command.command == [*verb, *entity])
             {
+                // Names the option, so two large lists on one page say different sentences.
                 argument.description.push_str(&format!(
-                    " {} allowed values. Full list: biomcp schema {schema}.",
-                    argument.choices.len()
+                    " {} allowed values for {}; full list: biomcp schema {schema}.",
+                    argument.choices.len(),
+                    argument.name
                 ));
                 argument.choices.clear();
             }
@@ -378,12 +380,20 @@ fn bundle_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, 
 }
 fn arguments(name: &str, node: &Value, root: &Value) -> Vec<HelpArgument> {
     if let Some(flags) = node.get("x-cli-flags").and_then(Value::as_object) {
+        let first = flags.keys().next().cloned().unwrap_or_default();
         return flags
-            .keys()
-            .map(|flag| {
+            .iter()
+            .map(|(flag, setting)| {
                 let mut value = argument(flag, node, root);
                 value.value_type = "boolean".into();
                 value.choices.clear();
+                // Flags that set one field share its text; the first flag carries it.
+                if *flag != first {
+                    value.description = match setting.as_str() {
+                        Some(setting) => format!("Same field as --{first}; sets it to {setting}."),
+                        None => format!("Same field as --{first}."),
+                    };
+                }
                 value
             })
             .collect();
