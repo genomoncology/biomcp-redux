@@ -1,6 +1,7 @@
 # 0927 — gate-counts-skills-cases-and-schema-reviews
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f408678cd6da50fb0470383d108f07b0e4d2c1b4
 
 Milestone: 7
 
@@ -31,3 +32,7 @@ The landing gate's changed-crate library tests (0914, 0921) treat a change to `s
 ## Changes
 
 - Changes: `scripts/changed_library_tests.py`, `scripts/test_gate_stages.py`.
+
+## Progress
+
+- 2026-11-14: `changed_library_tests.py` now maps files outside `crates/` to the crate whose build script or library tests read them. `skills/` and `tests/cases/` (embedded by `crates/biomcp/build.rs:246,326` and `build/argument_examples.rs`, which walks all of `tests/cases/`) select `biomcp`. The three generated docs that `grammar::reference::reference_matches_grammar` compares in `biomcp`'s bin tests (`docs/reference/commands.md`, `docs/reference/source-pacing.md`, `docs/recipes.md`) also select `biomcp`, because the ticket gate runs `landing-gate` without `docs-check`. `release/schema-reviews.json` selects `biomcp-types`, and so every crate. The `tests/*-budgets.yaml` files are read only by `biomcp`'s cases target, which the gate's cases stage already runs. The test at line 150 no longer asserts that a `tests/cases/` change selects none; it now asserts each of these paths selects its crate.
