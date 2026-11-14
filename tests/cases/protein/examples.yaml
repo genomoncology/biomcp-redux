@@ -34,6 +34,9 @@
         "domains",
         "P00533"
       ],
+      "starts_within": {
+        "/result/native_total": 300
+      },
       "expect": {
         "/status": "complete"
       },

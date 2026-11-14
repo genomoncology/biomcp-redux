@@ -37,6 +37,9 @@
         "study",
         "Atlas"
       ],
+      "starts_within": {
+        "/result/page/total": 400
+      },
       "expect": {
         "/status": "complete",
         "": {

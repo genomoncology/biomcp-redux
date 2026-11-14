@@ -14,6 +14,9 @@
         "--limit",
         "50"
       ],
+      "starts_within": {
+        "/result/page/total": 1200
+      },
       "expect": {
         "/status": "complete",
         "/schema": "biomcp.gwas-study-page/1",
@@ -37,6 +40,9 @@
         "--limit",
         "50"
       ],
+      "starts_within": {
+        "/result/page/total": 1200
+      },
       "expect": {
         "/status": "complete",
         "/result/items": {
