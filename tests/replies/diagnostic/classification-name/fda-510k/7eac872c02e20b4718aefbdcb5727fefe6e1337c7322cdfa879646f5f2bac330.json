@@ -1,0 +1,126 @@
+{
+  "method": "GET",
+  "source": "fda-510k",
+  "url": "https://api.fda.gov/device/510k.json?limit=5&skip=0&sort=decision_date%3Adesc&search=device_name%3A%22cell-free%22",
+  "exchanges": [
+    {
+      "fetched": 1794686305,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 1398,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-02",
+    "results": {
+      "skip": 0,
+      "limit": 5,
+      "total": 2
+    }
+  },
+  "results": [
+    {
+      "third_party_flag": "N",
+      "city": "La Vista",
+      "advisory_committee_description": "Clinical Chemistry",
+      "address_1": "7002 S 109th St.",
+      "address_2": "",
+      "statement_or_summary": "Statement",
+      "product_code": "QMA",
+      "openfda": {
+        "registration_number": [
+          "3030896267",
+          "3007478714",
+          "3004597845",
+          "3013248161",
+          "3017953151",
+          "1950302"
+        ],
+        "fei_number": [
+          "3030896267",
+          "3007478714",
+          "3004597845",
+          "3013248161",
+          "3017953151",
+          "1950302"
+        ],
+        "device_name": "Blood Collection Device For Cell-Free Nucleic Acid",
+        "medical_specialty_description": "Clinical Chemistry",
+        "regulation_number": "862.1676",
+        "device_class": "2"
+      },
+      "zip_code": "68128",
+      "applicant": "Streck, Inc.",
+      "decision_date": "2024-07-26",
+      "decision_code": "SESE",
+      "country_code": "US",
+      "device_name": "Cell-Free DNA BCT",
+      "advisory_committee": "CH",
+      "contact": "Wendy  Royalty",
+      "expedited_review_flag": "",
+      "k_number": "K231776",
+      "state": "NE",
+      "date_received": "2023-06-16",
+      "review_advisory_committee": "CH",
+      "postal_code": "68128",
+      "decision_description": "Substantially Equivalent",
+      "clearance_type": "Traditional"
+    },
+    {
+      "third_party_flag": "N",
+      "city": "La Vista",
+      "advisory_committee_description": "Clinical Chemistry",
+      "address_1": "7002 S 109th St.",
+      "address_2": "",
+      "statement_or_summary": "",
+      "product_code": "QMA",
+      "openfda": {
+        "registration_number": [
+          "3030896267",
+          "3007478714",
+          "3004597845",
+          "3013248161",
+          "3017953151",
+          "1950302"
+        ],
+        "fei_number": [
+          "3030896267",
+          "3007478714",
+          "3004597845",
+          "3013248161",
+          "3017953151",
+          "1950302"
+        ],
+        "device_name": "Blood Collection Device For Cell-Free Nucleic Acid",
+        "medical_specialty_description": "Clinical Chemistry",
+        "regulation_number": "862.1676",
+        "device_class": "2"
+      },
+      "zip_code": "68128",
+      "applicant": "Streck, Inc.",
+      "decision_date": "2020-08-07",
+      "decision_code": "DENG",
+      "country_code": "US",
+      "device_name": "Cell-Free DNA BCT",
+      "advisory_committee": "CH",
+      "contact": "Deborah  Kipp",
+      "expedited_review_flag": "",
+      "k_number": "DEN200001",
+      "state": "NE",
+      "date_received": "2020-01-10",
+      "review_advisory_committee": "CH",
+      "postal_code": "68128",
+      "decision_description": "Unknown",
+      "clearance_type": "Direct"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

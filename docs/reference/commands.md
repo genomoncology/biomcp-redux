@@ -1072,7 +1072,7 @@ Immutable stored bundle revision retained by a continuation. Value form: string;
 - `--classification`: FDA recall class.
 Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code. Value form: string; example: --classification 'Class I'; only with --source fda-device-recall.
 - `--classification-name`: FDA classification name phrase.
-Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type; 510(k) only. Value form: string; example: --classification-name <classification-name> (syntax; replace the placeholder with your retained value); only with --source fda-510k.
+Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type; 510(k) only. Value form: string; example: --classification-name cell-free; only with --source fda-510k.
 - `--condition-id`: Exact MedGen:CUI.
 Exact MedGen:CUI identifier only. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
 - `--decision-from`: First date, YYYY-MM-DD.
@@ -1099,7 +1099,7 @@ WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phra
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string; example: --marker HIV; only with --source who-ivd.
 - `--name`: Source test or device name.
-Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. Value form: string; example: --name 'FoundationOne CDx'; only with --source gtr, fda-pma, fda-510k or fda-device-recall.
+Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. Value form: string; example: --name cell-free; only with --source gtr, fda-pma, fda-510k or fda-device-recall.
 - `--offset`: Zero-based source result offset. Value form: integer; example: --offset 5.
 - `--prequalified-from`: WHO IVD year.
 First prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-from 2023; only with --source who-ivd.
