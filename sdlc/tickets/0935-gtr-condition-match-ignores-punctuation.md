@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-GTR condition and name matching ignores case, hyphens and spaces, so "non-small cell" also finds "Nonsmall cell" and "NonSmall Cell". The reply says matching is normalized.
+GTR test-name matching ignores letter case and hyphens in the name, and treats spaces and hyphens in the query as optional, so "non-small cell" also finds "Nonsmall cell" and "NonSmall Cell"; a name space is skipped only where the query had a space or hyphen, so "CF" does not match "Amniotic Fluid". The reply says how names were matched.
 
 ## Why
 
@@ -39,3 +39,4 @@ The persona's NSCLC slice of EGFR tests came back 0 (log.md:34-41); in NCBI's `t
 - Case `tests/cases/diagnostic/gtr-name-spelling.yaml` replays the live files cut to EGFR's 185 relation rows and their 185 version rows (`tests/replies/diagnostic/gtr-egfr/`): "non-small cell" with EGFR finds the four tests above, whole-word, and `lung` with EGFR still finds the persona's 19.
 - Idea, not built (PM, 2026-11-14): search GTR tests by condition name text with the same case, hyphen and space folding. In NCBI's file, 56 current tests (19 with EGFR) hold "Non-small cell" only in `condition_identifiers`, which `--name` does not read and `--condition-id` (MedGen ID) cannot reach by text.
 - Caps measured in job j40659 with the case runner (MCP replies were no larger than CLI): sync 197, "non-small cell" with EGFR 4,192, "lung" with EGFR at limit 50 17,147 bytes; caps set to measured plus 15% (227, 4,821, 19,720). The same job ran `make schema-generate docs-generate`; the tree stayed clean, so the checked-in schemas and `docs/reference/commands.md` match the generated output.
+- Review fix (2026-11-14): dropping every space from names let short text match across words ("CF" 551 → 803, matching "Amniotic Fluid" and "Hepatic failure"). The rule now ignores letter case and hyphens in the name, and treats spaces and hyphens in the query as optional; a name space is skipped only where the query had a space or hyphen. The reviewer measured that this keeps "non-small cell" at 7 current tests (the 4 EGFR ones whole-word), "BRCA 1" 64 and "T cell" 57, and returns "CF" to 551 and "ran" to 1,085. Unit tests in `gtr/name_tests.rs` cover the rule, including "CF" against "Amniotic Fluid Culture". The notice, help and schema descriptions say "hyphens and spaces in your text are optional", and the notice is left off when the GTR read failed. The earlier bullets describe the first rule.

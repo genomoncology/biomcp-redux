@@ -49,7 +49,7 @@
         "/result/items/2/name_match": "whole-word",
         "/result/items/3/header/id": "GTR000604346.1",
         "/sources/0/notices/*/message": {
-          "includes": "--name matched GTR lab_test_name ignoring letter case, hyphens and spaces, so non-small cell also finds Nonsmall cell; no synonym or abbreviation expansion."
+          "includes": "--name matched GTR lab_test_name ignoring letter case and hyphens; hyphens and spaces in your text are optional, so non-small cell also finds Nonsmall cell; no synonym or abbreviation expansion."
         }
       }
     },
