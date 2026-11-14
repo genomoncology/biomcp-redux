@@ -32,3 +32,11 @@ The UI team, building the BioMCP 1.0 docs demo, reported it through Jarvis (m359
 ## Changes
 
 - Changes: `crates/biomcp/src/view/escape.rs`, `help.rs` if its reversal becomes unnecessary, cases, generated docs.
+
+## Progress
+
+- Measured with cmark-gfm (GitHub's reference renderer, Python binding) on 2026-11-14. GFM's extended autolinks are the only constructs `.`, `:` and `@` start: `www.` (any case in practice), `http://`, `https://` and `ftp://` (cmark-gfm also accepts ftp), email addresses, and `mailto:`/`xmpp:` before an email. A full stop also starts an ordered list after leading digits (`1. text`); `1)` already did, so 0348 never covered lists.
+- `www.` and `://` links start while the renderer parses inline text, so a backslash before the `.` or `:` stops them (`www\.example.org`, `https\://example.org`).
+- Email links are found after the renderer joins adjacent text, so neither a backslash nor the old `&#64;`/`&#46;` stops them: cmark-gfm rendered the old `user&#64;example&#46;org` as a live `mailto:` link, so 0348's email guarantee did not hold. A code span splits the text: `user`@`example.org` renders `user<code>@</code>example.org`, with the same visible text and no link.
+- Changed `view/escape.rs`: source text keeps `.`, `:` and `@` plain, except `\:` before `//`, `\.` after `www`, and a code-span `@` after a character that can end an email local part or a `mailto:`/`xmpp:` scheme. Help keeps its old output through `escape::product`, which replaces the reversal in `help.rs`.
+- Proof: runner trial `markdown-view/source-fields-are-data` restores 0348's replay check (cut by 0484) and renders the Markdown with comrak 0.57.0 (GFM options, test-only dev-dependency): no source link, mailto, image, script, heading or code block; product terms link and `sh` next steps stay live. Case `trial/markdown-punctuation.yaml` checks the recorded NCT03228667 title "QUILT-3.055: A Study of …" reads plainly.

@@ -119,6 +119,7 @@ mod schema_proof;
 tool_only! { mod semantic_tables; }
 mod cache_errors;
 mod snapshot_errors;
+mod source_text;
 mod source_queries;
 mod source_terms;
 mod store_clean;
@@ -282,6 +283,7 @@ pub(super) fn protocol_trials() -> Vec<Trial> {
     trials.extend(replay::trials());
     trials.extend(output_stream::trials());
     trials.extend(research::trials());
+    trials.extend(source_text::trials());
     trials.extend(trial_gene::trials());
     trials.extend(trial_continuation::trials());
     trials.extend(cache_contention::trials());
