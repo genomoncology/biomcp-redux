@@ -19,6 +19,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::WHO,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 const SET: biomcp_fetch::BundleSet<raw::Native> = biomcp_fetch::BundleSet {

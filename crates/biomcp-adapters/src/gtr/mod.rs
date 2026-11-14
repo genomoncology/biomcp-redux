@@ -26,6 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::GTR,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 fn revision(

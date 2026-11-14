@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::ALLELE_REGISTRY,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const ALLELE: Endpoint = SPEC
     .get("/allele")

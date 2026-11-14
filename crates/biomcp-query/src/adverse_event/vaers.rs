@@ -14,7 +14,7 @@ type Saved = (VaersSummary, Vec<SourceOutcome>);
 pub(super) fn search(cx: &Ctx<'_>, q: &AdverseEventSearch) -> Outcome {
     let mut out = super::unsupported();
     out.body = biomcp_types::VaersSummary::into_reply(q.clone(), None);
-    let command = cx.fetch.command_deadline(cx.budget);
+    let command = cx.fetch.command_deadline(vaers::SPEC.budget_for(cx.budget));
     let deadline = command.deadline();
     if let Err(error) = read(cx, q, deadline, &mut out) {
         out.local = status::local(error);

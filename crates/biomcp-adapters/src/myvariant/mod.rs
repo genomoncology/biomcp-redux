@@ -34,6 +34,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::BIOTHINGS,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const QUERY: Endpoint = SPEC.get("/query").fresh(Freshness::Days(1));
 const VARIANT: Endpoint = SPEC.get("/variant").fresh(Freshness::Days(1));

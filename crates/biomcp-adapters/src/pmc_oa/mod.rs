@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::PMC_OA,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const LIST: Endpoint = SPEC.get("/").fresh(Freshness::Days(1));
 const FILE: Endpoint = SPEC.get("/").octet_stream().fresh(Freshness::Days(7));

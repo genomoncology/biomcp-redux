@@ -20,6 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &crate::quotas::SEMANTIC_SCHOLAR,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 mod search;

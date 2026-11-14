@@ -20,9 +20,17 @@ pub struct SourceSpec {
     pub quota: &'static crate::Quota,
     /// Maximum duration of this source's leg.
     pub deadline: Duration,
+    /// Least whole-command budget a command calling this source gets; absent keeps the caller's.
+    /// A slow source sets this so its own deadline is not cut short by the shorter default budget.
+    pub command_budget: Option<Duration>,
 }
 
 impl SourceSpec {
+    /// The budget for a command that calls this source: the caller's, or this source's declared
+    /// minimum when that is larger. A caller's whole-call limit still caps the command's deadline.
+    pub fn budget_for(&self, caller: Duration) -> Duration {
+        self.command_budget.map_or(caller, |least| caller.max(least))
+    }
     /// Declare a JSON GET endpoint belonging to this source.
     pub const fn get(&'static self, path: &'static str) -> Endpoint {
         Endpoint {

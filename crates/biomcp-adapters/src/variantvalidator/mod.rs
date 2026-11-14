@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::VARIANT_VALIDATOR,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const VALIDATE: Endpoint = SPEC
     .get("/variantvalidator")

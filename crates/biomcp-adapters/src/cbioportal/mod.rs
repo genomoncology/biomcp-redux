@@ -21,6 +21,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &crate::quotas::CBIOPORTAL,
     deadline: Duration::from_secs(15),
+    command_budget: None,
     terms: biomcp_fetch::Terms {
         name: "ODbL with attribution; individual studies may restrict commercial use",
         url: "https://docs.cbioportal.org/user-guide/faq/",

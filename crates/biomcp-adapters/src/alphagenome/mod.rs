@@ -41,6 +41,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &crate::quotas::ALPHAGENOME,
     deadline: std::time::Duration::from_secs(120),
+    command_budget: None,
 };
 /// One documented prediction method, with complete-stream admission and no cache.
 pub const PREDICT_VARIANT: biomcp_fetch::grpc::GrpcEndpoint = SPEC
