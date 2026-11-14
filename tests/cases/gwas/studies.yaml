@@ -37,6 +37,9 @@
         "--limit",
         "50"
       ],
+      "starts_within": {
+        "/result/page/total": 1200
+      },
       "expect": {
         "/status": "complete",
         "/result/items": {

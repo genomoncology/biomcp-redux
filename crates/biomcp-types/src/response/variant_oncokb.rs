@@ -38,11 +38,12 @@ pub struct VariantOncokb {
     /// Native alternate allele curation flag.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allele_exist: Option<bool>,
+    // The page comes before the rows (0942): a reader of only the start sees the total.
+    /// Disclosure bounds over the records, independent of identity paging.
+    pub page: PageInfo,
     /// Source claims and text in native field order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[OncokbVariantRecord]>,
-    /// Disclosure bounds over the records, independent of identity paging.
-    pub page: PageInfo,
     /// Continue without changing identity, build, tumor context or source.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next: Option<VariantGet>,

@@ -54,11 +54,12 @@ pub struct PathwayPageInfo {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PathwayPage {
+    // The total comes before the rows (0942): a reader of only the start sees it.
+    /// Native position and total provenance.
+    pub page: PathwayPageInfo,
     /// Whole admitted pathway headers in native order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[PathwayHeader]>,
-    /// Native position and total provenance.
-    pub page: PathwayPageInfo,
 }
 impl ResponseBody for PathwayPage {
     const SCHEMA: &'static str = "biomcp.pathway-page/8";
@@ -97,15 +98,16 @@ impl ResponseBody for PathwayCard {
 pub struct PathwayGenes {
     /// Exact source pathway owning this relation.
     pub header: PathwayHeader,
-    /// Distinct namespaced source references in first occurrence order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub items: Box<[PathwayMember]>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Distinct-reference total and continuation.
     pub page: PathwayPageInfo,
     /// All reference occurrences across physical entities before distinct-reference grouping.
     pub reference_occurrences: u64,
     /// All native physical entities, never described as gene counts.
     pub physical_entities: u64,
+    /// Distinct namespaced source references in first occurrence order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[PathwayMember]>,
 }
 impl ResponseBody for PathwayGenes {
     const SCHEMA: &'static str = "biomcp.pathway-genes/9";

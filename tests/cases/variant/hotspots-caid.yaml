@@ -11,6 +11,9 @@
         "CA123643",
         "hotspots"
       ],
+      "starts_within": {
+        "/result/candidates/0/sections/hotspots/data/page/total": 1200
+      },
       "expect": {
         "/result/candidates/0/sections/hotspots/data/records/0/residue": "V600",
         "/result/candidates/0/sections/hotspots/data/records/0/tumor_count": 12,

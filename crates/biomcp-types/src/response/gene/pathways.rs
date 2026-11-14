@@ -6,9 +6,10 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 #[cfg_attr(feature = "schema", schemars(rename = "Capped_{T}"))]
 pub struct Capped<T> {
+    // The total comes before the rows (0942): a reader of only the start sees it.
+    /// Distinct references before capping.
+    pub total: u64,
     /// References in stable source order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[T]>,
-    /// Distinct references before capping.
-    pub total: u64,
 }

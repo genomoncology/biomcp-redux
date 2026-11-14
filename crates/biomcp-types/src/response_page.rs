@@ -1,4 +1,6 @@
 //! Concrete response pages retain their public schema names and field order.
+//! Totals and pages come before the rows (0942, as 0939): `$before` holds them, so an agent
+//! that reads only the start of a long reply sees that the rows are one page of more.
 macro_rules! page {
     (protein, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         page!(
@@ -6,22 +8,22 @@ macro_rules! page {
     };
     (diagnostic, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal $(, [$($extra:tt)*])?) => {
         page!(
-            @body, $name, $row, $query, $schema, $doc, [], "Complete source-owned rows in native order; envelope totals count native rows.", [], [
+            @body, $name, $row, $query, $schema, $doc, [], "Complete source-owned rows in native order; envelope totals count native rows.", [
             /// Exact meaning of the envelope total; supplied by the owning source command.
             #[serde(default, skip_serializing_if = "Option::is_none")]
             pub count_unit: Option<DiagnosticCountUnit>,
             /// Distinct complete native IDs across the selected relation collection.
             #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub distinct_id_total: Option<u64>,
+            pub distinct_id_total: Option<u64>,], [
             $($($extra)*)?]);
     };
     (study, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
         page!(
             @body, $name, $row, $query, $schema, $doc, [Eq], "Complete ordered metadata records, never member sample IDs.", [
             /// Exact study scope of this collection.
-            pub study_id: StudyId,], [
+            pub study_id: StudyId,
             /// Bounds and source-stated total for this collection.
-            pub page: PageInfo,
+            pub page: PageInfo,], [
             /// Live collection acquisition wall time in Unix seconds, distinct from catalog acquisition.
             #[serde(default, skip_serializing_if = "Option::is_none")]
             pub acquired: Option<u64>,]);
@@ -38,9 +40,9 @@ macro_rules! page {
         page!(
             @body, $name, $row, $query, $schema, $doc, [], "Whole native references; unresolved identities remain visible.", [
             /// Exact source pathway owning this relation.
-            pub header: PathwayHeader,], [
+            pub header: PathwayHeader,
             /// Relation-specific count provenance and continuation.
-            pub page: PathwayPageInfo,]);
+            pub page: PathwayPageInfo,], []);
     };
     (phenotype, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal $(, [$($extra:tt)*])?) => {
         page!(

@@ -5,15 +5,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasPage {
-    /// Shared complete association records.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub items: Box<[GwasAssociation]>,
+    // The page comes before the rows (0942): a reader of only the start sees the total.
     /// Native page scope and total.
     pub page: PageInfo,
     /// Complete qualifying count, unknown until the threshold walk reaches its end.
     #[serde(default)]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub qualifying_total: Option<u64>,
+    /// Shared complete association records.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[GwasAssociation]>,
     /// Same-selector search continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(with = "GwasPageQuery"))]

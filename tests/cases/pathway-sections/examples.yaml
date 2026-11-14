@@ -11,6 +11,9 @@
         "genes",
         "R-HSA-5673001"
       ],
+      "starts_within": {
+        "/result/page/total": 1200
+      },
       "expect": {
         "/status": "complete",
         "/result/items/0/reference/id": "P15056"
@@ -54,6 +57,9 @@
         "--limit",
         "50"
       ],
+      "starts_within": {
+        "/result/page/total": 1200
+      },
       "expect": {
         "/status": "complete",
         "/result/page/returned": 50,
