@@ -192,10 +192,6 @@ fn measure(value: &Value, args: &[String]) -> Check {
             crate::runner::output_limit("faers-search-envelope-1659")?,
         )
     };
-    eprintln!("MEASURE search {:?} {full} {bytes} caps {caps:?}", value.get("query"));
-    if std::env::var_os("MEASURE").is_some() {
-        return Ok(());
-    }
     if full > caps.0 || bytes > caps.1 {
         return Err(format!(
             "FAERS synthetic budget exceeded: {full}/{bytes} > {caps:?}"

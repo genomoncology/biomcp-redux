@@ -280,10 +280,6 @@ fn budget(value: &Value, full: usize, comparable: usize) -> Check {
         (measured.0 * 115).div_ceil(100),
         (measured.1 * 115).div_ceil(100),
     );
-    eprintln!("MEASURE get {section} {status} {full} {comparable} measured {measured:?}");
-    if std::env::var_os("MEASURE").is_some() {
-        return Ok(());
-    }
     if full > caps.0 || comparable > caps.1 {
         return Err(format!(
             "FAERS output exceeds measured +15% ceiling: {full}/{comparable} > {caps:?}"
