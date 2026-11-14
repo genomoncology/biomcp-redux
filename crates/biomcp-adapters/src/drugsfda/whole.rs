@@ -50,6 +50,7 @@ pub(super) fn page(
         all.problems.extend(next.problems);
         all.records.extend(next.records);
     }
+    all.read = Some(all.records.len() as u64);
     let mut kept: Vec<_> = all
         .records
         .into_iter()

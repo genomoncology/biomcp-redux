@@ -71,6 +71,9 @@ pub struct Page {
     /// The source's total when BioMCP read the whole match set to order or window it; past
     /// `WHOLE_MOST` nothing beyond the first read is fetched and no rows are returned.
     pub matched: Option<u64>,
+    /// How many of `matched` BioMCP read; fewer when a later read came back empty early, so the
+    /// order or window covers only those.
+    pub read: Option<u64>,
     /// Actual transport retrieval metadata.
     pub metadata: ReplyMetadata,
     /// Native dataset last_updated date; distinct from record events and retrieval.
@@ -213,6 +216,7 @@ fn read(
         records: records.into_iter().map(map::Application).collect(),
         total,
         matched: None,
+        read: None,
         metadata,
         updated,
     })
