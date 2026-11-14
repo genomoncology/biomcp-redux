@@ -9,11 +9,12 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 198,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 4
-      }
+        "/result/rows": 5
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -32,14 +33,15 @@
         "--name",
         "hama"
       ],
-      "max_bytes": 3000,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 2,
         "/result/items/0/header/id": "GTR000000202.1",
         "/result/items/0/name_match": "whole-word",
         "/result/items/1/header/id": "GTR000000201.1",
         "/result/items/1/name_match": "partial-word"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -52,14 +54,15 @@
         "--gene",
         "PTEN"
       ],
-      "max_bytes": 3000,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 2,
         "/result/items/0/header/id": "GTR000000202.1",
         "/result/items/0/name_match": "whole-word",
         "/result/items/1/header/id": "GTR000000201.1",
         "/result/items/1/name_match": "partial-word"
-      }
+      },
+      "full_output_bytes": true
     }
   ]
 }

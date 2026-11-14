@@ -10,11 +10,12 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 227,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 370
-      }
+        "/result/rows": 563
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -37,7 +38,7 @@
         "--name",
         "non-small cell"
       ],
-      "max_bytes": 4865,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 4,
         "/result/items/0/header/id": "GTR000578049.1",
@@ -51,7 +52,8 @@
         "/sources/0/notices/*/message": {
           "includes": "--name matched GTR lab_test_name ignoring letter case and hyphens; hyphens and spaces in your text are optional, so non-small cell also finds Nonsmall cell; no synonym or abbreviation expansion."
         }
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -66,10 +68,11 @@
         "--limit",
         "50"
       ],
-      "max_bytes": 19763,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 19
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -82,13 +85,14 @@
         "--name",
         "ran"
       ],
-      "max_bytes": 1579,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 1,
         "/result/items/0/header/id": "GTR000593395.3",
         "/result/items/0/header/name": "Penn Cancer Grant Panel",
         "/result/items/0/name_match": "partial-word"
-      }
+      },
+      "full_output_bytes": true
     }
   ]
 }

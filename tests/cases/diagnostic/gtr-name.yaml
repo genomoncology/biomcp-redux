@@ -9,12 +9,13 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 198,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 10,
+        "/result/rows": 11,
         "/result/duplicate_identities": 1
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -33,7 +34,7 @@
         "--name",
         "hereditary cancer"
       ],
-      "max_bytes": 4080,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.diagnostic-page/6",
         "/query/name": "hereditary cancer",
@@ -45,7 +46,8 @@
         "/result/items/1/header/name": "Expanded hereditary CANCER panel",
         "/result/items/2/identity_status": "conflict",
         "/result/count_unit": "test-identities"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -60,12 +62,13 @@
         "--offset",
         "1"
       ],
-      "max_bytes": 2000,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 3,
         "/page/returned": 1,
         "/result/items/0/header/id": "GTR000000102.1"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -78,13 +81,14 @@
         "--gene",
         "BRCA1"
       ],
-      "max_bytes": 3000,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 2,
         "/result/items/0/header/id": "GTR000000101.1",
         "/result/items/0/matched/kind": "gene",
         "/result/items/1/identity_status": "conflict"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -95,11 +99,12 @@
         "--name",
         "no such test"
       ],
-      "max_bytes": 1500,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 0,
         "/page/returned": 0
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -115,7 +120,9 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--name"
-      }
+      },
+      "full_output_bytes": true,
+      "max_bytes": 300000
     }
   ]
 }

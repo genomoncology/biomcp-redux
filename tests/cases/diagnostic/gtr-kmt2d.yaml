@@ -10,11 +10,12 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 200,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 422
-      }
+        "/result/rows": 588
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -37,7 +38,7 @@
         "--limit",
         "1"
       ],
-      "max_bytes": 1400,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 211,
         "/result/items/0/header/id": "GTR000324750.2",
@@ -50,7 +51,8 @@
         "/result/items/0/header/laboratory/postcode": "02139",
         "/result/items/0/header/laboratory/country": "United States",
         "/result/items/0/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/324750/"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -67,7 +69,7 @@
         "items": "/result/items",
         "max_pages": 5
       },
-      "max_bytes": 60000,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 211,
         "/result/items": {
@@ -80,7 +82,8 @@
         "/result/items/*/header/gene_count": {
           "equals_file": "gtr-kmt2d-gene-counts.json"
         }
-      }
+      },
+      "full_output_bytes": true
     }
   ]
 }

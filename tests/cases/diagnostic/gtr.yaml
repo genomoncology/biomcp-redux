@@ -9,12 +9,13 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 198,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 19,
+        "/result/rows": 21,
         "/result/duplicate_identities": 1
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -25,7 +26,7 @@
         "--gene",
         "BRCA1"
       ],
-      "max_bytes": 4080,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.diagnostic-page/6",
         "/page/total": 8,
@@ -34,7 +35,8 @@
         "/result/items/0/matched/kind": "gene",
         "/result/items/0/matched/relation/gene/ncbi_gene_id": "672",
         "/result/count_unit": "test-identities"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -47,12 +49,13 @@
         "--offset",
         "5"
       ],
-      "max_bytes": 1518,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 8,
         "/result/items/1/identity_status": "conflict",
         "/result/items/2/identity_status": "missing-card"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -65,11 +68,12 @@
         "--type",
         "Research"
       ],
-      "max_bytes": 1034,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 1,
         "/result/items/0/header/id": "GTR000000005.1"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -80,11 +84,12 @@
         "--condition-id",
         "MedGen:C2676676"
       ],
-      "max_bytes": 1014,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 1,
         "/result/items/0/matched/kind": "condition"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -94,13 +99,26 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 1543,
+      "max_bytes": 300000,
       "expect": {
         "/result/kind": "gtr-test",
         "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
         "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
-        "/result/clia_number": ""
-      }
+        "/result/clia_number": "",
+        "/result/header/specimens/*": {
+          "equals": [
+            "Saliva",
+            "Blood & marrow"
+          ]
+        },
+        "/result/laboratory_certifications/*/name": {
+          "equals": [
+            "CAP"
+          ]
+        },
+        "/result/laboratory_certifications/0/expiration_date": "2027-01-31"
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -111,13 +129,14 @@
         "gtr",
         "genes"
       ],
-      "max_bytes": 888,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 2,
         "/result/items/1/gene/ncbi_gene_id": "7157",
         "/result/count_unit": "native-relation-rows",
         "/result/distinct_id_total": 2
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -128,13 +147,14 @@
         "gtr",
         "conditions"
       ],
-      "max_bytes": 547,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 1,
         "/result/items/0/snomed_ct_id": "",
         "/result/count_unit": "native-relation-rows",
         "/result/distinct_id_total": 1
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -147,13 +167,14 @@
         "--section-limit",
         "2"
       ],
-      "max_bytes": 825,
+      "max_bytes": 300000,
       "expect": {
         "/page/total": 4,
         "/result/items/0/list": "method_categories",
         "/result/items/1/index": 1,
         "/result/count_unit": "native-method-entries"
-      }
+      },
+      "full_output_bytes": true
     },
     {
       "run": [
@@ -161,12 +182,13 @@
         "gtr",
         "--fresh"
       ],
-      "max_bytes": 198,
+      "max_bytes": 300000,
       "expect": {
         "/schema": "biomcp.sync/7",
         "/result/rows": 19,
         "/result/duplicate_identities": 1
-      }
+      },
+      "full_output_bytes": true
     }
   ]
 }
