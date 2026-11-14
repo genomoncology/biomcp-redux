@@ -32,5 +32,23 @@ case "${1:-cases}" in
     wc -c "$home/page.json"
     du -sh "$home"
     ;;
+  rss)
+    # Sample the sync's resident memory every 0.25 s to show which phase sets the peak.
+    if [ -n "${2:-}" ]; then git checkout "$2" -- crates Cargo.toml Cargo.lock; fi
+    cargo build --locked --release -p biomcp --bin biomcp
+    home=$(mktemp -d)
+    export XDG_CACHE_HOME="$home/cache" XDG_CONFIG_HOME="$home/config" XDG_DATA_HOME="$home/data"
+    target/release/biomcp sync gtr > "$home/sync.json" &
+    pid=$!
+    start=$(date +%s)
+    while kill -0 "$pid" 2>/dev/null; do
+      rss=$(ps -o rss= -p "$pid" 2>/dev/null || true)
+      net=$(nettop -P -L 1 -p "$pid" -J bytes_in 2>/dev/null | tail -1 || true)
+      echo "t=$(( $(date +%s) - start )) rss_kib=${rss:-gone} net=${net:-?}"
+      sleep 0.25
+    done
+    wait "$pid"
+    cat "$home/sync.json"
+    ;;
   *) exit 2 ;;
 esac
