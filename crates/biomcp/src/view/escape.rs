@@ -15,7 +15,12 @@ pub(crate) fn product(text: &str) -> String {
 // Any Unicode letter or digit counts, since some GFM renderers accept them.
 fn write(text: &str, source: bool) -> String {
     let mut out = String::with_capacity(text.len());
-    for (at, ch) in text.char_indices() {
+    let start = if source {
+        block_start(text, &mut out)
+    } else {
+        0
+    };
+    for (at, ch) in text.char_indices().skip_while(|(at, _)| *at < start) {
         match ch {
             '&' => out.push_str("&amp;"),
             '<' => out.push_str("&lt;"),
@@ -49,6 +54,33 @@ fn write(text: &str, source: bool) -> String {
         }
     }
     out
+}
+// A value may open a line, as a list item or a paragraph. A leading space,
+// bullet, ordered-list number or dash rule there would start a code block, a
+// nested list or a rule, so it is escaped; returns the bytes written.
+fn block_start(text: &str, out: &mut String) -> usize {
+    let digits = text.bytes().take_while(u8::is_ascii_digit).count();
+    let after = |at: usize| matches!(text.as_bytes().get(at), None | Some(b' '));
+    if text.starts_with(' ') {
+        out.push_str("&#32;");
+        1
+    } else if (text.starts_with(['-', '+']) && after(1))
+        || (text.len() >= 3 && text.chars().all(|ch| ch == '-' || ch == ' '))
+    {
+        out.push('\\');
+        out.push_str(&text[..1]);
+        1
+    } else if (1..=9).contains(&digits)
+        && text[digits..].starts_with(['.', ')'])
+        && after(digits + 1)
+    {
+        out.push_str(&text[..digits]);
+        out.push('\\');
+        out.push_str(&text[digits..=digits]);
+        digits + 1
+    } else {
+        0
+    }
 }
 /// Only the product registry's source terms URL may use this route.
 pub(crate) fn source_link(text: &str) -> String {
