@@ -1,0 +1,37 @@
+{
+  "feature": "variant-identity",
+  "live_check": "CAR and VariantValidator replies captured unchanged on 2026-11-13 (job j39937) for CAMK2D c.1140T>C tried on the MANE transcript NM_001321571.2, where c.1140 is A; T is the base on the older transcript NM_172114.2 (checked with CAR the same day).",
+  "replay": "variant/normalization/transcript-order",
+  "story": "The fit check asks about a gene's older short RefSeq accessions first, the ones labs most often used, so CAMK2D's NM_001221 and NM_1721xx transcripts are in the first group of 20 and the first fit lands there.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--hgvs",
+        "NM_001321571.2:c.1140T>C"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/results/0/outcome": "rejected",
+        "/result/results/0/fits/0/hgvs": "NM_001221.4:c.1140T>C",
+        "/result/results/0/fits/*/hgvs": {
+          "includes": "NM_172114.2:c.1140T>C"
+        },
+        "/result/results/1/hgvs": "NM_001221.4:c.1140T>C",
+        "/result/results/1/outcome": "resolved",
+        "/result/results/2/hgvs": "NM_172114.2:c.1140T>C",
+        "/next/0/args": [
+          "get",
+          "variant",
+          "CA440841914",
+          "clinvar"
+        ],
+        "/sources/1/source": "variantvalidator",
+        "/sources/1/state": "ok"
+      }
+    }
+  ]
+}
