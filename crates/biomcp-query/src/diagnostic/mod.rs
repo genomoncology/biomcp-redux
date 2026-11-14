@@ -128,9 +128,25 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     }
     finish_bundle(&mut out, leg, error, source, bundle);
     status::search(&mut out);
+    if !who && error.is_none() {
+        name_notice(&mut out, q);
+    }
     command.finish(deadline.remaining());
     out
 }
+/// Say how GTR matched `--name`, so a zero is read against the matching rule.
+fn name_notice(out: &mut Outcome, q: &DiagnosticSearch) {
+    if q.name().is_some()
+        && let Some(source) = out.sources.last_mut()
+    {
+        source
+            .notices
+            .push(recall::guidance(GTR_NAME_NOTICE.into()));
+    }
+}
+const GTR_NAME_NOTICE: &str = "--name matched GTR lab_test_name ignoring letter case and hyphens; \
+    hyphens and spaces in your text are optional, so non-small cell also finds Nonsmall cell; \
+    no synonym or abbreviation expansion.";
 fn search_source(
     source: DiagnosticSearchSource,
 ) -> (

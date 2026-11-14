@@ -3011,7 +3011,7 @@
               "type": "null"
             }
           ],
-          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name.",
+          "description": "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional.",
           "x-required-component": [
             "gtr",
             "fda-pma",

@@ -1,0 +1,94 @@
+{
+  "verified": "GTR test_condition_gene.txt and test_version.gz (both Last-Modified 2026-11-05) fetched live in job j40568 on 2026-11-14, then cut to EGFR's 185 gene relation rows and those tests' 185 version rows, unchanged. In the full catalog, 4 current EGFR tests spell the phrase Nonsmall cell or NonSmall Cell and none writes non-small cell; GTR000569877.2 writes its dash as mis-encoded text and stays unmatched.",
+  "live_check": "public replies cut to one gene's rows; no live provider call",
+  "feature": "diagnostic-gtr",
+  "story": "A lab director looking for EGFR tests aimed at non-small cell lung cancer types the phrase with its usual hyphen and still finds the tests whose names write it Nonsmall cell or NonSmall Cell, and the reply says how names were matched. Short text such as ran still matches only inside a word, never across a space: Tumor Analysis and Cancer and Ovarian stay out.",
+  "replay": "diagnostic/gtr-egfr",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "gtr"
+      ],
+      "max_bytes": 227,
+      "expect": {
+        "/schema": "biomcp.sync/7",
+        "/result/rows": 370
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--name",
+        "non-small cell"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--name",
+        "non-small cell"
+      ],
+      "max_bytes": 4865,
+      "expect": {
+        "/page/total": 4,
+        "/result/items/0/header/id": "GTR000578049.1",
+        "/result/items/0/header/name": "Nonsmall cell lung cancer, susceptibility to, 211980, Autosomal recessive (EGFR gene) (Sequence Analysis) (Postnatal)",
+        "/result/items/0/name_match": "whole-word",
+        "/result/items/1/header/id": "GTR000578438.1",
+        "/result/items/2/header/id": "GTR000595767.1",
+        "/result/items/2/header/name": "NonSmall Cell Lung Cancer Genetic Panel",
+        "/result/items/2/name_match": "whole-word",
+        "/result/items/3/header/id": "GTR000604346.1",
+        "/sources/0/notices/*/message": {
+          "includes": "--name matched GTR lab_test_name ignoring letter case and hyphens; hyphens and spaces in your text are optional, so non-small cell also finds Nonsmall cell; no synonym or abbreviation expansion."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--name",
+        "lung",
+        "--limit",
+        "50"
+      ],
+      "max_bytes": 19763,
+      "expect": {
+        "/page/total": 19
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "gtr",
+        "--gene",
+        "EGFR",
+        "--name",
+        "ran"
+      ],
+      "max_bytes": 1579,
+      "expect": {
+        "/page/total": 1,
+        "/result/items/0/header/id": "GTR000593395.3",
+        "/result/items/0/header/name": "Penn Cancer Grant Panel",
+        "/result/items/0/name_match": "partial-word"
+      }
+    }
+  ]
+}

@@ -128,7 +128,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     classification: Option<crate::DrugRecallClassification>,
-    #[doc = "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name."]
+    #[doc = "Native test or device name.\nPhrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, \
+    ignoring letter case; hyphens and spaces in your text are optional."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = NAME_SOURCES)))]
     name: Option<Text>,
@@ -335,7 +336,8 @@ impl DiagnosticSearch {
     pub fn classification(&self) -> Option<crate::DrugRecallClassification> {
         self.0.classification
     }
-    /// Native device name phrase, device recall product description phrase or literal GTR test name text.
+    /// Native device name phrase, device recall product description phrase or GTR test name text,
+    /// ignoring letter case; hyphens and spaces in your text are optional.
     pub fn name(&self) -> Option<&Text> {
         self.0.name.as_ref()
     }

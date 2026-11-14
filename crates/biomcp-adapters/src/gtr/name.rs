@@ -1,4 +1,5 @@
-//! Literal GTR test-name matching over the whole pinned version report, before counts and paging.
+//! GTR test-name matching, ignoring letter case and name hyphens, with optional query spaces and
+//! hyphens, over the whole pinned version report, before counts and paging.
 use super::{bundle, map, raw::Native};
 use biodata::{GtrTestId, GtrTestVersion};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
@@ -6,17 +7,73 @@ use biomcp_types::{DiagnosticCandidate, DiagnosticSearch, GtrNameMatch, Problem}
 use std::collections::HashMap;
 type Version = Box<GtrTestVersion>;
 
-/// Case-insensitive literal containment of the query text in a native name cell.
-pub(super) fn contains(name: &str, query: &str) -> bool {
-    name.to_lowercase().contains(&query.to_lowercase())
+/// Hyphens, which a name never needs to match: "Non-small" meets "Nonsmall".
+fn hyphen(c: char) -> bool {
+    matches!(c, '-' | '\u{2010}' | '\u{2011}' | '\u{ad}')
 }
 
-/// Whether a lower-cased needle occurs in a name with no letter or digit touching either end.
-fn whole_word(name: &str, needle: &str) -> bool {
-    let name = name.to_lowercase();
-    name.match_indices(needle).any(|(at, _)| {
-        let before = name.get(..at).and_then(|v| v.chars().next_back());
-        let after = name.get(at + needle.len()..).and_then(|v| v.chars().next());
+/// Folded `--name` text: lower-cased characters, each marked when a space or hyphen came
+/// before it, where the name may hold spaces or nothing. Text of only those matches nothing.
+fn needle(query: &str) -> Option<Vec<(char, bool)>> {
+    let mut out = Vec::new();
+    let mut gap = false;
+    for c in query.chars() {
+        if c.is_whitespace() || hyphen(c) {
+            gap = !out.is_empty();
+            continue;
+        }
+        for (i, lower) in c.to_lowercase().enumerate() {
+            out.push((lower, gap && i == 0));
+        }
+        gap = false;
+    }
+    (!out.is_empty()).then_some(out)
+}
+
+/// Lower-cased name characters without hyphens, each with its source byte span.
+fn fold(name: &str) -> Vec<(char, usize, usize)> {
+    name.char_indices()
+        .filter(|(_, c)| !hyphen(*c))
+        .flat_map(|(at, c)| {
+            c.to_lowercase()
+                .map(move |lower| (lower, at, at + c.len_utf8()))
+        })
+        .collect()
+}
+
+/// Source byte spans of every match: name spaces are skipped only where the query had a gap,
+/// so "CF" never meets "Amniotic Fluid" while "non-small cell" meets "Nonsmall cell".
+fn spans(name: &str, needle: &[(char, bool)]) -> Vec<(usize, usize)> {
+    let chars = fold(name);
+    let mut out = Vec::new();
+    for begin in 0..chars.len() {
+        let mut rest = chars.get(begin..).unwrap_or_default().iter().peekable();
+        let mut last = None;
+        let matched = needle.iter().all(|(want, gap)| {
+            if *gap && last.is_some() {
+                while rest.next_if(|(c, ..)| c.is_whitespace()).is_some() {}
+            }
+            rest.next_if(|(c, ..)| c == want)
+                .inspect(|v| last = Some(**v))
+                .is_some()
+        });
+        if let (true, Some((_, start, _)), Some((_, _, end))) = (matched, chars.get(begin), last) {
+            out.push((*start, end));
+        }
+    }
+    out
+}
+
+/// Whether the query occurs in a native name cell under the folding rule above.
+pub(super) fn contains(name: &str, query: &str) -> bool {
+    needle(query).is_some_and(|needle| !spans(name, &needle).is_empty())
+}
+
+/// Whether a folded needle occurs in a name with no letter or digit touching either end.
+fn whole_word(name: &str, needle: &[(char, bool)]) -> bool {
+    spans(name, needle).into_iter().any(|(start, end)| {
+        let before = name.get(..start).and_then(|v| v.chars().next_back());
+        let after = name.get(end..).and_then(|v| v.chars().next());
         !before.is_some_and(char::is_alphanumeric) && !after.is_some_and(char::is_alphanumeric)
     })
 }
@@ -46,7 +103,7 @@ pub(super) fn read(
 ) -> Result<Named, RequestError> {
     let (rows, info) = bundle::read(leg, Find::Exact(KeyKind::Band, "versions"))?;
     super::revision(query.bundle_revision(), &info)?;
-    let needle = name.to_lowercase();
+    let needle = needle(name);
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
         record: None,
@@ -73,7 +130,7 @@ pub(super) fn read(
     }
     let matches: HashMap<_, _> = versions
         .iter()
-        .filter_map(|(id, list)| Some((id.clone(), listed(list, &needle)?)))
+        .filter_map(|(id, list)| Some((id.clone(), listed(list, needle.as_deref()?)?)))
         .collect();
     versions.retain(|id, _| matches.contains_key(id));
     ids.retain(|id| matches.contains_key(id));
@@ -89,7 +146,7 @@ pub(super) fn read(
 }
 
 /// How a current card, or any row of an accession/version conflict, matches by name.
-fn listed(list: &[Version], needle: &str) -> Option<GtrNameMatch> {
+fn listed(list: &[Version], needle: &[(char, bool)]) -> Option<GtrNameMatch> {
     if let [only] = list
         && only.now_current.as_ref() != "1"
     {
@@ -100,7 +157,7 @@ fn listed(list: &[Version], needle: &str) -> Option<GtrNameMatch> {
         Some(GtrNameMatch::WholeWord)
     } else {
         names()
-            .any(|name| name.to_lowercase().contains(needle))
+            .any(|name| !spans(name, needle).is_empty())
             .then_some(GtrNameMatch::PartialWord)
     }
 }
