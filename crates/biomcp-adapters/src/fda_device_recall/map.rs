@@ -122,7 +122,13 @@ pub(super) fn enforcement(row: raw::Enforcement, card: &mut DeviceRecallCard) ->
         if code {
             crate::mapped::field_code_text(&mut problems, SOURCE, id.clone(), field, given(value))
         } else {
-            field_text(&mut problems, SOURCE, id.clone(), field, one_line(given(value)))
+            field_text(
+                &mut problems,
+                SOURCE,
+                id.clone(),
+                field,
+                one_line(given(value)),
+            )
         }
     };
     card.classification = text("classification", row.classification, true);
