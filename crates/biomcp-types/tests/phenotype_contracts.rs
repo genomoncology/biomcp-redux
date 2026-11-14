@@ -286,6 +286,11 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
         json!({"items":[{"id":"HP:0001250","label":"Seizure"},{"id":"HP:0000001"}],"components":[]}),
     )
     .unwrap();
+    envelope::<PhenotypeAncestors>(
+        json!({"id":"HP:0000057","section":"ancestors"}),
+        json!({"items":[],"components":[],"obsolete":true,"replaced_by":[{"id":"HP:0008665","label":"Clitoral hypertrophy"}]}),
+    )
+    .unwrap();
     let empty = json!({"items":[],"components":[],"direct":true});
     envelope::<PhenotypeDiseases>(
         json!({"id":"HP:0001250","section":"diseases"}),

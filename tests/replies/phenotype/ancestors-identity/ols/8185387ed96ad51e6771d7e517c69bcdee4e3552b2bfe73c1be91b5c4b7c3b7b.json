@@ -1,0 +1,144 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/v2/ontologies/hp/classes?curie=HP%3A0000057&includeObsoleteEntities=true",
+  "exchanges": [
+    {
+      "fetched": 1794664282,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 390,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "page" : 0,
+  "numElements" : 1,
+  "totalPages" : 1,
+  "totalElements" : 1,
+  "elements" : [ {
+    "appearsIn" : [ "hp" ],
+    "curie" : "HP:0000057",
+    "definedBy" : [ "hp" ],
+    "hasDirectChildren" : false,
+    "hasDirectParents" : false,
+    "hasHierarchicalChildren" : false,
+    "hasHierarchicalParents" : false,
+    "imported" : false,
+    "iri" : "http://purl.obolibrary.org/obo/HP_0000057",
+    "isDefiningOntology" : true,
+    "isObsolete" : true,
+    "isPreferredRoot" : false,
+    "label" : [ "obsolete Clitoromegaly" ],
+    "linkedEntities" : {
+      "HP:0008665" : {
+        "iri" : "http://purl.obolibrary.org/obo/HP_0008665",
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 6.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Clitoral hypertrophy" ],
+        "curie" : "HP:0008665",
+        "type" : [ "class", "entity" ],
+        "url" : "http://purl.obolibrary.org/obo/HP_0008665",
+        "source" : "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json"
+      },
+      "http://purl.obolibrary.org/obo/IAO_0100001" : {
+        "definedBy" : [ "iao" ],
+        "numAppearsIn" : 167.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "term replaced by" ],
+        "curie" : "IAO:0100001",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "http://www.w3.org/2000/01/rdf-schema#label" : {
+        "definedBy" : [ "rdfs" ],
+        "numAppearsIn" : 204.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "label" ],
+        "curie" : "RDFS:label",
+        "type" : [ "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source" ],
+        "curie" : "source",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source_language" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source_language" ],
+        "curie" : "source_language",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source_value" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source_value" ],
+        "curie" : "source_value",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source_version" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source_version" ],
+        "curie" : "source_version",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_confidence" : {
+        "numAppearsIn" : 1.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_confidence" ],
+        "curie" : "translation_confidence",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_date" : {
+        "numAppearsIn" : 1.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_date" ],
+        "curie" : "translation_date",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_language" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_language" ],
+        "curie" : "translation_language",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_precision" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_precision" ],
+        "curie" : "translation_precision",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_status" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_status" ],
+        "curie" : "translation_status",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      }
+    },
+    "linksTo" : [ "http://purl.obolibrary.org/obo/HP_0008665", "http://purl.obolibrary.org/obo/IAO_0100001", "http://www.w3.org/2000/01/rdf-schema#label", "https://w3id.org/babelon/source", "https://w3id.org/babelon/source_language", "https://w3id.org/babelon/source_value", "https://w3id.org/babelon/source_version", "https://w3id.org/babelon/translation_confidence", "https://w3id.org/babelon/translation_date", "https://w3id.org/babelon/translation_language", "https://w3id.org/babelon/translation_precision", "https://w3id.org/babelon/translation_status" ],
+    "numDescendants" : 0.0,
+    "numHierarchicalDescendants" : 0.0,
+    "ontologyId" : "hp",
+    "ontologyIri" : "http://purl.obolibrary.org/obo/hp/hp-international.owl",
+    "ontologyPreferredPrefix" : "HP",
+    "searchableAnnotationValues" : [ false ],
+    "shortForm" : "HP_0000057",
+    "type" : [ "class", "entity" ],
+    "http://purl.obolibrary.org/obo/IAO_0100001" : "HP:0008665",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : "http://www.w3.org/2002/07/owl#Class",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "obsolete Clitoromegaly" ],
+    "http://www.w3.org/2002/07/owl#deprecated" : true
+  } ],
+  "facetFieldsToCounts" : { }
+}
+      }
+    }
+  ]
+}

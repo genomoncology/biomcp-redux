@@ -114,7 +114,7 @@
       "type": "object"
     },
     "Reply_PhenotypeAncestor": {
-      "description": "One ancestor term; the list says the queried term is under each one, not the path between them.",
+      "description": "One HP term with its OLS label; as an ancestor row the queried term is under it, not the path between them.",
       "properties": {
         "id": {
           "$ref": "#/$defs/Reply_Curie",
@@ -154,6 +154,20 @@
         },
         "items": {
           "description": "Native ordered rows; empty remains an empty collection.",
+          "items": {
+            "$ref": "#/$defs/Reply_PhenotypeAncestor"
+          },
+          "type": "array"
+        },
+        "obsolete": {
+          "description": "True when OLS marks the queried term obsolete; an obsolete term lists no ancestors.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "replaced_by": {
+          "description": "Terms OLS names as replacing an obsolete queried term (IAO:0100001, term replaced by).",
           "items": {
             "$ref": "#/$defs/Reply_PhenotypeAncestor"
           },

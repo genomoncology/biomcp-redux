@@ -2,7 +2,7 @@
   "feature": "phenotype-ancestors",
   "live_check": "public",
   "story": "A counselor asks whether infantile spasms sits under seizure and reads every ancestor of HP:0012469 up to the HP root, with labels, from one OLS reply; turning Monarch off changes nothing.",
-  "verified": "HPO terms via EMBL-EBI OLS4 v2 classes?curie=HP:0012469, captured live 2026-11-14 in pm job j40162; reply body SHA256 of the recording 2520955c8aea2c4a4e5cbbe3cd9c5cdf3816f1be908b77a543d3f40e1fb60837. The directAncestor set equals OLS v1 /ancestors for this term (7 terms).",
+  "verified": "HPO terms via EMBL-EBI OLS4 v2 classes?curie=HP:0012469&includeObsoleteEntities=true, captured live 2026-11-14 in pm job j40296; recording SHA256 bf7d1b828862e5bc2b87de37851c01b5fadf82b72aacd86b2c2b3eb3a1f82d3e. The directAncestor set equals OLS v1 /ancestors and hp.obo is_a closure for this term (7 terms).",
   "replay": "phenotype/ancestors",
   "steps": [
     {

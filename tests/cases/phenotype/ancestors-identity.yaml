@@ -1,0 +1,43 @@
+{
+  "feature": "phenotype-ancestors",
+  "live_check": "public",
+  "story": "An obsolete HP term says it is obsolete, names the term OLS gives as its replacement and offers that term's ancestors; an ID OLS does not hold is absent.",
+  "verified": "EMBL-EBI OLS4 v2 classes with includeObsoleteEntities=true for HP:0000057 (recording SHA256 67a2edb6a080c46733788750b01d7b3aa68702f61dc6ed94f3dc9818d0949f4c) and HP:9999999 (a95bb1bdd8eb42f18116ad4d79f3ebf4b34672a58538a207fc50e9d2e0dd7ea5), captured live 2026-11-14 in pm job j40296. hp.obo marks HP:0000057 obsolete with replaced_by HP:0008665.",
+  "replay": "phenotype/ancestors-identity",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:0000057",
+        "ancestors"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/obsolete": true,
+        "/result/replaced_by/0/id": "HP:0008665",
+        "/result/replaced_by/0/label": "Clitoral hypertrophy",
+        "/page/total": 0,
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0008665",
+          "ancestors"
+        ]
+      }
+    },
+    {
+      "run": [
+        "get",
+        "phenotype",
+        "HP:9999999",
+        "ancestors"
+      ],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "ols",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}
