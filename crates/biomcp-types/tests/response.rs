@@ -452,3 +452,78 @@ fn adverse_event_pages_state_their_total_before_their_rows() -> Outcome {
 // 0942: the inner pages 0939 left; the key-order check lives beside this file.
 #[path = "response/inner_totals.rs"]
 mod inner_totals;
+use inner_totals::{declared_first, page, pathway_header, pathway_page};
+#[test]
+fn variant_pages_state_their_page_before_their_records() -> Outcome {
+    use biomcp_types::{VariantHotspots, VariantOncokb};
+    declared_first::<VariantHotspots>(json!({"page":page()}), &["page"], "records")?;
+    declared_first::<VariantOncokb>(
+        json!({"hgvsg":"7:g.140453136A>T","build":"GRCh37","tumor_type":"Melanoma","page":page()}),
+        &["page"],
+        "records",
+    )?;
+    declared_first::<biomcp_types::AlphaGenomeScorerPage>(
+        json!({"request_ordinal":0,"requested_scorer":"gene-mask-lfc-rna-seq","data_type":"DATA_TYPE_FLOAT32",
+        "shape":[1,1,1],"page":page()}),
+        &["page"],
+        "rows",
+    )
+}
+#[test]
+fn study_pages_state_their_page_before_their_items() -> Outcome {
+    use biomcp_types::{StudyFiles, StudyPage, StudyProfiles, StudySampleLists, StudySamples};
+    let study = "brca_tcga_pan_can_atlas_2018";
+    let snapshot = json!({"revision":"synthetic","acquired":1793059200});
+    declared_first::<StudyPage>(
+        json!({"page":page(),"snapshot":snapshot}),
+        &["page"],
+        "items",
+    )?;
+    let scope = json!({"study_id":study,"page":page()});
+    declared_first::<StudyProfiles>(scope.clone(), &["page"], "items")?;
+    declared_first::<StudySampleLists>(scope.clone(), &["page"], "items")?;
+    declared_first::<StudyFiles>(scope.clone(), &["page"], "items")?;
+    declared_first::<StudySamples>(scope, &["page"], "items")
+}
+#[test]
+fn gwas_pages_state_their_page_before_their_items() -> Outcome {
+    declared_first::<biomcp_types::GwasPage>(
+        json!({"page":page(),"qualifying_total":3}),
+        &["page", "qualifying_total"],
+        "items",
+    )
+}
+#[test]
+fn shared_and_pathway_pages_state_their_totals_before_their_items() -> Outcome {
+    use biomcp_types::{DiagnosticGenes, PathwayEvents, PathwayGenes, PathwayPage};
+    declared_first::<PathwayEvents>(
+        json!({"header":pathway_header(),"page":pathway_page()}),
+        &["page"],
+        "items",
+    )?;
+    declared_first::<PathwayPage>(json!({"page":pathway_page()}), &["page"], "items")?;
+    declared_first::<PathwayGenes>(
+        json!({"header":pathway_header(),"page":pathway_page(),"reference_occurrences":0,"physical_entities":0}),
+        &["page", "reference_occurrences", "physical_entities"],
+        "items",
+    )?;
+    declared_first::<DiagnosticGenes>(
+        json!({"distinct_id_total":2}),
+        &["count_unit", "distinct_id_total"],
+        "items",
+    )
+}
+#[test]
+fn other_bounded_collections_state_their_totals_before_their_rows() -> Outcome {
+    use biomcp_types::{Capped, GenePage, TrialRecords};
+    use biomcp_types::{ProteinComplexes, ProteinDomains};
+    declared_first::<Capped<serde_json::Value>>(json!({"total":0}), &["total"], "items")?;
+    declared_first::<TrialRecords<serde_json::Value>>(
+        json!({"offset":0,"total":0}),
+        &["offset", "total"],
+        "items",
+    )?;
+    declared_first::<GenePage>(json!({"regions_total":60}), &["regions_total"], "regions")?;
+    declared_first::<ProteinDomains>(json!({"native_total":0}), &["native_total"], "items")?;
+    declared_first::<ProteinComplexes>(json!({"native_total":0}), &["native_total"], "items")
+}
