@@ -10,13 +10,18 @@ pub fn download(
     from_source(leg, &crate::semantic_scholar::PUBLISHER, url)
 }
 
+/// Ask for a PDF by name: FDA answered `application/octet-stream` with HTTP 406
+/// from the M5 while serving `application/pdf` (pm job j40668).
+pub(crate) fn pdf() -> biomcp_fetch::Read<'static, biomcp_fetch::Bytes> {
+    biomcp_fetch::Read::bytes().document_media(biomcp_fetch::DocumentMedia::Pdf)
+}
 pub(super) fn from_source(
     leg: &biomcp_fetch::Leg<'_>,
     spec: &'static biomcp_fetch::SourceSpec,
     url: &str,
 ) -> Result<Vec<u8>, biomcp_fetch::RequestError> {
     let endpoint = spec.download(url)?.bytes(MAX_BYTES);
-    leg.call(&endpoint, Input::Params(&[]), biomcp_fetch::Read::bytes())
+    leg.call(&endpoint, Input::Params(&[]), pdf())
         .map(|received| received.value.0)
         .map_err(|error| match error {
             biomcp_fetch::RequestError::Source(mut source)

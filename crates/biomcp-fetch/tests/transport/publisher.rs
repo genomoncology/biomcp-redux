@@ -62,3 +62,30 @@ fn publisher_destinations_refuse_private_hosts_and_applicable_proxies_before_con
         "a refused publisher destination made a request"
     );
 }
+
+#[test]
+fn pdf_document_media_asks_for_a_pdf() -> Result<(), Box<dyn std::error::Error>> {
+    // FDA answered `Accept: application/octet-stream` with HTTP 406 and served
+    // `application/pdf` (pm job j40668), so PDF reads name the PDF media type.
+    let stub = Stub::new(200, "application/pdf", "%PDF-owned", None);
+    let spec = stub.spec(KeyUse::None, Duration::from_secs(5));
+    let fetch = Fetch::open(FetchConfig::default())?;
+    let bytes = fetch
+        .leg(spec, fetch.deadline(Duration::from_secs(5)))
+        .call(
+            &spec.get("/file.pdf").bytes(1024),
+            Input::Params(&[]),
+            biomcp_fetch::Read::bytes().document_media(biomcp_fetch::DocumentMedia::Pdf),
+        )
+        .map(|received| received.value.0)?;
+    assert_eq!(bytes, b"%PDF-owned", "the stub's PDF bytes come back");
+    let requests = stub.finish();
+    assert_eq!(requests.len(), 1, "one request reaches the stub");
+    assert!(
+        requests.first().is_some_and(|request| request
+            .to_ascii_lowercase()
+            .contains("\r\naccept: application/pdf\r\n")),
+        "{requests:?}"
+    );
+    Ok(())
+}

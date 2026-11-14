@@ -17,11 +17,11 @@ fn error(source: Source, reason: Reason) -> RequestError {
     }
     .into()
 }
-/// Say that FDA refused one document download, naming its URL and suggesting a retry.
+/// Say that FDA refused one document download, naming its URL and FDA's status.
 ///
-/// FDA answers some automated downloads with a client error (its abuse detection
-/// redirects them), and a later try often succeeds. BioMCP keeps its own client
-/// identity and only discloses the refusal.
+/// FDA has answered automated PDF requests with 404 (its abuse-detection apology
+/// page, pm jobs j38804 and j38812) and 406 (pm jobs j40615 and j40668). The status
+/// is the only reason BioMCP reads, so the notice reports it without guessing why.
 pub fn refusal(url: &biodata::Text, error: &RequestError) -> Option<SourceNotice> {
     let RequestError::Source(source) = error else {
         return None;
@@ -29,12 +29,21 @@ pub fn refusal(url: &biodata::Text, error: &RequestError) -> Option<SourceNotice
     let status = source
         .status
         .filter(|status| source.reason == Reason::Rejected && (400..500).contains(status))?;
+    let meaning = match status {
+        401 => " Unauthorized",
+        403 => " Forbidden",
+        404 => " Not Found",
+        406 => " Not Acceptable",
+        410 => " Gone",
+        429 => " Too Many Requests",
+        _ => "",
+    };
     Some(SourceNotice::RequestGuidance {
         data_date: None,
         message: format!(
-            "FDA refused the download of {} (HTTP {status}). FDA refuses some automated \
-             downloads intermittently, so this does not show that the document is missing; \
-             retry later, or open the URL to check.",
+            "FDA refused the download of {} with HTTP {status}{meaning} when BioMCP asked \
+             for the PDF. FDA has refused PDFs that open in a browser, so this does not \
+             show that the document is missing; open the URL to check.",
             url.as_str()
         )
         .into(),
