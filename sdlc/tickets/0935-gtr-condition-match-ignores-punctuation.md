@@ -31,3 +31,9 @@ The persona's NSCLC slice of EGFR tests came back 0 (log.md:34-41); in NCBI's `t
 ## Changes
 
 - Changes: the GTR matcher, help, cases.
+
+## Progress
+
+- Measured on NCBI's `test_version.gz` (Last-Modified 2026-11-05; the analyst's copy and live job j40568 agree). Among current tests, `lab_test_name` holds "non-small cell" literally once (GTR000571186.1, no EGFR) and in another spelling six more times. Four of those carry EGFR: GTR000578049.1 and GTR000578438.1 ("Nonsmall cell lung cancer, ..."), GTR000595767.1 ("NonSmall Cell Lung Cancer Genetic Panel") and GTR000604346.1 ("EGFR Gene Nonsmall cell lung cancer, ..."). GTR000569877.2 writes its first dash as mis-encoded bytes ("Nonâˆ’Small-cell") and stays unmatched under the narrow rule. 57 current tests hold "Non-small cell" only among their condition names; BioMCP's condition filter takes a MedGen ID, not text, so this ticket changes name matching only.
+- Changed: GTR `--name` matching ignores letter case, hyphens (hyphen-minus, U+2010, U+2011, soft hyphen) and white space, nothing else; en dashes and other punctuation stay literal, and text of only hyphens and spaces matches nothing. Whole-word ranking still checks the characters around the match in the original name. A GTR search with `--name` carries a request-guidance notice that says so. Help and schema descriptions say the same (description-only schema change).
+- Case `tests/cases/diagnostic/gtr-name-spelling.yaml` replays the live files cut to EGFR's 185 relation rows and their 185 version rows (`tests/replies/diagnostic/gtr-egfr/`): "non-small cell" with EGFR finds the four tests above, whole-word, and `lung` with EGFR still finds the persona's 19.
