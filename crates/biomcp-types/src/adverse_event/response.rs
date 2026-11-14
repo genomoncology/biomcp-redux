@@ -28,6 +28,9 @@ pub struct AdverseEventHeader {
     /// Native serious string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub serious: Option<Box<str>>,
+    /// FAERS report card only: openFDA's published words for `serious`, `1` or `2`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub serious_label: Option<Box<str>>,
     /// Native event_type string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub event_type: Option<Box<str>>,

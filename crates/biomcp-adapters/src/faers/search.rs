@@ -82,6 +82,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
                         source: AdverseEventSource::Faers,
                         version: problems.field("safetyreportversion", v.safetyreportversion),
                         serious: problems.field("serious", v.serious),
+                        serious_label: None,
                         event_type: None,
                         first_received: problems.field("receivedate", v.receivedate),
                     }

@@ -52,11 +52,19 @@ pub const AGE_UNIT: Words = &[
     ("804", "Day"),
     ("805", "Hour"),
 ];
+/// `serious`, the report-level flag.
+pub const SERIOUS: Words = &[
+    (
+        "1",
+        "The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition",
+    ),
+    ("2", "The adverse event did not result in any of the above"),
+];
 /// The six seriousness flags have no published code list. Each description reads
 /// "This value is `1` if the adverse event resulted in ..., and absent otherwise";
 /// the `1` words are that clause. The data also carries `2` on most reports, which
 /// openFDA does not document; its words say only that the report did not record
-/// that result, so an importer never needs the 1/2 rule. Neither code is off-list.
+/// that result, so an importer never needs the 1/2 rule. Any other code is off-list.
 pub const SERIOUSNESS_DEATH: Words = &[
     ("1", "The adverse event resulted in death"),
     (

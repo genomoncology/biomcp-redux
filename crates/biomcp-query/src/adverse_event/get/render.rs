@@ -33,6 +33,7 @@ pub(super) fn render(
         source: AdverseEventSource::Faers,
         version: r.safetyreportversion.clone(),
         serious: r.serious.clone(),
+        serious_label: None,
         event_type: None,
         first_received: r.receivedate.clone(),
     };
@@ -168,15 +169,17 @@ fn card(
     q: &AdverseEventGet,
     r: FaersReport,
     url: Text,
-    header: AdverseEventHeader,
+    mut header: AdverseEventHeader,
     snapshot: Option<Text>,
     (positions, extras): (&Positions, Extras),
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
+    header.serious_label = label(words::SERIOUS, header.serious.as_deref());
     let mut unmapped = Vec::new();
     let sex = r.patient.as_ref().and_then(|p| p.sex.as_deref());
     let qualification = r.reporter.as_ref().and_then(|p| p.qualification.as_deref());
     let age_unit = extras.age_unit.as_deref();
+    let flags = r.seriousness.as_ref();
     for (field, list, code) in [
         ("patient.patientsex", PATIENT_SEX, sex),
         ("patient.patientonsetageunit", AGE_UNIT, age_unit),
@@ -184,6 +187,37 @@ fn card(
             "primarysource.qualification",
             REPORTER_QUALIFICATION,
             qualification,
+        ),
+        ("serious", words::SERIOUS, header.serious.as_deref()),
+        (
+            "seriousnessdeath",
+            words::SERIOUSNESS_DEATH,
+            flags.and_then(|n| n.death.as_deref()),
+        ),
+        (
+            "seriousnesslifethreatening",
+            words::SERIOUSNESS_LIFETHREATENING,
+            flags.and_then(|n| n.lifethreatening.as_deref()),
+        ),
+        (
+            "seriousnesshospitalization",
+            words::SERIOUSNESS_HOSPITALIZATION,
+            flags.and_then(|n| n.hospitalization.as_deref()),
+        ),
+        (
+            "seriousnessdisabling",
+            words::SERIOUSNESS_DISABLING,
+            flags.and_then(|n| n.disabling.as_deref()),
+        ),
+        (
+            "seriousnesscongenitalanomali",
+            words::SERIOUSNESS_CONGENITALANOMALI,
+            flags.and_then(|n| n.congenitalanomali.as_deref()),
+        ),
+        (
+            "seriousnessother",
+            words::SERIOUSNESS_OTHER,
+            flags.and_then(|n| n.other.as_deref()),
         ),
     ] {
         unmapped_code(field, list, code, &mut unmapped);

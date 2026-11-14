@@ -1,9 +1,21 @@
 {
   "feature": "adverse-event-get",
-  "story": "A fatal myocarditis FAERS card labels seriousness 1 and the age unit with openFDA's own words, labels the undocumented 2 as not recorded, and shows the case event date openFDA carries in place of a narrative; an off-list drug role code is named as unmapped.",
+  "story": "A fatal myocarditis FAERS card labels the report's serious flag 1 or 2, seriousness 1 and the age unit with openFDA's own words, labels the undocumented 2 as not recorded, and shows the case event date openFDA carries in place of a narrative; an off-list drug role code is named as unmapped.",
   "live_check": "public",
   "replay": "adverse-event/faers-recorded-labels",
   "steps": [
+    {
+      "run": [
+        "get",
+        "adverse-event",
+        "22814945"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/serious": "2",
+        "/result/header/serious_label": "The adverse event did not result in any of the above"
+      }
+    },
     {
       "run": [
         "get",
@@ -12,6 +24,8 @@
       ],
       "expect": {
         "/status": "complete",
+        "/result/header/serious": "1",
+        "/result/header/serious_label": "The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition",
         "/result/seriousness/death": "1",
         "/result/seriousness/death_label": "The adverse event resulted in death",
         "/result/seriousness/lifethreatening": "2",
