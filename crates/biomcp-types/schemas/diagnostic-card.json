@@ -264,6 +264,13 @@
               "description": "Native laboratory test identifier, including empty.",
               "type": "string"
             },
+            "laboratory_certifications": {
+              "description": "The laboratory's certifications (such as CLIA, CAP and ISO15189) as GTR's XML release lists them; state licenses stay in `state_licenses`.",
+              "items": {
+                "$ref": "#/$defs/Reply_GtrLabCertification"
+              },
+              "type": "array"
+            },
             "last_touch_date": {
               "anyOf": [
                 {
@@ -320,6 +327,18 @@
             "test_order_code": {
               "description": "Native order code, including empty.",
               "type": "string"
+            },
+            "xml_release_url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The GTR file that `header.specimens` and `laboratory_certifications` came from; absent when neither is present.",
+              "format": "uri"
             }
           },
           "required": [
@@ -745,6 +764,13 @@
           ],
           "description": "Native test name, absent when the cell is empty."
         },
+        "specimens": {
+          "description": "Specimen types in source order from GTR's XML release `gtr_ftp.xml.gz`, for this exact accession and version; absent when it lists none.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
         "url": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source record URL.",
@@ -754,6 +780,41 @@
       "required": [
         "id",
         "url"
+      ],
+      "type": "object"
+    },
+    "Reply_GtrLabCertification": {
+      "description": "One laboratory certification as published; an expiration date is shown, never judged.",
+      "properties": {
+        "expiration_date": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Published expiration date."
+        },
+        "name": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "Certification name, such as CLIA or CAP."
+        },
+        "number": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Certification number."
+        }
+      },
+      "required": [
+        "name"
       ],
       "type": "object"
     },

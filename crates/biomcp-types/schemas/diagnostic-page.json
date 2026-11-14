@@ -1149,6 +1149,13 @@
           ],
           "description": "Native test name, absent when the cell is empty."
         },
+        "specimens": {
+          "description": "Specimen types in source order from GTR's XML release `gtr_ftp.xml.gz`, for this exact accession and version; absent when it lists none.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
         "url": {
           "$ref": "#/$defs/Reply_Text",
           "description": "Source record URL.",

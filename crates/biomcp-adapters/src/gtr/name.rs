@@ -125,7 +125,7 @@ pub(super) fn read(
                 }
                 list.push(v);
             }
-            Native::Refused(_) | Native::Relation(_) => {}
+            Native::Refused(_) | Native::Relation(_) | Native::Specimens(_) | Native::Lab(_) => {}
         }
     }
     let matches: HashMap<_, _> = versions
@@ -163,7 +163,11 @@ fn listed(list: &[Version], needle: &[(char, bool)]) -> Option<GtrNameMatch> {
 }
 
 /// Page name-only matches; a conflict stays visible and no card is chosen for it.
-pub(super) fn page(named: Named, query: &DiagnosticSearch) -> Result<super::Search, RequestError> {
+pub(super) fn page(
+    leg: &Leg<'_>,
+    named: Named,
+    query: &DiagnosticSearch,
+) -> Result<super::Search, RequestError> {
     let Named {
         ids,
         versions,
@@ -173,14 +177,18 @@ pub(super) fn page(named: Named, query: &DiagnosticSearch) -> Result<super::Sear
         info,
     } = named;
     let total = ids.len() as u64;
-    let items = ids
+    let page: Vec<_> = ids
         .iter()
         .skip(query.offset() as usize)
         .take(query.limit() as usize)
+        .collect();
+    let xml = specimens(leg, &page, &info)?;
+    let items = page
+        .into_iter()
         .map(
             |id| match versions.get(id).map(Vec::as_slice).unwrap_or_default() {
                 [v] => Ok(DiagnosticCandidate::Resolved {
-                    header: map::header(v, &mut problems)?,
+                    header: map::header(v, xml.get(id), &mut problems)?,
                     matched: None,
                     name_match: matches.get(id).copied(),
                 }),
@@ -200,4 +208,30 @@ pub(super) fn page(named: Named, query: &DiagnosticSearch) -> Result<super::Sear
         total,
         info,
     })
+}
+/// The page's XML specimen rows, read under the name search's snapshot.
+fn specimens(
+    leg: &Leg<'_>,
+    page: &[&GtrTestId],
+    info: &BundleInfo,
+) -> Result<HashMap<GtrTestId, super::raw::XmlTest>, RequestError> {
+    if page.is_empty() {
+        return Ok(HashMap::new());
+    }
+    let ids: Vec<_> = page
+        .iter()
+        .map(|id| super::raw::specimens_key(id))
+        .collect();
+    let keys: Vec<_> = ids.iter().map(String::as_str).collect();
+    let (rows, other) = bundle::read(leg, Find::AnyExact(KeyKind::Xref, &keys))?;
+    if other.content_revision != info.content_revision {
+        return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
+    }
+    let mut out = HashMap::new();
+    for row in rows {
+        if let Native::Specimens(x) = row.value {
+            out.entry(x.id.clone()).or_insert(x);
+        }
+    }
+    Ok(out)
 }

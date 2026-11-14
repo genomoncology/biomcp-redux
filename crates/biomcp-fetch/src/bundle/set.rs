@@ -79,32 +79,17 @@ impl Fetch {
         let mut rejections = Vec::new();
         let mut revision = Sha256::new();
         let mut bytes = 0_u64;
+        // Streamed parts have their own ceiling; the shared one covers every other part.
+        let mut held = 0_u64;
         for part in set.parts {
             let format = part.format.unwrap_or(set.format);
-            let limit = match format {
-                RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
-                _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
-            };
-            let endpoint = set.spec.get(part.path).bytes(limit).fresh(Freshness::Never);
-            let check = |body: &[u8]| {
-                let parsed = parse::part_rows::<R>(body, format, part.name)
-                    .map_err(|_| biomcp_types::Reason::BadReply)?;
-                if parsed.is_empty() {
-                    return Err(biomcp_types::Reason::BadReply);
-                }
-                Ok(())
-            };
-            let read = crate::Read::bytes().validate_body(&check);
-            let read = match format {
-                RowFormat::Document { media } => read.document_media(media),
-                _ => read,
-            };
-            let body = leg
-                .call(&endpoint, crate::Input::Params(&[]), read)?
-                .value
-                .0;
+            let streamed = matches!(format, RowFormat::StreamedXml { .. });
+            let body = part_body(&leg, set, part, format)?;
             bytes = bytes.saturating_add(body.len() as u64);
-            if bytes > super::MAX_BUNDLE_BYTES {
+            if !streamed {
+                held = held.saturating_add(body.len() as u64);
+            }
+            if held > super::MAX_BUNDLE_BYTES {
                 return Err(leg
                     .failure(biomcp_types::Reason::BadReply, Some(200))
                     .into());
@@ -115,6 +100,11 @@ impl Fetch {
             revision.update(&body);
             let rows = parse::part_rows::<R>(&body, format, part.name)
                 .map_err(|_| leg.failure(biomcp_types::Reason::BadReply, Some(200)))?;
+            if streamed && rows.is_empty() {
+                return Err(leg
+                    .failure(biomcp_types::Reason::BadReply, Some(200))
+                    .into());
+            }
             rejections.extend(rows.rejections.into_iter().map(|mut rejection| {
                 rejection.reason = format!("{}: {}", part.name, rejection.reason);
                 rejection
@@ -148,6 +138,41 @@ impl Fetch {
         info.downloaded_bytes = leg.finish().downloaded_bytes;
         Ok(info)
     }
+}
+/// Read one part's checked body. A streamed part is decoded once, after download,
+/// instead of once in the transport check and again for its rows.
+fn part_body<R: Row>(
+    leg: &crate::Leg<'_>,
+    set: &BundleSet<R>,
+    part: &BundlePart,
+    format: RowFormat,
+) -> Result<Vec<u8>, RequestError> {
+    let limit = match format {
+        RowFormat::NativeCsv { max_bytes } => max_bytes.min(super::MAX_BUNDLE_BYTES),
+        RowFormat::StreamedXml { max_bytes, .. } => max_bytes.min(super::MAX_STREAMED_BYTES),
+        _ => R::MAX_BYTES.min(super::MAX_BUNDLE_BYTES),
+    };
+    let endpoint = set.spec.get(part.path).bytes(limit).fresh(Freshness::Never);
+    let check = |body: &[u8]| {
+        let parsed = parse::part_rows::<R>(body, format, part.name)
+            .map_err(|_| biomcp_types::Reason::BadReply)?;
+        if parsed.is_empty() {
+            return Err(biomcp_types::Reason::BadReply);
+        }
+        Ok(())
+    };
+    let read = match format {
+        RowFormat::StreamedXml { .. } => crate::Read::bytes(),
+        _ => crate::Read::bytes().validate_body(&check),
+    };
+    let read = match format {
+        RowFormat::Document { media } => read.document_media(media),
+        _ => read,
+    };
+    Ok(leg
+        .call(&endpoint, crate::Input::Params(&[]), read)?
+        .value
+        .0)
 }
 fn append_part(
     complete: &mut Vec<parse::Parsed>,

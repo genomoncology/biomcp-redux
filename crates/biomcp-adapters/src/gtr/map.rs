@@ -1,4 +1,4 @@
-use super::raw::{Object, Relation};
+use super::raw::{Object, Relation, XmlLab, XmlTest};
 use biodata::{
     GtrConditionReference, GtrConditionRelation, GtrGeneReference, GtrGeneRelation, GtrMethod,
     GtrMethodList, GtrTestRelation, GtrTestVersion, Text,
@@ -25,6 +25,7 @@ fn optional(
 }
 pub(super) fn header(
     v: &GtrTestVersion,
+    xml: Option<&XmlTest>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<GtrHeader, RequestError> {
     // The publisher's web route uses the numeric test base; the typed ID keeps
@@ -63,6 +64,12 @@ pub(super) fn header(
             .split('|')
             .filter_map(|value| optional(value, "method_categories", v, problems))
             .collect(),
+        specimens: xml
+            .filter(|x| x.id == v.test_accession_ver)
+            .into_iter()
+            .flat_map(|x| x.specimens.iter())
+            .filter_map(|value| optional(value, "SpecimenType", v, problems))
+            .collect(),
         url: Text::new(&format!(
             "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/{base}/"
         ))
@@ -76,10 +83,39 @@ fn gene_count(cell: &str) -> Option<u64> {
 }
 pub(super) fn card(
     v: &GtrTestVersion,
+    xml: Option<&XmlTest>,
+    lab: Option<&XmlLab>,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<GtrCard, RequestError> {
+    let header = header(v, xml, problems)?;
+    let laboratory_certifications: Box<[_]> = lab
+        .filter(|lab| *lab.id == *v.lab_id)
+        .into_iter()
+        .flat_map(|lab| lab.certifications.iter())
+        .filter_map(|c| {
+            Some(biomcp_types::GtrLabCertification {
+                name: optional(&c.name, "LabCertification/Name", v, problems)?,
+                number: c
+                    .number
+                    .as_deref()
+                    .and_then(|n| optional(n, "LabCertification/Number", v, problems)),
+                expiration_date: c
+                    .expiration_date
+                    .as_deref()
+                    .and_then(|d| optional(d, "LabCertification/ExpirationDate", v, problems)),
+            })
+        })
+        .collect();
+    let xml_release_url = if header.specimens.is_empty() && laboratory_certifications.is_empty() {
+        None
+    } else {
+        Some(
+            Text::new(&format!("{}{}", super::SPEC.base, super::bundle::XML_PATH))
+                .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None))?,
+        )
+    };
     Ok(GtrCard {
-        header: header(v, problems)?,
+        header,
         native_status: GtrNativeStatus {
             now_current: v.now_current.clone(),
             test_current: v.test_current.clone(),
@@ -97,6 +133,8 @@ pub(super) fn card(
         clia_number: v.clia_number.clone(),
         state_licenses: v.state_licenses.clone(),
         state_license_numbers: v.state_license_numbers.clone(),
+        laboratory_certifications,
+        xml_release_url,
         sections: vec![
             DiagnosticSection::Genes,
             DiagnosticSection::Conditions,

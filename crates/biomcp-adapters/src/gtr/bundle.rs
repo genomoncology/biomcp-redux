@@ -5,6 +5,8 @@ use biomcp_fetch::{
 };
 use biomcp_types::SyncResult;
 use std::{collections::BTreeMap, marker::PhantomData, time::Duration};
+/// GTR's full XML release, the only GTR file with specimens and lab certifications.
+pub(super) const XML_PATH: &str = "/data/gtr_ftp.xml.gz";
 const SET: BundleSet<Native> = BundleSet {
     spec: &SPEC,
     name: "gtr",
@@ -27,6 +29,16 @@ const SET: BundleSet<Native> = BundleSet {
             name: "relations",
             path: "/data/test_condition_gene.txt",
             format: None,
+        },
+        // Specimens and lab certifications are only in the full XML release (0931).
+        // About 2x its 176 MiB gzip and 1.8 GiB decoded size on 2026-11-14.
+        BundlePart {
+            name: "xml",
+            path: XML_PATH,
+            format: Some(RowFormat::StreamedXml {
+                max_bytes: 384 * 1024 * 1024,
+                max_decoded_bytes: 4 * 1024 * 1024 * 1024,
+            }),
         },
     ],
 };
