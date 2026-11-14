@@ -1,10 +1,11 @@
 use super::page::{empty, page_info, run};
 use crate::{Ctx, Outcome, status};
 use biomcp_adapters::monarch;
+use biomcp_fetch::RequestError;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, ReplyData,
-    Request, Source, StepKind,
+    DiseaseGenes, DiseaseGet, DiseasePhenotypes, DiseaseSection, GeneGet, GeneInput, Reason,
+    ReplyData, Request, Source, StepKind,
 };
 /// Read one native association page without identity choice or cross-source joins.
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outcome {
@@ -12,7 +13,18 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&monarch::SPEC, deadline).fresh(cx.fresh);
     let reply = monarch::associations(&leg, query, id);
-    let error = reply.as_ref().err().copied();
+    // An empty page reads the same for an unknown disease; only the entity read tells them apart.
+    let held = match &reply {
+        Ok(page) if page.total == 0 => Some(monarch::held(&leg, id).err()),
+        _ => None,
+    };
+    let unknown =
+        |e: &RequestError| matches!(e, RequestError::Source(s) if s.reason == Reason::NotFound);
+    let error = reply
+        .as_ref()
+        .err()
+        .copied()
+        .or(held.flatten().filter(|e| !unknown(e)));
     let mut out = empty(body(query, Vec::new(), Box::default(), None));
     out.sources
         .push(status::source(Source::Monarch, leg.finish(), error));
@@ -45,9 +57,10 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
                 .fetched
                 .and_then(|value| u64::try_from(value).ok()),
         );
-        {
-            let absent = page.total == 0;
-            crate::status::item(&mut out, !absent, false, false);
+        match held {
+            // Monarch holds the disease: no associations is a complete answer.
+            None | Some(None) => crate::status::item(&mut out, true, false, false),
+            Some(Some(e)) => crate::status::item(&mut out, false, !unknown(&e), false),
         }
     }
     super::page::record_problem(&mut out, query, Source::Monarch);

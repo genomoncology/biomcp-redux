@@ -90,6 +90,16 @@ impl Row {
             && self.predicate.is_some()
     }
 }
+/// Only the identity of a Monarch entity, read to tell a held ID from an unknown one.
+#[derive(Debug, Deserialize)]
+pub(super) struct Entity {
+    pub id: Option<Curie>,
+}
+impl Reply for Entity {
+    fn check(&self) -> Result<(), BadReply> {
+        Ok(())
+    }
+}
 #[derive(Debug, Deserialize)]
 pub(super) struct Link {
     pub url: Option<crate::raw::Field<Text>>,

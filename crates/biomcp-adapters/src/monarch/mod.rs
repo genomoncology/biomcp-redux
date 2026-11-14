@@ -132,6 +132,25 @@ fn check_page(
     }
     Ok(())
 }
+/// Confirm Monarch holds an entity; an empty association page reads the same for an unknown ID.
+pub fn held(leg: &Leg<'_>, id: &Curie) -> Result<(), RequestError> {
+    let endpoint = SPEC
+        .get("/v3/api/entity")
+        .with_segments(&[biomcp_fetch::PathSegment::new(id.as_str())?])
+        .fresh(Freshness::Days(1));
+    leg.call(
+        &endpoint,
+        Input::Params(&[]),
+        Read::<raw::Entity>::json().check(&|node| {
+            if node.id.as_ref() == Some(id) {
+                Ok(())
+            } else {
+                Err(BadReply)
+            }
+        }),
+    )
+    .map(|_| ())
+}
 /// Reviewed terms for the carried components remain explicit on pages and rows.
 pub fn components() -> Result<Box<[biomcp_types::ComponentLabel]>, RequestError> {
     use crate::disease_sources::components::{HPO, ORPHANET};
