@@ -1,6 +1,6 @@
 {
   "feature": "adverse-event-get",
-  "story": "A fatal myocarditis FAERS card labels seriousness 1 and the age unit with openFDA's own words, leaves the undocumented 2 unlabelled, and shows the case event date openFDA carries in place of a narrative; an off-list drug role code is named as unmapped.",
+  "story": "A fatal myocarditis FAERS card labels seriousness 1 and the age unit with openFDA's own words, labels the undocumented 2 as not recorded, and shows the case event date openFDA carries in place of a narrative; an off-list drug role code is named as unmapped.",
   "live_check": "public",
   "replay": "adverse-event/faers-recorded-labels",
   "steps": [
@@ -15,15 +15,12 @@
         "/result/seriousness/death": "1",
         "/result/seriousness/death_label": "The adverse event resulted in death",
         "/result/seriousness/lifethreatening": "2",
-        "/result/seriousness": {
-          "omits": [
-            "lifethreatening_label",
-            "hospitalization_label",
-            "disabling_label",
-            "congenitalanomali_label",
-            "other_label"
-          ]
-        },
+        "/result/seriousness/lifethreatening_label": "The report did not record that the adverse event resulted in a life threatening condition",
+        "/result/seriousness/hospitalization": "2",
+        "/result/seriousness/hospitalization_label": "The report did not record that the adverse event resulted in a hospitalization",
+        "/result/seriousness/disabling_label": "The report did not record that the adverse event resulted in disability",
+        "/result/seriousness/congenitalanomali_label": "The report did not record that the adverse event resulted in a congenital anomaly",
+        "/result/seriousness/other_label": "The report did not record that the adverse event resulted in some other serious condition",
         "/result/patient/age/value": 76.0,
         "/result/patient/age/unit": "801",
         "/result/patient/age_unit_label": "Year",

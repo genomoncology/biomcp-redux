@@ -97,7 +97,7 @@
               "type": "null"
             }
           ],
-          "description": "Independent source report flags; openFDA documents only `1` for each."
+          "description": "Independent source report flags, each labelled; openFDA documents only `1` for each."
         },
         "snapshot": {
           "anyOf": [
@@ -365,7 +365,7 @@
       ]
     },
     "Reply_AdverseEventSeriousness": {
-      "description": "Native seriousness flags with openFDA's own wording beside a `1`.\nopenFDA documents only `1` for each flag (\"absent otherwise\"); the data also carries `2`, which has no published word and stays unlabelled.",
+      "description": "Native seriousness flags, each with a label beside its `1` or `2`.\nopenFDA documents only `1` for each flag (\"absent otherwise\"); the data also carries `2`, labelled as the report not recording that result.",
       "properties": {
         "congenitalanomali": {
           "description": "Native congenitalanomali string, including a present empty value.",
@@ -375,7 +375,7 @@
           ]
         },
         "congenitalanomali_label": {
-          "description": "openFDA's wording for congenitalanomali `1`; absent for `2`, which openFDA does not document.",
+          "description": "openFDA's wording for congenitalanomali `1`; for `2`, which openFDA does not document, says the report did not record that result.",
           "type": [
             "string",
             "null"
@@ -389,7 +389,7 @@
           ]
         },
         "death_label": {
-          "description": "openFDA's wording for death `1`; absent for `2`, which openFDA does not document.",
+          "description": "openFDA's wording for death `1`; for `2`, which openFDA does not document, says the report did not record that result.",
           "type": [
             "string",
             "null"
@@ -403,7 +403,7 @@
           ]
         },
         "disabling_label": {
-          "description": "openFDA's wording for disabling `1`; absent for `2`, which openFDA does not document.",
+          "description": "openFDA's wording for disabling `1`; for `2`, which openFDA does not document, says the report did not record that result.",
           "type": [
             "string",
             "null"
@@ -417,7 +417,7 @@
           ]
         },
         "hospitalization_label": {
-          "description": "openFDA's wording for hospitalization `1`; absent for `2`, which openFDA does not document.",
+          "description": "openFDA's wording for hospitalization `1`; for `2`, which openFDA does not document, says the report did not record that result.",
           "type": [
             "string",
             "null"
@@ -431,7 +431,7 @@
           ]
         },
         "lifethreatening_label": {
-          "description": "openFDA's wording for lifethreatening `1`; absent for `2`, which openFDA does not document.",
+          "description": "openFDA's wording for lifethreatening `1`; for `2`, which openFDA does not document, says the report did not record that result.",
           "type": [
             "string",
             "null"
@@ -445,7 +445,7 @@
           ]
         },
         "other_label": {
-          "description": "openFDA's wording for other `1`; absent for `2`, which openFDA does not document.",
+          "description": "openFDA's wording for other `1`; for `2`, which openFDA does not document, says the report did not record that result.",
           "type": [
             "string",
             "null"

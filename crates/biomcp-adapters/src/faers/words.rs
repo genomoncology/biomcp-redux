@@ -54,27 +54,62 @@ pub const AGE_UNIT: Words = &[
 ];
 /// The six seriousness flags have no published code list. Each description reads
 /// "This value is `1` if the adverse event resulted in ..., and absent otherwise";
-/// these words are that clause. The data also carries `2`, which openFDA does not
-/// document, so `2` has no word and is not an off-list code either.
-pub const SERIOUSNESS_DEATH: Words = &[("1", "The adverse event resulted in death")];
+/// the `1` words are that clause. The data also carries `2` on most reports, which
+/// openFDA does not document; its words say only that the report did not record
+/// that result, so an importer never needs the 1/2 rule. Neither code is off-list.
+pub const SERIOUSNESS_DEATH: Words = &[
+    ("1", "The adverse event resulted in death"),
+    (
+        "2",
+        "The report did not record that the adverse event resulted in death",
+    ),
+];
 /// `seriousnesslifethreatening`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_LIFETHREATENING: Words = &[(
-    "1",
-    "The adverse event resulted in a life threatening condition",
-)];
+pub const SERIOUSNESS_LIFETHREATENING: Words = &[
+    (
+        "1",
+        "The adverse event resulted in a life threatening condition",
+    ),
+    (
+        "2",
+        "The report did not record that the adverse event resulted in a life threatening condition",
+    ),
+];
 /// `seriousnesshospitalization`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_HOSPITALIZATION: Words =
-    &[("1", "The adverse event resulted in a hospitalization")];
+pub const SERIOUSNESS_HOSPITALIZATION: Words = &[
+    ("1", "The adverse event resulted in a hospitalization"),
+    (
+        "2",
+        "The report did not record that the adverse event resulted in a hospitalization",
+    ),
+];
 /// `seriousnessdisabling`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_DISABLING: Words = &[("1", "The adverse event resulted in disability")];
+pub const SERIOUSNESS_DISABLING: Words = &[
+    ("1", "The adverse event resulted in disability"),
+    (
+        "2",
+        "The report did not record that the adverse event resulted in disability",
+    ),
+];
 /// `seriousnesscongenitalanomali`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_CONGENITALANOMALI: Words =
-    &[("1", "The adverse event resulted in a congenital anomaly")];
+pub const SERIOUSNESS_CONGENITALANOMALI: Words = &[
+    ("1", "The adverse event resulted in a congenital anomaly"),
+    (
+        "2",
+        "The report did not record that the adverse event resulted in a congenital anomaly",
+    ),
+];
 /// `seriousnessother`; see [`SERIOUSNESS_DEATH`].
-pub const SERIOUSNESS_OTHER: Words = &[(
-    "1",
-    "The adverse event resulted in some other serious condition",
-)];
+pub const SERIOUSNESS_OTHER: Words = &[
+    (
+        "1",
+        "The adverse event resulted in some other serious condition",
+    ),
+    (
+        "2",
+        "The report did not record that the adverse event resulted in some other serious condition",
+    ),
+];
 /// `primarysource.qualification`.
 pub const REPORTER_QUALIFICATION: Words = &[
     ("1", "Physician"),
