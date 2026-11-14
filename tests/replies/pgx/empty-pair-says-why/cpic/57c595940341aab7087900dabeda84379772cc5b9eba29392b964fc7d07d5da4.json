@@ -1,0 +1,22 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=phenotype%3Aphenotypes-%3E%3EUGT1A1&lookupkey-%3E%3EUGT1A1=not.is.null&drugid=eq.RxNorm%3A343047&order=id.asc&limit=1000&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794670193,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-3/4",
+      "delay_ms": 121,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"phenotype":"Normal Metabolizer"}, 
+ {"phenotype":"Intermediate Metabolizer"}, 
+ {"phenotype":"Poor Metabolizer"}, 
+ {"phenotype":"Indeterminate"}]
+      }
+    }
+  ]
+}

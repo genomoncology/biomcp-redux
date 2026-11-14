@@ -1,0 +1,42 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=phenotype%3Aphenotypes-%3E%3ECYP2C19&lookupkey-%3E%3ECYP2C19=not.is.null&drugid=eq.RxNorm%3A32968&order=id.asc&limit=1000&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794670191,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-23/24",
+      "delay_ms": 120,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"phenotype":"Ultrarapid Metabolizer"}, 
+ {"phenotype":"Rapid Metabolizer"}, 
+ {"phenotype":"Normal Metabolizer"}, 
+ {"phenotype":"Likely Intermediate Metabolizer"}, 
+ {"phenotype":"Intermediate Metabolizer"}, 
+ {"phenotype":"Likely Poor Metabolizer"}, 
+ {"phenotype":"Poor Metabolizer"}, 
+ {"phenotype":"Indeterminate"}, 
+ {"phenotype":"Ultrarapid Metabolizer"}, 
+ {"phenotype":"Rapid Metabolizer"}, 
+ {"phenotype":"Normal Metabolizer"}, 
+ {"phenotype":"Likely Intermediate Metabolizer"}, 
+ {"phenotype":"Intermediate Metabolizer"}, 
+ {"phenotype":"Likely Poor Metabolizer"}, 
+ {"phenotype":"Poor Metabolizer"}, 
+ {"phenotype":"Indeterminate"}, 
+ {"phenotype":"Ultrarapid Metabolizer"}, 
+ {"phenotype":"Rapid Metabolizer"}, 
+ {"phenotype":"Normal Metabolizer"}, 
+ {"phenotype":"Likely Intermediate Metabolizer"}, 
+ {"phenotype":"Intermediate Metabolizer"}, 
+ {"phenotype":"Likely Poor Metabolizer"}, 
+ {"phenotype":"Poor Metabolizer"}, 
+ {"phenotype":"Indeterminate"}]
+      }
+    }
+  ]
+}
