@@ -414,6 +414,9 @@ biodata::wire_enum! {
 pub struct DiagnosticSummary {
     /// Mechanical document text with explicit extraction state.
     pub document: super::PdfText,
+    /// Passages matching a find, in document order; the page counts passages.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hits: Option<Box<[super::PdfTextHit]>>,
 }
 impl ResponseBody for DiagnosticSummary {
     const SCHEMA: &'static str = "biomcp.diagnostic-summary/1";

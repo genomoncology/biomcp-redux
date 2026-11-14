@@ -43,6 +43,14 @@ struct GetFields<I = Text> {
     /// Zero-based native row or fragment offset.
     #[serde(default)]
     section_offset: u32,
+    /// PMA summary: case-insensitive literal text to find; section offset then counts passages.
+    #[serde(
+        default,
+        deserialize_with = "super::super::gene::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "Text"))]
+    find: Option<Text>,
     /// Immutable stored bundle revision retained by a continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     bundle_revision: Option<Text>,
@@ -86,6 +94,7 @@ impl TryFrom<GetFields> for DiagnosticGet {
                 supplement: v.supplement,
                 section_limit: v.section_limit,
                 section_offset: v.section_offset,
+                find: v.find,
                 bundle_revision: v.bundle_revision,
             },
         })
@@ -105,6 +114,7 @@ impl DiagnosticGet {
             supplement,
             section_limit: None,
             section_offset: 0,
+            find: None,
             bundle_revision: None,
         })
     }
@@ -150,6 +160,10 @@ impl DiagnosticGet {
     pub fn section_offset(&self) -> u32 {
         self.fields.section_offset
     }
+    /// Literal PMA summary text to find, absent for fragment reading.
+    pub fn find(&self) -> Option<&Text> {
+        self.fields.find.as_ref()
+    }
     /// Stored source snapshot.
     pub fn bundle_revision(&self) -> Option<&Text> {
         self.fields.bundle_revision.as_ref()
@@ -165,6 +179,7 @@ impl DiagnosticGet {
         let mut q = self.fields.clone();
         q.section = Some(section);
         q.section_offset = 0;
+        q.find = None;
         validate_source(&q)?;
         Ok(Self {
             fields: q,
@@ -180,6 +195,7 @@ impl DiagnosticGet {
             supplement,
             section_limit: None,
             section_offset: 0,
+            find: None,
             bundle_revision: None,
         };
         validate_source(&fields)?;
@@ -203,6 +219,9 @@ fn validate_source<I>(v: &GetFields<I>) -> Result<(), QueryInvalid> {
 
     if !valid_section {
         return Err(QueryInvalid::new(&["section", "source"]));
+    }
+    if v.find.is_some() && v.section != Some(DiagnosticSection::Summary) {
+        return Err(QueryInvalid::new(&["find", "section"]));
     }
     if v.source != DiagnosticGetSource::FdaPma && v.supplement.is_some() {
         return Err(QueryInvalid::new(&["supplement", "source"]));

@@ -8,7 +8,7 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleText, ArticleTextResult, PageInfo, Reason, ReplyData, Request, Section, Source,
+    ArticleText, ArticleTextResult, Reason, ReplyData, Request, Section, Source,
     StepKind, TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
@@ -298,35 +298,24 @@ fn find(
         .body
         .rows
         .iter()
-        .map(|r| {
-            needles
-                .iter()
-                .any(|needle| r.plain.to_lowercase().contains(needle))
-        })
+        .map(|r| crate::text_find::contains(&r.plain, &needles))
         .collect();
     let hits = matches(document, &matching);
-    let offset = usize::try_from(query.offset()).ok()?;
-    if offset > hits.len() {
-        return None;
-    }
-    let mut page = Vec::new();
-    let mut size = 0;
-    for (part, path, row) in hits.iter().skip(offset).take(25) {
-        let bytes = jats::escaped_bytes(row) + serde_json::to_vec(path).ok()?.len() + 128;
-        if !page.is_empty() && size + bytes > jats::TEXT_BYTES {
-            break;
-        }
-        size += bytes;
-        page.push(TextHit {
-            part: *part,
-            markdown: biodata::Markdown::new(row).ok()?,
-            heading_path: path.clone(),
-        });
-    }
-    let returned = u32::try_from(page.len()).ok()?;
-    let total = u64::try_from(hits.len()).ok()?;
-    let following = query.offset().checked_add(returned)?;
-    if returned > 0 && u64::from(following) < total {
+    let found = crate::text_find::page(&hits, query.offset(), jats::TEXT_BYTES, |(_, path, row)| {
+        Some(jats::escaped_bytes(row) + serde_json::to_vec(path).ok()?.len() + 128)
+    })?;
+    let page = found
+        .hits
+        .iter()
+        .map(|(part, path, row)| {
+            Some(TextHit {
+                part: *part,
+                markdown: biodata::Markdown::new(row).ok()?,
+                heading_path: path.clone(),
+            })
+        })
+        .collect::<Option<Vec<_>>>()?;
+    if let Some(following) = found.following {
         out.next.push(crate::next::Step::run(
             StepKind::Page,
             &super::next::text_sources(query.input()),
@@ -334,13 +323,7 @@ fn find(
             false,
         ));
     }
-    out.page = Some(PageInfo {
-        offset: query.offset(),
-        returned,
-        total,
-        pool: None,
-        truncated: None,
-    });
+    out.page = Some(found.info);
     Some(page.into())
 }
 
