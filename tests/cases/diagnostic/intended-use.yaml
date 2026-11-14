@@ -46,7 +46,7 @@
           "P200006"
         ],
         "/result/items/6/header/trade_name": "Shield",
-        "/result/items/0/header/trade_name": "SimpleScreen CRC",
+        "/result/items/0/header/trade_name": "SimpleScreen\u0099 CRC",
         "/next/*/kind": {
           "includes": "page"
         }

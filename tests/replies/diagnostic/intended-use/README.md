@@ -1,6 +1,6 @@
 # PMA search by intended-use text
 
-The replies were recorded from the public openFDA device PMA endpoint on 2026-11-14 by `biomcp --record` without a key: the intended-use request in pm job j40449 and the trade-name control in j40467. Git holds the trade-name reply byte for byte. The intended-use reply is a projection: the applicant street, city, state and zip fields and the harmonized `openfda` block are omitted from each row; every other field, including each row's whole `ao_statement`, and the native counts are kept. No row or value is invented.
+The replies were recorded from the public openFDA device PMA endpoint on 2026-11-14 by `biomcp --record` without a key: the intended-use request in pm job j40449 and the trade-name control in j40467. Git holds the trade-name reply byte for byte. The intended-use reply is a projection: the applicant street, city, state and zip fields and the harmonized `openfda` block are omitted from each row; every other field, including each row's whole `ao_statement`, and the native counts are kept. No row or value is invented. openFDA spells P250029's trade name with the control character U+0099 after `SimpleScreen` (likely a mangled trademark sign); the case expects it as published.
 
 | Request | Status | Recorded bytes | SHA-256 of the recorded file |
 | --- | --- | --- | --- |
