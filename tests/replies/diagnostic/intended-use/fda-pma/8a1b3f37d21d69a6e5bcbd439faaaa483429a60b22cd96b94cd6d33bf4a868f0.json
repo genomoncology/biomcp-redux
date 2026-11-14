@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "fda-pma",
+  "url": "https://api.fda.gov/device/pma.json?limit=5&skip=0&sort=decision_date%3Adesc&search=trade_name%3A%22cell-free%22",
+  "exchanges": [
+    {
+      "fetched": 1794670227,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 407,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}

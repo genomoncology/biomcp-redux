@@ -92,6 +92,6 @@ fn identity(reply: &raw::Response, q: &DiagnosticGet) -> bool {
 pub(crate) mod decl;
 
 mod search;
-pub use search::search;
+pub use search::{expression, search};
 
 pub use crate::device_search::Page as SearchPage;

@@ -1011,6 +1011,10 @@ Options:
           Last date, YYYY-MM-DD.
           Inclusive initiation date, YYYY-MM-DD; FDA device recalls only.
 
+      --intended-use <intended_use>
+          Intended-use phrase.
+          Phrase in FDA PMA ao_statement, the approval order's intended use; PMA only, as openFDA 510(k) has no intended-use text.
+
       --limit <limit>
           Five results by default; at most fifty source rows or product headers.
 
@@ -1081,6 +1085,8 @@ Exact source GeneID, exclusive with gene symbol. Value form: string; example: --
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-device-recall.
 - `--initiated-to`: Last date, YYYY-MM-DD.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-to 2024-12-31; only with --source fda-device-recall.
+- `--intended-use`: Intended-use phrase.
+Phrase in FDA PMA ao_statement, the approval order's intended use; PMA only, as openFDA 510(k) has no intended-use text. Value form: string; example: --intended-use cell-free; only with --source fda-pma.
 - `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer; example: --limit 50.
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string; example: --manufacturer 'Synthetic maker'; only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.

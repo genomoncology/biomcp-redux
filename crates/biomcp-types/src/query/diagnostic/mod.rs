@@ -132,6 +132,10 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = NAME_SOURCES)))]
     name: Option<Text>,
+    #[doc = "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended use; PMA only, as openFDA 510(k) has no intended-use text."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaPma)))]
+    intended_use: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
@@ -260,6 +264,7 @@ impl DiagnosticSearch {
             marker: None,
             manufacturer: None,
             name: None,
+            intended_use: None,
             decision_from: None,
             decision_to: None,
             product_code: None,
@@ -333,6 +338,10 @@ impl DiagnosticSearch {
     /// Native device name phrase, device recall product description phrase or literal GTR test name text.
     pub fn name(&self) -> Option<&Text> {
         self.0.name.as_ref()
+    }
+    /// Phrase in the FDA PMA approval-order statement (ao_statement).
+    pub fn intended_use(&self) -> Option<&Text> {
+        self.0.intended_use.as_ref()
     }
     /// Inclusive native decision range lower bound.
     pub fn decision_from(&self) -> Option<PartialDate> {

@@ -18,10 +18,17 @@ fn literal(value: &biodata::Text) -> String {
         value.as_str().replace('\\', "\\\\").replace('"', "\\\"")
     )
 }
-fn expression(q: &DiagnosticSearch, name: &str) -> String {
+/// The exact openFDA search expression for a PMA (`trade_name`) or 510(k) (`device_name`) page.
+pub(crate) fn expression(q: &DiagnosticSearch, name: &str) -> String {
     let mut terms = Vec::new();
     if let Some(value) = q.name() {
         terms.push(format!("{name}:{}", literal(value)));
+    }
+    if let Some(value) = q.intended_use() {
+        terms.push(format!(
+            "ao_statement:{}",
+            crate::fda_device_recall::phrase(value)
+        ));
     }
     if let Some(value) = q.manufacturer() {
         terms.push(format!("applicant:{}", literal(value)));

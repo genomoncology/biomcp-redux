@@ -67,6 +67,18 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 }
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
+    // openFDA publishes intended-use text (ao_statement) for PMA only; its 510(k) records have none (live, 2026-11-14).
+    if let Some(text) = &v.intended_use {
+        if v.source != DiagnosticSearchSource::FdaPma {
+            return Err(QueryInvalid::new(&["source", "intended_use"])
+                .with_message(crate::ErrorMessage::DiagnosticIntendedUsePma));
+        }
+        // openFDA answers HTTP 400 to a letter outside ASCII inside a phrase.
+        if !text.as_str().is_ascii() || !text.as_str().chars().any(char::is_alphanumeric) {
+            return Err(QueryInvalid::new(&["intended_use"])
+                .with_message(crate::ErrorMessage::DiagnosticIntendedUseAscii));
+        }
+    }
     if !device_source(v) {
         // GTR matches literal test names and device recalls their product description;
         // other non-device sources have no name field.
