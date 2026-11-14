@@ -48,10 +48,10 @@ Times on the M5 (seconds, from the gate's stage lines; each job shared the machi
 | j39968 at 771d586bb | landing gate + all six crates' library tests (base set before 0909, which touched every crate) | 1,419 | library stage 213, stopped at the red test below; 0909's `command_budget` test ran and passed |
 | j40033 at 90b02bdd9 | report gate (`landing-gate docs-check schema-release-check`); this branch changes only `biomcp-types` | 1,220 for the landing gate | library stage 61, crates=biomcp-types; passed |
 | j39967 at 28d703eb1 (main) | `make full-suite` | 910 to the failure | secrets-full 40, pre-job 317, docs-check 329, tensor-proto-check 18, library-tests 205 to the red test; coverage never ran |
-| j40034 at 90b02bdd9 | `make full-suite` | pending | started 2026-11-13; its time was not recorded before the stop |
+| j40034 at 90b02bdd9 | `make full-suite` | 1,999 | passed; secrets-full 35, pre-job 258, docs-check 326, tensor-proto-check 10, library-tests 261 (all crates), coverage 1,107 |
 
-Running the changed crates costs 1 to 4 minutes on top of a 20-minute gate. The full suite repeats pre-job and adds docs-check, the whole library-tests run and coverage, so it costs more than the changed-crate stage.
+Running the changed crates adds 1 to 4 minutes to a 20-minute gate, so a landing takes 20 to 24 minutes. Landing on `make full-suite` would take 33 minutes in place of the gate, and 53 minutes on top of it. Coverage alone takes 18 minutes of that. The changed-crate stage is the cheaper option.
 
 Red test on main, fixed here: `request_boundaries_reject_missing_text_null_limits_invalid_dates_and_removed_options` (`crates/biomcp-types/tests/adverse_event_contracts.rs:311`). 0894 deliberately made a bare year a valid receipt bound (its Progress: the dates "now also accept a bare year (`2021`)"), so `received_to:"2024"` and MAUDE `received_from:"2020"` moved to the accepted list with a comment naming 0894. j40005 at 17876272a then ran every crate's library tests with `--no-fail-fast`, and all passed, so no other library test is red on main.
 
-Pick up: read j40034's total from `pm job list 0914` and record it in the table above. Then land.
+Pick up: nothing is left to measure. The branch is ready for review and landing.
