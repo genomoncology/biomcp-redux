@@ -137,7 +137,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaPma)))]
     intended_use: Option<Text>,
-    #[doc = "FDA classification name phrase.\nPhrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only."]
+    #[doc = "FDA classification name phrase.\nPhrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, \
+    not the submitted device_name --name matches; 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Fda510k)))]
     classification_name: Option<Text>,
