@@ -252,7 +252,7 @@ page!(
     "biomcp.diagnostic-page/6",
     "Source-ordered native diagnostic and medical-device submission candidates.",
     [
-        /// Exact openFDA search expression sent for a device recall page; it names the field each filter matched.
+        /// Exact openFDA search expression sent for a PMA, 510(k) or device recall page; it names the field each filter matched.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         pub source_query: Option<Box<str>>,
     ]

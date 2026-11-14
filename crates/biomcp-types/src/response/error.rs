@@ -196,6 +196,10 @@ singleton! {
             drop --product-code, or drop --classification and read each returned row's classification",
         DeviceRecallNameAscii => "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, \
             such as e for é",
+        DiagnosticIntendedUsePma => "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; \
+            openFDA publishes no intended-use text for 510(k) records, so use --name for the 510(k) device_name",
+        DiagnosticIntendedUseAscii => "--intended-use needs ASCII letters or digits, such as e for é, because openFDA refuses \
+            other letters in a phrase",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
         TrialSince => "renamed; use: --updated-since",

@@ -46,7 +46,7 @@ fn literal(value: &str) -> String {
 /// Its tokenizer splits words at them, so a space finds the same words.
 const REFUSED: &[char] = &['!', '#', '$', ';', '?', '^', '|', '~', '`'];
 /// The device name as one quoted phrase on product_description, with refused punctuation spaced.
-fn phrase(value: &Text) -> String {
+pub(crate) fn phrase(value: &Text) -> String {
     let words: String = value
         .as_str()
         .chars()

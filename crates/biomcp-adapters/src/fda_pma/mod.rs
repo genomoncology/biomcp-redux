@@ -125,7 +125,7 @@ fn identity(reply: &raw::Response, query: &DiagnosticGet) -> Option<&'static str
 pub(crate) mod decl;
 
 mod search;
-pub use search::search;
+pub use search::{expression, search};
 
 /// FDA document downloads retain their API source identity and never send its key.
 pub static DOCUMENTS: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {

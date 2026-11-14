@@ -12,12 +12,18 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     } else {
         &biomcp_adapters::fda_510k::SPEC
     };
+    let expression = if source == Source::FdaPma {
+        biomcp_adapters::fda_pma::expression(q)
+    } else {
+        biomcp_adapters::fda_510k::expression(q)
+    };
+    let source_query = || Some(expression.clone().into_boxed_str()).filter(|s| !s.is_empty());
     let mut out = empty(
         (DiagnosticPage {
             items: Box::default(),
             count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
             distinct_id_total: None,
-            source_query: None,
+            source_query: source_query(),
         })
         .with_query(q.clone()),
     );
@@ -58,7 +64,7 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
                 items: page.items,
                 count_unit: Some(DiagnosticCountUnit::DeviceSubmissions),
                 distinct_id_total: None,
-                source_query: None,
+                source_query: source_query(),
             })
             .with_query(q.clone());
             None
