@@ -31,3 +31,8 @@ The 0898 developer (2026-11-13) found that alias notices printed names through R
 ## Changes
 
 - Changes: `crates/biomcp-query/src/drug/aliases.rs`, `tests/cases/drug/`.
+
+## Progress
+
+- Five drug alias notices in `aliases.rs` printed names through Rust's debug format: "returned no rows", "did not resolve", the two no-alias hints ("has candidate records for" and "found no matching record for"), and the ChEMBL "preferred-name search" notice, which printed `Some(Text("…"))`. All now print the plain quoted name, as 0898's partner notice does. The wording is unchanged.
+- Proof: `tests/cases/drug/source-aliases.yaml` and `source-aliases-ambiguous.yaml` (synthetic alias replies) now assert each notice's exact text, for example `The search for "EX-66" returned no rows. mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name "Canonical therapy"; …`. The two hints come second, after the source's dataset-date notice.
