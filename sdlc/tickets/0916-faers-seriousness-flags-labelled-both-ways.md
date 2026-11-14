@@ -43,3 +43,4 @@ The pharmacovigilance persona's round 2 (bench `personas/pv-scientist/runs/2026-
 - Gate j40159 failed only on clippy's 80-line limit for the card function; the off-list check moved into its own function.
 - Proof: `faers-recorded-labels` now also reads card 22814945 (recorded `serious` `2`) and checks its label, and checks card 27298481's `serious` `1` label, both at `/result/serious_label`. The synthetic `faers-code-words` card 100 now carries `seriousnessdeath` `3` and expects it in `unmapped_codes` with no `death_label`.
 
+- Gate j40204 (`make --keep-going landing-gate docs-check schema-release-check` on 12f790b4e, branch merged with origin/main at 0a4acf82a) passed, exit 0, 2026-11-14 08:33. Later commits change only this ticket file.
