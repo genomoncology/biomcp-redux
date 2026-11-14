@@ -212,7 +212,8 @@ fn unscoped_help_uses_parser_nodes_and_scoped_topics_remain_available() -> Check
 fn pacing_document() -> Result<String, std::fmt::Error> {
     let mut text = String::from(
         "# Source pacing\n\nGenerated from the source quota registry. Run `make docs-generate` to update.\n\n\
-        Defaults equal ceilings unless a row shows a default below its ceiling. Where no authoritative numeric policy was found, the ceiling remains conservative. \
+        Defaults equal ceilings unless a row shows a default below its ceiling. \
+        Where no authoritative numeric policy was found, the ceiling remains conservative. \
         Unpublished concurrency keeps the existing local ceiling of one in flight, \
         except where a row below says otherwise. All rates space requests evenly without bursts. \
         Daily quotas and shared upstream pools remain separate provider constraints.\n\n\
