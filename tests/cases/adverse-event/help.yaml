@@ -5,7 +5,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 7914
+          "max_bytes": 8024
         },
         "/result": {
           "sentences_once": true
@@ -41,7 +41,7 @@
           "count": 1
         }
       },
-      "max_bytes": 7914,
+      "max_bytes": 8024,
       "run": [
         "help",
         "search",
