@@ -91,7 +91,7 @@ pub(super) fn overview(
         let description = commands
             .iter()
             .find(|c| c.command == child_path)
-            .map(|c| c.description.clone())
+            .map(|c| super::argument_details::without_option_lines(&c.description))
             .or_else(|| child.get_about().map(ToString::to_string))
             .unwrap_or_default();
         result.push(HelpCommand {

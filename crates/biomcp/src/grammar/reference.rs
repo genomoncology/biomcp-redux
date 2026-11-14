@@ -310,7 +310,8 @@ fn every_rendered_flag_retains_its_schema_or_parser_description() -> Check {
         {
             assert!(
                 argument.description.contains("Value form:")
-                    && argument.description.contains("Example:"),
+                    && (argument.description.contains("; example:")
+                        || argument.description.contains("Example:")),
                 "{} {} lacks form/example metadata",
                 command.command.join(" "),
                 argument.name
@@ -336,5 +337,50 @@ fn filtered_cell_line_search_discovery_keeps_both_reply_forms() -> Check {
             "complete help omits {id} for cell-line search"
         );
     }
+    Ok(())
+}
+
+/// Sentences of two or more words, split at line ends and sentence stops.
+fn sentences(text: &str) -> impl Iterator<Item = &str> {
+    text.lines()
+        .flat_map(|line| line.split_inclusive(". "))
+        .map(str::trim)
+        .filter(|sentence| sentence.contains(' '))
+}
+
+#[test]
+fn every_command_help_page_says_each_generated_sentence_once() -> Check {
+    let parser = super::root().map_err(|_| "grammar unavailable")?;
+    let mut repeats = Vec::new();
+    for (verb, entity, id) in super::command_paths() {
+        let path = [verb.to_string(), entity.to_string()];
+        let schema = crate::schema::find(id).unwrap_or_default();
+        for command in crate::help::dispatch(&parser, &path)?.commands {
+            let mut counts = std::collections::BTreeMap::<&str, usize>::new();
+            let texts = std::iter::once(&command.description)
+                .chain(command.arguments.iter().map(|a| &a.description))
+                .chain(command.section_rule.iter())
+                .chain(command.sections.iter().map(|s| &s.description));
+            for text in texts {
+                for sentence in sentences(text) {
+                    *counts.entry(sentence).or_default() += 1;
+                }
+            }
+            // Two fields whose schema text says the same thing keep saying it.
+            repeats.extend(
+                counts
+                    .into_iter()
+                    .filter(|(sentence, count)| {
+                        *count > 1 && schema.matches(sentence.trim_end_matches('.')).count() < 2
+                    })
+                    .map(|(sentence, count)| format!("help {verb} {entity}: {count}x {sentence}")),
+            );
+        }
+    }
+    assert!(
+        repeats.is_empty(),
+        "repeated help sentences:\n{}",
+        repeats.join("\n")
+    );
     Ok(())
 }

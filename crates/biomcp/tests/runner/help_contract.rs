@@ -81,6 +81,12 @@ fn check() -> Result<(), String> {
     }
 }
 fn descriptions(commands: &[Value]) -> bool {
+    // Case guidance is said once, on the command, for every option with listed choices.
+    let cased = commands
+        .first()
+        .and_then(|c| c.get("description"))
+        .and_then(Value::as_str)
+        .is_some_and(|s| s.matches("Listed choices accept any letter case").count() == 1);
     commands
         .first()
         .and_then(|c| c.get("arguments"))
@@ -96,7 +102,7 @@ fn descriptions(commands: &[Value]) -> bool {
                                 .and_then(Value::as_array)
                                 .is_none_or(|choices| choices.is_empty())
                                 || arg.get("value_type") == Some(&json!("boolean"))
-                                || s.contains("Listed choices accept any letter case"))
+                                || cased && !s.contains("Listed choices accept any letter case"))
                             && (arg.get("name") != Some(&json!("--drug"))
                                 || (s.contains("FAERS") && s.contains("repeat --drug")))
                     })

@@ -6,6 +6,7 @@ pub(super) enum Assertion<'a> {
     Equals(&'a Value),
     Omits(&'a Value),
     Unique,
+    SentencesOnce,
     Nonincreasing,
     IncludesAllOf(&'a Value),
     Includes(&'a Value),
@@ -47,6 +48,9 @@ pub(super) fn prepare(step: &Step) -> Result<Expectations<'_>, String> {
                     }
                     "unique" if expected == &Value::Bool(true) => {
                         assertions.push(Assertion::Unique)
+                    }
+                    "sentences_once" if expected == &Value::Bool(true) => {
+                        assertions.push(Assertion::SentencesOnce)
                     }
                     "omits" => {
                         let names = array(pointer, operator, expected)?;
@@ -436,6 +440,7 @@ impl Assertion<'_> {
                 }
                 Ok(())
             }
+            Self::SentencesOnce => sentences_once(pointer, actual),
             Self::IncludesAllOf(expected) => {
                 let values = array(pointer, "includes_all_of", actual)?;
                 for value in array(pointer, "includes_all_of", expected)? {
@@ -497,6 +502,36 @@ impl Assertion<'_> {
                 Some(*limit),
             ),
         }
+    }
+}
+
+/// Every sentence of two or more words in the selected text appears once.
+fn sentences_once(pointer: &str, actual: &Value) -> Result<(), String> {
+    fn texts<'a>(value: &'a Value, out: &mut Vec<&'a str>) {
+        match value {
+            Value::String(text) => out.push(text),
+            Value::Array(items) => items.iter().for_each(|item| texts(item, out)),
+            Value::Object(fields) => fields.values().for_each(|field| texts(field, out)),
+            _ => {}
+        }
+    }
+    let mut all = Vec::new();
+    texts(actual, &mut all);
+    let mut seen = std::collections::BTreeSet::new();
+    let repeats = all
+        .into_iter()
+        .flat_map(str::lines)
+        .flat_map(|line| line.split_inclusive(". "))
+        .map(str::trim)
+        .filter(|sentence| sentence.contains(' ') && !seen.insert(*sentence))
+        .collect::<std::collections::BTreeSet<_>>();
+    if repeats.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{pointer} sentences_once: repeated {}",
+            repeats.into_iter().collect::<Vec<_>>().join(" | ")
+        ))
     }
 }
 

@@ -7,6 +7,9 @@
         "": {
           "max_bytes": 10306
         },
+        "/result": {
+          "sentences_once": true
+        },
         "/result/commands": {
           "count": 1
         },
@@ -50,6 +53,9 @@
         "": {
           "max_bytes": 4045
         },
+        "/result": {
+          "sentences_once": true
+        },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
             "id",
@@ -91,6 +97,6 @@
       ]
     }
   ],
-  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command.",
+  "story": "Generated adverse-event help exposes native sources, filters, independent sections and two executable examples per command, and says each sentence once: lines that hold for every option sit on the command.",
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout. Examples come from parsed case run steps; the existing example check executes every example over its own replay."
 }
