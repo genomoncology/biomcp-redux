@@ -251,3 +251,21 @@ fn gene_locations_parse_publisher_forms_without_changing_text() -> Check {
     }
     Ok(())
 }
+#[test]
+fn region_count_precedes_gene_rows_in_both_serialized_orders() -> Check {
+    // CLI JSON keeps declared order and MCP sorts keys; either way the count leads the rows.
+    let page = GenePage {
+        clingen_regions_matched: Some(6),
+        items: vec![header()?].into(),
+        regions: Box::new([]),
+        regions_total: None,
+    };
+    let declared = serde_json::to_string(&page)?;
+    let sorted = serde_json::to_string(&serde_json::to_value(&page)?)?;
+    for text in [declared, sorted] {
+        let count = text.find("\"clingen_regions_matched\":6").ok_or("count missing")?;
+        let rows = text.find("\"items\"").ok_or("rows missing")?;
+        assert!(count < rows, "{text}");
+    }
+    Ok(())
+}

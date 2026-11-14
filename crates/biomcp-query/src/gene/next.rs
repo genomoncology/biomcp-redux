@@ -144,9 +144,22 @@ pub(crate) fn search(
     items: &[GeneHeader],
     page: &PageInfo,
     source: &SourceOutcome,
+    regions: bool,
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Vec<crate::next::Step> {
     let mut steps = Vec::new();
+    // Regions follow every gene row, so the first step shows them alone.
+    if regions
+        && let Some(regions) =
+            crate::next::checked(query.regions_only(), biomcp_types::Source::ClinGen, problems)
+    {
+        steps.push(crate::next::Step::run(
+            StepKind::Section,
+            &[biomcp_types::Source::ClinGen],
+            Request::SearchGene(regions),
+            false,
+        ));
+    }
     if matches!(
         source.state,
         SourceState::Stale | SourceState::Failed | SourceState::Syncing
