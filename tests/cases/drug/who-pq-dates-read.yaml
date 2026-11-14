@@ -35,16 +35,16 @@
             "prequalified_on"
           ]
         },
-        "/result/items/5/reference": "SYN201",
-        "/result/items/5/date_of_prequalification": "22  Sep,  2013",
-        "/result/items/5/prequalified_on": "2013-09-22",
-        "/result/items/5": {
+        "/result/items/6/reference": "SYN201",
+        "/result/items/6/date_of_prequalification": "22  Sep,  2013",
+        "/result/items/6/prequalified_on": "2013-09-22",
+        "/result/items/6": {
           "omits": [
             "prequalified_on_status"
           ]
         },
-        "/result/items/6/reference": "SYN202",
-        "/result/items/6/prequalified_on": "2017-11-09"
+        "/result/items/5/reference": "SYN202",
+        "/result/items/5/prequalified_on": "2017-11-09"
       },
       "max_bytes": 40000
     }

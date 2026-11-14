@@ -19,10 +19,10 @@ fn row(date: &str) -> Result<DrugWhoRow, biodata::Error> {
 #[test]
 fn date_cells_read_as_iso_or_say_why_not() -> Result<(), biodata::Error> {
     for (cell, iso, status) in [
-        ("14  Oct,  2014", Some("2014-10-14"), None),
+        ("19  Oct,  2014", Some("2014-10-19"), None),
         ("", None, Some(WhoDateStatus::NotPublished)),
         ("  ", None, Some(WhoDateStatus::NotPublished)),
-        ("2014-10-14", None, Some(WhoDateStatus::Unreadable)),
+        ("2014-10-19", None, Some(WhoDateStatus::Unreadable)),
         ("31  Feb,  2014", None, Some(WhoDateStatus::Unreadable)),
     ] {
         let row = row(cell)?;
