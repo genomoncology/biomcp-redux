@@ -454,7 +454,7 @@
         "/sources/0/reason": "too-large",
         "/sources/0/count": 4953,
         "/sources/0/notices/*/message": {
-          "includes": "4953 applications match, more than the 3000 BioMCP reads to order or window by original approval, so none are returned. Narrow the search with a drug name or a longer --applicant."
+          "includes": "4953 applications match, more than the 3000 BioMCP reads to order or window by original approval, so none are returned. Narrow the search with a drug name or a longer --applicant, or drop --sort original-approval and the approval window to page them in openFDA's own order."
         }
       }
     },

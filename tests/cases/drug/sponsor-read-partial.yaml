@@ -1,0 +1,65 @@
+{
+  "feature": "drug-approvals",
+  "story": "When a later Drugs@FDA read comes back empty before BioMCP has read every match, a search ordered or windowed by original approval is partial, and its notice says how many applications it read out of how many matched.",
+  "live_check": "synthetic",
+  "verified": "Synthetic replies over the request URLs BioMCP sends; they reproduce a fault, not openFDA data. See tests/replies/drug/sponsor-read-partial/README.md.",
+  "replay": "drug/sponsor-read-partial",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "EXAMPLE",
+        "--sort",
+        "original-approval"
+      ],
+      "mcp": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "EXAMPLE",
+        "--sort",
+        "original-approval"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 2,
+        "/page/returned": 2,
+        "/result/items/*/id": [
+          "NDA900002",
+          "NDA900001"
+        ],
+        "/sources/0/notices/*/message": {
+          "includes": "--sort original-approval: openFDA cannot sort on one submission, so BioMCP read only 2 of the 3 matching applications, because a later openFDA read came back empty, so this reply is partial, and ordered them by original_approval date, newest first, ties by application number; applications without one come last."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--applicant",
+        "EXAMPLE",
+        "--approved-from",
+        "2024"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 1,
+        "/result/items/*/id": [
+          "NDA900002"
+        ],
+        "/sources/0/notices/*/message": {
+          "includes": "--approved-from/--approved-to: BioMCP read only 2 of the 3 matching applications, because a later openFDA read came back empty, so this reply is partial, and kept the 1 whose original_approval date falls in the window, inclusive; the total counts those."
+        }
+      }
+    }
+  ]
+}

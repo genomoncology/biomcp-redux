@@ -1,0 +1,83 @@
+{
+  "method": "GET",
+  "source": "drugsfda",
+  "url": "https://api.fda.gov/drug/drugsfda.json?search=sponsor_name%3AEXAMPLE%2A&limit=500&sort=application_number%3Aasc",
+  "exchanges": [
+    {
+      "fetched": 1794613899,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "last_updated": "2026-11-13",
+            "results": {
+              "skip": 0,
+              "limit": 500,
+              "total": 3
+            }
+          },
+          "results": [
+            {
+              "application_number": "NDA900001",
+              "sponsor_name": "EXAMPLE PHARMA",
+              "products": [
+                {
+                  "product_number": "001",
+                  "brand_name": "EXAMPLE THERAPY",
+                  "active_ingredients": [
+                    {
+                      "name": "EXAMPLE INGREDIENT",
+                      "strength": "10MG"
+                    }
+                  ],
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "Prescription"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20200115"
+                }
+              ]
+            },
+            {
+              "application_number": "NDA900002",
+              "sponsor_name": "EXAMPLE PHARMA",
+              "products": [
+                {
+                  "product_number": "001",
+                  "brand_name": "EXAMPLE THERAPY",
+                  "active_ingredients": [
+                    {
+                      "name": "EXAMPLE INGREDIENT",
+                      "strength": "10MG"
+                    }
+                  ],
+                  "dosage_form": "TABLET",
+                  "route": "ORAL",
+                  "marketing_status": "Prescription"
+                }
+              ],
+              "submissions": [
+                {
+                  "submission_type": "ORIG",
+                  "submission_number": "1",
+                  "submission_status": "AP",
+                  "submission_status_date": "20240630"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
