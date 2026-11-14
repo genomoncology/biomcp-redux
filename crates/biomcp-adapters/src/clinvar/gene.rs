@@ -22,10 +22,8 @@ const B: &str = "\"clinsig benign\"[prop]";
 /// Any GRCh38 base position.
 const GRCH38: &str = "1:999999999[cpos]";
 
-mod raw;
-mod review;
-use raw::{Info, Search};
-use review::{REVIEW, review_counts};
+use super::gene_reply::{Info, Search};
+use super::gene_review::{REVIEW, review_counts};
 
 fn count(leg: &Leg<'_>, term: &str) -> Result<u64, RequestError> {
     let reply = leg

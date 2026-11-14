@@ -1,6 +1,6 @@
 //! Germline review buckets from per-status Variation ID lists, summarizing only shared records.
-use super::super::SPEC;
-use super::raw::Summary;
+use super::SPEC;
+use super::gene_reply::Summary;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, RequestError, bad_reply};
 use biomcp_types::{ClinVarReviewCounts, Source};
 use std::collections::BTreeMap;
