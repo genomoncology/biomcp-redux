@@ -136,6 +136,11 @@ fn article_cases() -> Vec<(&'static str, &'static str, &'static str)> {
             "unique: duplicate member",
         ),
         (
+            "sentences-once-repeat",
+            "  - run: [schema, biomcp.article-search/3]\n    expect: {'/properties': {sentences_once: true}}",
+            "sentences_once: repeated",
+        ),
+        (
             "includes-all-missing",
             "    expect: {'/x-extensible-enum': {includes_all_of: missing-floor.json}}",
             "includes_all_of: missing member",

@@ -5,20 +5,17 @@ description: Retrieve biomedical source records through the BioMCP command line 
 
 BioMCP retrieves source records on genes, variants, diseases, drugs, trials, articles, proteins, pathways, phenotypes, adverse events, diagnostics, cell lines and studies. It does not choose treatments or run bioinformatics tools.
 
-Ask for more when you need it:
+Commands:
 
-- `biomcp help`: every command with its sections and sources, in one call.
-- `biomcp help questions`: every command and the question it answers.
-- `biomcp help examples`: one worked call per use case, as a command and a typed call.
-- `biomcp help ENTITY` and `biomcp help COMMAND ENTITY`: questions, examples, options and sections.
-- `biomcp help sources`: sources and components. `biomcp skill list`: the use cases.
+- `biomcp search ENTITY TEXT`: find records. `biomcp get ENTITY ID [SECTION...]`: read one record and its sections. Entities: gene, variant, disease, drug, trial, article, protein, pathway, phenotype, adverse-event, diagnostic, biomarker, cell-line, study, gwas, pgx, author; search also takes organization. Variant, pgx, biomarker, organization and diagnostic search by flags, not text: `biomcp search variant --gene BRAF --protein V600E`. Get pgx takes `--gene` and `--source`, not an ID; get diagnostic needs `--source`.
+- Follow-ups on one record: `biomcp variant assertions|population|recurrence|normalize`, `protein features|isoforms|domains|complexes|complex-members|structures|sequence`, `pathway genes|events`, `article text|citations|references|citation-evidence|recommendations|supplement|pdf`, `trial document`, `author papers`, `cell-line assay-count`. Some take flags beside or in place of an ID (`variant normalize` takes `--hgvs` and `--source`); a refusal names them.
 
-Use `biomcp help COMMAND ENTITY` before guessing an option, and take names only from it:
+Run the command first. A refusal names the valid values and a next step: use them. Read help only when a reply still leaves you stuck, and read the one page you need, such as `biomcp help get drug`. Take names only from a refusal or that help page, never keys from returned data:
 
 - Sections are words after the ID: `biomcp get drug BLA761445 approvals --source drugsfda`. Use `--section` only where help lists it.
 - One product's row in each market (Drugs@FDA, EMA, WHO prequalification), each from its own source: `biomcp get drug dolutegravir markets`.
 - A filter works only with the sources named after `Only with --source` or in its description.
-- `--fields` takes only the names help lists after `Fields:`.
+- `--fields` takes only names listed after `Fields:` in a refusal or in help, never keys from the returned data.
 - Follow returned `next` steps for pages and sections. When a page reports a total, stop paging at it.
 
 Preserve source identifiers, dates, terms and uncertainty. Errors differ from empty results: read `problems` and `next`.
@@ -27,7 +24,7 @@ A reference mismatch on a lab's transcript HGVS usually means the lab used anoth
 
 ## MCP typed tools
 
-Each entity tool takes `action` and one object named after it: search takes `query`, get takes `id` (one string or a list), and sections go in `section`. To read BRAF, call `gene` with `{"action":"get","get":{"id":"BRAF"}}`. The `help` tool takes the same words as the commands above, such as `questions` or `search trial`.
+Each entity tool takes `action` and one object named after it: search takes `query`, get takes `id` (one string or a list), and sections go in `section`. To read BRAF, call `gene` with `{"action":"get","get":{"id":"BRAF"}}`. The `help` tool takes the same words as `biomcp help`, such as `search trial`.
 
 ## Exit codes and errors
 

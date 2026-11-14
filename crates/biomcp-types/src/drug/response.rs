@@ -153,14 +153,15 @@ pub struct DrugLabelText {
 pub struct DrugLabel {
     /// Selected native identity, checked independently of section facts.
     pub identity: DrugHeader,
+    /// How to read one of those sections, which requested section the label lacks, or why a section returned no text in this reply.
+    // Serialized before the section list so a reader that stops early still sees it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hint: Option<Text>,
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub label: Section<DrugLabelText>,
     /// Label section names present for this record, listed when no label_section was given or the label lacks the one given.
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     pub sections: Box<[Text]>,
-    /// How to read one of those sections, which requested section the label lacks, or why a section returned no text in this reply.
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub hint: Option<Text>,
 }
 /// Native target and mechanism relations, without a clinical indication inference.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

@@ -54,6 +54,12 @@
             "query"
           ]
         },
+        "/result/parts/0/reply/result": {
+          "omits": [
+            "hint",
+            "sections"
+          ]
+        },
         "/result/parts/1/reply": {
           "omits": [
             "identity",

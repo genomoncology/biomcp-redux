@@ -19,10 +19,12 @@ pub static SPEC: SourceSpec = SourceSpec {
     command_budget: None,
 };
 
+mod ancestors;
 mod get;
 mod map;
 mod raw;
 mod search;
+pub use ancestors::{Ancestors, ancestors};
 pub use get::{Record, get};
 pub use map::components;
 pub use search::{SearchPage, search};

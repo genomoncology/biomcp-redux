@@ -48,8 +48,8 @@ FIRST_READ_MODES = {"single": [], "typed": ["--tool-mode", "typed"],
 # is re-read every turn (sdlc/records/2026-11-11-token-gap-root-cause.md), so first-read text costs tokens.
 # Ticket 0905 gives each ceiling 5% room over that measured base, rounded up, because a new source or
 # option must be able to name itself without trimming someone else's words. Growth inside the room needs
-# no ask; growth past it needs a PM ruling. The command map and worked examples stay out of the first
-# read and are served on request instead.
+# no ask; growth past it needs a PM ruling. The server's full command map and worked examples stay out of
+# the first read and are served on request; the skill carries only a short command map (0922).
 FIRST_READ_MEASURED = {"single": 3669, "typed": 2009, "hosted": 1996, "hosted-single": 2518, "skill": 5557}
 FIRST_READ_ROOM_PERCENT = 5
 FIRST_READ_CEILINGS = {mode: -(-size * (100 + FIRST_READ_ROOM_PERCENT) // 100)
@@ -162,8 +162,20 @@ def main():
         require(len(front) <= limit, f"front map is {len(front)} characters, over the limit of {limit}")
         require("--" not in front, "front map names a flag, and it must name commands only")
         rendered = run(binary, ["skill", "render"], env)
-        require(len(rendered) <= FIRST_READ_CEILINGS["skill"] and "help questions" in rendered
-                and "help examples" in rendered, "skill grew past its ceiling or names no on-request map")
+        # 0922: the skill carries its own short command map and sends agents to help only when stuck,
+        # because overview help pages read up front cost about 43% of help tokens in persona runs.
+        require(len(rendered) <= FIRST_READ_CEILINGS["skill"], "skill grew past its ceiling")
+        require("Run the command first." in rendered, "skill no longer tells agents to run the command first")
+        for page in ("help questions", "help examples", "`biomcp help`:"):
+            require(page not in rendered, f"skill sends agents to the overview page {page!r}")
+        skill_words = set(re.findall(r"[a-z][a-z-]*", rendered))
+        for group in ("search", "get", "author", "cell-line", "protein", "pathway", "article", "trial", "variant"):
+            listed = json.loads(run(binary, ["help", group], env))["result"].get("commands", [])
+            names = {tuple(row.get("command", []))[1] for row in listed
+                     if len(row.get("command", [])) == 2 and row["command"][0] == group}
+            require(names, f"help {group} lists no commands")
+            missing = sorted(names - skill_words)
+            require(not missing, f"skill command map lacks {group} {', '.join(missing)}")
         check_on_request(binary, env, front)
         source_help = json.loads(run(binary, ["help", "sources"], env))["result"]["commands"][0]["description"]
         require(source_help.startswith("Services:") and "Components:" in source_help,
@@ -177,7 +189,7 @@ def main():
         schema_id = country["description"].rsplit("biomcp schema ", 1)[1].rstrip(".")
         query_schema = json.loads(run(binary, ["schema", schema_id], env))
         complete_choices = query_schema["properties"]["country"]["items"]["enum"]
-        require(f"{len(complete_choices)} allowed values." in country["description"],
+        require(f"{len(complete_choices)} allowed values " in country["description"],
                 f"search trial --country help does not state its {len(complete_choices)} allowed values")
         require("United States" in complete_choices, "country schema lacks United States")
         install = root / "installed"

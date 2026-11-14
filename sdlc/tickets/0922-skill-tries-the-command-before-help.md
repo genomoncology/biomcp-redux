@@ -1,6 +1,7 @@
 # 0922 — skill-tries-the-command-before-help
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: f91a93d7cd9018ceab549c5e3290958bc4112890
 
 Milestone: 7
 
@@ -31,3 +32,12 @@ The bench read the three round 2 persona runs and one round 1 run with Bot's run
 ## Changes
 
 - Changes: `skills/SKILL.md`, and the skill checks and generated docs that follow from it.
+
+## Progress
+
+- Skill (`skills/SKILL.md`): the five help entry points (`help`, `help questions`, `help examples`, `help ENTITY`/`help COMMAND ENTITY`, `help sources` and `skill list`) and "Use `biomcp help COMMAND ENTITY` before guessing an option" are replaced by a two-line command map (search and get with their entities; the follow-up commands on one record) and one paragraph: run the command first, use a refusal's valid values and next step, and read only the one help page needed when a reply still leaves the agent stuck. 0880's rules on sections, markets, filters, `--fields`, `next` and totals stay word for word, as do errors versus empty, transcript mismatches and the MCP section (its help line no longer points at `questions`). The skill file was 2,698 bytes before this ticket.
+- Checks: `tests/cases/local/skill` asserts the command map and the new wording in place of the old help line; `scripts/check_front_map.py` no longer requires the skill to name the overview pages. The server instructions still name `help questions` and `help examples` on request; that check is unchanged.
+- The measure (help reads before the first real query, against 10, 5 and 5 in round 2) waits for the next persona round.
+- Review of 00c68cebc (rejected for text): the first map wrote `search ENTITY TEXT` and `get ENTITY ID` for every entity. Checked against `docs/reference/commands.md`: variant, pgx, biomarker, organization and diagnostic search by flags, not text (`search variant --gene BRAF --protein V600E`); get pgx takes `--gene` and `--source`, no ID; get diagnostic needs `--source`; `variant normalize` takes `--hgvs` and `--source`, and `variant recurrence` needs flags. The map now says so in one clause and adds the missing follow-ups `protein complex-members`, `article citation-evidence`, `article recommendations` and `article pdf`. "Take names only from a reply" would have reopened 0880's `--fields` bug (names taken from returned data), so the skill now says names come from a refusal or the help page, never keys from returned data, and the `--fields` line says the same. Skill file now 3,467 bytes, under its 4 KB cap.
+- `scripts/check_front_map.py` no longer pins the literal map wording: it requires every command that `help search`, `help get`, `help author`, `help cell-line`, `help protein`, `help pathway`, `help article`, `help trial` and `help variant` list to appear in the skill, requires "Run the command first.", and refuses `help questions`, `help examples` and a bare `` `biomcp help`: `` entry in the skill.
+- Follow-up, not in this ticket: the MCP server instructions (`crates/biomcp/build/front_map.rs:14`) still name `help sources`, `help questions` and `help examples` up front.

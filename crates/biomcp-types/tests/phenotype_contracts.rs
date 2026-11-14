@@ -96,6 +96,34 @@ fn source_and_section_pairings_validate_before_any_adapter() {
 }
 
 #[test]
+fn ancestors_section_is_ols_only_with_fifty_rows() {
+    let get: PhenotypeGet =
+        serde_json::from_value(json!({"id":"HP:0012469","section":"ancestors"})).unwrap();
+    assert_eq!(get.source(), PhenotypeSource::Ols);
+    assert_eq!(get.section_limit(), 50);
+    for (source, ok) in [("ols", true), ("hpo", false), ("monarch", false)] {
+        let value = json!({"id":"HP:0012469","section":"ancestors","source":source});
+        assert_eq!(serde_json::from_value::<PhenotypeGet>(value).is_ok(), ok);
+    }
+    for section in ["synonyms", "hierarchy", "genes"] {
+        let value = json!({"id":"HP:0012469","section":section,"source":"ols"});
+        assert!(serde_json::from_value::<PhenotypeGet>(value).is_err());
+    }
+    let card = PhenotypeGet::new("HP:0012469".parse().unwrap());
+    let ancestors = card
+        .with_section(biomcp_types::PhenotypeSection::Ancestors)
+        .unwrap();
+    assert_eq!(ancestors.source(), PhenotypeSource::Ols);
+    assert_eq!(ancestors.section_limit(), 50);
+    for bad in [
+        json!({"id":"HP:0001250","source":"ols"}),
+        json!({"id":"HP:0001250","section":"ancestors","snapshot":"x"}),
+    ] {
+        assert!(serde_json::from_value::<PhenotypeGet>(bad).is_err());
+    }
+}
+
+#[test]
 fn native_cards_keep_empty_values_independent_sources_and_count_scopes() {
     use biodata::{PhenotypeCard, PhenotypeSynonym};
     let hpo = json!(
@@ -251,6 +279,16 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     envelope::<PhenotypeHierarchy>(
         json!({"id":"HP:0001250","section":"hierarchy"}),
         json!({"items":[{"id":"HP:0000001","label":"All","relation":"super_classes","attribution":{"source":"synthetic"}}],"components":[]}),
+    )
+    .unwrap();
+    envelope::<PhenotypeAncestors>(
+        json!({"id":"HP:0012469","section":"ancestors"}),
+        json!({"items":[{"id":"HP:0001250","label":"Seizure"},{"id":"HP:0000001"}],"components":[]}),
+    )
+    .unwrap();
+    envelope::<PhenotypeAncestors>(
+        json!({"id":"HP:0000057","section":"ancestors"}),
+        json!({"items":[],"components":[],"obsolete":true,"replaced_by":[{"id":"HP:0008665","label":"Clitoral hypertrophy"}]}),
     )
     .unwrap();
     let empty = json!({"items":[],"components":[],"direct":true});

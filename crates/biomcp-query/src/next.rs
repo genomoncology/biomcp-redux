@@ -163,7 +163,8 @@ fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         ReplyData::PhenotypeTermCard { .. }
         | ReplyData::PhenotypeSynonyms { .. }
         | ReplyData::PhenotypeXrefs { .. }
-        | ReplyData::PhenotypeHierarchy { .. } => Navigation::Bounded,
+        | ReplyData::PhenotypeHierarchy { .. }
+        | ReplyData::PhenotypeAncestors { .. } => Navigation::Bounded,
         ReplyData::PathwayGenes { .. } => Navigation::Bounded,
         ReplyData::PgxAnnotations {
             body: Some(value), ..

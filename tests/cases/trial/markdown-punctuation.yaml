@@ -1,0 +1,45 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Markdown shows a registry title's full stops and colons as plain characters. The NCT03228667 title comes from the ClinicalTrials.gov reply recorded for the intervention search case.",
+  "replay": "trial/intervention",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "pembrolizumab"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/7/nct_id": "NCT03228667",
+        "/result/items/7/title": "QUILT-3.055: A Study of Combination Immunotherapies in Patients Who Have Previously Received Treatment With Immune Checkpoint Inhibitors"
+      },
+      "max_bytes": 6256
+    },
+    {
+      "run": [
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--intervention",
+        "pembrolizumab",
+        "--format",
+        "md"
+      ],
+      "expect": {
+        "": {
+          "includes_all_of": [
+            "QUILT-3.055: A Study of Combination Immunotherapies in Patients Who Have Previously Received Treatment With Immune Checkpoint Inhibitors",
+            "interventions omitted: 9"
+          ]
+        }
+      },
+      "max_bytes": 6256
+    }
+  ]
+}

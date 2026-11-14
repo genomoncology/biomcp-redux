@@ -8,6 +8,8 @@ biodata::wire_enum! { described
         Hpo => "hpo",
         /// Monarch term search and associations.
         Monarch => "monarch",
+        /// OLS ancestor lists for HP terms.
+        Ols => "ols",
     }
 }
 biodata::wire_enum! { described
@@ -23,6 +25,8 @@ biodata::wire_enum! { described
         Diseases => "diseases",
         /// Native human gene association rows.
         Genes => "genes",
+        /// Every ancestor term up to the ontology root, from OLS.
+        Ancestors => "ancestors",
     }
 }
 biodata::wire_enum! { described
@@ -170,7 +174,8 @@ struct GetFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: HpId,
     #[doc = " HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and \
-        genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch."]
+        genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for \
+        ancestors, otherwise Monarch."]
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -186,7 +191,7 @@ struct GetFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "PhenotypeSection", extend("x-positional" = 1)))]
     section: Option<PhenotypeSection>,
-    /// Default five text/link rows or one complete association row.
+    /// Default five text/link rows, one complete association row or 50 ancestors.
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -197,7 +202,7 @@ struct GetFields {
     /// Native section row offset.
     #[serde(default)]
     section_offset: u32,
-    /// Retained exact source reply for local text and link pages; unsupported for diseases and genes.
+    /// Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors.
     #[serde(
         default,
         deserialize_with = "crate::query::present",
@@ -211,18 +216,23 @@ impl TryFrom<GetFields> for PhenotypeGet {
     type Error = QueryInvalid;
     fn try_from(mut v: GetFields) -> Result<Self, Self::Error> {
         let (source, _) = defaults(v.section);
-        if v.source == Some(PhenotypeSource::Hpo)
-            && v.section
-                .is_some_and(|section| !section.sources().contains(&crate::Source::Hpo))
-        {
-            return Err(QueryInvalid::new(&["source", "section"]));
+        if let Some(chosen) = v.source {
+            let served = match v.section {
+                Some(section) => section.sources().contains(&chosen.source()),
+                None => chosen != PhenotypeSource::Ols,
+            };
+            if !served {
+                return Err(QueryInvalid::new(&["source", "section"]));
+            }
         }
         if v.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
             return Err(QueryInvalid::new(&["section_limit"]));
         }
         if matches!(
             v.section,
-            Some(PhenotypeSection::Diseases | PhenotypeSection::Genes)
+            Some(
+                PhenotypeSection::Diseases | PhenotypeSection::Genes | PhenotypeSection::Ancestors
+            )
         ) && v.snapshot.is_some()
         {
             return Err(QueryInvalid::new(&["section", "snapshot"]));
@@ -235,6 +245,7 @@ fn defaults(section: Option<PhenotypeSection>) -> (PhenotypeSource, u32) {
     match section {
         Some(PhenotypeSection::Diseases | PhenotypeSection::Genes) => (PhenotypeSource::Monarch, 1),
         Some(PhenotypeSection::Hierarchy) => (PhenotypeSource::Monarch, five()),
+        Some(PhenotypeSection::Ancestors) => (PhenotypeSource::Ols, 50),
         _ => (PhenotypeSource::Hpo, five()),
     }
 }
@@ -347,9 +358,14 @@ impl PhenotypeGet {
         fields.section_offset = 0;
         if matches!(
             section,
-            PhenotypeSection::Diseases | PhenotypeSection::Genes
+            PhenotypeSection::Diseases | PhenotypeSection::Genes | PhenotypeSection::Ancestors
         ) {
             fields.snapshot = None;
+        }
+        if section == PhenotypeSection::Ancestors {
+            // Only OLS serves ancestors, whichever publisher served the card or section.
+            fields.source = None;
+            fields.section_limit = None;
         }
         Self::try_from(fields)
     }
@@ -378,6 +394,17 @@ impl PhenotypeSection {
         match self {
             Self::Synonyms | Self::Xrefs => &[Source::Hpo, Source::Monarch],
             Self::Hierarchy | Self::Diseases | Self::Genes => &[Source::Monarch],
+            Self::Ancestors => &[Source::Ols],
+        }
+    }
+}
+impl PhenotypeSource {
+    /// The publisher this selector names.
+    pub const fn source(self) -> crate::Source {
+        match self {
+            Self::Hpo => crate::Source::Hpo,
+            Self::Monarch => crate::Source::Monarch,
+            Self::Ols => crate::Source::Ols,
         }
     }
 }

@@ -336,29 +336,46 @@ fn section_names(
     .with_query(query.clone()))
 }
 
-/// A heading this label does not carry: say so and list the headings it has, since an
-/// empty section alone reads as a heading with no text.
+/// A heading this label does not carry: say so, naming the label, and list the headings it
+/// has, since an empty section alone reads as a heading with no text and an agent must be
+/// able to quote which label lacks it.
 fn absent_heading(
     query: &DrugGet,
     record: &source::Record,
     heading: &str,
 ) -> Result<biomcp_types::ReplyData, RequestError> {
+    let identity = record.header()?;
+    let hint = format!(
+        "{} has no {heading} section; sections lists the sections it has, and label_section (--label-section on the command line) reads one",
+        label_name(&identity)
+    );
     Ok(DrugLabel {
-        identity: record.header()?,
+        identity,
         label: Section::Empty {
             source: SOURCE,
             record: None,
         },
         sections: headings(record)?,
         hint: Some(
-            format!(
-                "this label has no {heading} section; sections lists the sections it has, and label_section (--label-section on the command line) reads one"
-            )
-            .parse()
-            .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
+            hint.parse()
+                .map_err(|_| biomcp_fetch::bad_reply(SOURCE, Some(200)))?,
         ),
     }
     .with_query(query.clone()))
+}
+
+/// The label as an agent can cite it: brand (or generic) name, SPL set ID and version.
+fn label_name(identity: &biomcp_types::DrugHeader) -> String {
+    let set = identity.id.to_string();
+    let version = identity
+        .version
+        .as_ref()
+        .map(|v| format!(", version {v}"))
+        .unwrap_or_default();
+    match identity.name.as_ref().map(|n| n.to_string()) {
+        Some(name) if name != set => format!("{name}'s label (set {set}{version})"),
+        _ => format!("The label (set {set}{version})"),
+    }
 }
 
 fn headings(record: &source::Record) -> Result<Box<[biodata::Text]>, RequestError> {

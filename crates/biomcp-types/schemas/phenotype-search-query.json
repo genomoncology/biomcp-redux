@@ -42,12 +42,14 @@
       "description": "One independent term publisher.",
       "enum": [
         "hpo",
-        "monarch"
+        "monarch",
+        "ols"
       ],
       "type": "string",
       "x-enum-descriptions": [
         " Direct HPO term metadata.",
-        " Monarch term search and associations."
+        " Monarch term search and associations.",
+        " OLS ancestor lists for HP terms."
       ]
     }
   },

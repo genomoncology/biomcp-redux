@@ -147,7 +147,6 @@ class GateStages(unittest.TestCase):
             self.assertIn('crates=none', result.stdout)
             self.assertNotIn('cargo test', result.stdout)
             commit('docs/notes.md')
-            commit('tests/cases/gene/case.yaml')
             self.assertIn('crates=none', run().stdout)
             # A crate near the top selects only itself and the crates built on it.
             result = branch('query', 'crates/biomcp-query/tests/gene_resolution.rs')
@@ -166,6 +165,11 @@ class GateStages(unittest.TestCase):
             for data in ('tests/replies/gene/main/hgnc/reply.json', 'tests/fixtures/a.json', 'tests/native/b.json'):
                 self.assertIn(every, branch('data-' + data.split('/')[1], data).stdout)
             self.assertIn('crates=biomcp\n', branch('top', 'crates/biomcp/src/main.rs').stdout)
+            # Files outside crates/ that a crate's build script or library tests read select that crate.
+            for path in ('skills/SKILL.md', 'tests/cases/gene/case.yaml', 'docs/reference/commands.md',
+                         'docs/recipes.md', 'docs/reference/source-pacing.md'):
+                self.assertIn('crates=biomcp\n', branch('reads-' + path.replace('/', '-'), path).stdout)
+            self.assertIn(every, branch('reviews', 'release/schema-reviews.json').stdout)
             result = run(CARGO_METADATA=str(Path(temporary) / 'missing.json'))
             self.assertIn('no crate graph from cargo metadata', result.stdout)
             self.assertIn(every, result.stdout)

@@ -60,8 +60,8 @@
       "expect": {
         "": {
           "includes_all_of": [
-            "authors omitted&#58; 26",
-            "pubmed&#46;ncbi&#46;nlm&#46;nih&#46;gov/10001",
+            "authors omitted: 26",
+            "pubmed.ncbi.nlm.nih.gov/10001",
             "Lee M"
           ]
         }

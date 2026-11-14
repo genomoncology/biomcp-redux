@@ -10,7 +10,7 @@
         "diagnostic"
       ],
       "expect": {
-        "/result/commands/0/description": "Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.\nFields: cells, classification, device_ids, drug_applications, header, id, identity_status, index, kind, manufacturer, marker, matched, name_match, prequalification_year, problem, product_description, product_name, reason, snapshot. Choose some with --fields a,b (typed: fields list); always kept: cells, header, id, identity_status, index, kind, manufacturer, marker, matched, prequalification_year, problem, product_name, snapshot.",
+        "/result/commands/0/description": "Search diagnostic laboratory tests and devices. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.\nFields: cells, classification, device_ids, drug_applications, header, id, identity_status, index, kind, manufacturer, marker, matched, name_match, prequalification_year, problem, product_description, product_name, reason, snapshot. Choose some with --fields a,b (typed: fields list); always kept: cells, header, id, identity_status, index, kind, manufacturer, marker, matched, prequalification_year, problem, product_name, snapshot.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -36,7 +36,7 @@
           ]
         }
       },
-      "max_bytes": 8596
+      "max_bytes": 7762
     },
     {
       "run": [
@@ -45,7 +45,7 @@
         "diagnostic"
       ],
       "expect": {
-        "/result/commands/0/description": "Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.",
+        "/result/commands/0/description": "Get diagnostic test or device details. Sources: fda-510k, fda-device-recall, fda-pma, gtr, who-ivd.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -76,7 +76,7 @@
           "supplements"
         ]
       },
-      "max_bytes": 4117
+      "max_bytes": 3352
     },
     {
       "run": [
