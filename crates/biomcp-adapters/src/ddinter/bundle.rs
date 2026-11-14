@@ -21,14 +21,22 @@ macro_rules! part {
         }
     };
 }
+/// Every partition DDInter publishes at this path (checked 2026-11-13).
 pub(super) const PARTS: &[BundlePart] = &[
     part!("A"),
     part!("B"),
+    part!("C"),
     part!("D"),
+    part!("G"),
     part!("H"),
+    part!("J"),
     part!("L"),
+    part!("M"),
+    part!("N"),
     part!("P"),
     part!("R"),
+    part!("S"),
+    part!("U"),
     part!("V"),
 ];
 const PAIRS: BundleSet<NativeRow> = BundleSet {
@@ -39,7 +47,7 @@ const PAIRS: BundleSet<NativeRow> = BundleSet {
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
-/// Synchronize the eight validated partitions as one atomic local replacement.
+/// Synchronize the fifteen validated partitions as one atomic local replacement.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
     fetch
         .sync_set(&PAIRS)
@@ -173,7 +181,12 @@ pub fn interactions(
         refusals.include(refused);
         named = found;
         pairs.retain(|pair| named.iter().any(|h| h.id.to_string() == pair.partner_id()));
-        if named.is_empty() {
+        if named.is_empty() && refused == crate::Refusal::Refused {
+            hint = format!(
+                "DDInter's entry for \"{partner}\" was refused because its identity could not be read, \
+                 so this reply cannot say whether the files list the pair. {LEVELS_ONLY}"
+            );
+        } else if named.is_empty() {
             hint = format!(
                 "DDInter's files name no drug \"{partner}\", so this reply cannot say whether they list the pair; \
                  search drug with --source ddinter shows the names they use. {LEVELS_ONLY}"

@@ -59,12 +59,11 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "<[ _ ]>::is_empty")]
     #[cfg_attr(feature = "schema", schemars(title = "Source sections.", extend("x-positional" = 1)))]
     section: Box<[DrugSection]>,
-    /// Section page size.
-    /// Refused on an identity-only card. At most 50 rows, or 200 for Drugs@FDA approvals.
+    /// Named section page size, refused on an identity-only card.
+    /// At most 50 rows, or 200 for Drugs@FDA approvals.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 200)))]
     section_limit: Option<u32>,
-    /// Section page offset.
     /// Named section continuation, refused on an identity-only card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     section_offset: Option<u32>,
@@ -100,7 +99,9 @@ struct GetFields {
     civic_cursor: Option<Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "DDInter partner.\nDDInter ID or full DDInter name; keeps only pairs with it."]
+    #[doc = "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only."]
+    /// Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+    /// names other sources state for it, as the drug itself is.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Ddinter)))]
     partner: Option<Text>,

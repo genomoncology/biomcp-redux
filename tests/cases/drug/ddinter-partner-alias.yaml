@@ -1,0 +1,42 @@
+{
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks.",
+  "feature": "drug-ddinter",
+  "story": "A DDInter partner given under a name DDInter does not use is tried under the exact names another source states for it, as the drug itself is, and the reply says which name stood in.",
+  "replay": "drug/source-aliases",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "ddinter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 17
+      },
+      "max_bytes": 179
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "EX-66"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/partner": "EX-66",
+        "/result/interactions/data/total": 1,
+        "/result/interactions/data/records/0/partner/id": "DDInter30",
+        "/result/interactions/data/records/0/level": "Moderate",
+        "/result/partners/*/id": [
+          "DDInter30"
+        ]
+      },
+      "max_bytes": 8000
+    }
+  ]
+}

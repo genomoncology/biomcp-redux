@@ -63,26 +63,10 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&ddinter::SPEC, deadline).fresh(cx.fresh);
+    let mut aliased = None;
     let result = if interactions {
-        ddinter::interactions(
-            &leg,
-            &id,
-            query.partner().map(|p| p.as_str()),
-            query.section_limit().unwrap_or(5),
-            query.section_offset().unwrap_or(0),
-        )
-        .map(|body| {
-            out.include_refusals(body.refusals);
-            out.problems.extend(body.problems);
-            let body = body.value;
-            let found = body.is_some();
-            if body.as_ref().is_some_and(|body| body.partners.is_empty()) {
-                partner_search(query, cx.fresh, &mut out);
-            }
-            out.body = biomcp_types::DrugInteractions::into_reply(
-                query.clone(),
-                body.map(|body| page(query, cx.fresh, body, &mut out)),
-            );
+        read_interactions(cx, query, &leg, &id, &mut out).map(|(found, alias)| {
+            aliased = alias;
             found
         })
     } else {
@@ -113,12 +97,82 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
+    if let Some(aliased) = aliased {
+        aliased.append(&mut out);
+    }
     if let Ok(found) = result {
         status::item(&mut out, found, false, false);
     }
     sync_step(&mut out);
     command.finish(deadline.remaining());
     out
+}
+
+/// No DDInter identity answers the partner and none was refused.
+fn unnamed(body: &biomcp_adapters::Mapped<Option<DrugInteractions>>) -> bool {
+    body.refusals == biomcp_adapters::Refusal::None
+        && body
+            .value
+            .as_ref()
+            .is_some_and(|body| body.partners.is_empty())
+}
+
+/// Read one interactions page. A partner name DDInter does not use is retried under the names
+/// another source states for it, as the drug itself is.
+fn read_interactions(
+    cx: &Ctx<'_>,
+    query: &DrugGet,
+    leg: &biomcp_fetch::Leg<'_>,
+    id: &biodata::DrugId,
+    out: &mut Outcome,
+) -> Result<(bool, Option<super::aliases::Aliased>), biomcp_fetch::RequestError> {
+    let read = |partner: Option<&str>| {
+        ddinter::interactions(
+            leg,
+            id,
+            partner,
+            query.section_limit().unwrap_or(5),
+            query.section_offset().unwrap_or(0),
+        )
+    };
+    let mut body = read(query.partner().map(|p| p.as_str()))?;
+    let mut aliased = None;
+    if let Some(partner) = query.partner()
+        && unnamed(&body)
+        && !partner
+            .as_str()
+            .parse::<biodata::DrugId>()
+            .is_ok_and(|id| DrugSource::Ddinter.accepts(&id))
+    {
+        let mut failure = None;
+        let (found, alias) =
+            super::aliases::partner(cx, partner, |name| match read(Some(name.as_str())) {
+                Ok(found) => (!unnamed(&found)).then_some(found),
+                Err(error) => {
+                    failure.get_or_insert(error);
+                    None
+                }
+            });
+        aliased = Some(alias);
+        match (found, failure) {
+            (Some(found), _) => body = found,
+            (None, Some(error)) => return Err(error),
+            (None, None) => {}
+        }
+    }
+    let unanswered = unnamed(&body);
+    out.include_refusals(body.refusals);
+    out.problems.extend(body.problems);
+    let body = body.value;
+    let found = body.is_some();
+    if unanswered {
+        partner_search(query, cx.fresh, out);
+    }
+    out.body = biomcp_types::DrugInteractions::into_reply(
+        query.clone(),
+        body.map(|body| page(query, cx.fresh, body, out)),
+    );
+    Ok((found, aliased))
 }
 /// The DDInter name search for a partner DDInter's files do not name.
 fn partner_search(query: &DrugGet, fresh: bool, out: &mut Outcome) {

@@ -1,8 +1,8 @@
 {
-  "live_check": "WHO PQ finished-product export captured live 2026-11-13; reuses the who-pq-dates-read recording",
+  "live_check": "synthetic authored WHO PQ export rows; no live provider observation",
   "feature": "drug-who-medicines",
-  "story": "A WHO PQ search by therapeutic area returns, in one page, only the products WHO lists under that area in its own Therapeutic Area column, newest first; dates and names narrow the same search, and the area works only with WHO PQ.",
-  "replay": "drug/who-pq-dates-read",
+  "story": "A WHO PQ search by therapeutic area returns, in one page, only the products listed under that area in the Therapeutic Area column, newest first with undated rows last; whole words match in any letter case, dates and names narrow the same search, and the area works only with WHO PQ.",
+  "replay": "drug/who-pq-area-synthetic",
   "steps": [
     {
       "run": [
@@ -10,7 +10,7 @@
         "who-pq"
       ],
       "expect": {
-        "/result/rows": 657
+        "/result/rows": 8
       },
       "max_bytes": 500
     },
@@ -27,43 +27,15 @@
       ],
       "expect": {
         "/status": "complete",
-        "/page/total": 18,
-        "/page/returned": 18,
+        "/page/total": 4,
+        "/page/returned": 4,
         "/result/items/*/reference": [
-          "BT-ON018",
-          "BT-ON019",
-          "BT-ON017",
-          "BT-ON013",
-          "BT-ON014",
-          "BT-ON016",
-          "BT-ON006",
-          "BT-ON007",
-          "BT-ON009",
-          "BT-ON010",
-          "BT-ON011",
-          "BT-ON012",
-          "BT-ON002",
-          "BT-ON003",
-          "BT-ON008",
-          "BT-ON004",
-          "BT-ON005",
-          "BT-ON001"
+          "SYN-ON02",
+          "SYN-ON01",
+          "SYN-ON03",
+          "SYN-ON04"
         ],
         "/result/items/*/therapeutic_area": [
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
           "Oncology",
           "Oncology",
           "Oncology",
@@ -84,13 +56,10 @@
         "2021"
       ],
       "expect": {
-        "/page/total": 5,
+        "/page/total": 2,
         "/result/items/*/reference": [
-          "BT-ON018",
-          "BT-ON019",
-          "BT-ON017",
-          "BT-ON013",
-          "BT-ON014"
+          "SYN-ON02",
+          "SYN-ON01"
         ]
       },
       "max_bytes": 40000
@@ -101,23 +70,37 @@
         "drug",
         "--source",
         "who-pq",
-        "rituximab",
+        "synthetic medicine a",
         "--therapeutic-area",
         "oncology",
         "--limit",
         "50"
       ],
       "expect": {
-        "/page/total": 8,
+        "/page/total": 2,
+        "/result/items/*/reference": [
+          "SYN-ON01",
+          "SYN-ON03"
+        ]
+      },
+      "max_bytes": 40000
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "who-pq",
+        "--therapeutic-area",
+        "hiv"
+      ],
+      "expect": {
+        "/page/total": 1,
+        "/result/items/*/reference": [
+          "SYN-HV01"
+        ],
         "/result/items/*/therapeutic_area": [
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology",
-          "Oncology"
+          "HIV/AIDS"
         ]
       },
       "max_bytes": 40000

@@ -11,7 +11,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/rows": 9
+        "/result/rows": 16
       },
       "max_bytes": 179
     },
@@ -31,7 +31,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/interactions/data/total": 3,
+        "/result/interactions/data/total": 4,
         "/result/interactions/data/records/0/partner/id": "DDInter5",
         "/result/interactions/data/offset": 1
       },
@@ -45,7 +45,7 @@
       ],
       "expect": {
         "/status": "complete",
-        "/result/rows": 9
+        "/result/rows": 16
       },
       "max_bytes": 179
     }
