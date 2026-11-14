@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "fetched": 1794509238,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 4094,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:1100\tBRCA1\tBRCA1 DNA repair associated\tprotein-coding gene\tgene with protein product\tApproved\t17q21.31\t\"RNF53|BRCC1|PPP1R53|FANCS\"\t\"BRCA1/BRCA2-containing complex, subunit 1|protein phosphatase 1, regulatory subunit 53|Fanconi anemia, complementation group S\"\t\t\"breast cancer 1, early onset|breast cancer 1\"\t\"Ring finger proteins|FA complementation groups|Protein phosphatase 1 regulatory subunits|BRCA1 A complex|BRCA1 B complex|BRCA1 C complex\"\t\"58|548|694|1328|1335|1336\"\t1991-02-20\t\t2019-01-22\t2023-03-15\t672\tENSG00000012048\tOTTHUMG00000157426\tuc002ict.4\tU14680\tNM_007294\t\"CCDS11453|CCDS11454|CCDS11455|CCDS11456|CCDS11459\"\tP38398\t\"1676470|25472942\"\tMGI:104537\tRGD:2218\t\"Breast Cancer|http://research.nhgri.nih.gov/bic/|Fanconi Anaemia Mutation Database|http://www2.rockefeller.edu/fanconi|BRCA1 database at LOVD-China|http://genomed.org/LOVD/BC/home.php?select_db=BRCA1|Global Variome shared LOVD|https://databases.lovd.nl/shared/genes/BRCA1|LOVD - Leiden Open Variation Database|http://proteomics.bio21.unimelb.edu.au/lovd/genes/BRCA1|LRG_292|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_292.xml\"\tBRCA1\t113705\t\t\t\t\t119068\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tHGNC:1100\t\"ENST00000357654.9|NM_007294.4\"\tHGNC:1100\n"
+      }
+    }
+  ]
+}

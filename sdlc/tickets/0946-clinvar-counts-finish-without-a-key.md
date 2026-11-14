@@ -31,3 +31,10 @@ dx-lab-director round 2: the new ClinVar section came back rate-limited all 4 ti
 ## Changes
 
 - Changes: the ClinVar gene section's request pacing and retry, cases.
+
+## Progress
+
+- 2026-11-14 measured on the M5 with no NCBI key (the job environment sets `NCBI_API_KEY`; each run unset it and used an empty config). On main (da7c978f5), 0 of 5 `get gene BRCA1 clinvar --fresh` reads completed; each took 14-17 s and ended `rate-limited` with "retry after 2 s" (j40834). NCBI's keyless 429 carries `Retry-After: 2`, `x-ratelimit-limit: 3`, `x-ratelimit-remaining: 0` and a body naming the caller's IP address as `api-key`, with `"count":"4","limit":"3"`. Back-to-back curl searches went three accepted, two refused, three accepted; one search per second or every half second never drew a 429 (j40861).
+- Cause: the shared keyless `ncbi-eutils` pacing, evenly spaced at exactly three per second, lets NCBI count a fourth request inside a second. A read's 17 sequential ClinVar requests drew 2 to 5 429s at that rate, each costing 2 s, and a request that met three in a row failed the section. With only the throttle wait below, 2 of 5 reads still failed at three per second (j40858). Paced at five per two seconds, 5 of 5 completed in about 7.3 s with no 429; at two per second, 5 of 5 in about 8.9 s (j40861).
+- Changed: the keyless `ncbi-eutils` default and ceiling is now five requests per two seconds; the keyed rate stays ten per second. The ClinVar gene section's einfo, esearch and esummary endpoints declare `wait_throttle`: a 429 that names its retry time is waited out and retried for as long as the budget allows rather than three attempts, because other clients on the same address share the keyless limit. A wait longer than the remaining budget still returns `rate-limited` with the retry time.
+- Case: `tests/cases/gene/sections/clinvar-throttled.yaml` replays a keyless BRCA1 read recorded live in j40858 while a second client sent searches from the same address: NCBI refused the likely pathogenic count with `Retry-After: 2`, the section waited, and the read completed with 4,752 P/LP. The recorded 429 body's IP address is replaced by `2001:db8::1`.
