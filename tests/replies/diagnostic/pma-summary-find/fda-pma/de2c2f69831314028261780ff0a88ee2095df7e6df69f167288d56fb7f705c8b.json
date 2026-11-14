@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-pma",
+  "url": "https://www.accessdata.fda.gov/cdrh_docs/pdf15/P150047B.pdf",
+  "exchanges": [
+    {
+      "fetched": 1794666827,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "de2c2f69831314028261780ff0a88ee2095df7e6df69f167288d56fb7f705c8b-0.bin"
+      }
+    }
+  ]
+}
