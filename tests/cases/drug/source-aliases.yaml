@@ -127,7 +127,7 @@
         "/result/header/id": "CHEMBL941",
         "/query/input": "CHEMBL941",
         "/sources/0/notices/0/kind": "request-guidance",
-        "/sources/0/notices/0/message": "The source did not resolve \"EX-66\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"CHEMBL941\"; tried resolving that name in the selected source. Only that source can supply its own record."
+        "/sources/0/notices/0/message": "The source did not resolve \"EX-66\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"Canonical therapy\"; tried resolving that name in the selected source. Only that source can supply its own record."
       },
       "run": [
         "get",
