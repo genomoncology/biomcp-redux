@@ -35,10 +35,13 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                 &mut found,
                 query.source(),
                 format!(
-                    "The search for {input:?} returned no rows. {} record {} supplies the name {name:?}; \
+                    "The search for {:?} returned no rows. {} record {} supplies the name {:?}; \
                      tried the selected source with that name. \
                      Returned rows and totals belong to the selected source.",
-                    card.header.source, card.header.id
+                    input.as_str(),
+                    card.header.source,
+                    card.header.id,
+                    name.as_str()
                 ),
             );
             Some(found)
@@ -110,10 +113,13 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
                     found,
                     query.source(),
                     format!(
-                        "The source did not resolve {input:?}. {} record {} supplies the name {name:?}; \
+                        "The source did not resolve {:?}. {} record {} supplies the name {:?}; \
                          tried resolving that name in the selected source. \
                          Only that source can supply its own record.",
-                        card.header.source, card.header.id
+                        input.as_str(),
+                        card.header.source,
+                        card.header.id,
+                        name.as_str()
                     ),
                 );
             }
@@ -340,9 +346,10 @@ fn hint(out: &mut Outcome, card: &DrugCard, input: &Text, selected: DrugSource, 
             out,
             selected,
             format!(
-                "{} has candidate records for {input:?}, but no unique literal name match. \
+                "{} has candidate records for {:?}, but no unique literal name match. \
                  No cross-source alias was selected. Search that source to inspect its candidates.",
-                card.header.source
+                card.header.source,
+                input.as_str()
             ),
         );
         if let Some(query) = crate::next::checked(
@@ -363,9 +370,11 @@ fn hint(out: &mut Outcome, card: &DrugCard, input: &Text, selected: DrugSource, 
         out,
         selected,
         format!(
-            "The completed queries in {selected} found no matching record for {input:?}. \
+            "The completed queries in {selected} found no matching record for {:?}. \
              {} record {} matches the input; its presence does not establish a record in {selected}.",
-            card.header.source, card.header.id
+            input.as_str(),
+            card.header.source,
+            card.header.id
         ),
     );
     if let Some(query) = crate::next::checked(
@@ -406,7 +415,7 @@ fn search_spelling(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         query.source(),
         format!(
             "The preferred-name search for {:?} returned no rows; tried the native exact synonym filter.",
-            query.query()
+            query.query().map_or("", Text::as_str)
         ),
     );
     found

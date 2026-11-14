@@ -34,6 +34,9 @@ pub(crate) struct Step {
     #[serde(default)]
     pub(crate) offline: bool,
     pub(crate) mcp: Option<Vec<String>>,
+    /// Send the `mcp` call to a hosted HTTP server instead of stdio.
+    #[serde(default)]
+    pub(crate) hosted: bool,
     pub(crate) mcp_call: Option<McpCall>,
     #[serde(default)]
     pub(crate) is_error: bool,

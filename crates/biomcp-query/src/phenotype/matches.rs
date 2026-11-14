@@ -10,7 +10,7 @@ use biomcp_types::{
 pub(super) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
     let command = cx
         .fetch
-        .command_deadline(monarch::phenotype::matches::SPEC.budget_for(cx.budget));
+        .source_command_deadline(&monarch::phenotype::matches::SPEC, cx.budget);
     let deadline = command.deadline();
     let leg = cx
         .fetch
