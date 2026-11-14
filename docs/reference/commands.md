@@ -5925,7 +5925,7 @@ Options:
           [possible values: json, md]
 
       --verbose[=<verbose>]
-          Include commit, target, schema versions, config and cache paths.
+          Include commit, target, config and cache paths.
 
           [default: false]
           [possible values: true, false]
@@ -5957,7 +5957,7 @@ Example: biomcp version
 
 Print version; --verbose adds build, schema and path provenance. No source requests or key reads.
 
-- `--verbose`: Include commit, target, schema versions, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection.
+- `--verbose`: Include commit, target, config and cache paths. Value form: boolean. Example: --verbose. Local command option; independent of source selection.
 
 ## biomcp mcp-config
 

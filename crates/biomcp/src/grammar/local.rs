@@ -159,7 +159,7 @@ pub(super) fn housekeeping_commands() -> [Command; 4] {
             .arg(
                 super::boolean_argument(Arg::new("verbose")
                     .long("verbose")
-                    .help("Include commit, target, schema versions, config and cache paths.")
+                    .help("Include commit, target, config and cache paths.")
                     ),
             ),
         Command::new("mcp-config").after_help("Example: biomcp mcp-config")
