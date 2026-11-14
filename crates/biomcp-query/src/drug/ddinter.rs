@@ -97,13 +97,14 @@ pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
     out.local = error.and_then(status::local);
     out.sources
         .push(status::source(Source::Ddinter, leg.finish(), error));
-    if let Some(aliased) = aliased {
-        aliased.append(&mut out);
-    }
     if let Ok(found) = result {
         status::item(&mut out, found, false, false);
     }
     sync_step(&mut out);
+    // The partner's other-source lookups join the reply after DDInter's own outcome.
+    if let Some(aliased) = aliased {
+        aliased.append(&mut out);
+    }
     command.finish(deadline.remaining());
     out
 }
