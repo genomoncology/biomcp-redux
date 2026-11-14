@@ -108,8 +108,12 @@ fn render(
         truncated: None,
     });
     let offset = q.offset().saturating_add(returned);
-    if q.vaers_sort().is_none() && u64::from(returned) < total {
-        offer_sort(q, snapshot.as_ref(), out);
+    // Only a held table can be sorted without a new source request.
+    if let Some(snapshot) = snapshot
+        .as_ref()
+        .filter(|_| q.vaers_sort().is_none() && u64::from(returned) < total)
+    {
+        offer_sort(q, snapshot, out);
     }
     if let Some(snapshot) = snapshot.filter(|_| returned > 0 && u64::from(offset) < total) {
         out.next.push(crate::next::Step::run(
@@ -137,8 +141,8 @@ fn render(
 }
 
 /// Offer the same retained table largest first, without a new source request.
-fn offer_sort(q: &AdverseEventSearch, snapshot: Option<&Text>, out: &mut Outcome) {
-    let held = snapshot.map_or_else(|| q.clone(), |s| q.with_snapshot(s.clone()));
+fn offer_sort(q: &AdverseEventSearch, snapshot: &Text, out: &mut Outcome) {
+    let held = q.with_snapshot(snapshot.clone());
     out.next.push(crate::next::Step::run(
         StepKind::Sort,
         &[biomcp_types::Source::Vaers],
@@ -170,8 +174,10 @@ fn by_reports(table: &mut VaersSummary, out: &mut Outcome) {
                 message: format!(
                     "--sort reports: BioMCP ordered all {total} rows of this CDC WONDER table, \
                      not just this page, by the source's Events Reported count, largest first; \
-                     equal counts and rows without a count keep the source's order. Counts, \
-                     percentages and the report total are the source's."
+                     equal counts and rows without a count keep the source's order. Counts \
+                     and the report total are the source's, and each percent is the source's \
+                     percent of the {} reports.",
+                    table.report_total
                 )
                 .into(),
                 retry_after_seconds: None,

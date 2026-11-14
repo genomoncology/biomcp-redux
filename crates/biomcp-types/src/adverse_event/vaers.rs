@@ -110,7 +110,7 @@ pub struct VaersRow {
     #[doc = " Native Events Reported count for this row. A footer counts occurrences, separate from \
         the message report total; suppressed and displayed-total text stay unchanged."]
     pub reports: VaersCell,
-    /// Native Percent cell, retaining values above one hundred percent.
+    /// Native Percent cell: percent of the `report_total` reports, kept as given; a footer may exceed one hundred.
     pub percent: VaersCell,
 }
 /// Applied source text, retaining its original content and source role.
