@@ -45,7 +45,8 @@ fn literal(value: &str) -> String {
 /// openFDA answers HTTP 400 to these characters even inside a quoted phrase (live, 2026-11-13).
 /// Its tokenizer splits words at them, so a space finds the same words.
 const REFUSED: &[char] = &['!', '#', '$', ';', '?', '^', '|', '~', '`'];
-/// The device name as one quoted phrase on product_description, with refused punctuation spaced.
+/// Text as one quoted openFDA phrase, with refused punctuation spaced: the device recall name
+/// (product_description) and the PMA intended-use phrase (ao_statement).
 pub(crate) fn phrase(value: &Text) -> String {
     let words: String = value
         .as_str()

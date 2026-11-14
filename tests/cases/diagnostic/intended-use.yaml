@@ -83,7 +83,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--intended-use",
-        "/error/message": "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so use --name for the 510(k) device_name"
+        "/error/message": "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so select them with --product-code, whose FDA classification name describes the device type"
       }
     },
     {
@@ -101,7 +101,7 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/error/option": "--intended-use",
-        "/error/message": "--intended-use needs ASCII letters or digits, such as e for é, because openFDA refuses other letters in a phrase"
+        "/error/message": "--intended-use needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase"
       }
     }
   ]

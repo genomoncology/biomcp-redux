@@ -11,7 +11,7 @@
       ],
       "expect": {
         "/result/commands/0/arguments/*/description": {
-          "includes": "PMA or K identifier.\nExact PMA application, application/supplement or source K identity. Value form: string. Example: --device-id P200010/S026. Only with --source fda-cdx."
+          "includes": "PMA or K identifier.\nExact PMA application, application/supplement or source K identity. Value form: string; example: --device-id P200010/S026; only with --source fda-cdx."
         }
       }
     },
@@ -23,7 +23,7 @@
       ],
       "expect": {
         "/result/commands/0/arguments/*/description": {
-          "includes": "Source sections; help get drug\nListed choices accept any letter case; replies use their listed spelling.\nForm: get drug INPUT SECTION...; not --section."
+          "includes": "Source sections.\nForm: get drug INPUT SECTION...; not --section."
         }
       }
     },

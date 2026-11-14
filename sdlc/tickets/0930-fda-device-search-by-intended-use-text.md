@@ -10,7 +10,7 @@ Milestone: 7
 
 ## Why
 
-The dx-lab-director persona tried ten trade-name guesses (`--name 'liquid biopsy'`, `cfDNA` and others) and got 0 or 1 hit each (log.md:85-92); code mode searched openFDA's `ao_statement:"cell-free"` and found 12 PMA records, including Shield P230009 and SimpleScreen CRC P250029, which the BioMCP agent never saw. Evidence: bench `personas/dx-lab-director/runs/2026-11-14/` (j40302, BioMCP f4f726674) and its code-mode pair `runs/2026-11-14-raw/` (j40303); the analyst's source checks are listed at the end of `analysis.md`.
+The dx-lab-director persona tried trade-name searches; 'liquid biopsy' and 'cfDNA' got 0 or 1 hit in PMA and 510(k), and it never tried 'cell-free' (log.md:85-92); code mode searched openFDA's `ao_statement:"cell-free"` and found 12 PMA records, including Shield P230009 and SimpleScreen CRC P250029, which the BioMCP agent never saw. Evidence: bench `personas/dx-lab-director/runs/2026-11-14/` (j40302, BioMCP f4f726674) and its code-mode pair `runs/2026-11-14-raw/` (j40303); the analyst's source checks are listed at the end of `analysis.md`.
 
 ## Proof
 

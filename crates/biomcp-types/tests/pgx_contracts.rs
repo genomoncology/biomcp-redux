@@ -407,3 +407,26 @@ fn card_section_actions_recheck_source_context_and_keep_the_declared_gene()
     );
     Ok(())
 }
+#[test]
+fn pgx_pages_state_their_total_before_their_rows() -> Result<(), Box<dyn std::error::Error>> {
+    // 0937: an agent reading only the start of a long reply must see that the rows are one page.
+    let page: biomcp_types::PgxRecommendations = serde_json::from_value(json!(
+        {"representation":"view","header":{"gene":"TPMT","source":"cpic"},"items":[recommendation()],
+        "page":{"offset":0,"returned":1,"total":2,"total_kind":"source"}}
+    ))?;
+    let search: biomcp_types::PgxPage = serde_json::from_value(json!(
+        {"header":{"gene":"TPMT","source":"cpic"},"items":[{"pairid":{"namespace":"CPIC","id":3},"drugid":"RxNorm:10324",
+        "drugname":"synthetic","genesymbol":"TPMT","cpiclevel":"B/C","clinpgxlevel":"synthetic","usedforrecommendation":"No","provisional":false}],
+        "page":{"offset":0,"returned":1,"total":2,"total_kind":"source"}}
+    ))?;
+    for text in [
+        serde_json::to_string(&page)?,
+        serde_json::to_string(&search)?,
+    ] {
+        assert!(
+            text.find("\"page\"").ok_or("page")? < text.find("\"items\"").ok_or("items")?,
+            "page follows the rows: {text}"
+        );
+    }
+    Ok(())
+}

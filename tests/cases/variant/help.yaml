@@ -13,9 +13,9 @@
         "/result/commands/0/examples": {
           "count": 1
         },
-        "/result/commands/0/description": "Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator."
+        "/result/commands/0/description": "Get genetic variants. Sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator.\nListed choices accept any letter case; replies use their listed spelling.\nOptions apply to every listed source unless their description restricts them."
       },
-      "max_bytes": 9778
+      "max_bytes": 6512
     },
     {
       "run": [
@@ -28,7 +28,7 @@
           "count": 1
         }
       },
-      "max_bytes": 5503
+      "max_bytes": 4059
     },
     {
       "run": [
@@ -41,7 +41,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2987
+      "max_bytes": 2236
     },
     {
       "run": [
@@ -54,7 +54,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2827
+      "max_bytes": 1967
     },
     {
       "run": [
@@ -67,7 +67,7 @@
           "count": 1
         }
       },
-      "max_bytes": 2806
+      "max_bytes": 2043
     },
     {
       "run": [
@@ -80,7 +80,7 @@
           "count": 1
         }
       },
-      "max_bytes": 3689
+      "max_bytes": 2804
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

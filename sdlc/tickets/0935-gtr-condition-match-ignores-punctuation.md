@@ -10,7 +10,7 @@ GTR condition and name matching ignores case, hyphens and spaces, so "non-small 
 
 ## Why
 
-The persona's NSCLC slice of EGFR tests came back 0 (log.md:34-41); in NCBI's `test_version.gz`, 5 current EGFR tests hold the phrase in another spelling and none hold the literal hyphenated phrase. Evidence: bench `personas/dx-lab-director/runs/2026-11-14/` (j40302, BioMCP f4f726674) and its code-mode pair `runs/2026-11-14-raw/` (j40303); the analyst's source checks are listed at the end of `analysis.md`. Idea 0819 (literal name search over the pinned catalog) is related; keep its rules if this touches name search.
+The persona's NSCLC slice of EGFR tests came back 0 (log.md:34-41); in NCBI's `test_version.gz`, 4 current EGFR tests hold the phrase in another spelling and none of the EGFR tests uses the literal hyphenated phrase. Evidence: bench `personas/dx-lab-director/runs/2026-11-14/` (j40302, BioMCP f4f726674) and its code-mode pair `runs/2026-11-14-raw/` (j40303); the analyst's source checks are listed at the end of `analysis.md`. Idea 0819 (literal name search over the pinned catalog) is related; keep its rules if this touches name search.
 
 ## Proof
 
