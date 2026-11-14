@@ -10,16 +10,24 @@ pub(super) fn render(value: &Value) -> io::Result<String> {
     let mut value = value.clone();
     clean(&mut value);
     let markdown = String::from_utf8(crate::view::markdown(&value)?).map_err(io::Error::other)?;
-    // Undo the view's escapes, including its autolink breaks (`\:`, `\.` and a
-    // code-span `@`); source backticks reach here escaped, so a bare one is the view's.
-    let decoded = entities(&markdown).replace("`@`", "@");
+    // Undo the view's escapes, including its autolink and line-start breaks
+    // (`\:`, `\.`, `\-`, `\+`, `\)` and a code-span `@`), outside the view's own
+    // fenced next steps, which are copied as they are. Source text cannot open a
+    // fence: its backticks are escaped and its line breaks are entities.
     let mut text = String::new();
-    let mut chars = decoded.chars().peekable();
-    while let Some(ch) = chars.next() {
-        if ch == '\\' && chars.peek().is_some_and(|c| "\\*_`|[]#!~:.".contains(*c)) {
-            text.push(chars.next().unwrap_or_default());
+    let mut fence = 0;
+    for line in markdown.split_inclusive('\n') {
+        let ticks = line.len() - line.trim_start_matches('`').len();
+        if fence > 0 {
+            text.push_str(line);
+            if ticks >= fence && line[ticks..].trim().is_empty() {
+                fence = 0;
+            }
+        } else if ticks >= 3 {
+            text.push_str(line);
+            fence = ticks;
         } else {
-            text.push(ch);
+            plain(line, &mut text);
         }
     }
     // A fence longer than any source or generated fence keeps the entire view inert.
@@ -28,6 +36,21 @@ pub(super) fn render(value: &Value) -> io::Result<String> {
     Ok(format!("{fence}text\n{}\n{fence}\n", text.trim_end()))
 }
 
+fn plain(line: &str, text: &mut String) {
+    let decoded = entities(line).replace("`@`", "@");
+    let mut chars = decoded.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '\\'
+            && chars
+                .peek()
+                .is_some_and(|c| "\\*_`|[]#!~:.-+)".contains(*c))
+        {
+            text.push(chars.next().unwrap_or_default());
+        } else {
+            text.push(ch);
+        }
+    }
+}
 fn clean(value: &mut Value) {
     match value {
         Value::String(text) => *text = source(text),

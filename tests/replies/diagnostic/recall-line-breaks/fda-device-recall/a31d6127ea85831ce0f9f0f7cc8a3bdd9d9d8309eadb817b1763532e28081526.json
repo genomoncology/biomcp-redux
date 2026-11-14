@@ -1,0 +1,88 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%22Z-0884-2026%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794694808,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 408,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "cfres_id": "217151",
+              "product_res_number": "Z-0884-2026",
+              "event_date_initiated": "2025-10-28",
+              "event_date_posted": "2025-12-04",
+              "recall_status": "Open, Classified",
+              "res_event_number": "97913",
+              "product_code": "PFT",
+              "product_description": "Reagent Kits/ containing flow cells, components of NextSeq 550Dx Instrument:\nNextSeq 550Dx High Output Reagent Kit v2.5 (75 cycles) IVD, REF: 20028870/NextSeq 550Dx HO FC Cart v2.5, 75 Cycles, REF: 20031098;\nNextSeq 550Dx High Output Reagent Kit v2.5 (300 cycles) IVD, REF: 20028871/NextSeq 550Dx HO FC Cart v2.5, 300 Cycles, REF: 20026365;\nCN NextSeq 550Dx High Output Reagent Kit v2.5 (75 cycles) IVD, REF: 20064341/CN NEXTSEQ 550Dx HO FLOW CELL V2.5, REF: 20062316;\nCN NextSeq 550Dx High Output Reagent Kit v2.5 (300 cycles) IVD, REF: 20064344/CN NEXTSEQ 550Dx HO FLOW CELL V2.5, REF: 20062316;\nCN NextSeq 550Dx Mid Output Reagent Kit v2.5 (150 cycles) IVD, 20064345/CN NEXTSEQ 550Dx MO FLOW CELL V2.5, REF: 20062530;\nCN NextSeq 550Dx Mid Output Reagent Kit v2.5 (300 cycles) IVD, 20064346/CN NEXTSEQ 550Dx MO FLOW CELL V2.5, REF: 20062530;\n/FLOWCELL, FIT FLUIDICS TESTING, REF: 15050205",
+              "recalling_firm": "Illumina, Inc.",
+              "reason_for_recall": "An instrument intended for sequencing DNA libraries with in vitro diagnostic assays is used with reagent kits including flow cells that have flow cell gaskets that have a quality issue, which may lead to flow cell leaks during runs, which could cause run failures, that may result in: No/insufficient data output, instrument fluidics clogs, toxic substance exposure to user.",
+              "root_cause_description": "Vendor change control",
+              "product_quantity": "11916",
+              "distribution_pattern": "Worldwide - US Nationwide distribution in the states of PA, NJ, CA, NC, UT, IL, MD, NY, VA, WV, SD, TX, AL, SC, TN, KY, MI and the countries of DK, SA, FR, DE, IT, CN, PL, GB, TH, GR, VN, BE, ES, IL, KR, AU, CH, BG, NL, IE, TW, TR, CZ, HU, NO, FI, JP, SG, LU, AT, AE, ZA, PT, LT, SE.",
+              "openfda": {
+                "k_number": [
+                  "DEN130042"
+                ],
+                "device_name": "Reagents For Molecular Diagnostic Test Systems",
+                "medical_specialty_description": "Clinical Chemistry",
+                "regulation_number": "862.3800",
+                "device_class": "1",
+                "registration_number": [
+                  "",
+                  "3026144211",
+                  "3009875001",
+                  "3011805506",
+                  "3007287152",
+                  "3003673482",
+                  "3017201274",
+                  "3007102730",
+                  "3013508066",
+                  "3003335080",
+                  "3003218906",
+                  "3004613294",
+                  "2915274",
+                  "3015547437"
+                ],
+                "fei_number": [
+                  "",
+                  "3026144211",
+                  "3009875001",
+                  "3011805506",
+                  "3007287152",
+                  "3003673482",
+                  "3017201274",
+                  "3007102730",
+                  "3013508066",
+                  "3003335080",
+                  "3003218906",
+                  "3004613294",
+                  "2915274",
+                  "3015547437"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
