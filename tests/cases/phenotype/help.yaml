@@ -18,7 +18,7 @@
             "--offset"
           ]
         },
-        "/result/commands/0/description": "Search human phenotypes in HPO. Sources: hpo, monarch.\nFields: attribution, best_matches, category, id, label, match_score, match_type, matched_field, object_to_subject_score, rank, score, subject_to_object_score. Choose some with --fields a,b (typed: fields list); always kept: attribution, id, rank, score.",
+        "/result/commands/0/description": "Search human phenotypes in HPO. Sources: hpo, monarch, ols.\nFields: attribution, best_matches, category, id, label, match_score, match_type, matched_field, object_to_subject_score, rank, score, subject_to_object_score. Choose some with --fields a,b (typed: fields list); always kept: attribution, id, rank, score.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -49,7 +49,7 @@
             "--snapshot"
           ]
         },
-        "/result/commands/0/description": "Get human phenotype details and relationships. Sources: hpo, monarch.",
+        "/result/commands/0/description": "Get human phenotype details and relationships. Sources: hpo, monarch, ols.",
         "/result/commands/0/examples": {
           "count": 1
         },
@@ -59,7 +59,8 @@
             "xrefs",
             "hierarchy",
             "diseases",
-            "genes"
+            "genes",
+            "ancestors"
           ]
         },
         "/status": "complete"

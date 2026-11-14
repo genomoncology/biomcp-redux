@@ -42,6 +42,10 @@ pub(super) fn get(cx: &Ctx<'_>, q: &PhenotypeGet) -> Outcome {
     }
     problem(&mut out, source(q), q.id().as_str().parse().ok());
     recovery(&mut out, Request::GetPhenotype(q.restart()));
+    if q.section() == Some(biomcp_types::PhenotypeSection::Hierarchy) {
+        // Offered whether or not Monarch answered: OLS does not depend on it.
+        super::sections::ancestors(&mut out, q);
+    }
     command.finish(deadline.remaining());
     out
 }
@@ -49,6 +53,7 @@ pub(super) fn source(q: &PhenotypeGet) -> Source {
     match q.source() {
         PhenotypeSource::Hpo => Source::Hpo,
         PhenotypeSource::Monarch => Source::Monarch,
+        PhenotypeSource::Ols => Source::Ols,
     }
 }
 fn load(
@@ -60,6 +65,7 @@ fn load(
     let spec = match q.source() {
         PhenotypeSource::Hpo => &hpo::SPEC,
         PhenotypeSource::Monarch => &monarch::SPEC,
+        PhenotypeSource::Ols => &biomcp_adapters::ols::SPEC,
     };
     let leg = cx.fetch.leg(spec, deadline).fresh(cx.fresh);
     if cx.fetch.disabled(source(q))
@@ -125,6 +131,8 @@ fn acquire(
                 fetched(r.metadata),
             )
         }),
+        // Query validation sends OLS only to the ancestors section, which never reads a card.
+        PhenotypeSource::Ols => Err(biomcp_fetch::InputError::Serialization.into()),
     };
     let error = reply.as_ref().err().copied();
     out.sources.push(status::source(
