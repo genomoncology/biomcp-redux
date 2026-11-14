@@ -31,3 +31,10 @@ The bench's help-read analysis of 2026-11-14 (bench `personas/_eval/help-reads-2
 ## Changes
 
 - Changes: `crates/biomcp/src/housekeeping.rs`, its case, generated docs.
+
+## Progress
+
+- `biomcp version --verbose` now prints version, commit, target, config and cache, and no schema list. Measured on the M5: 7,854 bytes on main 9330e44bc (j40195), 186 bytes on this branch (j40197). `biomcp schema` still lists the schemas.
+- No reader depends on the list: release/gate.py and scripts/check_front_map.py read only the version and commit lines, scripts/test_reply_diff.py masks only build fields, and the bench reads only version and commit (`personas/_eval/make_cases.py`). `version` has no JSON form and no reply schema in release/schema-baseline.json, so no schema changed.
+- Removed the now-unused `schema::versions()`. The `--verbose` help text drops "schema versions"; docs/reference/commands.md follows.
+- Case: `crates/biomcp/tests/runner/housekeeping.rs` asserts commit and target are present and that no "Schemas: " line or schema ID appears. Gate `make --keep-going landing-gate docs-check schema-release-check` passed at ba41973a0 (j40196).
