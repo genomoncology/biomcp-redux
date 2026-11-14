@@ -121,6 +121,8 @@ Each row retains its whole name, code, assay format, manufacturer, marker, regul
 
 The `regulatory` section pages the selected row’s original statement fragments; the base-only `supplements` section returns five native headers per page. Missing supplements return source-local absence. A supplement’s decision belongs to that submission alone. Exact companion-table links remain separate from PMA approval records.
 
+`search diagnostic --source fda-pma --intended-use "cell-free"` matches the words of each submission's approval-order statement (`ao_statement`), the intended-use text FDA publishes, as one phrase; `--name` still matches only `trade_name`. Supplements carry their own statements, so one device can match more than once. The reply's `source_query` shows the exact openFDA expression and so the field each filter matched. openFDA publishes no intended-use text for 510(k) records, so `--intended-use` is refused for `--source fda-510k`. The phrase follows the same openFDA rules as a device recall name: no plurals or synonyms, refused punctuation spaced, and letters outside ASCII refused before the request.
+
 ## FDA companion tables
 
 Rows retain their whole cells and original links. Biomarker selection is unsupported for the group table. A companion row is not a treatment recommendation.
