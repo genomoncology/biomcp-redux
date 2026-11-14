@@ -95,6 +95,7 @@ fn disease_sections(action: &Action) -> Option<UsageError> {
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
             args: ["help", "get", "disease"].map(Into::into).into(),
+            options: Default::default(),
         }],
     }))
 }
@@ -144,6 +145,7 @@ fn disease_sources(action: &Action) -> UsageError {
         next: vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
             args: ["help", path[0], path[1]].map(Into::into).into(),
+            options: Default::default(),
         }],
     })
 }
@@ -206,6 +208,7 @@ pub(crate) fn selector_error(error: biomcp_adapters::seer::SelectorError) -> Usa
             args: ["search", "disease", "--source", "seer"]
                 .map(Into::into)
                 .into(),
+            options: Default::default(),
         }],
     }
 }
@@ -326,10 +329,12 @@ fn drug_selector(action: &Action) -> Result<(), UsageError> {
                 ]
                 .map(Into::into)
                 .into(),
+                options: Default::default(),
             })
             .chain([biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,
                 args: ["help", "get", "drug"].map(Into::into).into(),
+                options: Default::default(),
             }])
             .collect(),
     })

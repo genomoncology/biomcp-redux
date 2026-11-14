@@ -12,6 +12,7 @@ pub(crate) fn step(kind: StepKind, action: &Action) -> Result<Step, serde_json::
             .into_iter()
             .map(String::into_boxed_str)
             .collect(),
+        options: Default::default(),
     })
 }
 pub(crate) fn action_args(action: &Action) -> Result<Vec<String>, serde_json::Error> {

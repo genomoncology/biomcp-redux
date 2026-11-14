@@ -383,6 +383,7 @@ fn parse_refusal(
                         .chain(path.into_iter().map(String::into_boxed_str))
                         .collect::<Vec<_>>()
                         .into(),
+                    options: Default::default(),
                 },
             },
             encoding,
@@ -417,6 +418,7 @@ fn parse_refusal(
         arguments.next = vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
             args: vec!["mcp-config".into(), "--client".into(), "mcp-servers".into()].into(),
+            options: Default::default(),
         }];
     }
     if root == Some("key") {
@@ -430,6 +432,7 @@ fn parse_refusal(
                     biomcp_query::sources::key_name(*name).into(),
                 ]
                 .into(),
+                options: Default::default(),
             })
             .collect();
     }
