@@ -1,0 +1,41 @@
+{
+  "feature": "variant-identity",
+  "live_check": "CAR and VariantValidator replies captured unchanged on 2026-11-13 (job j39768) for BRCA2 NM_000059.4:c.5000A>C, whose A fits none of the gene's other RefSeq transcripts.",
+  "replay": "variant/normalization/transcript-nofit",
+  "story": "When the given base fits none of the gene's transcripts, the mismatch stays as the service reported it, with no fits, no added result and no step.",
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--hgvs",
+        "NM_000059.4:c.5000A>C"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/result/results": {
+          "count": 1
+        },
+        "/result/results/0/outcome": "rejected",
+        "/result/results/0/messages/0/code": "IncorrectReferenceAllele",
+        "/result/results/0": {
+          "omits": [
+            "fits"
+          ]
+        },
+        "": {
+          "omits": [
+            "next"
+          ]
+        },
+        "/sources/0/source": "car",
+        "/sources/0/reason": "rejected",
+        "/sources/1/source": "variantvalidator",
+        "/sources/1/state": "ok"
+      }
+    }
+  ]
+}

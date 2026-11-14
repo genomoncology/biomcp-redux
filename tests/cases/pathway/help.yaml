@@ -32,7 +32,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 3408,
+      "max_bytes": 3456,
       "run": [
         "help",
         "search",
@@ -69,7 +69,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 2735,
+      "max_bytes": 2835,
       "run": [
         "help",
         "get",
@@ -97,7 +97,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1919,
+      "max_bytes": 2023,
       "run": [
         "help",
         "pathway",
@@ -124,7 +124,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1462,
+      "max_bytes": 1504,
       "run": [
         "help",
         "pathway",

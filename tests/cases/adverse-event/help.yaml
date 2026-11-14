@@ -48,7 +48,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 3729
+          "max_bytes": 4045
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -83,7 +83,7 @@
           "narrative"
         ]
       },
-      "max_bytes": 3729,
+      "max_bytes": 4045,
       "run": [
         "help",
         "get",

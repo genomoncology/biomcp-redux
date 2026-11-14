@@ -51,7 +51,7 @@ impl Pair {
         })
     }
     /// Exact native partner ID, without a name join.
-    fn partner_id(&self) -> &str {
+    pub(super) fn partner_id(&self) -> &str {
         if self.reversed {
             self.native.id_a()
         } else {

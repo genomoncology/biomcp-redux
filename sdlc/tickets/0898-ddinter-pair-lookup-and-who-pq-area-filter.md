@@ -1,6 +1,7 @@
 # 0898 — ddinter-pair-lookup-and-who-pq-area-filter
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ba9d452c40a64c0ad7b64372ada123384eff2aca
 
 Milestone: 7
 
@@ -31,3 +32,18 @@ In the pv-scientist persona run of 2026-11-13 (biomed-agent-bench `personas/pv-s
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/ddinter/`, `who_pq/`, `crates/biomcp-types/`, `tests/cases/drug/`, `docs/`
+
+## Progress
+
+- Checked the sources first (2026-11-13). DDInter's eight published CSVs have five columns: `DDInterID_A, Drug_A, DDInterID_B, Drug_B, Level`. There is no management or mechanism column; that text is only on DDInter's interactive checker, which this ticket does not scrape. WHO PQ's finished-product export (657 rows) has its own `Therapeutic Area` column with one value per row (HIV/AIDS 255, Tuberculosis 127, Malaria 103, Reproductive health 62, Covid-19 20, Neglected tropical diseases 19, Oncology 18, Hepatitis B and C 18, and smaller areas; one row blank). It has no ATC field. The filter works on WHO's own area words, so there is real data behind it.
+- `get drug X interactions --source ddinter --partner Y` keeps only X's pairs with Y. Y is a DDInter ID or the complete DDInter name, ignoring letter case, with one approved salt word allowed. The reply lists the DDInter identities Y names in `partners`. If DDInter's files name no such drug, `partners` is empty, the hint says so, and the next step is the DDInter name search. Every interactions reply now carries a `hint`: DDInter's files give each listed pair a level and no management or mechanism text, and a pair with no row does not show the drugs are safe together. The `interactions` section help says the same. Per-drug lists without `--partner` are unchanged.
+- `search drug --source who-pq --therapeutic-area oncology` keeps rows whose Therapeutic Area cell holds those whole words, ignoring letter case. It works on its own or with a name or dates. With no name, area or dates, WHO PQ search now asks for "a name, --therapeutic-area or a --prequalified-from/--prequalified-to date range". The old message literal stays in the enum because the 1.0 schema candidate lists it.
+- Schema changes add only optional fields: `partner` on drug get, `therapeutic_area` on drug search, and `partners`/`hint` on interactions replies. One error-message literal was added and some descriptions changed.
+- Live check in job j39568 (built binary, live DDInter and WHO): pembrolizumab with lenvatinib, pembrolizumab with paclitaxel and lenvatinib with paclitaxel each return total 0, the named partner identity and the levels-only hint, one call each. Pembrolizumab with dexamethasone returns one Moderate row with its origin in five DDInter files. A `keytruda` partner said DDInter names no such drug; that run predates partner alias widening, which now tries other sources' names first. WHO `--therapeutic-area oncology --limit 50` returns the 18 Oncology rows (rituximab and trastuzumab biotherapeutics, BT-ON001 to BT-ON019) in one page.
+- Proof: `tests/cases/drug/ddinter-pair.yaml` and `ddinter-partner-alias.yaml` use synthetic DDInter rows (DDInter is CC BY-NC-SA; 0695 made noncommercial captures synthetic), so no real DDInter rows are committed; the live pembrolizumab results above are from the job log. `tests/cases/drug/who-pq-area.yaml` uses a synthetic WHO export with invented references, products, strengths and dates (see the review fixes below). A private mapper test covers area word matching.
+- Review fixes (2026-11-13):
+  - DDInter publishes fifteen partitions at the same path, not eight: A B C D G H J L M N P R S U V (the other letters return 404). Sync now reads all fifteen. Before this, 32% of distinct pairs (76,599 of 236,834) were missing, among them sertraline with tramadol (Major, only in N), so a partner lookup could wrongly answer "no row". Synthetic replies cover the seven added parts, and `ddinter-pair.yaml` checks a pair found only in part N.
+  - The WHO area case now uses a synthetic export (`drug/who-pq-area-synthetic`: four Oncology rows, one undated, plus HIV/AIDS, Tuberculosis, Hepatitis B and C and Malaria rows). Its dates and strengths are invented; none of its dates appears in the real export. No real WHO rows were added; this ticket leaves the existing WHO recordings alone.
+  - The six field titles shortened for the old 2,000-character tool budget are restored, now that 0905's budget is on main.
+  - A partner name DDInter does not use is now tried under the exact names MyChem, openFDA labels or ChEMBL state for it, the same way the drug itself is, and a source notice says which name stood in (`ddinter-partner-alias.yaml`, synthetic alias replies, asserting the notice). A name no source resolves ("Orphan code") still gets the "DDInter's files name no drug" hint, no `partners` and the DDInter name search. A DDInter ID partner is not widened.
+  - A partner whose DDInter entry is refused gets a hint saying it was refused, not that DDInter names no such drug.
