@@ -407,3 +407,17 @@ fn card_section_actions_recheck_source_context_and_keep_the_declared_gene()
     );
     Ok(())
 }
+#[test]
+fn pgx_pages_state_their_total_before_their_rows() -> Result<(), Box<dyn std::error::Error>> {
+    // 0937: an agent reading only the start of a long reply must see that the rows are one page.
+    let page: biomcp_types::PgxRecommendations = serde_json::from_value(json!(
+        {"representation":"view","header":{"gene":"TPMT","source":"cpic"},"items":[recommendation()],
+        "page":{"offset":0,"returned":1,"total":2,"total_kind":"source"}}
+    ))?;
+    let text = serde_json::to_string(&page)?;
+    assert!(
+        text.find("\"page\"").ok_or("page")? < text.find("\"items\"").ok_or("items")?,
+        "page follows the rows: {text}"
+    );
+    Ok(())
+}
