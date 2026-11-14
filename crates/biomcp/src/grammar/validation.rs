@@ -44,7 +44,10 @@ fn choices(name: &str) -> Option<Box<[biodata::Text]>> {
         .map(Into::into)
 }
 
+/// The help call for a command path; a path already under help is not prefixed twice.
 pub(super) fn help<'a>(path: impl IntoIterator<Item = &'a str>) -> biomcp_types::Step {
+    let mut path = path.into_iter().peekable();
+    path.next_if_eq(&"help");
     biomcp_types::Step {
         kind: biomcp_types::StepKind::Configure,
         args: std::iter::once("help")

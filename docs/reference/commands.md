@@ -7431,7 +7431,11 @@ Read papers attributed to a source author record.
 ```text
 Read source cell line assay counts.
 
-Usage: biomcp help get cell-line [OPTIONS]
+Usage: biomcp help get cell-line [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7465,11 +7469,17 @@ Options:
 
 Read source cell line assay counts.
 
+- `section`: One section of the get command to describe.
+Form: help get cell-line SECTION; not --section.
 
 ## biomcp help get gwas
 
 ```text
-Usage: biomcp help get gwas [OPTIONS]
+Usage: biomcp help get gwas [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7503,13 +7513,19 @@ Options:
 
 Describe help get gwas.
 
+- `section`: One section of the get command to describe.
+Form: help get gwas SECTION; not --section.
 
 ## biomcp help get protein
 
 ```text
 Read protein sequences, features and source relationships.
 
-Usage: biomcp help get protein [OPTIONS]
+Usage: biomcp help get protein [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7543,11 +7559,17 @@ Options:
 
 Read protein sequences, features and source relationships.
 
+- `section`: One section of the get command to describe.
+Form: help get protein SECTION; not --section.
 
 ## biomcp help get phenotype
 
 ```text
-Usage: biomcp help get phenotype [OPTIONS]
+Usage: biomcp help get phenotype [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7581,13 +7603,19 @@ Options:
 
 Describe help get phenotype.
 
+- `section`: One section of the get command to describe.
+Form: help get phenotype SECTION; not --section.
 
 ## biomcp help get pathway
 
 ```text
 Read pathway genes and source events.
 
-Usage: biomcp help get pathway [OPTIONS]
+Usage: biomcp help get pathway [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7621,11 +7649,17 @@ Options:
 
 Read pathway genes and source events.
 
+- `section`: One section of the get command to describe.
+Form: help get pathway SECTION; not --section.
 
 ## biomcp help get study
 
 ```text
-Usage: biomcp help get study [OPTIONS]
+Usage: biomcp help get study [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7659,11 +7693,17 @@ Options:
 
 Describe help get study.
 
+- `section`: One section of the get command to describe.
+Form: help get study SECTION; not --section.
 
 ## biomcp help get pgx
 
 ```text
-Usage: biomcp help get pgx [OPTIONS]
+Usage: biomcp help get pgx [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7697,11 +7737,17 @@ Options:
 
 Describe help get pgx.
 
+- `section`: One section of the get command to describe.
+Form: help get pgx SECTION; not --section.
 
 ## biomcp help get diagnostic
 
 ```text
-Usage: biomcp help get diagnostic [OPTIONS]
+Usage: biomcp help get diagnostic [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7735,11 +7781,17 @@ Options:
 
 Describe help get diagnostic.
 
+- `section`: One section of the get command to describe.
+Form: help get diagnostic SECTION; not --section.
 
 ## biomcp help get adverse-event
 
 ```text
-Usage: biomcp help get adverse-event [OPTIONS]
+Usage: biomcp help get adverse-event [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7773,11 +7825,17 @@ Options:
 
 Describe help get adverse-event.
 
+- `section`: One section of the get command to describe.
+Form: help get adverse-event SECTION; not --section.
 
 ## biomcp help get disease
 
 ```text
-Usage: biomcp help get disease [OPTIONS]
+Usage: biomcp help get disease [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7811,11 +7869,17 @@ Options:
 
 Describe help get disease.
 
+- `section`: One section of the get command to describe.
+Form: help get disease SECTION; not --section.
 
 ## biomcp help get drug
 
 ```text
-Usage: biomcp help get drug [OPTIONS]
+Usage: biomcp help get drug [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7849,11 +7913,17 @@ Options:
 
 Describe help get drug.
 
+- `section`: One section of the get command to describe.
+Form: help get drug SECTION; not --section.
 
 ## biomcp help get gene
 
 ```text
-Usage: biomcp help get gene [OPTIONS]
+Usage: biomcp help get gene [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7887,13 +7957,19 @@ Options:
 
 Describe help get gene.
 
+- `section`: One section of the get command to describe.
+Form: help get gene SECTION; not --section.
 
 ## biomcp help get article
 
 ```text
 Read article text, references, citations and files.
 
-Usage: biomcp help get article [OPTIONS]
+Usage: biomcp help get article [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7927,13 +8003,19 @@ Options:
 
 Read article text, references, citations and files.
 
+- `section`: One section of the get command to describe.
+Form: help get article SECTION; not --section.
 
 ## biomcp help get trial
 
 ```text
 Read trial groups and public documents.
 
-Usage: biomcp help get trial [OPTIONS]
+Usage: biomcp help get trial [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -7967,13 +8049,19 @@ Options:
 
 Read trial groups and public documents.
 
+- `section`: One section of the get command to describe.
+Form: help get trial SECTION; not --section.
 
 ## biomcp help get variant
 
 ```text
 Read source variant assertions, populations and recurrence.
 
-Usage: biomcp help get variant [OPTIONS]
+Usage: biomcp help get variant [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -8007,6 +8095,8 @@ Options:
 
 Read source variant assertions, populations and recurrence.
 
+- `section`: One section of the get command to describe.
+Form: help get variant SECTION; not --section.
 
 ## biomcp help get clingen
 
@@ -10626,7 +10716,11 @@ Describe help assay-count.
 ## biomcp help gwas
 
 ```text
-Usage: biomcp help gwas [OPTIONS]
+Usage: biomcp help gwas [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -10660,6 +10754,8 @@ Options:
 
 Describe help gwas.
 
+- `section`: One section of the get command to describe.
+Form: help gwas SECTION; not --section.
 
 ## biomcp help features
 
@@ -10930,7 +11026,11 @@ Describe help sequence.
 ## biomcp help phenotype
 
 ```text
-Usage: biomcp help phenotype [OPTIONS]
+Usage: biomcp help phenotype [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -10964,6 +11064,8 @@ Options:
 
 Describe help phenotype.
 
+- `section`: One section of the get command to describe.
+Form: help phenotype SECTION; not --section.
 
 ## biomcp help genes
 
@@ -11044,7 +11146,11 @@ Describe help events.
 ## biomcp help study
 
 ```text
-Usage: biomcp help study [OPTIONS]
+Usage: biomcp help study [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11078,11 +11184,17 @@ Options:
 
 Describe help study.
 
+- `section`: One section of the get command to describe.
+Form: help study SECTION; not --section.
 
 ## biomcp help pgx
 
 ```text
-Usage: biomcp help pgx [OPTIONS]
+Usage: biomcp help pgx [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11116,11 +11228,17 @@ Options:
 
 Describe help pgx.
 
+- `section`: One section of the get command to describe.
+Form: help pgx SECTION; not --section.
 
 ## biomcp help diagnostic
 
 ```text
-Usage: biomcp help diagnostic [OPTIONS]
+Usage: biomcp help diagnostic [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11154,11 +11272,17 @@ Options:
 
 Describe help diagnostic.
 
+- `section`: One section of the get command to describe.
+Form: help diagnostic SECTION; not --section.
 
 ## biomcp help adverse-event
 
 ```text
-Usage: biomcp help adverse-event [OPTIONS]
+Usage: biomcp help adverse-event [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11192,11 +11316,17 @@ Options:
 
 Describe help adverse-event.
 
+- `section`: One section of the get command to describe.
+Form: help adverse-event SECTION; not --section.
 
 ## biomcp help disease
 
 ```text
-Usage: biomcp help disease [OPTIONS]
+Usage: biomcp help disease [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11230,11 +11360,17 @@ Options:
 
 Describe help disease.
 
+- `section`: One section of the get command to describe.
+Form: help disease SECTION; not --section.
 
 ## biomcp help drug
 
 ```text
-Usage: biomcp help drug [OPTIONS]
+Usage: biomcp help drug [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11268,11 +11404,17 @@ Options:
 
 Describe help drug.
 
+- `section`: One section of the get command to describe.
+Form: help drug SECTION; not --section.
 
 ## biomcp help gene
 
 ```text
-Usage: biomcp help gene [OPTIONS]
+Usage: biomcp help gene [OPTIONS] [section]
+
+Arguments:
+  [section]
+          One section of the get command to describe.
 
 Options:
       --format <format>
@@ -11306,6 +11448,8 @@ Options:
 
 Describe help gene.
 
+- `section`: One section of the get command to describe.
+Form: help gene SECTION; not --section.
 
 ## biomcp help supplement
 
