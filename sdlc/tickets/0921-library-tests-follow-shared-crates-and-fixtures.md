@@ -32,3 +32,9 @@ The landing gate's changed-crate library tests (0914) also run the tests of ever
 ## Changes
 
 - Changes: `scripts/changed_library_tests.py`, `scripts/test_gate_stages.py`, and if needed `Makefile`.
+
+## Progress
+
+`scripts/changed_library_tests.py` now reads the crate graph from `cargo metadata --no-deps` in the job's checkout. A changed crate selects itself, every crate whose library builds on it (followed through normal and build dependencies), and every crate whose tests use one of those (dev dependencies, one step, as cargo builds them). A change under `tests/fixtures/`, `tests/replies/` or `tests/native/` counts as a change to `biomcp-test-support`, whose `fixtures()` serves that data: every crate's tests use that helper, and the direct readers (`biomcp-query` tests, `biomcp` bin tests) use it too, so picking files one by one would be fragile and gain nothing. If `cargo metadata` fails, every crate runs. On today's graph a change to `biomcp-types`, `biomcp-fetch`, `biomcp-test-support` or the shared test data selects all six crates; `biomcp-adapters` selects adapters, query and biomcp; `biomcp-query` selects query and biomcp; `biomcp` selects itself. The comment at `changed_library_tests.py` on biomcp's other targets now says the gate runs `cases` and `ratchets`, and that `tools` (`test = false`) runs in neither the gate nor `make library-tests`, left for a later decision.
+
+`scripts/test_gate_stages.py` covers these against real Git with a stub cargo that returns the workspace's real crate graph: a `biomcp-types`-only, `biomcp-fetch`-only and `biomcp-test-support`-only change each select every crate; each of the three shared-data folders selects every crate; adapters and query select only their dependents; `tests/cases/` and docs select none; a failed `cargo metadata` runs every crate; 0914's cases still hold.

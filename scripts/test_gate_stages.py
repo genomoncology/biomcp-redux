@@ -101,10 +101,25 @@ class GateStages(unittest.TestCase):
             root, tools = Path(temporary) / 'repo', Path(temporary) / 'bin'
             root.mkdir(); tools.mkdir()
             cargo = tools / 'cargo'
-            cargo.write_text('#!/bin/sh\nprintf "cargo %s\\n" "$*"\n[ -z "$CARGO_FAIL" ] || exit 9\n')
+            cargo.write_text('#!/bin/sh\nif [ "$1" = metadata ]; then exec cat "$CARGO_METADATA"; fi\n'
+                             'printf "cargo %s\\n" "$*"\n[ -z "$CARGO_FAIL" ] || exit 9\n')
             cargo.chmod(0o755)
+            # The workspace's real crate graph: every crate builds on biomcp-types and tests with biomcp-test-support.
+            graph = {'biomcp-types': ([], ['biomcp-test-support']),
+                     'biomcp-fetch': (['biomcp-types'], ['biomcp-test-support']),
+                     'biomcp-test-support': (['biomcp-fetch', 'biomcp-types'], []),
+                     'biomcp-adapters': (['biomcp-types', 'biomcp-fetch'], ['biomcp-test-support']),
+                     'biomcp-query': (['biomcp-types', 'biomcp-fetch', 'biomcp-adapters'], ['biomcp-test-support']),
+                     'biomcp': (['biomcp-types', 'biomcp-fetch', 'biomcp-query'],
+                                ['biomcp-test-support', 'biomcp-adapters', 'serde'])}
+            metadata = Path(temporary) / 'metadata.json'
+            metadata.write_text(json.dumps({'packages': [
+                {'name': name, 'manifest_path': f'/repo/crates/{name}/Cargo.toml',
+                 'dependencies': [{'name': dep, 'kind': None} for dep in normal] +
+                                 [{'name': dep, 'kind': 'dev'} for dep in dev]}
+                for name, (normal, dev) in graph.items()]}))
             env = {**environment(Path(temporary)), 'PATH': str(tools) + os.pathsep + os.defpath,
-                   'GIT_CONFIG_NOSYSTEM': '1', 'RUST_TEST_THREADS': '3'}
+                   'GIT_CONFIG_NOSYSTEM': '1', 'RUST_TEST_THREADS': '3', 'CARGO_METADATA': str(metadata)}
             def git(*args):
                 subprocess.run(['git', '-C', str(root), *args], env=env, check=True, capture_output=True)
             def commit(path, content='x'):
@@ -113,35 +128,54 @@ class GateStages(unittest.TestCase):
                 git('add', '.'); git('commit', '-qm', 'Change ' + path)
             git('init', '-q', '-b', 'main')
             git('config', 'user.name', 'Fixture'); git('config', 'user.email', 'fixture@example.invalid')
-            for name in ('biomcp', 'biomcp-fetch', 'biomcp-types'):
+            for name in graph:
                 commit(f'crates/{name}/Cargo.toml')
             commit('Cargo.lock')
+            commit('tests/replies/gene/main/hgnc/reply.json')
+            every = 'crates=biomcp,biomcp-adapters,biomcp-fetch,biomcp-query,biomcp-test-support,biomcp-types\n'
             def run(base='main', **extra):
                 return subprocess.run([sys.executable, str(ROOT / 'scripts/changed_library_tests.py')],
                                       cwd=root, env={**env, 'LIBRARY_TESTS_BASE': base, **extra},
                                       capture_output=True, text=True)
-            git('checkout', '-qb', 'ticket')
-            result = run()
+            def branch(name, *paths):
+                git('checkout', '-q', 'main'); git('checkout', '-qb', name)
+                for path in paths:
+                    commit(path, name)
+                return run()
+            result = branch('ticket')
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn('crates=none', result.stdout)
             self.assertNotIn('cargo test', result.stdout)
             commit('docs/notes.md')
-            commit('crates/biomcp-fetch/tests/record/command_budget.rs')
-            result = run()
-            self.assertIn('crates=biomcp-fetch\n', result.stdout)
-            self.assertIn('cargo test --locked --no-fail-fast --features biomcp-types/schema -p biomcp-fetch -- --test-threads 3',
+            commit('tests/cases/gene/case.yaml')
+            self.assertIn('crates=none', run().stdout)
+            # A crate near the top selects only itself and the crates built on it.
+            result = branch('query', 'crates/biomcp-query/tests/gene_resolution.rs')
+            self.assertIn('crates=biomcp,biomcp-query\n', result.stdout)
+            self.assertIn('cargo test --locked --no-fail-fast --features biomcp-types/schema -p biomcp-query -- --test-threads 3',
                           result.stdout)
-            self.assertNotIn('-p biomcp ', result.stdout)
+            self.assertIn('cargo test --locked --no-fail-fast -p biomcp --bin biomcp -- --test-threads 3', result.stdout)
             self.assertEqual(run(CARGO_FAIL='1').returncode, 9)
-            commit('crates/biomcp/src/main.rs')
-            self.assertIn('cargo test --locked --no-fail-fast -p biomcp --bin biomcp -- --test-threads 3', run().stdout)
+            self.assertIn('crates=biomcp,biomcp-adapters,biomcp-query\n',
+                          branch('adapters', 'crates/biomcp-adapters/src/lib.rs').stdout)
+            # A shared crate alone selects every crate that depends on it, and the log names them.
+            self.assertIn(every, branch('types', 'crates/biomcp-types/src/lib.rs').stdout)
+            self.assertIn(every, branch('fetch', 'crates/biomcp-fetch/tests/record/command_budget.rs').stdout)
+            self.assertIn(every, branch('support', 'crates/biomcp-test-support/src/fixtures.rs').stdout)
+            # Shared test data selects the crates whose tests read it through the test-support helper.
+            for data in ('tests/replies/gene/main/hgnc/reply.json', 'tests/fixtures/a.json', 'tests/native/b.json'):
+                self.assertIn(every, branch('data-' + data.split('/')[1], data).stdout)
+            self.assertIn('crates=biomcp\n', branch('top', 'crates/biomcp/src/main.rs').stdout)
+            result = run(CARGO_METADATA=str(Path(temporary) / 'missing.json'))
+            self.assertIn('no crate graph from cargo metadata', result.stdout)
+            self.assertIn(every, result.stdout)
             commit('Cargo.lock', 'y')
-            self.assertIn('crates=biomcp,biomcp-fetch,biomcp-types', run().stdout)
+            self.assertIn(every, run().stdout)
             git('checkout', '-q', 'main')
             self.assertIn('crates=none', run(base='ticket').stdout)
             result = run(base='missing')
             self.assertIn('running every crate', result.stdout)
-            self.assertIn('crates=biomcp,biomcp-fetch,biomcp-types', result.stdout)
+            self.assertIn(every, result.stdout)
 
     def test_cheap_check_parses_tracked_shell_scripts_by_shebang(self):
         with tempfile.TemporaryDirectory() as temporary:
