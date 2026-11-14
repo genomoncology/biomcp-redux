@@ -1,5 +1,4 @@
 use crate::{Action, Bundle, Ctx, Outcome, status};
-use biodata::CompanionDiagnosticRelation;
 use biomcp_adapters::fda_cdx;
 use biomcp_types::Paged;
 use biomcp_types::ReplyBody;
@@ -82,21 +81,10 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-fn pivots(out: &mut Outcome, rows: &[CompanionDiagnosticRelation], fresh: bool) {
+fn pivots(out: &mut Outcome, rows: &[biomcp_types::CompanionDiagnosticRow], fresh: bool) {
     let mut seen = HashSet::new();
     for row in rows {
-        let (devices, applications) = match row {
-            CompanionDiagnosticRelation::Individual {
-                device_ids,
-                drug_applications,
-                ..
-            }
-            | CompanionDiagnosticRelation::Group {
-                device_ids,
-                drug_applications,
-                ..
-            } => (device_ids, drug_applications),
-        };
+        let (devices, applications) = row.identities();
         for device in devices {
             if !(device.as_str().starts_with('P') || device.as_str().starts_with('K'))
                 || !seen.insert(device.as_str().to_owned())

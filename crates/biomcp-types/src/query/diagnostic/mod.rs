@@ -3,7 +3,7 @@ mod search_validation;
 use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 pub use id::DiagnosticId;
-use search_validation::{validate_device, validate_recall, validate_who_years};
+use search_validation::{validate_cdx_dates, validate_device, validate_recall, validate_who_years};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -24,6 +24,10 @@ biodata::wire_enum! {
  #[doc = "Native FdaPma spelling."] FdaPma => "fda-pma",
  #[doc = "Native 510(k) clearance spelling."] Fda510k => "fda-510k",
  #[doc = "Exact native medical device recall."] FdaDeviceRecall => "fda-device-recall" }
+}
+biodata::wire_enum! {
+    /// FDA companion-table row order over every matching row of the stored snapshot.
+    DiagnosticSort { #[doc = "Newest row date first; undated rows last."] Date => "date" }
 }
 biodata::wire_enum! {
     described
@@ -104,6 +108,18 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     biomarker: Option<Text>,
+    #[doc = "First row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    date_from: Option<PartialDate>,
+    #[doc = "Last row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    date_to: Option<PartialDate>,
+    #[doc = "Row order.\nNewest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    sort: Option<DiagnosticSort>,
     #[doc = "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
@@ -173,6 +189,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
             || v.condition_id.is_some()
             || v.test_type.is_some();
         let cdx = v.device_id.is_some() || v.drug_application.is_some() || v.biomarker.is_some();
+        validate_cdx_dates(&v)?;
         let who = v.marker.is_some() || v.manufacturer.is_some();
         let dates = v.initiated_from.is_some() || v.initiated_to.is_some();
         validate_device(&v, gtr || cdx || v.marker.is_some() || dates)?;
@@ -262,6 +279,9 @@ impl DiagnosticSearch {
             test_type: None,
             drug_application: None,
             biomarker: None,
+            date_from: None,
+            date_to: None,
+            sort: None,
             marker: None,
             manufacturer: None,
             name: None,
@@ -311,6 +331,18 @@ impl DiagnosticSearch {
     /// Whole exact biomarker cell.
     pub fn biomarker(&self) -> Option<&Text> {
         self.0.biomarker.as_ref()
+    }
+    /// Inclusive FDA companion row-date lower bound.
+    pub fn date_from(&self) -> Option<PartialDate> {
+        self.0.date_from
+    }
+    /// Inclusive FDA companion row-date upper bound.
+    pub fn date_to(&self) -> Option<PartialDate> {
+        self.0.date_to
+    }
+    /// Whole-snapshot FDA companion row order, when asked.
+    pub fn sort(&self) -> Option<DiagnosticSort> {
+        self.0.sort
     }
     /// Literal WHO marker words.
     pub fn marker(&self) -> Option<&Text> {

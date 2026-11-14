@@ -7,6 +7,27 @@ fn device_source(v: &SearchFields) -> bool {
     )
 }
 
+/// Row-date window and order belong to the stored FDA companion table only.
+pub(super) fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
+    let fields = ["source", "date_from", "date_to", "sort"];
+    let asked = v.date_from.is_some() || v.date_to.is_some() || v.sort.is_some();
+    if asked && v.source != DiagnosticSearchSource::FdaCdx {
+        return Err(QueryInvalid::new(&fields));
+    }
+    for (name, date) in [("date_from", v.date_from), ("date_to", v.date_to)] {
+        if date.is_some_and(|d| d.day().is_none()) {
+            return Err(QueryInvalid::new(&[name]));
+        }
+    }
+    if v.date_from
+        .zip(v.date_to)
+        .is_some_and(|(a, b)| a.to_string() > b.to_string())
+    {
+        return Err(QueryInvalid::new(&["date_from", "date_to"]));
+    }
+    Ok(())
+}
+
 pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     if v.source != DiagnosticSearchSource::FdaDeviceRecall {
         let code = v.product_code.is_some() && !device_source(v);

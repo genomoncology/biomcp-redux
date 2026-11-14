@@ -215,10 +215,11 @@ mod pgx;
 pub use pgx::*;
 pub use query::{
     DiagnosticGet, DiagnosticGetSource, DiagnosticId, DiagnosticSearch, DiagnosticSearchSource,
-    DiagnosticSection,
+    DiagnosticSection, DiagnosticSort,
 };
 pub use response::{
-    DiagnosticCandidate, DiagnosticCard, DiagnosticCompanion, DiagnosticConditions,
+    CompanionDiagnosticRow, CompanionShared, DiagnosticCandidate, DiagnosticCard,
+    DiagnosticCompanion, DiagnosticConditions,
     DiagnosticGenes, DiagnosticLaboratory, DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory,
     DiagnosticRegulatoryField, DiagnosticRegulatoryFragment, DiagnosticSummary,
     DiagnosticSupplements, GtrCard, GtrHeader, GtrNameMatch, GtrNativeStatus,

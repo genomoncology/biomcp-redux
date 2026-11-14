@@ -1,0 +1,79 @@
+{
+  "feature": "diagnostic-cdx",
+  "live_check": "public",
+  "story": "A lab director asks for the newest companion diagnostics: one sorted call reads the whole FDA table newest first, a date window keeps both tables, every row names its indication the same way, and the rows whose dates FDA misprinted are named instead of guessed.",
+  "verified": "Replays the FDA companion diagnostic page recorded for diagnostic/cdx-group-join on 2026-11-13. The page fetched live on 2026-11-14 (180,157 bytes) has byte-identical table substrings (projected SHA256 e87b01a8bc7e8d48c3db42f81fcf7763196cd6573e08d3691fc237f04fd5fec6). Newest device-cell dates: individual row 2 DEN260027 (10/20/2026), row 0 P250046 (09/15/2026), row 1 P240040/S005 (09/09/2026). Individual row 48 prints P120019/S019 (08/22/0218) and row 193 prints P190032/S014 (06/28/ 2024); neither is repaired. In July 2026 only individual row 30 P150025/S018 (07/01/2026) and group row 0 P250036 (7/30/2026) are dated.",
+  "replay": "diagnostic/cdx-group-join",
+  "steps": [
+    {
+      "run": ["sync", "fda-cdx"],
+      "expect": {"/result/rows": 244}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--sort", "date", "--limit", "3"],
+      "expect": {
+        "/page/total": 244,
+        "/result/items/0/index": 2,
+        "/result/items/0/device_ids/0": "DEN260027",
+        "/result/items/0/date": "2026-10-20",
+        "/result/items/1/index": 0,
+        "/result/items/1/date": "2026-09-15",
+        "/result/items/2/device_ids/0": "P240040/S005",
+        "/result/items/2/date": "2026-09-09",
+        "/problems/*/field": ["date", "date"],
+        "/problems/*/code": ["value.unknown", "value.unknown"],
+        "/problems/*/record": [
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:48",
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:193"
+        ]
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--sort", "date", "--offset", "241", "--limit", "3"],
+      "expect": {
+        "/page/total": 244,
+        "/page/returned": 3,
+        "/result/items/0/date": "1997-12-30",
+        "/result/items/1/index": 48,
+        "/result/items/1/device": "P120019/S019\n(08/22/0218)",
+        "/result/items/2/index": 193
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--date-from", "2026-07-01", "--date-to", "2026-07-31"],
+      "expect": {
+        "/page/total": 2,
+        "/result/items/0/kind": "individual",
+        "/result/items/0/index": 30,
+        "/result/items/0/date": "2026-07-01",
+        "/result/items/1/kind": "group",
+        "/result/items/1/index": 0,
+        "/result/items/1/date": "2026-07-30",
+        "/result/items/1/indication": "Melanoma - Tissue",
+        "/result/items/1/cells/Indication(s) - Sample Type/text": "Melanoma - Tissue",
+        "/problems/*/record": [
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:48",
+          "sha256:1c283699dc20591fe0d65e7b24da0c41293ce9385bc5009b8f61a71f2ff9727c:0:193"
+        ]
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "NDA208065", "--limit", "50"],
+      "expect": {
+        "/page/total": 15,
+        "/result/items/9/indication": "Non-Small Cell Lung Cancer (NSCLC) - Plasma",
+        "/result/items/10/indication": "Non-Small Cell Lung Cancer (NSCLC) - Tissue or Plasma",
+        "/result/items/*/indication": {"count": 15},
+        "/result/items/*/date": {"count": 15},
+        "": {"omits": ["problems"]}
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-pma", "--sort", "date"],
+      "exit": 2,
+      "is_error": true,
+      "offline": true,
+      "expect": {"/error/code": "usage.arguments"}
+    }
+  ]
+}
