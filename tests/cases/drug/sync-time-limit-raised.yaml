@@ -1,0 +1,22 @@
+{
+  "feature": "bundle-sync-time-limit",
+  "live_check": "Reuses the drug/markets WHO PQ recording, whose synthetic export was recorded with a 2,419 ms transfer; no live provider call",
+  "story": "The same 2.4-second WHO PQ download finishes when sync_timeout_seconds allows 3 seconds, so the setting, not a fixed limit, decides.",
+  "replay": "drug/markets",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-pq"
+      ],
+      "expect": {
+        "/status": "ok",
+        "/result/rows": 29
+      },
+      "max_bytes": 500
+    }
+  ],
+  "config": {
+    "sync_timeout_seconds": 3
+  }
+}

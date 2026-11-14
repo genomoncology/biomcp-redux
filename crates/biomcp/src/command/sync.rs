@@ -14,10 +14,10 @@ pub(super) fn run(
                 .ok()
                 .and_then(|mapped| mapped.value.data_date.as_deref())
                 .map(|date| fetch.data_date_notice(date));
-            finish(bundle, result, stale, encoding, date_notice)
+            finish(bundle, result, stale, encoding, date_notice, fetch.sync_budget())
         }
         biomcp_query::sources::BundleReply::WikiPathways(result) => {
-            finish(bundle, result, false, encoding, None)
+            finish(bundle, result, false, encoding, None, fetch.sync_budget())
         }
     }
 }
@@ -27,6 +27,7 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
     stale: bool,
     encoding: Encoding,
     date_notice: Option<biomcp_types::SourceNotice>,
+    limit: std::time::Duration,
 ) -> io::Result<Outcome> {
     let source = bundle_source(bundle);
     let refusals = result
@@ -67,6 +68,9 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
     let mut source_outcome = biomcp_query::sources::outcome(source, source_status);
     if let Some(error) = source_error {
         source_outcome.notices = biomcp_query::sources::notices(source, reason, error.retry_after);
+        if reason == Some(biomcp_types::Reason::DeadlineExceeded) {
+            source_outcome.notices.insert(0, time_limit_notice(limit));
+        }
         source_outcome.notices.extend(error.tls_notice());
         rate_limit_stderr(error, encoding)?;
     }
@@ -98,6 +102,20 @@ fn finish<T: biomcp_types::ResponseBody<Query = biomcp_types::SyncQuery>>(
             status.into()
         },
     )
+}
+
+/// Name the limit a sync ran out of and the setting that raises it (0951).
+fn time_limit_notice(limit: std::time::Duration) -> biomcp_types::SourceNotice {
+    biomcp_types::SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "This sync stopped at its {}-second time limit. Set sync_timeout_seconds in config.json \
+            to a larger number of seconds to give a slow download more time.",
+            limit.as_secs()
+        )
+        .into(),
+        retry_after_seconds: None,
+    }
 }
 
 fn rate_limit_stderr(error: biomcp_fetch::SourceError, encoding: Encoding) -> io::Result<()> {

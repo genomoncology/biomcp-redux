@@ -296,6 +296,10 @@ impl Fetch {
         })
     }
 
+    /// Configured time limit for one explicit bundle synchronization and its follow-up read.
+    pub fn sync_budget(&self) -> Duration {
+        self.config.sync_budget
+    }
     /// Whether this command explicitly forbids upstream requests.
     pub fn is_offline(&self) -> bool {
         matches!(self.mode, Mode::Offline)
