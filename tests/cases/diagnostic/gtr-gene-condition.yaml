@@ -36,7 +36,7 @@
         "--condition-id",
         "MedGen:C0007131"
       ],
-      "max_bytes": 6000,
+      "max_bytes": 5897,
       "expect": {
         "/page/total": 19,
         "/result/items/0/header/id": "GTR000500500.2",
@@ -58,7 +58,7 @@
         "--offset",
         "15"
       ],
-      "max_bytes": 6000,
+      "max_bytes": 4472,
       "expect": {
         "/page/total": 19,
         "/page/returned": 4,
@@ -76,7 +76,7 @@
         "--limit",
         "1"
       ],
-      "max_bytes": 6000,
+      "max_bytes": 1458,
       "expect": {
         "/page/total": 56,
         "/result/items/0/matched/kind": "condition"
@@ -93,7 +93,7 @@
         "--limit",
         "1"
       ],
-      "max_bytes": 6000,
+      "max_bytes": 1616,
       "expect": {
         "/page/total": 185
       }
