@@ -12,7 +12,7 @@ Commands:
 
 Run the command first. A refusal names the valid values and a next step: use them. Read help only when a reply still leaves you stuck, and read the one page you need, such as `biomcp help get drug`. Take names only from a refusal or that help page, never keys from returned data:
 
-- Sections are words after the ID: `biomcp get drug BLA761445 approvals --source drugsfda`. Ask for every section you need in one get, not one get each. Use `--section` only where help lists it.
+- Sections are words after the ID: `biomcp get drug BLA761445 approvals --source drugsfda`. Where a get takes several sections, ask for all you need in one get. Use `--section` only where help lists it.
 - One product's row in each market (Drugs@FDA, EMA, WHO prequalification), each from its own source: `biomcp get drug dolutegravir markets`.
 - A filter works only with the sources named after `Only with --source` or in its description.
 - `--fields` takes only names listed after `Fields:` in a refusal or in help, never keys from the returned data.

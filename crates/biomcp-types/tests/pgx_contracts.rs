@@ -414,10 +414,19 @@ fn pgx_pages_state_their_total_before_their_rows() -> Result<(), Box<dyn std::er
         {"representation":"view","header":{"gene":"TPMT","source":"cpic"},"items":[recommendation()],
         "page":{"offset":0,"returned":1,"total":2,"total_kind":"source"}}
     ))?;
-    let text = serde_json::to_string(&page)?;
-    assert!(
-        text.find("\"page\"").ok_or("page")? < text.find("\"items\"").ok_or("items")?,
-        "page follows the rows: {text}"
-    );
+    let search: biomcp_types::PgxPage = serde_json::from_value(json!(
+        {"header":{"gene":"TPMT","source":"cpic"},"items":[{"pairid":{"namespace":"CPIC","id":3},"drugid":"RxNorm:10324",
+        "drugname":"synthetic","genesymbol":"TPMT","cpiclevel":"B/C","clinpgxlevel":"synthetic","usedforrecommendation":"No","provisional":false}],
+        "page":{"offset":0,"returned":1,"total":2,"total_kind":"source"}}
+    ))?;
+    for text in [
+        serde_json::to_string(&page)?,
+        serde_json::to_string(&search)?,
+    ] {
+        assert!(
+            text.find("\"page\"").ok_or("page")? < text.find("\"items\"").ok_or("items")?,
+            "page follows the rows: {text}"
+        );
+    }
     Ok(())
 }
