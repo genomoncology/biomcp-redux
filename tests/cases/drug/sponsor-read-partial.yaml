@@ -1,6 +1,6 @@
 {
   "feature": "drug-approvals",
-  "story": "When a later Drugs@FDA read comes back empty before BioMCP has read every match, a search ordered or windowed by original approval is partial, and its notice says how many applications it read out of how many matched.",
+  "story": "When openFDA's match set shrinks between Drugs@FDA reads, so a later read finds nothing before BioMCP has read every match, a search ordered or windowed by original approval is partial, and its notice says how many applications it read out of how many matched.",
   "live_check": "synthetic",
   "verified": "Synthetic replies over the request URLs BioMCP sends; they reproduce a fault, not openFDA data. See tests/replies/drug/sponsor-read-partial/README.md.",
   "replay": "drug/sponsor-read-partial",
@@ -28,15 +28,35 @@
       ],
       "expect": {
         "/status": "partial",
-        "/page/total": 2,
-        "/page/returned": 2,
+        "/page/total": 500,
+        "/page/returned": 10,
         "/result/items/*/id": [
-          "NDA900002",
-          "NDA900001"
+          "NDA900500",
+          "NDA900499",
+          "NDA900498",
+          "NDA900497",
+          "NDA900496",
+          "NDA900495",
+          "NDA900494",
+          "NDA900493",
+          "NDA900492",
+          "NDA900491"
         ],
         "/sources/0/notices/*/message": {
-          "includes": "--sort original-approval: openFDA cannot sort on one submission, so BioMCP read only 2 of the 3 matching applications, because a later openFDA read came back empty, so this reply is partial, and ordered them by original_approval date, newest first, ties by application number; applications without one come last."
-        }
+          "includes": "--sort original-approval: openFDA cannot sort on one submission, so BioMCP read only 500 of the 501 matching applications, because a later openFDA read came back empty, so this reply is partial, and ordered them by original_approval date, newest first, ties by application number; applications without one come last."
+        },
+        "/result/items/*/original_approval/date": [
+          "2021-08-01",
+          "2021-07-01",
+          "2021-06-01",
+          "2021-05-01",
+          "2021-04-01",
+          "2021-03-01",
+          "2021-02-01",
+          "2021-01-01",
+          "2020-12-01",
+          "2020-11-01"
+        ]
       }
     },
     {
@@ -52,12 +72,19 @@
       ],
       "expect": {
         "/status": "partial",
-        "/page/total": 1,
+        "/page/total": 8,
         "/result/items/*/id": [
-          "NDA900002"
+          "NDA900500",
+          "NDA900499",
+          "NDA900498",
+          "NDA900497",
+          "NDA900496",
+          "NDA900495",
+          "NDA900494",
+          "NDA900493"
         ],
         "/sources/0/notices/*/message": {
-          "includes": "--approved-from/--approved-to: BioMCP read only 2 of the 3 matching applications, because a later openFDA read came back empty, so this reply is partial, and kept the 1 whose original_approval date falls in the window, inclusive; the total counts those."
+          "includes": "--approved-from/--approved-to: BioMCP read only 500 of the 501 matching applications, because a later openFDA read came back empty, so this reply is partial, and kept the 8 whose original_approval date falls in the window, inclusive; the total counts those."
         }
       }
     }
