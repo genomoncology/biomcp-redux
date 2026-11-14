@@ -29,6 +29,7 @@ pub fn get(
     let (rows, info) = bundle::read(leg, Find::Exact(KeyKind::Id, query.id().as_str()))?;
     super::revision(query.bundle_revision(), &info)?;
     let mut versions = Vec::new();
+    let mut xml = None;
     let mut relations = Vec::new();
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
@@ -39,6 +40,8 @@ pub fn get(
     for row in rows {
         match row.value {
             Native::Version(v) => versions.push(v),
+            Native::Specimens(x) => xml = xml.or(Some(x)),
+            Native::Lab(_) => {}
             Native::Refused(r) => {
                 refusals = crate::Refusal::Refused;
                 r.disclose(&mut cx);
@@ -56,11 +59,11 @@ pub fn get(
         None
     };
     let mut problems = cx.list;
-    let card = if conflict.is_none() {
-        versions
-            .first()
-            .map(|v| map::card(v, &mut problems))
-            .transpose()?
+    let card = if conflict.is_none()
+        && let Some(v) = versions.first()
+    {
+        let lab = lab(leg, &v.lab_id, &info)?;
+        Some(map::card(v, xml.as_ref(), lab.as_ref(), &mut problems)?)
     } else {
         None
     };
@@ -81,4 +84,23 @@ pub fn get(
         methods,
         info,
     })
+}
+/// The laboratory's XML row, read under the card's snapshot.
+fn lab(
+    leg: &Leg<'_>,
+    lab_id: &str,
+    info: &BundleInfo,
+) -> Result<Option<super::raw::XmlLab>, RequestError> {
+    if lab_id.is_empty() {
+        return Ok(None);
+    }
+    let key = super::raw::lab_key(lab_id);
+    let (rows, other) = bundle::read(leg, Find::Exact(KeyKind::Xref, &key))?;
+    if other.content_revision != info.content_revision {
+        return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));
+    }
+    Ok(rows.into_iter().find_map(|row| match row.value {
+        Native::Lab(lab) if *lab.id == *lab_id => Some(lab),
+        _ => None,
+    }))
 }

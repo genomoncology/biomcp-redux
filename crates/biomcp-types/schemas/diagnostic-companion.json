@@ -14,8 +14,8 @@
       ],
       "type": "string"
     },
-    "Reply_CompanionDiagnosticRelation": {
-      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.",
+    "Reply_CompanionDiagnosticRow": {
+      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.\nBoth kinds also carry the row date and shared cell names copied as text from FDA's original cells.",
       "oneOf": [
         {
           "description": "One complete native individual table row.",
@@ -24,12 +24,33 @@
               "$ref": "#/$defs/Reply_CompanionIndividualCells",
               "description": "Whole cells keyed by this table’s exact headers."
             },
+            "device": {
+              "description": "Device number and date cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "device_ids": {
               "description": "Device facts from this row’s own dedicated device cell only.",
               "items": {
                 "$ref": "#/$defs/Reply_DiagnosticDeviceId"
               },
               "type": "array"
+            },
+            "diagnostic": {
+              "description": "Diagnostic name and manufacturer cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "drug": {
+              "description": "Drug cell text; in the group table, the drug group cell.",
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "drug_applications": {
               "description": "Unambiguous typed applications owned by this row’s drug cell.",
@@ -44,9 +65,27 @@
               "minimum": 0,
               "type": "integer"
             },
+            "indication": {
+              "description": "Indication and sample type cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "kind": {
               "const": "individual",
               "type": "string"
+            },
+            "row_date": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_PartialDate"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
             },
             "snapshot": {
               "description": "Immutable local snapshot revision, not a publisher row ID.",
@@ -68,12 +107,33 @@
               "$ref": "#/$defs/Reply_CompanionGroupCells",
               "description": "Whole cells keyed by this table’s exact headers."
             },
+            "device": {
+              "description": "Device number and date cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "device_ids": {
               "description": "Device facts from this row’s own dedicated device cell only.",
               "items": {
                 "$ref": "#/$defs/Reply_DiagnosticDeviceId"
               },
               "type": "array"
+            },
+            "diagnostic": {
+              "description": "Diagnostic name and manufacturer cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "drug": {
+              "description": "Drug cell text; in the group table, the drug group cell.",
+              "type": [
+                "string",
+                "null"
+              ]
             },
             "drug_applications": {
               "description": "Unambiguous typed applications owned by this row’s drug cell.",
@@ -88,9 +148,27 @@
               "minimum": 0,
               "type": "integer"
             },
+            "indication": {
+              "description": "Indication and sample type cell text.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "kind": {
               "const": "group",
               "type": "string"
+            },
+            "row_date": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_PartialDate"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems."
             },
             "snapshot": {
               "description": "Immutable local snapshot revision, not a publisher row ID.",
@@ -240,7 +318,7 @@
         "items": {
           "description": "Complete source-owned rows in native order; envelope totals count native rows.",
           "items": {
-            "$ref": "#/$defs/Reply_CompanionDiagnosticRelation"
+            "$ref": "#/$defs/Reply_CompanionDiagnosticRow"
           },
           "type": "array"
         }
@@ -344,6 +422,30 @@
           ],
           "description": "Exact MedGen:CUI.\nExact MedGen:CUI identifier only.",
           "x-required-component": "gtr"
+        },
+        "date_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems.",
+          "x-required-component": "fda-cdx"
+        },
+        "date_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only.",
+          "x-required-component": "fda-cdx"
         },
         "decision_from": {
           "anyOf": [
@@ -560,6 +662,18 @@
             "fda-device-recall"
           ]
         },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_DiagnosticSort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Row order.\nNewest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order.",
+          "x-required-component": "fda-cdx"
+        },
         "source": {
           "$ref": "#/$defs/Reply_DiagnosticSearchSource",
           "description": "Native diagnostic source.\nExplicit native GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery."
@@ -591,6 +705,13 @@
         "fda-510k",
         "who-ivd",
         "fda-device-recall"
+      ],
+      "type": "string"
+    },
+    "Reply_DiagnosticSort": {
+      "description": "FDA companion-table row order over every matching row of the stored snapshot.",
+      "enum": [
+        "date"
       ],
       "type": "string"
     },

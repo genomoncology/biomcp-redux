@@ -128,7 +128,8 @@ fn stage(
             |r| r.get(0),
         )
         .map_err(|error| db_error(error))?;
-    if u64::from(bytes) > super::MAX_BUNDLE_BYTES {
+    // A stored set records its streamed parts' bytes too (0931), so only they can pass the held ceiling.
+    if u64::from(bytes) > super::MAX_BUNDLE_BYTES + super::MAX_STREAMED_BYTES {
         return Err(CacheError::Limit);
     }
     for table in TABLES {

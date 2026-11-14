@@ -145,42 +145,44 @@ fn found(
 /// Each match starts a passage a short lead before it, running through the following text up to
 /// the passage size and ending at a line break after the match when one fits; a match inside an
 /// earlier passage adds none. Fragment numbers are those of continuable fragment reading.
-fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
+pub(super) fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
     let starts = pdf::fragment_starts(text);
     let mut hits = Vec::new();
     let mut covered = 0;
-    let mut line_start = 0;
-    let lines: Vec<&str> = text.split_inclusive('\n').collect();
-    for (index, line) in lines.iter().enumerate() {
-        let here = line_start;
-        line_start += line.len();
-        if here + line.len() <= covered {
-            continue;
-        }
-        // Search only text after the previous passage.
-        let skip = covered.saturating_sub(here);
-        let found = match first_match(&line[skip..], needles) {
-            Some(at) => Some(here + skip + at),
-            // A phrase may wrap onto the next extracted line; it then starts near this line's end.
-            None => lines.get(index + 1).and_then(|next| {
-                let joined = format!("{} {}", line.trim_end(), next.trim_start());
-                first_match(&joined, needles)
-                    .filter(|at| *at < line.trim_end().len())
-                    .map(|at| here + at)
-            }),
-        };
-        let Some(at) = found.filter(|at| *at >= covered) else {
-            continue;
-        };
+    while let Some(at) = next_match(text, covered, needles) {
         let begin = lead(text, at).max(covered);
         let end = passage_end(text, begin, at);
-        covered = end;
+        // Search on after the passage, and always past the match itself.
+        let past = text
+            .get(at..)
+            .and_then(|rest| rest.chars().next())
+            .map_or(text.len(), |c| at + c.len_utf8());
+        covered = end.max(past);
         hits.push(PdfTextHit {
             fragment: starts.partition_point(|s| *s <= begin).saturating_sub(1) as u32,
             text: text[begin..end].trim().into(),
         });
     }
     hits
+}
+/// The first match at or after `from`, which may be mid-line after an earlier passage.
+fn next_match(text: &str, from: usize, needles: &[String]) -> Option<usize> {
+    let mut here = from;
+    let mut lines = text.get(from..)?.split_inclusive('\n').peekable();
+    while let Some(line) = lines.next() {
+        let found = first_match(line, needles).or_else(|| {
+            // A phrase may wrap onto the next extracted line; it then starts near this line's end.
+            let next = lines.peek()?;
+            let kept = line.trim_end();
+            let joined = format!("{kept} {}", next.trim_start());
+            first_match(&joined, needles).filter(|at| *at < kept.len())
+        });
+        if let Some(at) = found {
+            return Some(here + at);
+        }
+        here += line.len();
+    }
+    None
 }
 /// Byte position of the first case-insensitive match in the original spelling.
 fn first_match(line: &str, needles: &[String]) -> Option<usize> {

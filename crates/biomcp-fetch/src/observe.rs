@@ -271,7 +271,8 @@ impl crate::Leg<'_> {
             | crate::RowFormat::Tsv
             | crate::RowFormat::NativeTsv { .. }
             | crate::RowFormat::Json { .. }
-            | crate::RowFormat::NativeCsv { .. } => 0,
+            | crate::RowFormat::NativeCsv { .. }
+            | crate::RowFormat::StreamedXml { .. } => 0,
             crate::RowFormat::Csv { banner_lines } => banner_lines,
             // Every `#` line but the last is banner; the last names the columns.
             crate::RowFormat::CommentedTsv => body

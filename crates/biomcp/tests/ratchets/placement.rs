@@ -304,6 +304,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise transport ownership, local server behavior and cache/record failures through its public API.",
     ),
     (
+        "crates/biomcp-fetch/tests/bundle/streamed.rs",
+        "Exercise streamed gzip XML parts and their decoded bound through the public transport API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/bundle/shutdown.rs",
         "Cancel and join server-owned bundle work while preserving caller cancellation independence and published rows through the public Fetch API.",
     ),
@@ -419,6 +423,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "crates/biomcp-query/src/store/privacy_tests.rs",
         "Prove caller ownership and atomic current-pool admission at the private query store transaction boundary \
         before retained routes publish continuations.",
+    ),
+    (
+        "crates/biomcp-query/src/diagnostic/summary_tests.rs",
+        "Find every match in synthetic long extracted lines at the private PMA summary passage cut, which a recorded document cannot shape on demand.",
     ),
     (
         "crates/biomcp-query/tests/gene_resolution.rs",

@@ -1,7 +1,8 @@
 use crate::{DiagnosticGet, DiagnosticSearch, DiagnosticSection, Problem, ResponseBody};
 use biodata::{
-    CompanionDiagnosticRelation, GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId,
-    PmaNumber, PmaSupplementCell, Text, WhoIvdProduct,
+    CompanionGroupCells, CompanionIndividualCells, DiagnosticDeviceId, DiagnosticDrugApplication,
+    GtrConditionRelation, GtrGeneRelation, GtrMethod, GtrTestId, PartialDate, PmaNumber,
+    PmaSupplementCell, Text, WhoIvdProduct,
 };
 use serde::{Deserialize, Serialize};
 
@@ -45,6 +46,9 @@ pub struct GtrHeader {
     /// Native method categories in source order, such as deletion/duplication analysis.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub method_categories: Box<[Text]>,
+    /// Specimen types in source order from GTR's XML release `gtr_ftp.xml.gz`, for this exact accession and version; absent when it lists none.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub specimens: Box<[Text]>,
     /// Source record URL.
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Text,
@@ -179,9 +183,29 @@ pub struct GtrCard {
     pub state_licenses: Box<str>,
     /// Whole original license number list, independently retained.
     pub state_license_numbers: Box<str>,
+    /// The laboratory's certifications (such as CLIA, CAP and ISO15189) as GTR's XML release lists them; state licenses stay in `state_licenses`.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub laboratory_certifications: Box<[GtrLabCertification]>,
+    /// The GTR file that `header.specimens` and `laboratory_certifications` came from; absent when neither is present.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
+    pub xml_release_url: Option<Text>,
     /// Source-supported named pages.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
+}
+/// One laboratory certification as published; an expiration date is shown, never judged.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrLabCertification {
+    /// Certification name, such as CLIA or CAP.
+    pub name: Text,
+    /// Certification number.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub number: Option<Text>,
+    /// Published expiration date.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expiration_date: Option<Text>,
 }
 /// Exactly one source-owned diagnostic card; conflicts have no card variant.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -300,7 +324,7 @@ page!(
 page!(
     diagnostic,
     DiagnosticCompanion,
-    CompanionDiagnosticRelation,
+    CompanionDiagnosticRow,
     DiagnosticSearch,
     "biomcp.diagnostic-companion/4",
     "Whole distinct physical companion-table rows with cell-owned identifiers."
@@ -421,4 +445,85 @@ pub struct DiagnosticSummary {
 impl ResponseBody for DiagnosticSummary {
     const SCHEMA: &'static str = "biomcp.diagnostic-summary/1";
     type Query = DiagnosticGet;
+}
+
+/// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
+/// Both kinds also carry the row date and shared cell names copied as text from FDA's original cells.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "kebab-case")]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub enum CompanionDiagnosticRow {
+    /// One complete native individual table row.
+    Individual {
+        /// Immutable local snapshot revision, not a publisher row ID.
+        snapshot: Box<str>,
+        /// Zero-based physical data-row index in its table.
+        index: u32,
+        /// Whole cells keyed by this table’s exact headers.
+        cells: CompanionIndividualCells,
+        /// Device facts from this row’s own dedicated device cell only.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        device_ids: Box<[DiagnosticDeviceId]>,
+        /// Unambiguous typed applications owned by this row’s drug cell.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        drug_applications: Box<[DiagnosticDrugApplication]>,
+        /// Shared names and row date.
+        #[serde(flatten)]
+        shared: CompanionShared,
+    },
+    /// One complete native group table row.
+    Group {
+        /// Immutable local snapshot revision, not a publisher row ID.
+        snapshot: Box<str>,
+        /// Zero-based physical data-row index in its table.
+        index: u32,
+        /// Whole cells keyed by this table’s exact headers.
+        cells: CompanionGroupCells,
+        /// Device facts from this row’s own dedicated device cell only.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        device_ids: Box<[DiagnosticDeviceId]>,
+        /// Unambiguous typed applications owned by this row’s drug cell.
+        #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+        drug_applications: Box<[DiagnosticDrugApplication]>,
+        /// Shared names and row date.
+        #[serde(flatten)]
+        shared: CompanionShared,
+    },
+}
+/// Fields both FDA companion tables carry under one name.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct CompanionShared {
+    /// Newest date in this row’s device cell, YYYY-MM-DD; absent when a date there is malformed or missing, and the row is then named in problems.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub row_date: Option<PartialDate>,
+    /// Diagnostic name and manufacturer cell text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub diagnostic: Option<Box<str>>,
+    /// Indication and sample type cell text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub indication: Option<Box<str>>,
+    /// Device number and date cell text.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub device: Option<Box<str>>,
+    /// Drug cell text; in the group table, the drug group cell.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub drug: Option<Box<str>>,
+}
+impl CompanionDiagnosticRow {
+    /// Device IDs and drug applications owned by this row's cells.
+    pub fn identities(&self) -> (&[DiagnosticDeviceId], &[DiagnosticDrugApplication]) {
+        match self {
+            Self::Individual {
+                device_ids,
+                drug_applications,
+                ..
+            }
+            | Self::Group {
+                device_ids,
+                drug_applications,
+                ..
+            } => (device_ids, drug_applications),
+        }
+    }
 }

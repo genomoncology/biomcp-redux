@@ -9,10 +9,10 @@
         "sync",
         "gtr"
       ],
-      "max_bytes": 198,
+      "max_bytes": 320,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 19,
+        "/result/rows": 21,
         "/result/duplicate_identities": 1
       }
     },
@@ -94,12 +94,24 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 1543,
+      "max_bytes": 1858,
       "expect": {
         "/result/kind": "gtr-test",
         "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
         "/result/header/laboratory/name": "Synthetic \"quoted\" laboratory",
-        "/result/clia_number": ""
+        "/result/clia_number": "",
+        "/result/header/specimens/*": {
+          "equals": [
+            "Saliva",
+            "Blood & marrow"
+          ]
+        },
+        "/result/laboratory_certifications/*/name": {
+          "equals": [
+            "CAP"
+          ]
+        },
+        "/result/laboratory_certifications/0/expiration_date": "2027-01-31"
       }
     },
     {
@@ -161,10 +173,10 @@
         "gtr",
         "--fresh"
       ],
-      "max_bytes": 198,
+      "max_bytes": 320,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 19,
+        "/result/rows": 21,
         "/result/duplicate_identities": 1
       }
     }
