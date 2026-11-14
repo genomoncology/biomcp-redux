@@ -1219,6 +1219,11 @@ Options:
           VAERS snapshot.
           Retained VAERS table for provider-free continuation.
 
+      --sort <sort>
+          VAERS order; help search adverse-event
+          VAERS order.
+          reports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.
+
       --source <source>
           Source; default FAERS; help search adverse-event
           Source; default FAERS.
@@ -1267,6 +1272,10 @@ FAERS report flag: any uses the source seriousness flag; the specific flags can 
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --serious death. Command sources: faers, maude, vaers; source restrictions in the field description apply.
 - `--snapshot`: VAERS snapshot.
 Retained VAERS table for source-free continuation. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: faers, maude, vaers; source restrictions in the field description apply.
+- `--sort`: VAERS order; help search adverse-event
+VAERS order.
+reports: BioMCP orders the whole CDC WONDER table, not just the page, by its Events Reported count, largest first; equal counts keep the source's order. Counts, percents and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort reports. Only with --source vaers.
 - `--source`: Source; default FAERS; help search adverse-event
 Source; default FAERS.
 FAERS by default; VAERS accepts only exact supported vaccine names.

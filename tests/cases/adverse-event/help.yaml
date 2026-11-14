@@ -5,7 +5,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 9664
+          "max_bytes": 10306
         },
         "/result/commands": {
           "count": 1
@@ -38,7 +38,7 @@
           "count": 1
         }
       },
-      "max_bytes": 9664,
+      "max_bytes": 10306,
       "run": [
         "help",
         "search",
@@ -48,7 +48,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 4045
+          "max_bytes": 3729
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -83,7 +83,7 @@
           "narrative"
         ]
       },
-      "max_bytes": 4045,
+      "max_bytes": 3729,
       "run": [
         "help",
         "get",

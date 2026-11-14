@@ -14,6 +14,14 @@ biodata::wire_enum! { described
         Age => "age",
     }
 }
+biodata::wire_enum! { described
+    /// Local VAERS row order; omitted keeps CDC WONDER's own order.
+    VaersSort {
+        /// Most Events Reported first across the whole source table; equal counts and rows
+        /// without a count keep the source's order.
+        Reports => "reports",
+    }
+}
 impl VaersSection {
     /// Native grouping code.
     pub fn code(self) -> &'static str {
@@ -145,7 +153,8 @@ pub struct VaersSummary {
     pub report_total: Box<str>,
     /// Whole native footer cells, never a sum calculated by this program.
     pub footer: VaersRow,
-    /// Native row order with local paging.
+    /// Native row order, or the whole table ordered by native count with --sort reports, with
+    /// local paging.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub rows: Box<[VaersRow]>,
     /// Applied native messages, evaluated caveats and footnotes.

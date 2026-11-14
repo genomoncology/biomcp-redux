@@ -86,6 +86,12 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(title = "VAERS table.", extend("x-positional" = 1)))]
     section: Option<super::VaersSection>,
+    #[doc = "VAERS order.\nreports: BioMCP orders the whole CDC WONDER table, not just the page, by its \
+        Events Reported count, largest first; equal counts keep the source's order. Counts, percents \
+        and totals stay the source's. Omit it for the source's own order, alphabetical for symptoms."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Vaers)))]
+    sort: Option<super::VaersSort>,
     #[doc = "VAERS snapshot.\nRetained VAERS table for provider-free continuation."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     snapshot: Option<Text>,
@@ -194,9 +200,11 @@ impl SearchFields {
     }
     fn validate_source_filters(&self) -> Result<(), QueryInvalid> {
         if self.source != AdverseEventSource::Vaers
-            && (self.section.is_some() || self.snapshot.is_some())
+            && (self.section.is_some() || self.snapshot.is_some() || self.sort.is_some())
         {
-            return Err(QueryInvalid::new(&["source", "section", "snapshot"]));
+            return Err(QueryInvalid::new(&[
+                "source", "section", "snapshot", "sort",
+            ]));
         }
         if self.source == AdverseEventSource::Vaers
             && self
@@ -277,6 +285,7 @@ impl AdverseEventSearch {
             source: AdverseEventSource::Maude,
             aggregate: None,
             section: None,
+            sort: None,
             snapshot: None,
             reaction: None,
             serious: None,
@@ -295,6 +304,17 @@ impl AdverseEventSearch {
     /// Selected VAERS grouping.
     pub fn vaers_section(&self) -> super::VaersSection {
         self.0.section.unwrap_or(super::VaersSection::Symptoms)
+    }
+    /// Requested local VAERS row order; none keeps the source's order.
+    pub fn vaers_sort(&self) -> Option<super::VaersSort> {
+        self.0.sort
+    }
+    /// Order the same VAERS table by native count.
+    pub fn with_vaers_sort(&self, sort: super::VaersSort) -> Self {
+        let mut q = self.clone();
+        q.0.sort = Some(sort);
+        q.0.offset = 0;
+        q
     }
     /// Checked retained table identity.
     pub fn snapshot(&self) -> Option<&Text> {
