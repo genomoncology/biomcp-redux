@@ -137,6 +137,10 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaPma)))]
     intended_use: Option<Text>,
+    #[doc = "FDA classification name phrase.\nPhrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type; 510(k) only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Fda510k)))]
+    classification_name: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
@@ -266,6 +270,7 @@ impl DiagnosticSearch {
             manufacturer: None,
             name: None,
             intended_use: None,
+            classification_name: None,
             decision_from: None,
             decision_to: None,
             product_code: None,
@@ -344,6 +349,10 @@ impl DiagnosticSearch {
     /// Phrase in the FDA PMA approval-order statement (ao_statement).
     pub fn intended_use(&self) -> Option<&Text> {
         self.0.intended_use.as_ref()
+    }
+    /// Phrase in FDA's 510(k) classification name (openFDA's harmonized openfda.device_name).
+    pub fn classification_name(&self) -> Option<&Text> {
+        self.0.classification_name.as_ref()
     }
     /// Inclusive native decision range lower bound.
     pub fn decision_from(&self) -> Option<PartialDate> {

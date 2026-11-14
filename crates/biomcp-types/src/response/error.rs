@@ -202,6 +202,10 @@ singleton! {
             whose FDA classification name describes the device type",
         DiagnosticIntendedUseAscii => "--intended-use needs ASCII text with a letter or digit, such as e for é, because openFDA \
             refuses any non-ASCII character in a phrase",
+        DiagnosticClassificationName510k => "--classification-name matches FDA's device classification name on 510(k) \
+            and De Novo records and needs --source fda-510k",
+        DiagnosticClassificationNameAscii => "--classification-name needs ASCII text with a letter or digit, such as e for é, \
+            because openFDA refuses any non-ASCII character in a phrase",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
         TrialSince => "renamed; use: --updated-since",
