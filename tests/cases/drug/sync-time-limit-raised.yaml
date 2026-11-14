@@ -10,7 +10,7 @@
         "who-pq"
       ],
       "expect": {
-        "/status": "ok",
+        "/status": "complete",
         "/result/rows": 29
       },
       "max_bytes": 500
