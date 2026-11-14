@@ -28,16 +28,13 @@ impl Row for Native {
     }
 }
 impl Native {
+    /// Whole words of the INN, dosage form and strength cell, ignoring letter case.
     pub(super) fn matches(&self, query: &str) -> bool {
-        let words = |s: &str| {
-            s.split(|c: char| !c.is_alphanumeric())
-                .filter(|s| !s.is_empty())
-                .map(str::to_lowercase)
-                .collect::<Vec<_>>()
-        };
-        let needle = words(query);
-        let haystack = words(&self.inn);
-        !needle.is_empty() && haystack.windows(needle.len()).any(|part| part == needle)
+        has_words(&self.inn, query)
+    }
+    /// Whole words of WHO's own Therapeutic Area cell, ignoring letter case.
+    pub(super) fn in_area(&self, area: &str) -> bool {
+        has_words(&self.therapeutic_area, area)
     }
     /// Parse only a complete native date; absent and unfamiliar cells stay absent for filtering.
     pub(super) fn prequalified_date(&self) -> Result<biodata::PartialDate, BadReply> {
@@ -78,6 +75,18 @@ impl Native {
     pub(super) fn reference(&self) -> &biodata::Text {
         &self.reference
     }
+}
+/// Whether the cell holds the query's words in order, as whole words, ignoring letter case.
+fn has_words(cell: &str, query: &str) -> bool {
+    let words = |s: &str| {
+        s.split(|c: char| !c.is_alphanumeric())
+            .filter(|s| !s.is_empty())
+            .map(str::to_lowercase)
+            .collect::<Vec<_>>()
+    };
+    let needle = words(query);
+    let haystack = words(cell);
+    !needle.is_empty() && haystack.windows(needle.len()).any(|part| part == needle)
 }
 impl From<Native> for biomcp_types::DrugWhoRow {
     fn from(row: Native) -> Self {

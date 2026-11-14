@@ -36,3 +36,30 @@ fn date_cells_read_as_iso_or_say_why_not() -> Result<(), biodata::Error> {
     }
     Ok(())
 }
+
+#[test]
+fn areas_match_whole_words_ignoring_case() -> Result<(), biodata::Error> {
+    let row = |area: &str| -> Result<Native, biodata::Error> {
+        Ok(Native {
+            reference: biodata::Text::new("SYN-0001")?,
+            inn: "Synthetic Tablet 1mg".into(),
+            product_type: "".into(),
+            therapeutic_area: area.into(),
+            applicant: "".into(),
+            dosage_form: "".into(),
+            basis_of_listing: "".into(),
+            date: "".into(),
+        })
+    };
+    for (area, query, expected) in [
+        ("Oncology", "oncology", true),
+        ("HIV/AIDS", "HIV", true),
+        ("Hepatitis B and C", "hepatitis b", true),
+        ("Oncology", "onco", false),
+        ("TB skin tests", "tuberculosis", false),
+        ("", "oncology", false),
+    ] {
+        assert_eq!(row(area)?.in_area(query), expected, "{area:?} {query:?}");
+    }
+    Ok(())
+}
