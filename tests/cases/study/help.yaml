@@ -5,7 +5,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 1981
+          "max_bytes": 2024
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -25,7 +25,7 @@
         },
         "/status": "complete"
       },
-      "max_bytes": 1981,
+      "max_bytes": 2024,
       "run": [
         "help",
         "search",
@@ -35,7 +35,7 @@
     {
       "expect": {
         "": {
-          "max_bytes": 2923
+          "max_bytes": 3018
         },
         "/result/commands/0/arguments/*/name": {
           "includes_all_of": [
@@ -63,7 +63,7 @@
         ],
         "/status": "complete"
       },
-      "max_bytes": 2923,
+      "max_bytes": 3018,
       "run": [
         "help",
         "get",

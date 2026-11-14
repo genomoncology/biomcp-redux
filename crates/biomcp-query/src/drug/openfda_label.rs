@@ -175,6 +175,7 @@ fn sharing<'a>(cx: &Ctx<'a>, label_bytes: usize) -> Ctx<'a> {
         fresh: cx.fresh,
         drug_name_limit: cx.drug_name_limit,
         label_bytes,
+        fit_deadline: cx.fit_deadline,
     }
 }
 /// Escaped bytes of label text a part returned, as the adapter counts them.

@@ -158,6 +158,13 @@ pub struct DrugRegulatoryPart {
 pub struct DrugInteractionsPart {
     /// Existing typed section state, preserving empty, unavailable and skipped outcomes.
     pub interactions: Section<DrugRecords<DrugInteractionClaim>>,
+    /// DDInter identities the requested partner names; empty when DDInter's files name no such drug.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub partners: Box<[DrugHeader]>,
+    /// What DDInter's files hold: a level per listed pair and no management text; and, for a
+    /// partner, whether DDInter names that drug at all.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hint: Option<Text>,
 }
 
 /// A section reply body that splits into the drug identity and the rest.
@@ -271,8 +278,17 @@ impl DrugSectionBody for DrugInteractions {
         let Self {
             identity,
             interactions,
+            partners,
+            hint,
         } = self;
-        (identity, DrugInteractionsPart { interactions })
+        (
+            identity,
+            DrugInteractionsPart {
+                interactions,
+                partners,
+                hint,
+            },
+        )
     }
 }
 
