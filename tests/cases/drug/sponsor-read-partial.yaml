@@ -68,7 +68,7 @@
         "--applicant",
         "EXAMPLE",
         "--approved-from",
-        "2024"
+        "2021"
       ],
       "expect": {
         "/status": "partial",
