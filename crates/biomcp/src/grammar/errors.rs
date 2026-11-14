@@ -508,6 +508,7 @@ fn replacement_step(
     Some(biomcp_types::Step {
         kind: biomcp_types::StepKind::Configure,
         args: args.into(),
+        options: Default::default(),
     })
 }
 

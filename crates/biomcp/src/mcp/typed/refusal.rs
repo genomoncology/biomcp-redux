@@ -53,6 +53,7 @@ pub(super) fn arguments(
             next: vec![biomcp_types::Step {
                 kind: biomcp_types::StepKind::Configure,
                 args: help.iter().copied().map(Box::from).collect(),
+                options: Default::default(),
             }],
             ..Default::default()
         },

@@ -76,6 +76,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
                     query.source().as_str().into(),
                 ]
                 .into(),
+                options: Default::default(),
             }],
             ..Default::default()
         }));
@@ -143,6 +144,7 @@ fn chosen_name(
                     query.source().as_str().into(),
                 ]
                 .into(),
+                options: Default::default(),
             })
             .collect(),
     };

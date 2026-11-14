@@ -20,7 +20,7 @@ StepKind {
     Sync => "sync",
     /// Explain how to configure a source key.
     Key => "key",
-    /// Explain the network setting that needs attention.
+    /// Run a corrected or adjusted call; its `options` say what may be added.
     Configure => "configure",
 }
 }
@@ -33,4 +33,9 @@ pub struct Step {
     /// CLI and MCP arguments.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub args: Box<[Box<str>]>,
+    /// Options this call also takes, each with a placeholder to fill in, such as
+    /// `"--decision-from": "<YYYY-MM-DD>"`; add any of them to `args`. MCP names them as tool
+    /// arguments. Absent when the step is only runnable as it is.
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub options: std::collections::BTreeMap<Box<str>, Box<str>>,
 }

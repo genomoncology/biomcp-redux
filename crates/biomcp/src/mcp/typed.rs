@@ -275,6 +275,7 @@ fn rejected(
             .iter()
             .map(|word| word.to_string_lossy().into())
             .collect(),
+        options: Default::default(),
     };
     let error = biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
         argument: Some(argument.into()),

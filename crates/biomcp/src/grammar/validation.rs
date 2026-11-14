@@ -52,6 +52,7 @@ pub(super) fn help<'a>(path: impl IntoIterator<Item = &'a str>) -> biomcp_types:
             .map(Box::from)
             .collect::<Vec<_>>()
             .into(),
+        options: Default::default(),
     }
 }
 

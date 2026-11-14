@@ -99,6 +99,7 @@ fn refuse(
     let step = |kind, args: Vec<String>| biomcp_types::Step {
         kind,
         args: args.into_iter().map(Into::into).collect(),
+        options: Default::default(),
     };
     let mut next: Vec<_> = unknown
         .iter()

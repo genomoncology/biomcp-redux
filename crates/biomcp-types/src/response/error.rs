@@ -483,6 +483,7 @@ impl ErrorEnvelope {
                 "fulltext".into(),
             ]
             .into(),
+            options: Default::default(),
         });
     }
 

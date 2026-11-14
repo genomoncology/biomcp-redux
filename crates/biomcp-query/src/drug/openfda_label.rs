@@ -380,6 +380,7 @@ fn invalid_heading(record: &source::Record) -> Result<biomcp_types::UsageError, 
         next: vec![biomcp_types::Step {
             kind: StepKind::Configure,
             args: ["help", "get", "drug"].map(Into::into).into(),
+            options: Default::default(),
         }],
     })
 }

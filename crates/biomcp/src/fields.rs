@@ -120,6 +120,7 @@ fn help_step(path: (&str, &str)) -> Step {
     Step {
         kind: StepKind::Configure,
         args: vec!["help".into(), path.0.into(), path.1.into()].into(),
+        options: Default::default(),
     }
 }
 
