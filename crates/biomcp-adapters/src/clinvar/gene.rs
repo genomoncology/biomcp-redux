@@ -7,17 +7,12 @@
 //! still reach it.
 //! <https://www.ncbi.nlm.nih.gov/clinvar/docs/help/>
 use super::SPEC;
-use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, Reply, RequestError};
-use biomcp_types::{ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts};
-use serde::Deserialize;
-use std::collections::BTreeMap;
+use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, RequestError, bad_reply};
+use biomcp_types::{ClinVarGeneCounts, ClinVarGermlineCounts, Source};
 const INFO: Endpoint = SPEC.get("/einfo.fcgi").fresh(Freshness::Days(1));
 const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
-const SUMMARY: Endpoint = SPEC.get("/esummary.fcgi").fresh(Freshness::Days(1));
 /// E-utilities returns at most this many IDs per search page.
 const ID_PAGE: u64 = 10_000;
-/// Summaries per request, keeping the ID list well inside a URL.
-const SUMMARY_PAGE: usize = 200;
 const P: &str = "\"clinsig pathogenic\"[prop]";
 const LP: &str = "\"clinsig likely pathogenic\"[prop]";
 const VUS: &str = "\"clinsig vus\"[prop]";
@@ -26,125 +21,11 @@ const LB: &str = "\"clinsig likely benign\"[prop]";
 const B: &str = "\"clinsig benign\"[prop]";
 /// Any GRCh38 base position.
 const GRCH38: &str = "1:999999999[cpos]";
-/// Germline review statuses in the order of `ClinVarReviewCounts`.
-const REVIEW: [&str; 5] = [
-    "practice guideline",
-    "reviewed by expert panel",
-    "criteria provided, multiple submitters, no conflicts",
-    "criteria provided, single submitter",
-    "no assertion criteria provided",
-];
 
-#[derive(Deserialize)]
-struct Info {
-    einforesult: InfoResult,
-}
-#[derive(Deserialize)]
-struct InfoResult {
-    dbinfo: Vec<DbInfo>,
-}
-#[derive(Deserialize)]
-struct DbInfo {
-    dbname: String,
-    dbbuild: String,
-    lastupdate: String,
-}
-impl Reply for Info {
-    fn check(&self) -> Result<(), BadReply> {
-        match self.einforesult.dbinfo.as_slice() {
-            [info]
-                if info.dbname == "clinvar"
-                    && !info.dbbuild.trim().is_empty()
-                    && !info.lastupdate.trim().is_empty() =>
-            {
-                Ok(())
-            }
-            _ => Err(BadReply),
-        }
-    }
-    fn data_date(&self) -> Option<String> {
-        self.einforesult
-            .dbinfo
-            .first()
-            .map(|info| info.lastupdate.clone())
-    }
-}
-
-#[derive(Deserialize)]
-struct Search {
-    esearchresult: Found,
-}
-#[derive(Deserialize)]
-struct Found {
-    count: String,
-    retstart: String,
-    #[serde(default)]
-    idlist: Vec<String>,
-    #[serde(rename = "ERROR")]
-    error: Option<serde::de::IgnoredAny>,
-    errorlist: Option<serde::de::IgnoredAny>,
-}
-impl Found {
-    fn total(&self) -> Result<u64, BadReply> {
-        self.count.parse().map_err(|_| BadReply)
-    }
-    fn ids(&self) -> Result<Vec<u64>, BadReply> {
-        self.idlist
-            .iter()
-            .map(|id| id.parse().map_err(|_| BadReply))
-            .collect()
-    }
-}
-impl Reply for Search {
-    /// An unknown property or status phrase arrives as an error list with a zero count.
-    fn check(&self) -> Result<(), BadReply> {
-        let found = &self.esearchresult;
-        if found.error.is_some() || found.errorlist.is_some() {
-            return Err(BadReply);
-        }
-        found.total()?;
-        found.ids()?;
-        found.retstart.parse::<u64>().map_err(|_| BadReply)?;
-        Ok(())
-    }
-}
-
-#[derive(Deserialize)]
-struct Summary {
-    result: SummaryResult,
-}
-#[derive(Deserialize)]
-struct SummaryResult {
-    uids: Vec<String>,
-    #[serde(flatten)]
-    records: BTreeMap<String, SummaryRecord>,
-}
-#[derive(Deserialize)]
-struct SummaryRecord {
-    germline_classification: Germline,
-}
-#[derive(Deserialize)]
-struct Germline {
-    review_status: String,
-}
-impl Reply for Summary {
-    fn check(&self) -> Result<(), BadReply> {
-        let result = &self.result;
-        if result.uids.len() != result.records.len()
-            || result
-                .uids
-                .iter()
-                .any(|uid| !result.records.contains_key(uid))
-        {
-            return Err(BadReply);
-        }
-        Ok(())
-    }
-}
-
-fn bad(_: BadReply) -> RequestError {
-    biomcp_fetch::bad_reply(biomcp_types::Source::ClinVar, None)
-}
+mod raw;
+mod review;
+use raw::{Info, Search};
+use review::{REVIEW, review_counts};
 
 fn count(leg: &Leg<'_>, term: &str) -> Result<u64, RequestError> {
     let reply = leg
@@ -160,7 +41,10 @@ fn count(leg: &Leg<'_>, term: &str) -> Result<u64, RequestError> {
             Read::<Search>::json(),
         )?
         .value;
-    reply.esearchresult.total().map_err(bad)
+    reply
+        .esearchresult
+        .total()
+        .map_err(|_| bad_reply(Source::ClinVar, None))
 }
 
 /// One page of Variation IDs and the search's total.
@@ -192,7 +76,12 @@ fn ids(leg: &Leg<'_>, term: &str, start: u64) -> Result<(u64, Vec<u64>), Request
         )?
         .value;
     let found = reply.esearchresult;
-    Ok((found.total().map_err(bad)?, found.ids().map_err(bad)?))
+    Ok((
+        found
+            .total()
+            .map_err(|_| bad_reply(Source::ClinVar, None))?,
+        found.ids().map_err(|_| bad_reply(Source::ClinVar, None))?,
+    ))
 }
 
 fn info(leg: &Leg<'_>) -> Result<(biodata::Text, biodata::Text), RequestError> {
@@ -212,49 +101,12 @@ fn info(leg: &Leg<'_>) -> Result<(biodata::Text, biodata::Text), RequestError> {
         .dbinfo
         .into_iter()
         .next()
-        .ok_or_else(|| bad(BadReply))?;
+        .ok_or_else(|| bad_reply(Source::ClinVar, None))?;
     Ok((
-        crate::mapped::source_text(&info.dbbuild).map_err(bad)?,
-        crate::mapped::source_text(&info.lastupdate).map_err(bad)?,
+        crate::mapped::source_text(&info.dbbuild).map_err(|_| bad_reply(Source::ClinVar, None))?,
+        crate::mapped::source_text(&info.lastupdate)
+            .map_err(|_| bad_reply(Source::ClinVar, None))?,
     ))
-}
-
-/// Germline review statuses for records that more than one status search listed.
-fn review_statuses(leg: &Leg<'_>, ids: &[u64]) -> Result<Vec<String>, RequestError> {
-    let pages: Vec<Vec<Box<str>>> = ids
-        .chunks(SUMMARY_PAGE)
-        .map(|page| page.iter().map(|id| id.to_string().into()).collect())
-        .collect();
-    let mut statuses = Vec::new();
-    for page in &pages {
-        let reply = leg
-            .call(
-                &SUMMARY,
-                Input::Params(&[
-                    ("db", Arg::Text("clinvar")),
-                    ("id", Arg::Ids(page)),
-                    ("retmode", Arg::Text("json")),
-                    ("tool", Arg::Text("biomcp")),
-                ]),
-                Read::<Summary>::json().check(&|reply: &Summary| {
-                    let mut uids: Vec<&str> =
-                        reply.result.uids.iter().map(String::as_str).collect();
-                    uids.sort_unstable();
-                    let mut asked: Vec<&str> = page.iter().map(AsRef::as_ref).collect();
-                    asked.sort_unstable();
-                    if uids == asked { Ok(()) } else { Err(BadReply) }
-                }),
-            )?
-            .value;
-        statuses.extend(
-            reply
-                .result
-                .records
-                .into_values()
-                .map(|record| record.germline_classification.review_status),
-        );
-    }
-    Ok(statuses)
 }
 
 enum Job {
@@ -337,7 +189,7 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
             Done::Ids(total, ids) => lists.push((total, ids)),
         }
     }
-    let (build, updated) = release.ok_or_else(|| bad(BadReply))?;
+    let (build, updated) = release.ok_or_else(|| bad_reply(Source::ClinVar, None))?;
     // Later pages for a status listing more than one page of records.
     let (owners, more): (Vec<usize>, Vec<Job>) = reviews
         .iter()
@@ -350,15 +202,16 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
         .unzip();
     for (index, job) in owners.into_iter().zip(&more) {
         let Done::Ids(_, ids) = run(leg, job)? else {
-            return Err(bad(BadReply));
+            return Err(bad_reply(Source::ClinVar, None));
         };
         lists
             .get_mut(index)
-            .ok_or_else(|| bad(BadReply))?
+            .ok_or_else(|| bad_reply(Source::ClinVar, None))?
             .1
             .extend(ids);
     }
-    let numbers = <[u64; 10]>::try_from(numbers.as_slice()).map_err(|_| bad(BadReply))?;
+    let numbers =
+        <[u64; 10]>::try_from(numbers.as_slice()).map_err(|_| bad_reply(Source::ClinVar, None))?;
     let [records, p, lp, both, .., grch38] = numbers;
     let germline = germline(numbers);
     let total = (p + lp).saturating_sub(both);
@@ -367,61 +220,16 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
         build,
         updated,
         scope: crate::mapped::text(&format!(
-            "Each ClinVar variation record (VCV) that lists NCBI Gene {gene_id}, counted once whatever its assemblies, including records that also list other genes; aggregate germline classification only."
+            "Each ClinVar variation record (VCV) that lists NCBI Gene {gene_id}, counted once \
+             whatever its assemblies, including records that also list other genes; aggregate \
+             germline classification only."
         ))
-        .map_err(bad)?,
-        term: crate::mapped::text(&base).map_err(bad)?,
+        .map_err(|_| bad_reply(Source::ClinVar, None))?,
+        term: crate::mapped::text(&base).map_err(|_| bad_reply(Source::ClinVar, None))?,
         records,
         germline,
         pathogenic_or_likely: total,
         pathogenic_or_likely_grch38: grch38,
         pathogenic_or_likely_review: review,
-    })
-}
-
-/// Place each listed record in its one germline review status.
-fn review_counts(
-    leg: &Leg<'_>,
-    lists: &[(u64, Vec<u64>)],
-    total: u64,
-) -> Result<ClinVarReviewCounts, RequestError> {
-    let mut seen: BTreeMap<u64, (usize, u32)> = BTreeMap::new();
-    for (index, (_, ids)) in lists.iter().enumerate() {
-        for id in ids {
-            let entry = seen.entry(*id).or_insert((index, 0));
-            entry.1 += 1;
-        }
-    }
-    let mut buckets = [0u64; 5];
-    let mut other = 0u64;
-    let mut shared = Vec::new();
-    for (id, (index, times)) in &seen {
-        if *times == 1 {
-            *buckets.get_mut(*index).ok_or_else(|| bad(BadReply))? += 1;
-        } else {
-            shared.push(*id);
-        }
-    }
-    for status in review_statuses(leg, &shared)? {
-        match REVIEW.iter().position(|known| *known == status) {
-            Some(index) => *buckets.get_mut(index).ok_or_else(|| bad(BadReply))? += 1,
-            None => other += 1,
-        }
-    }
-    other += total.saturating_sub(seen.len() as u64);
-    let [
-        practice_guideline,
-        expert_panel,
-        multiple_submitters,
-        single_submitter,
-        no_assertion_criteria,
-    ] = buckets;
-    Ok(ClinVarReviewCounts {
-        practice_guideline,
-        expert_panel,
-        multiple_submitters,
-        single_submitter,
-        no_assertion_criteria,
-        other,
     })
 }
