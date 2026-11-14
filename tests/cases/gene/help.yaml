@@ -55,7 +55,7 @@
           ]
         ]
       },
-      "max_bytes": 3550,
+      "max_bytes": 3183,
       "run": [
         "help",
         "search",
