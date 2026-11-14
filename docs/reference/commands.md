@@ -3186,7 +3186,7 @@ Arguments:
 Options:
       --civic-cursor <civic_cursor>
           CIViC continuation.
-          Native continuation cursor for that exact drug, profile and claim collection.
+          Native continuation cursor for that exact drug, profile and claim collection. Only with --source civic.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -3197,14 +3197,14 @@ Options:
       --civic-kind <civic_kind>
           CIViC collection; help get drug
           CIViC collection.
-          Independent native evidence or assertion collection within the selected profile.
+          Independent native evidence or assertion collection within the selected profile. Only with --source civic.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-profile <civic_profile>
           CIViC profile.
-          Selected native CIViC molecular profile for a drug-scoped claim stream.
+          Selected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic.
 
       --decision-from <decision_from>
           From date.
@@ -3223,21 +3223,21 @@ Options:
       --document-id <document_id>
           FDA letter document ID.
           Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-          and 6144 escaped bytes per fragment. No-text scans are explicit.
+          and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda.
 
       --evidence-level <evidence_level>...
           A–E; help get drug
           A–E
-          Native CIViC evidence levels; repeat to include several levels.
+          Native CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
 
       --evidence-status <evidence_status>
           Status; help get drug
           Status
-          Native CIViC evidence status; omitted preserves the source's existing default.
+          Native CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
 
       --label-section <label_section>
           Exact openFDA SPL fields.
-          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
+          Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Only with --source openfda-label.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3247,7 +3247,7 @@ Options:
 
       --product-number <product_number>
           FDA product number.
-          Explicit native application product number, only for approvals.
+          Explicit native application product number, only for approvals. Only with --source drugsfda.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -3271,35 +3271,35 @@ Options:
 Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--civic-cursor`: CIViC continuation.
-Source continuation cursor for that exact drug, profile and claim collection. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Source continuation cursor for that exact drug, profile and claim collection. Only with --source civic. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--civic-kind`: CIViC collection; help get drug
 CIViC collection.
-Independent source evidence or assertion collection within the selected profile.
+Independent source evidence or assertion collection within the selected profile. Only with --source civic.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--civic-profile`: CIViC profile.
-Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Selected source CIViC molecular profile for a drug-scoped claim stream. Only with --source civic. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--decision-from`: From date.
 Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-from 2024-01-01. Only with --source drugsfda.
 - `--decision-to`: To date.
 Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-to 2024-12-31. Only with --source drugsfda.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-and 6144 escaped bytes per fragment. No-text scans are explicit. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get drug
 A–E
-Source CIViC evidence levels; repeat to include several levels.
+Source CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-status`: Status; help get drug
 Status
-Source CIViC evidence status; omitted preserves the source's existing default.
+Source CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `input`: Source ID, brand or generic name.
 Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
-Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Only with --source openfda-label. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--product-number`: FDA product number.
-Explicit source application product number, only for approvals. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `section`: Source sections; help get drug
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get drug INPUT SECTION...; not --section.
@@ -3593,12 +3593,12 @@ Options:
       --evidence-level <evidence_level>...
           A–E; help get variant
           A–E
-          Native CIViC evidence levels; repeat to include several levels.
+          Native CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
 
       --evidence-status <evidence_status>
           Status; help get variant
           Status
-          Native CIViC evidence status; omitted preserves the source's existing default.
+          Native CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
 
       --limit <limit>
           Candidate rows per page; more remain reachable through typed next commands.
@@ -3654,11 +3654,11 @@ CIViC disease name text; CIViC matches it natively against evidence and assertio
 CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string. Example: --drug erlotinib. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get variant
 A–E
-Source CIViC evidence levels; repeat to include several levels.
+Source CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-status`: Status; help get variant
 Status
-Source CIViC evidence status; omitted preserves the source's existing default.
+Source CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.

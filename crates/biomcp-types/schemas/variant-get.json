@@ -165,7 +165,7 @@
       "description": "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies."
     },
     "evidence_level": {
-      "description": "A–E; help get variant\nA–E\nNative CIViC evidence levels; repeat to include several levels.",
+      "description": "A–E; help get variant\nA–E\nNative CIViC evidence levels; repeat to include several levels. Only with --source civic on get drug, and the civic section on get variant.",
       "items": {
         "$ref": "#/$defs/CivicEvidenceLevel"
       },
@@ -180,7 +180,7 @@
           "type": "null"
         }
       ],
-      "description": "Status; help get variant\nStatus\nNative CIViC evidence status; omitted preserves the source's existing default."
+      "description": "Status; help get variant\nStatus\nNative CIViC evidence status; omitted preserves the source's existing default. Only with --source civic on get drug, and the civic section on get variant."
     },
     "input": {
       "$ref": "#/$defs/VariantLookupInput",
