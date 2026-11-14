@@ -75,22 +75,7 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
             components,
             items: results
                 .into_iter()
-                .map(|v| {
-                    problems.record = crate::mapped::record(&v.safetyreportid);
-                    let serious = problems.field("serious", v.serious);
-                    AdverseEventHeader {
-                        id: v.safetyreportid,
-                        source: AdverseEventSource::Faers,
-                        version: problems.field("safetyreportversion", v.safetyreportversion),
-                        serious_label: super::words::label(
-                            super::words::SERIOUS,
-                            serious.as_deref(),
-                        ),
-                        serious,
-                        event_type: None,
-                        first_received: problems.field("receivedate", v.receivedate),
-                    }
-                })
+                .map(|v| header(v, &mut problems))
                 .collect(),
             total: meta.results.total,
             updated: meta.last_updated,
@@ -106,5 +91,19 @@ pub fn search(leg: &Leg<'_>, query: &AdverseEventSearch) -> Result<Page, Request
             problems: Vec::new(),
             metadata,
         }),
+    }
+}
+/// One report row, with openFDA's words beside its `serious` code.
+fn header(v: raw::Header, problems: &mut crate::mapped::Problems) -> AdverseEventHeader {
+    problems.record = crate::mapped::record(&v.safetyreportid);
+    let serious = problems.field("serious", v.serious);
+    AdverseEventHeader {
+        id: v.safetyreportid,
+        source: AdverseEventSource::Faers,
+        version: problems.field("safetyreportversion", v.safetyreportversion),
+        serious_label: super::words::label(super::words::SERIOUS, serious.as_deref()),
+        serious,
+        event_type: None,
+        first_received: problems.field("receivedate", v.receivedate),
     }
 }
