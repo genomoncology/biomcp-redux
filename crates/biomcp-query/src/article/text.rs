@@ -8,8 +8,8 @@ use biomcp_adapters::{europepmc, jats, pmc_oa, pubmed};
 use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::{
-    ArticleText, ArticleTextResult, Reason, ReplyData, Request, Section, Source,
-    StepKind, TextContent, TextHit,
+    ArticleText, ArticleTextResult, Reason, ReplyData, Request, Section, Source, StepKind,
+    TextContent, TextHit,
 };
 /// Read a bounded part or find page through the same transport and command budget.
 pub(crate) fn read(cx: &Ctx<'_>, query: &ArticleText) -> Outcome {
@@ -301,9 +301,10 @@ fn find(
         .map(|r| crate::text_find::contains(&r.plain, &needles))
         .collect();
     let hits = matches(document, &matching);
-    let found = crate::text_find::page(&hits, query.offset(), jats::TEXT_BYTES, |(_, path, row)| {
-        Some(jats::escaped_bytes(row) + serde_json::to_vec(path).ok()?.len() + 128)
-    })?;
+    let found =
+        crate::text_find::page(&hits, query.offset(), jats::TEXT_BYTES, |(_, path, row)| {
+            Some(jats::escaped_bytes(row) + serde_json::to_vec(path).ok()?.len() + 128)
+        })?;
     let page = found
         .hits
         .iter()

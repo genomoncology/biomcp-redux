@@ -1,0 +1,98 @@
+{
+  "feature": "fda-document-text",
+  "live_check": "FDA-published P150047 SSED; original PDF source bytes retained without editing",
+  "story": "A lab director asks the cobas EGFR Mutation Test v2 safety and effectiveness summary (P150047) for its limit of detection and gets, in one reply, the passage that runs from the Limit of Detection heading through Table 15's established LoD values (75 cp/mL for exon 19 deletion, 100 for L858R and T790M), with the fragment the passage starts in. A broader find pages by passages; reading without --find still pages by fragment.",
+  "verified": "FDA SSED https://www.accessdata.fda.gov/cdrh_docs/pdf15/P150047B.pdf, 694,761 bytes, SHA-256 d8d791e13884dd3d0cbfd89c69aa084ac799ff2e9e308a07e4064b3d8a489925, downloaded from FDA on 2026-11-14; provenance in tests/replies/diagnostic/pma-summary-find/README.md. The expected passage is BioMCP's pinned lopdf extraction (pm job j40615); Table 15 reads Ex. 19del 75, L858R 100, T790M 100, S768I 25, L861Q 30, G719X 100, Ex. 20ins 25 cp/mL in the PDF. No source text is normalized or summarized.",
+  "replay": "diagnostic/pma-summary-find",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P150047",
+        "summary",
+        "--source",
+        "fda-pma",
+        "--find",
+        "Limit of Detection"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/document/pages": 53,
+        "/result/document/state": "text",
+        "/result/document/total": 22,
+        "/result/document": {
+          "omits": [
+            "text"
+          ]
+        },
+        "/page/total": 2,
+        "/page/returned": 2,
+        "/result/hits": {
+          "count": 2
+        },
+        "/result/hits/0/fragment": 4,
+        "/result/hits/1/fragment": 8,
+        "/result/hits/1/text": {
+          "equals_file": "P150047-lod-passage.json"
+        }
+      },
+      "max_bytes": 7700
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P150047",
+        "summary",
+        "--source",
+        "fda-pma",
+        "--find",
+        "LoD"
+      ],
+      "expect": {
+        "/page/offset": 0,
+        "/page/returned": 3,
+        "/page/total": 10,
+        "/next/0/kind": "page",
+        "/next/0/args": [
+          "get",
+          "diagnostic",
+          "P150047",
+          "summary",
+          "--find",
+          "LoD",
+          "--section-offset",
+          "3",
+          "--source",
+          "fda-pma"
+        ]
+      },
+      "max_bytes": 11300
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P150047",
+        "summary",
+        "--source",
+        "fda-pma",
+        "--section-offset",
+        "9"
+      ],
+      "expect": {
+        "/result/document/offset": 9,
+        "/result/document/total": 22,
+        "/result": {
+          "omits": [
+            "hits"
+          ]
+        },
+        "/page/returned": 1,
+        "/next/0/kind": "page"
+      },
+      "max_bytes": 9500
+    }
+  ]
+}

@@ -245,7 +245,7 @@
           "type": "integer"
         },
         "text": {
-          "description": "Extracted lines from the matching line through the following lines, in document order.",
+          "description": "Verbatim extracted text from shortly before the match through at most 3,072 escaped bytes.",
           "type": "string"
         }
       },

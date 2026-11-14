@@ -29,14 +29,16 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
     };
     let url: Result<biodata::Text, _> =
         format!("https://www.accessdata.fda.gov/cdrh_docs/{directory}/{id}B.pdf").parse();
-    let result = url
-        .as_ref()
-        .map_err(|_| biomcp_fetch::bad_reply(q.source().source(), None))
-        .and_then(|url| match q.find() {
-            None => pdf::read(&leg, &fda_pma::DOCUMENTS, url, q.section_offset()).map(|d| (d, None)),
-            Some(find) => pdf::whole(&leg, &fda_pma::DOCUMENTS, url)
-                .map(|(d, text)| (d, Some((find, text)))),
-        });
+    let result =
+        url.as_ref()
+            .map_err(|_| biomcp_fetch::bad_reply(q.source().source(), None))
+            .and_then(|url| match q.find() {
+                None => {
+                    pdf::read(&leg, &fda_pma::DOCUMENTS, url, q.section_offset()).map(|d| (d, None))
+                }
+                Some(find) => pdf::whole(&leg, &fda_pma::DOCUMENTS, url)
+                    .map(|(d, text)| (d, Some((find, text)))),
+            });
     let error = match result {
         Ok((document, Some((find, text)))) => {
             let unavailable = document.state != PdfTextState::Text;
@@ -122,13 +124,16 @@ fn found(
             }
             (page.hits.to_vec(), page.info)
         }
-        None => (Vec::new(), PageInfo {
-            offset: q.section_offset(),
-            returned: 0,
-            total: all.len() as u64,
-            pool: None,
-            truncated: None,
-        }),
+        None => (
+            Vec::new(),
+            PageInfo {
+                offset: q.section_offset(),
+                returned: 0,
+                total: all.len() as u64,
+                pool: None,
+                truncated: None,
+            },
+        ),
     };
     out.page = Some(info);
     DiagnosticSummary {
@@ -180,7 +185,10 @@ fn passages(text: &str, needles: &[String]) -> Vec<PdfTextHit> {
 /// Byte position of the first case-insensitive match in the original spelling.
 fn first_match(line: &str, needles: &[String]) -> Option<usize> {
     let lower = line.to_lowercase();
-    let start = needles.iter().filter_map(|needle| lower.find(needle.as_str())).min()?;
+    let start = needles
+        .iter()
+        .filter_map(|needle| lower.find(needle.as_str()))
+        .min()?;
     let mut lower_at = 0;
     line.char_indices().find_map(|(byte, c)| {
         let width: usize = c.to_lowercase().map(char::len_utf8).sum();
@@ -215,5 +223,9 @@ fn passage_end(text: &str, begin: usize, at: usize) -> usize {
             line_end = Some(end);
         }
     }
-    if end < text.len() { line_end.unwrap_or(end) } else { end }
+    if end < text.len() {
+        line_end.unwrap_or(end)
+    } else {
+        end
+    }
 }
