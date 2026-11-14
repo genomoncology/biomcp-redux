@@ -40,3 +40,11 @@ The agent spent four help reads finding the approvals flags. Also, `biomcp searc
 ## Changes
 
 - Changes: `crates/biomcp/src/help.rs`, `crates/biomcp/src/retired/`, `tests/cases/help/`, `docs/`.
+
+## Progress
+
+- `help get drug approvals` and `help drug approvals` now answer with the get drug help narrowed to the approvals section: its description, the options its sources take (options the schema ties to other sources, such as `--label-section`, drop out), `--source` choices cut to drugsfda, and a recorded example that reads approvals. Measured 7,490 bytes against 8,305 for `help get drug` (j39857); the case cap is 8,614 (measured plus 15%). Every get command with sections takes one section word in its help.
+- A section word the command lacks (`help get drug approval`) is refused with the valid sections and `help get drug` as the next step.
+- No reply suggests `help help ...`: a mistyped help topic is matched against help topics, a word past a help leaf points back to that leaf, `hepl` points to `help`, and a help step built from a path already under help is not prefixed twice.
+- The retired-option message for diagnostic commands now lists gtr, fda-cdx, fda-pma, fda-510k, who-ivd and fda-device-recall for search. It is a new fixed message (the error-message enum only widens); a contract test in `crates/biomcp-types/tests/diagnostic_contracts.rs` compares both lists with the checked-in source enums, so the text cannot drift from the registry.
+- Cases: `tests/cases/help/section-help.yaml`, `tests/cases/help/diagnostic-sources.yaml`.

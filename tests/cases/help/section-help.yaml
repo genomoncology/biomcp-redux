@@ -6,7 +6,7 @@
     {
       "run": ["help", "get", "drug", "approvals"],
       "mcp": ["help", "get", "drug", "approvals"],
-      "max_bytes": 8648,
+      "max_bytes": 8614,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",
@@ -22,7 +22,7 @@
     {
       "run": ["help", "drug", "approvals"],
       "mcp": ["help", "drug", "approvals"],
-      "max_bytes": 8648,
+      "max_bytes": 8614,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",
