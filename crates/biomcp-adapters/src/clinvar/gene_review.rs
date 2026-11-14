@@ -4,7 +4,10 @@ use super::gene_reply::Summary;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, RequestError, bad_reply};
 use biomcp_types::{ClinVarReviewCounts, Source};
 use std::collections::BTreeMap;
-const SUMMARY: Endpoint = SPEC.get("/esummary.fcgi").fresh(Freshness::Days(1));
+const SUMMARY: Endpoint = SPEC
+    .get("/esummary.fcgi")
+    .fresh(Freshness::Days(1))
+    .wait_throttle();
 /// Summaries per request, keeping the ID list well inside a URL.
 const SUMMARY_PAGE: usize = 200;
 /// Germline review statuses in the order of `ClinVarReviewCounts`.

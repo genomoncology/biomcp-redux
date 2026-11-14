@@ -159,6 +159,7 @@ impl Leg<'_> {
         prepared.identity_encoding = ep.identity_encoding;
         prepared.double_gzip = ep.double_gzip;
         prepared.stall_limit = ep.stall_limit.filter(|_| prepared.idempotent);
+        prepared.wait_throttle = ep.wait_throttle && prepared.idempotent;
         prepared.exact_count = ep.exact_count;
         if ep.exact_count {
             use sha2::Digest;
@@ -199,7 +200,10 @@ impl Leg<'_> {
         prepared: &Prepared,
         codec: &Read<T>,
     ) -> Result<Decoded<T>, RequestError> {
-        for attempt in 0..crate::retry::ATTEMPTS {
+        // Waits a throttle reply asks for do not count as attempts on a `wait_throttle` endpoint;
+        // the budget bounds them.
+        let mut attempt = 0;
+        while attempt < crate::retry::ATTEMPTS {
             let permit = self
                 .acquire_quota()
                 .map_err(|delay| self.quota_failure(delay))?
@@ -209,6 +213,7 @@ impl Leg<'_> {
             let exchange = self.exchange(prepared, codec, limit);
             self.observe_exchange::<T>(prepared, &exchange, started.elapsed(), codec);
             if limit.is_some() && timed_out(&exchange) && !self.budget().expired() {
+                attempt += 1;
                 continue;
             }
             let (mut error, retryable, delay) = match exchange {
@@ -248,12 +253,22 @@ impl Leg<'_> {
                 error.reason = Reason::RateLimited;
                 return Err(error.into());
             }
-            if !prepared.idempotent || !retryable || attempt + 1 == crate::retry::ATTEMPTS {
+            let throttled = prepared.wait_throttle && error.status == Some(429) && delay.is_some();
+            if !prepared.idempotent
+                || !retryable
+                || (!throttled && attempt + 1 == crate::retry::ATTEMPTS)
+            {
                 return Err(error.into());
             }
-            let wait = delay.unwrap_or_else(|| crate::retry::backoff(&prepared.identity, attempt));
+            // A zero or past retry time still waits the ordinary backoff, so no refusal is hammered.
+            let wait = delay
+                .unwrap_or_default()
+                .max(crate::retry::backoff(&prepared.identity, attempt));
             if !crate::retry::wait(wait, self.budget()) {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
+            }
+            if !throttled {
+                attempt += 1;
             }
         }
         // Every iteration either returns or advances to the next attempt.

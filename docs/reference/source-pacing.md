@@ -2,7 +2,7 @@
 
 Generated from the source quota registry. Run `make docs-generate` to update.
 
-Defaults equal ceilings. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling of one in flight, except where a row below says otherwise. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.
+Defaults equal ceilings unless a row shows a default below its ceiling. Where no authoritative numeric policy was found, the ceiling remains conservative. Unpublished concurrency keeps the existing local ceiling of one in flight, except where a row below says otherwise. All rates space requests evenly without bursts. Daily quotas and shared upstream pools remain separate provider constraints.
 
 | Source | Keyless default / ceiling | Keyed default / ceiling | In flight default / ceiling | Policy checked |
 | --- | --- | --- | --- | --- |
@@ -17,7 +17,7 @@ Defaults equal ceilings. Where no authoritative numeric policy was found, the ce
 | `gencc` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://thegencc.org/faq . No published numeric limit found in service documentation/terms and provider-domain policy search; retain conservative local ceiling. |
 | `hpa` | 1/1s | same as keyless | 1 |  Checked 2026-11-01: https://www.proteinatlas.org/about/download . No published numeric limit found in service documentation/terms and provider-domain policy search; retain conservative local ceiling. |
 | `orcid` | 12/1s | same as keyless | 1 |  Checked 2026-11-01: https://info.orcid.org/ufaqs/what-are-the-api-limits/ . Published anonymous/public limit: twelve per second. Separate daily quotas: 25000 per IP anonymous, 100000 per public client; provider enforces these. |
-| `ncbi-eutils` | 3/1s | 10/1s | 3 |  Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/books/NBK25497/ . Published limits: three per second per IP without a key, ten per second per key. |
+| `ncbi-eutils` | 5/2s / 3/1s | 10/1s | 3 |  Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/books/NBK25497/ . Published limits: three per second per IP without a key, ten per second per key. Measured keyless 2026-11-14 (j40861): one process evenly spaced at three per second drew 429s on 2 to 5 of 17 ClinVar requests in every read, as NCBI counts a fourth request inside a second; at five per two seconds no read drew one, so that is the keyless default. |
 | `europepmc` | 500/60s | same as keyless | 1 |  Checked 2026-11-01: https://groups.google.com/a/ebi.ac.uk/g/epmc-webservices/c/xcwqYEGosp4 . Published staff policy 2022-07-11: 10 per second AND 500 per minute; evenly space 500/minute. Per-IP scope confirmed at https://groups.google.com/a/ebi.ac.uk/g/epmc-webservices/c/cZLnV1JhCj8 . |
 | `pubtator` | 3/1s | same as keyless | 3 |  Checked 2026-11-01: https://www.ncbi.nlm.nih.gov/research/pubtator3/api . Published API guidance: at most three requests per second. |
 | `pmc-oa` | 10/1s | same as keyless | 2 |  Checked 2026-11-01: https://pmc.ncbi.nlm.nih.gov/tools/cloud/ . No numeric S3-download limit found in cloud-service docs and provider-domain search; retain conservative local ceiling. |

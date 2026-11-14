@@ -54,6 +54,7 @@ impl SourcePacing {
         let mut effective = *ceiling;
         if let Some(rate) = input.rate {
             effective.rate = rate.checked(ceiling.rate).ok_or("rate")?;
+            effective.default_rate = None;
         }
         if let Some(rate) = input.keyed_rate {
             effective.keyed_rate = Some(

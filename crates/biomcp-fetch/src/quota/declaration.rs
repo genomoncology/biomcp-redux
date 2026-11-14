@@ -95,6 +95,7 @@ impl Rate {
 pub struct Quota {
     pub(super) key: SourceKey,
     pub(super) rate: Rate,
+    pub(super) default_rate: Option<Rate>,
     pub(super) keyed_rate: Option<Rate>,
     pub(super) in_flight: u8,
     pub(super) refuse_wait: bool,
@@ -105,9 +106,30 @@ impl Quota {
     pub const fn key(&self) -> SourceKey {
         self.key
     }
-    /// Default and ceiling rate for requests without credentials.
+    /// Ceiling rate for requests without credentials, and their default unless a lower one is declared.
     pub const fn rate(&self) -> Rate {
         self.rate
+    }
+    /// Default rate for requests without credentials.
+    pub const fn keyless_default(&self) -> Rate {
+        match self.default_rate {
+            Some(rate) => rate,
+            None => self.rate,
+        }
+    }
+    /// Pace requests without credentials below their ceiling by default; configuration may still
+    /// raise them to the ceiling.
+    ///
+    /// # Panics
+    /// A default above the ceiling fails during construction, including constant evaluation.
+    pub const fn default_rate(mut self, rate: Rate) -> Self {
+        let (requests, seconds) = self.rate.ratio();
+        assert!(
+            rate.per_second as u32 * seconds as u32 <= requests as u32 * rate.seconds as u32,
+            "default rate above its ceiling"
+        );
+        self.default_rate = Some(rate);
+        self
     }
     /// Separate default and ceiling for credentials, when declared.
     pub const fn keyed_rate(&self) -> Option<Rate> {
@@ -134,7 +156,7 @@ impl Quota {
         if keyed {
             self.keyed_rate.unwrap_or(self.rate)
         } else {
-            self.rate
+            self.keyless_default()
         }
     }
     /// Declare validated provider limits.
@@ -146,6 +168,7 @@ impl Quota {
         Self {
             key,
             rate,
+            default_rate: None,
             keyed_rate,
             in_flight,
             refuse_wait: false,

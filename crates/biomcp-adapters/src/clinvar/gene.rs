@@ -4,13 +4,20 @@
 //! buckets come from Variation ID lists, and only records listed under more than one status
 //! are summarized to read their germline review status. Requests run one at a time: NCBI
 //! refuses a fourth keyless request in any one second, and evenly paced parallel requests
-//! still reach it.
+//! still reach it. Other clients on the same address share that limit, so a throttled
+//! request waits the retry time NCBI names and asks again while the budget lasts.
 //! <https://www.ncbi.nlm.nih.gov/clinvar/docs/help/>
 use super::SPEC;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, RequestError, bad_reply};
 use biomcp_types::{ClinVarGeneCounts, ClinVarGermlineCounts, Source};
-const INFO: Endpoint = SPEC.get("/einfo.fcgi").fresh(Freshness::Days(1));
-const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
+const INFO: Endpoint = SPEC
+    .get("/einfo.fcgi")
+    .fresh(Freshness::Days(1))
+    .wait_throttle();
+const SEARCH: Endpoint = SPEC
+    .get("/esearch.fcgi")
+    .fresh(Freshness::Days(1))
+    .wait_throttle();
 /// E-utilities returns at most this many IDs per search page.
 const ID_PAGE: u64 = 10_000;
 const P: &str = "\"clinsig pathogenic\"[prop]";
