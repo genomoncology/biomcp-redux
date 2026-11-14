@@ -1495,9 +1495,9 @@ Matches source sponsor_name values starting with this text, ignoring letter case
 no company-family or subsidiary inference. An optional name narrows the same search. Value form: string. Example: --applicant 'ALNYLAM PHARMS INC'. Only with --source drugsfda.
 - `--approved-from`: Original approval from, inclusive; Drugs@FDA only.
 Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
-falls in the window; BioMCP reads every match and counts the kept ones. Value form: string. Example: --approved-from <approved-from> (syntax; replace the placeholder with your retained value). Only with --source drugsfda.
+falls in the window; BioMCP reads every match and counts the kept ones. Value form: string. Example: --approved-from 2024-01-01. Only with --source drugsfda.
 - `--approved-to`: Original approval to, inclusive; Drugs@FDA only.
-Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --approved-to <approved-to> (syntax; replace the placeholder with your retained value). Only with --source drugsfda.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --approved-to 2023. Only with --source drugsfda.
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Only with --source fda-drug-recall.
