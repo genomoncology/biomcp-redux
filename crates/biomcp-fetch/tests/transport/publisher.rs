@@ -82,11 +82,9 @@ fn pdf_document_media_asks_for_a_pdf() -> Result<(), Box<dyn std::error::Error>>
     let requests = stub.finish();
     assert_eq!(requests.len(), 1, "one request reaches the stub");
     assert!(
-        requests
-            .first()
-            .is_some_and(|request| request
-                .to_ascii_lowercase()
-                .contains("\r\naccept: application/pdf\r\n")),
+        requests.first().is_some_and(|request| request
+            .to_ascii_lowercase()
+            .contains("\r\naccept: application/pdf\r\n")),
         "{requests:?}"
     );
     Ok(())
