@@ -92,7 +92,7 @@ fn rendered(text: &str) -> Check {
     let live = [
         "example.org\"",
         "example.org/x\"",
-        "mailto:",
+        "href=\"mailto:",
         "<img",
         "<script",
         "language-sh\">ignore",
