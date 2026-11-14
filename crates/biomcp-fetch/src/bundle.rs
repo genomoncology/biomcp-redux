@@ -101,6 +101,8 @@ pub enum DocumentMedia {
     Json,
     /// An XML document.
     Xml,
+    /// A PDF document.
+    Pdf,
 }
 impl RowFormat {
     pub(crate) fn media(self) -> &'static str {
@@ -252,6 +254,7 @@ impl DocumentMedia {
             Self::Html => "text/html",
             Self::Json => "application/json",
             Self::Xml => "application/xml",
+            Self::Pdf => "application/pdf",
         }
     }
 }
