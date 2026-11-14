@@ -137,6 +137,41 @@ fn call_text_retained(
         .first()
         .filter(|_| replies.len() == 1)
         .ok_or("MCP expected one reply")?;
+    tool_text(reply, is_error)
+}
+
+/// Send one CLI-argument tool call to a hosted HTTP server started in the case's own environment.
+pub(super) fn call_text_hosted(
+    environment: &Environment,
+    args: &[String],
+    is_error: bool,
+    globals: &[String],
+) -> Result<(Value, String), String> {
+    let mut hosted = vec!["--hosted".to_owned()];
+    hosted.extend_from_slice(globals);
+    let mut server = super::http::Server::configured_launch(
+        "127.0.0.1:0",
+        None,
+        None,
+        None,
+        None,
+        &hosted,
+        |_, args| environment.command(env!("CARGO_BIN_EXE_biomcp"), args),
+    )?;
+    let body = request(
+        json!(1),
+        "tools/call",
+        json!({"name":"biomcp","arguments":{"args":args}}),
+    );
+    let (status, reply) = server.request("POST", "/mcp", &body.to_string())?;
+    server.stop()?;
+    if status != 200 {
+        return Err(format!("hosted MCP status {status}: {reply}"));
+    }
+    tool_text(&reply, is_error)
+}
+
+fn tool_text(reply: &Value, is_error: bool) -> Result<(Value, String), String> {
     if reply.get("id") != Some(&json!(1)) {
         return Err("MCP correlation".into());
     }
