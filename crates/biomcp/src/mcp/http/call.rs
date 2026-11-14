@@ -45,7 +45,8 @@ pub(super) struct ToolCall {
     pub(super) secrets: Option<Secrets>,
     pub(super) excluded: std::collections::BTreeSet<biomcp_types::Source>,
     pub(super) declared_use: Option<crate::command::DeclaredUse>,
-    /// The hosted whole-call deadline; plain HTTP has none, and its wait ends at the command budget.
+    /// The hosted whole-call deadline, which a slow source's declared budget may lengthen;
+    /// plain HTTP has none, and its wait ends at the command budget.
     pub(super) scope: Option<Cancellation>,
 }
 

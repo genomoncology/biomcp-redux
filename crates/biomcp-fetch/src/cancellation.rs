@@ -6,7 +6,7 @@ use crate::{Fetch, FetchError, Mode, network::Agents};
 )]
 use std::sync::{
     Arc, Mutex, Weak,
-    atomic::{AtomicBool, Ordering},
+    atomic::{AtomicBool, AtomicU64, Ordering},
 };
 #[expect(
     clippy::disallowed_types,
@@ -16,7 +16,48 @@ use std::sync::{
 pub struct Cancellation {
     agents: Arc<Mutex<Vec<Weak<Agents>>>>,
     cancelled: Arc<AtomicBool>,
-    end: Option<std::time::Instant>,
+    end: Option<CallEnd>,
+}
+#[expect(
+    clippy::disallowed_types,
+    reason = "A hosted call's worker lengthens the end its waiter reads"
+)]
+/// When a call must end: its start plus its budget. Only a hosted call's end may lengthen, to its
+/// start plus a declared source budget (sdlc/tickets/0912-hosted-calls-honour-slow-source-budgets.md).
+#[derive(Clone)]
+pub(crate) struct CallEnd {
+    start: std::time::Instant,
+    budget: Arc<AtomicU64>,
+    lengthens: bool,
+}
+impl CallEnd {
+    #[expect(
+        clippy::disallowed_types,
+        reason = "A hosted call's worker lengthens the end its waiter reads"
+    )]
+    fn new(budget: std::time::Duration, lengthens: bool) -> Self {
+        Self {
+            start: std::time::Instant::now(),
+            budget: Arc::new(AtomicU64::new(nanos(budget))),
+            lengthens,
+        }
+    }
+    pub(crate) fn remaining(&self) -> std::time::Duration {
+        let budget = std::time::Duration::from_nanos(self.budget.load(Ordering::Acquire));
+        self.start
+            .checked_add(budget)
+            .unwrap_or(self.start)
+            .saturating_duration_since(std::time::Instant::now())
+    }
+    /// Give a running hosted call `budget` from its start; a fixed or already ended call keeps its end.
+    pub(crate) fn lengthen(&self, budget: std::time::Duration) {
+        if self.lengthens && !self.remaining().is_zero() {
+            self.budget.fetch_max(nanos(budget), Ordering::AcqRel);
+        }
+    }
+}
+fn nanos(budget: std::time::Duration) -> u64 {
+    u64::try_from(budget.as_nanos()).unwrap_or(u64::MAX)
 }
 impl std::fmt::Debug for Cancellation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -28,7 +69,7 @@ impl Cancellation {
         clippy::disallowed_types,
         reason = "One command registers only its live isolated connection owners"
     )]
-    pub(crate) fn new(end: Option<std::time::Instant>) -> Self {
+    pub(crate) fn new(end: Option<CallEnd>) -> Self {
         Self {
             agents: Arc::new(Mutex::new(Vec::new())),
             cancelled: Arc::new(AtomicBool::new(false)),
@@ -37,17 +78,21 @@ impl Cancellation {
     }
     /// Start one cancellable wall-clock scope before transport construction.
     pub fn with_budget(budget: std::time::Duration) -> Self {
-        let now = std::time::Instant::now();
-        Self::new(Some(now.checked_add(budget).unwrap_or(now)))
+        Self::new(Some(CallEnd::new(budget, false)))
+    }
+    /// Start a hosted call's scope with the operator's budget. A command that calls a source with a
+    /// declared command budget lengthens it to that budget from the call's start; cancel still ends it.
+    pub fn hosted(budget: std::time::Duration) -> Self {
+        Self::new(Some(CallEnd::new(budget, true)))
     }
     /// Return the wall-clock budget left, independent of any replay clock.
     pub fn remaining(&self) -> std::time::Duration {
         if self.is_cancelled() {
             return std::time::Duration::ZERO;
         }
-        self.end.map_or(std::time::Duration::MAX, |end| {
-            end.saturating_duration_since(std::time::Instant::now())
-        })
+        self.end
+            .as_ref()
+            .map_or(std::time::Duration::MAX, CallEnd::remaining)
     }
     pub(crate) fn is_cancelled(&self) -> bool {
         self.cancelled.load(Ordering::Acquire)
@@ -67,7 +112,7 @@ impl Clone for Cancellation {
         Self {
             agents: self.agents.clone(),
             cancelled: self.cancelled.clone(),
-            end: self.end,
+            end: self.end.clone(),
         }
     }
 }
@@ -97,7 +142,7 @@ impl Fetch {
         let mut fetch = self.clone();
         fetch.agents = agents;
         fetch.cancelled = Some(cancellation.cancelled.clone());
-        fetch.call_end = cancellation.end;
+        fetch.call_end = cancellation.end.clone();
         Ok(fetch)
     }
     /// Restrict this command to stored replies while retaining its shared observations sink.

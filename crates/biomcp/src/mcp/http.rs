@@ -300,9 +300,10 @@ impl Service {
         (revision, caller): (&'static str, Caller),
         peer: Option<&TcpStream>,
     ) -> (u16, Option<Value>, Option<&'static str>) {
-        let scope = self.globals.hosted.then(|| {
-            biomcp_fetch::Cancellation::with_budget(crate::config::budget(&self.settings))
-        });
+        let scope = self
+            .globals
+            .hosted
+            .then(|| biomcp_fetch::Cancellation::hosted(crate::config::budget(&self.settings)));
         let keys = if self.globals.hosted {
             let keys = match request.source_keys() {
                 Ok(keys) => keys,

@@ -190,7 +190,7 @@ pub struct Fetch {
     tls: std::sync::Arc<rustls::ClientConfig>,
     grpc_worker: std::sync::Arc<grpc::Worker>,
     cancelled: Option<std::sync::Arc<std::sync::atomic::AtomicBool>>,
-    call_end: Option<std::time::Instant>,
+    call_end: Option<cancellation::CallEnd>,
     mode: Mode,
     limiters: std::sync::Arc<quota::Limiters>,
     cache: Option<std::sync::Arc<cache::Cache>>,
@@ -370,10 +370,25 @@ impl Fetch {
         CommandDeadline::start(self.bounded_budget(budget), self.clock.as_deref())
             .with_cancellation(self.cancelled.as_ref())
     }
+    /// Start a command that calls `spec`, with the larger of the caller's budget and the source's
+    /// declared one. A hosted call's end lengthens to match; a fixed caller limit or a cancel still wins.
+    pub fn source_command_deadline(
+        &self,
+        spec: &SourceSpec,
+        caller: Duration,
+    ) -> CommandDeadline<'_> {
+        let budget = spec.budget_for(caller);
+        if spec.command_budget.is_some()
+            && let Some(end) = &self.call_end
+        {
+            end.lengthen(budget);
+        }
+        self.command_deadline(budget)
+    }
     fn bounded_budget(&self, budget: Duration) -> Duration {
-        self.call_end.map_or(budget, |end| {
-            budget.min(end.saturating_duration_since(std::time::Instant::now()))
-        })
+        self.call_end
+            .as_ref()
+            .map_or(budget, |end| budget.min(end.remaining()))
     }
 
     /// Start a leg capped by this source's budget.
