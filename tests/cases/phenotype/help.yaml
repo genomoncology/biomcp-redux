@@ -59,7 +59,8 @@
             "xrefs",
             "hierarchy",
             "diseases",
-            "genes"
+            "genes",
+            "ancestors"
           ]
         },
         "/status": "complete"
