@@ -98,13 +98,6 @@
             "null"
           ]
         },
-        "serious_label": {
-          "description": "FAERS report card only: openFDA's published words for `serious`, `1` or `2`.",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
         "source": {
           "$ref": "#/$defs/Reply_AdverseEventSource",
           "description": "Explicit report family."

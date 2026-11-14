@@ -111,7 +111,6 @@ pub(super) fn header(row: &biodata::MaudeReport) -> AdverseEventHeader {
         source: AdverseEventSource::Maude,
         version: None,
         serious: None,
-        serious_label: None,
         event_type: row.event_type.clone(),
         first_received: row.date_received.clone(),
     }

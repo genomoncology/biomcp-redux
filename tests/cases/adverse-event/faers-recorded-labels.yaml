@@ -13,7 +13,7 @@
       "expect": {
         "/status": "complete",
         "/result/header/serious": "2",
-        "/result/header/serious_label": "The adverse event did not result in any of the above"
+        "/result/serious_label": "The adverse event did not result in any of the above"
       }
     },
     {
@@ -25,7 +25,7 @@
       "expect": {
         "/status": "complete",
         "/result/header/serious": "1",
-        "/result/header/serious_label": "The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition",
+        "/result/serious_label": "The adverse event resulted in death, a life threatening condition, hospitalization, disability, congenital anomaly, or other serious condition",
         "/result/seriousness/death": "1",
         "/result/seriousness/death_label": "The adverse event resulted in death",
         "/result/seriousness/lifethreatening": "2",

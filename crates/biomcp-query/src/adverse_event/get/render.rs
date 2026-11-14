@@ -33,7 +33,6 @@ pub(super) fn render(
         source: AdverseEventSource::Faers,
         version: r.safetyreportversion.clone(),
         serious: r.serious.clone(),
-        serious_label: None,
         event_type: None,
         first_received: r.receivedate.clone(),
     };
@@ -169,14 +168,14 @@ fn card(
     q: &AdverseEventGet,
     r: FaersReport,
     url: Text,
-    mut header: AdverseEventHeader,
+    header: AdverseEventHeader,
     snapshot: Option<Text>,
     (positions, extras): (&Positions, Extras),
     out: &mut Outcome,
 ) -> Result<(), RequestError> {
-    header.serious_label = label(words::SERIOUS, header.serious.as_deref());
     let unmapped = card_unmapped(&r, header.serious.as_deref(), extras.age_unit.as_deref());
     out.body = (biomcp_types::AdverseEventFaersCard {
+        serious_label: label(words::SERIOUS, header.serious.as_deref()),
         header,
         snapshot,
         latest_received: r.receiptdate,
