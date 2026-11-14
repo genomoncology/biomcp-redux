@@ -286,7 +286,8 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
     let out = biomcp_query::run(
         &Ctx {
             fetch: &fetch,
-            budget: Duration::from_millis(400),
+            // The 200 ms search overlaps the 400 ms keyless NCBI spacing; counted twice, 600 ms.
+            budget: Duration::from_millis(470),
             fresh: true,
             drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
             label_bytes: biomcp_query::LABEL_BYTES,
