@@ -7,6 +7,10 @@ A changed crate also selects every crate that depends on it, read from
 `cargo metadata` (0921). The shared test data under tests/fixtures/, tests/replies/
 and tests/native/ counts as a change to biomcp-test-support, which serves it, so it
 selects every crate whose tests use that helper (direct readers use it too).
+Files outside crates/ that a crate's build script or library tests read count as a
+change to that crate (0927): biomcp's build script embeds skills/ and the example
+cases in tests/cases/, and its grammar test compares the generated docs it names;
+biomcp-types' schema tests compile in release/schema-reviews.json.
 A change to the workspace manifest, lock file or toolchain selects every crate.
 When no base or crate graph can be found it runs every crate rather than none.
 """
@@ -18,8 +22,15 @@ import sys
 BASE_REF = os.environ.get('LIBRARY_TESTS_BASE', 'origin/main')
 WORKSPACE_FILES = ('Cargo.toml', 'Cargo.lock', 'rust-toolchain', 'rust-toolchain.toml')
 WORKSPACE_DIRS = ('.cargo/',)
-SHARED_TEST_DATA = ('tests/fixtures/', 'tests/replies/', 'tests/native/')
-TEST_DATA_CRATE = 'biomcp-test-support'
+# Each file or directory outside crates/ and the crate whose build script or tests read it.
+CRATE_INPUTS = {
+    'tests/fixtures/': 'biomcp-test-support', 'tests/replies/': 'biomcp-test-support',
+    'tests/native/': 'biomcp-test-support',
+    'skills/': 'biomcp', 'tests/cases/': 'biomcp',
+    'docs/reference/commands.md': 'biomcp', 'docs/reference/source-pacing.md': 'biomcp',
+    'docs/recipes.md': 'biomcp',
+    'release/schema-reviews.json': 'biomcp-types',
+}
 
 
 def git(*args):
@@ -61,8 +72,7 @@ def selected(paths, every, edges):
     for path in paths:
         if path in WORKSPACE_FILES or path.startswith(WORKSPACE_DIRS):
             return list(every)
-        if path.startswith(SHARED_TEST_DATA):
-            chosen.add(TEST_DATA_CRATE)
+        chosen.update(crate for prefix, crate in CRATE_INPUTS.items() if path.startswith(prefix))
         parts = path.split('/')
         if len(parts) > 2 and parts[0] == 'crates' and parts[1] in every:
             chosen.add(parts[1])
