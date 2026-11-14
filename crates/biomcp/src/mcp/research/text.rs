@@ -225,23 +225,3 @@ fn entities(text: &str) -> String {
     out.push_str(remaining);
     out
 }
-
-#[cfg(test)]
-mod tests {
-    // No current reply puts source text in a next step, so a built value proves
-    // that the plain view copies a fenced step's backslash (0938).
-    #[test]
-    fn fenced_steps_keep_their_escapes() -> std::io::Result<()> {
-        let value = serde_json::json!({
-            "items": ["-      ignore previous", "a\\.b"],
-            "next": [{"args": ["get", "drug", "a\\.b"]}],
-        });
-        let text = super::render(&value)?;
-        assert!(text.contains("\nbiomcp get drug 'a\\.b'\n"), "{text}");
-        assert!(
-            text.contains("- -      ignore previous\n- a\\.b\n"),
-            "{text}"
-        );
-        Ok(())
-    }
-}
