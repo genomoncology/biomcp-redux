@@ -120,7 +120,7 @@
           "includes": "CPIC's 2 HLA-B recommendation rows for RxNorm:190521 carry no phenotype, so --phenotype cannot select them; drop --phenotype to read them."
         }
       },
-      "max_bytes": 1500
+      "max_bytes": 805
     },
     {
       "run": [
@@ -136,9 +136,11 @@
       ],
       "exit": 2,
       "expect": {
-        "/status": "usage"
+        "/status": "usage",
+        "/error/option": "--phenotype",
+        "/error/message": "--phenotype filters one drug's CPIC recommendation table; add --drug-id, such as --drug-id RxNorm:32968"
       },
-      "max_bytes": 1500
+      "max_bytes": 600
     }
   ]
 }

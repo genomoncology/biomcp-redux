@@ -1,0 +1,20 @@
+{
+  "method": "GET",
+  "source": "cpic",
+  "url": "https://api.cpicpgx.org/v1/recommendation?select=phenotype%3Aphenotypes-%3E%3EHLA-B&lookupkey-%3E%3EHLA-B=not.is.null&drugid=eq.RxNorm%3A190521&order=id.asc&limit=1000&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794673869,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "content_range": "0-1/2",
+      "delay_ms": 131,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"phenotype":null}, 
+ {"phenotype":null}]
+      }
+    }
+  ]
+}

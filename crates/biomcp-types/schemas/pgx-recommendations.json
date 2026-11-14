@@ -313,7 +313,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations only.",
+          "description": "Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only.",
           "x-required-component": "cpic"
         },
         "section": {

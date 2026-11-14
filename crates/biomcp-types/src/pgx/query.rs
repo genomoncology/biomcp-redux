@@ -167,7 +167,8 @@ impl TryFrom<GetFields> for PgxGet {
             return Err(QueryInvalid::new(&["phenotype", "section"]));
         }
         if v.phenotype.is_some() && v.drug_id.is_none() {
-            return Err(QueryInvalid::new(&["phenotype", "drug_id"]));
+            return Err(QueryInvalid::new(&["phenotype", "drug_id"])
+                .with_message(crate::ErrorMessage::PgxPhenotype));
         }
         if v.kind.is_some() && !annotations {
             return Err(QueryInvalid::new(&["kind", "section"]));
