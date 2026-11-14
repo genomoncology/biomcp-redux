@@ -6,6 +6,20 @@ use crate::{
 use biodata::{DeviceRecallNumber, Text};
 use biomcp_types::{DeviceRecallCard, DeviceRecallHeader, DiagnosticCandidate, Problem, Source};
 const SOURCE: Source = Source::FdaDeviceRecall;
+/// openFDA free text carries line breaks, which `Text` can hold only as literal
+/// `\u{000a}` escapes; each run of CR and LF becomes one space instead (0947).
+fn one_line(value: Option<Field<String>>) -> Option<Field<String>> {
+    value.map(|field| match field {
+        Field::Value(text) => Field::Value(
+            text.split(['\r', '\n'])
+                .map(str::trim)
+                .filter(|line| !line.is_empty())
+                .collect::<Vec<_>>()
+                .join(" "),
+        ),
+        invalid => invalid,
+    })
+}
 fn list(
     value: Option<Field<Vec<Field<Text>>>>,
     field: &str,
@@ -41,12 +55,11 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
         push_problem(&mut problems, SOURCE, id.clone(), "event_date_initiated");
     }
     let mut text = |field, value| {
-        let admit = if matches!(field, "res_event_number" | "product_code" | "recall_status") {
-            crate::mapped::field_code_text
+        if matches!(field, "res_event_number" | "product_code" | "recall_status") {
+            crate::mapped::field_code_text(&mut problems, SOURCE, id.clone(), field, value)
         } else {
-            field_text
-        };
-        admit(&mut problems, SOURCE, id.clone(), field, value)
+            field_text(&mut problems, SOURCE, id.clone(), field, one_line(value))
+        }
     };
     let header = DeviceRecallHeader {
         recall_number: row.product_res_number,
@@ -106,12 +119,17 @@ pub(super) fn enforcement(row: raw::Enforcement, card: &mut DeviceRecallCard) ->
         value.filter(|v| !matches!(v.as_ref(), Some(s) if s.trim().is_empty()))
     };
     let mut text = |field, value, code| {
-        let admit = if code {
-            crate::mapped::field_code_text
+        if code {
+            crate::mapped::field_code_text(&mut problems, SOURCE, id.clone(), field, given(value))
         } else {
-            field_text
-        };
-        admit(&mut problems, SOURCE, id.clone(), field, given(value))
+            field_text(
+                &mut problems,
+                SOURCE,
+                id.clone(),
+                field,
+                one_line(given(value)),
+            )
+        }
     };
     card.classification = text("classification", row.classification, true);
     card.voluntary_mandated = text("voluntary_mandated", row.voluntary_mandated, true);

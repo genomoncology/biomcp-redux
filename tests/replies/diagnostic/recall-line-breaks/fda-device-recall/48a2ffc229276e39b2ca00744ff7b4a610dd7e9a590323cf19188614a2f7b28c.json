@@ -1,0 +1,50 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%22Z-0884-2026%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794694809,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 146,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "status": "Ongoing",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Devices",
+              "event_id": "97913",
+              "recalling_firm": "Illumina, Inc.",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Worldwide - US Nationwide distribution in the states of PA, NJ, CA, NC, UT, IL, MD, NY, VA, WV, SD, TX, AL, SC, TN, KY, MI and the countries of DK, SA, FR, DE, IT, CN, PL, GB, TH, GR, VN, BE, ES, IL, KR, AU, CH, BG, NL, IE, TW, TR, CZ, HU, NO, FI, JP, SG, LU, AT, AE, ZA, PT, LT, SE.",
+              "recall_number": "Z-0884-2026",
+              "product_description": "Reagent Kits/ containing flow cells, components of NextSeq 550Dx Instrument:  NextSeq 550Dx High Output Reagent Kit v2.5 (75 cycles) IVD, REF: 20028870/NextSeq 550Dx HO FC Cart v2.5, 75 Cycles, REF: 20031098;  NextSeq 550Dx High Output Reagent Kit v2.5 (300 cycles) IVD, REF: 20028871/NextSeq 550Dx HO FC Cart v2.5, 300 Cycles, REF: 20026365;  CN NextSeq 550Dx High Output Reagent Kit v2.5 (75 cycles) IVD, REF: 20064341/CN NEXTSEQ 550Dx HO FLOW CELL V2.5, REF: 20062316;  CN NextSeq 550Dx High Output Reagent Kit v2.5 (300 cycles) IVD, REF: 20064344/CN NEXTSEQ 550Dx HO FLOW CELL V2.5, REF: 20062316;  CN NextSeq 550Dx Mid Output Reagent Kit v2.5 (150 cycles) IVD, 20064345/CN NEXTSEQ 550Dx MO FLOW CELL V2.5, REF: 20062530;  CN NextSeq 550Dx Mid Output Reagent Kit v2.5 (300 cycles) IVD, 20064346/CN NEXTSEQ 550Dx MO FLOW CELL V2.5, REF: 20062530;  /FLOWCELL, FIT FLUIDICS TESTING, REF: 15050205",
+              "product_quantity": "11916",
+              "reason_for_recall": "An instrument intended for sequencing DNA libraries with in vitro diagnostic assays is used with reagent kits including flow cells that have flow cell gaskets that have a quality issue, which may lead to flow cell leaks during runs, which could cause run failures, that may result in: No/insufficient data output, instrument fluidics clogs, toxic substance exposure to user.",
+              "recall_initiation_date": "20251028",
+              "center_classification_date": "20251204",
+              "report_date": "20251210"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
