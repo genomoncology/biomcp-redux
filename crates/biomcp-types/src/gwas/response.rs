@@ -226,11 +226,10 @@ pub enum GwasPageQuery {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasStudyPage {
-    // The page comes before the rows (0942): a reader of only the start sees the total.
-    /// Native study page scope and total.
-    pub page: PageInfo,
     /// Source study records and their native association totals.
     pub items: Box<[GwasStudyRow]>,
+    /// Native study page scope and total.
+    pub page: PageInfo,
     /// Same publication and study result mode.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<GwasSearch>,

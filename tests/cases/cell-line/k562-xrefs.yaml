@@ -15,8 +15,7 @@
         "25"
       ],
       "starts_within": {
-        "/result/items/total": 1200,
-        "/result/offset": 1200
+        "/result/items/total": 1200
       },
       "walk": {
         "items": "/result/items/items",
