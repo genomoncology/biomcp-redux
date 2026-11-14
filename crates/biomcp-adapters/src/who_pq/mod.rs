@@ -20,6 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const SET: BundleSet<raw::Native> = BundleSet {
     spec: &SPEC,

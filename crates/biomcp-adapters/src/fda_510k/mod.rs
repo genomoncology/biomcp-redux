@@ -18,6 +18,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 /// Failed admission retains whether the returned identity conflicted.
 #[derive(Debug)]

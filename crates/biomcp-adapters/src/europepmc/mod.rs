@@ -31,6 +31,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::EUROPEPMC,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const SEARCH: Endpoint = SPEC.get("/search").fresh(Freshness::Days(1));
 /// Original row positions and metadata, before any duplicate suppression.

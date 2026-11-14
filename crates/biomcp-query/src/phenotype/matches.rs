@@ -8,7 +8,9 @@ use biomcp_types::{
     PhenotypeSearch, PhenotypeSearchMode, ReplyData, Request, Source, StepKind,
 };
 pub(super) fn search(cx: &Ctx<'_>, q: &PhenotypeSearch) -> Outcome {
-    let command = cx.fetch.command_deadline(cx.budget);
+    let command = cx
+        .fetch
+        .command_deadline(monarch::phenotype::matches::SPEC.budget_for(cx.budget));
     let deadline = command.deadline();
     let leg = cx
         .fetch

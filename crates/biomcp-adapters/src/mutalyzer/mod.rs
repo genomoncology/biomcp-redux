@@ -22,6 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::MUTALYZER,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const NORMALIZE: Endpoint = SPEC
     .get("/normalize")

@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::ICITE,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const PUBS: Endpoint = SPEC.get("/pubs").fresh(Freshness::Days(1));
 const FIELDS: &str = "pmid,pubYear,citedByPmidCount,citedByPmids,citedPmids,citedByClinicalArticle,citingClinicalPmids,rcr,rcrIsProvisional";

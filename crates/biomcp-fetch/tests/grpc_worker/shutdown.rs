@@ -40,6 +40,7 @@ fn stream_worker_shutdown_cancels_and_joins_active_network_work() -> Check {
         key: KeyUse::None,
         quota: &QUOTA,
         deadline: Duration::from_secs(5),
+        command_budget: None,
     }));
     std::thread::scope(|scope| {
         let caller = fetch.clone();

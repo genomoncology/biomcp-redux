@@ -65,6 +65,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::BIOTHINGS,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const GET: biomcp_fetch::Endpoint = SPEC.get("/disease").fresh(Freshness::Days(7));
 const FIELDS: &str = "mondo,disease_ontology";

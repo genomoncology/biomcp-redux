@@ -20,6 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::CLINGEN,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const FETCH: Endpoint = SPEC
     .get("/evrepo/api/summary/classifications")

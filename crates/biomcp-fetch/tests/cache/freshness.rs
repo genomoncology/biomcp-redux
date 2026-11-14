@@ -199,6 +199,7 @@ fn concurrent_replay_legs_share_the_cache_without_spurious_local_busy_errors() {
             8,
         ))),
         deadline: Duration::from_secs(10),
+        command_budget: None,
     }));
     let endpoint = spec.get("/answer").fresh(Freshness::Hours(1));
     for index in 0..8 {
@@ -349,6 +350,7 @@ fn native_search_headers_survive_record_replay_and_offline_cache() {
         key: KeyUse::None,
         quota: original.quota,
         deadline: original.deadline,
+        command_budget: None,
         terms: biomcp_fetch::Terms {
             name: "Synthetic",
             url: "https://example.test/terms",

@@ -33,6 +33,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &crate::quotas::NCI,
     deadline: Duration::from_secs(15),
+    command_budget: None,
     terms: biomcp_fetch::Terms {
         name: "NCI Clinical Trials Search publisher terms; user's API key required",
         url: "https://www.cancer.gov/syndication/api",

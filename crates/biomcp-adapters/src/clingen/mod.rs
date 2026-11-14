@@ -22,6 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::CLINGEN,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const VALIDITY: Bundle<raw::Validity> = Bundle {
     spec: &SPEC,
@@ -49,6 +50,7 @@ pub static REGION_SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::CLINGEN,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const REGIONS: Bundle<raw::Region> = Bundle {
     spec: &REGION_SPEC,

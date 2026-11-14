@@ -29,6 +29,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::GWAS,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const ASSOCIATIONS: Endpoint = SPEC.get("/associations").fresh(Freshness::Days(1));
 /// Source-native page and its exact catalog denominator.

@@ -22,6 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::HOTSPOTS,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const GENE: Endpoint = SPEC
     .get("/api/hotspots/single/byGene")

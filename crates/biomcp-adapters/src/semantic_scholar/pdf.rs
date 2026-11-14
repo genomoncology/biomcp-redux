@@ -126,4 +126,5 @@ pub static PUBLISHER: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
     key: biomcp_fetch::KeyUse::None,
     quota: &crate::quotas::PUBLISHER_PDF,
     deadline: std::time::Duration::from_secs(15),
+    command_budget: None,
 };

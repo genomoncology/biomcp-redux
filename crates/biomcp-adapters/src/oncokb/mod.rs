@@ -35,6 +35,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &quotas::ONCOKB,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const GENES: Endpoint = SPEC
     .get("/api/v1/utils/allCuratedGenes")
