@@ -46,7 +46,7 @@
         "--source",
         "fda-cdx"
       ],
-      "max_bytes": 4990,
+      "max_bytes": 6012,
       "expect": {
         "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 5,
