@@ -21,8 +21,8 @@ pub use selectors::{
 
 mod vaers;
 pub use vaers::{
-    VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSummary,
-    vaers_vaccine_code,
+    VAERS_INFLUENZA, VaersCell, VaersNotice, VaersRow, VaersScope, VaersSection, VaersSort,
+    VaersSummary, vaers_vaccine_code,
 };
 
 #[cfg(feature = "schema")]

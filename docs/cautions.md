@@ -75,6 +75,10 @@ Named `recommendations` and `guidelines` sections preserve complete source rows 
 
 CVX vaccine identity lookup and sync are unavailable because no mapping to WONDER was proved. BioMCP does not translate vaccine identities or synchronize a CVX bundle.
 
+## VAERS symptom order
+
+CDC WONDER returns a VAERS table in its own order, which for symptoms is alphabetical, and its request form offers no sort. The COVID-19 symptom table has about 13,000 rows. `search adverse-event COVID19 --source vaers --sort reports` orders the whole table BioMCP already received by WONDER's own Events Reported count, largest first, before it pages; equal counts and rows without a count keep the source's order. Later pages and the other tables keep the order, and following the sort step reuses the table already held, with no new WONDER request. Each row's count and percent, the footer and the report total are WONDER's. A report may list several symptoms, so the percents do not add to 100.
+
 ## FAERS report sections
 
 FAERS `search adverse-event --aggregate reactions` requests openFDA's exact reaction-term counts across matching reports. The reply separates these buckets from report headers and retains native terms, counts and order. A report may list several drugs and several reactions: buckets can overlap and do not identify a causal drug–reaction pair. BioMCP never sums them into a report total or derives rates, incidence, risk or comparative safety. The source provides no exposure denominator.
