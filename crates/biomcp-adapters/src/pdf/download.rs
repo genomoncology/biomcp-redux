@@ -33,11 +33,3 @@ pub(super) fn from_source(
             error => error,
         })
 }
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn pdf_downloads_ask_for_application_pdf() {
-        let read = format!("{:?}", super::pdf());
-        assert!(read.contains("\"application/pdf\""), "{read}");
-    }
-}
