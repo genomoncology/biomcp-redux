@@ -9,6 +9,8 @@ pub struct ClinVarGeneCounts {
     pub build: Text,
     /// ClinVar's last update of that build, in its own spelling.
     pub updated: Text,
+    /// What the counts cover, in plain words.
+    pub scope: Text,
     /// ClinVar search term behind `records`; the other counts add classification and review filters.
     pub term: Text,
     /// Variation records that list this gene.

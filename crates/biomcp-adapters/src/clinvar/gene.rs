@@ -2,7 +2,9 @@
 //! `[prop]` classification filters follow the aggregate germline classification, so their
 //! counts need no record download. `[rvst]` also indexes somatic review statuses, so review
 //! buckets come from Variation ID lists, and only records listed under more than one status
-//! are summarized to read their germline review status.
+//! are summarized to read their germline review status. Requests run one at a time: NCBI
+//! refuses a fourth keyless request in any one second, and evenly paced parallel requests
+//! still reach it.
 //! <https://www.ncbi.nlm.nih.gov/clinvar/docs/help/>
 use super::SPEC;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Input, Leg, Read, Reply, RequestError};
@@ -224,8 +226,8 @@ fn review_statuses(leg: &Leg<'_>, ids: &[u64]) -> Result<Vec<String>, RequestErr
         .map(|page| page.iter().map(|id| id.to_string().into()).collect())
         .collect();
     let mut statuses = Vec::new();
-    for page in leg.batch(&pages, |child, page| {
-        let reply = child
+    for page in &pages {
+        let reply = leg
             .call(
                 &SUMMARY,
                 Input::Params(&[
@@ -244,14 +246,13 @@ fn review_statuses(leg: &Leg<'_>, ids: &[u64]) -> Result<Vec<String>, RequestErr
                 }),
             )?
             .value;
-        Ok(reply
-            .result
-            .records
-            .into_values()
-            .map(|record| record.germline_classification.review_status)
-            .collect::<Vec<_>>())
-    }) {
-        statuses.extend(page?);
+        statuses.extend(
+            reply
+                .result
+                .records
+                .into_values()
+                .map(|record| record.germline_classification.review_status),
+        );
     }
     Ok(statuses)
 }
@@ -329,8 +330,8 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
     let mut release = None;
     let mut numbers = Vec::new();
     let mut lists = Vec::new();
-    for done in leg.batch(&jobs, run) {
-        match done? {
+    for job in &jobs {
+        match run(leg, job)? {
             Done::Info(build, updated) => release = Some((build, updated)),
             Done::Count(n) => numbers.push(n),
             Done::Ids(total, ids) => lists.push((total, ids)),
@@ -347,8 +348,8 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
                 .map(move |page| (index, Job::Ids(term.clone(), page * ID_PAGE)))
         })
         .unzip();
-    for (index, done) in owners.into_iter().zip(leg.batch(&more, run)) {
-        let Done::Ids(_, ids) = done? else {
+    for (index, job) in owners.into_iter().zip(&more) {
+        let Done::Ids(_, ids) = run(leg, job)? else {
             return Err(bad(BadReply));
         };
         lists
@@ -365,6 +366,10 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
     Ok(ClinVarGeneCounts {
         build,
         updated,
+        scope: crate::mapped::text(&format!(
+            "Each ClinVar variation record (VCV) that lists NCBI Gene {gene_id}, counted once whatever its assemblies, including records that also list other genes; aggregate germline classification only."
+        ))
+        .map_err(bad)?,
         term: crate::mapped::text(&base).map_err(bad)?,
         records,
         germline,
