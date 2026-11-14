@@ -34,20 +34,28 @@ impl Reply for Genes {
     }
 }
 
-/// Transcripts of the input's gene where VariantValidator accepts the same c. change.
-/// Only a RefSeq NM_ c. description is tried; anything else returns no fits.
-pub fn transcript_fits(
+/// The gene-symbol description and the gene's other NM_ transcripts to try it on.
+#[derive(Debug)]
+pub struct FitQuery {
+    /// `SYMBOL:c.change`, which VariantValidator validates on each selected transcript.
+    query: String,
+    /// The latest version of each other NM_ transcript, lowest accession first.
+    pub transcripts: Vec<String>,
+}
+
+/// The input's gene and its other RefSeq transcripts, from VariantValidator.
+/// Only a RefSeq NM_ c. description is tried; anything else, or no other transcript, is none.
+pub fn fit_query(
     leg: &Leg<'_>,
     input: &str,
     build: Build,
-) -> Result<Mapped<Vec<TranscriptFit>>, RequestError> {
+) -> Result<Mapped<Option<FitQuery>>, RequestError> {
     let mut problems = Problems {
         source: Source::VariantValidator,
         record: None,
         list: Vec::new(),
     };
-    let mut refusals = crate::Refusal::None;
-    let mut fits = Vec::new();
+    let mut found = None;
     if let Some((accession, body)) = parts(input) {
         let assembly = build.to_string();
         let endpoint = TRANSCRIPTS.clone().with_segments(&[
@@ -63,29 +71,49 @@ pub fn transcript_fits(
                 Read::<Genes>::json(),
             )?
             .value;
-        if let Some((symbol, transcripts)) = gene(genes, accession, &mut problems) {
-            let query = format!("{symbol}:{body}");
-            let mut raw = fetch_on(leg, &query, build, &transcripts.join("|"))?;
-            // The transcripts where the base does not fit come back as warning records.
-            raw.variants
-                .retain(|(key, _)| !key.starts_with("validation_warning"));
-            if raw.flag.as_str() != "warning" {
-                let key = assembly.to_ascii_lowercase();
-                for (_, row) in raw.records(&query, &mut problems, &mut refusals) {
-                    let genomic = problems
-                        .field("primary_assembly_loci", row.primary_assembly_loci)
-                        .and_then(|mut loci| loci.remove(&key))
-                        .and_then(|locus| problems.field(&key, Some(locus)))
-                        .and_then(|locus| {
-                            problems.field(&key, Some(locus.hgvs_genomic_description))
-                        })
-                        .map(|value| value.to_string().into());
-                    fits.push(TranscriptFit {
-                        hgvs: row.hgvs_transcript_variant.into(),
-                        genomic,
-                    });
-                }
-            }
+        found = gene(genes, accession, &mut problems).map(|(symbol, transcripts)| FitQuery {
+            query: format!("{symbol}:{body}"),
+            transcripts,
+        });
+    }
+    Ok(Mapped {
+        refusals: crate::Refusal::None,
+        value: found,
+        problems: problems.list,
+    })
+}
+
+/// The transcripts in `group` where VariantValidator accepts the same c. change.
+pub fn transcript_fits(
+    leg: &Leg<'_>,
+    fit: &FitQuery,
+    group: &[String],
+    build: Build,
+) -> Result<Mapped<Vec<TranscriptFit>>, RequestError> {
+    let mut problems = Problems {
+        source: Source::VariantValidator,
+        record: None,
+        list: Vec::new(),
+    };
+    let mut refusals = crate::Refusal::None;
+    let mut fits = Vec::new();
+    let mut raw = fetch_on(leg, &fit.query, build, &group.join("|"))?;
+    // The transcripts where the base does not fit come back as warning records.
+    raw.variants
+        .retain(|(key, _)| !key.starts_with("validation_warning"));
+    if raw.flag.as_str() != "warning" {
+        let key = build.to_string().to_ascii_lowercase();
+        for (_, row) in raw.records(&fit.query, &mut problems, &mut refusals) {
+            let genomic = problems
+                .field("primary_assembly_loci", row.primary_assembly_loci)
+                .and_then(|mut loci| loci.remove(&key))
+                .and_then(|locus| problems.field(&key, Some(locus)))
+                .and_then(|locus| problems.field(&key, Some(locus.hgvs_genomic_description)))
+                .map(|value| value.to_string().into());
+            fits.push(TranscriptFit {
+                hgvs: row.hgvs_transcript_variant.into(),
+                genomic,
+            });
         }
     }
     Ok(Mapped {
@@ -95,7 +123,7 @@ pub fn transcript_fits(
     })
 }
 
-/// Whether `transcript_fits` would ask anything: a RefSeq NM_ c. description.
+/// Whether `fit_query` would ask anything: a RefSeq NM_ c. description.
 pub fn fits_apply(input: &str) -> bool {
     parts(input).is_some()
 }

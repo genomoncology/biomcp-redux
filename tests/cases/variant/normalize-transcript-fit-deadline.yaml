@@ -1,0 +1,44 @@
+{
+  "feature": "variant-identity",
+  "live_check": "CAR, Mutalyzer and VariantValidator replies captured unchanged on 2026-11-13 (job j39152); VariantValidator's fit query for SCN1A c.4729T>C took 1,939 ms there.",
+  "replay": "variant/normalization/rejections",
+  "story": "The transcript-fit check stops at its own configured deadline: when VariantValidator's fit query takes longer, the mismatch stays as the service reported it, with no fits, no added result and no step.",
+  "config": {
+    "transcript_fit_seconds": 1
+  },
+  "steps": [
+    {
+      "run": [
+        "variant",
+        "normalize",
+        "--source",
+        "car",
+        "--hgvs",
+        "NM_001165963.4:c.4729T>C"
+      ],
+      "exit": 4,
+      "expect": {
+        "/status": "failed",
+        "/result/results": {
+          "count": 1
+        },
+        "/result/results/0/outcome": "rejected",
+        "/result/results/0": {
+          "omits": [
+            "fits"
+          ]
+        },
+        "": {
+          "omits": [
+            "next"
+          ]
+        },
+        "/sources/0/source": "car",
+        "/sources/0/reason": "rejected",
+        "/sources/1/source": "variantvalidator",
+        "/sources/1/state": "failed",
+        "/sources/1/reason": "deadline-exceeded"
+      }
+    }
+  ]
+}

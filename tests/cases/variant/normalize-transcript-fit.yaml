@@ -38,16 +38,10 @@
           "count": 2
         },
         "/sources/0/source": "car",
-        "/sources/0/state": "ok",
+        "/sources/0/state": "failed",
         "/sources/1/source": "variantvalidator",
         "/sources/1/state": "ok",
-        "/problems": {
-          "includes": {
-            "source": "car",
-            "field": "state for NM_001165963.4:c.4729T>C: failed, rejected",
-            "code": "value.unknown"
-          }
-        }
+        "/sources/0/reason": "rejected"
       }
     },
     {
@@ -102,7 +96,8 @@
         "/sources": {
           "count": 1
         },
-        "/sources/0/state": "ok"
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "rejected"
       }
     },
     {

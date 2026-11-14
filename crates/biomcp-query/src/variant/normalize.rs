@@ -25,10 +25,7 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         })
         .collect();
     let mut rows = crate::fan_out::run(jobs);
-    let mut calls: Vec<(Box<str>, SourceOutcome)> = Vec::new();
-    for (_, source, _) in &rows {
-        calls.push((query.hgvs().into(), source.clone()));
-    }
+    let mut calls: Vec<SourceOutcome> = rows.iter().map(|(_, source, _)| source.clone()).collect();
     let mut next = Vec::new();
     transcript_fit(cx, query, deadline, &mut rows, &mut calls, &mut next);
     let mut results = Vec::new();
@@ -53,7 +50,14 @@ pub(crate) fn normalize(cx: &Ctx<'_>, query: &VariantNormalize) -> Outcome {
         results.push(result);
         local = local.or(error);
     }
-    let sources = once_each(calls, &mut problems);
+    // One entry per source; a failed call's state stays.
+    let mut sources: Vec<SourceOutcome> = Vec::new();
+    for call in calls {
+        match sources.iter_mut().find(|seen| seen.source == call.source) {
+            Some(seen) => status::retain_source_state(seen, &call),
+            None => sources.push(call),
+        }
+    }
     if more {
         next.push(crate::next::Step::run(
             StepKind::Page,
@@ -163,6 +167,12 @@ fn service(
 /// The most alleles resolved from one mismatch; more stay listed as fits.
 const FIT_ALLELES: usize = 3;
 
+/// Transcripts sent to VariantValidator in one fit query. Its time grows with the count:
+/// CAMK2D's 47 took 25.2 s and ANK2's 73 took 11.6 s at once (job j39842, 2026-11-13), so
+/// a gene's transcripts go in groups of this size, each under its own deadline. Groups of
+/// 20 from CAMK2D, ANK2 and TPM1 took 1.2 to 3.6 s the same day.
+const FIT_GROUP: usize = 20;
+
 /// A service's own reference-mismatch report, by its native code or message.
 fn mismatched(result: &NormalizationResult) -> bool {
     result.outcome == VariantResolution::Rejected
@@ -177,15 +187,15 @@ fn mismatched(result: &NormalizationResult) -> bool {
 }
 
 /// After a reference mismatch, VariantValidator names the gene's transcripts where the
-/// given base fits, within its own deadline. Each distinct allele among them is resolved by
-/// the same services at once, and the next step reads that allele's ClinVar record; the
-/// mismatch itself stays as the service reported it. Each call's source state joins `calls`.
+/// given base fits. Each distinct allele among them is resolved by the same services at
+/// once, and the next step reads that allele's ClinVar record; the mismatch itself stays
+/// as the service reported it. Each call's source state joins `calls`.
 fn transcript_fit(
     cx: &Ctx<'_>,
     query: &VariantNormalize,
     deadline: Deadline<'_>,
     rows: &mut Vec<Row>,
-    calls: &mut Vec<(Box<str>, SourceOutcome)>,
+    calls: &mut Vec<SourceOutcome>,
     next: &mut Vec<crate::next::Step>,
 ) {
     if query.offset() != 0
@@ -195,23 +205,8 @@ fn transcript_fit(
     {
         return;
     }
-    let build = query.build().unwrap_or(biodata::Build::GRCh38);
-    let leg = cx
-        .fetch
-        .leg(&variantvalidator::SPEC, deadline.child(cx.fit_deadline))
-        .fresh(cx.fresh);
-    let result = variantvalidator::transcript_fits(&leg, query.hgvs(), build);
-    let error = result.as_ref().err().copied();
-    calls.push((
-        query.hgvs().into(),
-        status::source(variantvalidator::SPEC.source, leg.finish(), error),
-    ));
-    let found = match result {
-        Ok(found) => found,
-        // The failure is already in the call's source state.
-        Err(_) => return,
-    };
-    let mut fits = found.value;
+    let mut problems = Vec::new();
+    let mut fits = find_fits(cx, query, deadline, calls, &mut problems);
     // Lowest accession number first: the longest-standing RefSeq record of the allele.
     fits.sort_by_key(|fit| accession_order(fit.hgvs.as_str()));
     let mut alleles: Vec<&biomcp_types::TranscriptFit> = Vec::new();
@@ -228,12 +223,69 @@ fn transcript_fit(
         .take(FIT_ALLELES)
         .filter_map(|fit| query.with_hgvs(fit.hgvs.as_str()))
         .collect();
-    let mut problems = found.problems;
-    retry(cx, deadline, &fits, &retried, rows, calls);
+    if !fits.is_empty() {
+        retry(cx, deadline, &fits, &retried, rows, calls);
+    }
     lead_on(cx, rows, &retried, next, &mut problems);
     if let Some((mapped, _, _)) = rows.first_mut() {
         mapped.problems.extend(problems);
     }
+}
+
+/// Ask for the gene's transcripts, then for fits in groups of [`FIT_GROUP`], each under
+/// its own `transcript_fit_seconds`, stopping at the first group that fits or fails.
+fn find_fits(
+    cx: &Ctx<'_>,
+    query: &VariantNormalize,
+    deadline: Deadline<'_>,
+    calls: &mut Vec<SourceOutcome>,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Vec<biomcp_types::TranscriptFit> {
+    let build = query.build().unwrap_or(biodata::Build::GRCh38);
+    let leg = || {
+        cx.fetch
+            .leg(&variantvalidator::SPEC, deadline.child(cx.fit_deadline))
+            .fresh(cx.fresh)
+    };
+    let listing = leg();
+    let listed = variantvalidator::fit_query(&listing, query.hgvs(), build);
+    let error = listed.as_ref().err().copied();
+    calls.push(status::source(
+        variantvalidator::SPEC.source,
+        listing.finish(),
+        error,
+    ));
+    let fit = match listed {
+        Ok(listed) => {
+            problems.extend(listed.problems);
+            listed.value
+        }
+        // The failure is already in the call's source state.
+        Err(_) => return Vec::new(),
+    };
+    let Some(fit) = fit else {
+        return Vec::new();
+    };
+    for group in fit.transcripts.chunks(FIT_GROUP) {
+        let asking = leg();
+        let found = variantvalidator::transcript_fits(&asking, &fit, group, build);
+        let error = found.as_ref().err().copied();
+        calls.push(status::source(
+            variantvalidator::SPEC.source,
+            asking.finish(),
+            error,
+        ));
+        match found {
+            Ok(found) if !found.value.is_empty() => {
+                problems.extend(found.problems);
+                return found.value;
+            }
+            Ok(found) => problems.extend(found.problems),
+            // The failure is already in the call's source state.
+            Err(_) => break,
+        }
+    }
+    Vec::new()
 }
 
 /// List the fits on each mismatched row and resolve every fitting allele with that row's
@@ -244,10 +296,9 @@ fn retry(
     fits: &[biomcp_types::TranscriptFit],
     retried: &[VariantNormalize],
     rows: &mut Vec<Row>,
-    calls: &mut Vec<(Box<str>, SourceOutcome)>,
+    calls: &mut Vec<SourceOutcome>,
 ) {
     let mut jobs: Vec<Box<dyn FnOnce() -> Row + Send + '_>> = Vec::new();
-    let mut asked = Vec::new();
     for (mapped, _, _) in rows.iter_mut() {
         if !mismatched(&mapped.value) {
             continue;
@@ -260,7 +311,6 @@ fn retry(
             continue;
         };
         for retry in retried {
-            asked.push(retry.hgvs());
             jobs.push(Box::new(move || {
                 let mut row = service(cx, retry, spec, deadline);
                 row.0.value.hgvs = Some(retry.hgvs().into());
@@ -269,14 +319,12 @@ fn retry(
         }
     }
     let extra = crate::fan_out::run(jobs);
-    for (hgvs, (_, source, _)) in asked.into_iter().zip(&extra) {
-        calls.push((hgvs.into(), source.clone()));
-    }
+    calls.extend(extra.iter().map(|(_, source, _)| source.clone()));
     rows.extend(extra);
 }
 
 /// For each fitting allele, the next step reads its ClinVar record: by the Allele Registry
-/// ID when that service resolved it, else by the fitting HGVS.
+/// ID when that service resolved it, else by the fitting HGVS unless CAR failed on it.
 fn lead_on(
     cx: &Ctx<'_>,
     rows: &[Row],
@@ -285,7 +333,22 @@ fn lead_on(
     problems: &mut Vec<biomcp_types::Problem>,
 ) {
     for retry in retried {
-        let input = registry_id(rows, retry.hgvs()).unwrap_or(retry.hgvs());
+        let car = rows.iter().find(|(mapped, _, _)| {
+            mapped.value.source == biomcp_types::Source::AlleleRegistry
+                && mapped
+                    .value
+                    .hgvs
+                    .as_ref()
+                    .is_some_and(|row| row.as_str() == retry.hgvs())
+        });
+        let input = match car {
+            Some((mapped, _, _)) => match registry_id(&mapped.value) {
+                Some(id) => id,
+                // CAR could not resolve this allele, so a lookup through it would fail too.
+                None => continue,
+            },
+            None => retry.hgvs(),
+        };
         let source = variantvalidator::SPEC.source;
         let Some(input) = crate::next::checked(input.parse(), source, problems) else {
             continue;
@@ -304,68 +367,18 @@ fn lead_on(
     }
 }
 
-/// The ClinGen Allele Registry ID of the row resolved on `hgvs`, from its `@id` mapping.
-fn registry_id<'r>(rows: &'r [Row], hgvs: &str) -> Option<&'r str> {
-    rows.iter()
-        .filter(|(mapped, _, _)| {
-            mapped.value.source == biomcp_types::Source::AlleleRegistry
-                && mapped.value.outcome == VariantResolution::Resolved
-                && mapped
-                    .value
-                    .hgvs
-                    .as_ref()
-                    .is_some_and(|row| row.as_str() == hgvs)
-        })
-        .flat_map(|(mapped, _, _)| mapped.value.mappings.iter())
+/// The ClinGen Allele Registry ID of a resolved CAR result, from its `@id` mapping.
+fn registry_id(result: &NormalizationResult) -> Option<&str> {
+    if result.outcome != VariantResolution::Resolved {
+        return None;
+    }
+    result
+        .mappings
+        .iter()
         .filter(|mapping| mapping.field.as_str() == "@id")
         .find_map(|mapping| mapping.value.as_str().rsplit_once("/allele/"))
         .map(|(_, id)| id)
         .filter(|id| id.starts_with("CA"))
-}
-
-/// One entry per source, with the state of its last call and every call's notices. Each
-/// earlier state that differs stays in `problems`, naming the description that call was for.
-fn once_each(
-    calls: Vec<(Box<str>, SourceOutcome)>,
-    problems: &mut Vec<biomcp_types::Problem>,
-) -> Vec<SourceOutcome> {
-    let mut last: Vec<(Box<str>, SourceOutcome)> = Vec::new();
-    let mut earlier = Vec::new();
-    for (hgvs, mut call) in calls {
-        match last.iter_mut().find(|(_, seen)| seen.source == call.source) {
-            Some(seen) => {
-                for notice in std::mem::take(&mut seen.1.notices) {
-                    if !call.notices.contains(&notice) {
-                        call.notices.push(notice);
-                    }
-                }
-                earlier.push(std::mem::replace(seen, (hgvs, call)));
-            }
-            None => last.push((hgvs, call)),
-        }
-    }
-    for (hgvs, call) in earlier {
-        let state = call.status();
-        if last
-            .iter()
-            .any(|(_, seen)| seen.source == call.source && seen.status() == state)
-        {
-            continue;
-        }
-        let view = biomcp_types::SourceStatusView::from(state);
-        let field = match view.reason {
-            Some(reason) => format!("state for {hgvs}: {}, {reason}", view.state),
-            None => format!("state for {hgvs}: {}", view.state),
-        };
-        let problem = biomcp_types::Problem {
-            source: call.source,
-            record: None,
-            field: field.into(),
-            code: biomcp_types::ProblemCode::ValueUnknown,
-        };
-        status::append(problems, [problem]);
-    }
-    last.into_iter().map(|(_, source)| source).collect()
 }
 
 fn accession_order(hgvs: &str) -> (u64, u32) {

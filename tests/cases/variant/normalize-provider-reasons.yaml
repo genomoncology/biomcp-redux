@@ -15,13 +15,7 @@
       ],
       "expect": {
         "/status": "partial",
-        "/problems": {
-          "includes": {
-            "source": "car",
-            "field": "state for NM_001165963.4:c.4729T>C: failed, rejected",
-            "code": "value.unknown"
-          }
-        },
+        "/sources/0/reason": "rejected",
         "/result/results/0/outcome": "rejected",
         "/result/results/0/messages/0/code": "IncorrectReferenceAllele"
       }
