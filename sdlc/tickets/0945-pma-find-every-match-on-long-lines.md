@@ -31,3 +31,8 @@ Milestone: 7
 ## Changes
 
 - Changes: the summary find loop and a unit test.
+
+## Progress
+
+- 2026-11-14, changed: the summary find no longer walks extracted lines once each. It searches on from the end of the last passage (or just past its match), so a later match on the same long line starts its own passage, and a phrase wrapped onto the next line is looked for from that point rather than from the line's start. Passage cut (512 bytes back, 3,072 at most), "a match inside an earlier passage adds none" and paging are unchanged.
+- Proof: `crates/biomcp-query/src/diagnostic/summary_tests.rs` (synthetic text, listed in the placement ratchet and architecture 10.4). A 6,237-byte line with two matches, then a line with a match and a later match wrapped onto the next line, gives four passages; the old loop gave two. A second test keeps two close matches in one passage.
