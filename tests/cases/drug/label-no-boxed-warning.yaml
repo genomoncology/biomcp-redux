@@ -1,0 +1,35 @@
+{
+  "feature": "drug-label",
+  "live_check": "public",
+  "story": "A safety reader asking pembrolizumab's label for its boxed warning is told, in a note it can quote, that KEYTRUDA's label (by set ID and version) has none, before the list of the sections it does have.",
+  "verified": "openFDA label replies for pembrolizumab recorded whole by biomcp --record in job j40257 on 2026-11-14; KEYTRUDA set 9333c79b-d487-4538-a9f0-71b91a02b287 version 229 (and KEYTRUDA QLEX, the other match) has no boxed_warnings field; the reply measured 2,189 bytes. Before 0926 the reply said only 'this label has no boxed_warning section' after the section list, and the drug-safety persona read it as silent (bench personas/pv-scientist/runs/2026-11-14-bot, j40190).",
+  "replay": "drug/label-no-boxed-warning",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "drug",
+        "pembrolizumab",
+        "label",
+        "--label-section",
+        "boxed_warning"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/identity/name": "KEYTRUDA",
+        "/result/identity/id": "9333c79b-d487-4538-a9f0-71b91a02b287",
+        "/result/identity/version": "229",
+        "/result/label/state": "empty",
+        "/result/hint": "KEYTRUDA's label (set 9333c79b-d487-4538-a9f0-71b91a02b287, version 229) has no boxed_warning section; sections lists the sections it has, and label_section (--label-section on the command line) reads one",
+        "/result/sections": {
+          "includes_all_of": [
+            "warnings_and_cautions",
+            "adverse_reactions"
+          ],
+          "excludes": "boxed_warning"
+        }
+      },
+      "max_bytes": 2520
+    }
+  ]
+}
