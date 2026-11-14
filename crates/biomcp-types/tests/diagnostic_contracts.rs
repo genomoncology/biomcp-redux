@@ -475,10 +475,6 @@ fn recall_reply_ignores_new_card_and_header_fields() {
 
 /// The retired-option guidance names exactly the sources each diagnostic command accepts.
 #[test]
-#[expect(
-    clippy::unwrap_used,
-    reason = "Checked-in schemas and the fixed message are compile-time inputs"
-)]
 fn retired_option_guidance_names_the_registry_sources() {
     let message = serde_json::to_value(ErrorMessage::DiagnosticSources).unwrap();
     let (search, get) = message.as_str().unwrap().split_once("; ").unwrap();
