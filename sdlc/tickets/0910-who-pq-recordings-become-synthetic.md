@@ -1,6 +1,7 @@
 # 0910 — who-pq-recordings-become-synthetic
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 564ea9a8c479d48fc1a3a316200e62ca221456df
 
 Milestone: 7
 
@@ -38,3 +39,14 @@ The review of 0898 (2026-11-13) found the problem.
 ## Changes
 
 - Changes: `tests/replies/drug/who-pq-dates-read/`, `tests/replies/drug/markets/`, the two case files, and the READMEs beside them.
+
+## Progress
+
+- `tests/replies/drug/who-pq-dates-read/` and `tests/replies/drug/markets/` now share one synthetic 29-row export in the real export's shape (header, quoting, padded date cells, blank date cells, no final newline). References, applicants, strengths and dates are invented; no date in it appears in WHO's export of 2026-11-13. It keeps the edge cases: dolutegravir rows that start and end undated, a later-listed row dated before an earlier one, no imatinib row, and three lamivudine rows tied on the earliest date so export order picks the first.
+- The two cases assert the synthetic values: dolutegravir total 13, item 0 undated, item 5 SYN201 `22  Sep,  2013` read as 2013-09-22; markets WHO rows SYN201 (13 matches) and SYN101 (16 matches, 2001-06-07). What each case asserts about behaviour is unchanged.
+- Checking 0695's synthetic replies against the committed real export by date and strength found 35 hits in `who-dates` (its date cells were the real ones, with `10mg` strengths) and one in `who-synthetic` (Trastuzumab `150 mg` on `18  Dec,  2019`, the real BT-ON001 pair). `who-dates` dates now move to unused days in the same month, keeping windows, order and ties, and its strengths are `17mg`; `who-synthetic` uses `137 mg` on `23  Dec,  2019`. `who-dates.yaml` and `who-sync.yaml` follow.
+- Each of the four WHO replay directories has a README saying its rows are synthetic.
+- Checked live 2026-11-14 in pm job j39976: WHO's export was unchanged (657 rows, SHA-256 `abaeaf03…`). None of the four synthetic WHO files is the real export, and none has a real reference, a real date, or a real date and strength pair. Gate `make --keep-going landing-gate docs-check schema-release-check` passed in pm job j39977 at b14446905.
+- Review fixes (2026-11-14): the markets case now proves "earliest, not first dated". For lamivudine, SYN104 (3 Sep 2003) is listed before the tied SYN101, SYN102 and SYN105 (7 Jun 2001), and SYN101 still wins the tie. For dolutegravir, SYN202 (9 Nov 2017) is listed before SYN201 (22 Sep 2013). `who-pq-dates-read.yaml` items 5 and 6 swap to match. Both READMEs name these rows.
+- `who_pq/raw_tests.rs` uses `19  Oct,  2014`, a day WHO's export does not use, in place of HA634's real date. `tests/replies/drug/who-pq-area-synthetic/` (0898) has a README saying its rows are invented.
+- Scope widened to WHO IVD at the review's request. `tests/replies/diagnostic/who-ivd-window/` held WHO's real IVD export (81,450 bytes, recorded by 0876), and the adapter marks WHO IVD noncommercial. It now holds a synthetic 34-row, 20-product export in the same shape, with every name, code, product ID and manufacturer invented. It keeps the case's edge cases: products listed newest year first, multi-row products counted once, HIV matched as a whole word inside `HBV, HIV, Syphilis`, nine HIV products from 2023 on, four products in 2023 alone, and one product's rows split. `who-ivd-window.yaml` expects the synthetic IDs and 34 rows. It has a README.

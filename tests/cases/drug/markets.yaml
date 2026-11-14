@@ -1,8 +1,8 @@
 {
   "feature": "drug-markets",
-  "story": "One call gives dolutegravir's row in each market: Drugs@FDA NDA204790 first approved 2013-08-12, EMA EMEA/H/C/002753 (Tivicay) authorised 2014-01-16 and WHO HA634 (ViiV) prequalified 2014-10-14, each with its own number, status, date role, record URL, source, match count and choice rule, and no date joined across markets. Imatinib has FDA and EMA rows, and its WHO row says WHO lists no product under that name, with 0 matches. Lamivudine matches several records in every market (FDA 138, EMA 4, WHO 92), and each market keeps its list call within the five next steps.",
+  "story": "One call gives dolutegravir's row in each market: Drugs@FDA NDA204790 first approved 2013-08-12, EMA EMEA/H/C/002753 (Tivicay) authorised 2014-01-16 and WHO SYN201 (a synthetic WHO row) prequalified 2013-09-22, each with its own number, status, date role, record URL, source, match count and choice rule, and no date joined across markets. Imatinib has FDA and EMA rows, and its WHO row says WHO lists no product under that name, with 0 matches. Lamivudine matches several records in every market (FDA 138, EMA 4, WHO 16); its WHO row is the first in export order of three rows tied on the earliest date; and each market keeps its list call within the five next steps.",
   "live_check": "public",
-  "verified": "Drugs@FDA replies and the WHO PQ finished-product export recorded unchanged 2026-11-13 with biomcp --record; the EMA medicines and referrals files recorded the same day are trimmed to the dolutegravir, imatinib and lamivudine medicines and one referral. Details are in tests/replies/drug/markets/README.md.",
+  "verified": "Drugs@FDA replies recorded unchanged 2026-11-13 with biomcp --record; the WHO PQ finished-product export is synthetic, in the export's shape with invented references, applicants, strengths and dates, because WHO PQ is noncommercial; the EMA medicines and referrals files recorded the same day are trimmed to the dolutegravir, imatinib and lamivudine medicines and one referral. Details are in tests/replies/drug/markets/README.md.",
   "replay": "drug/markets",
   "steps": [
     {
@@ -21,7 +21,7 @@
         "who-pq"
       ],
       "expect": {
-        "/result/rows": 657
+        "/result/rows": 29
       },
       "max_bytes": 500
     },
@@ -56,7 +56,7 @@
         "/result/markets/*/record": [
           "NDA204790",
           "EMEA/H/C/002753",
-          "HA634"
+          "SYN201"
         ],
         "/result/markets/0/name": "TIVICAY",
         "/result/markets/0/holder": "VIIV HLTHCARE",
@@ -75,10 +75,10 @@
         "/result/markets/1/first_approval/role": "marketing_authorisation_date",
         "/result/markets/1/first_approval/date": "2014-01-16",
         "/result/markets/1/url": "https://www.ema.europa.eu/en/medicines/human/EPAR/tivicay",
-        "/result/markets/2/holder": "ViiV Healthcare BV",
+        "/result/markets/2/holder": "Synthetic Applicant G",
         "/result/markets/2/first_approval/role": "date_of_prequalification",
-        "/result/markets/2/first_approval/date": "2014-10-14",
-        "/result/markets/2/url": "https://extranet.who.int/prequal/medicines/ha634",
+        "/result/markets/2/first_approval/date": "2013-09-22",
+        "/result/markets/2/url": "https://extranet.who.int/prequal/medicines/syn201",
         "/sources/*/source": {
           "includes_all_of": [
             "drugsfda",
@@ -121,7 +121,7 @@
             [
               "get",
               "drug",
-              "HA634",
+              "SYN201",
               "--source",
               "who-pq"
             ]
@@ -130,7 +130,7 @@
         "/result/markets/*/matches": [
           29,
           1,
-          52
+          13
         ],
         "/result/markets/*/choice": [
           "exact brand before generic; NDA/BLA before ANDA, then earliest approval",
@@ -232,12 +232,12 @@
         "/result/markets/*/record": [
           "NDA020596",
           "EMEA/H/C/001111",
-          "HA110"
+          "SYN101"
         ],
         "/result/markets/*/matches": [
           138,
           4,
-          92
+          16
         ],
         "/result/markets/*/choice": [
           "exact brand before generic; NDA/BLA before ANDA, then earliest approval",
@@ -246,7 +246,7 @@
         ],
         "/result/markets/0/first_approval/date": "1995-11-17",
         "/result/markets/1/first_approval/date": "2009-12-10",
-        "/result/markets/2/first_approval/date": "2002-03-20",
+        "/result/markets/2/first_approval/date": "2001-06-07",
         "/next/*/args": {
           "includes_all_of": [
             [

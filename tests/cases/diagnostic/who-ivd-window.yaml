@@ -1,5 +1,5 @@
 {
-  "live_check": "WHO IVD prequalified export captured live 2026-11-13; original bytes retained in sidecars",
+  "live_check": "synthetic authored WHO IVD export rows in the export's shape; no live provider observation",
   "feature": "diagnostic-who-search",
   "story": "A WHO IVD prequalification year window returns only products prequalified in those years, with the window's own total; WHO publishes only the year, so a month or day bound is refused and says so.",
   "replay": "diagnostic/who-ivd-window",
@@ -10,7 +10,7 @@
         "who-ivd"
       ],
       "expect": {
-        "/result/rows": 439
+        "/result/rows": 34
       },
       "max_bytes": 500
     },
@@ -33,15 +33,15 @@
         "/page/returned": 9,
         "/result/items/*/id": {
           "equals": [
-            "0372-017-01",
-            "13226-013-00",
-            "0661-265-00",
-            "0544-005-00",
-            "0454-140-00",
-            "0691-070-00",
-            "0640-027-00",
-            "0652-070-00",
-            "0528-046-00"
+            "9111-911-01",
+            "19112-912-00",
+            "9113-913-00",
+            "9114-914-00",
+            "9115-915-00",
+            "9116-916-00",
+            "9117-917-00",
+            "9118-918-00",
+            "9119-919-00"
           ]
         },
         "/result/items/*/prequalification_year": {
