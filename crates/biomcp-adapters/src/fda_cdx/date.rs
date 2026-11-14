@@ -65,7 +65,6 @@ fn two_digits(part: &str) -> Option<u8> {
         return None;
     }
     part.bytes().try_fold(0u8, |number, byte| {
-        byte.is_ascii_digit()
-            .then(|| number * 10 + (byte - b'0'))
+        byte.is_ascii_digit().then(|| number * 10 + (byte - b'0'))
     })
 }
