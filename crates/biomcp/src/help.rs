@@ -29,6 +29,12 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         }
         return Ok(help);
     }
+    if let [verb, entity, section] = path
+        && verb == "get"
+        && let Some(help) = section_help(root, entity, section)?
+    {
+        return Ok(help);
+    }
     if path == ["questions"] {
         return Ok(guide::questions());
     }
@@ -91,6 +97,55 @@ pub(crate) fn dispatch(root: &crate::grammar::Root, path: &[String]) -> io::Resu
         commands.insert(0, map);
     }
     Ok(Help { commands })
+}
+/// Help on one section: its get command with that section, the options its sources take,
+/// and an example that reads it.
+fn section_help(
+    root: &crate::grammar::Root,
+    entity: &str,
+    section: &str,
+) -> io::Result<Option<Help>> {
+    let path = ["get".to_owned(), entity.to_owned()];
+    let Some(mut command) = commands(root)?.into_iter().find(|c| c.command == path) else {
+        return Ok(None);
+    };
+    if !command.sections.iter().any(|word| word.word == section) {
+        return Ok(None);
+    }
+    command.sections.retain(|word| word.word == section);
+    let schema: Value = match crate::grammar::command_paths()
+        .iter()
+        .find(|(verb, name, _)| *verb == "get" && *name == entity)
+        .and_then(|(_, _, id)| crate::schema::find(id))
+    {
+        Some(text) => serde_json::from_str(text)?,
+        None => return Ok(None),
+    };
+    let candidates = coverage::command_sources("get", entity, &schema)
+        .iter()
+        .filter_map(|name| name.parse::<biomcp_types::Source>().ok())
+        .collect::<Vec<_>>();
+    let sources = biomcp_types::command_section_sources("get", entity, section, &candidates)
+        .unwrap_or_default();
+    if !sources.is_empty() {
+        let names = sources.iter().map(ToString::to_string).collect::<Vec<_>>();
+        command.arguments.retain(|argument| {
+            let only = crate::mcp::typed::catalog::argument_sources(&schema, &argument.name);
+            only.is_empty() || only.iter().any(|source| sources.contains(source))
+        });
+        for argument in &mut command.arguments {
+            if matches!(argument.name.as_str(), "--source" | "--sources") {
+                argument.choices.retain(|choice| names.contains(choice));
+            }
+        }
+    }
+    // Stable: the first recorded example that reads this section leads.
+    command
+        .examples
+        .sort_by_key(|example| !example.iter().any(|word| word == section));
+    let mut commands = vec![command];
+    compact(&mut commands);
+    Ok(Some(Help { commands }))
 }
 /// Search help names the row fields a caller may choose.
 fn fields_line(commands: &mut [HelpCommand], path: &[String]) {

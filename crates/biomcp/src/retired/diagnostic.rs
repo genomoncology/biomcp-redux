@@ -89,7 +89,7 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
         return words.shared;
     }
     if words.source.is_none() || words.source == Some("all") {
-        return Some(ErrorMessage::DiagnosticRecallSources);
+        return Some(ErrorMessage::DiagnosticSources);
     }
     let section = words.section.or_else(|| rest.get(1).copied());
     if section == Some("all") {

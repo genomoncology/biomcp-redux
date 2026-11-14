@@ -1,0 +1,15 @@
+{
+  "feature": "diagnostic-retirements",
+  "live_check": "local-only migration guidance before provider access",
+  "story": "The retired-option message for diagnostic commands names every source search and exact get accept; a contract test checks the list against the source registry.",
+  "steps": [
+    {
+      "run": ["search", "diagnostic", "--bogus", "x"],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.retired",
+        "/error/message": "choose --source gtr, fda-cdx, fda-pma, fda-510k, who-ivd or fda-device-recall for search; choose --source gtr, who-ivd, fda-pma, fda-510k or fda-device-recall for exact get"
+      }
+    }
+  ]
+}

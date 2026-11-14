@@ -124,19 +124,25 @@ pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<S
     }
     let mut command = root;
     let mut path: Vec<String> = Vec::new();
+    // Under help the words name help topics, and the suggestion already starts with help.
+    let mut help = false;
     let mut words = args.iter().peekable();
     while let Some(word) = words.next().and_then(|word| word.to_str()) {
         if word == "--" || path.first().is_some_and(|word| word == "schema") {
             return None;
         }
-        if let Some((argument, inline)) = argument(command, word) {
+        if let Some((argument, inline)) =
+            argument(command, word).or_else(|| argument(root, word).filter(|_| help))
+        {
             if takes_value(argument, &mut words) && !inline {
                 words.next();
             }
             continue;
         }
         if let Some(child) = command.find_subcommand(word) {
-            if path.is_empty() && word == "help" {
+            if path.is_empty() && !help && word == "help" {
+                help = true;
+                command = child;
                 continue;
             }
             path.push(child.get_name().to_owned());
@@ -153,7 +159,14 @@ pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<S
             let nearest = command
                 .get_subcommands()
                 .min_by_key(|child| distance(word, child.get_name()))?;
-            path.push(nearest.get_name().to_owned());
+            // A help suggestion never names help twice; plain help lists every command.
+            if nearest.get_name() != "help" {
+                path.push(nearest.get_name().to_owned());
+            }
+            return Some(path);
+        }
+        // A word past a help leaf: the leaf's own help is the working next step.
+        if help && !path.is_empty() {
             return Some(path);
         }
         return (path.first().is_some_and(|name| name == "serve") && word.starts_with('-'))
@@ -234,14 +247,63 @@ pub(super) fn help_path(
                     .chain(matches.get_one::<String>("setting").cloned())
                     .collect(),
             ),
-            Some((verb, matches)) => Some(
-                std::iter::once(verb.into())
-                    .chain(matches.subcommand().map(|(name, _)| name.into()))
-                    .collect(),
-            ),
+            Some((verb, matches)) => {
+                // `help get drug approvals` and `help drug approvals` describe one section.
+                let (entity, section) = match matches.subcommand() {
+                    Some((entity, matches)) => (Some(entity), section(matches)),
+                    None => {
+                        let word = section(matches);
+                        (word.map(|_| verb), word)
+                    }
+                };
+                match (entity, section) {
+                    (Some(entity), Some(section)) => {
+                        checked_section(entity, section)?;
+                        Some(vec!["get".into(), entity.into(), section.into()])
+                    }
+                    _ => Some(
+                        std::iter::once(verb.into())
+                            .chain(entity.map(String::from))
+                            .collect(),
+                    ),
+                }
+            }
             None => Some(Vec::new()),
         }
     } else {
         None
+    })
+}
+
+fn section(matches: &clap::ArgMatches) -> Option<&str> {
+    matches
+        .try_get_one::<String>("section")
+        .ok()
+        .flatten()
+        .map(String::as_str)
+}
+
+/// Refuse a section the get command does not have, naming its sections and its help.
+fn checked_section(entity: &str, section: &str) -> Result<(), super::ParseInvalid> {
+    let schema =
+        super::validation::schema("get", entity).ok_or_else(super::ParseInvalid::default)?;
+    let property = schema
+        .pointer("/properties/section")
+        .ok_or_else(super::ParseInvalid::default)?;
+    let words = super::validation::accepted(&schema, property);
+    if words.iter().flatten().any(|word| word.as_str() == section) {
+        return Ok(());
+    }
+    Err(super::ParseInvalid {
+        argument: None,
+        usage: Some(biomcp_types::UsageError::Arguments(
+            biomcp_types::UsageArguments {
+                argument: Some("section".into()),
+                message: Some(biomcp_types::ErrorMessage::ArgumentGuidance),
+                valid_values: words,
+                next: vec![super::validation::help(["get", entity])],
+            },
+        )),
+        prefer_argument_error: true,
     })
 }

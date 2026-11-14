@@ -472,3 +472,44 @@ fn recall_reply_ignores_new_card_and_header_fields() {
         json!({"header": {"recall_number": "Z-1234-2025"}})
     );
 }
+
+/// The retired-option guidance names exactly the sources each diagnostic command accepts.
+#[test]
+#[expect(
+    clippy::unwrap_used,
+    reason = "Checked-in schemas and the fixed message are compile-time inputs"
+)]
+fn retired_option_guidance_names_the_registry_sources() {
+    let message = serde_json::to_value(ErrorMessage::DiagnosticSources).unwrap();
+    let (search, get) = message.as_str().unwrap().split_once("; ").unwrap();
+    for (text, schema, name) in [
+        (
+            search,
+            include_str!("../schemas/diagnostic-search.json"),
+            "DiagnosticSearchSource",
+        ),
+        (
+            get,
+            include_str!("../schemas/diagnostic-get.json"),
+            "DiagnosticGetSource",
+        ),
+    ] {
+        let schema: Value = serde_json::from_str(schema).unwrap();
+        let registry = schema["$defs"][name]["enum"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|value| value.as_str().unwrap())
+            .collect::<std::collections::BTreeSet<_>>();
+        let list = text
+            .strip_prefix("choose --source ")
+            .and_then(|rest| rest.split_once(" for "))
+            .unwrap()
+            .0;
+        let named = list
+            .split([',', ' '])
+            .filter(|word| !word.is_empty() && *word != "or")
+            .collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(named, registry, "{name}");
+    }
+}

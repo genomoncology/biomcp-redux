@@ -1,0 +1,74 @@
+{
+  "feature": "schema-discovery",
+  "live_check": "local-only generated help and parser refusals; no source requests",
+  "story": "Help on one get section answers with that section, the options its sources take and an example that reads it; a wrong section or extra word is refused with a help command that works, and no suggestion repeats help.",
+  "steps": [
+    {
+      "run": ["help", "get", "drug", "approvals"],
+      "mcp": ["help", "get", "drug", "approvals"],
+      "max_bytes": 8648,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/result/commands/*/command": [["get", "drug"]],
+        "/result/commands/0/sections/*/word": ["approvals"],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": ["input", "--source", "--decision-from", "--decision-to", "--product-number", "--document-id", "--section-limit", "--section-offset"]
+        },
+        "/result/commands/0/examples": {"count": 1},
+        "/result/commands/0/examples/0": {"includes_all_of": ["approvals"]}
+      }
+    },
+    {
+      "run": ["help", "drug", "approvals"],
+      "mcp": ["help", "drug", "approvals"],
+      "max_bytes": 8648,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/result/commands/*/command": [["get", "drug"]],
+        "/result/commands/0/sections/*/word": ["approvals"],
+        "/result/commands/0/arguments/*/name": {
+          "includes_all_of": ["--decision-from", "--decision-to", "--product-number", "--document-id"]
+        },
+        "/result/commands/0/examples/0": {"includes_all_of": ["approvals"]}
+      }
+    },
+    {
+      "run": ["help", "get", "drug", "approval"],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.arguments",
+        "/error/valid_values": {"includes": "approvals"},
+        "/next/0/args": ["help", "get", "drug"]
+      }
+    },
+    {
+      "run": ["help", "drug", "approvals", "extra"],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/next/0/args": ["help", "drug"]
+      }
+    },
+    {
+      "run": ["help", "drgu", "approvals"],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": ["help", "drug"]
+      }
+    },
+    {
+      "run": ["hepl"],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": ["help"]
+      }
+    }
+  ]
+}
