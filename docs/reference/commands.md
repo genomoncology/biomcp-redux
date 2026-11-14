@@ -2888,22 +2888,25 @@ Options:
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
+      --find <find>
+          PMA summary: case-insensitive literal text to find; section offset then counts passages.
+
       --section-limit <section_limit>
           Maximum native rows; omitted means five rows, or one regulatory fragment.
 
       --section-offset <section_offset>
           Zero-based native row or fragment offset.
 
-      --source <source>
-          Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
-          Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-          510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
-
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --source <source>
+          Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
+          Explicit source: GTR accession/version, WHO Product ID, PMA P number,
+          510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
 
       --supplement <supplement>
           Exact native PMA supplement; absent selects the base row.
@@ -2927,12 +2930,13 @@ Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
 - `--bundle-revision`: Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision <bundle-revision> (syntax; replace the placeholder with your retained value).
+- `--find`: PMA summary: case-insensitive exact text to find; section offset then counts passages. Value form: string; example: --find 'Limit of Detection'.
 - `id`: Exact source identity, including version for GTR.
 Form: get diagnostic ID SECTION; not --id.
 - `section`: GTR: genes, conditions, methods. PMA: regulatory,… (full rule with the sections).
 Form: get diagnostic ID SECTION; not --section.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer; example: --section-limit 2.
-- `--section-offset`: Zero-based source row or fragment offset. Value form: integer; example: --section-offset 5.
+- `--section-offset`: Zero-based source row or fragment offset. Value form: integer; example: --section-offset 9.
 - `--source`: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
 510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY. Value form: string; example: --source who-ivd.
 - `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string; example: --supplement S020.

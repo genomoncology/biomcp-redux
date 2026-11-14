@@ -48,11 +48,38 @@ pub fn read(
     url: &biodata::Text,
     offset: u32,
 ) -> Result<PdfText, RequestError> {
+    let (mut result, text) = whole(leg, spec, url)?;
+    result.offset = offset;
+    result.text = crate::text_parts::split(&text, FRAGMENT_BYTES)
+        .into_iter()
+        .nth(offset as usize)
+        .map(Into::into);
+    Ok(result)
+}
+/// Byte positions where each continuable fragment of the whole extracted text starts.
+pub fn fragment_starts(text: &str) -> Vec<usize> {
+    let mut start = 0;
+    crate::text_parts::split(text, FRAGMENT_BYTES)
+        .iter()
+        .map(|part| {
+            let at = start;
+            start += part.len();
+            at
+        })
+        .collect()
+}
+/// Read the whole embedded text once; fragment fields stay unset and the text is empty
+/// unless the state is text.
+pub fn whole(
+    leg: &Leg<'_>,
+    spec: &'static SourceSpec,
+    url: &biodata::Text,
+) -> Result<(PdfText, String), RequestError> {
     let mut result = PdfText {
         url: url.clone(),
         pages: None,
         state: PdfTextState::NoText,
-        offset,
+        offset: 0,
         total: 0,
         text: None,
     };
@@ -66,7 +93,7 @@ pub fn read(
             Ok(bytes) => bytes,
             Err(RequestError::Source(source)) if source.reason == Reason::TooLarge => {
                 result.state = PdfTextState::TooLarge;
-                return Ok(result);
+                return Ok((result, String::new()));
             }
             Err(error) => return Err(error),
         };
@@ -97,7 +124,7 @@ pub fn read(
     result.pages = Some(pages.len() as u32);
     if pages.len() > MAX_PAGES {
         result.state = PdfTextState::TooLarge;
-        return Ok(result);
+        return Ok((result, String::new()));
     }
     let mut text = String::new();
     for page in pages.keys() {
@@ -108,23 +135,21 @@ pub fn read(
                 ..
             })) => {
                 result.state = PdfTextState::TooLarge;
-                return Ok(result);
+                return Ok((result, String::new()));
             }
             Err(_) => return Err(error(spec.source, Reason::BadReply)),
         };
         if text.len().saturating_add(part.len()) > MAX_EXPANDED_BYTES {
             result.state = PdfTextState::TooLarge;
-            return Ok(result);
+            return Ok((result, String::new()));
         }
         text.push_str(&part);
     }
     check()?;
     if text.trim().is_empty() {
-        return Ok(result);
+        return Ok((result, String::new()));
     }
-    let fragments = crate::text_parts::split(&text, FRAGMENT_BYTES);
     result.state = PdfTextState::Text;
-    result.total = fragments.len() as u32;
-    result.text = fragments.into_iter().nth(offset as usize).map(Into::into);
-    Ok(result)
+    result.total = fragment_starts(&text).len() as u32;
+    Ok((result, text))
 }

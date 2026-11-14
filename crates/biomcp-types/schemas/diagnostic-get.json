@@ -60,6 +60,10 @@
       ],
       "description": "Immutable stored bundle revision retained by a continuation."
     },
+    "find": {
+      "$ref": "#/$defs/Text",
+      "description": "PMA summary: case-insensitive literal text to find; section offset then counts passages."
+    },
     "id": {
       "$ref": "#/$defs/Text",
       "description": "Exact native identity, including version for GTR.",

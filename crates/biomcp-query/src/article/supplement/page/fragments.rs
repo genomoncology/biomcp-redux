@@ -4,10 +4,7 @@ use biodata::Text;
 use biomcp_adapters::sheet;
 use biomcp_types::{CellFragment, FirstSheetRow, Reason, SheetRow};
 const FRAGMENT_BYTES: usize = 1000;
-pub(super) fn contains(value: &str, needles: &[String]) -> bool {
-    let lower = value.to_lowercase();
-    needles.iter().any(|needle| lower.contains(needle))
-}
+pub(super) use crate::text_find::contains;
 pub(super) fn matches(row: &SheetRow, needles: &[String]) -> bool {
     row.fragment.as_ref().map_or_else(
         || row.cells.iter().any(|cell| contains(cell, needles)),

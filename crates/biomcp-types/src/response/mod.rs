@@ -203,7 +203,7 @@ pub use packet::ReplyData;
 pub use reply::{Reply, ReplyBody};
 
 mod pdf;
-pub use pdf::{PdfText, PdfTextState};
+pub use pdf::{PdfText, PdfTextHit, PdfTextState};
 mod trial_results;
 pub use trial_results::{
     TrialAdverseEvents, TrialEnrollment, TrialEvent, TrialEventGroup, TrialEventStats,

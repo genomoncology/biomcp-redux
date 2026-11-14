@@ -16,9 +16,18 @@ pub struct PdfText {
     pub offset: u32,
     /// Number of fragments in the readable document.
     pub total: u32,
-    /// Verbatim extracted text in document order; omitted when unavailable.
+    /// Verbatim extracted text in document order; omitted when unavailable or when a find returns passages.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub text: Option<Box<str>>,
+}
+/// One verbatim passage that contains the found text.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PdfTextHit {
+    /// Zero-based text fragment holding the passage start; read it with the fragment offset.
+    pub fragment: u32,
+    /// Verbatim extracted text from shortly before the match through at most 3,072 escaped bytes.
+    pub text: Box<str>,
 }
 biodata::wire_enum! {
     /// Bounded PDF text reader outcome.

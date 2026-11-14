@@ -4353,7 +4353,7 @@
           "description": "Extraction outcome; no-text includes scanned PDFs and does not imply OCR."
         },
         "text": {
-          "description": "Verbatim extracted text in document order; omitted when unavailable.",
+          "description": "Verbatim extracted text in document order; omitted when unavailable or when a find returns passages.",
           "type": [
             "string",
             "null"

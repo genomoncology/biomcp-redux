@@ -7,6 +7,7 @@ mod context;
 mod next;
 mod run;
 mod status;
+mod text_find;
 pub use context::{Ctx, DRUG_NAME_LIMIT, FIT_DEADLINE, LABEL_BYTES, MAX_LABEL_BYTES};
 pub use run::{Action, Bundle, run, run_drug_parts};
 pub use status::{Outcome, sync_status};

@@ -1,0 +1,7 @@
+# PMA summary find: cobas EGFR Mutation Test v2 (P150047)
+
+The one reply is FDA's Summary of Safety and Effectiveness Data for P150047, `https://www.accessdata.fda.gov/cdrh_docs/pdf15/P150047B.pdf`: HTTP 200, `application/pdf`, 694,761 bytes, SHA-256 `d8d791e13884dd3d0cbfd89c69aa084ac799ff2e9e308a07e4064b3d8a489925`, byte for byte as FDA served it on 2026-11-14 (14:33 UTC) to the dx-lab-director persona run's analyst, whose source checks are listed in that run's `analysis.md`. The JSON wrapper names that request in BioMCP's recording format; its key is the SHA-256 of `GET\0` and the URL, as `biomcp --record` writes it, and `fetched` is that download's time.
+
+`biomcp --record` could not capture the document itself: FDA refused every automated download of it later the same day, from the build machine (pm jobs j40564, j40603 and j40615, HTTP 406) and from the workspace machine (a plain download redirected with HTTP 302). BioMCP reports that refusal as intermittent (`fda-document-refused.yaml`). A later recording can replace the sidecar only if its SHA-256 matches the one above.
+
+The case is the persona question "what is the limit of detection" (biomed-agent-bench dx-lab-director run of 2026-11-14, log.md:235-239): reading the summary fragment by fragment, the persona quoted a footnote from another table and missed Table 15, which gives 75 copies/mL for exon 19 deletion and 100 for L858R and T790M.
