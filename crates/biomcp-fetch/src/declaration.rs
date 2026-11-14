@@ -29,7 +29,8 @@ impl SourceSpec {
     /// The budget for a command that calls this source: the caller's, or this source's declared
     /// minimum when that is larger. A caller's whole-call limit still caps the command's deadline.
     pub fn budget_for(&self, caller: Duration) -> Duration {
-        self.command_budget.map_or(caller, |least| caller.max(least))
+        self.command_budget
+            .map_or(caller, |least| caller.max(least))
     }
     /// Declare a JSON GET endpoint belonging to this source.
     pub const fn get(&'static self, path: &'static str) -> Endpoint {

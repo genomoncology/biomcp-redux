@@ -17,7 +17,11 @@ fn command(fetch: &Fetch, spec: &'static SourceSpec) -> Result<Duration, Request
     let command = fetch.command_deadline(spec.budget_for(CALLER));
     let deadline = command.deadline();
     let leg = fetch.leg(spec, deadline);
-    let reply = leg.call(&spec.get("/answer"), Input::Params(&[]), Read::<Answer>::json());
+    let reply = leg.call(
+        &spec.get("/answer"),
+        Input::Params(&[]),
+        Read::<Answer>::json(),
+    );
     let remaining = leg.remaining();
     command.finish(remaining);
     reply.map(|received| {
@@ -42,7 +46,9 @@ fn declared_command_budget_outlasts_the_caller_budget_but_not_the_caller_limit()
         &[(200, "", r#"{"answer":true}"#)],
     );
     // The provider took 25 s, beyond the 20 s caller budget.
-    change(dir.path(), |v| v["exchanges"][0]["delay_ms"] = 25_000.into());
+    change(dir.path(), |v| {
+        v["exchanges"][0]["delay_ms"] = 25_000.into()
+    });
     let replay = || {
         fetch(Mode::Replay {
             dir: dir.path().to_owned(),
