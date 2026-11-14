@@ -100,7 +100,7 @@ fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNot
         "{rows} of {returned} returned rows have no exact openFDA device {missing} record and show {shown}."
     ))
 }
-fn guidance(message: String) -> SourceNotice {
+pub(super) fn guidance(message: String) -> SourceNotice {
     SourceNotice::RequestGuidance {
         data_date: None,
         message: message.into(),

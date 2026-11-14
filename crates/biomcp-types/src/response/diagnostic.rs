@@ -50,7 +50,7 @@ pub struct GtrHeader {
     pub url: Text,
 }
 biodata::wire_enum! {
-    /// How `--name` text sits in a GTR test name; whole-word rows come first.
+    /// How `--name` text sits in a GTR test name, ignoring letter case, hyphens and spaces; whole-word rows come first.
     GtrNameMatch {
         /// The text appears with no letter or digit touching either end.
         WholeWord => "whole-word",

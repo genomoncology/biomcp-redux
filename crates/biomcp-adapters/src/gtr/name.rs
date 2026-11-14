@@ -1,4 +1,4 @@
-//! Literal GTR test-name matching over the whole pinned version report, before counts and paging.
+//! GTR test-name matching, ignoring letter case, hyphens and white space, over the whole pinned version report, before counts and paging.
 use super::{bundle, map, raw::Native};
 use biodata::{GtrTestId, GtrTestVersion};
 use biomcp_fetch::{BundleInfo, Find, KeyKind, Leg, RequestError};
@@ -6,17 +6,42 @@ use biomcp_types::{DiagnosticCandidate, DiagnosticSearch, GtrNameMatch, Problem}
 use std::collections::HashMap;
 type Version = Box<GtrTestVersion>;
 
-/// Case-insensitive literal containment of the query text in a native name cell.
-pub(super) fn contains(name: &str, query: &str) -> bool {
-    name.to_lowercase().contains(&query.to_lowercase())
+/// Whether `--name` text skips this character: hyphens and white space, so "non-small cell"
+/// meets "Nonsmall cell" and "NonSmall Cell". Other punctuation and en dashes stay literal.
+fn skipped(c: char) -> bool {
+    c.is_whitespace() || matches!(c, '-' | '\u{2010}' | '\u{2011}' | '\u{ad}')
 }
 
-/// Whether a lower-cased needle occurs in a name with no letter or digit touching either end.
+/// Lower-cased text without skipped characters, and each kept byte's source byte span.
+fn fold(text: &str) -> (String, Vec<(usize, usize)>) {
+    let mut out = String::new();
+    let mut spans = Vec::new();
+    for (at, c) in text.char_indices().filter(|(_, c)| !skipped(*c)) {
+        for lower in c.to_lowercase() {
+            out.push(lower);
+            spans.extend(std::iter::repeat_n((at, at + c.len_utf8()), lower.len_utf8()));
+        }
+    }
+    (out, spans)
+}
+
+/// The folded `--name` text; text of only hyphens and spaces matches nothing.
+fn needle(query: &str) -> Option<String> {
+    Some(fold(query).0).filter(|v| !v.is_empty())
+}
+
+/// Containment of the query in a native name cell, ignoring letter case, hyphens and white space.
+pub(super) fn contains(name: &str, query: &str) -> bool {
+    needle(query).is_some_and(|needle| fold(name).0.contains(&needle))
+}
+
+/// Whether a folded needle occurs in a name with no letter or digit touching either end.
 fn whole_word(name: &str, needle: &str) -> bool {
-    let name = name.to_lowercase();
-    name.match_indices(needle).any(|(at, _)| {
-        let before = name.get(..at).and_then(|v| v.chars().next_back());
-        let after = name.get(at + needle.len()..).and_then(|v| v.chars().next());
+    let (folded, spans) = fold(name);
+    folded.match_indices(needle).any(|(at, _)| {
+        let (start, end) = (spans[at].0, spans[at + needle.len() - 1].1);
+        let before = name.get(..start).and_then(|v| v.chars().next_back());
+        let after = name.get(end..).and_then(|v| v.chars().next());
         !before.is_some_and(char::is_alphanumeric) && !after.is_some_and(char::is_alphanumeric)
     })
 }
@@ -46,7 +71,7 @@ pub(super) fn read(
 ) -> Result<Named, RequestError> {
     let (rows, info) = bundle::read(leg, Find::Exact(KeyKind::Band, "versions"))?;
     super::revision(query.bundle_revision(), &info)?;
-    let needle = name.to_lowercase();
+    let needle = needle(name);
     let mut cx = crate::mapped::Problems {
         source: biomcp_types::Source::Gtr,
         record: None,
@@ -73,7 +98,7 @@ pub(super) fn read(
     }
     let matches: HashMap<_, _> = versions
         .iter()
-        .filter_map(|(id, list)| Some((id.clone(), listed(list, &needle)?)))
+        .filter_map(|(id, list)| Some((id.clone(), listed(list, needle.as_deref()?)?)))
         .collect();
     versions.retain(|id, _| matches.contains_key(id));
     ids.retain(|id| matches.contains_key(id));
@@ -100,7 +125,7 @@ fn listed(list: &[Version], needle: &str) -> Option<GtrNameMatch> {
         Some(GtrNameMatch::WholeWord)
     } else {
         names()
-            .any(|name| name.to_lowercase().contains(needle))
+            .any(|name| fold(name).0.contains(needle))
             .then_some(GtrNameMatch::PartialWord)
     }
 }

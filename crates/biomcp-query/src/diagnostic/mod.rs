@@ -128,9 +128,17 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     }
     finish_bundle(&mut out, leg, error, source, bundle);
     status::search(&mut out);
+    if !who
+        && q.name().is_some()
+        && let Some(source) = out.sources.last_mut()
+    {
+        source.notices.push(recall::guidance(GTR_NAME_NOTICE.into()));
+    }
     command.finish(deadline.remaining());
     out
 }
+const GTR_NAME_NOTICE: &str = "--name matched GTR lab_test_name ignoring letter case, hyphens and spaces, \
+    so non-small cell also finds Nonsmall cell; no synonym or abbreviation expansion.";
 fn search_source(
     source: DiagnosticSearchSource,
 ) -> (
