@@ -163,6 +163,18 @@ pub(super) fn unplaced(command: &Command, path: &[&str]) -> Option<UsageArgument
         return group(command);
     }
     let [_, _] = path else { return None };
+    // A word past `help ENTITY SECTION`: the get command's sections are the choices.
+    if let ["help", entity] = path
+        && let Some(schema) = super::validation::schema("get", entity)
+        && let Some(property) = schema.pointer("/properties/section")
+    {
+        return Some(UsageArguments {
+            argument: Some("section".into()),
+            message: None,
+            valid_values: super::validation::accepted(&schema, property),
+            next: vec![super::validation::help(path.iter().copied())],
+        });
+    }
     let argument = command
         .get_positionals()
         .last()
