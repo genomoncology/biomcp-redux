@@ -51,7 +51,7 @@ pub fn command_implicit_sources(verb: &str, entity: &str) -> &'static [Source] {
         ],
         ("search", "gene") => &[Hgnc, ClinGen],
         ("get", "gene") => &[
-            Hgnc, MyGene, UniProt, Civic, ClinGen, Gencc, Gnomad, Hpa, Reactome, Oncokb,
+            Hgnc, MyGene, UniProt, Civic, ClinGen, Gencc, ClinVar, Gnomad, Hpa, Reactome, Oncokb,
         ],
         ("article", "text") => &[PubMed, PmcOa, EuropePmc],
         ("article", "supplement") => &[PubMed, PmcOa],

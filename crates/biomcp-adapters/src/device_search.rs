@@ -30,6 +30,13 @@ pub(crate) fn expression(q: &DiagnosticSearch, name: &str) -> String {
             crate::fda_device_recall::phrase(value)
         ));
     }
+    // Validation admits a classification name for 510(k) only.
+    if let Some(value) = q.classification_name() {
+        terms.push(format!(
+            "openfda.device_name:{}",
+            crate::fda_device_recall::phrase(value)
+        ));
+    }
     if let Some(value) = q.manufacturer() {
         terms.push(format!("applicant:{}", literal(value)));
     }

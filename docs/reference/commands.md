@@ -957,23 +957,19 @@ Options:
           FDA recall class.
           Native enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
-      --condition-id <condition_id>
-          Exact MedGen:CUI.
-          Exact MedGen:CUI identifier only.
+      --classification-name <classification_name>
+          FDA classification name phrase.
+          Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
+      --condition-id <condition_id>
+          Exact MedGen:CUI.
+          Exact MedGen:CUI identifier only.
+
       --config <config>
           Read configuration from this file. Example: --config config.json.
-
-      --date-from <date_from>
-          First row date, YYYY-MM-DD.
-          Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems.
-
-      --date-to <date_to>
-          Last row date, YYYY-MM-DD.
-          Inclusive newest date in an FDA companion row's device cell; fda-cdx only.
 
       --decision-from <decision_from>
           First date, YYYY-MM-DD.
@@ -991,6 +987,10 @@ Options:
           NDA/BLA application.
           Cell-owned typed NDA/BLA application.
 
+      --gene <gene>
+          Exact gene symbol.
+          Exact source gene_symbol field, without alias expansion.
+
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1002,10 +1002,6 @@ Options:
 
           [default: false]
           [possible values: true, false]
-
-      --gene <gene>
-          Exact gene symbol.
-          Exact source gene_symbol field, without alias expansion.
 
       --gene-id <gene_id>
           Exact NCBI GeneID.
@@ -1053,11 +1049,6 @@ Options:
           FDA product code.
           Exact native FDA product code; PMA, 510(k) and device recalls only.
 
-      --sort <sort>
-          Row order; help search diagnostic
-          Row order.
-          Newest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order.
-
       --source <source>
           Native diagnostic source; help search diagnostic
           Native diagnostic source.
@@ -1080,12 +1071,10 @@ Exact table-0 biomarker cell; unsupported in the group table. Value form: string
 Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a.
 - `--classification`: FDA recall class.
 Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code. Value form: string; example: --classification 'Class I'; only with --source fda-device-recall.
+- `--classification-name`: FDA classification name phrase.
+Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only. Value form: string; example: --classification-name cell-free; only with --source fda-510k.
 - `--condition-id`: Exact MedGen:CUI.
 Exact MedGen:CUI identifier only. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
-- `--date-from`: First row date, YYYY-MM-DD.
-Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems. Value form: string; example: --date-from 2026-07-01; only with --source fda-cdx.
-- `--date-to`: Last row date, YYYY-MM-DD.
-Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Value form: string; example: --date-to 2026-07-31; only with --source fda-cdx.
 - `--decision-from`: First date, YYYY-MM-DD.
 Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string; example: --decision-from 2017-11-30; only with --source fda-pma or fda-510k.
 - `--decision-to`: Last date, YYYY-MM-DD.
@@ -1104,22 +1093,20 @@ Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: stri
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-to 2024-12-31; only with --source fda-device-recall.
 - `--intended-use`: Intended-use phrase.
 Phrase in FDA PMA ao_statement, the approval order's intended use; PMA only, as openFDA 510(k) has no intended-use text. Value form: string; example: --intended-use cell-free; only with --source fda-pma.
-- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer; example: --limit 3.
+- `--limit`: Five results by default; at most fifty source rows or product headers. Value form: integer; example: --limit 50.
 - `--manufacturer`: Manufacturer phrase.
 WHO manufacturer words, source FDA applicant (PMA/510(k)) or recalling_firm phrase. Value form: string; example: --manufacturer 'Synthetic maker'; only with --source who-ivd, fda-pma, fda-510k or fda-device-recall.
 - `--marker`: WHO marker phrase.
 Exact whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year. Value form: string; example: --marker HIV; only with --source who-ivd.
 - `--name`: Source test or device name.
 Phrase in PMA trade_name, 510(k) device_name or recall product_description; text in GTR lab_test_name, ignoring letter case; hyphens and spaces in your text are optional. Value form: string; example: --name 'FoundationOne CDx'; only with --source gtr, fda-pma, fda-510k or fda-device-recall.
-- `--offset`: Zero-based source result offset. Value form: integer; example: --offset 241.
+- `--offset`: Zero-based source result offset. Value form: integer; example: --offset 5.
 - `--prequalified-from`: WHO IVD year.
 First prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-from 2023; only with --source who-ivd.
 - `--prequalified-to`: WHO IVD year.
 Last prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-to 2023; only with --source who-ivd.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string; example: --product-code ABC; only with --source fda-pma, fda-510k or fda-device-recall.
-- `--sort`: Row order.
-Newest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order. Value form: string; example: --sort date; only with --source fda-cdx.
 - `--source`: Source diagnostic source.
 Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery. Value form: string; example: --source fda-device-recall.
 - `--type`: Source test_type.
@@ -3371,7 +3358,7 @@ Options:
 
 ```
 
-Get gene identities and source annotations. Sources: civic, clingen, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
+Get gene identities and source annotations. Sources: civic, clingen, clinvar, gencc, gnomad, hgnc, hpa, mygene, oncokb, reactome, uniprot.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -3386,6 +3373,7 @@ Trailing section words select sections. Use --section WORD to keep inputs that e
 - `civic`: CIViC gene curation.
 - `clingen`: ClinGen validity and dosage.
 - `gencc`: GenCC submitter assessments.
+- `clinvar`: ClinVar germline classification counts.
 - `constraint`: Population constraint metrics.
 - `expression`: Human Protein Atlas expression.
 - `pathways`: Human Reactome pathways.

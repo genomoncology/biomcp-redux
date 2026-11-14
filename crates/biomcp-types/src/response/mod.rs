@@ -73,8 +73,8 @@ pub use gene::{Constraint, GeneSections, Protein};
 
 pub use gene::{
     CancerPtpm, Capped, CivicGene, ClinGenGene, ClinGenRegion, ClinGenRegionDosage,
-    ClinGenValidity, GenccGene, GenccSubmission, GeneExpression, PathwayRef, ReactomeId,
-    RnaAbundance, RnaUnit, TissueNtpm,
+    ClinGenValidity, ClinVarGeneCounts, ClinVarGermlineCounts, ClinVarReviewCounts, GenccGene,
+    GenccSubmission, GeneExpression, PathwayRef, ReactomeId, RnaAbundance, RnaUnit, TissueNtpm,
 };
 
 mod article_sections;

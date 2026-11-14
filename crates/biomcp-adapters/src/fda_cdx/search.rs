@@ -179,7 +179,7 @@ fn undated(
 ) -> Option<(u8, u32, &'static str, ProblemCode)> {
     let (table, index) = place(&row.relation);
     date.is_none()
-        .then_some((table, index, "date", ProblemCode::ValueUnknown))
+        .then_some((table, index, "row_date", ProblemCode::ValueUnknown))
 }
 /// Whether the row date falls in the asked window; an undated row falls in no window.
 fn within(query: &DiagnosticSearch, date: Option<PartialDate>) -> bool {

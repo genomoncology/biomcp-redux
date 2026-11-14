@@ -44,8 +44,7 @@ fn date(text: &str) -> Option<PartialDate> {
         return None;
     }
     let year = digits(year, 4).filter(|y| *y >= FIRST_YEAR)?;
-    let month = u8::try_from(digits(month, 2)?).unwrap_or(u8::MAX);
-    let day = u8::try_from(digits(day, 2)?).unwrap_or(u8::MAX);
+    let (month, day) = (two_digits(month)?, two_digits(day)?);
     PartialDate::new(year, Some(month), Some(day)).ok()
 }
 
@@ -57,5 +56,16 @@ fn digits(part: &str, widest: usize) -> Option<u16> {
     part.bytes().try_fold(0u16, |number, byte| {
         byte.is_ascii_digit()
             .then(|| number * 10 + u16::from(byte - b'0'))
+    })
+}
+
+/// A month or day in one or two ASCII digits; at most 99, so it fits a byte.
+fn two_digits(part: &str) -> Option<u8> {
+    if part.is_empty() || part.len() > 2 {
+        return None;
+    }
+    part.bytes().try_fold(0u8, |number, byte| {
+        byte.is_ascii_digit()
+            .then(|| number * 10 + (byte - b'0'))
     })
 }
