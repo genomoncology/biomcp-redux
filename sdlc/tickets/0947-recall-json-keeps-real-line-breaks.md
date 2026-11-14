@@ -40,3 +40,5 @@ dx-lab-director round 2 saw a literal `\u{000a}` 11 times in recall text, e.g. Z
 - PM decision 2026-11-14: option B. Keep the 1.0.0 contract and collapse line breaks to a single space in the device recall mapping. `Text::from_source` stays unchanged for other sources here.
 - Changed: `fda_device_recall/map.rs` joins the non-empty trimmed lines of each free-text field (reason, root cause, product description, distribution pattern, initial firm notification, product quantity) with one space before admission. Code fields keep strict admission.
 - Follow-up: the other adapters that admit text through `field_text` or `Text::from_source` still turn source line breaks into `\u{000a}`; they need the same decision source by source.
+- Measured: pm job j40879 built this branch and recorded Z-0884-2026 live. The reply's `product_description` (7 source line breaks) came back as one 890-character line, the reply held no `\u{` text, and it reported no problems.
+- Proof: `tests/cases/diagnostic/recall-line-breaks.yaml` replays the projected recording (provenance in `tests/replies/diagnostic/recall-line-breaks/README.md`) and checks the joined `product_description` exactly.

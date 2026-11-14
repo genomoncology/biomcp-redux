@@ -1,0 +1,36 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "public",
+  "story": "A device recall card joins the line breaks openFDA writes in its free text with single spaces, so no literal \\u{000a} escape reaches a reply and the text still fits the published Text contract.",
+  "verified": "Native openFDA device recall and device enforcement replies for Z-0884-2026 recorded 2026-11-14 by biomcp --record in pm job j40879; the recall product_description carries 7 line breaks. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection drops address, contact, FEI, lot (code_info) and action text. Recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-line-breaks/README.md. No rows or values invented.",
+  "replay": "diagnostic/recall-line-breaks",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "Z-0884-2026",
+        "--source",
+        "fda-device-recall"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "Z-0884-2026",
+        "--source",
+        "fda-device-recall"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/recall_number": "Z-0884-2026",
+        "/result/product_description": "Reagent Kits/ containing flow cells, components of NextSeq 550Dx Instrument: NextSeq 550Dx High Output Reagent Kit v2.5 (75 cycles) IVD, REF: 20028870/NextSeq 550Dx HO FC Cart v2.5, 75 Cycles, REF: 20031098; NextSeq 550Dx High Output Reagent Kit v2.5 (300 cycles) IVD, REF: 20028871/NextSeq 550Dx HO FC Cart v2.5, 300 Cycles, REF: 20026365; CN NextSeq 550Dx High Output Reagent Kit v2.5 (75 cycles) IVD, REF: 20064341/CN NEXTSEQ 550Dx HO FLOW CELL V2.5, REF: 20062316; CN NextSeq 550Dx High Output Reagent Kit v2.5 (300 cycles) IVD, REF: 20064344/CN NEXTSEQ 550Dx HO FLOW CELL V2.5, REF: 20062316; CN NextSeq 550Dx Mid Output Reagent Kit v2.5 (150 cycles) IVD, 20064345/CN NEXTSEQ 550Dx MO FLOW CELL V2.5, REF: 20062530; CN NextSeq 550Dx Mid Output Reagent Kit v2.5 (300 cycles) IVD, 20064346/CN NEXTSEQ 550Dx MO FLOW CELL V2.5, REF: 20062530; /FLOWCELL, FIT FLUIDICS TESTING, REF: 15050205",
+        "/result/classification": "Class II",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      }
+    }
+  ]
+}
