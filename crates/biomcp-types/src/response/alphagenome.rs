@@ -158,11 +158,12 @@ pub struct AlphaGenomeScorerPage {
     pub data_type: AlphaGenomeDataType,
     /// Complete native tensor dimensions, including every plane.
     pub shape: [u32; 3],
+    // The total comes before the rows (0942): a reader of only the start sees it.
+    /// Value paging within this scorer only.
+    pub page: crate::PageInfo,
     /// Paged values in native row-major order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub rows: Box<[AlphaGenomeValue]>,
-    /// Value paging within this scorer only.
-    pub page: crate::PageInfo,
     /// Next explicit section request, when more native values remain.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next: Option<crate::VariantGet>,

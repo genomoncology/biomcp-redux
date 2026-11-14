@@ -132,10 +132,11 @@ pub struct CellLineSections {
 pub struct CellLineNames {
     /// Selected exact primary accession.
     pub accession: CellosaurusAccession,
-    /// Whole source rows and the total in this collection only.
-    pub items: Capped<CellLineName>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Whole source rows and the total in this collection only.
+    pub items: Capped<CellLineName>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub release: Option<CellLineRelease>,
@@ -149,10 +150,11 @@ pub struct CellLineNames {
 pub struct CellLineXrefs {
     /// Selected exact primary accession.
     pub accession: CellosaurusAccession,
-    /// Whole source rows and the total in this collection only.
-    pub items: Capped<CellLineXref>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Whole source rows and the total in this collection only.
+    pub items: Capped<CellLineXref>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub release: Option<CellLineRelease>,
@@ -166,10 +168,11 @@ pub struct CellLineXrefs {
 pub struct CellLineVariants {
     /// Selected exact primary accession.
     pub accession: CellosaurusAccession,
-    /// Whole source rows and the total in this collection only.
-    pub items: Capped<CellLineVariation>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Offset within this collection, never within another section.
     pub offset: u32,
+    /// Whole source rows and the total in this collection only.
+    pub items: Capped<CellLineVariation>,
     /// Independently fetched publisher release.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub release: Option<CellLineRelease>,
@@ -243,10 +246,11 @@ pub struct CellLineChembl {
 
     /// Requested exact accession.
     pub accession: CellosaurusAccession,
-    /// Every selected whole metadata row and the native total.
-    pub items: Capped<CellLineChemblRecord>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Native metadata page offset.
     pub offset: u32,
+    /// Every selected whole metadata row and the native total.
+    pub items: Capped<CellLineChemblRecord>,
 }
 /// Native assay total for one source-local cell identity; no activity or sensitivity count.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

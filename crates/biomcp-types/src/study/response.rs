@@ -15,11 +15,12 @@ pub struct StudySnapshot {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct StudyPage {
+    // The page comes before the rows (0942): a reader of only the start sees the total.
+    /// Snapshot-scoped matching counts and offset.
+    pub page: PageInfo,
     /// Whole source headers, without expanded descriptions.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudyHeader]>,
-    /// Snapshot-scoped matching counts and offset.
-    pub page: PageInfo,
     /// Catalog acquisition provenance.
     pub snapshot: StudySnapshot,
 }
@@ -81,11 +82,12 @@ page!(
 pub struct StudyFiles {
     /// Exact study directory scope.
     pub study_id: StudyId,
+    // The page comes before the rows (0942): a reader of only the start sees the total.
+    /// Bounds within the complete received directory.
+    pub page: PageInfo,
     /// Source-ordered repository file references.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudyFile]>,
-    /// Bounds within the complete received directory.
-    pub page: PageInfo,
     /// Directory acquisition wall time in Unix seconds.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub acquired: Option<u64>,
@@ -125,11 +127,12 @@ pub struct StudyMutation {
 pub struct StudySamples {
     /// Exact native study scope.
     pub study_id: StudyId,
+    // The page comes before the rows (0942): a reader of only the start sees the total.
+    /// Bounds within the received collection.
+    pub page: PageInfo,
     /// Source sample identities and types in native order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[StudySample]>,
-    /// Bounds within the received collection.
-    pub page: PageInfo,
     /// Source collection acquisition time.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub acquired: Option<u64>,
@@ -148,10 +151,11 @@ pub struct StudyMutations {
     pub molecular_profile_id: biodata::StudyProfileId,
     /// Exact cBioPortal gene identifier.
     pub entrez_gene_id: biodata::NcbiGeneId,
-    /// Source mutation observations in source order.
-    pub items: Box<[StudyMutation]>,
+    // The page comes before the rows (0942): a reader of only the start sees the total.
     /// Bounds within the received collection.
     pub page: PageInfo,
+    /// Source mutation observations in source order.
+    pub items: Box<[StudyMutation]>,
     /// Source collection acquisition time.
     pub acquired: Option<u64>,
 }

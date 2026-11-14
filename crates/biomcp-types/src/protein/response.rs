@@ -44,11 +44,12 @@ impl ResponseBody for ProteinFeatures {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinDomains {
+    // The total comes before the rows (0942): a reader of only the start sees it.
+    /// Native source total before type selection or exact participant admission.
+    pub native_total: u64,
     /// Bounded retained rows in source order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ProteinDomainMatch]>,
-    /// Native source total before type selection or exact participant admission.
-    pub native_total: u64,
     /// How to read the spans above; present when any row has a fragment, but not inside a card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub coordinate_note: Option<Box<str>>,
@@ -69,11 +70,12 @@ page!(
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinComplexes {
+    // The total comes before the rows (0942): a reader of only the start sees it.
+    /// Native source total before type selection or exact participant admission.
+    pub native_total: u64,
     /// Bounded retained rows in source order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ProteinComplexHeader]>,
-    /// Native source total before type selection or exact participant admission.
-    pub native_total: u64,
 }
 impl ResponseBody for ProteinComplexes {
     const SCHEMA: &'static str = "biomcp.protein-complexes/5";
@@ -188,8 +190,9 @@ impl ResponseBody for ProteinFunctionResult {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSectionPage<T> {
-    /// Whole native rows in source order.
-    pub items: Box<[T]>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Number of source rows before card bounding.
     pub total: u64,
+    /// Whole native rows in source order.
+    pub items: Box<[T]>,
 }

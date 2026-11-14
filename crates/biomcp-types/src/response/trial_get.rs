@@ -114,13 +114,14 @@ pub struct TrialRecords<T> {
     /// Checked request for the next intact records, absent when complete.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<crate::TrialGet>,
-    /// Complete records in source order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
-    pub items: Box<[T]>,
+    // The total comes before the rows (0942): a reader of only the start sees it.
     /// Offset in the unchanged source collection.
     pub offset: u32,
     /// Original collection size.
     pub total: u32,
+    /// Complete records in source order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub items: Box<[T]>,
 }
 /// Source arm rows followed by source intervention rows, each in its native order.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

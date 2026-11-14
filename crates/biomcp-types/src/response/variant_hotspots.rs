@@ -13,11 +13,12 @@ pub struct VariantHotspots {
         deserialize_with = "data_reason"
     )]
     reason: Option<crate::Reason>,
+    // The page comes before the rows (0942): a reader of only the start sees the total.
+    /// Disclosure bounds for this section.
+    pub page: PageInfo,
     /// Native residue records in source order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub records: Box<[HotspotRecord]>,
-    /// Disclosure bounds for this section.
-    pub page: PageInfo,
     /// Continue this section without changing identity selectors.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next: Option<VariantGet>,
