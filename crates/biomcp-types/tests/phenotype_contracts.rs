@@ -36,6 +36,7 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         Some("hierarchy"),
         Some("diseases"),
         Some("genes"),
+        Some("ancestors"),
     ] {
         let mut value = json!({"id":"HP:0001250"});
         if let Some(section) = section {
@@ -46,24 +47,45 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         }
         let get: PhenotypeGet = serde_json::from_value(value.clone()).unwrap();
         let association = matches!(section, Some("diseases" | "genes"));
+        let ancestors = section == Some("ancestors");
         let monarch = association || section == Some("hierarchy");
+        let expected = if ancestors {
+            "ols"
+        } else if monarch {
+            "monarch"
+        } else {
+            "hpo"
+        };
         assert_eq!(
             get.source(),
-            if monarch {
+            if ancestors {
+                PhenotypeSource::Ols
+            } else if monarch {
                 PhenotypeSource::Monarch
             } else {
                 PhenotypeSource::Hpo
             }
         );
-        assert_eq!(get.section_limit(), if association { 1 } else { 5 });
-        for source in ["hpo", "monarch"] {
+        assert_eq!(
+            get.section_limit(),
+            if ancestors {
+                50
+            } else if association {
+                1
+            } else {
+                5
+            }
+        );
+        for source in ["hpo", "monarch", "ols"] {
             value
                 .as_object_mut()
                 .unwrap()
                 .insert("source".into(), json!(source));
+            let served = source == expected || (source == "monarch" && expected == "hpo");
             assert_eq!(
                 serde_json::from_value::<PhenotypeGet>(value.clone()).is_ok(),
-                source == "monarch" || !monarch
+                served,
+                "{section:?} {source}"
             );
         }
     }
@@ -76,6 +98,17 @@ fn source_and_section_pairings_validate_before_any_adapter() {
         card.with_section(biomcp_types::PhenotypeSection::Synonyms)
             .is_ok()
     );
+    let ancestors = card
+        .with_section(biomcp_types::PhenotypeSection::Ancestors)
+        .unwrap();
+    assert_eq!(ancestors.source(), PhenotypeSource::Ols);
+    assert_eq!(ancestors.section_limit(), 50);
+    for bad in [
+        json!({"id":"HP:0001250","source":"ols"}),
+        json!({"id":"HP:0001250","section":"ancestors","snapshot":"x"}),
+    ] {
+        assert!(serde_json::from_value::<PhenotypeGet>(bad).is_err());
+    }
     for bad in [
         json!({"text":"x","source":"hpo"}),
         json!({"text":" "}),
@@ -251,6 +284,11 @@ fn seven_public_envelopes_keep_source_cards_and_native_section_rows() {
     envelope::<PhenotypeHierarchy>(
         json!({"id":"HP:0001250","section":"hierarchy"}),
         json!({"items":[{"id":"HP:0000001","label":"All","relation":"super_classes","attribution":{"source":"synthetic"}}],"components":[]}),
+    )
+    .unwrap();
+    envelope::<PhenotypeAncestors>(
+        json!({"id":"HP:0012469","section":"ancestors"}),
+        json!({"items":[{"id":"HP:0001250","label":"Seizure"},{"id":"HP:0000001"}],"components":[]}),
     )
     .unwrap();
     let empty = json!({"items":[],"components":[],"direct":true});

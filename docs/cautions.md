@@ -143,7 +143,7 @@ Text matches literally and case-insensitively in native study IDs, names and des
 
 ## Phenotype sections
 
-Each section returns five rows by default; `--section-limit` and `--section-offset` select a local page. Missing source fields remain unavailable, and empty source arrays remain empty collections. A synonym, cross reference or hierarchy link supplies no clinical equivalence.
+Each section returns five rows by default, and `ancestors` returns 50; `--section-limit` and `--section-offset` select a local page. Missing source fields remain unavailable, and empty source arrays remain empty collections. A synonym, cross reference or hierarchy link supplies no clinical equivalence. The `ancestors` section comes from OLS, not Monarch, so it answers when Monarch is down: it lists every term the queried term sits under, up to the HP root, without the path between them.
 
 ## Phenotype set rankings
 
