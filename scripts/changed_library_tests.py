@@ -38,11 +38,11 @@ def commands(names):
     library = [name for name in names if name != 'biomcp']
     runs = []
     if library:
-        runs.append(['cargo', 'test', '--locked', '--features', 'biomcp-types/schema',
+        runs.append(['cargo', 'test', '--locked', '--no-fail-fast', '--features', 'biomcp-types/schema',
                      *[arg for name in library for arg in ('-p', name)]])
     if 'biomcp' in names:
         # The biomcp crate's other test targets are cases and ratchets, which the gate already runs.
-        runs.append(['cargo', 'test', '--locked', '-p', 'biomcp', '--bin', 'biomcp'])
+        runs.append(['cargo', 'test', '--locked', '--no-fail-fast', '-p', 'biomcp', '--bin', 'biomcp'])
     threads = os.environ.get('RUST_TEST_THREADS', '').strip()
     return [run + ['--', '--test-threads', threads] if threads else run for run in runs]
 
@@ -58,12 +58,12 @@ def main():
         print(f'library-tests: no base from {BASE_REF} ({error.stderr.strip()}); running every crate', flush=True)
         base, names = 'none', every
     print(f"library-tests base={base} crates={','.join(names) or 'none'}", flush=True)
+    # Run every command, so one gate names every failing test.
+    status = 0
     for command in commands(names):
         print('library-tests run: ' + ' '.join(command), flush=True)
-        status = subprocess.run(command).returncode
-        if status:
-            return status
-    return 0
+        status = subprocess.run(command).returncode or status
+    return status
 
 
 if __name__ == '__main__':

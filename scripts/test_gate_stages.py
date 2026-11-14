@@ -129,12 +129,12 @@ class GateStages(unittest.TestCase):
             commit('crates/biomcp-fetch/tests/record/command_budget.rs')
             result = run()
             self.assertIn('crates=biomcp-fetch\n', result.stdout)
-            self.assertIn('cargo test --locked --features biomcp-types/schema -p biomcp-fetch -- --test-threads 3',
+            self.assertIn('cargo test --locked --no-fail-fast --features biomcp-types/schema -p biomcp-fetch -- --test-threads 3',
                           result.stdout)
             self.assertNotIn('-p biomcp ', result.stdout)
             self.assertEqual(run(CARGO_FAIL='1').returncode, 9)
             commit('crates/biomcp/src/main.rs')
-            self.assertIn('cargo test --locked -p biomcp --bin biomcp -- --test-threads 3', run().stdout)
+            self.assertIn('cargo test --locked --no-fail-fast -p biomcp --bin biomcp -- --test-threads 3', run().stdout)
             commit('Cargo.lock', 'y')
             self.assertIn('crates=biomcp,biomcp-fetch,biomcp-types', run().stdout)
             git('checkout', '-q', 'main')
