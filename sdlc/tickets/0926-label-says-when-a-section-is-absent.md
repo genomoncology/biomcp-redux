@@ -1,6 +1,7 @@
 # 0926 — label-says-when-a-section-is-absent
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 2ee1af603bedeb81acfe585aeeac4ddc321919d2
 
 Milestone: 7
 
@@ -31,3 +32,9 @@ The drug-safety persona on current Bot (bench `personas/pv-scientist/runs/2026-1
 ## Changes
 
 - Changes: the drug label section code, a case, generated docs if a message is added.
+
+## Progress
+
+- 2026-11-14 measured (job j40257, live openFDA): the bot build already said "this label has no boxed_warning section" in `result.hint`, but it neither named the label nor came early: the hint began at byte 1,611 of the 2,127-byte reply, after the 34-name section list, and the persona read only the first 1,500 bytes and looked for a top-level `hint`. KEYTRUDA (set 9333c79b-d487-4538-a9f0-71b91a02b287, version 229) and KEYTRUDA QLEX (set 097d166f-…, version 19) both lack openFDA's `boxed_warnings` field.
+- Changed: the hint now names the label, "KEYTRUDA's label (set 9333c79b-d487-4538-a9f0-71b91a02b287, version 229) has no boxed_warning section; …" (brand, else generic; "The label (set …)" when the source gives no name; version left out when the source gives none). `DrugLabel.hint` now serializes after `identity` and before `label` and `sections`, so it starts at byte 752. No schema change: same optional field and description.
+- Proof: `tests/cases/drug/label-no-boxed-warning.yaml` replays the persona's call (`get drug pembrolizumab label --label-section boxed_warning`) over the two openFDA replies recorded whole in j40257 (1.07 MB and 2.15 MB); reply 2,189 bytes, ceiling 2,520. `label-section-absent` now expects RASONQUE's named note; `several-sections-by-name` asserts the boxed-warning part keeps its text and has no hint or section list.
