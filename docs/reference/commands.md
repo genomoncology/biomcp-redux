@@ -707,22 +707,22 @@ Options:
 
 ```
 
-Search human phenotypes in HPO. Sources: hpo, monarch.
+Search human phenotypes in HPO. Sources: hpo, monarch, ols.
 
 - `--group`: HP IDs only: rank genes, the default, or diseases; help search phenotype
 HP IDs only: rank genes, the default, or diseases.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --group diseases. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
+- `--limit`: Maximum source headers, default five. Value form: integer. Example: --limit 3. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
 - `--metric`: HP IDs only: the Monarch similarity metric to rank by; help search phenotype
 HP IDs only: the Monarch similarity metric to rank by.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --metric phenodigm-score. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
+- `--offset`: Source source row offset; a ranked HP ID set has no further pages. Value form: integer. Example: --offset 0. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
 - `--search-mode`: HP IDs only: hybrid (default) or slower full; help search phenotype
 HP IDs only: hybrid (default) or slower full.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --search-mode full. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
 - `--source`: Monarch only; HPO search is unsupported; help search phenotype
 Monarch only; HPO search is unsupported.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
 - `text`: Unchanged exact term search text, or HP IDs separated by commas to rank genes or diseases for the set.
 Form: search phenotype TEXT; not --text.
 
@@ -2600,7 +2600,7 @@ Options:
           [possible values: json, md]
 
       --section-limit <section_limit>
-          Default five text/link rows or one complete association row.
+          Default five text/link rows, one complete association row or 50 ancestors.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -2609,11 +2609,11 @@ Options:
           Native section row offset.
 
       --snapshot <snapshot>
-          Retained exact source reply for local text and link pages; unsupported for diseases and genes.
+          Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors.
 
       --source <source>
           HPO or Monarch for cards, synonyms and xrefs; Monarch only; help get phenotype
-          HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
+          HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for ancestors, otherwise Monarch.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -2635,19 +2635,19 @@ Options:
 
 ```
 
-Get human phenotype details and relationships. Sources: hpo, monarch.
+Get human phenotype details and relationships. Sources: hpo, monarch, ols.
 
 - `id`: Exact HP identifier.
 Form: get phenotype ID SECTION; not --id.
 - `section`: Absent means the source identity card; help get phenotype
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get phenotype ID SECTION; not --section.
-- `--section-limit`: Default five text/link rows or one complete association row. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch; source restrictions in the field description apply.
-- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases and genes. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: hpo, monarch; source restrictions in the field description apply.
+- `--section-limit`: Default five text/link rows, one complete association row or 50 ancestors. Value form: integer. Example: --section-limit 1. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
+- `--section-offset`: Source section row offset. Value form: integer. Example: --section-offset 0. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
+- `--snapshot`: Retained exact source reply for local text and link pages; unsupported for diseases, genes and ancestors. Value form: string. Example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value). Command sources: hpo, monarch, ols; source restrictions in the field description apply.
 - `--source`: HPO or Monarch for cards, synonyms and xrefs; Monarch only; help get phenotype
-HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes. Defaults to HPO for cards, synonyms and xrefs, otherwise Monarch.
-Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch; source restrictions in the field description apply.
+HPO or Monarch for cards, synonyms and xrefs; Monarch only for hierarchy, diseases and genes; OLS only for ancestors. Defaults to HPO for cards, synonyms and xrefs, OLS for ancestors, otherwise Monarch.
+Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source monarch. Command sources: hpo, monarch, ols; source restrictions in the field description apply.
 
 Absent means the source identity card.
 
@@ -2656,6 +2656,7 @@ Absent means the source identity card.
 - `hierarchy`: Source direct parent and child links.
 - `diseases`: Source disease association rows.
 - `genes`: Source human gene association rows.
+- `ancestors`: Every ancestor term up to the ontology root, from OLS.
 
 ## biomcp get pathway
 

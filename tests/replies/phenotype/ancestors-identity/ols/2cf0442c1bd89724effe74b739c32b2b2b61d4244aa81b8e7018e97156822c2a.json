@@ -1,0 +1,25 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/v2/ontologies/hp/classes?curie=HP%3A9999999&includeObsoleteEntities=true",
+  "exchanges": [
+    {
+      "fetched": 1794664290,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 7271,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "page" : 0,
+  "numElements" : 0,
+  "totalPages" : 0,
+  "totalElements" : 0,
+  "elements" : [ ],
+  "facetFieldsToCounts" : { }
+}
+      }
+    }
+  ]
+}

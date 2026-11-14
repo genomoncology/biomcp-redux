@@ -1,0 +1,314 @@
+{
+  "method": "GET",
+  "source": "ols",
+  "url": "https://www.ebi.ac.uk/ols4/api/v2/ontologies/hp/classes?curie=HP%3A0012469&includeObsoleteEntities=true",
+  "exchanges": [
+    {
+      "fetched": 1794664282,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 7921,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "page" : 0,
+  "numElements" : 1,
+  "totalPages" : 1,
+  "totalElements" : 1,
+  "elements" : [ {
+    "appearsIn" : [ "cpont", "hp", "upheno" ],
+    "curie" : "HP:0012469",
+    "definedBy" : [ "hp" ],
+    "definition" : [ {
+      "type" : [ "reification" ],
+      "value" : "Infantile spasms represent a subset of \"epileptic spasms\". Infantile Spasms are epileptic spasms starting in the first year of life (infancy).",
+      "axioms" : [ {
+        "http://www.geneontology.org/formats/oboInOwl#hasDbXref" : "https://orcid.org/0000-0001-8486-0558"
+      } ]
+    } ],
+    "definitionProperty" : "http://purl.obolibrary.org/obo/IAO_0000115",
+    "directAncestor" : [ "http://purl.obolibrary.org/obo/HP_0000001", "http://purl.obolibrary.org/obo/HP_0000118", "http://purl.obolibrary.org/obo/HP_0000707", "http://purl.obolibrary.org/obo/HP_0001250", "http://purl.obolibrary.org/obo/HP_0011097", "http://purl.obolibrary.org/obo/HP_0012638", "http://purl.obolibrary.org/obo/HP_0020219" ],
+    "directParent" : [ "http://purl.obolibrary.org/obo/HP_0011097" ],
+    "hasDirectChildren" : false,
+    "hasDirectParents" : true,
+    "hasHierarchicalChildren" : false,
+    "hasHierarchicalParents" : true,
+    "hierarchicalAncestor" : [ "http://purl.obolibrary.org/obo/HP_0000001", "http://purl.obolibrary.org/obo/HP_0000118", "http://purl.obolibrary.org/obo/HP_0000707", "http://purl.obolibrary.org/obo/HP_0001250", "http://purl.obolibrary.org/obo/HP_0011097", "http://purl.obolibrary.org/obo/HP_0012638", "http://purl.obolibrary.org/obo/HP_0020219" ],
+    "hierarchicalParent" : [ "http://purl.obolibrary.org/obo/HP_0011097" ],
+    "hierarchicalProperty" : "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+    "imported" : false,
+    "iri" : "http://purl.obolibrary.org/obo/HP_0012469",
+    "isDefiningOntology" : true,
+    "isObsolete" : false,
+    "isPreferredRoot" : false,
+    "label" : [ "Infantile spasms" ],
+    "linkedEntities" : {
+      "HP:0012469" : {
+        "iri" : "http://purl.obolibrary.org/obo/HP_0012469",
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Infantile spasms" ],
+        "curie" : "HP:0012469",
+        "type" : [ "class", "entity" ],
+        "url" : "http://purl.obolibrary.org/obo/HP_0012469",
+        "source" : "https://raw.githubusercontent.com/biopragmatics/bioregistry/main/exports/registry/registry.json"
+      },
+      "http://purl.obolibrary.org/obo/HP_0000001" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 7.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "All" ],
+        "curie" : "HP:0000001",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/HP_0000118" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 24.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Phenotypic abnormality" ],
+        "curie" : "HP:0000118",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/HP_0000707" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 17.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Abnormality of the nervous system" ],
+        "curie" : "HP:0000707",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/HP_0001250" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 11.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Seizure" ],
+        "curie" : "HP:0001250",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/HP_0011097" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 7.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Epileptic spasm" ],
+        "curie" : "HP:0011097",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/HP_0012638" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 17.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Abnormal nervous system physiology" ],
+        "curie" : "HP:0012638",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/HP_0020219" : {
+        "definedBy" : [ "hp" ],
+        "numAppearsIn" : 6.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Motor seizure" ],
+        "curie" : "HP:0020219",
+        "type" : [ "class", "entity" ]
+      },
+      "http://purl.obolibrary.org/obo/IAO_0000115" : {
+        "definedBy" : [ "iao" ],
+        "numAppearsIn" : 235.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "definition" ],
+        "curie" : "IAO:0000115",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "http://purl.org/dc/terms/creator" : {
+        "definedBy" : [ "dcterms" ],
+        "numAppearsIn" : 81.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Creator" ],
+        "curie" : "DCTERMS:creator",
+        "type" : [ "entity", "property" ]
+      },
+      "http://purl.org/dc/terms/date" : {
+        "definedBy" : [ "dcterms" ],
+        "numAppearsIn" : 54.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "Date" ],
+        "curie" : "DCTERMS:date",
+        "type" : [ "entity", "property" ]
+      },
+      "http://www.geneontology.org/formats/oboInOwl#hasDbXref" : {
+        "definedBy" : [ "oio" ],
+        "numAppearsIn" : 216.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "database_cross_reference", "has_dbxref" ],
+        "curie" : "OIO:hasDbXref",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym" : {
+        "definedBy" : [ "oio" ],
+        "numAppearsIn" : 212.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "has_exact_synonym" ],
+        "curie" : "OIO:hasExactSynonym",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "http://www.geneontology.org/formats/oboInOwl#id" : {
+        "definedBy" : [ "oio" ],
+        "numAppearsIn" : 184.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "id" ],
+        "curie" : "OIO:id",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "http://www.w3.org/2000/01/rdf-schema#label" : {
+        "definedBy" : [ "rdfs" ],
+        "numAppearsIn" : 204.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "label" ],
+        "curie" : "RDFS:label",
+        "type" : [ "entity", "property" ]
+      },
+      "http://www.w3.org/2000/01/rdf-schema#subClassOf" : {
+        "definedBy" : [ "rdfs" ],
+        "numAppearsIn" : 8.0,
+        "hasLocalDefinition" : false,
+        "label" : [ "subClassOf" ],
+        "curie" : "RDFS:subClassOf",
+        "type" : [ "entity", "property" ]
+      },
+      "http://www.w3.org/2001/XMLSchema#dateTime" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : false,
+        "type" : [ "class", "entity" ],
+        "label" : [ "dateTime" ],
+        "curie" : "dateTime"
+      },
+      "https://orcid.org/0000-0001-8486-0558" : {
+        "url" : "https://orcid.org/0000-0001-8486-0558",
+        "source" : "https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml",
+        "curie" : "orcid:0000-0001-8486-0558"
+      },
+      "https://orcid.org/0000-0002-0736-9199" : {
+        "url" : "https://orcid.org/0000-0002-0736-9199",
+        "source" : "https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml",
+        "curie" : "orcid:0000-0002-0736-9199"
+      },
+      "https://w3id.org/babelon/comment" : {
+        "numAppearsIn" : 1.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "comment" ],
+        "curie" : "comment",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source" ],
+        "curie" : "source",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source_language" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source_language" ],
+        "curie" : "source_language",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source_value" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source_value" ],
+        "curie" : "source_value",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/source_version" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "source_version" ],
+        "curie" : "source_version",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_confidence" : {
+        "numAppearsIn" : 1.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_confidence" ],
+        "curie" : "translation_confidence",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_date" : {
+        "numAppearsIn" : 1.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_date" ],
+        "curie" : "translation_date",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_language" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_language" ],
+        "curie" : "translation_language",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_precision" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_precision" ],
+        "curie" : "translation_precision",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translation_status" : {
+        "numAppearsIn" : 3.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translation_status" ],
+        "curie" : "translation_status",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translator" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translator" ],
+        "curie" : "translator",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "https://w3id.org/babelon/translator_expertise" : {
+        "numAppearsIn" : 2.0,
+        "hasLocalDefinition" : true,
+        "label" : [ "translator_expertise" ],
+        "curie" : "translator_expertise",
+        "type" : [ "annotationProperty", "entity", "property" ]
+      },
+      "orcid:0009-0004-3413-3132" : {
+        "url" : "https://orcid.org/0009-0004-3413-3132",
+        "source" : "https://raw.githubusercontent.com/geneontology/go-site/master/metadata/db-xrefs.yaml",
+        "curie" : "orcid:0009-0004-3413-3132"
+      }
+    },
+    "linksTo" : [ "http://purl.obolibrary.org/obo/HP_0000001", "http://purl.obolibrary.org/obo/HP_0000118", "http://purl.obolibrary.org/obo/HP_0000707", "http://purl.obolibrary.org/obo/HP_0001250", "http://purl.obolibrary.org/obo/HP_0011097", "http://purl.obolibrary.org/obo/HP_0012469", "http://purl.obolibrary.org/obo/HP_0012638", "http://purl.obolibrary.org/obo/HP_0020219", "http://purl.obolibrary.org/obo/IAO_0000115", "http://purl.org/dc/terms/creator", "http://purl.org/dc/terms/date", "http://www.geneontology.org/formats/oboInOwl#hasDbXref", "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym", "http://www.geneontology.org/formats/oboInOwl#id", "http://www.w3.org/2000/01/rdf-schema#label", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://www.w3.org/2001/XMLSchema#dateTime", "https://w3id.org/babelon/comment", "https://w3id.org/babelon/source", "https://w3id.org/babelon/source_language", "https://w3id.org/babelon/source_value", "https://w3id.org/babelon/source_version", "https://w3id.org/babelon/translation_confidence", "https://w3id.org/babelon/translation_date", "https://w3id.org/babelon/translation_language", "https://w3id.org/babelon/translation_precision", "https://w3id.org/babelon/translation_status", "https://w3id.org/babelon/translator", "https://w3id.org/babelon/translator_expertise" ],
+    "numDescendants" : 0.0,
+    "numHierarchicalDescendants" : 0.0,
+    "ontologyId" : "hp",
+    "ontologyIri" : "http://purl.obolibrary.org/obo/hp/hp-international.owl",
+    "ontologyPreferredPrefix" : "HP",
+    "searchableAnnotationValues" : [ false ],
+    "shortForm" : "HP_0012469",
+    "synonymProperty" : "http://www.geneontology.org/formats/oboInOwl#hasExactSynonym",
+    "type" : [ "class", "entity" ],
+    "http://purl.obolibrary.org/obo/IAO_0000115" : [ {
+      "type" : [ "reification" ],
+      "value" : "Infantile spasms represent a subset of \"epileptic spasms\". Infantile Spasms are epileptic spasms starting in the first year of life (infancy).",
+      "axioms" : [ {
+        "http://www.geneontology.org/formats/oboInOwl#hasDbXref" : "https://orcid.org/0000-0001-8486-0558"
+      } ]
+    } ],
+    "http://purl.org/dc/terms/creator" : "https://orcid.org/0000-0002-0736-9199",
+    "http://purl.org/dc/terms/date" : "2013-11-26T05:36:45Z",
+    "http://www.geneontology.org/formats/oboInOwl#id" : "HP:0012469",
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : "http://www.w3.org/2002/07/owl#Class",
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ "Infantile spasms" ],
+    "http://www.w3.org/2000/01/rdf-schema#subClassOf" : "http://purl.obolibrary.org/obo/HP_0011097"
+  } ],
+  "facetFieldsToCounts" : { }
+}
+      }
+    }
+  ]
+}

@@ -58,6 +58,32 @@ page!(
     "biomcp.phenotype-hierarchy/5",
     "Direct source hierarchy links without graph traversal."
 );
+page!(
+    phenotype,
+    PhenotypeAncestors,
+    PhenotypeAncestor,
+    PhenotypeGet,
+    "biomcp.phenotype-ancestors/1",
+    "Every ancestor of one HP term up to the ontology root, as OLS lists them, in one reply.",
+    [
+    /// True when OLS marks the queried term obsolete; an obsolete term lists no ancestors.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub obsolete: Option<bool>,
+    /// Terms OLS names as replacing an obsolete queried term (IAO:0100001, term replaced by).
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub replaced_by: Box<[PhenotypeAncestor]>,
+    ]
+);
+/// One HP term with its OLS label; as an ancestor row the queried term is under it, not the path between them.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct PhenotypeAncestor {
+    /// Ancestor term identifier.
+    pub id: biodata::Curie,
+    /// OLS label of the ancestor.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<Box<str>>,
+}
 /// Monarch's ranked genes or diseases for a set of HP terms, in Monarch's order.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
