@@ -20,7 +20,8 @@ The review of 0898 (2026-11-13) found the problem.
 - Proof:
   - no file under `tests/replies/` holds real WHO PQ rows. Check by the export's SHA-256 and by its product IDs, such as HA634 and HA110 with their real dates;
   - the 0878 and 0881 cases pass on synthetic replies that keep their edge cases: blank and padded dates, rows with no date, and ties broken by export order;
-  - each replies README says the rows are synthetic.
+  - each replies README says the rows are synthetic;
+  - synthetic rows use invented dates and strengths, never ones copied from real WHO rows. The review of 0898 found a "synthetic" export reusing three real oncology dates with trastuzumab's real strengths. Check every synthetic WHO reply, 0695's included, against the live export by date and strength.
 
 ## Starts from
 
