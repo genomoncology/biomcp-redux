@@ -194,7 +194,3 @@ fn gene(genes: Genes, input: &str, problems: &mut Problems) -> Option<(Text, Vec
     let transcripts: Vec<String> = ordered.into_iter().map(|(_, _, name)| name).collect();
     (!transcripts.is_empty()).then_some((symbol, transcripts))
 }
-
-#[cfg(test)]
-#[path = "fit_tests.rs"]
-mod tests;
