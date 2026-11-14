@@ -1,0 +1,103 @@
+{
+  "feature": "cpic-pgx",
+  "live_check": "public",
+  "story": "CPIC recommendations for one gene and drug can be filtered to one phenotype, and the unfiltered first page lists every phenotype CPIC holds with its row count, so a Poor Metabolizer row past the first page is not missed.",
+  "verified": "CPIC API checked live 2026-11-14: RxNorm:32968 (clopidogrel) has 24 CYP2C19 recommendation rows, three for each of eight phenotypes, and the three Poor Metabolizer rows say \"Avoid clopidogrel if possible\"; the phenotype filter is exact (\"poor metabolizer\" matches nothing). Replies recorded by biomcp --record in a pm job. Before 0936 the persona's first page held only the Ultrarapid and Rapid Metabolizer rows (bench dx-lab-director 2026-11-14 log.md:254-256).",
+  "replay": "pgx/recommendations-filter-by-phenotype",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--drug-id",
+        "RxNorm:32968",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 24,
+        "/result/page/returned": 5,
+        "/result/phenotypes": {
+          "count": 8
+        },
+        "/result/phenotypes/*/phenotype": {
+          "includes_all_of": [
+            "Ultrarapid Metabolizer",
+            "Normal Metabolizer",
+            "Intermediate Metabolizer",
+            "Likely Poor Metabolizer",
+            "Poor Metabolizer",
+            "Indeterminate"
+          ]
+        },
+        "/result/phenotypes/6": {
+          "equals": {
+            "phenotype": "Poor Metabolizer",
+            "rows": 3
+          }
+        }
+      },
+      "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--drug-id",
+        "RxNorm:32968",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "--phenotype",
+        "Poor Metabolizer"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/phenotype": "Poor Metabolizer",
+        "/result/page/total": 3,
+        "/result/items/*/phenotypes/CYP2C19": {
+          "equals": [
+            "Poor Metabolizer",
+            "Poor Metabolizer",
+            "Poor Metabolizer"
+          ]
+        },
+        "/result/items/0/drugrecommendation": "Avoid clopidogrel if possible. Use prasugrel or ticagrelor at standard dose if no contraindication.",
+        "/result/items/2/drugrecommendation": "Avoid clopidogrel if possible. Consider an alternative P2Y12 inhibitor at standard dose if clinically indicated and no contraindication."
+      },
+      "max_bytes": 9000
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--drug-id",
+        "RxNorm:32968",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "--phenotype",
+        "poor metabolizer"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 0,
+        "/result/phenotypes/*/phenotype": {
+          "includes": "Poor Metabolizer"
+        },
+        "/sources/0/notices/*/message": {
+          "includes": "CPIC has no CYP2C19 recommendations for RxNorm:32968 with phenotype poor metabolizer; result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them."
+        }
+      },
+      "max_bytes": 3000
+    }
+  ]
+}

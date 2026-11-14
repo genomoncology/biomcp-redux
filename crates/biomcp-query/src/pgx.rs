@@ -111,11 +111,44 @@ fn read(
             *consumed = p.consumed;
             refusals.include(p.refusals);
             problems.extend(p.problems);
-            if p.total == 0 {
+            let phenotypes = if q.section_offset() != 0 || (p.total == 0 && q.phenotype().is_none())
+            {
+                Vec::new()
+            } else if q.phenotype().is_none() && p.total == p.items.len() as u64 {
+                tally(p.items.iter().filter_map(|r| gene_phenotype(r, q)))
+            } else {
+                match cpic::drug_phenotypes(leg, q) {
+                    Ok(list) => tally(list.into_iter()),
+                    Err(error) => {
+                        let reason = status::reason(error).map_or_else(
+                            || "a local error".to_owned(),
+                            |reason| reason.to_string(),
+                        );
+                        *empty_reason = Some(format!(
+                            "Reading the phenotypes CPIC lists for {} and {} failed ({reason}); the rows shown are complete.",
+                            q.gene(),
+                            drug_label(q)
+                        ));
+                        Vec::new()
+                    }
+                }
+            };
+            if p.total == 0 && phenotypes.is_empty() && empty_reason.is_none() {
                 *empty_reason = empty_pair(leg, q);
+            } else if p.total == 0
+                && let Some(wanted) = q.phenotype()
+                && empty_reason.is_none()
+            {
+                *empty_reason = Some(format!(
+                    "CPIC has no {} recommendations for {} with phenotype {}; result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them.",
+                    q.gene(),
+                    drug_label(q),
+                    wanted.as_str()
+                ));
             }
             (PgxRecommendations::Table {
                 header,
+                phenotypes: phenotypes.into(),
                 page: page_info(q.section_offset(), p.items.len(), p.total),
                 items: p.items.into(),
             })
@@ -198,6 +231,28 @@ fn empty_pair(leg: &Leg<'_>, q: &PgxGet) -> Option<String> {
         )
     })
 }
+fn drug_label(q: &PgxGet) -> String {
+    q.drug_id().map_or_else(String::new, ToString::to_string)
+}
+fn gene_phenotype(row: &biodata::PgxDrugRecommendation, q: &PgxGet) -> Option<Box<str>> {
+    let gene = q.gene().to_string();
+    row.phenotypes
+        .as_ref()?
+        .iter()
+        .find(|(k, _)| k.to_string() == gene)
+        .map(|(_, v)| v.clone())
+}
+/// Count rows per phenotype, keeping first-seen order.
+fn tally(phenotypes: impl Iterator<Item = Box<str>>) -> Vec<biomcp_types::PgxPhenotypeRows> {
+    let mut out: Vec<biomcp_types::PgxPhenotypeRows> = Vec::new();
+    for phenotype in phenotypes {
+        match out.iter_mut().find(|p| p.phenotype == phenotype) {
+            Some(seen) => seen.rows += 1,
+            None => out.push(biomcp_types::PgxPhenotypeRows { phenotype, rows: 1 }),
+        }
+    }
+    out
+}
 fn empty(q: &PgxGet) -> ReplyData {
     let header = header(q.gene());
     let page = page_info(q.section_offset(), 0, 0);
@@ -205,6 +260,7 @@ fn empty(q: &PgxGet) -> ReplyData {
         None | Some(PgxSection::Annotations) => biomcp_types::PgxCard::into_reply(q.clone(), None),
         Some(PgxSection::Recommendations) if q.drug_id().is_some() => (PgxRecommendations::Table {
             header,
+            phenotypes: Box::default(),
             items: Box::default(),
             page,
         })
