@@ -1386,12 +1386,27 @@ Options:
           [default: json]
           [possible values: json, md]
 
+      --approved-from <approved_from>
+          Original approval from, inclusive; Drugs@FDA only.
+          Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
+          falls in the window; BioMCP reads every match and counts the kept ones.
+
+      --disable-sources <disable-sources>
+          Exclude source names or source terms groups. Example: --disable-sources civic.
+
+      --approved-to <approved_to>
+          Original approval to, inclusive; Drugs@FDA only.
+          Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+
       --classification <classification>
           Native FDA classification; drug recalls only; help search drug
           Native FDA classification; drug recalls only.
 
-      --disable-sources <disable-sources>
-          Exclude source names or source terms groups. Example: --disable-sources civic.
+      --source_pacing <source_pacing>
+          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
+
+      --config <config>
+          Read configuration from this file. Example: --config config.json.
 
       --exact-term[=<exact_term>]
           Search the typed name only.
@@ -1408,12 +1423,6 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --source_pacing <source_pacing>
-          Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
-
-      --config <config>
-          Read configuration from this file. Example: --config config.json.
-
       --firm <firm>
           Recall firm phrase.
           Matches the published firm literally.
@@ -1429,14 +1438,6 @@ Options:
       --initiated-to <initiated_to>
           Inclusive initiation day, YYYY-MM-DD; drug recalls only.
 
-      --limit <limit>
-          Native candidate rows per page.
-
-      --name-selector <name_selector>
-          ChEMBL name selector; help search drug
-          ChEMBL name selector.
-          Omit to search the preferred name.
-
       --offline[=<offline>]
           Read local data without source requests.
 
@@ -1448,6 +1449,14 @@ Options:
 
           [default: false]
           [possible values: true, false]
+
+      --limit <limit>
+          Native candidate rows per page.
+
+      --name-selector <name_selector>
+          ChEMBL name selector; help search drug
+          ChEMBL name selector.
+          Omit to search the preferred name.
 
       --name-snapshot <name_snapshot>
           Label name page token.
@@ -1473,6 +1482,8 @@ Options:
           newest: each application's latest submission status date first, ties by application number;
           applications with no dated submission come last. That latest date is often a labeling or
           efficacy supplement, not the original approval; each row's original_approval gives that.
+          original-approval: each row's original_approval date first, ties by application number;
+          rows without one come last. BioMCP reads every match and orders them.
           Omit it for the source's own order.
 
       --source <source>
@@ -1495,6 +1506,11 @@ Search drugs and medicines by name or source label indication. Sources: chembl, 
 - `--applicant`: Applicant name start; Drugs@FDA only.
 Matches source sponsor_name values starting with this text, ignoring letter case;
 no company-family or subsidiary inference. An optional name narrows the same search. Value form: string. Example: --applicant 'ALNYLAM PHARMS INC'. Only with --source drugsfda.
+- `--approved-from`: Original approval from, inclusive; Drugs@FDA only.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
+falls in the window; BioMCP reads every match and counts the kept ones. Value form: string. Example: --approved-from 2024-01-01. Only with --source drugsfda.
+- `--approved-to`: Original approval to, inclusive; Drugs@FDA only.
+Accepts YYYY, YYYY-MM or YYYY-MM-DD. Value form: string. Example: --approved-to 2023. Only with --source drugsfda.
 - `--classification`: Source FDA classification; drug recalls only; help search drug
 Source FDA classification; drug recalls only.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --classification 'Class II'. Only with --source fda-drug-recall.
@@ -1535,6 +1551,8 @@ Drugs@FDA order.
 newest: each application's latest submission status date first, ties by application number;
 applications with no dated submission come last. That latest date is often a labeling or
 efficacy supplement, not the original approval; each row's original_approval gives that.
+original-approval: each row's original_approval date first, ties by application number;
+rows without one come last. BioMCP reads every match and orders them.
 Omit it for the source's own order.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --sort newest. Only with --source drugsfda.
 - `--source`: Selected source; help search drug

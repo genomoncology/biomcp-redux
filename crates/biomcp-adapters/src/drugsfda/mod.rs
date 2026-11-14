@@ -21,6 +21,7 @@ mod admit;
 mod map;
 mod raw;
 mod search;
+mod whole;
 mod wire;
 use biodata::{DrugId, DrugIdentityLevel, Text};
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, ReplyMetadata, RequestError};
@@ -29,10 +30,30 @@ pub use map::Application;
 use raw::Application as RawApplication;
 pub(crate) use raw::date;
 pub use search::{NameStep, names_fit, search, search_widened};
+pub use whole::MOST as WHOLE_MOST;
 /// The native sort that orders applications by their latest submission status date. The source
 /// sorts a many-valued field by its largest value; the application number breaks ties so pages
 /// stay stable.
 const NEWEST: &str = "submissions.submission_status_date:desc,application_number:asc";
+/// How a search orders and windows applications; the default keeps the source's own order.
+#[derive(Clone, Copy, Debug, Default)]
+pub struct Order {
+    /// Requested order.
+    pub sort: Option<DrugFdaSort>,
+    /// Inclusive lower bound on the original approval date.
+    pub approved_from: Option<biodata::PartialDate>,
+    /// Inclusive upper bound on the original approval date.
+    pub approved_to: Option<biodata::PartialDate>,
+}
+impl Order {
+    /// Whether BioMCP must read the whole match set: openFDA cannot sort or filter on one
+    /// submission of an application.
+    fn whole(&self) -> bool {
+        self.sort == Some(DrugFdaSort::OriginalApproval)
+            || self.approved_from.is_some()
+            || self.approved_to.is_some()
+    }
+}
 const APPLICATION: Endpoint = SPEC.get("").fresh(Freshness::Days(1)).json_absence();
 /// One native application candidate page and its original retrieval metadata.
 #[derive(Debug)]
@@ -43,12 +64,22 @@ pub struct Page {
     pub problems: Vec<biomcp_types::Problem>,
     /// Native applications, without selecting a first product.
     pub records: Vec<Application>,
-    /// Native application total, independent of product count.
+    /// Application total, independent of product count: the source's total, or the window's
+    /// count when BioMCP read the whole set.
     pub total: u64,
+    /// The source's total when BioMCP read the whole match set to order or window it; past
+    /// `WHOLE_MOST` nothing beyond the first read is fetched and no rows are returned.
+    pub matched: Option<u64>,
     /// Actual transport retrieval metadata.
     pub metadata: ReplyMetadata,
     /// Native dataset last_updated date; distinct from record events and retrieval.
     pub updated: Option<biodata::PartialDate>,
+}
+impl Page {
+    /// Whether the source matched any application, before any original approval window.
+    pub(crate) fn found(&self) -> bool {
+        self.matched.unwrap_or(self.total) > 0
+    }
 }
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
@@ -68,7 +99,7 @@ pub fn search_names(
     page(
         leg,
         &format!("products.brand_name:{name} OR products.active_ingredients.name:{name}"),
-        None,
+        Order::default(),
         limit,
         offset,
         None,
@@ -95,7 +126,7 @@ pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
     page(
         leg,
         &format!("application_number:{}", literal(&id.to_string())),
-        None,
+        Order::default(),
         1,
         0,
         Some(id),
@@ -104,7 +135,7 @@ pub fn get(leg: &Leg<'_>, id: &DrugId) -> Result<Page, RequestError> {
 fn page(
     leg: &Leg<'_>,
     selector: &str,
-    sort: Option<DrugFdaSort>,
+    order: Order,
     limit: u32,
     offset: u32,
     id: Option<&DrugId>,
@@ -112,12 +143,27 @@ fn page(
     if !(1..=50).contains(&limit) {
         return Err(biomcp_fetch::bad_reply(Source::Drugsfda, Some(200)));
     }
+    if order.whole() {
+        return whole::page(leg, selector, order, limit, offset);
+    }
+    let sort = (order.sort == Some(DrugFdaSort::Newest)).then_some(NEWEST);
+    read(leg, selector, sort, limit, offset, id)
+}
+/// One native request, in the source's order or the given native sort.
+fn read(
+    leg: &Leg<'_>,
+    selector: &str,
+    sort: Option<&str>,
+    limit: u32,
+    offset: u32,
+    id: Option<&DrugId>,
+) -> Result<Page, RequestError> {
     let mut args = vec![
         ("search", Arg::Text(selector)),
         ("limit", Arg::Num(limit.into())),
     ];
-    if let Some(DrugFdaSort::Newest) = sort {
-        args.push(("sort", Arg::Text(NEWEST)));
+    if let Some(sort) = sort {
+        args.push(("sort", Arg::Text(sort)));
     }
     if offset > 0 {
         args.push(("skip", Arg::Num(offset.into())));
@@ -165,6 +211,7 @@ fn page(
         problems: problems.list,
         records: records.into_iter().map(map::Application).collect(),
         total,
+        matched: None,
         metadata,
         updated,
     })

@@ -13,11 +13,14 @@ fn default_limit() -> u32 {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
-#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["newest"])))]
+#[cfg_attr(feature = "schema", schemars(with = "str", extend("enum" = ["newest", "original-approval"])))]
 pub enum DrugFdaSort {
     /// Latest submission status date first, ties by application number; applications with no
     /// dated submission last.
     Newest,
+    /// Original approval date first, ties by application number; applications with no approved
+    /// original submission last. BioMCP reads the whole match set and orders it.
+    OriginalApproval,
 }
 #[doc = " Search one drug source. FDA drug recalls accept a name or native firm, classification, \
     status, reason and initiation dates; counts are recall records. \
@@ -79,10 +82,23 @@ struct SearchFields {
     #[doc = "Drugs@FDA order.\nnewest: each application's latest submission status date first, ties by application number;"]
     /// applications with no dated submission come last. That latest date is often a labeling or
     /// efficacy supplement, not the original approval; each row's original_approval gives that.
+    /// original-approval: each row's original_approval date first, ties by application number;
+    /// rows without one come last. BioMCP reads every match and orders them.
     /// Omit it for the source's own order.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
     sort: Option<DrugFdaSort>,
+    /// Original approval from, inclusive; Drugs@FDA only.
+    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD. Keeps applications whose original_approval date
+    /// falls in the window; BioMCP reads every match and counts the kept ones.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
+    approved_from: Option<biodata::PartialDate>,
+    /// Original approval to, inclusive; Drugs@FDA only.
+    /// Accepts YYYY, YYYY-MM or YYYY-MM-DD.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Drugsfda)))]
+    approved_to: Option<biodata::PartialDate>,
     /// Recall firm phrase.
     /// Matches the published firm literally.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -172,6 +188,7 @@ impl TryFrom<SearchFields> for DrugSearch {
         if fields.sort.is_some() && fields.source != DrugSource::Drugsfda {
             return Err(QueryInvalid::new(&["sort", "source"]));
         }
+        validate_approved(&fields)?;
         let who_dates = fields.prequalified_from.is_some() || fields.prequalified_to.is_some();
         if who_dates && fields.source != DrugSource::WhoPq {
             return Err(QueryInvalid::new(&[
@@ -268,6 +285,8 @@ impl DrugSearch {
             offset: 0,
             applicant: None,
             sort: None,
+            approved_from: None,
+            approved_to: None,
             firm: None,
             classification: None,
             status: None,
@@ -287,6 +306,28 @@ impl DrugSearch {
             .name_selector
             .unwrap_or(super::DrugNameSelector::Preferred)
     }
+}
+/// The original approval window: Drugs@FDA only, and never ending before it starts.
+fn validate_approved(fields: &SearchFields) -> Result<(), QueryInvalid> {
+    let window = fields.approved_from.is_some() || fields.approved_to.is_some();
+    if window && fields.source != DrugSource::Drugsfda {
+        return Err(QueryInvalid::new(&[
+            "approved_from",
+            "approved_to",
+            "source",
+        ]));
+    }
+    if fields
+        .approved_from
+        .zip(fields.approved_to)
+        .is_some_and(|(a, b)| {
+            (a.year(), a.month().unwrap_or(1), a.day().unwrap_or(1))
+                > (b.year(), b.month().unwrap_or(12), b.day().unwrap_or(31))
+        })
+    {
+        return Err(QueryInvalid::new(&["approved_from", "approved_to"]));
+    }
+    Ok(())
 }
 fn present_query<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option<Text>, D::Error> {
     Text::deserialize(d).map(Some)
@@ -313,6 +354,14 @@ impl DrugSearch {
     /// Requested Drugs@FDA application order; none keeps the source order.
     pub fn sort(&self) -> Option<DrugFdaSort> {
         self.0.sort
+    }
+    /// Inclusive lower bound on a Drugs@FDA application's original approval date.
+    pub fn approved_from(&self) -> Option<biodata::PartialDate> {
+        self.0.approved_from
+    }
+    /// Inclusive upper bound on a Drugs@FDA application's original approval date.
+    pub fn approved_to(&self) -> Option<biodata::PartialDate> {
+        self.0.approved_to
     }
     /// Selected native recall filter.
     pub fn firm(&self) -> Option<&Text> {
