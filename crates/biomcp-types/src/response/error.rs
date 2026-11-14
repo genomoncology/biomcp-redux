@@ -62,7 +62,9 @@ singleton! {
  VariantNormalizeRoute => "normalization needs reference-qualified HGVS; for gene shorthand use search variant \
  --gene <SYMBOL> --coding <CHANGE> or --protein <CHANGE>, then get variant <ID>",
  GwasPositiveThreshold => "--p-value threshold must be a positive probability in scientific notation",
+ // No longer sent: WhoSearchFilters replaced it, and the 1.0 schema candidate keeps the literal.
  WhoSearchArguments => "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range",
+ WhoSearchFilters => "WHO PQ search requires a name, --therapeutic-area or a --prequalified-from/--prequalified-to date range",
  WhoIvdYears => "WHO IVD publishes only the prequalification year; give --prequalified-from/--prequalified-to as YYYY",
  SourceSelector => "choose one of the source selector values",
  UnsupportedFilter => "a selected source does not support the requested filters",

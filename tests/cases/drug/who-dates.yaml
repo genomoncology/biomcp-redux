@@ -262,7 +262,7 @@
       ],
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/message": "WHO PQ search requires a name or --prequalified-from/--prequalified-to date range"
+        "/error/message": "WHO PQ search requires a name, --therapeutic-area or a --prequalified-from/--prequalified-to date range"
       },
       "max_bytes": 40000,
       "exit": 2

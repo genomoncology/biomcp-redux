@@ -30,7 +30,8 @@ impl TryFrom<Fields> for NativeRow {
         Ok(Self(fields))
     }
 }
-fn valid_id(id: &str) -> bool {
+/// Whether the text has DDInter's identifier form.
+pub(super) fn valid_id(id: &str) -> bool {
     id.strip_prefix("DDInter")
         .is_some_and(|n| !n.is_empty() && n.bytes().all(|b| b.is_ascii_digit()))
 }

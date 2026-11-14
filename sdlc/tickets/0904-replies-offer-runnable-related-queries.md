@@ -16,6 +16,7 @@ Evidence from that run (biomed-agent-bench `personas/reg-affairs/runs/2026-11-13
 - 10 of its 11 help reads came before its first real query (shell calls 2-11). Four of them were spent learning one section's options (`help get drug approvals` and variants).
 - It sent `--bogus x` three times (calls 22, 29, 33) to get the list of valid options from the refusal. It was using errors as a menu.
 - Replies already carry `next` steps (section, page, pivot, disambiguate, configure). But 27 of the run's next steps were `configure` pointing to `help get drug` or `help search drug`, not to a command the agent could run.
+- The pharmacovigilance persona's round 2 (bench `personas/pv-scientist/runs/2026-11-13-r2/`, log.md:48-52) found no DDInter row for any pair in its triplet. The reply said no row does not mean safe, but offered no next step. The label's own drug-interactions section, which BioMCP already reads (`get drug X label --label-section drug_interactions`), is the related query the persona asked for.
 
 ## Proof
 

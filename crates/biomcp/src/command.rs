@@ -473,6 +473,7 @@ fn query_context<'a>(
         fresh,
         drug_name_limit: crate::config::drug_name_limit(settings),
         label_bytes: crate::config::drug_label_bytes(settings),
+        fit_deadline: crate::config::transcript_fit_deadline(settings),
     })
 }
 
