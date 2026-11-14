@@ -23,7 +23,8 @@
         "/status": "complete",
         "/result/items/0/id": "CHEMBL941",
         "/query/name_selector": "synonym",
-        "/page/total": 1
+        "/page/total": 1,
+        "/sources/0/notices/0/message": "The preferred-name search for \"Experimental synonym\" returned no rows; tried the native exact synonym filter."
       }
     },
     {
@@ -45,7 +46,8 @@
         "/status": "complete",
         "/result/items/0/id": "CHEMBL941",
         "/query/query": "Canonical therapy",
-        "/page/total": 1
+        "/page/total": 1,
+        "/sources/0/notices/0/message": "The search for \"EX-66\" returned no rows. mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"Canonical therapy\"; tried the selected source with that name. Returned rows and totals belong to the selected source."
       }
     },
     {
@@ -115,7 +117,8 @@
           "KTUFNOKKBVMGRW-UHFFFAOYSA-M",
           "--source",
           "mychem"
-        ]
+        ],
+        "/sources/0/notices/1/message": "The completed queries in opentargets found no matching record for \"Orphan code\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-M matches the input; its presence does not establish a record in opentargets."
       }
     },
     {
@@ -123,7 +126,8 @@
         "/status": "complete",
         "/result/header/id": "CHEMBL941",
         "/query/input": "CHEMBL941",
-        "/sources/0/notices/0/kind": "request-guidance"
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "The source did not resolve \"EX-66\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"Canonical therapy\"; tried resolving that name in the selected source. Only that source can supply its own record."
       },
       "run": [
         "get",

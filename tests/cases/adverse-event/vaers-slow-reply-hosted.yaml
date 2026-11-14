@@ -1,0 +1,27 @@
+{
+  "feature": "vaers-summary",
+  "story": "On a hosted HTTP server, the COVID-19 symptom table that CDC WONDER takes 36.8 seconds to send still completes, because the call's whole-call deadline grows to the 60-second budget VAERS declares instead of ending at the 20-second command_timeout_seconds.",
+  "live_check": "public",
+  "verified": "Replays 0909's native CDC WONDER VAERS COVID19 symptoms reply (vintage 10/30/2026) recorded 2026-11-13 with biomcp --record in pm job j39797, delay 36,756 ms; body unchanged. Request, byte count and SHA-256 are in tests/replies/adverse-event/vaers-slow-reply/README.md.",
+  "replay": "adverse-event/vaers-slow-reply",
+  "steps": [
+    {
+      "mcp": [
+        "search",
+        "adverse-event",
+        "COVID19",
+        "--source",
+        "vaers"
+      ],
+      "hosted": true,
+      "max_bytes": 10000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 12971,
+        "/page/returned": 5,
+        "/result/report_total": "995,917",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

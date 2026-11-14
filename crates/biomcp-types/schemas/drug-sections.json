@@ -1789,7 +1789,7 @@
               "type": "null"
             }
           ],
-          "description": "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection."
+          "description": "CIViC continuation.\nNative continuation cursor for that exact drug, profile and claim collection. Only with --source civic."
         },
         "civic_kind": {
           "anyOf": [
@@ -1800,10 +1800,10 @@
               "type": "null"
             }
           ],
-          "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile."
+          "description": "CIViC collection.\nIndependent native evidence or assertion collection within the selected profile. Only with --source civic."
         },
         "civic_profile": {
-          "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream.",
+          "description": "CIViC profile.\nSelected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -1845,10 +1845,10 @@
               "type": "null"
             }
           ],
-          "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit."
+          "description": "FDA letter document ID.\nExact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages\nand 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda."
         },
         "evidence_level": {
-          "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.",
+          "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.\nOnly with --source civic on get drug, and the civic section on get variant.",
           "items": {
             "$ref": "#/$defs/Reply_CivicEvidenceLevel"
           },
@@ -1863,7 +1863,7 @@
               "type": "null"
             }
           ],
-          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default."
+          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
           "$ref": "#/$defs/Reply_DrugId"
@@ -1877,7 +1877,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.",
+          "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label.",
           "x-comma-separated": true
         },
         "partner": {
@@ -1901,7 +1901,7 @@
               "type": "null"
             }
           ],
-          "description": "FDA product number.\nExplicit native application product number, only for approvals."
+          "description": "FDA product number.\nExplicit native application product number, only for approvals. Only with --source drugsfda."
         },
         "section": {
           "description": "Named disclosures of the selected source, each its own part of one reply; empty means identity only.",
@@ -7283,7 +7283,7 @@
           "description": "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies."
         },
         "evidence_level": {
-          "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.",
+          "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.\nOnly with --source civic on get drug, and the civic section on get variant.",
           "items": {
             "$ref": "#/$defs/Reply_CivicEvidenceLevel"
           },
@@ -7298,7 +7298,7 @@
               "type": "null"
             }
           ],
-          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default."
+          "description": "Status\nNative CIViC evidence status; omitted preserves the source's existing default.\nOnly with --source civic on get drug, and the civic section on get variant."
         },
         "input": {
           "$ref": "#/$defs/Reply_VariantLookupInput",

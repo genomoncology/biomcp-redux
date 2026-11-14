@@ -55,7 +55,15 @@ pub(super) fn help_command(root: &Command) -> Command {
     for command in root.get_subcommands() {
         let mut child = help_tree(command);
         if command.get_name() == "get" {
-            child = child.subcommand(Command::new("clingen"));
+            child = child
+                .mut_subcommands(|entity| {
+                    if sections(entity.get_name()) {
+                        entity.arg(section_word())
+                    } else {
+                        entity
+                    }
+                })
+                .subcommand(Command::new("clingen"));
         }
         if command.get_name() == "key" {
             child = child.arg(
@@ -71,7 +79,11 @@ pub(super) fn help_command(root: &Command) -> Command {
     }
     for (_, entity, _) in super::command_paths() {
         if help.find_subcommand(entity).is_none() {
-            help = help.subcommand(Command::new(entity));
+            let mut alias = Command::new(entity);
+            if sections(entity) {
+                alias = alias.arg(section_word());
+            }
+            help = help.subcommand(alias);
         }
     }
     help.subcommand(
@@ -98,6 +110,15 @@ pub(super) fn help_command(root: &Command) -> Command {
     .subcommand(
         Command::new("relations").about("Map entities through sections and search filters."),
     )
+}
+
+/// A get command whose schema names sections takes one section word in its help.
+fn sections(entity: &str) -> bool {
+    super::validation::schema("get", entity)
+        .is_some_and(|schema| schema.pointer("/properties/section").is_some())
+}
+fn section_word() -> Arg {
+    Arg::new("section").help("One section of the get command to describe.")
 }
 
 fn help_tree(command: &Command) -> Command {

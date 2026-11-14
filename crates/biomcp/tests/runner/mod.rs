@@ -224,6 +224,9 @@ fn run_case_owned(
             {
                 return Err("named MCP call requires its own step".into());
             }
+            if step.hosted && step.mcp.is_none() {
+                return Err("a hosted step requires mcp".into());
+            }
             if step.run.is_none()
                 && step.mcp.is_none()
                 && step.mcp_call.is_none()

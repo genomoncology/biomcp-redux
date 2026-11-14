@@ -30,8 +30,11 @@ pub(super) fn run_step(
     }
     let mut answer = cli.clone();
     if let Some(args) = &step.mcp {
-        let (result, text) =
-            mcp::call_text_with_globals(environment, args, step.is_error, &globals)?;
+        let (result, text) = if step.hosted {
+            mcp::call_text_hosted(environment, args, step.is_error, &globals)?
+        } else {
+            mcp::call_text_with_globals(environment, args, step.is_error, &globals)?
+        };
         registry.validate(&result, args, !step.is_error)?;
         if step.is_error || !narrowed(args) {
             super::reply_readback::check(text.as_bytes(), &result, true)?;
