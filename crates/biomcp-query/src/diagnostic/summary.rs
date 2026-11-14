@@ -63,7 +63,11 @@ pub(super) fn get(cx: &Ctx<'_>, q: &DiagnosticGet) -> Outcome {
                     cx.fresh,
                 );
             }
-            out.body = DiagnosticSummary { document }.with_query(q.clone());
+            out.body = DiagnosticSummary {
+                document,
+                hits: None,
+            }
+            .with_query(q.clone());
             None
         }
         Err(error) => Some(error),
