@@ -233,7 +233,8 @@ fn transcript_fit(
 }
 
 /// Ask for the gene's transcripts, then for fits in groups of [`FIT_GROUP`], each under
-/// its own `transcript_fit_seconds`, stopping at the first group that fits or fails.
+/// its own `transcript_fit_seconds`, stopping at the first group that fits or fails. A
+/// failure with groups left says in `problems` how many transcripts went unchecked.
 fn find_fits(
     cx: &Ctx<'_>,
     query: &VariantNormalize,
@@ -266,7 +267,7 @@ fn find_fits(
     let Some(fit) = fit else {
         return Vec::new();
     };
-    for group in fit.transcripts.chunks(FIT_GROUP) {
+    for (index, group) in fit.transcripts.chunks(FIT_GROUP).enumerate() {
         let asking = leg();
         let found = variantvalidator::transcript_fits(&asking, &fit, group, build);
         let error = found.as_ref().err().copied();
@@ -281,8 +282,23 @@ fn find_fits(
                 return found.value;
             }
             Ok(found) => problems.extend(found.problems),
-            // The failure is already in the call's source state.
-            Err(_) => break,
+            // The failure is already in the call's source state; say what went unchecked.
+            Err(_) => {
+                let unchecked = fit.transcripts.len().saturating_sub(index * FIT_GROUP);
+                if unchecked > group.len() {
+                    problems.push(biomcp_types::Problem {
+                        source: variantvalidator::SPEC.source,
+                        record: None,
+                        field: format!(
+                            "fits: {unchecked} of {} transcripts not checked",
+                            fit.transcripts.len()
+                        )
+                        .into(),
+                        code: biomcp_types::ProblemCode::CollectionIncomplete,
+                    });
+                }
+                break;
+            }
         }
     }
     Vec::new()

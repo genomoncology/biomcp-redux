@@ -24,6 +24,11 @@ struct Gene {
 #[derive(Deserialize)]
 struct Transcript {
     reference: Field<Text>,
+    annotations: Option<Field<Annotations>>,
+}
+#[derive(Deserialize)]
+struct Annotations {
+    mane_plus_clinical: Option<Field<bool>>,
 }
 impl Reply for Genes {
     fn check(&self) -> Result<(), BadReply> {
@@ -39,7 +44,8 @@ impl Reply for Genes {
 pub struct FitQuery {
     /// `SYMBOL:c.change`, which VariantValidator validates on each selected transcript.
     query: String,
-    /// The latest version of each other NM_ transcript, lowest accession first.
+    /// The latest version of each other NM_ transcript: MANE Plus Clinical first, then by
+    /// accession number, so older short accessions such as NM_172114 come early.
     pub transcripts: Vec<String>,
 }
 
@@ -136,7 +142,8 @@ fn parts(input: &str) -> Option<(&str, &str)> {
     (accession.starts_with("NM_") && body.starts_with("c.")).then_some((accession, body))
 }
 
-/// The gene symbol and the latest version of each of its other NM_ transcripts.
+/// The gene symbol and the latest version of each of its other NM_ transcripts, in the
+/// order of [`FitQuery::transcripts`].
 fn gene(genes: Genes, input: &str, problems: &mut Problems) -> Option<(Text, Vec<String>)> {
     let gene = genes.0.into_iter().find_map(Field::value)?;
     let symbol = problems.field("current_symbol", gene.current_symbol)?;
@@ -145,7 +152,8 @@ fn gene(genes: Genes, input: &str, problems: &mut Problems) -> Option<(Text, Vec
         return None;
     }
     let own = input.split_once('.').map_or(input, |(base, _)| base);
-    let mut latest: BTreeMap<String, u32> = BTreeMap::new();
+    // Each accession's latest version, and whether any version is MANE Plus Clinical.
+    let mut latest: BTreeMap<String, (u32, bool)> = BTreeMap::new();
     for row in problems.fields("transcripts", gene.transcripts) {
         let Some(reference) = problems.field("transcripts.reference", Some(row.reference)) else {
             continue;
@@ -158,14 +166,35 @@ fn gene(genes: Genes, input: &str, problems: &mut Problems) -> Option<(Text, Vec
         else {
             continue;
         };
+        let plus = problems
+            .field("transcripts.annotations", row.annotations)
+            .and_then(|annotations| {
+                problems.field(
+                    "transcripts.annotations.mane_plus_clinical",
+                    annotations.mane_plus_clinical,
+                )
+            })
+            .unwrap_or(false);
         if base.starts_with("NM_") && base != own {
-            let entry = latest.entry(base.to_owned()).or_insert(version);
-            *entry = (*entry).max(version);
+            let entry = latest.entry(base.to_owned()).or_insert((version, plus));
+            *entry = (entry.0.max(version), entry.1 || plus);
         }
     }
-    let transcripts: Vec<String> = latest
+    let mut ordered: Vec<(bool, u64, String)> = latest
         .into_iter()
-        .map(|(base, version)| format!("{base}.{version}"))
+        .map(|(base, (version, plus))| {
+            let number = base
+                .trim_start_matches("NM_")
+                .parse::<u64>()
+                .unwrap_or(u64::MAX);
+            (!plus, number, format!("{base}.{version}"))
+        })
         .collect();
+    ordered.sort();
+    let transcripts: Vec<String> = ordered.into_iter().map(|(_, _, name)| name).collect();
     (!transcripts.is_empty()).then_some((symbol, transcripts))
 }
+
+#[cfg(test)]
+#[path = "fit_tests.rs"]
+mod tests;
