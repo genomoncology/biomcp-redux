@@ -21,7 +21,8 @@ pub(crate) fn page<T>(
     budget: usize,
     cost: impl Fn(&T) -> Option<usize>,
 ) -> Option<Page<'_, T>> {
-    let start = usize::try_from(offset).ok()?;
+    // An offset beyond the address space cannot name a hit.
+    let start = usize::try_from(offset).unwrap_or(usize::MAX);
     let rest = hits.get(start..)?;
     let mut size = 0;
     let mut taken = 0;
@@ -33,11 +34,12 @@ pub(crate) fn page<T>(
         size += bytes;
         taken += 1;
     }
-    let returned = u32::try_from(taken).ok()?;
-    let total = u64::try_from(hits.len()).ok()?;
+    // At most 25 hits, and a slice length fits u64.
+    let returned = u32::try_from(taken).unwrap_or(u32::MAX);
+    let total = u64::try_from(hits.len()).unwrap_or(u64::MAX);
     let following = offset.checked_add(returned)?;
     Some(Page {
-        hits: &rest[..taken],
+        hits: rest.get(..taken)?,
         info: PageInfo {
             offset,
             returned,
