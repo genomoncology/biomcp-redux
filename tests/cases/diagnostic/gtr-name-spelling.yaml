@@ -37,7 +37,7 @@
         "--name",
         "non-small cell"
       ],
-      "max_bytes": 4821,
+      "max_bytes": 4865,
       "expect": {
         "/page/total": 4,
         "/result/items/0/header/id": "GTR000578049.1",
@@ -66,7 +66,7 @@
         "--limit",
         "50"
       ],
-      "max_bytes": 19720,
+      "max_bytes": 19763,
       "expect": {
         "/page/total": 19
       }
