@@ -35,7 +35,8 @@
         "/sources/0/notices/0/kind": "request-guidance",
         "/next/0/kind": "disambiguate",
         "/next/0/args/2": "Ambiguous therapy",
-        "/next/0/args/4": "chembl"
+        "/next/0/args/4": "chembl",
+        "/sources/0/notices/0/message": "chembl has candidate records for \"Ambiguous therapy\", but no unique literal name match. No cross-source alias was selected. Search that source to inspect its candidates."
       }
     }
   ],
