@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &crate::quotas::INTERPRO,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 mod map;
 mod raw;

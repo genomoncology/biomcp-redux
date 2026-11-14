@@ -190,5 +190,6 @@ pub(crate) const fn component_spec(
         key: KeyUse::None,
         quota: carrier.quota,
         deadline: carrier.deadline,
+        command_budget: None,
     }
 }

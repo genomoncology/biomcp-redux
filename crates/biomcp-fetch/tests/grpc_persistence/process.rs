@@ -53,6 +53,7 @@ fn offline_child() -> Check {
         destinations: biomcp_fetch::Destinations::Primary,
         user_agent: None,
         deadline: Duration::from_secs(5),
+        command_budget: None,
         terms: biomcp_fetch::Terms {
             name: "Synthetic fixture",
             url: "https://example.test/terms",

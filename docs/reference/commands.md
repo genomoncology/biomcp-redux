@@ -122,7 +122,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -1361,7 +1361,7 @@ Form: search disease TEXT; not --text.
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
@@ -1495,6 +1495,10 @@ Options:
       --status <status>
           Literal recall status.
 
+      --therapeutic-area <therapeutic_area>
+          WHO PQ therapeutic area.
+          Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
+
 ```
 
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
@@ -1557,6 +1561,8 @@ Selected source.
 After an empty name lookup, existing sources may supply aliases.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--status`: Exact recall status. Value form: string. Example: --status Ongoing. Only with --source fda-drug-recall.
+- `--therapeutic-area`: WHO PQ therapeutic area.
+Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology. Value form: string. Example: --therapeutic-area oncology. Only with --source who-pq.
 
 ## biomcp search gene
 
@@ -3252,15 +3258,21 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --product-number <product_number>
-          FDA product number.
-          Explicit native application product number, only for approvals.
+      --partner <partner>
+          Interaction partner.
+          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+          names other sources state for it, as the drug itself is.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --product-number <product_number>
+          FDA product number.
+          Explicit native application product number, only for approvals.
 
       --section-limit <section_limit>
           Named section page size, refused on an identity-only card.
@@ -3305,6 +3317,10 @@ Source-source ID or complete brand or generic name; WHO references retain source
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
 Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--partner`: Interaction partner.
+A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+names other sources state for it, as the drug itself is. Value form: string. Example: --partner DDInter5. Only with --source ddinter.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `section`: Source sections; help get drug
@@ -3326,7 +3342,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `label`: One exact source label heading.
 - `approvals`: Source application and product history rows.
 - `regulatory`: Source-scoped regulator events.
-- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
+- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.
 - `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
 
 ## biomcp get gene

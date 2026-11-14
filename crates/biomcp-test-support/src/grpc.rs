@@ -224,6 +224,7 @@ impl Fixture {
             key,
             quota,
             deadline: Duration::from_secs(5),
+            command_budget: None,
         }))
     }
     /// Wait for the next observed transport event.

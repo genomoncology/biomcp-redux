@@ -79,6 +79,7 @@ fn spec(base: &'static str) -> &'static SourceSpec {
         base,
         key: KeyUse::None,
         deadline: Duration::from_secs(10),
+        command_budget: None,
         quota: Box::leak(Box::new(biomcp_fetch::Quota::new(
             biomcp_fetch::SourceKey::declare("double-gzip"),
             biomcp_fetch::Rate::per_second(1000),

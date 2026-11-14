@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::BIOTHINGS,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 mod chembl_names;
 mod links;

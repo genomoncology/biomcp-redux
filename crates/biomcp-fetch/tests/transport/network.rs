@@ -60,6 +60,7 @@ fn checked_no_proxy_boundaries_select_direct_routes() {
             key: original.key,
             quota: original.quota,
             deadline: original.deadline,
+            command_budget: None,
         }));
         let result = fetch
             .leg(spec, fetch.deadline(Duration::from_secs(10)))

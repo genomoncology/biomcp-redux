@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::EMA,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 const MEDICINES: Bundle<raw::Medicine> = Bundle {

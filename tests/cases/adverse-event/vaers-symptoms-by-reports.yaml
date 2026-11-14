@@ -69,7 +69,7 @@
         ],
         "/sources/0/state": "ok",
         "/sources/0/notices/*/message": {
-          "includes": "--sort reports: BioMCP ordered all 12971 rows of this CDC WONDER table, not just this page, by the source's Events Reported count, largest first; equal counts and rows without a count keep the source's order. Counts, percentages and the report total are the source's."
+          "includes": "--sort reports: BioMCP ordered all 12971 rows of this CDC WONDER table, not just this page, by the source's Events Reported count, largest first; equal counts and rows without a count keep the source's order. Counts and the report total are the source's, and each percent is the source's percent of the 995,917 reports."
         }
       }
     },

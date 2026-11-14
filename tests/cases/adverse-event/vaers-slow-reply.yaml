@@ -1,0 +1,34 @@
+{
+  "feature": "vaers-summary",
+  "story": "A COVID-19 symptom table that CDC WONDER takes 36.8 seconds to send still completes, on the command line and over MCP, because VAERS declares a 60-second command budget above the 20-second default.",
+  "live_check": "public",
+  "verified": "Native CDC WONDER VAERS COVID19 symptoms reply (vintage 10/30/2026) recorded 2026-11-13 with biomcp --record in pm job j39797, delay 36,756 ms; body unchanged. Request, byte count and SHA-256 are in tests/replies/adverse-event/vaers-slow-reply/README.md.",
+  "replay": "adverse-event/vaers-slow-reply",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "COVID19",
+        "--source",
+        "vaers"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "COVID19",
+        "--source",
+        "vaers"
+      ],
+      "max_bytes": 10000,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 12971,
+        "/page/returned": 5,
+        "/result/report_total": "995,917",
+        "/sources/0/state": "ok",
+        "/next/0/kind": "sort"
+      }
+    }
+  ]
+}

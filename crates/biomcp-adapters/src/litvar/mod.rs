@@ -22,6 +22,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::LITVAR,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 pub(crate) const AUTOCOMPLETE: Endpoint =
     SPEC.get("/variant/autocomplete/").fresh(Freshness::Days(1));

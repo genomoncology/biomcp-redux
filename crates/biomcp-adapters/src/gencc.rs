@@ -24,6 +24,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::GENCC,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const SUBMISSIONS: Bundle<Submission> = Bundle {
     spec: &SPEC,

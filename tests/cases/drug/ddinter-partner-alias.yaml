@@ -1,0 +1,74 @@
+{
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks.",
+  "feature": "drug-ddinter",
+  "story": "A DDInter partner given under a name DDInter does not use is tried under the exact names another source states for it, as the drug itself is, and the reply says which name stood in; a name no source resolves says DDInter names no such drug and offers the DDInter name search.",
+  "replay": "drug/source-aliases",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "ddinter"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/rows": 17
+      },
+      "max_bytes": 179
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "EX-66"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/partner": "EX-66",
+        "/result/interactions/data/total": 1,
+        "/result/interactions/data/records/0/partner/id": "DDInter30",
+        "/result/interactions/data/records/0/level": "Moderate",
+        "/result/partners/*/id": [
+          "DDInter30"
+        ],
+        "/sources/0/source": "ddinter",
+        "/sources/0/notices/0/message": "DDInter's files name no drug \"EX-66\". mychem record KTUFNOKKBVMGRW-UHFFFAOYSA-N supplies the name \"Canonical therapy\"; the partner is DDInter's drug by that name."
+      },
+      "max_bytes": 8000
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "DDInter1",
+        "interactions",
+        "--source",
+        "ddinter",
+        "--partner",
+        "Orphan code"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/interactions/data/total": 0,
+        "/result": {
+          "omits": [
+            "partners"
+          ]
+        },
+        "/result/hint": "DDInter's files name no drug \"Orphan code\", so this reply cannot say whether they list the pair; search drug with --source ddinter shows the names they use. DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/next/0/args": [
+          "search",
+          "drug",
+          "Orphan code",
+          "--source",
+          "ddinter"
+        ]
+      },
+      "max_bytes": 8000
+    }
+  ]
+}

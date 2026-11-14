@@ -31,6 +31,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::CELLOSAURUS,
     key: KeyUse::None,
     deadline: Duration::from_secs(25),
+    command_budget: None,
 };
 const SEARCH_FIELDS: &str = "ac,id,sy,ox,di,ca";
 const VARIATION_SEARCH_FIELDS: &str = "ac,id,sy,ox,di,ca,var";

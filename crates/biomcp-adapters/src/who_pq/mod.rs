@@ -20,6 +20,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const SET: BundleSet<raw::Native> = BundleSet {
     spec: &SPEC,
@@ -42,7 +43,8 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
         .sync_set(&SET)
         .map(|info| crate::mapped::bundle_sync(SPEC.source, info))
 }
-/// Literal whole-word names and inclusive native dates; read never downloads or resolves synonyms.
+/// Literal whole-word names and therapeutic areas and inclusive native dates; read never downloads
+/// or resolves synonyms.
 pub fn search(
     leg: &Leg<'_>,
     query: &biomcp_types::DrugSearch,
@@ -60,6 +62,9 @@ pub fn search(
             if query
                 .query()
                 .is_some_and(|name| !row.matches(name.as_str()))
+                || query
+                    .therapeutic_area()
+                    .is_some_and(|area| !row.in_area(area.as_str()))
             {
                 return None;
             }

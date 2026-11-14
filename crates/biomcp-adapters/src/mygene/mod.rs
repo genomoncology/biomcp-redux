@@ -23,6 +23,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::BIOTHINGS,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const GENES: Endpoint = SPEC
     .post_form("/gene")

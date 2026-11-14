@@ -21,14 +21,22 @@ macro_rules! part {
         }
     };
 }
+/// Every partition DDInter publishes at this path (checked 2026-11-13).
 pub(super) const PARTS: &[BundlePart] = &[
     part!("A"),
     part!("B"),
+    part!("C"),
     part!("D"),
+    part!("G"),
     part!("H"),
+    part!("J"),
     part!("L"),
+    part!("M"),
+    part!("N"),
     part!("P"),
     part!("R"),
+    part!("S"),
+    part!("U"),
     part!("V"),
 ];
 const PAIRS: BundleSet<NativeRow> = BundleSet {
@@ -39,7 +47,7 @@ const PAIRS: BundleSet<NativeRow> = BundleSet {
     fresh: Freshness::Days(7),
     row: PhantomData,
 };
-/// Synchronize the eight validated partitions as one atomic local replacement.
+/// Synchronize the fifteen validated partitions as one atomic local replacement.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, RequestError> {
     fetch
         .sync_set(&PAIRS)
@@ -107,10 +115,52 @@ pub fn card(leg: &Leg<'_>, id: &DrugId) -> Result<crate::Mapped<Option<DrugCard>
         problems,
     })
 }
-/// Page exact native partners, preserving the source order and every duplicate origin.
+/// What every interactions reply says about the published files.
+const LEVELS_ONLY: &str = "DDInter's published files give each listed pair a level and no management or \
+    mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.";
+
+/// DDInter identities a partner argument names: an exact DDInter ID, or a complete DDInter name
+/// ignoring letter case, alone or followed by one approved salt word.
+/// A named identity the row cannot express is a refusal, as in name search.
+fn partner_identities(
+    leg: &Leg<'_>,
+    partner: &str,
+) -> Result<(Vec<DrugHeader>, crate::Refusal), RequestError> {
+    let id = super::raw::valid_id(partner);
+    let find = if id {
+        Find::Exact(KeyKind::Id, partner)
+    } else {
+        Find::Words(partner)
+    };
+    let (mut rows, _) = leg.stored_set_rows(&PAIRS, find)?;
+    rows.sort_by(|a, b| (&a.part, a.row).cmp(&(&b.part, b.row)));
+    let mut seen = std::collections::BTreeSet::new();
+    let mut headers = Vec::new();
+    let mut refusals = crate::Refusal::None;
+    for row in &rows {
+        for (key, name) in identity::identities(&row.value) {
+            let named = if id {
+                key == partner
+            } else {
+                name.is_some_and(|name| biomcp_types::DrugNameMatch::generic_name(name, partner))
+            };
+            if named && seen.insert(key.to_owned()) {
+                match identity::identity(key, name) {
+                    Ok(value) => headers.push(identity::header(value)),
+                    Err(_) => refusals = crate::Refusal::Refused,
+                }
+            }
+        }
+    }
+    Ok((headers, refusals))
+}
+
+/// Page exact native partners, preserving the source order and every duplicate origin; a partner
+/// keeps only the pairs with the DDInter identities it names.
 pub fn interactions(
     leg: &Leg<'_>,
     id: &DrugId,
+    partner: Option<&str>,
     limit: u32,
     offset: u32,
 ) -> Result<crate::Mapped<Option<DrugInteractions>>, RequestError> {
@@ -123,7 +173,26 @@ pub fn interactions(
             problems: Vec::new(),
         });
     };
-    let pairs = partners(rows, &id.to_string());
+    let mut pairs = partners(rows, &id.to_string());
+    let mut named = Vec::new();
+    let mut hint = String::from(LEVELS_ONLY);
+    if let Some(partner) = partner {
+        let (found, refused) = partner_identities(leg, partner)?;
+        refusals.include(refused);
+        named = found;
+        pairs.retain(|pair| named.iter().any(|h| h.id.to_string() == pair.partner_id()));
+        if named.is_empty() && refused == crate::Refusal::Refused {
+            hint = format!(
+                "DDInter's entry for \"{partner}\" was refused because its identity could not be read, \
+                 so this reply cannot say whether the files list the pair. {LEVELS_ONLY}"
+            );
+        } else if named.is_empty() {
+            hint = format!(
+                "DDInter's files name no drug \"{partner}\", so this reply cannot say whether they list the pair; \
+                 search drug with --source ddinter shows the names they use. {LEVELS_ONLY}"
+            );
+        }
+    }
     let total = pairs.len() as u64;
     let mut problems = Vec::new();
     let records = pairs
@@ -157,6 +226,8 @@ pub fn interactions(
                     retrieved: crate::received_date(info.retrieved_at),
                 },
             },
+            partners: named.into(),
+            hint: Some(Text::new(&hint).map_err(|_| biomcp_fetch::CacheError::Limit)?),
         }),
     })
 }

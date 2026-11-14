@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 mod map;
 mod raw;
@@ -136,6 +137,7 @@ pub static DOCUMENTS: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
     key: biomcp_fetch::KeyUse::None,
     quota: &crate::quotas::OPENFDA,
     deadline: std::time::Duration::from_secs(15),
+    command_budget: None,
 };
 
 pub use crate::device_search::Page as SearchPage;

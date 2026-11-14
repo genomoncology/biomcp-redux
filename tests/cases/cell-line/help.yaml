@@ -24,7 +24,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 3240,
+      "max_bytes": 3291,
       "run": [
         "help",
         "search",
@@ -59,7 +59,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 2181,
+      "max_bytes": 2286,
       "run": [
         "help",
         "get",
@@ -80,7 +80,7 @@
         "/status": "complete"
       },
       "full_output_bytes": true,
-      "max_bytes": 496,
+      "max_bytes": 546,
       "run": [
         "help",
         "cell-line",

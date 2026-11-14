@@ -247,6 +247,7 @@ fn bundle_sync_child() {
         key: KeyUse::None,
         quota: &QUOTA,
         deadline: Duration::from_secs(10),
+        command_budget: None,
     }));
     let b = Bundle::<Gene> {
         spec,

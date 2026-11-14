@@ -110,6 +110,7 @@ impl Stub {
             base: self.base,
             key,
             deadline,
+            command_budget: None,
             quota: Box::leak(Box::new(biomcp_fetch::Quota::new(
                 biomcp_fetch::SourceKey::declare("transport"),
                 biomcp_fetch::Rate::per_second(1000),
@@ -589,7 +590,6 @@ fn bounded_reachability_probes_share_policy_and_never_cache_data() {
 
 #[path = "transport/network.rs"]
 mod network;
-
 #[path = "transport/publisher.rs"]
 mod publisher;
 

@@ -21,6 +21,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::OPENFDA,
     key: crate::openfda_key::OPTIONAL,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const RECALL: &str = "/device/recall.json";
 const ENFORCEMENT: &str = "/device/enforcement.json";

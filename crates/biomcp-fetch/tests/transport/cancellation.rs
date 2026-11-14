@@ -61,6 +61,7 @@ mod sessions {
                 8,
             ),
             deadline: Duration::from_secs(10),
+            command_budget: None,
         };
         let spec = &SPEC;
         for path in ["/first", "/second"] {
