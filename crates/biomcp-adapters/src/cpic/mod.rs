@@ -19,13 +19,12 @@ pub static SPEC: SourceSpec = SourceSpec {
     command_budget: None,
 };
 mod pair;
+mod phenotypes;
 mod raw;
 mod read;
 pub use pair::pair;
-pub use read::{
-    Page, card, diplotype, drug_phenotypes, drug_recommendations, guidelines, recommendations,
-    search,
-};
+pub use phenotypes::drug_phenotypes;
+pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
 
 /// Native gene collection shared by record reads and the bounded health probe.
 pub(crate) const GENE_PATH: &str = "/gene";

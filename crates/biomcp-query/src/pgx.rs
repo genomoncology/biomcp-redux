@@ -111,41 +111,7 @@ fn read(
             *consumed = p.consumed;
             refusals.include(p.refusals);
             problems.extend(p.problems);
-            let phenotypes = if q.section_offset() != 0 || (p.total == 0 && q.phenotype().is_none())
-            {
-                Vec::new()
-            } else if q.phenotype().is_none() && p.total == p.items.len() as u64 {
-                tally(p.items.iter().filter_map(|r| gene_phenotype(r, q)))
-            } else {
-                match cpic::drug_phenotypes(leg, q) {
-                    Ok(list) => tally(list.into_iter()),
-                    Err(error) => {
-                        let reason = status::reason(error).map_or_else(
-                            || "a local error".to_owned(),
-                            |reason| reason.to_string(),
-                        );
-                        *empty_reason = Some(format!(
-                            "Reading the phenotypes CPIC lists for {} and {} failed ({reason}); the rows shown are complete.",
-                            q.gene(),
-                            drug_label(q)
-                        ));
-                        Vec::new()
-                    }
-                }
-            };
-            if p.total == 0 && phenotypes.is_empty() && empty_reason.is_none() {
-                *empty_reason = empty_pair(leg, q);
-            } else if p.total == 0
-                && let Some(wanted) = q.phenotype()
-                && empty_reason.is_none()
-            {
-                *empty_reason = Some(format!(
-                    "CPIC has no {} recommendations for {} with phenotype {}; result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them.",
-                    q.gene(),
-                    drug_label(q),
-                    wanted.as_str()
-                ));
-            }
+            let phenotypes = drug_phenotypes(leg, q, &p.items, p.total, empty_reason);
             (PgxRecommendations::Table {
                 header,
                 phenotypes: phenotypes.into(),
@@ -230,6 +196,50 @@ fn empty_pair(leg: &Leg<'_>, q: &PgxGet) -> Option<String> {
             "CPIC lists the {gene} and {name} pair, but the pair{guideline} has no CPIC recommendations."
         )
     })
+}
+/// The first page's phenotype list, and why a table is empty or its list is missing.
+fn drug_phenotypes(
+    leg: &Leg<'_>,
+    q: &PgxGet,
+    items: &[biodata::PgxDrugRecommendation],
+    total: u64,
+    empty_reason: &mut Option<String>,
+) -> Vec<biomcp_types::PgxPhenotypeRows> {
+    let phenotypes = if q.section_offset() != 0 || (total == 0 && q.phenotype().is_none()) {
+        Vec::new()
+    } else if q.phenotype().is_none() && total == items.len() as u64 {
+        tally(items.iter().filter_map(|r| gene_phenotype(r, q)))
+    } else {
+        match cpic::drug_phenotypes(leg, q) {
+            Ok(list) => tally(list.into_iter()),
+            Err(error) => {
+                let reason = status::reason(error)
+                    .map_or_else(|| "a local error".to_owned(), |reason| reason.to_string());
+                *empty_reason = Some(format!(
+                    "Reading the phenotypes CPIC lists for {} and {} failed ({reason}); \
+                         the rows shown are complete.",
+                    q.gene(),
+                    drug_label(q)
+                ));
+                Vec::new()
+            }
+        }
+    };
+    if total == 0 && phenotypes.is_empty() && empty_reason.is_none() {
+        *empty_reason = empty_pair(leg, q);
+    } else if total == 0
+        && let Some(wanted) = q.phenotype()
+        && empty_reason.is_none()
+    {
+        *empty_reason = Some(format!(
+            "CPIC has no {} recommendations for {} with phenotype {}; \
+                 result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them.",
+            q.gene(),
+            drug_label(q),
+            wanted.as_str()
+        ));
+    }
+    phenotypes
 }
 fn drug_label(q: &PgxGet) -> String {
     q.drug_id().map_or_else(String::new, ToString::to_string)
