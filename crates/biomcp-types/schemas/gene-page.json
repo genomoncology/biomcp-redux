@@ -216,6 +216,15 @@
     "Reply_GenePage": {
       "description": "One page of gene headers.",
       "properties": {
+        "clingen_regions_matched": {
+          "description": "How many ClinGen dosage regions matched, placed before the gene rows; the regions follow them in `regions`, and regions_only returns the regions alone.",
+          "format": "uint64",
+          "minimum": 0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
         "items": {
           "description": "Headers after ranking and paging.",
           "items": {
@@ -293,6 +302,10 @@
         "region": {
           "$ref": "#/$defs/Reply_VariantRegion",
           "description": "A GRCh38 interval, such as chr16:29600000-30200000. Selects overlapping ClinGen dosage regions; it adds no genes."
+        },
+        "regions_only": {
+          "description": "Return only the ClinGen dosage regions that the band, interval or ISCA ID matches, without gene rows.",
+          "type": "boolean"
         }
       },
       "type": "object"

@@ -26,6 +26,6 @@ Read the wider page and inspect the listed symbols and HGNC identifiers. Keep al
 
 Follow all remaining page commands before claiming a complete listing. This maps a cytoband to source gene records; it does not establish a causal gene, a disease association or a base-pair interval.
 
-The same reply lists ClinGen region dosage curations (ISCA regions) in that band under `regions`, each with its GRCh38 location, haploinsufficiency and triplosensitivity scores, PMIDs, date and disease ID. For a microarray interval, `search gene --region chr16:29600000-30200000` lists the ClinGen regions that overlap it; HGNC genes carry no coordinates, so that form returns regions only.
+The same reply lists ClinGen region dosage curations (ISCA regions) in that band under `regions`, after the gene rows; `clingen_regions_matched`, ahead of the gene rows, says how many matched, and `--regions-only` returns them without the genes. Each comes with its GRCh38 location, haploinsufficiency and triplosensitivity scores, PMIDs, date and disease ID. For a microarray interval, `search gene --region chr16:29600000-30200000` lists the ClinGen regions that overlap it; HGNC genes carry no coordinates, so that form returns regions only.
 
 Read response status, problems and source terms at every step. Live replies can change.

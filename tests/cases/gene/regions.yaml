@@ -1,7 +1,7 @@
 {
   "live_check": "public",
   "feature": "gene-search",
-  "story": "A microarray band, a band inside a curated span, a GRCh38 interval or an ISCA ID finds ClinGen's region dosage curations, such as the recurrent 16p11.2 deletions, with their scores, every PMID, date and MONDO disease",
+  "story": "A microarray band, a band inside a curated span, a GRCh38 interval or an ISCA ID finds ClinGen's region dosage curations, such as the recurrent 16p11.2 deletions, with their scores, every PMID, date and MONDO disease; a band search names the region count ahead of its gene rows and offers the regions alone as its first next step",
   "replay": "gene/regions",
   "steps": [
     {
@@ -9,9 +9,34 @@
         "search",
         "gene",
         "--band",
-        "16p11.2"
+        "16p11.2",
+        "--limit",
+        "12"
+      ],
+      "mcp": [
+        "search",
+        "gene",
+        "--band",
+        "16p11.2",
+        "--limit",
+        "12"
       ],
       "expect": {
+        "/result/clingen_regions_matched": 6,
+        "/page/total": 245,
+        "/result/items": {
+          "count": 12
+        },
+        "/next/0/kind": "section",
+        "/next/0/args": [
+          "search",
+          "gene",
+          "--band",
+          "16p11.2",
+          "--limit",
+          "12",
+          "--regions-only"
+        ],
         "/result/regions/*/id": {
           "includes_all_of": [
             "ISCA-37400",
@@ -60,6 +85,43 @@
             }
           ]
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "gene",
+        "--band",
+        "16p11.2",
+        "--limit",
+        "12",
+        "--regions-only"
+      ],
+      "mcp": [
+        "search",
+        "gene",
+        "--band",
+        "16p11.2",
+        "--limit",
+        "12",
+        "--regions-only"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources": {
+          "count": 1
+        },
+        "/sources/0/source": "clingen",
+        "/page/total": 0,
+        "/result/clingen_regions_matched": 6,
+        "/result/regions/*/id": [
+          "ISCA-46492",
+          "ISCA-46491",
+          "ISCA-46490",
+          "ISCA-46489",
+          "ISCA-37486",
+          "ISCA-37400"
+        ]
       }
     },
     {

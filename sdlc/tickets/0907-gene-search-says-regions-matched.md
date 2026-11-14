@@ -1,6 +1,7 @@
 # 0907 — gene-search-says-regions-matched
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3783419ee2de1598581da9ea8b58f12ec0fd63f8
 
 Milestone: 7
 
@@ -43,3 +44,10 @@ The PM re-ran that call offline on the run's build and cache. The reply carried 
   - `crates/biomcp-types/` (an optional notice or selector);
   - `tests/cases/gene/regions.yaml`;
   - `docs/`.
+
+## Progress
+
+- Changed: `search gene` replies carry `result.clingen_regions_matched`, the number of ClinGen regions that matched, whenever any did. It is the first field of `result`, so in CLI JSON it comes right after `schema`, `status` and `query`, before `items` (the key starts at byte 111 of the live 16p11.2 reply in job j39834, ahead of the first gene row). MCP and Markdown replies sort keys, and the name sorts before `items` there too; in MCP the sorted envelope also puts `next` ahead of `result`. A `.result.items[]` filter still hides it, as it hides anything outside the rows; the count is the first thing past the query.
+- Changed: when regions matched and gene rows were read, the first `next` step (kind `section`) is the same search with `--regions-only`. The new optional `regions_only` selector (`--regions-only`) skips HGNC and returns only the ClinGen regions for a band, interval or ISCA ID; with plain text and no band or interval it is a usage error. `GenePage` gains an optional field and `GeneSearch` an optional boolean, both allowed for the 1.0.0 candidate.
+- Measured in job j39834 on live sources: `search gene --band 16p11.2 --limit 12` is 5,430 bytes, 245 genes and 6 regions (ISCA-46492, -46491, -46490, -46489, -37486, -37400); the regions-only reply is 2,672 bytes. `help search gene` grew from under 2,435 to 2,767 bytes for the new option, so its cap is 3,183 (measured plus 15%, per `sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md`).
+- Proof: `tests/cases/gene/regions.yaml` runs the agent's own `search gene --band 16p11.2 --limit 12` through CLI and MCP: count 6, 12 gene rows of 245, both ISCA regions, and `next[0]` the regions-only command. A second step runs that command through CLI and MCP and gets the six regions, ClinGen as the only source and no gene rows. The case's HGNC slice gains the 245 real 16p11.2 rows recorded in j39834 (`tests/replies/gene/regions/README.md`). `crates/biomcp-types/tests/gene_model.rs` checks that the count precedes the gene rows in both declared and sorted key order.

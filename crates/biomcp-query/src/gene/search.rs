@@ -16,7 +16,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     let mut local = None;
     // An interval alone selects only ClinGen regions: HGNC rows carry no coordinates.
     let mut result = Ok(Vec::new());
-    if query.query().is_some() || query.band().is_some() {
+    if !query.is_regions_only() && (query.query().is_some() || query.band().is_some()) {
         let (genes, source) = read_genes(cx, query, &mut problems, &mut dropped);
         let error = genes.as_ref().err().copied();
         states.push(state(error.is_none(), source.state));
@@ -39,7 +39,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
             })
             .unwrap_or_default();
     }
-    let regions_total = (regions.len() > MAX_REGIONS).then_some(regions.len() as u64);
+    let matched = regions.len() as u64;
+    let regions_total = (regions.len() > MAX_REGIONS).then_some(matched);
     regions.truncate(MAX_REGIONS);
     let mut headers = result.unwrap_or_default();
     headers.retain(|(_, header)| {
@@ -69,7 +70,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
     };
     let next = match sources.first() {
         Some(source) if source.source == Source::Hgnc => {
-            next::search(query, &items, &page, source, &mut problems)
+            next::search(query, &items, &page, source, matched > 0, &mut problems)
         }
         _ => Vec::new(),
     };
@@ -78,6 +79,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &GeneSearch) -> Outcome {
         crate::status::Parts {
             dropped,
             body: (biomcp_types::GenePage {
+                clingen_regions_matched: (matched > 0).then_some(matched),
                 items: items.into(),
                 regions: regions.into(),
                 regions_total,
@@ -146,16 +148,7 @@ fn region_find(query: &GeneSearch) -> Option<clingen::RegionFind<'_>> {
     if let Some(band) = query.band() {
         return Some(clingen::RegionFind::Band(band.as_str()));
     }
-    query
-        .query()
-        .map(Text::as_str)
-        .filter(|text| {
-            text.len() > 5
-                && text
-                    .get(..5)
-                    .is_some_and(|prefix| prefix.eq_ignore_ascii_case("ISCA-"))
-        })
-        .map(clingen::RegionFind::Id)
+    query.region_id().map(clingen::RegionFind::Id)
 }
 fn collect(
     leg: &Leg<'_>,

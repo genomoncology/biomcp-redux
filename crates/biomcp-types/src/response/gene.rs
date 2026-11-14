@@ -51,6 +51,9 @@ pub struct GeneCards {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GenePage {
+    /// How many ClinGen dosage regions matched, placed before the gene rows; the regions follow them in `regions`, and regions_only returns the regions alone.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub clingen_regions_matched: Option<u64>,
     /// Headers after ranking and paging.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GeneHeader]>,

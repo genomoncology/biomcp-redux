@@ -91,6 +91,9 @@ struct SearchFields {
     )]
     #[cfg_attr(feature = "schema", schemars(with = "crate::VariantRegion"))]
     region: Option<crate::VariantRegion>,
+    /// Return only the ClinGen dosage regions that the band, interval or ISCA ID matches, without gene rows.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    regions_only: bool,
     /// Optional HGNC locus group intersected with the selector.
     #[serde(
         default,
@@ -139,6 +142,7 @@ impl GeneSearch {
             query,
             band,
             region: None,
+            regions_only: false,
             locus_group,
             limit,
             offset,
@@ -154,6 +158,7 @@ impl GeneSearch {
             query: None,
             band: None,
             region: Some(region),
+            regions_only: false,
             locus_group: None,
             limit,
             offset,
@@ -166,7 +171,31 @@ impl GeneSearch {
         if !(MIN_LIMIT..=MAX_LIMIT).contains(&fields.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
+        // Regions answer only a band, an interval or an ISCA ID.
+        if fields.regions_only
+            && fields.band.is_none()
+            && fields.region.is_none()
+            && fields.query.as_ref().and_then(isca_id).is_none()
+        {
+            return Err(QueryInvalid::new(&["regions_only"]));
+        }
         Ok(Self(fields))
+    }
+    /// The same selectors returning only ClinGen regions, from the first page.
+    pub fn regions_only(&self) -> Result<Self, QueryInvalid> {
+        Self::checked(SearchFields {
+            regions_only: true,
+            offset: 0,
+            ..self.0.clone()
+        })
+    }
+    /// Whether gene rows are left out and only ClinGen regions return.
+    pub fn is_regions_only(&self) -> bool {
+        self.0.regions_only
+    }
+    /// The query text when it names a ClinGen ISCA region, such as ISCA-37400.
+    pub fn region_id(&self) -> Option<&str> {
+        self.0.query.as_ref().and_then(isca_id)
     }
     /// Optional search text.
     pub fn query(&self) -> Option<&Text> {
@@ -198,6 +227,15 @@ impl crate::Paged for GeneSearch {
     fn set_page_offset(&mut self, offset: Self::Offset) {
         self.0.offset = offset;
     }
+}
+
+fn isca_id(text: &Text) -> Option<&str> {
+    let text = text.as_str();
+    (text.len() > 5
+        && text
+            .get(..5)
+            .is_some_and(|prefix| prefix.eq_ignore_ascii_case("ISCA-")))
+    .then_some(text)
 }
 
 pub(crate) fn present<'de, T: Deserialize<'de>, D: serde::Deserializer<'de>>(
