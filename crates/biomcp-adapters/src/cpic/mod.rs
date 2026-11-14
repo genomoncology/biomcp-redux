@@ -23,7 +23,7 @@ mod phenotypes;
 mod raw;
 mod read;
 pub use pair::pair;
-pub use phenotypes::drug_phenotypes;
+pub use phenotypes::{PhenotypeList, drug_phenotypes};
 pub use read::{Page, card, diplotype, drug_recommendations, guidelines, recommendations, search};
 
 /// Native gene collection shared by record reads and the bounded health probe.

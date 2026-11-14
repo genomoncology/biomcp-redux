@@ -83,7 +83,8 @@ fn fact_context(entity: &str, key: &str) -> Value {
     match (entity, key) {
         ("pgx", "kind" | "snapshot") => json!({"section":"annotations"}),
         ("pgx", "diplotype") => json!({"section":"diplotype"}),
-        ("pgx", "drug_id" | "phenotype") => json!({"section":"recommendations"}),
+        ("pgx", "drug_id") => json!({"section":"recommendations"}),
+        ("pgx", "phenotype") => json!({"section":"recommendations","drug_id":"RxNorm:1234"}),
         ("drug", "decision_from" | "decision_to") => json!({"section":"approvals"}),
         ("drug", "partner") => json!({"section":"interactions"}),
         ("variant", "tumor_type") => json!({"build":"GRCh38"}),

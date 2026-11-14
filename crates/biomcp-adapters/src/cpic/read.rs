@@ -160,21 +160,16 @@ pub fn recommendations(
     query: &PgxGet,
 ) -> Result<Page<PgxRecommendation>, RequestError> {
     let key = format!("lookupkey->>{}", query.gene());
-    let filter = super::phenotypes::filter(query);
-    let mut args = vec![
-        ("select", Arg::Text("*")),
-        (key.as_str(), Arg::Text("not.is.null")),
-        ("order", Arg::Text("recommendationid.asc")),
-        ("limit", Arg::Num(query.section_limit().into())),
-        ("offset", Arg::Num(query.section_offset().into())),
-    ];
-    if let Some((field, value)) = &filter {
-        args.push((field.as_str(), Arg::Text(value)));
-    }
     read::<super::raw::PgxRecommendation>(
         leg,
         "/recommendation_view",
-        &args,
+        &[
+            ("select", Arg::Text("*")),
+            (&key, Arg::Text("not.is.null")),
+            ("order", Arg::Text("recommendationid.asc")),
+            ("limit", Arg::Num(query.section_limit().into())),
+            ("offset", Arg::Num(query.section_offset().into())),
+        ],
         query.section_offset(),
         query.section_limit(),
         false,
@@ -183,7 +178,6 @@ pub fn recommendations(
                 r.lookupkey
                     .keys()
                     .any(|k| k.to_string() == query.gene().to_string())
-                    && super::phenotypes::matches(query, r.phenotypes.as_ref())
             }) && ordered(rows.iter().map(|r| r.recommendationid.id))
         },
     )

@@ -2,7 +2,7 @@
   "feature": "cpic-pgx",
   "live_check": "public",
   "story": "CPIC recommendations for one gene and drug can be filtered to one phenotype, and the unfiltered first page lists every phenotype CPIC holds with its row count, so a Poor Metabolizer row past the first page is not missed.",
-  "verified": "CPIC API checked live 2026-11-14: RxNorm:32968 (clopidogrel) has 24 CYP2C19 recommendation rows, three for each of eight phenotypes, and the three Poor Metabolizer rows say \"Avoid clopidogrel if possible\"; the phenotype filter is exact (\"poor metabolizer\" matches nothing). Replies recorded by biomcp --record in a pm job. Before 0936 the persona's first page held only the Ultrarapid and Rapid Metabolizer rows (bench dx-lab-director 2026-11-14 log.md:254-256).",
+  "verified": "CPIC API checked live 2026-11-14: RxNorm:32968 (clopidogrel) has 24 CYP2C19 recommendation rows, three for each of eight phenotypes, and the three Poor Metabolizer rows say \"Avoid clopidogrel if possible\"; the phenotype filter is exact (\"poor metabolizer\" matches nothing). HLA-B with abacavir (RxNorm:190521) has two rows whose phenotypes are empty, so a phenotype filter must say so rather than call the pair empty. Replies recorded by biomcp --record in a pm job. Before 0936 the persona's first page held only the Ultrarapid and Rapid Metabolizer rows (bench dx-lab-director 2026-11-14 log.md:254-256).",
   "replay": "pgx/recommendations-filter-by-phenotype",
   "steps": [
     {
@@ -98,6 +98,47 @@
         }
       },
       "max_bytes": 1287
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--drug-id",
+        "RxNorm:190521",
+        "--gene",
+        "HLA-B",
+        "--source",
+        "cpic",
+        "--phenotype",
+        "Poor Metabolizer"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 0,
+        "/sources/0/notices/*/message": {
+          "includes": "CPIC's 2 HLA-B recommendation rows for RxNorm:190521 carry no phenotype, so --phenotype cannot select them; drop --phenotype to read them."
+        }
+      },
+      "max_bytes": 1500
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "recommendations",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "--phenotype",
+        "Poor Metabolizer"
+      ],
+      "exit": 2,
+      "expect": {
+        "/status": "usage"
+      },
+      "max_bytes": 1500
     }
   ]
 }

@@ -18,9 +18,16 @@ impl Reply for PhenotypeRows {
         Ok(())
     }
 }
-/// Each row's phenotype for the gene and drug, ignoring any phenotype filter, in native row
-/// order; rows without a phenotype for the gene are skipped.
-pub fn drug_phenotypes(leg: &Leg<'_>, query: &PgxGet) -> Result<Vec<Box<str>>, RequestError> {
+/// Every recommendation row for the gene and drug, ignoring any phenotype filter.
+#[derive(Debug)]
+pub struct PhenotypeList {
+    /// Each row's phenotype for the gene in native row order; rows without one are skipped.
+    pub phenotypes: Vec<Box<str>>,
+    /// All rows, including those without a phenotype for the gene (HLA rows carry none).
+    pub rows: u64,
+}
+/// Read every row's phenotype for the gene and drug in one complete request.
+pub fn drug_phenotypes(leg: &Leg<'_>, query: &PgxGet) -> Result<PhenotypeList, RequestError> {
     let id = query
         .drug_id()
         .ok_or(biomcp_fetch::InputError::Serialization)?;
@@ -48,7 +55,10 @@ pub fn drug_phenotypes(leg: &Leg<'_>, query: &PgxGet) -> Result<Vec<Box<str>>, R
             }),
         )?
         .value;
-    Ok(rows.0.into_iter().filter_map(|r| r.phenotype).collect())
+    Ok(PhenotypeList {
+        rows: rows.0.len() as u64,
+        phenotypes: rows.0.into_iter().filter_map(|r| r.phenotype).collect(),
+    })
 }
 pub(super) fn filter(query: &PgxGet) -> Option<(String, String)> {
     query.phenotype().map(|p| {

@@ -205,40 +205,51 @@ fn drug_phenotypes(
     total: u64,
     empty_reason: &mut Option<String>,
 ) -> Vec<biomcp_types::PgxPhenotypeRows> {
-    let phenotypes = if q.section_offset() != 0 || (total == 0 && q.phenotype().is_none()) {
-        Vec::new()
-    } else if q.phenotype().is_none() && total == items.len() as u64 {
-        tally(items.iter().filter_map(|r| gene_phenotype(r, q)))
+    let unfiltered = q.phenotype().is_none();
+    let mut failed = None;
+    // Rows for the gene and drug before any phenotype filter, when known.
+    let (phenotypes, all_rows) = if q.section_offset() != 0 {
+        (Vec::new(), unfiltered.then_some(total))
+    } else if unfiltered && total == items.len() as u64 {
+        (
+            tally(items.iter().filter_map(|r| gene_phenotype(r, q))),
+            Some(total),
+        )
     } else {
         match cpic::drug_phenotypes(leg, q) {
-            Ok(list) => tally(list.into_iter()),
+            Ok(list) => (tally(list.phenotypes.into_iter()), Some(list.rows)),
             Err(error) => {
-                let reason = status::reason(error)
-                    .map_or_else(|| "a local error".to_owned(), |reason| reason.to_string());
-                *empty_reason = Some(format!(
-                    "Reading the phenotypes CPIC lists for {} and {} failed ({reason}); \
-                         the rows shown are complete.",
-                    q.gene(),
-                    drug_label(q)
-                ));
-                Vec::new()
+                failed = Some(
+                    status::reason(error)
+                        .map_or_else(|| "a local error".to_owned(), |reason| reason.to_string()),
+                );
+                (Vec::new(), unfiltered.then_some(total))
             }
         }
     };
-    if total == 0 && phenotypes.is_empty() && empty_reason.is_none() {
-        *empty_reason = empty_pair(leg, q);
-    } else if total == 0
-        && let Some(wanted) = q.phenotype()
-        && empty_reason.is_none()
-    {
-        *empty_reason = Some(format!(
-            "CPIC has no {} recommendations for {} with phenotype {}; \
-                 result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them.",
-            q.gene(),
-            drug_label(q),
+    let (gene, drug) = (q.gene(), drug_label(q));
+    *empty_reason = match (total, failed, q.phenotype(), all_rows) {
+        (0, Some(reason), Some(wanted), _) => Some(format!(
+            "CPIC has no {gene} recommendations for {drug} with phenotype {}; \
+             reading the phenotypes CPIC lists failed ({reason}).",
             wanted.as_str()
-        ));
-    }
+        )),
+        (_, Some(reason), _, _) => Some(format!(
+            "Reading the phenotypes CPIC lists for {gene} and {drug} failed ({reason}); \
+             the rows shown are complete."
+        )),
+        (0, None, _, Some(0)) => empty_pair(leg, q),
+        (0, None, Some(_), Some(rows)) if phenotypes.is_empty() => Some(format!(
+            "CPIC's {rows} {gene} recommendation rows for {drug} carry no phenotype, so \
+             --phenotype cannot select them; drop --phenotype to read them."
+        )),
+        (0, None, Some(wanted), Some(_)) => Some(format!(
+            "CPIC has no {gene} recommendations for {drug} with phenotype {}; \
+             result.phenotypes lists the phenotypes it has, spelled as --phenotype needs them.",
+            wanted.as_str()
+        )),
+        _ => None,
+    };
     phenotypes
 }
 fn drug_label(q: &PgxGet) -> String {

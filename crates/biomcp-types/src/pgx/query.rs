@@ -117,7 +117,7 @@ struct GetFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Cpic)))]
     drug_id: Option<Curie>,
-    /// Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations only.
+    /// Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Cpic)))]
     phenotype: Option<Text>,
@@ -165,6 +165,9 @@ impl TryFrom<GetFields> for PgxGet {
         }
         if v.phenotype.is_some() && v.section != Some(PgxSection::Recommendations) {
             return Err(QueryInvalid::new(&["phenotype", "section"]));
+        }
+        if v.phenotype.is_some() && v.drug_id.is_none() {
+            return Err(QueryInvalid::new(&["phenotype", "drug_id"]));
         }
         if v.kind.is_some() && !annotations {
             return Err(QueryInvalid::new(&["kind", "section"]));
