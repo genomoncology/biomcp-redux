@@ -118,26 +118,6 @@ class FocusedCommand(unittest.TestCase):
                         self.assertIn("selected runner's --list", result.stderr)
                         self.assertEqual(result.stdout, '')
 
-    def test_all_runs_the_whole_proof_catalog_and_keeps_its_exit(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            runner = Path(temporary) / 'runner'
-            runner.write_text(RUNNER.replace('#!/usr/bin/env python3', '#!' + sys.executable, 1))
-            runner.chmod(0o755)
-            command = [sys.executable, str(ROOT / 'scripts/trials.py'),
-                       '--runner', str(runner), '--executable', str(runner)]
-            for code in (0, 41):
-                with self.subTest(code=code):
-                    result = subprocess.run([*command, '--target', 'tools', '--proofs', '--all'],
-                                            env=dict(os.environ, TRIAL_EXIT=str(code)),
-                                            capture_output=True, text=True)
-                    self.assertEqual(result.returncode, code, result.stderr)
-                    self.assertEqual(json.loads(result.stdout)['arguments'], ['--proofs'])
-            for options in (['--all'], ['--target', 'tools', '--proofs', '--all', 'named/proof']):
-                with self.subTest(options=options):
-                    result = subprocess.run([*command, *options], capture_output=True, text=True)
-                    self.assertEqual(result.returncode, 2)
-                    self.assertIn('--all requires --target tools --proofs', result.stderr)
-
     def test_discovery_preserves_rust_case_and_custom_trial_modes(self):
         from trials import main
         for options in [['--target', 'tools', '--proofs'], ['--cases', str(ROOT / 'tests/cases')]]:

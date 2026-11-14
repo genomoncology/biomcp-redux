@@ -57,8 +57,10 @@ proof: pre-job
 	$(PYTHON) scripts/trials.py --target tools --proofs $(PROOFS)
 
 # The gates run the whole tooling-proof catalog; pre-job has already linted it (0944).
+# Plain cargo test reuses the cases stage's build; trials.py vendors and rebuilds every crate.
 tool-proofs:
-	$(PYTHON) scripts/trials.py --target tools --proofs --all
+	BIOMCP_TEST_PYTHON="$(PYTHON)" cargo test --locked -p biomcp --test tools -- --proofs \
+		$(if $(strip $(RUST_TEST_THREADS)),--test-threads $(RUST_TEST_THREADS))
 
 gate-stage-check:
 	$(PYTHON) -m unittest scripts.test_gate_stages

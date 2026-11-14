@@ -31,3 +31,9 @@ The landing gate runs the case runner's tool-only proofs (`make proof`), so a pr
 ## Changes
 
 - Changes: the landing gate script, Makefile, maybe the runner's proof selection.
+
+## Progress
+
+- Changed: both gates (`make landing-gate` after `cases`, `make full-suite` before `coverage`) run a new `tool-proofs` stage, `make tool-proofs`, which runs the whole `tools --proofs` catalog (29 proofs, 1 ignored) with plain `cargo test --test tools -- --proofs`. `make proof PROOFS=...` is unchanged for focused runs. `scripts/test_gate_stages.py` checks the new stage order and that a failing `tool-proofs` stops the gate.
+- Measured: the base gate on main (j40893, 4e99fe4be) took 588 s. A first version ran the catalog through `scripts/trials.py`, which vendors every crate and rebuilds all dependencies against the vendored copy. Its stage took 594 s, about 309 s to build and 285 s to run the proofs (j40909, with the M5 loaded: cases took 320 s against 242 s on main). Plain `cargo test` reuses the cases stage's build, so the stage now builds only the `tools` test binary.
+- Proof: with `schema-discovery/starts-within-reads-raw-bytes` deliberately broken on the scratch branch `scratch/0944-broken-proof`, `make landing-gate` failed at `gate stage=tool-proofs ... exit=2` and named the proof ("starts_within read the wrong byte") (j40909). The scratch branch was deleted from origin afterwards.
