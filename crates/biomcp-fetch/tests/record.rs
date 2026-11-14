@@ -585,3 +585,6 @@ mod metadata;
 
 #[path = "record/errors.rs"]
 mod errors;
+
+#[path = "record/command_budget.rs"]
+mod command_budget;

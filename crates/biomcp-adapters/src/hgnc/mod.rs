@@ -27,6 +27,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::HGNC,
     deadline: Duration::from_secs(120),
+    command_budget: None,
 };
 const COMPLETE: Bundle<raw::Gene> = Bundle {
     spec: &SPEC,

@@ -247,6 +247,18 @@
           "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label.",
           "x-comma-separated": true
         },
+        "partner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.\nKeeps only the pairs with that drug. A name DDInter does not use is tried under the\nnames other sources state for it, as the drug itself is.",
+          "x-required-component": "ddinter"
+        },
         "product_number": {
           "anyOf": [
             {
@@ -514,6 +526,17 @@
     "Reply_DrugInteractions": {
       "description": "Native DDInter partner rows and levels without invented management text.",
       "properties": {
+        "hint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "What DDInter's files hold: a level per listed pair and no management text; and, for a\npartner, whether DDInter names that drug at all."
+        },
         "identity": {
           "$ref": "#/$defs/Reply_DrugHeader",
           "description": "Selected native identity, checked independently of section facts."
@@ -521,6 +544,13 @@
         "interactions": {
           "$ref": "#/$defs/Reply_Section_DrugRecords_DrugInteractionClaim",
           "description": "Existing typed section state, preserving empty, unavailable and skipped outcomes."
+        },
+        "partners": {
+          "description": "DDInter identities the requested partner names; empty when DDInter's files name no such drug.",
+          "items": {
+            "$ref": "#/$defs/Reply_DrugHeader"
+          },
+          "type": "array"
         }
       },
       "required": [
@@ -662,7 +692,7 @@
         " One exact native label heading.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ],
       "x-extensible-enum": [

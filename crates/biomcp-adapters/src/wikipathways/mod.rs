@@ -24,6 +24,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &crate::quotas::WIKIPATHWAYS,
     deadline: Duration::from_secs(120),
+    command_budget: None,
 };
 
 pub(crate) use catalog::bundle_state;

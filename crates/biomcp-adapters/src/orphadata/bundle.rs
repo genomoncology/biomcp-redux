@@ -26,6 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::ORPHADATA,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 pub(super) const PREVALENCE: &str = "prevalence";
 pub(super) const AGES: &str = "ages";

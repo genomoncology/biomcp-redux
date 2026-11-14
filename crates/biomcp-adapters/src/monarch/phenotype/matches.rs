@@ -33,7 +33,7 @@ pub struct Ranked {
 }
 
 /// Monarch's similarity search: a full search took 4.5 to 19.3 s when measured on
-/// 2026-11-13, beyond the 15 s that suits other Monarch reads; the command budget still caps it.
+/// 2026-11-13, beyond the 15 s that suits other Monarch reads, so its command gets 30 s too.
 pub static SPEC: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: None,
@@ -43,6 +43,7 @@ pub static SPEC: biomcp_fetch::SourceSpec = biomcp_fetch::SourceSpec {
     quota: &crate::quotas::MONARCH,
     key: biomcp_fetch::KeyUse::None,
     deadline: std::time::Duration::from_secs(30),
+    command_budget: Some(std::time::Duration::from_secs(30)),
 };
 
 /// Monarch's search mode spelling.

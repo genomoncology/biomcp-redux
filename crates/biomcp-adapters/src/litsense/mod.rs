@@ -27,6 +27,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::LITSENSE,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 pub(crate) const SENTENCES: Endpoint = SPEC.get("/api/sentences/").fresh(Freshness::Days(1));
 /// Read one bounded provider reply and keep each paper's first sentence, without score sorting.

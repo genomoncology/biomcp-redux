@@ -16,6 +16,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::CLINPGX,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 mod annotation_raw;

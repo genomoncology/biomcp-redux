@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::VARIANT_VALIDATOR,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const VALIDATE: Endpoint = SPEC
     .get("/variantvalidator")
@@ -76,7 +77,7 @@ pub fn resolve(leg: &Leg<'_>, input: &str, build: Build) -> Result<Resolution, R
 }
 
 /// The gene's RefSeq transcripts on which VariantValidator accepts a mismatched change.
-pub use fit::{fits_apply, transcript_fits};
+pub use fit::{FitQuery, fit_query, fits_apply, transcript_fits};
 /// Native service descriptions, warnings and version metadata.
 pub use normalization::normalize;
 

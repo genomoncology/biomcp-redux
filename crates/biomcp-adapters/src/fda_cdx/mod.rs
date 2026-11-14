@@ -24,6 +24,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::FDA_WEBSITE,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 /// Small read-only publisher probe; never an export or synchronization.

@@ -21,6 +21,7 @@ pub static RECOMMEND_SPEC: SourceSpec = SourceSpec {
     key: SPEC.key,
     quota: SPEC.quota,
     deadline: SPEC.deadline,
+    command_budget: None,
 };
 const GET: Endpoint = RECOMMEND_SPEC
     .get("/papers/forpaper")

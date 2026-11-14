@@ -21,6 +21,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::GNOMAD,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const GENES: Endpoint = SPEC
     .post_json("/api")

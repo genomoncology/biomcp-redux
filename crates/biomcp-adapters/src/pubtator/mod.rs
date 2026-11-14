@@ -25,6 +25,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::PUBTATOR,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 const EXPORT: Endpoint = SPEC
     .get("/publications/export/biocjson")

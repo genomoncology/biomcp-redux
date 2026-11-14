@@ -34,6 +34,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &quotas::NCBI,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const SEARCH: Endpoint = SPEC.get("/esearch.fcgi").fresh(Freshness::Days(1));
 // https://www.ncbi.nlm.nih.gov/books/NBK25499/ recommends POST for long ESearch terms.

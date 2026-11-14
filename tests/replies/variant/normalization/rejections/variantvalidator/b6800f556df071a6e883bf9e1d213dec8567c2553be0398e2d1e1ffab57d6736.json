@@ -1,13 +1,13 @@
 {
   "method": "GET",
   "source": "variantvalidator",
-  "url": "https://rest.variantvalidator.org/VariantValidator/variantvalidator/GRCh38/SCN1A%3Ac.4729T%3EC/NM_001165964.3%7CNM_001202435.3%7CNM_001353948.2%7CNM_001353949.2%7CNM_001353950.2%7CNM_001353951.2%7CNM_001353952.2%7CNM_001353954.2%7CNM_001353955.2%7CNM_001353957.2%7CNM_001353958.2%7CNM_001353960.2%7CNM_001353961.2%7CNM_006920.6?content-type=application%2Fjson",
+  "url": "https://rest.variantvalidator.org/VariantValidator/variantvalidator/GRCh38/SCN1A%3Ac.4729T%3EC/NM_006920.6%7CNM_001165964.3%7CNM_001202435.3%7CNM_001353948.2%7CNM_001353949.2%7CNM_001353950.2%7CNM_001353951.2%7CNM_001353952.2%7CNM_001353954.2%7CNM_001353955.2%7CNM_001353957.2%7CNM_001353958.2%7CNM_001353960.2%7CNM_001353961.2?content-type=application%2Fjson",
   "exchanges": [
     {
-      "fetched": 1794588501,
+      "fetched": 1794621298,
       "status": 200,
       "content_type": "application/json",
-      "delay_ms": 1939,
+      "delay_ms": 1957,
       "retry_after_ms": null,
       "body": {
         "kind": "json",

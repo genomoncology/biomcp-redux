@@ -12,7 +12,7 @@
     " One exact native label heading.",
     " Native application and product history rows.",
     " Source-scoped regulator events.",
-    " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+    " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
     " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
   ],
   "x-extensible-enum": [

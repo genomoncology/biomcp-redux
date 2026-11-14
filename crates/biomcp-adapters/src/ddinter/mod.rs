@@ -24,6 +24,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::DDINTER,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 
 pub(crate) use bundle::bundle_state;

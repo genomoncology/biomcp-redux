@@ -17,6 +17,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::CHEMBL,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 mod pages;
 mod raw;

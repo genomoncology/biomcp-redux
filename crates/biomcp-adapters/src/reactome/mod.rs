@@ -28,6 +28,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::REACTOME,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 #[derive(Deserialize)]
 struct Rows(Vec<Row>);

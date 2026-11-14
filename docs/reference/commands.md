@@ -122,7 +122,7 @@ Commands:
   diagnostic     Search five source records by default. FDA device recalls cover every medical device and show class; totals count recall records, without harm inference.
   adverse-event  Search five report headers by default. MAUDE accepts device text or a manufacturer, product-code, problem or event-type filter. One report may list several devices; filters may match different devices. VAERS accepts MMR, COVID19, COVID-19 vaccine or one exact qualified native influenza code, matched without case; use influenza to list codes and labels. Tables remain separate and are never summed. One report may list several vaccines. VAERS returns five reported symptom rows by default; seriousness and age select independent tables. Counts are reports, not people. Reports do not show that a vaccine caused an event and cannot measure risk or compare vaccine safety.
   disease        Literal discovery text or an explicit SEER catalog page.
-  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+  drug           Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
   gene           Search genes by text, cytoband, or their intersection, with ClinGen dosage regions that match.
   article        Checked search selectors and pool cursor.
   trial          Search ClinicalTrials.gov or keyed NCI with native counts. NCI --facility matches exact organization names; a listed site is not necessarily enrolling.
@@ -1361,7 +1361,7 @@ Form: search disease TEXT; not --text.
 ## biomcp search drug
 
 ```text
-Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
+Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.
 
 Usage: biomcp search drug [OPTIONS] [query]
 
@@ -1495,6 +1495,10 @@ Options:
       --status <status>
           Literal recall status.
 
+      --therapeutic-area <therapeutic_area>
+          WHO PQ therapeutic area.
+          Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology.
+
 ```
 
 Search drugs and medicines by name or source label indication. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
@@ -1557,6 +1561,8 @@ Selected source.
 After an empty name lookup, existing sources may supply aliases.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --source ema. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--status`: Exact recall status. Value form: string. Example: --status Ongoing. Only with --source fda-drug-recall.
+- `--therapeutic-area`: WHO PQ therapeutic area.
+Whole words of WHO's Therapeutic Area column, any letter case, such as Oncology. Value form: string. Example: --therapeutic-area oncology. Only with --source who-pq.
 
 ## biomcp search gene
 
@@ -3186,7 +3192,7 @@ Arguments:
 Options:
       --civic-cursor <civic_cursor>
           CIViC continuation.
-          Native continuation cursor for that exact drug, profile and claim collection. Only with --source civic.
+          Native continuation cursor for that exact drug, profile and claim collection.
 
       --format <format>
           Choose JSON or Markdown output; configuration can change the default.
@@ -3197,14 +3203,14 @@ Options:
       --civic-kind <civic_kind>
           CIViC collection; help get drug
           CIViC collection.
-          Independent native evidence or assertion collection within the selected profile. Only with --source civic.
+          Independent native evidence or assertion collection within the selected profile.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
 
       --civic-profile <civic_profile>
           CIViC profile.
-          Selected native CIViC molecular profile for a drug-scoped claim stream. Only with --source civic.
+          Selected native CIViC molecular profile for a drug-scoped claim stream.
 
       --decision-from <decision_from>
           From date.
@@ -3223,24 +3229,21 @@ Options:
       --document-id <document_id>
           FDA letter document ID.
           Exact native Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-          and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda.
+          and 6144 escaped bytes per fragment. No-text scans are explicit.
 
       --evidence-level <evidence_level>...
           A–E; help get drug
           A–E
           Native CIViC evidence levels; repeat to include several levels.
-          Only with --source civic on get drug, and the civic section on get variant.
 
       --evidence-status <evidence_status>
           Status; help get drug
           Status
           Native CIViC evidence status; omitted preserves the source's existing default.
-          Only with --source civic on get drug, and the civic section on get variant.
 
       --label-section <label_section>
           Exact openFDA SPL fields.
           Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-          Only with --source openfda-label.
 
       --offline[=<offline>]
           Read local data without source requests.
@@ -3248,15 +3251,21 @@ Options:
           [default: false]
           [possible values: true, false]
 
-      --product-number <product_number>
-          FDA product number.
-          Explicit native application product number, only for approvals. Only with --source drugsfda.
+      --partner <partner>
+          Interaction partner.
+          A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+          Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+          names other sources state for it, as the drug itself is.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
+
+      --product-number <product_number>
+          FDA product number.
+          Explicit native application product number, only for approvals.
 
       --section-limit <section_limit>
           Named section page size, refused on an identity-only card.
@@ -3274,38 +3283,39 @@ Options:
 Get drug and medicine details. Sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq.
 
 - `--civic-cursor`: CIViC continuation.
-Source continuation cursor for that exact drug, profile and claim collection. Only with --source civic. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Source continuation cursor for that exact drug, profile and claim collection. Value form: string. Example: --civic-cursor 0:A2. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--civic-kind`: CIViC collection; help get drug
 CIViC collection.
-Independent source evidence or assertion collection within the selected profile. Only with --source civic.
+Independent source evidence or assertion collection within the selected profile.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --civic-kind evidence. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--civic-profile`: CIViC profile.
-Selected source CIViC molecular profile for a drug-scoped claim stream. Only with --source civic. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Selected source CIViC molecular profile for a drug-scoped claim stream. Value form: integer. Example: --civic-profile 1. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--decision-from`: From date.
 Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-from 2024-01-01. Only with --source drugsfda.
 - `--decision-to`: To date.
 Inclusive YYYY-MM-DD status date; Drugs@FDA approvals. Value form: string. Example: --decision-to 2024-12-31. Only with --source drugsfda.
 - `--document-id`: FDA letter document ID.
 Exact source Drugs@FDA approval letter document ID. Text is bounded to 25 MiB, 100 pages
-and 6144 escaped bytes per fragment. No-text scans are explicit. Only with --source drugsfda. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+and 6144 escaped bytes per fragment. No-text scans are explicit. Value form: string. Example: --document-id 64255. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-level`: A–E; help get drug
 A–E
 Source CIViC evidence levels; repeat to include several levels.
-Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `--evidence-status`: Status; help get drug
 Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status accepted. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `input`: Source ID, brand or generic name.
 Source-source ID or complete brand or generic name; WHO references retain source spaces. Exact brands rank before generics; Drugs@FDA prefers NDA/BLA before ANDA, then earliest approval. Other sources retain search order. The chosen record reports up to five alternatives and their total. Generic names also accept one trailing listed salt or ester term: mesylate, hydrochloride, sodium, potassium, calcium, sulfate, maleate, tartrate, citrate, phosphate, acetate, besylate, fumarate, succinate, tosylate, bromide, chloride. Brand names identical to their own ingredient count as generic. USAN nomenclature: https://www.ama-assn.org/about/united-states-adopted-names-usan/united-states-adopted-names-naming-guidelines
 Form: get drug INPUT SECTION...; not --input.
 - `--label-section`: Exact openFDA SPL fields.
-Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.
-Only with --source openfda-label. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Exact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names. Value form: string. Example: --label-section indications_and_usage. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+- `--partner`: Interaction partner.
+A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
+Keeps only the pairs with that drug. A name DDInter does not use is tried under the
+names other sources state for it, as the drug itself is. Value form: string. Example: --partner DDInter5. Only with --source ddinter.
 - `--product-number`: FDA product number.
-Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
+Explicit source application product number, only for approvals. Value form: string. Example: --product-number 001. Command sources: chembl, civic, ddinter, drugsfda, ema, fda-drug-recall, mychem, openfda-label, opentargets, who-pq; source restrictions in the field description apply.
 - `section`: Source sections; help get drug
 Listed choices accept any letter case; replies use their listed spelling.
 Form: get drug INPUT SECTION...; not --section.
@@ -3325,7 +3335,7 @@ Named disclosures of the selected source, each its own part of one reply; empty 
 - `label`: One exact source label heading.
 - `approvals`: Source application and product history rows.
 - `regulatory`: Source-scoped regulator events.
-- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.
+- `interactions`: Source DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.
 - `markets`: One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source.
 
 ## biomcp get gene
@@ -3600,13 +3610,11 @@ Options:
           A–E; help get variant
           A–E
           Native CIViC evidence levels; repeat to include several levels.
-          Only with --source civic on get drug, and the civic section on get variant.
 
       --evidence-status <evidence_status>
           Status; help get variant
           Status
           Native CIViC evidence status; omitted preserves the source's existing default.
-          Only with --source civic on get drug, and the civic section on get variant.
 
       --limit <limit>
           Candidate rows per page; more remain reachable through typed next commands.
@@ -3663,12 +3671,10 @@ CIViC therapy name text; CIViC matches it natively against evidence and assertio
 - `--evidence-level`: A–E; help get variant
 A–E
 Source CIViC evidence levels; repeat to include several levels.
-Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: repeatable values (repeat the flag). Example: --evidence-level A. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `--evidence-status`: Status; help get variant
 Status
 Source CIViC evidence status; omitted preserves the source's existing default.
-Only with --source civic on get drug, and the civic section on get variant.
 Listed choices accept any letter case; replies use their listed spelling. Value form: string. Example: --evidence-status submitted. Command sources: alphagenome, car, civic, clinvar, erepo, gnomad, gwas, hotspots, mutalyzer, myvariant, oncokb, variantvalidator; source restrictions in the field description apply.
 - `input`: rs/CA/clinvar:N/VCV/HGVS/VCF
 rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or VCF-style genomic coordinates.
@@ -7441,11 +7447,7 @@ Read papers attributed to a source author record.
 ```text
 Read source cell line assay counts.
 
-Usage: biomcp help get cell-line [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get cell-line [OPTIONS]
 
 Options:
       --format <format>
@@ -7479,17 +7481,11 @@ Options:
 
 Read source cell line assay counts.
 
-- `section`: One section of the get command to describe.
-Form: help get cell-line SECTION; not --section.
 
 ## biomcp help get gwas
 
 ```text
-Usage: biomcp help get gwas [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get gwas [OPTIONS]
 
 Options:
       --format <format>
@@ -7523,19 +7519,13 @@ Options:
 
 Describe help get gwas.
 
-- `section`: One section of the get command to describe.
-Form: help get gwas SECTION; not --section.
 
 ## biomcp help get protein
 
 ```text
 Read protein sequences, features and source relationships.
 
-Usage: biomcp help get protein [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get protein [OPTIONS]
 
 Options:
       --format <format>
@@ -7569,17 +7559,11 @@ Options:
 
 Read protein sequences, features and source relationships.
 
-- `section`: One section of the get command to describe.
-Form: help get protein SECTION; not --section.
 
 ## biomcp help get phenotype
 
 ```text
-Usage: biomcp help get phenotype [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get phenotype [OPTIONS]
 
 Options:
       --format <format>
@@ -7613,19 +7597,13 @@ Options:
 
 Describe help get phenotype.
 
-- `section`: One section of the get command to describe.
-Form: help get phenotype SECTION; not --section.
 
 ## biomcp help get pathway
 
 ```text
 Read pathway genes and source events.
 
-Usage: biomcp help get pathway [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get pathway [OPTIONS]
 
 Options:
       --format <format>
@@ -7659,17 +7637,11 @@ Options:
 
 Read pathway genes and source events.
 
-- `section`: One section of the get command to describe.
-Form: help get pathway SECTION; not --section.
 
 ## biomcp help get study
 
 ```text
-Usage: biomcp help get study [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get study [OPTIONS]
 
 Options:
       --format <format>
@@ -7703,17 +7675,11 @@ Options:
 
 Describe help get study.
 
-- `section`: One section of the get command to describe.
-Form: help get study SECTION; not --section.
 
 ## biomcp help get pgx
 
 ```text
-Usage: biomcp help get pgx [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get pgx [OPTIONS]
 
 Options:
       --format <format>
@@ -7747,17 +7713,11 @@ Options:
 
 Describe help get pgx.
 
-- `section`: One section of the get command to describe.
-Form: help get pgx SECTION; not --section.
 
 ## biomcp help get diagnostic
 
 ```text
-Usage: biomcp help get diagnostic [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get diagnostic [OPTIONS]
 
 Options:
       --format <format>
@@ -7791,17 +7751,11 @@ Options:
 
 Describe help get diagnostic.
 
-- `section`: One section of the get command to describe.
-Form: help get diagnostic SECTION; not --section.
 
 ## biomcp help get adverse-event
 
 ```text
-Usage: biomcp help get adverse-event [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get adverse-event [OPTIONS]
 
 Options:
       --format <format>
@@ -7835,17 +7789,11 @@ Options:
 
 Describe help get adverse-event.
 
-- `section`: One section of the get command to describe.
-Form: help get adverse-event SECTION; not --section.
 
 ## biomcp help get disease
 
 ```text
-Usage: biomcp help get disease [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get disease [OPTIONS]
 
 Options:
       --format <format>
@@ -7879,17 +7827,11 @@ Options:
 
 Describe help get disease.
 
-- `section`: One section of the get command to describe.
-Form: help get disease SECTION; not --section.
 
 ## biomcp help get drug
 
 ```text
-Usage: biomcp help get drug [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get drug [OPTIONS]
 
 Options:
       --format <format>
@@ -7923,17 +7865,11 @@ Options:
 
 Describe help get drug.
 
-- `section`: One section of the get command to describe.
-Form: help get drug SECTION; not --section.
 
 ## biomcp help get gene
 
 ```text
-Usage: biomcp help get gene [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get gene [OPTIONS]
 
 Options:
       --format <format>
@@ -7967,19 +7903,13 @@ Options:
 
 Describe help get gene.
 
-- `section`: One section of the get command to describe.
-Form: help get gene SECTION; not --section.
 
 ## biomcp help get article
 
 ```text
 Read article text, references, citations and files.
 
-Usage: biomcp help get article [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get article [OPTIONS]
 
 Options:
       --format <format>
@@ -8013,19 +7943,13 @@ Options:
 
 Read article text, references, citations and files.
 
-- `section`: One section of the get command to describe.
-Form: help get article SECTION; not --section.
 
 ## biomcp help get trial
 
 ```text
 Read trial groups and public documents.
 
-Usage: biomcp help get trial [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get trial [OPTIONS]
 
 Options:
       --format <format>
@@ -8059,19 +7983,13 @@ Options:
 
 Read trial groups and public documents.
 
-- `section`: One section of the get command to describe.
-Form: help get trial SECTION; not --section.
 
 ## biomcp help get variant
 
 ```text
 Read source variant assertions, populations and recurrence.
 
-Usage: biomcp help get variant [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help get variant [OPTIONS]
 
 Options:
       --format <format>
@@ -8105,8 +8023,6 @@ Options:
 
 Read source variant assertions, populations and recurrence.
 
-- `section`: One section of the get command to describe.
-Form: help get variant SECTION; not --section.
 
 ## biomcp help get clingen
 
@@ -10726,11 +10642,7 @@ Describe help assay-count.
 ## biomcp help gwas
 
 ```text
-Usage: biomcp help gwas [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help gwas [OPTIONS]
 
 Options:
       --format <format>
@@ -10764,8 +10676,6 @@ Options:
 
 Describe help gwas.
 
-- `section`: One section of the get command to describe.
-Form: help gwas SECTION; not --section.
 
 ## biomcp help features
 
@@ -11036,11 +10946,7 @@ Describe help sequence.
 ## biomcp help phenotype
 
 ```text
-Usage: biomcp help phenotype [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help phenotype [OPTIONS]
 
 Options:
       --format <format>
@@ -11074,8 +10980,6 @@ Options:
 
 Describe help phenotype.
 
-- `section`: One section of the get command to describe.
-Form: help phenotype SECTION; not --section.
 
 ## biomcp help genes
 
@@ -11156,11 +11060,7 @@ Describe help events.
 ## biomcp help study
 
 ```text
-Usage: biomcp help study [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help study [OPTIONS]
 
 Options:
       --format <format>
@@ -11194,17 +11094,11 @@ Options:
 
 Describe help study.
 
-- `section`: One section of the get command to describe.
-Form: help study SECTION; not --section.
 
 ## biomcp help pgx
 
 ```text
-Usage: biomcp help pgx [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help pgx [OPTIONS]
 
 Options:
       --format <format>
@@ -11238,17 +11132,11 @@ Options:
 
 Describe help pgx.
 
-- `section`: One section of the get command to describe.
-Form: help pgx SECTION; not --section.
 
 ## biomcp help diagnostic
 
 ```text
-Usage: biomcp help diagnostic [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help diagnostic [OPTIONS]
 
 Options:
       --format <format>
@@ -11282,17 +11170,11 @@ Options:
 
 Describe help diagnostic.
 
-- `section`: One section of the get command to describe.
-Form: help diagnostic SECTION; not --section.
 
 ## biomcp help adverse-event
 
 ```text
-Usage: biomcp help adverse-event [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help adverse-event [OPTIONS]
 
 Options:
       --format <format>
@@ -11326,17 +11208,11 @@ Options:
 
 Describe help adverse-event.
 
-- `section`: One section of the get command to describe.
-Form: help adverse-event SECTION; not --section.
 
 ## biomcp help disease
 
 ```text
-Usage: biomcp help disease [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help disease [OPTIONS]
 
 Options:
       --format <format>
@@ -11370,17 +11246,11 @@ Options:
 
 Describe help disease.
 
-- `section`: One section of the get command to describe.
-Form: help disease SECTION; not --section.
 
 ## biomcp help drug
 
 ```text
-Usage: biomcp help drug [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help drug [OPTIONS]
 
 Options:
       --format <format>
@@ -11414,17 +11284,11 @@ Options:
 
 Describe help drug.
 
-- `section`: One section of the get command to describe.
-Form: help drug SECTION; not --section.
 
 ## biomcp help gene
 
 ```text
-Usage: biomcp help gene [OPTIONS] [section]
-
-Arguments:
-  [section]
-          One section of the get command to describe.
+Usage: biomcp help gene [OPTIONS]
 
 Options:
       --format <format>
@@ -11458,8 +11322,6 @@ Options:
 
 Describe help gene.
 
-- `section`: One section of the get command to describe.
-Form: help gene SECTION; not --section.
 
 ## biomcp help supplement
 

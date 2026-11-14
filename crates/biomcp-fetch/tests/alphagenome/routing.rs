@@ -29,6 +29,7 @@ fn required_key_refuses_without_connections_and_keyed_request_uses_metadata() ->
         }),
         quota: &QUOTA,
         deadline: Duration::from_secs(5),
+        command_budget: None,
     }));
     let endpoint = source.grpc(METHOD).checked(SCHEMA, Freshness::Never);
     for keyed in [false, true] {

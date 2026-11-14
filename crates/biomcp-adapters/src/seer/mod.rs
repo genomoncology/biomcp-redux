@@ -105,6 +105,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     quota: &crate::quotas::SEER,
     key: KeyUse::None,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const CATALOG: Endpoint = SPEC.get("/get_var_formats.php").fresh(Freshness::Days(1));
 const SERIES: Endpoint = SPEC.get("/render_region_5.php").fresh(Freshness::Days(1));

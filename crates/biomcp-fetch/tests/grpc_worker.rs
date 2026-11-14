@@ -22,6 +22,7 @@ static SOURCE: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &QUOTA,
     deadline: Duration::from_secs(2),
+    command_budget: None,
 };
 
 #[test]

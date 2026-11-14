@@ -26,6 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &crate::quotas::CTGOV,
     deadline: Duration::from_secs(15),
+    command_budget: None,
     terms: biomcp_fetch::Terms {
         name: "ClinicalTrials.gov attribution and source processing date; publisher terms",
         url: "https://clinicaltrials.gov/about-site/terms-conditions",

@@ -7,6 +7,8 @@ use biomcp_types::{Source, Use, VaersSection, VaersSummary};
 use std::time::Duration;
 /// Registry-owned restricted statistical use only; no re-identification.
 /// This compatibility setting applies only to CDC WONDER.
+/// A COVID-19 symptom table took 18 s to over 20 s live on 2026-11-13, so a VAERS command gets
+/// 60 s rather than the 20 s default (sdlc/tickets/0909-slow-sources-get-their-own-command-budget.md).
 pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,
     user_agent: Some("Wget/1.21.4"),
@@ -19,7 +21,8 @@ pub static SPEC: SourceSpec = SourceSpec {
     },
     quota: &crate::quotas::WONDER,
     key: KeyUse::None,
-    deadline: Duration::from_secs(30),
+    deadline: Duration::from_secs(60),
+    command_budget: Some(Duration::from_secs(60)),
 };
 const TEMPLATE: &str = include_str!("request.xml");
 /// Read exactly one requested table through checked shared cache admission.

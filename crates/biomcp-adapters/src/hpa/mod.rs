@@ -21,6 +21,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     key: KeyUse::None,
     quota: &quotas::HPA,
     deadline: Duration::from_secs(8),
+    command_budget: None,
 };
 /// Fetch one HGNC Ensembl identity, preserving the source's own miss.
 pub fn expression(

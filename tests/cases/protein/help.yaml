@@ -29,7 +29,7 @@
           ]
         }
       },
-      "max_bytes": 2206
+      "max_bytes": 2254
     },
     {
       "run": [
@@ -67,7 +67,7 @@
         },
         "/result/commands/0/section_rule": "Select source sections or all bounded first pages; function keeps one whole text record."
       },
-      "max_bytes": 2436
+      "max_bytes": 2484
     },
     {
       "run": [
@@ -95,7 +95,7 @@
           ]
         }
       },
-      "max_bytes": 2021
+      "max_bytes": 2081
     },
     {
       "run": [
@@ -122,7 +122,7 @@
           ]
         }
       },
-      "max_bytes": 1769
+      "max_bytes": 1828
     },
     {
       "run": [
@@ -148,7 +148,7 @@
           ]
         }
       },
-      "max_bytes": 1406
+      "max_bytes": 1466
     },
     {
       "run": [
@@ -174,7 +174,7 @@
           ]
         }
       },
-      "max_bytes": 1439
+      "max_bytes": 1500
     },
     {
       "run": [
@@ -201,7 +201,7 @@
           ]
         }
       },
-      "max_bytes": 1786
+      "max_bytes": 1854
     },
     {
       "run": [
@@ -227,7 +227,7 @@
           ]
         }
       },
-      "max_bytes": 1408
+      "max_bytes": 1470
     },
     {
       "run": [
@@ -250,7 +250,7 @@
           ]
         }
       },
-      "max_bytes": 493
+      "max_bytes": 548
     }
   ],
   "verified": "Help limits are refreshed by scripts/refresh_help_cases.py from complete offline CLI stdout."

@@ -452,7 +452,7 @@
         " One exact native label heading.",
         " Native application and product history rows.",
         " Source-scoped regulator events.",
-        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved.",
+        " Native DDInter partner rows and levels; five rows per default page, with explicit section limits preserved. DDInter's published files carry a level per pair and no management or mechanism text.",
         " One row per market (Drugs@FDA, EMA, WHO prequalification), each from its own source; takes a name and no source."
       ]
     },
@@ -3794,6 +3794,11 @@
           ],
           "description": "Literal recall status.",
           "x-required-component": "fda-drug-recall"
+        },
+        "therapeutic_area": {
+          "$ref": "#/$defs/Text",
+          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
+          "x-required-component": "who-pq"
         }
       },
       "required": [
@@ -3908,6 +3913,18 @@
           ],
           "description": "Exact openFDA SPL fields.\nExact published openFDA SPL section fields, including table fields, separated by commas; each is its own part of one reply. Omit it to list names.\nOnly with --source openfda-label.",
           "x-comma-separated": true
+        },
+        "partner": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Interaction partner.\nA DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.\nKeeps only the pairs with that drug. A name DDInter does not use is tried under the\nnames other sources state for it, as the drug itself is.",
+          "x-required-component": "ddinter"
         },
         "product_number": {
           "anyOf": [

@@ -26,6 +26,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &crate::quotas::ORCID,
     deadline: Duration::from_secs(25),
+    command_budget: None,
 };
 // The accepted whole-record capture recipe bound, also applied to cached decoding.
 const MAX_BODY_BYTES: u64 = 8 * 1024 * 1024;

@@ -391,6 +391,7 @@ fn fixture_pacing(
             1,
         ))),
         deadline: Duration::from_secs(10),
+        command_budget: None,
         terms: biomcp_fetch::Terms {
             name: "Synthetic test data",
             url: "https://example.test/terms",

@@ -187,6 +187,7 @@ impl<T: Default + Send + 'static> Server<T> {
             key,
             quota,
             deadline: Duration::from_secs(10),
+            command_budget: None,
         }))
     }
 }

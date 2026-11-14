@@ -49,7 +49,7 @@
       ]
     },
     "Reply_DrugSearch": {
-      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
+      "description": "Search one drug source. FDA drug recalls accept a name or native firm, classification, status, reason and initiation dates; counts are recall records. WHO prequalification accepts a name, area or date range. openFDA labels also accept literal indication wording. Drugs@FDA accepts a name or an applicant. Other sources require a name.",
       "properties": {
         "applicant": {
           "anyOf": [
@@ -248,6 +248,11 @@
           ],
           "description": "Literal recall status.",
           "x-required-component": "fda-drug-recall"
+        },
+        "therapeutic_area": {
+          "$ref": "#/$defs/Reply_Text",
+          "description": "WHO PQ therapeutic area.\nWhole words of WHO's Therapeutic Area column, any letter case, such as Oncology.",
+          "x-required-component": "who-pq"
         }
       },
       "type": "object"

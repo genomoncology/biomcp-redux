@@ -33,6 +33,7 @@ pub static SPEC: SourceSpec = SourceSpec {
     }),
     quota: &quotas::NCBI,
     deadline: Duration::from_secs(15),
+    command_budget: None,
 };
 const FETCH: Endpoint = SPEC.get("/efetch.fcgi").fresh(Freshness::Days(1));
 /// Fetch exactly one Variation ID and validate the XML identity before cache admission.
