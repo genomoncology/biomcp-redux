@@ -2801,6 +2801,9 @@ Options:
           One ClinPGx collection; clinical is the default only on; help get pgx
           One ClinPGx collection; clinical is the default only on annotations.
 
+      --phenotype <phenotype>
+          Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations only.
+
       --section-limit <section_limit>
           Rows per page: three clinical, five elsewhere.
 
@@ -2810,15 +2813,15 @@ Options:
       --snapshot <snapshot>
           Retained collection for local continuation.
 
-      --source <source>
-          Required source, checked against the section; help get pgx
-          Required source, checked against the section.
-
       --offline[=<offline>]
           Read local data without source requests.
 
           [default: false]
           [possible values: true, false]
+
+      --source <source>
+          Required source, checked against the section; help get pgx
+          Required source, checked against the section.
 
       --fresh[=<fresh>]
           Request fresh source data instead of cached replies.
@@ -2837,6 +2840,7 @@ Options apply to every listed source unless their description restricts them.
 - `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: --drug-id RxNorm:343047; only with --source cpic.
 - `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
 - `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: --kind clinical; only with --source clinpgx.
+- `--phenotype`: Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations only. Value form: string; example: --phenotype 'Poor Metabolizer'; only with --source cpic.
 - `section`: One named section; omitted means the CPIC gene card… (full rule with the sections).
 Form: get pgx SECTION; not --section.
 - `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: --section-limit 1.
