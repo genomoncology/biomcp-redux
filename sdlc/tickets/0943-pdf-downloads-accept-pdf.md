@@ -31,3 +31,10 @@ BioMCP's PDF downloads (FDA PMA safety summaries, Drugs@FDA documents, article P
 ## Changes
 
 - Changes: the PDF download request, its error message, tests.
+
+## Progress
+
+- 2026-11-14 probe from the M5 (pm jobs j40674 and j40677, curl with user agent `ureq/3.5.0`, each Accept value with and without `Accept-Encoding: gzip`): P150047B.pdf, the Drugs@FDA letter 021588Orig1s056,s057ltr.pdf, the ClinicalTrials.gov large-docs SAP_001.pdf and arXiv 1706.03762 all answered 200 `application/pdf` to `application/octet-stream`, `application/pdf`, `*/*` and `application/pdf, */*;q=0.1`. Europe PMC's fulltextRepo PDF answered 403 JSON to all four, and bioRxiv answered 302 to all four, so neither depends on Accept. FDA's 406 is therefore not steady: j40668 saw 406 for octet-stream and 200 for `application/pdf` and `*/*` within one run, and j40674/j40677 saw 200 for all an hour later. `application/pdf` is the value that worked in FDA's 406 window and every host accepts it.
+- Changed: PDF downloads (FDA PMA, Drugs@FDA and publisher article PDFs through `pdf::download`, and ClinicalTrials.gov documents) now send `Accept: application/pdf` through a new `DocumentMedia::Pdf`. Other byte reads keep `application/octet-stream`. Recording keys don't include Accept (j40689 recorded P150047 under the same key j40615 used with octet-stream), so existing recordings stay valid; a cached entry stored as octet-stream is simply a miss.
+- Changed: the FDA refusal notice no longer says "intermittent, retry later". It names the URL, the HTTP status and its meaning (e.g. "HTTP 406 Not Acceptable"), says FDA has refused PDFs that open in a browser, so it does not show the document is missing, and says to open the URL.
+- Proof: pm job j40689 ran `get diagnostic P150047 summary --source fda-pma` live three times from the M5; each returned text (53 pages). Unit tests `pdf_downloads_ask_for_application_pdf` (adapter) and `pdf_document_media_asks_for_a_pdf` (wire header) pass (j40680). `tests/cases/diagnostic/fda-document-refused` has a new P150047 step replaying a synthetic 406 body over the live-recorded request key, and the 404 steps carry the new message.

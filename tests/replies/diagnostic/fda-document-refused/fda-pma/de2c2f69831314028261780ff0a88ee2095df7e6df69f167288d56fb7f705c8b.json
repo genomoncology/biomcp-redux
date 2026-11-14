@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "fda-pma",
+  "url": "https://www.accessdata.fda.gov/cdrh_docs/pdf15/P150047B.pdf",
+  "exchanges": [
+    {
+      "fetched": 1793782800,
+      "status": 406,
+      "content_type": "text/html",
+      "delay_ms": 1,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<!DOCTYPE html>\n<html><head><title>Not Acceptable</title></head><body><p>Synthetic stand-in for the 4937-byte FDA HTTP 406 page; the original page text is not retained.</p></body></html>\n"
+      }
+    }
+  ]
+}

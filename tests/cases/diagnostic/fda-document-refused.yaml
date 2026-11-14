@@ -1,5 +1,5 @@
 {
-  "live_check": "Synthetic 404 text/html bodies replayed over the recorded P170019 SSED and NDA021588 letter id64255 requests; pm jobs j38804 and j38812 observed FDA redirecting these downloads to its abuse-detection apology page with HTTP 404",
+  "live_check": "Synthetic 404 text/html bodies replayed over the recorded P170019 SSED and NDA021588 letter id64255 requests; pm jobs j38804 and j38812 observed FDA redirecting these downloads to its abuse-detection apology page with HTTP 404; a synthetic 406 text/html body replayed over the P150047 SSED request key recorded live in pm job j40689, after pm jobs j40615 and j40668 observed FDA answering that download with HTTP 406",
   "feature": "fda-document-text",
   "story": "When FDA refuses a document download, the failed reply says FDA refused it, names the document URL and FDA's status, and does not claim the document is missing; BioMCP keeps its own client identity.",
   "replay": "diagnostic/fda-document-refused",
@@ -29,6 +29,39 @@
           "get",
           "diagnostic",
           "P170019",
+          "summary",
+          "--source",
+          "fda-pma",
+          "--fresh"
+        ]
+      },
+      "max_bytes": 2000
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "P150047",
+        "summary",
+        "--source",
+        "fda-pma"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "fda-pma",
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "rejected",
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "FDA refused the download of https://www.accessdata.fda.gov/cdrh_docs/pdf15/P150047B.pdf with HTTP 406 Not Acceptable when BioMCP asked for the PDF. FDA has refused PDFs that open in a browser, so this does not show that the document is missing; open the URL to check.",
+        "/next/*/kind": [
+          "fresh"
+        ],
+        "/next/0/args": [
+          "get",
+          "diagnostic",
+          "P150047",
           "summary",
           "--source",
           "fda-pma",
