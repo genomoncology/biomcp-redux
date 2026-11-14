@@ -7,6 +7,27 @@ fn device_source(v: &SearchFields) -> bool {
     )
 }
 
+/// Row-date window and order belong to the stored FDA companion table only.
+fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
+    let fields = ["source", "date_from", "date_to", "sort"];
+    let asked = v.date_from.is_some() || v.date_to.is_some() || v.sort.is_some();
+    if asked && v.source != DiagnosticSearchSource::FdaCdx {
+        return Err(QueryInvalid::new(&fields));
+    }
+    for (name, date) in [("date_from", v.date_from), ("date_to", v.date_to)] {
+        if date.is_some_and(|d| d.day().is_none()) {
+            return Err(QueryInvalid::new(&[name]));
+        }
+    }
+    if v.date_from
+        .zip(v.date_to)
+        .is_some_and(|(a, b)| a.to_string() > b.to_string())
+    {
+        return Err(QueryInvalid::new(&["date_from", "date_to"]));
+    }
+    Ok(())
+}
+
 pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     if v.source != DiagnosticSearchSource::FdaDeviceRecall {
         let code = v.product_code.is_some() && !device_source(v);
@@ -67,6 +88,7 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
 }
 
 pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
+    validate_cdx_dates(v)?;
     // openFDA publishes intended-use text (ao_statement) for PMA only; its 510(k) records have none (live, 2026-11-14).
     if let Some(text) = &v.intended_use {
         if v.source != DiagnosticSearchSource::FdaPma {
@@ -77,6 +99,18 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
         if !text.as_str().is_ascii() || !text.as_str().chars().any(char::is_alphanumeric) {
             return Err(QueryInvalid::new(&["intended_use"])
                 .with_message(crate::ErrorMessage::DiagnosticIntendedUseAscii));
+        }
+    }
+    // FDA's classification name reaches 510(k) records through openFDA's harmonized block (live, 2026-11-14);
+    // PMA classification names are deferred (0941).
+    if let Some(text) = &v.classification_name {
+        if v.source != DiagnosticSearchSource::Fda510k {
+            return Err(QueryInvalid::new(&["source", "classification_name"])
+                .with_message(crate::ErrorMessage::DiagnosticClassificationName510k));
+        }
+        if !text.as_str().is_ascii() || !text.as_str().chars().any(char::is_alphanumeric) {
+            return Err(QueryInvalid::new(&["classification_name"])
+                .with_message(crate::ErrorMessage::DiagnosticClassificationNameAscii));
         }
     }
     if !device_source(v) {

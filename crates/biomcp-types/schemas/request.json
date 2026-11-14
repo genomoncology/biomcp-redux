@@ -337,6 +337,13 @@
         "PMA base application supplement headers; five per page."
       ]
     },
+    "DiagnosticSort": {
+      "description": "FDA companion-table row order over every matching row of the stored snapshot.",
+      "enum": [
+        "date"
+      ],
+      "type": "string"
+    },
     "DiseaseOntology": {
       "description": "One explicit OLS ontology.",
       "enum": [
@@ -2837,6 +2844,18 @@
           "description": "FDA recall class.\nNative enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.",
           "x-required-component": "fda-device-recall"
         },
+        "classification_name": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "FDA classification name phrase.\nPhrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only.",
+          "x-required-component": "fda-510k"
+        },
         "command": {
           "const": "search-diagnostic",
           "type": "string"
@@ -2852,6 +2871,30 @@
           ],
           "description": "Exact MedGen:CUI.\nExact MedGen:CUI identifier only.",
           "x-required-component": "gtr"
+        },
+        "date_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "First row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems.",
+          "x-required-component": "fda-cdx"
+        },
+        "date_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Last row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only.",
+          "x-required-component": "fda-cdx"
         },
         "decision_from": {
           "anyOf": [
@@ -3067,6 +3110,18 @@
             "fda-510k",
             "fda-device-recall"
           ]
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticSort"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Row order.\nNewest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order.",
+          "x-required-component": "fda-cdx"
         },
         "source": {
           "$ref": "#/$defs/DiagnosticSearchSource",

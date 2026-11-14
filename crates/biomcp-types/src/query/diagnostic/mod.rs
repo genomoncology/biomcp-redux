@@ -26,6 +26,10 @@ biodata::wire_enum! {
  #[doc = "Exact native medical device recall."] FdaDeviceRecall => "fda-device-recall" }
 }
 biodata::wire_enum! {
+    /// FDA companion-table row order over every matching row of the stored snapshot.
+    DiagnosticSort { #[doc = "Newest row date first; undated rows last."] Date => "date" }
+}
+biodata::wire_enum! {
     described
     /// Source-supported diagnostic sections; no all section.
     DiagnosticSection {
@@ -104,6 +108,19 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
     biomarker: Option<Text>,
+    #[doc = "First row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only. \
+    Undated rows are left out and named in problems."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    date_from: Option<PartialDate>,
+    #[doc = "Last row date, YYYY-MM-DD.\nInclusive newest date in an FDA companion row's device cell; fda-cdx only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    date_to: Option<PartialDate>,
+    #[doc = "Row order.\nNewest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaCdx)))]
+    sort: Option<DiagnosticSort>,
     #[doc = "WHO marker phrase.\nLiteral whole-word phrase in WHO's Pathogen/Disease/Marker cell. WHO rows carry prequalification_year."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::WhoIvd)))]
@@ -137,6 +154,11 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaPma)))]
     intended_use: Option<Text>,
+    #[doc = "FDA classification name phrase.\nPhrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, \
+    not the submitted device_name --name matches; 510(k) only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Fda510k)))]
+    classification_name: Option<Text>,
     #[doc = "First date, YYYY-MM-DD.\nInclusive native decision date, YYYY-MM-DD; PMA and 510(k) only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = [crate::Source::FdaPma, crate::Source::Fda510k])))]
@@ -262,10 +284,14 @@ impl DiagnosticSearch {
             test_type: None,
             drug_application: None,
             biomarker: None,
+            date_from: None,
+            date_to: None,
+            sort: None,
             marker: None,
             manufacturer: None,
             name: None,
             intended_use: None,
+            classification_name: None,
             decision_from: None,
             decision_to: None,
             product_code: None,
@@ -312,6 +338,18 @@ impl DiagnosticSearch {
     pub fn biomarker(&self) -> Option<&Text> {
         self.0.biomarker.as_ref()
     }
+    /// Inclusive FDA companion row-date lower bound.
+    pub fn date_from(&self) -> Option<PartialDate> {
+        self.0.date_from
+    }
+    /// Inclusive FDA companion row-date upper bound.
+    pub fn date_to(&self) -> Option<PartialDate> {
+        self.0.date_to
+    }
+    /// Whole-snapshot FDA companion row order, when asked.
+    pub fn sort(&self) -> Option<DiagnosticSort> {
+        self.0.sort
+    }
     /// Literal WHO marker words.
     pub fn marker(&self) -> Option<&Text> {
         self.0.marker.as_ref()
@@ -344,6 +382,10 @@ impl DiagnosticSearch {
     /// Phrase in the FDA PMA approval-order statement (ao_statement).
     pub fn intended_use(&self) -> Option<&Text> {
         self.0.intended_use.as_ref()
+    }
+    /// Phrase in FDA's 510(k) classification name (openFDA's harmonized openfda.device_name).
+    pub fn classification_name(&self) -> Option<&Text> {
+        self.0.classification_name.as_ref()
     }
     /// Inclusive native decision range lower bound.
     pub fn decision_from(&self) -> Option<PartialDate> {

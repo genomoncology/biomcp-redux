@@ -957,15 +957,27 @@ Options:
           FDA recall class.
           Native enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code.
 
-      --condition-id <condition_id>
-          Exact MedGen:CUI.
-          Exact MedGen:CUI identifier only.
+      --classification-name <classification_name>
+          FDA classification name phrase.
+          Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
+      --condition-id <condition_id>
+          Exact MedGen:CUI.
+          Exact MedGen:CUI identifier only.
+
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --date-from <date_from>
+          First row date, YYYY-MM-DD.
+          Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems.
+
+      --date-to <date_to>
+          Last row date, YYYY-MM-DD.
+          Inclusive newest date in an FDA companion row's device cell; fda-cdx only.
 
       --decision-from <decision_from>
           First date, YYYY-MM-DD.
@@ -979,9 +991,21 @@ Options:
           PMA or K identifier.
           Exact PMA application, application/supplement or native K identity.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --drug-application <drug_application>
           NDA/BLA application.
           Cell-owned typed NDA/BLA application.
+
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
 
       --gene <gene>
           Exact gene symbol.
@@ -990,18 +1014,6 @@ Options:
       --gene-id <gene_id>
           Exact NCBI GeneID.
           Exact source GeneID, exclusive with gene symbol.
-
-      --offline[=<offline>]
-          Read local data without source requests.
-
-          [default: false]
-          [possible values: true, false]
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --initiated-from <initiated_from>
           First date, YYYY-MM-DD.
@@ -1045,6 +1057,11 @@ Options:
           FDA product code.
           Exact native FDA product code; PMA, 510(k) and device recalls only.
 
+      --sort <sort>
+          Row order; help search diagnostic
+          Row order.
+          Newest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order.
+
       --source <source>
           Native diagnostic source; help search diagnostic
           Native diagnostic source.
@@ -1067,8 +1084,14 @@ Exact table-0 biomarker cell; unsupported in the group table. Value form: string
 Immutable stored bundle revision retained by a continuation. Value form: string; example: --bundle-revision sha256:3eb93d3ba1a08b508955b0699d32042584fd8e0c805c72f7eeb470ef04ba959a.
 - `--classification`: FDA recall class.
 Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code. Value form: string; example: --classification 'Class I'; only with --source fda-device-recall.
+- `--classification-name`: FDA classification name phrase.
+Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only. Value form: string; example: --classification-name cell-free; only with --source fda-510k.
 - `--condition-id`: Exact MedGen:CUI.
 Exact MedGen:CUI identifier only. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
+- `--date-from`: First row date, YYYY-MM-DD.
+Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems. Value form: string; example: --date-from 2026-07-01; only with --source fda-cdx.
+- `--date-to`: Last row date, YYYY-MM-DD.
+Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Value form: string; example: --date-to 2026-07-31; only with --source fda-cdx.
 - `--decision-from`: First date, YYYY-MM-DD.
 Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: string; example: --decision-from 2017-11-30; only with --source fda-pma or fda-510k.
 - `--decision-to`: Last date, YYYY-MM-DD.
@@ -1101,6 +1124,8 @@ First prequalification year included, YYYY; WHO publishes only the year. Value f
 Last prequalification year included, YYYY; WHO publishes only the year. Value form: string; example: --prequalified-to 2023; only with --source who-ivd.
 - `--product-code`: FDA product code.
 Exact source FDA product code; PMA, 510(k) and device recalls only. Value form: string; example: --product-code ABC; only with --source fda-pma, fda-510k or fda-device-recall.
+- `--sort`: Row order.
+Newest row date first over all matching rows, not one page; fda-cdx only. Without it rows keep FDA's order. Value form: string; example: --sort date; only with --source fda-cdx.
 - `--source`: Source diagnostic source.
 Explicit source GTR, WHO IVD, FDA PMA, 510(k), companion or medical device recall discovery. Value form: string; example: --source fda-device-recall.
 - `--type`: Source test_type.
