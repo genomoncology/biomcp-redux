@@ -35,12 +35,14 @@ pub struct Envelope<T: ResponseBody> {
     pub local_error: Option<super::CacheProblem>,
     /// Parsed query.
     pub query: T::Query,
-    /// Answer when available.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub result: Option<T>,
+    // The page comes before the result (0939): an agent that reads only the start of a long
+    // reply sees that the rows are one page of more.
     /// Search page metadata.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<PageInfo>,
+    /// Answer when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub result: Option<T>,
     /// Sources actually asked.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sources: Vec<SourceOutcome>,

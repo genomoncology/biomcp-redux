@@ -46,6 +46,9 @@ pub(crate) struct Step {
     pub(crate) full_output_bytes: bool,
     pub(crate) max_bytes: Option<usize>,
     pub(crate) max_tokens: Option<usize>,
+    /// JSON pointers whose values must start within this many bytes of the raw reply.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub(crate) starts_within: BTreeMap<String, usize>,
     #[serde(default)]
     pub(crate) expect: BTreeMap<String, Value>,
 }
