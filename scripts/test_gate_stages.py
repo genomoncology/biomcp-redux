@@ -74,7 +74,8 @@ class GateStages(unittest.TestCase):
             self.assertIn('gate stage=pre-job', result.stdout)
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
-        landing = ['rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases']
+        landing = ['rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
+                   'changed-library-tests']
         full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
                 'tensor-proto-check', 'library-tests', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
@@ -94,6 +95,53 @@ class GateStages(unittest.TestCase):
                     expected = stages[:stages.index(failing) + 1] if failing in stages else stages
                     self.assertEqual(re.findall(r'gate stage=(\S+)', result.stdout), expected)
                     self.assertEqual(result.returncode, 7 if failing in stages else 0)
+
+    def test_changed_library_tests_run_and_name_the_branch_crates(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root, tools = Path(temporary) / 'repo', Path(temporary) / 'bin'
+            root.mkdir(); tools.mkdir()
+            cargo = tools / 'cargo'
+            cargo.write_text('#!/bin/sh\nprintf "cargo %s\\n" "$*"\n[ -z "$CARGO_FAIL" ] || exit 9\n')
+            cargo.chmod(0o755)
+            env = {**environment(Path(temporary)), 'PATH': str(tools) + os.pathsep + os.defpath,
+                   'GIT_CONFIG_NOSYSTEM': '1', 'RUST_TEST_THREADS': '3'}
+            def git(*args):
+                subprocess.run(['git', '-C', str(root), *args], env=env, check=True, capture_output=True)
+            def commit(path, content='x'):
+                (root / path).parent.mkdir(parents=True, exist_ok=True)
+                (root / path).write_text(content)
+                git('add', '.'); git('commit', '-qm', 'Change ' + path)
+            git('init', '-q', '-b', 'main')
+            git('config', 'user.name', 'Fixture'); git('config', 'user.email', 'fixture@example.invalid')
+            for name in ('biomcp', 'biomcp-fetch', 'biomcp-types'):
+                commit(f'crates/{name}/Cargo.toml')
+            commit('Cargo.lock')
+            def run(base='main', **extra):
+                return subprocess.run([sys.executable, str(ROOT / 'scripts/changed_library_tests.py')],
+                                      cwd=root, env={**env, 'LIBRARY_TESTS_BASE': base, **extra},
+                                      capture_output=True, text=True)
+            git('checkout', '-qb', 'ticket')
+            result = run()
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('crates=none', result.stdout)
+            self.assertNotIn('cargo test', result.stdout)
+            commit('docs/notes.md')
+            commit('crates/biomcp-fetch/tests/record/command_budget.rs')
+            result = run()
+            self.assertIn('crates=biomcp-fetch\n', result.stdout)
+            self.assertIn('cargo test --locked --no-fail-fast --features biomcp-types/schema -p biomcp-fetch -- --test-threads 3',
+                          result.stdout)
+            self.assertNotIn('-p biomcp ', result.stdout)
+            self.assertEqual(run(CARGO_FAIL='1').returncode, 9)
+            commit('crates/biomcp/src/main.rs')
+            self.assertIn('cargo test --locked --no-fail-fast -p biomcp --bin biomcp -- --test-threads 3', run().stdout)
+            commit('Cargo.lock', 'y')
+            self.assertIn('crates=biomcp,biomcp-fetch,biomcp-types', run().stdout)
+            git('checkout', '-q', 'main')
+            self.assertIn('crates=none', run(base='ticket').stdout)
+            result = run(base='missing')
+            self.assertIn('running every crate', result.stdout)
+            self.assertIn('crates=biomcp,biomcp-fetch,biomcp-types', result.stdout)
 
     def test_cheap_check_parses_tracked_shell_scripts_by_shebang(self):
         with tempfile.TemporaryDirectory() as temporary:

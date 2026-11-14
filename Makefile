@@ -104,6 +104,11 @@ library-tests:
 	cargo test --workspace --exclude biomcp --features biomcp-types/schema --locked $(TEST_THREADS)
 	cargo test --locked -p biomcp --bin biomcp $(TEST_THREADS)
 
+# The landing gate's share of library-tests: only the crates the branch changed (0914).
+.PHONY: changed-library-tests
+changed-library-tests:
+	$(PYTHON) scripts/changed_library_tests.py
+
 coverage: schema-shape-check
 	sh scripts/coverage.sh run
 

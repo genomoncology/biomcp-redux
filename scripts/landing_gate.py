@@ -5,8 +5,10 @@ import time
 
 # Rights, audit and secrets take seconds and need no build, so they stop a bad
 # change before the compile in pre-job. The first-read check proves the documented
-# examples and first read against the debug binary pre-job builds.
-LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases')
+# examples and first read against the debug binary pre-job builds. Changed-library-tests
+# runs the library tests of the crates the branch changed, so a ticket's own tests run (0914).
+LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
+           'changed-library-tests')
 FULL = ('audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
         'tensor-proto-check', 'library-tests', 'coverage')
 

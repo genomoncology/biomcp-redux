@@ -299,8 +299,6 @@ fn request_boundaries_reject_missing_text_null_limits_invalid_dates_and_removed_
         json!({"text":"x","limit":0}),
         json!({"text":"x","limit":51}),
         json!({"text":"x","limit":null}),
-        json!({"text":"x","received_to":"2024"}),
-        json!({"text":"x","source":"maude","received_from":"2020"}),
         json!({"text":"x","source":"maude","received_from":"2020-02","received_to":"2020-01"}),
         json!({"text":"MMR","source":"vaers","received_from":"2020-01"}),
         json!({"text":"x","count":"reaction"}),
@@ -325,6 +323,9 @@ fn request_boundaries_reject_missing_text_null_limits_invalid_dates_and_removed_
     for date in [
         json!({"text":"x","received_from":"2024-02-29"}),
         json!({"text":"x","received_to":"2024-02-29"}),
+        // 0894 made a bare year a whole-year bound for FAERS and MAUDE receipt dates.
+        json!({"text":"x","received_to":"2024"}),
+        json!({"text":"x","source":"maude","received_from":"2020"}),
     ] {
         assert!(serde_json::from_value::<AdverseEventSearch>(date).is_ok());
     }
