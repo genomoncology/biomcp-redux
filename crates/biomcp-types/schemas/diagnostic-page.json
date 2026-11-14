@@ -739,7 +739,7 @@
               "type": "null"
             }
           ],
-          "description": "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended-use text; FDA PMA only, since openFDA publishes no intended-use text for 510(k).",
+          "description": "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended use; PMA only, as openFDA 510(k) has no intended-use text.",
           "x-required-component": "fda-pma"
         },
         "limit": {

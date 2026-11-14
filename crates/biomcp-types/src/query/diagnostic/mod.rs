@@ -132,7 +132,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = NAME_SOURCES)))]
     name: Option<Text>,
-    #[doc = "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended-use text; FDA PMA only, since openFDA publishes no intended-use text for 510(k)."]
+    #[doc = "Intended-use phrase.\nPhrase in FDA PMA ao_statement, the approval order's intended use; PMA only, as openFDA 510(k) has no intended-use text."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaPma)))]
     intended_use: Option<Text>,
