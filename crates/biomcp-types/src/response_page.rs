@@ -42,7 +42,7 @@ macro_rules! page {
             /// Relation-specific count provenance and continuation.
             pub page: PathwayPageInfo,]);
     };
-    (phenotype, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal) => {
+    (phenotype, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal $(, [$($extra:tt)*])?) => {
         page!(
             @body, $name, $row, $query, $schema, $doc, [], "Native ordered rows; empty remains an empty collection.", [], [
             /// Applicable publisher component terms.
@@ -50,7 +50,8 @@ macro_rules! page {
             pub components: Box<[ComponentLabel]>,
             /// Original source retrieval seconds, distinct from ontology release.
             #[serde(default, skip_serializing_if = "Option::is_none")]
-            pub fetched: Option<u64>,]);
+            pub fetched: Option<u64>,
+            $($($extra)*)?]);
     };
     (@body, $name:ident, $row:ty, $query:ty, $schema:literal, $doc:literal,
      [$($extra_derive:ident),*], $items_doc:literal, [$($before:tt)*], [$($after:tt)*]) => {

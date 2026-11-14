@@ -36,6 +36,7 @@ rusqlite.workspace = true
 rustls.workspace = true
 jsonschema.workspace = true
 libtest-mimic.workspace = true
+comrak.workspace = true
 serde-saphyr.workspace = true
 toml.workspace = true
 

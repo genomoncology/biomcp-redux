@@ -86,6 +86,14 @@ fn reviewed_absence(entry: &Site) -> bool {
 }
 const REVIEWED_ABSENCES: &[(&str, &str)] = &[
     (
+        "crates/biomcp-query/src/phenotype/ancestors.rs",
+        "get: and_then ( | value | u64 : : try_from ( value ) . ok ( )",
+    ),
+    (
+        "crates/biomcp-query/src/phenotype/ancestors.rs",
+        "get: . id ( ) . as_str ( ) . parse ( ) . ok ( )",
+    ),
+    (
         "crates/biomcp-query/src/trial/portable_continuation.rs",
         "restore: ? ) else { return Ok ( None ) ; } ; let Ok ( cursor ) = serde_json : : from_slice : : < Cursor > (",
     ),

@@ -79,10 +79,24 @@ pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, ro
         _ => unavailable(out),
     }
 }
+/// One hop a call cannot answer "is this term under that one"; OLS lists every ancestor at once.
+pub(super) fn ancestors(out: &mut Outcome, q: &PhenotypeGet) {
+    if let Some(request) = crate::next::checked(
+        q.with_section(PhenotypeSection::Ancestors),
+        super::record::source(q),
+        &mut out.problems,
+    ) {
+        out.next.push(crate::next::Step::new(
+            StepKind::Section,
+            &[biomcp_types::Source::Ols],
+            run(Request::GetPhenotype(request)),
+        ));
+    }
+}
 fn unavailable(out: &mut Outcome) {
     crate::status::item(out, false, false, false);
 }
-fn page<T: Clone>(out: &mut Outcome, q: &PhenotypeGet, rows: &[T]) -> Box<[T]> {
+pub(super) fn page<T: Clone>(out: &mut Outcome, q: &PhenotypeGet, rows: &[T]) -> Box<[T]> {
     let offset = q.section_offset() as usize;
     let items: Box<[T]> = rows
         .iter()

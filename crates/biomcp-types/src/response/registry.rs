@@ -132,6 +132,7 @@ macro_rules! reply_types {
             phenotype_synonyms: $crate::PhenotypeSynonyms => "phenotype-synonyms",
             phenotype_xrefs: $crate::PhenotypeXrefs => "phenotype-xrefs",
             phenotype_hierarchy: $crate::PhenotypeHierarchy => "phenotype-hierarchy",
+            phenotype_ancestors: $crate::PhenotypeAncestors => "phenotype-ancestors",
             phenotype_diseases: $crate::PhenotypeDiseases => "phenotype-diseases",
             phenotype_genes: $crate::PhenotypeGenes => "phenotype-genes",
             phenotype_matches: $crate::PhenotypeMatches => "phenotype-matches",

@@ -10,11 +10,13 @@ pub(super) fn render(value: &Value) -> io::Result<String> {
     let mut value = value.clone();
     clean(&mut value);
     let markdown = String::from_utf8(crate::view::markdown(&value)?).map_err(io::Error::other)?;
-    let decoded = entities(&markdown);
+    // Undo the view's escapes, including its autolink breaks (`\:`, `\.` and a
+    // code-span `@`); source backticks reach here escaped, so a bare one is the view's.
+    let decoded = entities(&markdown).replace("`@`", "@");
     let mut text = String::new();
     let mut chars = decoded.chars().peekable();
     while let Some(ch) = chars.next() {
-        if ch == '\\' && chars.peek().is_some_and(|c| "\\*_`|[]#!~".contains(*c)) {
+        if ch == '\\' && chars.peek().is_some_and(|c| "\\*_`|[]#!~:.".contains(*c)) {
             text.push(chars.next().unwrap_or_default());
         } else {
             text.push(ch);

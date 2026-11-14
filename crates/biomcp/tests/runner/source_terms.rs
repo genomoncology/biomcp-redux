@@ -5,9 +5,17 @@ pub(super) mod text {
         format!("<{value}>")
     }
     pub(crate) fn escape(value: &str) -> String {
-        value.chars().map(|ch| match ch {
+        let mut before = None;
+        value.char_indices().map(|(at, ch)| {
+            let rest = value.get(at..).unwrap_or_default();
+            let www = value.get(at.saturating_sub(3)..at).is_some_and(|w| w.eq_ignore_ascii_case("www"));
+            let local = before.is_some_and(|c: char| c.is_alphanumeric() || ".+-_:".contains(c));
+            before = Some(ch);
+            match ch {
             '&' => "&amp;".into(), '<' => "&lt;".into(), '>' => "&gt;".into(),
-            ':' => "&#58;".into(), '.' => "&#46;".into(), '@' => "&#64;".into(),
+            ':' if rest.starts_with("://") => "\\:".into(),
+            '.' if www => "\\.".into(),
+            '@' if local => "`@`".into(),
             '\n' => "&#10;".into(), '\r' => "&#13;".into(),
             ch if ch.is_control()
                 || matches!(ch, '\u{061c}' | '\u{200e}' | '\u{200f}' | '\u{202a}'..='\u{202e}' | '\u{2066}'..='\u{2069}') => {
@@ -15,7 +23,7 @@ pub(super) mod text {
             },
             ch if "\\*_`|[]#!~".contains(ch) => format!("\\{ch}"),
             ch => ch.to_string(),
-        }).collect()
+        }}).collect()
     }
 }
 use serde_json::{Value, json};

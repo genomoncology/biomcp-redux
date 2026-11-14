@@ -1,6 +1,6 @@
 # Define FDA CDx row-date semantics before adding global filtering and sorting
 
-Status: open.
+Status: promoted to ticket 0933 (2026-11-14).
 
 Kind: idea
 When: Before implementing the 1.1 diagnostic recent-arrivals feature
