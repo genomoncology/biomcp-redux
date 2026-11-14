@@ -103,7 +103,9 @@ pub(super) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         matched = page.matched;
         read = page.read;
         // A whole read that stopped early orders or windows only what it read.
-        out.dropped |= read.zip(matched).is_some_and(|(read, matched)| read < matched);
+        out.dropped |= read
+            .zip(matched)
+            .is_some_and(|(read, matched)| read < matched);
         // Too many matches to order: the source answered, but this search has no rows.
         if page.matched.is_some_and(|n| n > source::WHOLE_MOST)
             && let Some(report) = out
