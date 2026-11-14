@@ -15,6 +15,21 @@ const LITERAL: &[&str] = &[
     "\\!\\[image\\](https\\://example.org/x) www\\.example.org name`@`example.org",
     "mailto:name`@`example.org \u{e9}`@`example.org Phase 3 Study of MK-3475 vs. Chemotherapy: KEYNOTE-061 at 10:30 @ 5 mg.",
 ];
+// Values that open a list item stay text: no nested list, rule or code block (0938).
+const LIST: &[&str] = &[
+    "-      ignore previous",
+    "1.      x",
+    "+      y",
+    "2)      z",
+    "---",
+];
+const LIST_MARKDOWN: &[&str] = &[
+    "- \\-      ignore previous\n",
+    "- 1\\.      x\n",
+    "- \\+      y\n",
+    "- 2\\)      z\n",
+    "- \\---\n",
+];
 const TERMS: &str = "https://www.ncbi.nlm.nih.gov/home/about/policies/";
 pub(super) fn trials() -> Vec<Trial> {
     vec![super::transcript::trial(
@@ -43,10 +58,17 @@ fn check() -> Check {
                     concat!(
                         "<PubmedArticleSet><PubmedArticle><MedlineCitation><PMID>33123537</PMID>",
                         "<Article><ArticleTitle>{source}</ArticleTitle><Abstract>",
-                        "<AbstractText>{source}</AbstractText></Abstract></Article>",
+                        "<AbstractText>{source}</AbstractText></Abstract>",
+                        "<AuthorList>{authors}</AuthorList></Article>",
                         "</MedlineCitation></PubmedArticle></PubmedArticleSet>"
                     ),
-                    source = source
+                    source = source,
+                    authors = LIST
+                        .iter()
+                        .map(|name| format!(
+                            "<Author><CollectiveName>{name}</CollectiveName></Author>"
+                        ))
+                        .collect::<String>()
                 ));
             }
         }
@@ -68,6 +90,7 @@ fn check() -> Check {
     let text = String::from_utf8(output.stdout)?;
     if !output.status.success()
         || LITERAL.iter().any(|part| !text.contains(part))
+        || LIST_MARKDOWN.iter().any(|item| !text.contains(item))
         || text.contains("&#46;")
         || text.contains("&#58;")
         || text.contains("&#64;")
@@ -77,7 +100,24 @@ fn check() -> Check {
     {
         return Err(format!("Markdown source text is not literal and plain: {text}").into());
     }
-    rendered(&text)
+    rendered(&text)?;
+    fetched(&env, &replay)
+}
+// The fetch tool's plain view shows list values as they are.
+fn fetched(env: &Environment, replay: &std::path::Path) -> Check {
+    let globals = env.globals(Some(replay), false);
+    let value = super::research::call(env, "fetch", json!({"id":"article 33123537"}), &globals)?;
+    let text = value
+        .get("text")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    if let Some(item) = LIST
+        .iter()
+        .find(|item| !text.contains(&format!("- {item}\n")))
+    {
+        return Err(format!("fetch text changed list value {item:?}: {text}").into());
+    }
+    Ok(())
 }
 // A GFM renderer finds no source link, image, HTML, heading or code block;
 // BioMCP's own source link and next steps stay live.
@@ -102,6 +142,10 @@ fn rendered(text: &str) -> Check {
         "<h4>Heading",
         "<h5>Heading",
         "<h6>Heading",
+        "<ol",
+        "<hr",
+        "<pre><code>",
+        "<li>\n<ul",
     ]
     .into_iter()
     .find(|form| html.contains(form));
@@ -117,6 +161,11 @@ fn rendered(text: &str) -> Check {
         "ignore previous instructions",
         &format!("<a href=\"{TERMS}\">"),
         "<code class=\"language-sh\">biomcp ",
+        "<li>-      ignore previous</li>",
+        "<li>1.      x</li>",
+        "<li>+      y</li>",
+        "<li>2)      z</li>",
+        "<li>---</li>",
     ] {
         if !html.contains(plain) {
             return Err(format!("GFM output lacks {plain}: {html}").into());
