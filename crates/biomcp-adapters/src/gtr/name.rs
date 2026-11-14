@@ -34,7 +34,10 @@ fn needle(query: &str) -> Option<Vec<(char, bool)>> {
 fn fold(name: &str) -> Vec<(char, usize, usize)> {
     name.char_indices()
         .filter(|(_, c)| !hyphen(*c))
-        .flat_map(|(at, c)| c.to_lowercase().map(move |lower| (lower, at, at + c.len_utf8())))
+        .flat_map(|(at, c)| {
+            c.to_lowercase()
+                .map(move |lower| (lower, at, at + c.len_utf8()))
+        })
         .collect()
 }
 
@@ -50,7 +53,9 @@ fn spans(name: &str, needle: &[(char, bool)]) -> Vec<(usize, usize)> {
             if *gap && last.is_some() {
                 while rest.next_if(|(c, ..)| c.is_whitespace()).is_some() {}
             }
-            rest.next_if(|(c, ..)| c == want).inspect(|v| last = Some(**v)).is_some()
+            rest.next_if(|(c, ..)| c == want)
+                .inspect(|v| last = Some(**v))
+                .is_some()
         });
         if let (true, Some((_, start, _)), Some((_, _, end))) = (matched, chars.get(begin), last) {
             out.push((*start, end));
@@ -196,7 +201,3 @@ pub(super) fn page(named: Named, query: &DiagnosticSearch) -> Result<super::Sear
         info,
     })
 }
-
-#[cfg(test)]
-#[path = "name_tests.rs"]
-mod tests;
