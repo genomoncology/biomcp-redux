@@ -52,6 +52,7 @@
               "safetyreportid": "100",
               "safetyreportversion": "1",
               "serious": "1",
+              "seriousnessdeath": "3",
               "primarysource": {
                 "qualification": "1",
                 "reportercountry": "US"

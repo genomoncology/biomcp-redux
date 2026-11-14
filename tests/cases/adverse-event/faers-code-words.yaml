@@ -1,6 +1,6 @@
 {
   "feature": "adverse-event-get",
-  "story": "Coded FAERS values keep the source code and show openFDA's published word beside it; a code outside the list has no word and is named in unmapped_codes with its code.",
+  "story": "Coded FAERS values keep the source code and show openFDA's published word beside it; a code outside the list, including a seriousness flag other than 1 or 2, has no word and is named in unmapped_codes with its code.",
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "replay": "adverse-event/faers-code-words",
   "steps": [
@@ -17,11 +17,21 @@
         "/result/reporter/qualification": "1",
         "/result/reporter/qualification_label": "Physician",
         "/result/reporter/country": "US",
+        "/result/seriousness/death": "3",
+        "/result/seriousness": {
+          "omits": [
+            "death_label"
+          ]
+        },
         "/result/unmapped_codes": {
           "equals": [
             {
               "field": "patient.patientonsetageunit",
               "code": "806"
+            },
+            {
+              "field": "seriousnessdeath",
+              "code": "3"
             }
           ]
         },

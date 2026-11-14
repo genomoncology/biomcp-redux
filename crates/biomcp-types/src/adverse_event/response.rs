@@ -84,6 +84,9 @@ impl ResponseBody for AdverseEventPage {
 pub struct AdverseEventFaersCard {
     /// Exact selected report identity.
     pub header: AdverseEventHeader,
+    /// openFDA's published words for the header's `serious` code, `1` or `2`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub serious_label: Option<Box<str>>,
     /// Opaque checked retained-report snapshot identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub snapshot: Option<Text>,
@@ -102,7 +105,7 @@ pub struct AdverseEventFaersCard {
     /// Native first_received_format string; present empty values remain present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub first_received_format: Option<Box<str>>,
-    /// Independent source report flags; openFDA documents only `1` for each.
+    /// Independent source report flags, each labelled; openFDA documents only `1` for each.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub seriousness: Option<AdverseEventSeriousness>,
     /// Unchanged `patient.summary.narrativeincludeclinical`. openFDA fills it with the case event date only; its public FAERS data carries no case narrative.
