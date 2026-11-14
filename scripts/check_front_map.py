@@ -162,8 +162,11 @@ def main():
         require(len(front) <= limit, f"front map is {len(front)} characters, over the limit of {limit}")
         require("--" not in front, "front map names a flag, and it must name commands only")
         rendered = run(binary, ["skill", "render"], env)
-        require(len(rendered) <= FIRST_READ_CEILINGS["skill"] and "help questions" in rendered
-                and "help examples" in rendered, "skill grew past its ceiling or names no on-request map")
+        # 0922: the skill carries its own short command map and sends agents to help only when stuck,
+        # because overview help pages read up front cost about 43% of help tokens in persona runs.
+        require(len(rendered) <= FIRST_READ_CEILINGS["skill"] and "`biomcp search ENTITY TEXT`" in rendered
+                and "Run the command first." in rendered and "biomcp help questions" not in rendered,
+                "skill grew past its ceiling, lost its command map, or sends agents to overview help first")
         check_on_request(binary, env, front)
         source_help = json.loads(run(binary, ["help", "sources"], env))["result"]["commands"][0]["description"]
         require(source_help.startswith("Services:") and "Components:" in source_help,

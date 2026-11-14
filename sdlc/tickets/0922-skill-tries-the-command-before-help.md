@@ -31,3 +31,9 @@ The bench read the three round 2 persona runs and one round 1 run with Bot's run
 ## Changes
 
 - Changes: `skills/SKILL.md`, and the skill checks and generated docs that follow from it.
+
+## Progress
+
+- Skill (`skills/SKILL.md`): the five help entry points (`help`, `help questions`, `help examples`, `help ENTITY`/`help COMMAND ENTITY`, `help sources` and `skill list`) and "Use `biomcp help COMMAND ENTITY` before guessing an option" are replaced by a two-line command map (search and get with their entities; the follow-up commands on one record) and one paragraph: run the command first, use a refusal's valid values and next step, and read only the one help page needed when a reply still leaves the agent stuck. 0880's rules on sections, markets, filters, `--fields`, `next` and totals stay word for word, as do errors versus empty, transcript mismatches and the MCP section (its help line no longer points at `questions`). The skill file is 2,996 bytes (was 2,698), under its 4 KB cap.
+- Checks: `tests/cases/local/skill` asserts the command map and the new wording in place of the old help line; `scripts/check_front_map.py` now requires the command map and "Run the command first." and refuses `biomcp help questions` in the skill, in place of requiring the overview pages to be named. The server instructions still name `help questions` and `help examples` on request; that check is unchanged.
+- The measure (help reads before the first real query, against 10, 5 and 5 in round 2) waits for the next persona round.
