@@ -2,8 +2,8 @@ use super::{record::Rows, run};
 use crate::Outcome;
 use biomcp_types::ReplyBody;
 use biomcp_types::{
-    PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSynonyms,
-    PhenotypeXrefs, ReplyData, Request, StepKind,
+    PageInfo, PhenotypeGet, PhenotypeHierarchy, PhenotypeSection, PhenotypeSource,
+    PhenotypeSynonyms, PhenotypeXrefs, ReplyData, Request, StepKind,
 };
 pub(super) fn empty(q: &PhenotypeGet) -> ReplyData {
     match q.section() {
@@ -39,7 +39,9 @@ pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, ro
             out.body = (rows.0).with_query(echo.clone());
         }
         Some(PhenotypeSection::Synonyms) => {
+            let missing = rows.1.is_none();
             let items = page(out, q, &rows.1.unwrap_or_default());
+            unsent(out, q, missing);
             out.body = (PhenotypeSynonyms {
                 items,
                 components,
@@ -48,7 +50,9 @@ pub(super) fn apply(out: &mut Outcome, echo: &PhenotypeGet, q: &PhenotypeGet, ro
             .with_query(echo.clone());
         }
         Some(PhenotypeSection::Xrefs) => {
+            let missing = rows.2.is_none();
             let items = page(out, q, &rows.2.unwrap_or_default());
+            unsent(out, q, missing);
             out.body = (PhenotypeXrefs {
                 items,
                 components,
@@ -80,6 +84,12 @@ pub(super) fn ancestors(out: &mut Outcome, q: &PhenotypeGet) {
             &[biomcp_types::Source::Ols],
             run(Request::GetPhenotype(request)),
         ));
+    }
+}
+/// Monarch sends null for an empty list, but HPO sends `[]`, so a missing HPO list is unknown.
+fn unsent(out: &mut Outcome, q: &PhenotypeGet, missing: bool) {
+    if missing && q.source() == PhenotypeSource::Hpo {
+        crate::status::item(out, true, false, true);
     }
 }
 fn unavailable(out: &mut Outcome) {

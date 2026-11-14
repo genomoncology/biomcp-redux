@@ -35,9 +35,9 @@ pub struct Record {
     pub card: PhenotypeTermCard,
     /// Checked retrieval metadata.
     pub metadata: ReplyMetadata,
-    /// Unclassified source synonyms; missing remains unavailable.
+    /// Unclassified source synonyms; missing remains unavailable (the section is `partial`).
     pub synonyms: Option<Box<[PhenotypeSynonym]>>,
-    /// Source references, without an inferred predicate.
+    /// Source references, without an inferred predicate; missing remains unavailable.
     pub xrefs: Option<Box<[PhenotypeXref]>>,
 }
 /// Read exactly one HPO identity without fallback or local term selection.
@@ -78,8 +78,13 @@ fn map(
         .publications
         .map(|v| problems.fields("publicationReferences", Some(v)));
     let descendants = problems.field("descendantCount", term.descendants);
-    let synonyms = term.synonyms.map(|v| problems.fields("synonyms", Some(v)));
-    let xrefs = term.xrefs.map(|v| problems.fields("xrefs", Some(v)));
+    // HPO sends `[]` for none, so a missing list is a changed reply, named as a problem.
+    let synonyms = problems
+        .required("synonyms", term.synonyms)
+        .map(|v| problems.fields("synonyms", Some(v)));
+    let xrefs = problems
+        .required("xrefs", term.xrefs)
+        .map(|v| problems.fields("xrefs", Some(v)));
     let mut sections = Vec::new();
     if synonyms.is_some() {
         sections.push(PhenotypeSection::Synonyms);
