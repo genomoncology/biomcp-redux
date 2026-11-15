@@ -256,6 +256,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Cover Retry-After forms and backoff boundaries without one recording per table row.",
     ),
     (
+        "crates/biomcp-adapters/src/native_text_tests.rs",
+        "Show CR, CR-LF and blank-line runs joining to one space through the private source text helper, with other controls still escaped (0961).",
+    ),
+    (
         "crates/biomcp-adapters/src/who_pq/raw_tests.rs",
         "Map blank, WHO-format and unreadable Date of Prequalification cells through the private row type without inventing a source export.",
     ),

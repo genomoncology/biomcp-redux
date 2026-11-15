@@ -1,7 +1,7 @@
 use super::raw::Pos;
 use crate::mapped::record as record_text;
 use crate::mapped::{problem, push_problem};
-use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource, Text};
+use biodata::{Build, GenomicInterval, PartialDate, Span0, Strand, Summary, SummarySource};
 
 pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
     let parsed = value.strip_suffix("].").and_then(|text| {
@@ -19,7 +19,7 @@ pub(super) fn summary(value: String) -> Result<Summary, biodata::Error> {
     });
     let (body, dated) = parsed.map_or((value.as_str(), None), |(body, date)| (body, Some(date)));
     Ok(Summary {
-        text: Text::from_source(body)?,
+        text: crate::native_text::admit(body)?,
         source: SummarySource::RefSeq,
         dated,
     })

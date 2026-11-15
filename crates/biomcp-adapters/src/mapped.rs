@@ -194,7 +194,7 @@ impl Problems {
         self.optional(field, value.map(biodata::Text::new))
     }
     pub(crate) fn text(&mut self, field: &str, value: Option<&str>) -> Option<biodata::Text> {
-        self.optional(field, value.map(biodata::Text::from_source))
+        self.optional(field, value.map(crate::native_text::admit))
     }
 }
 
@@ -212,7 +212,7 @@ pub(crate) fn field_text(
         record,
         field,
         value,
-        biodata::Text::from_source,
+        crate::native_text::admit,
     )
 }
 
@@ -251,7 +251,7 @@ pub(crate) fn record(value: impl std::fmt::Display) -> Option<biodata::Text> {
 
 /// Admit source prose while keeping the strict identity helper separate.
 pub(crate) fn source_text(value: &str) -> Result<biodata::Text, biomcp_fetch::BadReply> {
-    biodata::Text::from_source(value).map_err(|_| biomcp_fetch::BadReply)
+    crate::native_text::admit(value).map_err(|_| biomcp_fetch::BadReply)
 }
 
 pub(crate) fn optional_text(

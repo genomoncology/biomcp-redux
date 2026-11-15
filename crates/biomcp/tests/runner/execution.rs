@@ -27,6 +27,7 @@ pub(super) fn run_step(
         .transpose()?;
     if let Some(cli) = &cli {
         names_argument(cli, &step.run)?;
+        line_breaks_read_as_text(cli)?;
     }
     let mut answer = cli.clone();
     if let Some(args) = &step.mcp {
@@ -51,6 +52,7 @@ pub(super) fn run_step(
             .map_err(|e| e.to_string())?;
         }
         names_argument(&result, args)?;
+        line_breaks_read_as_text(&result)?;
         answer = Some(result.clone());
         if let Some(cli) = cli.as_ref() {
             parity(cli, &result, args)?;
@@ -59,6 +61,7 @@ pub(super) fn run_step(
     if let Some(call) = &step.mcp_call {
         let value = named(call, step, environment, expectations, &globals)?;
         names_argument(&value, &call.name)?;
+        line_breaks_read_as_text(&value)?;
         answer = Some(value);
     }
     answer.ok_or_else(|| "step requires run, mcp or mcp_call".into())
@@ -220,4 +223,19 @@ fn names_argument(reply: &Value, call: &impl std::fmt::Debug) -> Result<(), Stri
         ));
     }
     Ok(())
+}
+
+/// Source line breaks read as text: no reply prints one as a literal `\u{000a}` or
+/// `\u{000d}` escape (0961).
+fn line_breaks_read_as_text(reply: &Value) -> Result<(), String> {
+    let text = reply.to_string();
+    match ["u{000a}", "u{000d}"]
+        .into_iter()
+        .find(|escape| text.contains(escape))
+    {
+        Some(escape) => Err(format!(
+            "reply prints a line break as the literal \\{escape}"
+        )),
+        None => Ok(()),
+    }
 }

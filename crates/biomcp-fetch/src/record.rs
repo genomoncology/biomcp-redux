@@ -318,9 +318,9 @@ impl Recordings {
                 {
                     return Err(error.into());
                 }
-                // Sidecar files refuse any symlinked folder on their path, so hold the folder
+                // Recordings refuse any symlink inside the record folder, so hold the folder
                 // the caller named in resolved form: macOS reaches /var/folders through the
-                // /var symlink, and every binary capture there failed (0954).
+                // /var symlink, and every binary capture there once failed (0954, 0963).
                 let dir = &fs::canonicalize(dir).map_err(RecordError::from)?;
                 fs::OpenOptions::new()
                     .write(true)
@@ -394,8 +394,14 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let (recording, file_bytes) =
-                    read(&path(dir, source, key), source, url, request, file_limit)?;
+                let (recording, file_bytes) = read(
+                    dir,
+                    &path(dir, source, key),
+                    source,
+                    url,
+                    request,
+                    file_limit,
+                )?;
                 entry.insert(Cursor {
                     recording,
                     file_bytes,
@@ -413,7 +419,7 @@ impl Recordings {
             .ok_or(RecordError::Exhausted)?;
         let mut value = value.clone();
         if let Body::Sidecar(name) = &value.body {
-            value.body = Body::Bytes(sidecar::read(&path(dir, source, key), name, max_body)?);
+            value.body = Body::Bytes(sidecar::read(dir, &path(dir, source, key), name, max_body)?);
         }
         if matches!(request, Request::Head) && !value.body.bytes().is_empty() {
             return Err(RecordError::Malformed);
@@ -484,6 +490,7 @@ impl Recordings {
         let mut exchange = exchange;
         if let Body::Bytes(bytes) = &exchange.body {
             let name = sidecar::publish(
+                &capture.dir,
                 &path(&capture.dir, source, key),
                 recording.exchanges.len(),
                 bytes,
@@ -491,7 +498,12 @@ impl Recordings {
             exchange.body = Body::Sidecar(name);
         }
         recording.exchanges.push(exchange);
-        let result = publish(&path(&capture.dir, source, key), recording, limit);
+        let result = publish(
+            &capture.dir,
+            &path(&capture.dir, source, key),
+            recording,
+            limit,
+        );
         if result.is_err() {
             recording.exchanges.pop();
         }
@@ -503,12 +515,14 @@ fn path(dir: &Path, source: biomcp_types::Source, key: &[u8; 32]) -> PathBuf {
     dir.join(source.to_string()).join(format!("{key}.json"))
 }
 fn read(
+    root: &Path,
     path: &Path,
     source: biomcp_types::Source,
     url: &str,
     request: Request<'_>,
     limit: u64,
 ) -> Result<(Recording, u64), RecordError> {
+    sidecar::confined(root, path)?;
     let file = fs::File::open(path).map_err(|error| {
         if error.kind() == std::io::ErrorKind::NotFound {
             RecordError::Missing
@@ -537,7 +551,7 @@ fn read(
     }
     Ok((value, bytes.len() as u64))
 }
-fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError> {
+fn publish(root: &Path, path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError> {
     let bytes = serde_json::to_vec_pretty(value).map_err(|_| RecordError::Malformed)?;
     if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
@@ -545,6 +559,7 @@ fn publish(path: &Path, value: &Recording, limit: u64) -> Result<(), RecordError
     let parent = path
         .parent()
         .ok_or(RecordError::Io(std::io::ErrorKind::InvalidInput))?;
+    sidecar::confined(root, path)?;
     fs::create_dir_all(parent).map_err(RecordError::from)?;
     let mut file = tempfile::NamedTempFile::new_in(parent).map_err(RecordError::from)?;
     file.write_all(&bytes).map_err(RecordError::from)?;

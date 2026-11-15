@@ -72,7 +72,7 @@ fn optional_text(
             .map_err(|_| biodata::Error::ArticleIdInvalid)
             .and_then(|_| biodata::Text::new(&value))
     } else {
-        biodata::Text::from_source(&value)
+        crate::native_text::admit(&value)
     };
     match parsed {
         Ok(value) => Some(value),

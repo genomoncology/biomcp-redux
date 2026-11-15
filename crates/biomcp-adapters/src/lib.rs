@@ -149,6 +149,8 @@ pub mod fda_device_recall;
 pub mod fda_drug_recall;
 
 mod native_text;
+#[cfg(test)]
+mod native_text_tests;
 mod source_text;
 
 mod native_window;

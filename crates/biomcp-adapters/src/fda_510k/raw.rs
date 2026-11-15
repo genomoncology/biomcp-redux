@@ -23,15 +23,21 @@ impl Record {
         let device_name = p.field("device_name", self.device_name);
         let applicant = p.field("applicant", self.applicant);
         let decision_code: Option<Box<str>> = p.field("decision_code", self.decision_code);
+        let decision_reading = (decision_code.as_deref() == Some("DENG"))
+            .then_some(biomcp_types::DecisionReading::DeNovoGranted);
+        let decision_description: Option<Box<str>> =
+            p.field("decision_description", self.decision_description);
+        // openFDA describes every DENG grant as "Unknown"; the reading says what it was, so that
+        // description is left out rather than read as the decision.
+        let decision_description = decision_description
+            .filter(|d| !(decision_reading.is_some() && d.as_ref() == "Unknown"));
         let value = biomcp_types::DiagnosticClearance {
             k_number: self.k_number,
-            // openFDA describes DENG as "Unknown"; the native description stays beside this reading.
-            decision_reading: (decision_code.as_deref() == Some("DENG"))
-                .then_some(biomcp_types::DecisionReading::DeNovoGranted),
+            decision_reading,
             device_name,
             applicant,
             decision_code,
-            decision_description: p.field("decision_description", self.decision_description),
+            decision_description,
             decision_date: p.field("decision_date", self.decision_date),
             date_received: p.field("date_received", self.date_received),
             product_code: p.field("product_code", self.product_code),

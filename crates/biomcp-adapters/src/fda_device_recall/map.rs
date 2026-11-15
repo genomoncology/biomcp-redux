@@ -6,20 +6,6 @@ use crate::{
 use biodata::Text;
 use biomcp_types::{DeviceRecallCard, DeviceRecallHeader, DiagnosticCandidate, Problem, Source};
 const SOURCE: Source = Source::FdaDeviceRecall;
-/// openFDA free text carries line breaks, which `Text` can hold only as literal
-/// `\u{000a}` escapes; each run of CR and LF becomes one space instead (0947).
-fn one_line(value: Option<Field<String>>) -> Option<Field<String>> {
-    value.map(|field| match field {
-        Field::Value(text) => Field::Value(
-            text.split(['\r', '\n'])
-                .map(str::trim)
-                .filter(|line| !line.is_empty())
-                .collect::<Vec<_>>()
-                .join(" "),
-        ),
-        invalid => invalid,
-    })
-}
 fn list(
     value: Option<Field<Vec<Field<Text>>>>,
     field: &str,
@@ -58,7 +44,7 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DeviceRecallCard> {
         if matches!(field, "res_event_number" | "product_code" | "recall_status") {
             crate::mapped::field_code_text(&mut problems, SOURCE, id.clone(), field, value)
         } else {
-            field_text(&mut problems, SOURCE, id.clone(), field, one_line(value))
+            field_text(&mut problems, SOURCE, id.clone(), field, value)
         }
     };
     let header = DeviceRecallHeader {
@@ -122,13 +108,7 @@ pub(super) fn enforcement(row: raw::Enforcement, card: &mut DeviceRecallCard) ->
         if code {
             crate::mapped::field_code_text(&mut problems, SOURCE, id.clone(), field, given(value))
         } else {
-            field_text(
-                &mut problems,
-                SOURCE,
-                id.clone(),
-                field,
-                one_line(given(value)),
-            )
+            field_text(&mut problems, SOURCE, id.clone(), field, given(value))
         }
     };
     card.classification = text("classification", row.classification, true);
@@ -170,7 +150,7 @@ pub(super) fn bare(class: &mut raw::Enforcement, problems: &mut Vec<Problem>) ->
         SOURCE,
         record(&class.recall_number),
         "reason_for_recall",
-        one_line(class.reason_for_recall.take()),
+        class.reason_for_recall.take(),
     );
     Row {
         header: DeviceRecallHeader {
