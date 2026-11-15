@@ -506,6 +506,12 @@ fn binary_sidecars_are_ordered_and_confined() {
     bytes::ordered_binary_sidecars_round_trip_and_refuse_hostile_paths();
 }
 
+#[cfg(unix)]
+#[test]
+fn binary_capture_follows_a_symlinked_parent_folder() {
+    bytes::capture_through_symlinked_parent_round_trips();
+}
+
 #[test]
 fn cut_binary_body_never_returns_partial_bytes() {
     bytes::cut_binary_body_is_refused_before_returning_bytes();

@@ -318,6 +318,10 @@ impl Recordings {
                 {
                     return Err(error.into());
                 }
+                // Sidecar files refuse any symlinked folder on their path, so hold the folder
+                // the caller named in resolved form: macOS reaches /var/folders through the
+                // /var symlink, and every binary capture there failed (0954).
+                let dir = &fs::canonicalize(dir).map_err(RecordError::from)?;
                 fs::OpenOptions::new()
                     .write(true)
                     .create_new(true)
@@ -341,7 +345,7 @@ impl Recordings {
                 Ok(Self::Capture(capture))
             }
             Mode::Replay { dir } => Ok(Self::Replay {
-                dir: dir.clone(),
+                dir: fs::canonicalize(dir).unwrap_or_else(|_| dir.clone()),
                 cursors: Mutex::new(BTreeMap::new()),
             }),
             _ => Ok(Self::None),

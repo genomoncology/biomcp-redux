@@ -175,7 +175,7 @@ pub enum SourceNotice {
 }
 
 biodata::wire_enum! {
-/// A local cache failure that leaves the provider outcome intact.
+/// A local cache or recording failure, independent of what the provider returned.
 CacheProblem {
     /// The cache connection or file was busy.
     Busy => "busy",
@@ -193,5 +193,19 @@ CacheProblem {
     Snapshot => "snapshot",
     /// Cache ownership or schema validation failed.
     Version => "version",
+    /// The --record folder already holds a recording or another capture owns it.
+    RecordingConflict => "recording-conflict",
+    /// Reading or writing a recording file failed.
+    RecordingIo => "recording-io",
+    /// No recording matches this source request.
+    RecordingMissing => "recording-missing",
+    /// Every recorded reply for this request was already replayed.
+    RecordingExhausted => "recording-exhausted",
+    /// A recording file or its reply file name is invalid or unsafe.
+    RecordingMalformed => "recording-malformed",
+    /// A recording exceeded its size or sequence bound.
+    RecordingLimit => "recording-limit",
+    /// A text reply to record was not valid UTF-8.
+    RecordingNonUtf8 => "recording-non-utf8",
 }
 }

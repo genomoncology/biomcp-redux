@@ -5,7 +5,8 @@ use biomcp_types::{CacheProblem, ErrorEnvelope};
 pub(super) fn kind(error: Option<RequestError>) -> Option<CacheProblem> {
     match error? {
         RequestError::Cache(error) => Some(error.into()),
-        _ => None,
+        RequestError::Recording(error) => Some(error.into()),
+        RequestError::Input(_) | RequestError::Source(_) => None,
     }
 }
 
