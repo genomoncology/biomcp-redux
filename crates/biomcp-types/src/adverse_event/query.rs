@@ -68,7 +68,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     problem: Option<Text>,
-    #[doc = "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other."]
+    #[doc = "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other. \
+        Reports with an empty or \"No answer provided\" event type match no value and fall outside every event-type count."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     event_type: Option<MaudeEventType>,
