@@ -244,7 +244,7 @@ fn recovery(value: &mut Value, cx: Context<'_>) -> io::Result<()> {
         if values.is_empty()
             && let Some(error) = value.get_mut("error").and_then(Value::as_object_mut)
         {
-            error.remove("valid_values");
+            error.shift_remove("valid_values");
         }
     }
     Ok(())
