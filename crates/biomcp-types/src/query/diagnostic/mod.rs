@@ -133,6 +133,7 @@ struct SearchFields {
     the same recalling_firm phrase; fda-device-recall only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-alias-of" = "manufacturer")))]
     firm: Option<Text>,
     #[doc = "FDA product code.\nExact native FDA product code; PMA, 510(k) and device recalls only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]

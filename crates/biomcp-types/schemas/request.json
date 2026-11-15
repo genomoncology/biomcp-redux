@@ -2960,6 +2960,7 @@
             }
           ],
           "description": "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only.",
+          "x-alias-of": "manufacturer",
           "x-required-component": "fda-device-recall"
         },
         "gene": {
