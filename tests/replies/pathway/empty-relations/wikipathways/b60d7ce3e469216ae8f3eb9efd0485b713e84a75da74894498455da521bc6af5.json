@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "wikipathways",
+  "url": "https://www.wikipathways.org/json/getPathwayInfo.json",
+  "exchanges": [
+    {
+      "fetched": 1794695664,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 217,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "b60d7ce3e469216ae8f3eb9efd0485b713e84a75da74894498455da521bc6af5-0.bin"
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "feature": "pathway-wikipathways-genes",
+  "live_check": "public",
+  "story": "A pathway WikiPathways holds but with no gene products comes back complete with an empty gene list, so an agent can tell \"this pathway lists no genes\" from \"this pathway does not exist\"; an ID the catalog does not hold stays absent.",
+  "verified": "Captured live 2026-11-14 in pm jobs j40885 (WikiPathways catalogs) and j40896 (WP5034 GPML). WP5034, Mitochondrial complex inhibition leading to liver injury, is in the human catalog and its GPML has 25 DataNodes, all of type Event or Pathway, so no GeneProduct rows; WP9999999 is not in the catalog.",
+  "replay": "pathway/empty-relations",
+  "steps": [
+    {
+      "run": ["sync", "wikipathways"],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": ["pathway", "genes", "WP5034"],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total": 0,
+        "/result/page/returned": 0,
+        "/result/physical_entities": 25,
+        "/sources/0/source": "wikipathways",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": ["get", "pathway", "WP5034", "genes"],
+      "expect": {
+        "/status": "complete",
+        "/result/genes/data/page/total": 0,
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": ["get", "pathway", "WP9999999", "genes"],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "wikipathways",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    }
+  ]
+}

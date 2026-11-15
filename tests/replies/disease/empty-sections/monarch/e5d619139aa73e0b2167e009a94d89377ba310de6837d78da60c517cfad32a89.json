@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "monarch",
+  "url": "https://api-v3.monarchinitiative.org/v3/api/association?object=MONDO%3A0005812&subject_category=biolink%3AGene&limit=2&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794696869,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1457,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"limit":2,"offset":0,"total":0,"items":[],"facet_fields":[],"facet_queries":[]}
+      }
+    }
+  ]
+}

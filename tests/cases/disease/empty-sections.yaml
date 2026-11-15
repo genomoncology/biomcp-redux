@@ -1,0 +1,37 @@
+{
+  "feature": "disease-monarch",
+  "live_check": "public",
+  "story": "A disease Monarch holds but with no gene associations comes back complete with an empty list, so an agent can tell \"this disease has no associated genes\" from \"this disease does not exist\"; an ID Monarch does not hold stays absent.",
+  "verified": "Captured live 2026-11-14 in pm job j40906. Monarch v3 /association?object=MONDO:0005812&subject_category=biolink:Gene has total 0 while /entity/MONDO:0005812 (influenza) is 200; MONDO:9999999 has gene and phenotype association totals 0 and /entity 404.",
+  "replay": "disease/empty-sections",
+  "steps": [
+    {
+      "run": ["get", "disease", "MONDO:0005812", "genes", "--source", "monarch"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/page/returned": 0,
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": ["get", "disease", "MONDO:9999999", "genes", "--source", "monarch"],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    },
+    {
+      "run": ["get", "disease", "MONDO:9999999", "phenotypes", "--source", "monarch"],
+      "expect": {
+        "/status": "absent",
+        "/sources/0/source": "monarch",
+        "/sources/0/state": "ok"
+      },
+      "exit": 1
+    }
+  ]
+}
