@@ -39,3 +39,28 @@ The pages 0859's survey left behind report a total honestly: the source's own co
 ## Changes
 
 - Changes: `crates/biomcp-query/src/`, `crates/biomcp-adapters/src/`, `tests/cases/`
+
+## Progress
+
+### Live check, 2026-11-15 (pm job j41438, main 648240afe)
+
+| Item | Still holds? | What the live run showed |
+| --- | --- | --- |
+| Pathway search across Reactome and WikiPathways | Yes | `search pathway MAPK --source reactome --source wikipathways --limit 5` gave total 117: Reactome's own 110 plus WikiPathways' 7. |
+| GWAS search with a p-value cut | Yes | `search gwas --pubmed 17529967 --p-value 1e-10 --limit 3` gave total 6 (GWAS Catalog's count before the cut) with no word that it is; `--gene BRCA2 --p-value 5e-8` gave 143 the same way. |
+| Article recommendations | Yes | Total 5, the papers returned. Semantic Scholar's reply holds only `recommendedPapers`, no count, and BioMCP didn't say so. |
+| Author papers (Semantic Scholar) | Yes | No page and no word why. Semantic Scholar's reply holds `offset`, `next` and `data`, no count. |
+| Cell-line search | Yes | No total. Cellosaurus's JSON search reply holds only `cell-line-list`; its `format=txt` header states `response.numFound` (2,331 for `id:HeLa`), which BioMCP doesn't read. |
+| Article search with one source listed twice | No | `search article tebentafusp --source europepmc --source europepmc` is now refused as a usage error, so the dropped count can't happen that way. A source still repeats when drug names make one request per name (Semantic Scholar, LitSense); that path is unchanged. |
+| Cut-short Europe PMC search | Yes, and worse | At `--offset 97 --limit 3` there was no page step and no sentence. Also, with a drug name, MyChem and ChEMBL joined the source list, so the total fell back to the 100 rows read instead of Europe PMC's 1,178. |
+| Drug approvals | No | `get drug apixaban approvals --source drugsfda` showed 10 of 25 with a page step; `--section-limit 5` 5 of 25 with a step; `--section-limit 30` all 25. |
+
+### Changes
+
+- Pathway search over several sources gives each source's own count in `sources[].count` (Reactome's `found`, WikiPathways' matching catalog rows). The page total is the rows read so far, with the new total kind `read`; it is no longer the sum.
+- GWAS search with `--p-value`: while the walk runs, the GWAS source says its count is from before the cut; once the walk ends, `page.total` is the count at or below the cut (the same as `qualifying_total`).
+- Article recommendations: the `scope` sentence says Semantic Scholar gives no total and the page total counts the papers returned.
+- Author papers from Semantic Scholar: a source notice says the source gives no total and a page step follows while it has more.
+- Cell-line search: a full page's Cellosaurus notice says the search reply gives no total, beside the next page step.
+- Article search: only sources that retrieved a window count toward "one source", so name and title lookups no longer hide Europe PMC's count. At the end of the read window, each cut-short source says how many it matched, how many BioMCP read, and that rows past those can't be paged.
+- Cases: `pathway/union-totals.yaml`, `gwas/threshold-total.yaml`, `cell-line/search-total.yaml`, `article/search/europepmc-window.yaml` and `author/papers-no-total.yaml`; the recommendation cases check the new scope sentence. Replies are j41438's live recordings; the WikiPathways catalogs keep only the 24 rows whose title contains MAPK. Recommendations and author papers use the existing synthetic Semantic Scholar replays.

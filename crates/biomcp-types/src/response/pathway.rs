@@ -28,7 +28,8 @@ biodata::wire_enum! {
         #[doc = "Native source-reported total before exact page admission."] Source => "source",
         #[doc = "Number of observed members in the retained relation."] Observed => "observed",
         #[doc = "Distinct namespaced references, preserving isoform identifiers."] DistinctReferences => "distinct-references",
-        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data-nodes"
+        #[doc = "Native GeneProduct data nodes, including repeated references."] DataNodes => "data-nodes",
+        #[doc = "Rows read so far from several sources; each source's own count is in sources[].count and is never summed."] Read => "read"
     }
 }
 /// Native page position and explicit count provenance; a short admitted page can continue.

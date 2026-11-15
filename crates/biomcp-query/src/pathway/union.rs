@@ -29,7 +29,7 @@ fn page(q: &PathwaySearch) -> PathwayPage {
             offset: q.offset(),
             returned: 0,
             total: 0,
-            total_kind: PathwayTotalKind::Source,
+            total_kind: PathwayTotalKind::Read,
             next_offset: None,
             pool: None,
         },
@@ -152,9 +152,9 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
             let reply = wikipathways::search(&leg, q.query().map_or("", |v| v.as_str()));
             let error = reply.as_ref().err().copied();
             out.local = out.local.or_else(|| error.and_then(status::local));
-            saved
-                .3
-                .push(status::source(Source::WikiPathways, leg.finish(), error));
+            let mut source = status::source(Source::WikiPathways, leg.finish(), error);
+            source.count = reply.as_ref().ok().map(|(rows, _)| rows.value.len() as u64);
+            saved.3.push(source);
             let state = match reply {
                 Ok((rows, info)) => {
                     saved.5 |= rows.refusals == biomcp_adapters::Refusal::Refused;
@@ -205,6 +205,7 @@ fn refill(
         out.local = out.local.or_else(|| error.and_then(status::local));
         if let Some(source) = saved.3.get_mut(index) {
             *source = status::source(Source::Reactome, leg.finish(), error);
+            source.count = reply.as_ref().ok().map(|reply| reply.total);
         }
         match reply {
             Ok(reply) => {
@@ -251,14 +252,19 @@ fn advance(
         }
     }
     let returned = items.len() as u32;
+    // Rows handed out before this page, on it, and still queued from either source.
+    let read = u64::from(q.offset())
+        + u64::from(returned)
+        + saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>();
     let continuing = saved.1.iter().any(|s| !s.0.is_empty() || s.1.is_some());
     saved.0 = PathwayPage {
         items: items.into(),
         page: PathwayPageInfo {
             offset: q.offset(),
             returned,
-            total: saved.1.iter().map(|s| s.2).sum(),
-            total_kind: PathwayTotalKind::Source,
+            // Each source's own count stays in its source report; totals are never summed.
+            total: read,
+            total_kind: PathwayTotalKind::Read,
             next_offset: continuing.then_some(q.offset().saturating_add(returned.max(1))),
             pool: None,
         },

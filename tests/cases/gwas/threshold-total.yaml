@@ -1,0 +1,36 @@
+{
+  "feature": "gwas-search",
+  "live_check": "public",
+  "story": "A p-value cut says GWAS Catalog's count is from before the cut while the walk runs, and reports the count at or below the cut once the walk ends.",
+  "verified": "Captured live 2026-11-15 in pm job j41438: GWAS Catalog's first page of 3 associations for PubMed 17529967, sorted by p-value, states totalElements 6 and holds p-values 2e-76, 1e-36 and 7e-20. At 1e-10 all three pass, so the walk goes on; at 1e-30 the third row is above the cut, so the walk ends with 2. On main both pages reported 6.",
+  "replay": "gwas/threshold-total",
+  "steps": [
+    {
+      "run": ["search", "gwas", "--pubmed", "17529967", "--p-value", "1e-10", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 6,
+        "/page/truncated": true,
+        "/sources/0/count": 6,
+        "/sources/0/notices/0/message": "GWAS Catalog's count of 6 is before the p-value cut; the count at or below it is known when paging reaches the end.",
+        "/result": {
+          "omits": ["qualifying_total"]
+        }
+      }
+    },
+    {
+      "run": ["search", "gwas", "--pubmed", "17529967", "--p-value", "1e-30", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 2,
+        "/page/returned": 2,
+        "/page/truncated": false,
+        "/result/qualifying_total": 2,
+        "/sources/0/count": 6,
+        "/sources/0": {
+          "omits": ["notices"]
+        }
+      }
+    }
+  ]
+}

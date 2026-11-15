@@ -1,0 +1,29 @@
+{
+  "feature": "pathway-search",
+  "live_check": "public",
+  "story": "A search across Reactome and WikiPathways gives each source's own count and never sums them; the page total counts the rows read so far.",
+  "verified": "Captured live 2026-11-15 in pm job j41438: Reactome's search for MAPK states found 110 and returned 5 rows; WikiPathways' catalogs hold 7 human pathways whose title contains MAPK. On main the page total was 117, the two counts added. The catalog replies keep only the 24 rows (all species) whose title contains MAPK.",
+  "replay": "pathway/union-totals",
+  "steps": [
+    {
+      "run": ["sync", "wikipathways"],
+      "expect": {
+        "/status": "complete"
+      }
+    },
+    {
+      "run": ["search", "pathway", "MAPK", "--source", "reactome", "--source", "wikipathways", "--limit", "5"],
+      "expect": {
+        "/status": "complete",
+        "/result/page/total_kind": "read",
+        "/result/page/total": 12,
+        "/result/page/returned": 5,
+        "/result/page/next_offset": 5,
+        "/sources/0/source": "reactome",
+        "/sources/0/count": 110,
+        "/sources/1/source": "wikipathways",
+        "/sources/1/count": 7
+      }
+    }
+  ]
+}

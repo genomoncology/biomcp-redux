@@ -45,6 +45,22 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
                 ))),
             ));
         }
+        if full
+            && let Some(source) = out
+                .sources
+                .iter_mut()
+                .find(|s| s.source == Source::Cellosaurus)
+        {
+            source
+                .notices
+                .push(biomcp_types::SourceNotice::RequestGuidance {
+                    data_date: None,
+                    message: "Cellosaurus's search reply gives no total; a full page has a next \
+                        page step."
+                        .into(),
+                    retry_after_seconds: None,
+                });
+        }
         if full && let Some(offset) = query.offset().checked_add(query.limit()) {
             out.next.push(crate::next::Step::new(
                 StepKind::Page,
