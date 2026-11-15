@@ -20,6 +20,12 @@ pub(crate) fn startup(
             envelope.local_error = Some(error.into());
             envelope
         }
+        // A --record folder that already holds a capture says so instead of a bare failure (0954).
+        crate::config::StartupError::Recording(error) => {
+            let mut envelope = ErrorEnvelope::local();
+            envelope.local_error = Some(error.into());
+            envelope
+        }
         crate::config::StartupError::Configuration(error) => ErrorEnvelope::configuration(error.0),
         crate::config::StartupError::Local => ErrorEnvelope::local(),
     };
