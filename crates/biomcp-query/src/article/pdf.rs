@@ -42,6 +42,10 @@ fn execute<'a>(
     out: &mut Outcome,
     file: &mut Option<(PdfLink, Vec<u8>)>,
 ) -> Result<(), RequestError> {
+    if let ArticleInput::EuropePmc(id) = &query.input {
+        europepmc_refused(query, id, out);
+        return Ok(());
+    }
     let section = load(cx, &query.input, deadline, out)?;
     let Section::Data { data: link, .. } = section else {
         crate::status::item(out, false, true, false);
@@ -126,16 +130,7 @@ fn refusal(
     } else {
         "This does not show that the paper is closed."
     };
-    let step = open.and_then(|input| {
-        ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into()).ok()
-    });
-    let next = if let Some(query) = step {
-        out.next.push(crate::next::Step::run(
-            StepKind::Section,
-            &super::next::text_sources(&query.input()[0]),
-            Request::GetArticle(query),
-            false,
-        ));
+    let next = if open.is_some_and(|input| fulltext_next(input, out)) {
         "Read its open full text with the next command, or open the URL in a browser."
     } else {
         "Open the URL in a browser."
@@ -149,6 +144,48 @@ fn refusal(
         .into(),
         retry_after_seconds: None,
     }
+}
+
+/// Offer `get article ID fulltext`, the open text reader for PMC and Europe PMC.
+fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
+    let Ok(query) = ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into())
+    else {
+        return false;
+    };
+    out.next.push(crate::next::Step::run(
+        StepKind::Section,
+        &super::next::text_sources(&query.input()[0]),
+        Request::GetArticle(query),
+        false,
+    ));
+    true
+}
+
+/// Europe PMC refuses automated PDF requests (see `pdf::publisher::europepmc`), so a
+/// preprint ID gets a plain refusal and its open full text without a request.
+fn europepmc_refused(query: &ArticlePdf, id: &biomcp_types::EuropePmcId, out: &mut Outcome) {
+    let mut source = biomcp_adapters::registry::outcome(
+        Source::EuropePmc,
+        biomcp_types::SourceStatus::Skipped(Some(Reason::Rejected)),
+    );
+    fulltext_next(query.input.clone(), out);
+    source.notices.push(SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "Europe PMC does not give PDFs to automated clients such as BioMCP: its PDF \
+             links answer HTTP 403 Forbidden, and BioMCP does not get around that, so no \
+             file was saved. Europe PMC's full text for {id}, where open, is readable with \
+             the next command; https://europepmc.org/article/PPR/{id} opens in a browser."
+        )
+        .into(),
+        retry_after_seconds: None,
+    });
+    out.sources.push(source);
+    crate::status::item(out, false, true, false);
+    out.body = (ArticlePdfResult {
+        file: Section::unavailable(Source::EuropePmc, Reason::Rejected),
+    })
+    .with_query(query.clone());
 }
 
 /// Bounded download before the binary decides how to install the file.

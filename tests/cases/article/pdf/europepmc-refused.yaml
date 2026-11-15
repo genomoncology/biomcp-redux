@@ -1,0 +1,35 @@
+{
+  "live_check": "local-only: no source request; the refusal rests on live probes",
+  "feature": "article-pdf",
+  "story": "A Europe PMC preprint PDF request says plainly that Europe PMC refuses automated PDF downloads and points to its open full text, instead of a bare failure.",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "pdf",
+        "PPR1295425",
+        "--save",
+        "preprint.pdf"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/result/file/state": "unavailable",
+        "/result/file/source": "europepmc",
+        "/result/file/reason": "rejected",
+        "/sources/0/source": "europepmc",
+        "/sources/0/state": "skipped",
+        "/sources/0/notices/0/message": "Europe PMC does not give PDFs to automated clients such as BioMCP: its PDF links answer HTTP 403 Forbidden, and BioMCP does not get around that, so no file was saved. Europe PMC's full text for PPR1295425, where open, is readable with the next command; https://europepmc.org/article/PPR/PPR1295425 opens in a browser.",
+        "/next/0/args": [
+          "get",
+          "article",
+          "PPR1295425",
+          "fulltext"
+        ]
+      },
+      "max_bytes": 2000
+    }
+  ],
+  "verified": "0965 probes from the M5 with curl, user agent ureq/3.5.0 and Accept application/pdf: pm job j41236 fetched the PDF link Europe PMC's own REST core record lists for PPR1064174 (fulltextRepo?pprId=PPR1064174&...EMS207829-pdf.pdf) and got HTTP 403 application/json {\"error\":\"PDF link has expired or is invalid\"}, as 0943's j40674 did; j41234 got HTTP 403 with cf-mitigated: challenge (a Cloudflare browser check) from europepmc.org/articles/PMC7095418?pdf=render, /articles/pmc7095418/pdf and /backend/ptpmcrender.fcgi. PPR1295425 is a CC BY medRxiv preprint whose Europe PMC full text the next step reads (tests/cases/article/preprint/reader.yaml). Before 0965 `article pdf PPR...` asked the Semantic Scholar adapter, which refuses PPR IDs (`paper_id` in crates/biomcp-adapters/src/semantic_scholar/recommend.rs), so the reply named no reason."
+}
