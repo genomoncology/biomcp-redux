@@ -168,6 +168,8 @@ macro_rules! command_types {
                 "biomcp.pgx-get-command/3", "biomcp.pgx-get-command/3", 29, GetPgx
             );
             /// Search diagnostic laboratory tests and devices.
+            /// FDA CDx rows of both tables carry diagnostic, indication, device, drug and row_date beside FDA's cells,
+            /// whose headers differ by table.
             SearchDiagnostic(DiagnosticSearch) => (
                 "search", "diagnostic", DiagnosticSearch, "diagnostic-search", "biomcp.diagnostic-search/3", DiagnosticSearch, "diagnostic-search",
                 "biomcp.diagnostic-search/3", "biomcp.diagnostic-search/3", 30, Direct
