@@ -1,7 +1,7 @@
 {
   "feature": "diagnostic-device-recall",
   "live_check": "public",
-  "story": "A plain device recall firm is sent as typed with no notice. A device recall firm or product code holding punctuation openFDA refuses is searched as the same words without it, and a device name with an accented letter, infusion pümp, is searched as infusion pump; source_query shows the phrase sent. A source notice names each value sent as other words. The same firm typed as --firm is named --firm in the notice, and a ü typed as u and a combining diaeresis, as macOS pastes it, still searches infusion pump.",
+  "story": "A plain device recall firm is sent as typed with no rewrite notice. A device recall firm or product code holding punctuation openFDA refuses is searched as the same words without it, and a device name with an accented letter, infusion pümp, is searched as infusion pump; source_query shows the phrase sent. A source notice names each value sent as other words. The same firm typed as --firm is named --firm in the notice, and a ü typed as u and a combining diaeresis, as macOS pastes it, still searches infusion pump.",
   "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/diagnostic/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "diagnostic/openfda-punctuation",
   "steps": [
@@ -23,10 +23,8 @@
         "/result/source_query": "recalling_firm:\"Abbott\"",
         "/result/items/0/header/recall_number": "Z-0191-2027",
         "/sources/0/state": "ok",
-        "/sources/0": {
-          "omits": [
-            "notices"
-          ]
+        "/sources/0/notices/*/message": {
+          "excludes": "--firm was searched as \"Abbott\": openFDA refuses some punctuation and every character outside ASCII."
         }
       }
     },
