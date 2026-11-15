@@ -15,8 +15,6 @@ use biodata::{
 mod response_page;
 mod paged;
 pub use paged::Paged;
-#[cfg(feature = "schema")]
-pub(crate) use paged::no_schema_default;
 mod research;
 pub use research::{
     ResearchEnvelope, ResearchFetch, ResearchHit, ResearchSearch, ResearchSearchMetadata,

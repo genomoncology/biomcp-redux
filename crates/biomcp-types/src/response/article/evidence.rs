@@ -92,8 +92,7 @@ impl super::super::ResponseBody for ArticleEvidenceResult {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleRecommendations {
     /// Papers in provider order, without a local topic filter.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[crate::ArticleItem]>,
     /// Provider's default pool, stated without a clinical relevance claim.
     pub scope: Box<str>,

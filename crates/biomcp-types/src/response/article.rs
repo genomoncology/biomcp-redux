@@ -84,8 +84,7 @@ pub struct ArticleItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticlePage {
     /// Original ordered items.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ArticleItem]>,
     /// Nearby source candidates when an exact variant was not uniquely selected.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -101,8 +100,7 @@ impl super::ResponseBody for ArticlePage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleEdgePage {
     /// Papers in the fixed edge pool.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {

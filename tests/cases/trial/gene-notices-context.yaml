@@ -75,7 +75,11 @@
         "/status": "complete",
         "/page/total": 7,
         "/page/returned": 0,
-        "/result/items": [],
+        "/result": {
+          "omits": [
+            "items"
+          ]
+        },
         "/sources/1/notices/*/message": {
           "equals": [
             "Publisher dataset date: 2026-10-23T09:00:04Z. This is distinct from retrieval and record event dates."

@@ -66,8 +66,7 @@ pub struct NciDisease {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialPage {
     /// Source rows, never merged with another provider.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[NciTrial]>,
     /// Exact source parameters, excluding credentials.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -87,8 +86,7 @@ impl super::ResponseBody for NciTrialPage {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct NciTrialCards {
     /// One independent answer per requested identity.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[NciTrialItem]>,
     /// Publisher attribution.
     pub attribution: Box<str>,

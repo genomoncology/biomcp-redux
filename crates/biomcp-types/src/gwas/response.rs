@@ -13,8 +13,7 @@ pub struct GwasPage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub qualifying_total: Option<u64>,
     /// Shared complete association records.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GwasAssociation]>,
     /// Same-selector search continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -75,8 +74,7 @@ pub struct GwasLoci {
     /// Exact owning association.
     pub association: GwasAssociationId,
     /// Native locus rows.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GwasLocus]>,
     /// Same-resource relation continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -201,8 +199,7 @@ pub struct GwasAncestries {
     /// Exact owning study.
     pub study: GwasStudyId,
     /// Independent source rows.
-    #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub items: Box<[GwasAncestry]>,
     /// Retained relation continuation.
     #[serde(default, skip_serializing_if = "Option::is_none")]
