@@ -59,3 +59,9 @@ The JSON reply can't carry the count. TSV carries count and rows in one reply, b
 - Checks: j41469 (first cut) found a too-long function, new `.ok()` drops and the adapter file over 300 lines; j41475 passed `make lint-workspace` and the ratchets after the count moved to its own file and kept its errors.
 - Gate j41480 failed only the 12 cache-admission cases: their fixture loader reads every file in `tests/replies/cache-admission/` as JSON, so the count reply's `.bin` sidecar broke it. The MOLM13 count reply is now stored inline as a `text` body (the same recorded bytes).
 - Gate `make --keep-going landing-gate docs-check schema-release-check` passed on the branch merged with origin/main (94395bcad) in pm job j41485 at 6f5711259.
+
+### Review fix, 2026-11-15
+
+- A page past the end (`search cell-line HeLa --offset 5000 --limit 3`) got 0 rows and reported total 5,000 (offset plus rows). An empty page at an offset above 0 now reads the count as a full page does: total 2,355, Cellosaurus count 2,355, no page step. The new step in `cell-line/search-total.yaml` replays the empty search page recorded live in pm job j41490 (the count reply is the one from j41475, same request).
+- `tests/replies/cache-admission/README.md` says the MOLM13 count reply is stored inline, unchanged.
+- j41490 passed `make check-cheap`; the cell cases failed only on the then-missing recording.
