@@ -239,6 +239,29 @@
         "/error/option": "gene_symbol",
         "/next/0/name": "help"
       }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "MSTN",
+            "bogus": 5
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "bogus",
+        "/next/0/name": "help",
+        "/next": {
+          "count": 1
+        }
+      }
     }
   ]
 }

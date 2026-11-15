@@ -22,8 +22,8 @@ pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
 }
 
 /// A corrected call, and whether it is certain: false when it picked one of several listed
-/// values that would each pass, or filled a bare command, which is a guess that keeps help
-/// beside it.
+/// values that would each pass, filled a bare command, or dropped what the caller asked for,
+/// which is a guess that keeps help beside it.
 pub(super) fn corrected(
     via: Rewrite,
     path: (&str, &str),
@@ -60,12 +60,13 @@ pub(super) fn corrected(
                 }
             }
         }
-        // Ordinary invalid filters must not disappear from the proposed request.
+        // Without the refused filter or section the call asks for less than the caller did,
+        // so it is a guess that keeps help beside it.
         if allow_omission {
             let mut candidate = value.clone();
             candidate.as_object_mut()?.remove(*name);
             if let Some(step) = checked(via, path, candidate) {
-                return Some((step, true));
+                return Some((step, false));
             }
         }
         let missing = value.get(*name).is_none() || allow_omission;
@@ -267,8 +268,51 @@ pub(super) fn dropped(
         }
         without.remove(at);
     }
-    match super::parse(root, &without).ok()?.action? {
-        biomcp_query::Action::Run { request, .. } => super::recovery::run(&request),
-        _ => None,
+    let biomcp_query::Action::Run { request, .. } = super::parse(root, &without).ok()?.action?
+    else {
+        return None;
+    };
+    // The offered call must also pass the check made before any source is read, or be the
+    // one correction that check names.
+    let action = biomcp_query::Action::Run {
+        request: request.clone(),
+        fresh: false,
+    };
+    match action.prepare() {
+        Ok(_) => run(&request),
+        Err(error) => match prepared(&request, error) {
+            biomcp_types::UsageError::Arguments(arguments) => arguments
+                .next
+                .into_iter()
+                .next()
+                .filter(|step| !is_help(step)),
+            _ => None,
+        },
     }
+}
+
+/// A filter or section the selected source refuses, kept with the one source that accepts it:
+/// certain when exactly one valid source passes and the call names what it is after.
+pub(super) fn source_swap(
+    via: Rewrite,
+    path: (&str, &str),
+    schema: &Value,
+    value: &Value,
+    valid: &[&str],
+) -> Option<Step> {
+    let array = schema
+        .pointer("/properties/source")
+        .and_then(super::property_type)
+        == Some("array");
+    let mut passing = valid.iter().filter_map(|source| {
+        let source = Value::from(*source);
+        let mut candidate = value.clone();
+        candidate.as_object_mut()?.insert(
+            "source".into(),
+            if array { Value::Array(vec![source]) } else { source },
+        );
+        checked(via, path, candidate)
+    });
+    let only = passing.next()?;
+    (passing.next().is_none() && super::options::names_something(schema, value)).then_some(only)
 }

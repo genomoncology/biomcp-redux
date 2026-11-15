@@ -53,7 +53,7 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
         candidate
             .as_object_mut()?
             .insert(name.into(), Value::String(text.clone()));
-        let step = complete((verb, entity), &schema, &candidate)?;
+        let next = completed_steps((verb, entity), &schema, &candidate)?;
         let property = schema.get("properties")?.get(name)?;
         let argument = if property.get("x-positional").is_some() {
             name.to_owned()
@@ -64,7 +64,7 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
             argument: Some(argument.into()),
             message: Some(ErrorMessage::ArgumentGuidance),
             valid_values: super::validation::accepted(&schema, property),
-            next: vec![step],
+            next,
         })
     })
 }
@@ -104,6 +104,21 @@ fn open_text(schema: &Value, value: &Value, name: &str) -> bool {
 
 /// The checked call, with any required argument that has one possible value filled in.
 pub(super) fn complete(path: (&str, &str), schema: &Value, value: &Value) -> Option<Step> {
+    completion(path, schema, value).map(|(step, _)| step)
+}
+
+/// The refusal's next steps for a completed call: the call alone when it is certain, and
+/// help beside it when it is a guess.
+pub(super) fn completed_steps(path: (&str, &str), schema: &Value, value: &Value) -> Option<Vec<Step>> {
+    let (step, certain) = completion(path, schema, value)?;
+    Some(if certain {
+        vec![step]
+    } else {
+        vec![step, super::validation::help([path.0, path.1])]
+    })
+}
+
+fn completion(path: (&str, &str), schema: &Value, value: &Value) -> Option<(Step, bool)> {
     let via = biomcp_types::COMMANDS
         .iter()
         .find(|command| (command.verb, command.entity) == path)?
@@ -116,7 +131,7 @@ pub(super) fn complete(path: (&str, &str), schema: &Value, value: &Value) -> Opt
         .filter_map(Value::as_str)
         .filter(|name| value.get(*name).is_none())
         .collect::<Vec<_>>();
-    super::recovery::corrected(via, path, schema, value, &missing, false).map(|(step, _)| step)
+    super::recovery::corrected(via, path, schema, value, &missing, false)
 }
 
 /// The call's words without the positional words after its command, and those words.

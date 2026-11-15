@@ -35,7 +35,7 @@ pub(super) fn label(verb: &str, entity: &str, value: &Value) -> Option<super::Pa
 /// The section refusal whose next call is the checked candidate.
 fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<super::ParseInvalid> {
     let property = schema.get("properties")?.get("section")?;
-    let step = super::positional::complete(path, schema, candidate)?;
+    let next = super::positional::completed_steps(path, schema, candidate)?;
     let argument = if property.get("x-positional").is_some() {
         "section"
     } else {
@@ -47,7 +47,7 @@ fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<supe
             argument: Some(argument.into()),
             message: Some(ErrorMessage::ArgumentGuidance),
             valid_values: super::validation::accepted(schema, property),
-            next: vec![step],
+            next,
         })),
         prefer_argument_error: true,
         dropped: false,

@@ -379,7 +379,13 @@ pub(super) fn source_filter(
                     .unwrap_or_else(|| super::validation::help([verb, entity])),
             ]
         } else {
-            match super::recovery::corrected(via, (verb, entity), &schema, value, &[name], true) {
+            let sources: Vec<&str> = valid.iter().map(|source| source.as_str()).collect();
+            let swapped =
+                super::recovery::source_swap(via, (verb, entity), &schema, value, &sources)
+                    .map(|step| (step, true));
+            match swapped.or_else(|| {
+                super::recovery::corrected(via, (verb, entity), &schema, value, &[name], true)
+            }) {
                 Some((step, true)) => vec![step],
                 Some((step, false)) => vec![step, super::validation::help([verb, entity])],
                 None => vec![super::validation::help([verb, entity])],
