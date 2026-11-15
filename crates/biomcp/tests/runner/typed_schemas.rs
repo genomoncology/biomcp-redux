@@ -39,7 +39,8 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
             .and_then(Value::as_object)
             .ok_or("properties")?
         {
-            if node.get("x-cli-flags").is_some() {
+            // A field that renames another is accepted without being advertised (0901).
+            if node.get("x-cli-flags").is_some() || node.get("x-alias-of").is_some() {
                 continue;
             }
             let property = tool

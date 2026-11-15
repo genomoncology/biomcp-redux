@@ -1007,6 +1007,10 @@ Options:
           [default: false]
           [possible values: true, false]
 
+      --firm <firm>
+          Recall firm phrase.
+          The drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only.
+
       --gene <gene>
           Exact gene symbol.
           Exact source gene_symbol field, without alias expansion.
@@ -1100,6 +1104,8 @@ Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: str
 Exact PMA application, application/supplement or source K identity. Value form: string; example: --device-id P200010/S026; only with --source fda-cdx.
 - `--drug-application`: NDA/BLA application.
 Cell-owned typed NDA/BLA application. Value form: string; example: --drug-application NDA208065; only with --source fda-cdx.
+- `--firm`: Recall firm phrase.
+The drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only. Value form: string; example: --firm Abbott; only with --source fda-device-recall.
 - `--gene`: Exact gene symbol.
 Exact source gene_symbol field, without alias expansion. Value form: string; example: --gene BRCA1; only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.

@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%28%22Z-0212-2027%22%20OR%20%22Z-0213-2027%22%20OR%20%22Z-0214-2027%22%20OR%20%22Z-0215-2027%22%20OR%20%22Z-0216-2027%22%29&limit=5&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794746491,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 135,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "error": {
+            "code": "NOT_FOUND",
+            "message": "No matches found!"
+          }
+        }
+      }
+    }
+  ]
+}

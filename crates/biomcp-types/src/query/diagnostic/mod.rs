@@ -129,6 +129,12 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = MANUFACTURER_SOURCES)))]
     manufacturer: Option<Text>,
+    #[doc = "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: \
+    the same recalling_firm phrase; fda-device-recall only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
+    #[cfg_attr(feature = "schema", schemars(extend("x-alias-of" = "manufacturer")))]
+    firm: Option<Text>,
     #[doc = "FDA product code.\nExact native FDA product code; PMA, 510(k) and device recalls only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = PRODUCT_CODE_SOURCES)))]
@@ -189,7 +195,8 @@ struct SearchFields {
 crate::query::validation::checked_query!(DiagnosticSearch, SearchFields);
 impl TryFrom<SearchFields> for DiagnosticSearch {
     type Error = QueryInvalid;
-    fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
+        search_validation::fold_firm(&mut v)?;
         let gtr = v.gene_id.is_some()
             || v.gene.is_some()
             || v.condition_id.is_some()
@@ -282,6 +289,7 @@ impl DiagnosticSearch {
             sort: None,
             marker: None,
             manufacturer: None,
+            firm: None,
             name: None,
             intended_use: None,
             classification_name: None,

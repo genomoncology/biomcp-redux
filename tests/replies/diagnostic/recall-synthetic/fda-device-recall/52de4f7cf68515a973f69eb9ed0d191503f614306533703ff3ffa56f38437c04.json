@@ -1,0 +1,67 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=classification%3A%22Class%20I%22%20AND%20recalling_firm%3A%22Abbott%22%20AND%20recall_initiation_date%3A%5B20250101%20TO%2020251231%5D&limit=5&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794746489,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 992,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 9
+            }
+          },
+          "results": [
+            {
+              "recall_number": "Z-1020-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-1021-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-1022-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-1023-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-0112-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott",
+              "recall_initiation_date": "20250910",
+              "reason_for_recall": "Abbott has become aware of a limited number of tip detachment events during catheter removal from the packaging."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
