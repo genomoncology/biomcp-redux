@@ -2,8 +2,58 @@ use crate::openfda::Envelope;
 pub(super) type Response<T> = Envelope<T>;
 use crate::raw::Field;
 use biodata::{DeviceRecallNumber, PartialDate, Text};
-use serde::Deserialize;
+use biomcp_types::{Problem, Source};
+use serde::{Deserialize, de::DeserializeOwned};
 
+/// A search page row: a record with a well-formed recall number, or one declined for an empty,
+/// `N/A` or otherwise malformed number and named by its native key. Exact lookups read the
+/// strict record types, so they never admit a declined row.
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+pub(super) enum Row<T, K> {
+    Admitted(T),
+    Declined(K),
+}
+/// The native key of a declined row.
+pub(super) trait Key {
+    fn declined(&self) -> Problem;
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct RecordKey {
+    pub product_res_number: Option<Field<String>>,
+    pub cfres_id: Option<Field<String>>,
+}
+impl Key for RecordKey {
+    fn declined(&self) -> Problem {
+        crate::mapped::declined(
+            Source::FdaDeviceRecall,
+            "product_res_number",
+            self.product_res_number.as_ref(),
+            "cfres_id",
+            self.cfres_id.as_ref(),
+        )
+    }
+}
+#[derive(Debug, Deserialize)]
+pub(super) struct EnforcementKey {
+    pub recall_number: Option<Field<String>>,
+    pub event_id: Option<Field<String>>,
+}
+impl Key for EnforcementKey {
+    fn declined(&self) -> Problem {
+        crate::mapped::declined(
+            Source::FdaDeviceRecall,
+            "recall_number",
+            self.recall_number.as_ref(),
+            "event_id",
+            self.event_id.as_ref(),
+        )
+    }
+}
+impl<T: crate::openfda::Item, K: Key + DeserializeOwned> crate::openfda::Item for Row<T, K> {}
+
+// The recall number must stay the only required field of Record and Enforcement: a search
+// page reads any row that fails them as a declined `Row`, whose problem names that field.
 #[derive(Debug, Deserialize)]
 pub(super) struct Record {
     pub product_res_number: DeviceRecallNumber,

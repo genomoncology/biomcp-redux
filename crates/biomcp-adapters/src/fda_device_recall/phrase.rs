@@ -1,4 +1,5 @@
-//! Device phrases: the device recall name, PMA intended use and 510(k) classification name.
+//! Device phrases: the device recall name, PMA intended use and 510(k) classification name,
+//! and the device recall selector.
 use biodata::Text;
 use biomcp_types::{DiagnosticSearch, openfda_phrase, openfda_words};
 /// One quoted openFDA phrase with repeated spaces squeezed, as these three phrases have always
@@ -19,4 +20,37 @@ pub fn spaced_name(q: &DiagnosticSearch) -> Option<String> {
         .map(|name| openfda_words(name.as_str()))
         .filter(|words| matches!(words, std::borrow::Cow::Owned(_)))
         .map(std::borrow::Cow::into_owned)
+}
+/// Recall selectors; a classification selects enforcement records and their field spellings.
+/// Both datasets spell the device name field product_description.
+pub fn expression(q: &DiagnosticSearch) -> String {
+    let class = q.classification();
+    let mut terms = Vec::new();
+    if let Some(v) = class {
+        terms.push(format!("classification:\"{v}\""));
+    }
+    if let Some(v) = q.name() {
+        terms.push(format!("product_description:{}", phrase(v)));
+    }
+    if let Some(v) = q.manufacturer() {
+        terms.push(format!("recalling_firm:{}", openfda_phrase(v.as_str())));
+    }
+    if let Some(v) = q.product_code() {
+        terms.push(format!("product_code:{}", openfda_phrase(v.as_str())));
+    }
+    if q.initiated_from().is_some() || q.initiated_to().is_some() {
+        let day = |d: Option<biodata::PartialDate>| match d {
+            Some(d) if class.is_some() => d.to_string().replace('-', ""),
+            Some(d) => d.to_string(),
+            None => "*".into(),
+        };
+        let field = if class.is_some() {
+            "recall_initiation_date"
+        } else {
+            "event_date_initiated"
+        };
+        let (from, to) = (day(q.initiated_from()), day(q.initiated_to()));
+        terms.push(format!("{field}:[{from} TO {to}]"));
+    }
+    terms.join(" AND ")
 }

@@ -32,17 +32,20 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
+        out.include_refusals(page.refusals);
         unmatched = (page.unmatched, returned);
         if let Some(failure) = page.join_failure {
             error = Some(failed(&mut out, None, failure));
         }
         next::candidates(&mut out, q, &page.items, cx.fresh);
-        if u64::from(q.offset()) + u64::from(returned) < page.total && returned > 0 {
+        // The next page starts after every native record, declined ones included.
+        let consumed = page.consumed;
+        if u64::from(q.offset()) + u64::from(consumed) < page.total && consumed > 0 {
             next::push(
                 &mut out,
                 StepKind::Page,
                 &[q.source().source()],
-                Request::SearchDiagnostic(q.at_offset(q.offset() + returned)),
+                Request::SearchDiagnostic(q.at_offset(q.offset() + consumed)),
                 cx.fresh,
             );
         }
