@@ -39,7 +39,9 @@ pub(super) fn known(input: &Value, values: &Value) -> Value {
 
 /// Every unknown key typed as the option it would be on the command line, `q` as `-q` and
 /// `who_pq` as `--who-pq`: the fix the command line gives those mistakes, if any. No fix
-/// when a key cannot be spelled as an option.
+/// when a key cannot be spelled as an option. A JSON object's keys have no order, and the
+/// command line fixes some pairs only one way round (`--who-pq -q x`, not `-q x --who-pq`), so
+/// the keys are tried in both orders.
 pub(super) fn fix(
     root: &crate::grammar::Root,
     args: &[OsString],
@@ -47,7 +49,7 @@ pub(super) fn fix(
     values: &Value,
 ) -> Option<biomcp_types::Step> {
     let properties = input.get("properties")?.as_object()?;
-    let mut words = Vec::new();
+    let mut options = Vec::new();
     for (key, value) in values.as_object()? {
         if properties.contains_key(key) {
             continue;
@@ -60,6 +62,7 @@ pub(super) fn fix(
         } else {
             format!("--{}", key.replace('_', "-"))
         };
+        let mut words = Vec::new();
         for value in value
             .as_array()
             .map_or_else(|| vec![value], |values| values.iter().collect())
@@ -75,11 +78,15 @@ pub(super) fn fix(
                 _ => return None,
             }
         }
+        options.push(words);
     }
-    let mut args = args.to_vec();
-    let at = args.len().min(2);
-    args.splice(at..at, words);
-    crate::grammar::candidate(root, &args)
+    let call = |options: Vec<&Vec<OsString>>| {
+        let mut args = args.to_vec();
+        let at = args.len().min(2);
+        args.splice(at..at, options.into_iter().flatten().cloned());
+        crate::grammar::candidate(root, &args)
+    };
+    call(options.iter().collect()).or_else(|| call(options.iter().rev().collect()))
 }
 
 pub(super) fn arguments(
