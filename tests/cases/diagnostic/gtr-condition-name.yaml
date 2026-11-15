@@ -40,6 +40,10 @@
       "max_bytes": 100000,
       "expect": {
         "/page/total": 19,
+        "/result/items/0/header/id": "GTR000500500.2",
+        "/result/items/0/header/name": "EGFR targeted variants",
+        "/result/items/1/header/id": "GTR000511179.13",
+        "/result/items/1/header/name": "Clinical Exome",
         "/sources/0/notices/*/message": {
           "includes": "--condition matched the condition names in GTR condition_identifiers by the same rule as --name; no synonym or abbreviation expansion, so NSCLC does not find non-small cell lung cancer."
         }

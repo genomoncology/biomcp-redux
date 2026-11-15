@@ -130,7 +130,11 @@ pub(super) fn read(leg: &Leg<'_>, query: &DiagnosticSearch) -> Result<Named, Req
         .iter()
         .filter_map(|(id, list)| {
             let (name, condition) = (name.as_ref(), condition.as_ref());
-            let found = listed(list, name.map(Option::as_deref), condition.map(Option::as_deref));
+            let found = listed(
+                list,
+                name.map(Option::as_deref),
+                condition.map(Option::as_deref),
+            );
             Some((id.clone(), found?))
         })
         .collect();

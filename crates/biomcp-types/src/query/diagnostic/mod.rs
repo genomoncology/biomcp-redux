@@ -3,7 +3,7 @@ mod search_validation;
 use super::QueryInvalid;
 use biodata::{DiagnosticDeviceId, FdaDrugApplication, GeneSymbol, NcbiGeneId, PartialDate, Text};
 pub use id::DiagnosticId;
-use search_validation::{validate_device, validate_recall, validate_who_years};
+use search_validation::{validate_condition, validate_device, validate_recall, validate_who_years};
 use serde::{Deserialize, Serialize};
 mod get;
 pub use get::DiagnosticGet;
@@ -262,13 +262,7 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         {
             return Err(QueryInvalid::new(&["device_id"]));
         }
-        // Text of only spaces, hyphens or punctuation would match nothing under GTR folding.
-        if v.condition
-            .as_ref()
-            .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
-        {
-            return Err(QueryInvalid::new(&["condition"]));
-        }
+        validate_condition(&v)?;
         if v.condition_id.as_ref().is_some_and(|id| {
             id.as_str()
                 .strip_prefix("MedGen:C")

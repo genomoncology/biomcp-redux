@@ -964,12 +964,16 @@ Options:
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
 
-      --condition-id <condition_id>
-          Exact MedGen:CUI.
-          Exact MedGen:CUI identifier only; with a gene, tests that list both.
+      --condition <condition>
+          Condition name text.
+          Text in GTR condition_identifiers, the test's condition names, matched like the GTR --name.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
+
+      --condition-id <condition_id>
+          Exact MedGen:CUI.
+          Exact MedGen:CUI identifier only; with a gene, tests that list both.
 
       --date-from <date_from>
           First row date, YYYY-MM-DD.
@@ -987,12 +991,18 @@ Options:
           Last date, YYYY-MM-DD.
           Inclusive native decision date, YYYY-MM-DD; PMA and 510(k) only.
 
+      --offline[=<offline>]
+          Read local data without source requests.
+
+          [default: false]
+          [possible values: true, false]
+
       --device-id <device_id>
           PMA or K identifier.
           Exact PMA application, application/supplement or native K identity.
 
-      --offline[=<offline>]
-          Read local data without source requests.
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
 
           [default: false]
           [possible values: true, false]
@@ -1000,12 +1010,6 @@ Options:
       --drug-application <drug_application>
           NDA/BLA application.
           Cell-owned typed NDA/BLA application.
-
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
 
       --gene <gene>
           Exact gene symbol.
@@ -1086,6 +1090,8 @@ Immutable stored bundle revision retained by a continuation. Value form: string;
 Source enforcement classification; FDA device recalls only. Selects enforcement records, which carry no product code. Value form: string; example: --classification 'Class I'; only with --source fda-device-recall.
 - `--classification-name`: FDA classification name phrase.
 Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only. Value form: string; example: --classification-name cell-free; only with --source fda-510k.
+- `--condition`: Condition name text.
+Text in GTR condition_identifiers, the test's condition names, matched like the GTR --name. Value form: string; example: --condition 'non-small cell'; only with --source gtr.
 - `--condition-id`: Exact MedGen:CUI.
 Exact MedGen:CUI identifier only; with a gene, tests that list both. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
 - `--date-from`: First row date, YYYY-MM-DD.

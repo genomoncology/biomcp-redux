@@ -2860,6 +2860,18 @@
           "const": "search-diagnostic",
           "type": "string"
         },
+        "condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Condition name text.\nText in GTR condition_identifiers, the test's condition names, matched like the GTR --name.",
+          "x-required-component": "gtr"
+        },
         "condition_id": {
           "anyOf": [
             {

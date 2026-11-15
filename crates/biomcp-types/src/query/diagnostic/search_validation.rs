@@ -198,3 +198,14 @@ pub(super) fn validate_who_years(v: &SearchFields) -> Result<(), QueryInvalid> {
     }
     Ok(())
 }
+
+/// GTR condition-name text of only spaces, hyphens or punctuation would match nothing.
+pub(super) fn validate_condition(v: &SearchFields) -> Result<(), QueryInvalid> {
+    if v.condition
+        .as_ref()
+        .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
+    {
+        return Err(QueryInvalid::new(&["condition"]));
+    }
+    Ok(())
+}
