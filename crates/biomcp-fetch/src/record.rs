@@ -394,8 +394,14 @@ impl Recordings {
         let cursor = match cursors.entry((source, *key)) {
             std::collections::btree_map::Entry::Occupied(entry) => entry.into_mut(),
             std::collections::btree_map::Entry::Vacant(entry) => {
-                let (recording, file_bytes) =
-                    read(dir, &path(dir, source, key), source, url, request, file_limit)?;
+                let (recording, file_bytes) = read(
+                    dir,
+                    &path(dir, source, key),
+                    source,
+                    url,
+                    request,
+                    file_limit,
+                )?;
                 entry.insert(Cursor {
                     recording,
                     file_bytes,
@@ -492,7 +498,12 @@ impl Recordings {
             exchange.body = Body::Sidecar(name);
         }
         recording.exchanges.push(exchange);
-        let result = publish(&capture.dir, &path(&capture.dir, source, key), recording, limit);
+        let result = publish(
+            &capture.dir,
+            &path(&capture.dir, source, key),
+            recording,
+            limit,
+        );
         if result.is_err() {
             recording.exchanges.pop();
         }
