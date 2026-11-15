@@ -249,9 +249,19 @@ fn mychem(cx: &Ctx<'_>, input: &Text) -> Found {
     )
 }
 
-/// Read the ChEMBL molecule stating the name from MyChem's copy of ChEMBL. Like ChEMBL's own
-/// exact-name filters, a name two molecules state gives no names.
-fn chembl(cx: &Ctx<'_>, input: &Text) -> Found {
+/// The ChEMBL molecules stating one name, read from MyChem's copy of ChEMBL.
+pub(super) struct ChemblCopy {
+    /// The molecules, or `None` when the read failed, was refused or was cut short.
+    pub(super) molecules: Option<Vec<biomcp_adapters::mychem::ChemblRecord>>,
+    pub(super) error: Option<RequestError>,
+    /// MyChem as the source asked, then ChEMBL as the records' source.
+    pub(super) evidence: Vec<SourceOutcome>,
+    pub(super) problems: Vec<biomcp_types::Problem>,
+}
+
+/// Read the ChEMBL molecules stating the name from MyChem's copy of ChEMBL, in one request,
+/// never from ChEMBL's own API.
+pub(super) fn chembl_copy(cx: &Ctx<'_>, input: &Text) -> ChemblCopy {
     let command = cx.fetch.command_deadline(cx.budget);
     let leg = cx
         .fetch
@@ -264,18 +274,33 @@ fn chembl(cx: &Ctx<'_>, input: &Text) -> Found {
     command.finish(remaining);
     let copied = biomcp_adapters::registry::outcome(DrugSource::Chembl.source(), parent.status());
     let evidence = vec![parent, copied];
-    let mapped = match result {
-        Ok(mapped) => mapped,
-        Err(_) => return failure(error, evidence),
+    let Ok(mapped) = result else {
+        return ChemblCopy {
+            molecules: None,
+            error,
+            evidence,
+            problems: Vec::new(),
+        };
     };
-    if mapped.refusals == biomcp_adapters::Refusal::Refused
-        || u64::from(mapped.value.received) != mapped.value.total
-    {
-        return Found::Failed(evidence);
+    let complete = mapped.refusals != biomcp_adapters::Refusal::Refused
+        && u64::from(mapped.value.received) == mapped.value.total;
+    ChemblCopy {
+        molecules: complete.then_some(mapped.value.molecules),
+        error,
+        evidence,
+        problems: mapped.problems,
     }
-    let mut molecules = mapped.value.molecules;
+}
+
+/// Read the ChEMBL molecule stating the name from MyChem's copy of ChEMBL. Like ChEMBL's own
+/// exact-name filters, a name two molecules state gives no names.
+fn chembl(cx: &Ctx<'_>, input: &Text) -> Found {
+    let copy = chembl_copy(cx, input);
+    let Some(mut molecules) = copy.molecules else {
+        return failure(copy.error, copy.evidence);
+    };
     if molecules.len() > 1 {
-        return Found::Ambiguous(evidence);
+        return Found::Ambiguous(copy.evidence);
     }
     let Some(molecule) = molecules.pop() else {
         return Found::Nothing;
@@ -284,8 +309,8 @@ fn chembl(cx: &Ctx<'_>, input: &Text) -> Found {
         (molecule.names, molecule.preferred, molecule.official),
         input,
         molecule.id,
-        evidence,
-        mapped.problems,
+        copy.evidence,
+        copy.problems,
     )
 }
 

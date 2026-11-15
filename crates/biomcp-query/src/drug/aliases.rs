@@ -2,10 +2,10 @@
 //! A search that widened its name and still found nothing tries them the same way.
 use super::resolve::within;
 use crate::{Ctx, Outcome, status};
-use biodata::Text;
+use biodata::{DrugId, Text};
 use biomcp_types::{
-    DrugCard, DrugGet, DrugNameSelector, DrugSearch, DrugSource, ReplyBody, ReplyData, Request,
-    SourceNotice, SourceOutcome, SourceState, StepKind,
+    DrugCard, DrugGet, DrugNameSelector, DrugSearch, DrugSource, Reason, ReplyBody, ReplyData,
+    Request, SourceNotice, SourceOutcome, SourceState, SourceStatus, StepKind,
 };
 
 pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
@@ -18,11 +18,11 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     let Some(input) = query.query() else {
         return out;
     };
-    let (found, card, evidence) = with_aliases(
+    let (found, stated, evidence) = with_aliases(
         &within(cx, deadline.remaining()),
         input,
         query.source(),
-        |card, name, _| {
+        |stated, name, _| {
             if query.explicit_name_selector() {
                 return None;
             }
@@ -39,8 +39,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
                      tried the selected source with that name. \
                      Returned rows and totals belong to the selected source.",
                     input.as_str(),
-                    card.header.source,
-                    card.header.id,
+                    stated.source,
+                    stated.id,
                     name.as_str()
                 ),
             );
@@ -56,8 +56,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
         // A local failure while looking up names leaves the search incomplete, as its exit code says.
         status::search(&mut out);
     }
-    if let Some(card) = card {
-        hint(&mut out, &card, input, query.source(), cx.fresh);
+    if let Some(stated) = stated {
+        hint(&mut out, &stated, input, query.source(), cx.fresh);
     }
     out
 }
@@ -86,17 +86,17 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return outcomes;
     }
     let input = query.input();
-    let (found, card, evidence) = with_aliases(
+    let (found, stated, evidence) = with_aliases(
         &within(cx, deadline.remaining()),
         input,
         query.source(),
-        |card, name, evidence| {
+        |stated, name, evidence| {
             let retries = queries
                 .iter()
                 .map(|query| {
                     crate::next::checked(
                         query.with_name(name.clone()),
-                        card.header.source.source(),
+                        stated.source.source(),
                         &mut evidence.problems,
                     )
                 })
@@ -117,8 +117,8 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
                          tried resolving that name in the selected source. \
                          Only that source can supply its own record.",
                         input.as_str(),
-                        card.header.source,
-                        card.header.id,
+                        stated.source,
+                        stated.id,
                         name.as_str()
                     ),
                 );
@@ -136,7 +136,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         return outcomes;
     };
     evidence.append(&mut out, query.source());
-    let Some(card) = card else {
+    let Some(stated) = stated else {
         return vec![out];
     };
     // A Usage reply discards source metadata, including the other-source hint.
@@ -144,7 +144,7 @@ pub(super) fn get_parts(cx: &Ctx<'_>, queries: &[DrugGet]) -> Vec<Outcome> {
         .iter()
         .map(|query| {
             let mut part = super::fork(&out, DrugCard::into_reply(query.clone(), None));
-            hint(&mut part, &card, input, query.source(), cx.fresh);
+            hint(&mut part, &stated, input, query.source(), cx.fresh);
             status::item(&mut part, false, false, false);
             part
         })
@@ -158,14 +158,14 @@ pub(super) fn partner<T>(
     input: &Text,
     mut attempt: impl FnMut(&Text) -> Option<T>,
 ) -> (Option<T>, Aliased) {
-    let (found, _, evidence) = with_aliases(cx, input, DrugSource::Ddinter, |card, name, _| {
+    let (found, _, evidence) = with_aliases(cx, input, DrugSource::Ddinter, |stated, name, _| {
         attempt(name).map(|found| {
             let message = format!(
                 "DDInter's files name no drug {:?}. {} record {} supplies the name {:?}; \
                  the partner is DDInter's drug by that name.",
                 input.as_str(),
-                card.header.source,
-                card.header.id,
+                stated.source,
+                stated.id,
                 name.as_str()
             );
             (found, message)
@@ -221,14 +221,44 @@ impl Evidence {
     }
 }
 
+/// One other source's record for a name, with the names it states.
+struct Stated {
+    source: DrugSource,
+    id: DrugId,
+    names: Vec<Text>,
+    /// The source holds more than one record for the name.
+    ambiguous: bool,
+}
+impl Stated {
+    fn card(card: &DrugCard) -> Self {
+        Self {
+            source: card.header.source,
+            id: card.header.id.clone(),
+            names: names(card).into_iter().cloned().collect(),
+            ambiguous: card
+                .header
+                .name_resolution
+                .as_ref()
+                .is_none_or(|r| r.total != 1),
+        }
+    }
+    /// The record states the name itself, ignoring letter case.
+    fn literal(&self, input: &Text) -> bool {
+        self.names
+            .iter()
+            .any(|name| biomcp_types::DrugNameMatch::same_name(name.as_str(), input.as_str()))
+    }
+}
+
 /// Try each exact name another source states for `input`; the caller adds the evidence to
-/// what `attempt` found.
+/// what `attempt` found. ChEMBL's record is read from MyChem's copy of ChEMBL, so a stalled
+/// ChEMBL API never holds the search.
 fn with_aliases<T>(
     cx: &Ctx<'_>,
     input: &Text,
     selected: DrugSource,
-    mut attempt: impl FnMut(&DrugCard, &Text, &mut Evidence) -> Option<T>,
-) -> (Option<T>, Option<DrugCard>, Evidence) {
+    mut attempt: impl FnMut(&Stated, &Text, &mut Evidence) -> Option<T>,
+) -> (Option<T>, Option<Stated>, Evidence) {
     let deadline = cx.fetch.deadline(cx.budget);
     let mut evidence = Evidence::default();
     let mut alternatives = None;
@@ -244,59 +274,82 @@ fn with_aliases<T>(
         if deadline.remaining().is_zero() {
             break;
         }
-        let Some(query) = crate::next::checked(
-            DrugGet::named(input.clone(), source),
-            source.source(),
-            &mut evidence.problems,
-        ) else {
+        let lookup = within(cx, deadline.remaining());
+        let found = if source == DrugSource::Chembl {
+            chembl(&lookup, input, &mut evidence)
+        } else {
+            card(&lookup, input, source, &mut evidence)
+        };
+        let Some(stated) = found else {
             continue;
         };
-        let out = super::resolve::get(&within(cx, deadline.remaining()), &query);
-        evidence.sources.extend(out.sources.iter().cloned());
-        evidence.problems.extend(out.problems.iter().cloned());
-        evidence.local = evidence.local.or(out.local);
-        if !usable(&out, source) || out.dropped {
-            continue;
-        }
-        if let ReplyData::DrugCard {
-            body: Some(card), ..
-        } = out.body
-        {
-            let exact = !ambiguous(&card) && literal_name(&card, input);
-            if exact {
-                for name in names(&card) {
-                    if deadline.remaining().is_zero() {
-                        break;
-                    }
-                    if !tried.insert(name.as_str().to_lowercase()) {
-                        continue;
-                    }
-                    if let Some(found) = attempt(&card, name, &mut evidence) {
-                        return (Some(found), None, evidence);
-                    }
+        let exact = !stated.ambiguous && stated.literal(input);
+        if exact {
+            for name in &stated.names {
+                if deadline.remaining().is_zero() {
+                    break;
+                }
+                if !tried.insert(name.as_str().to_lowercase()) {
+                    continue;
+                }
+                if let Some(found) = attempt(&stated, name, &mut evidence) {
+                    return (Some(found), None, evidence);
                 }
             }
-            if alternatives.as_ref().is_none_or(|previous: &DrugCard| {
-                exact && (ambiguous(previous) || !literal_name(previous, input))
-            }) {
-                alternatives = Some(card);
-            }
+        }
+        if alternatives.as_ref().is_none_or(|previous: &Stated| {
+            exact && (previous.ambiguous || !previous.literal(input))
+        }) {
+            alternatives = Some(stated);
         }
     }
     (None, alternatives, evidence)
 }
 
-fn ambiguous(card: &DrugCard) -> bool {
-    card.header
-        .name_resolution
-        .as_ref()
-        .is_none_or(|r| r.total != 1)
+/// The record a source's own name resolution chooses for the name.
+fn card(cx: &Ctx<'_>, input: &Text, source: DrugSource, evidence: &mut Evidence) -> Option<Stated> {
+    let query = crate::next::checked(
+        DrugGet::named(input.clone(), source),
+        source.source(),
+        &mut evidence.problems,
+    )?;
+    let out = super::resolve::get(cx, &query);
+    evidence.sources.extend(out.sources.iter().cloned());
+    evidence.problems.extend(out.problems.iter().cloned());
+    evidence.local = evidence.local.or(out.local);
+    if !usable(&out, source) || out.dropped {
+        return None;
+    }
+    let ReplyData::DrugCard {
+        body: Some(card), ..
+    } = &out.body
+    else {
+        return None;
+    };
+    Some(Stated::card(card))
 }
 
-pub(super) fn literal_name(card: &DrugCard, input: &Text) -> bool {
-    names(card)
-        .iter()
-        .any(|name| biomcp_types::DrugNameMatch::same_name(name.as_str(), input.as_str()))
+/// The ChEMBL molecule stating the name, from MyChem's copy of ChEMBL rather than ChEMBL's API.
+fn chembl(cx: &Ctx<'_>, input: &Text, evidence: &mut Evidence) -> Option<Stated> {
+    if cx.fetch.disabled(DrugSource::Chembl.source()) {
+        evidence.sources.push(biomcp_adapters::registry::outcome(
+            DrugSource::Chembl.source(),
+            SourceStatus::Skipped(Some(Reason::Disabled)),
+        ));
+        return None;
+    }
+    let copy = super::search_names::chembl_copy(cx, input);
+    evidence.sources.extend(copy.evidence);
+    evidence.problems.extend(copy.problems);
+    evidence.local = evidence.local.or(copy.error.and_then(status::local));
+    let molecules = copy.molecules?;
+    let molecule = molecules.first()?;
+    Some(Stated {
+        source: DrugSource::Chembl,
+        id: molecule.id.parse().ok()?,
+        names: molecule.names.clone(),
+        ambiguous: molecules.len() > 1,
+    })
 }
 
 pub(super) fn names(card: &DrugCard) -> Vec<&Text> {
@@ -340,26 +393,26 @@ fn notice(out: &mut Outcome, selected: DrugSource, message: String) {
     }
 }
 
-fn hint(out: &mut Outcome, card: &DrugCard, input: &Text, selected: DrugSource, fresh: bool) {
-    if ambiguous(card) || !literal_name(card, input) {
+fn hint(out: &mut Outcome, stated: &Stated, input: &Text, selected: DrugSource, fresh: bool) {
+    if stated.ambiguous || !stated.literal(input) {
         notice(
             out,
             selected,
             format!(
                 "{} has candidate records for {:?}, but no unique literal name match. \
                  No cross-source alias was selected. Search that source to inspect its candidates.",
-                card.header.source,
+                stated.source,
                 input.as_str()
             ),
         );
         if let Some(query) = crate::next::checked(
-            DrugSearch::named(input.clone(), card.header.source, 10),
-            card.header.source.source(),
+            DrugSearch::named(input.clone(), stated.source, 10),
+            stated.source.source(),
             &mut out.problems,
         ) {
             out.next.push(crate::next::Step::run(
                 StepKind::Disambiguate,
-                &[card.header.source.source()],
+                &[stated.source.source()],
                 Request::SearchDrug(query),
                 fresh,
             ));
@@ -373,18 +426,18 @@ fn hint(out: &mut Outcome, card: &DrugCard, input: &Text, selected: DrugSource, 
             "The completed queries in {selected} found no matching record for {:?}. \
              {} record {} matches the input; its presence does not establish a record in {selected}.",
             input.as_str(),
-            card.header.source,
-            card.header.id
+            stated.source,
+            stated.id
         ),
     );
     if let Some(query) = crate::next::checked(
-        DrugGet::new(card.header.id.clone(), card.header.source),
-        card.header.source.source(),
+        DrugGet::new(stated.id.clone(), stated.source),
+        stated.source.source(),
         &mut out.problems,
     ) {
         out.next.push(crate::next::Step::run(
             StepKind::Disambiguate,
-            &[card.header.source.source()],
+            &[stated.source.source()],
             Request::GetDrug(query),
             fresh,
         ));

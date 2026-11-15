@@ -1,0 +1,41 @@
+{
+  "feature": "drug-who-medicines",
+  "story": "A WHO PQ search that finds nothing under the typed name retries under the name ChEMBL's record states, read from MyChem's copy of ChEMBL, so it widens and completes while ChEMBL's own API stalls.",
+  "live_check": "synthetic authored WHO PQ export rows and source replies; no live provider observation",
+  "replay": "drug/who-pq-chembl-stalled-synthetic",
+  "config": {
+    "command_timeout_seconds": 9
+  },
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-pq"
+      ],
+      "expect": {
+        "/result/rows": 2
+      },
+      "max_bytes": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "SW-7",
+        "--source",
+        "who-pq"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/query": "SYNTHETIC MEDICINE S",
+        "/page/total": 1,
+        "/result/items/*/reference": [
+          "SYN-CS01"
+        ],
+        "/sources/0/source": "who-pq",
+        "/sources/0/notices/0/message": "The search for \"SW-7\" returned no rows. chembl record CHEMBL9100001 supplies the name \"SYNTHETIC MEDICINE S\"; tried the selected source with that name. Returned rows and totals belong to the selected source."
+      },
+      "max_bytes": 40000
+    }
+  ]
+}

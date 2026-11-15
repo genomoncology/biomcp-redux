@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?molecule_synonyms__molecule_synonym__iexact=SW-7&limit=50&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794700000,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 30000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "molecules": [
+            {
+              "molecule_chembl_id": "CHEMBL9100001",
+              "pref_name": "SYNTHETIC MEDICINE S",
+              "molecule_synonyms": [
+                {
+                  "molecule_synonym": "SW-7",
+                  "syn_type": "RESEARCH_CODE"
+                },
+                {
+                  "molecule_synonym": "Synthetic medicine S",
+                  "syn_type": "INN"
+                }
+              ],
+              "molecule_type": "Small molecule"
+            }
+          ],
+          "page_meta": {
+            "total_count": 1,
+            "offset": 0,
+            "limit": 50
+          }
+        }
+      }
+    }
+  ]
+}
