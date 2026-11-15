@@ -1,0 +1,185 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=recall_initiation_date%3A%5B20130227%20TO%2020130227%5D&limit=10&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794778624,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 333,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 10,
+      "total": 4
+    }
+  },
+  "results": [
+    {
+      "country": "United States",
+      "city": "Philadelphia",
+      "address_1": "1100 Orthodox St",
+      "reason_for_recall": "Labeling: Incorrect instructions; an error in section 5.11 of the patient insert that results in incorrect medical advice.  Specifically, the labeling should read \"If a severely depressed HDL-C level is detected, fibrate therapy should be withdrawn, and the HDL-C level monitored until it has returned to baseline, and fibrate therapy should not be re-initiated.\"  The labeling for the recalled lots",
+      "address_2": "",
+      "product_quantity": "",
+      "code_info": "lot 6581105 & 6581106 exp. 07/15, and lot 6623001 & 6623002 exp. 01/16",
+      "center_classification_date": "20140106",
+      "distribution_pattern": "Nationwide and  Puerto Rico.",
+      "state": "PA",
+      "product_description": "Fenofibric Acid, immediate release tablet, 105 mg, a) 30 count bottle (NDC  53489-678-07), b) 90 count bottle (NDC 53489-678-90),  Rx only, Mutual Pharmaceutical Co., Inc., Philadelphia, PA 19124 USA",
+      "report_date": "20140115",
+      "classification": "Class III",
+      "openfda": {},
+      "recalling_firm": "Mutual Pharmaceutical Company,  Inc.",
+      "recall_number": "D-400-2014",
+      "initial_firm_notification": "Letter",
+      "product_type": "Drugs",
+      "event_id": "64727",
+      "termination_date": "20140401",
+      "more_code_info": "",
+      "recall_initiation_date": "20130227",
+      "postal_code": "19124-3168",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "status": "Terminated"
+    },
+    {
+      "country": "United States",
+      "city": "Philadelphia",
+      "address_1": "1100 Orthodox St",
+      "reason_for_recall": "Labeling: Incorrect instructions; an error in section 5.11 of the patient insert that results in incorrect medical advice.  Specifically, the labeling should read \"If a severely depressed HDL-C level is detected, fibrate therapy should be withdrawn, and the HDL-C level monitored until it has returned to baseline, and fibrate therapy should not be re-initiated.\"  The labeling for the recalled lots",
+      "address_2": "",
+      "product_quantity": "",
+      "code_info": "Lots  6504705,  6504706   exp. 05/14",
+      "center_classification_date": "20140106",
+      "distribution_pattern": "Nationwide and  Puerto Rico.",
+      "state": "PA",
+      "product_description": "FIBRICOR (fenofibric acid) Tablets, 105 mg, a) 30 count bottle (NDC 13310-102-07), b) 90 count bottle (NDC 13310-102-90), Manufactured for    AR SCIENTIFIC, INC, Philadelphia, PA 19124 USA",
+      "report_date": "20140115",
+      "classification": "Class III",
+      "openfda": {},
+      "recalling_firm": "Mutual Pharmaceutical Company,  Inc.",
+      "recall_number": "D-398-2014",
+      "initial_firm_notification": "Letter",
+      "product_type": "Drugs",
+      "event_id": "64727",
+      "termination_date": "20140401",
+      "more_code_info": "",
+      "recall_initiation_date": "20130227",
+      "postal_code": "19124-3168",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "status": "Terminated"
+    },
+    {
+      "country": "United States",
+      "city": "Philadelphia",
+      "address_1": "1100 Orthodox St",
+      "reason_for_recall": "Labeling: Incorrect instructions; an error in section 5.11 of the patient insert that results in incorrect medical advice.  Specifically, the labeling should read \"If a severely depressed HDL-C level is detected, fibrate therapy should be withdrawn, and the HDL-C level monitored until it has returned to baseline, and fibrate therapy should not be re-initiated.\"  The labeling for the recalled lots",
+      "address_2": "",
+      "product_quantity": "",
+      "code_info": "Lot 6561703, exp. 03/14",
+      "center_classification_date": "20140106",
+      "distribution_pattern": "Nationwide and  Puerto Rico.",
+      "state": "PA",
+      "product_description": "Fenofibric Acid, immediate release tablet, 35 mg, 30 count bottle Rx only, Mutual Pharmaceutical Co., Inc., Philadelphia, PA 19124 USA NDC  53489-677-07",
+      "report_date": "20140115",
+      "classification": "Class III",
+      "openfda": {},
+      "recalling_firm": "Mutual Pharmaceutical Company,  Inc.",
+      "recall_number": "D-399-2014",
+      "initial_firm_notification": "Letter",
+      "product_type": "Drugs",
+      "event_id": "64727",
+      "termination_date": "20140401",
+      "more_code_info": "",
+      "recall_initiation_date": "20130227",
+      "postal_code": "19124-3168",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "status": "Terminated"
+    },
+    {
+      "status": "Terminated",
+      "city": "Deerfield",
+      "state": "IL",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "NDA020178"
+        ],
+        "brand_name": [
+          "SODIUM CHLORIDE"
+        ],
+        "generic_name": [
+          "SODIUM CHLORIDE"
+        ],
+        "manufacturer_name": [
+          "Baxter Healthcare Corporation"
+        ],
+        "product_ndc": [
+          "0338-0553"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "INTRAVENOUS"
+        ],
+        "substance_name": [
+          "SODIUM CHLORIDE"
+        ],
+        "rxcui": [
+          "1807631",
+          "1807632"
+        ],
+        "spl_id": [
+          "3e2df9e4-69d3-4ae0-a83d-5b223ab9d13b"
+        ],
+        "spl_set_id": [
+          "fbc01464-8885-4075-af41-911ffec5ae92"
+        ],
+        "package_ndc": [
+          "0338-0553-11",
+          "0338-0553-18"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "unii": [
+          "451W47IQ8X"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "65061",
+      "recalling_firm": "Baxter Healthcare Corp.",
+      "address_1": "1 Baxter Pkwy",
+      "address_2": "",
+      "postal_code": "60015-4625",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide and Singapore",
+      "recall_number": "D-623-2013",
+      "product_description": "0.9% Sodium Chloride Injection, USP, 50 mL Mini-Bag Plus Container, Rx only, distributed by Baxter Healthcare Corporation, Deerfield, IL 60015, USA, NDC 0338-0553-11",
+      "product_quantity": "317,280 bags",
+      "reason_for_recall": "Labeling Wrong Barcode;  It may display wrong product code reflecting  0.9% Sodium Chloride Injection , USP 100 mL in MINI-BAG Plus container instead of 50 mL.",
+      "recall_initiation_date": "20130227",
+      "center_classification_date": "20130627",
+      "termination_date": "20150511",
+      "report_date": "20130703",
+      "code_info": "Lot: P293118; Exp Date: 10/13",
+      "more_code_info": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

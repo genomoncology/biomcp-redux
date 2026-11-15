@@ -1,0 +1,119 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_code%3A%22NPR%22&limit=5&skip=0&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794778782,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 399,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 2
+            }
+          },
+          "results": [
+            {
+              "cfres_id": "96479",
+              "product_res_number": "Z-1652-2011",
+              "event_date_initiated": "2010-10-26",
+              "event_date_posted": "2011-03-14",
+              "recall_status": "Terminated",
+              "event_date_terminated": "2011-08-30",
+              "res_event_number": "57534",
+              "product_code": "NPR",
+              "k_numbers": [
+                "K033612"
+              ],
+              "product_description": "Factor II (prothrombin)  G20210A kit,  catalog number 03610195001,  Roche Diagnostics, Indianapolis, IN \n\nThe Factor II (prothrombin) G20210A kit allows the detection and genotyping of a single point mutation (G to A at position 20210) of the human factor II gene, from DNA isolated from human whole peripheral blood. The test is performed on the LightCycler 2.0 instrument utilizing polymerase chain reaction (PCR) for the amplification of Factor II DNA recovered from clinical samples snd fluorigenic target-specific hybridization for the detection and genotyping of the amplified Factor II DNA. The Factor II (prothrombin) G20210A test is an in vitro diagnostic test for the detection and genotyping of the Factor II (Prothrombin) G20210A mutation as an aide to dignosis in the evaluation of patients with suspected thrombophilia. The test is intended to be used on the LightCycler 2.0 instrument using the LightCycler Software 4.05 or 4.1.",
+              "recalling_firm": "Roche Diagnostics Operations, Inc.",
+              "reason_for_recall": "If the bar code is printed from the Batch Results Screen,  a wrong batch ID may be printed, while the correct batch ID is still assigned to the batch in the data repository of the MPLC 2.0 software.  This may result in sample mis identification.  If printed from the ordering screens, the bar code is printed with the correct batch ID.",
+              "root_cause_description": "Software design",
+              "distribution_pattern": "Worldwide distribution: AL, AZ, CA, CO, DC, FL, GA, HI, IL, KY, LA, MA, MD, ME, MN, MO, MT, NC, ND NE, NH, NJ, NM, NY, OH, OK, OR, SC, SD, TN, TX, UT, VA, VT, WI and Puerto Rico; and country of Europe.",
+              "openfda": {
+                "k_number": [
+                  "K100943",
+                  "K250218",
+                  "K033612",
+                  "K223046",
+                  "K172913"
+                ],
+                "registration_number": [
+                  "3005406097",
+                  "3004530258",
+                  "3016838963",
+                  "2243471"
+                ],
+                "fei_number": [
+                  "3005406097",
+                  "3004530258",
+                  "3016838963",
+                  "2243471"
+                ],
+                "device_name": "Test, Factor Ii G20210a Mutations, Genomic Dna Pcr",
+                "medical_specialty_description": "Hematology",
+                "regulation_number": "864.7280",
+                "device_class": "2"
+              }
+            },
+            {
+              "cfres_id": "86392",
+              "product_res_number": "Z1006-2010",
+              "event_date_initiated": "2009-03-12",
+              "event_date_posted": "2010-03-05",
+              "recall_status": "Terminated",
+              "event_date_terminated": "2010-06-09",
+              "res_event_number": "53708",
+              "product_code": "NPR",
+              "k_numbers": [
+                "K033612"
+              ],
+              "product_description": "FACTOR II (PROTHROMBIN) G20210A Kit, LightCycler 2.0 Instrument.  Material Number 03610195 001\nCont.\n1 FIIG20210A MD Mix, 1 x 78 uL\n2. FIIG20210A R mix, 1 x 78 uL\n3. FIIG20210A CT, 1 x 50 uL\n5, FIIG20210A DIL 1 x 1 mL\nManufactured in Germany\nDistributed by Roche Diagnostics, Indianapolis, IN",
+              "recalling_firm": "Roche Molecular Systems, Inc.",
+              "reason_for_recall": "Within the Precautions and Warning Section, Polymorphism heading, of the Product's Package Insert, it stated that mutations at positions 20207, 20209, 20218 and 20221 exist and these mutations are spanned by the mutation probe.  These rare mutations will lead to an unknown result after performing genotyping.",
+              "root_cause_description": "Labeling design",
+              "product_quantity": "9624 kits",
+              "distribution_pattern": "Nationwide  Distribution",
+              "openfda": {
+                "k_number": [
+                  "K100943",
+                  "K250218",
+                  "K033612",
+                  "K223046",
+                  "K172913"
+                ],
+                "registration_number": [
+                  "3005406097",
+                  "3004530258",
+                  "3016838963",
+                  "2243471"
+                ],
+                "fei_number": [
+                  "3005406097",
+                  "3004530258",
+                  "3016838963",
+                  "2243471"
+                ],
+                "device_name": "Test, Factor Ii G20210a Mutations, Genomic Dna Pcr",
+                "medical_specialty_description": "Hematology",
+                "regulation_number": "864.7280",
+                "device_class": "2"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

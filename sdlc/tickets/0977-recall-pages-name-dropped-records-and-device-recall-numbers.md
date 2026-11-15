@@ -37,3 +37,6 @@ A drug recall page that drops records without a usable recall number says how ma
 - Changes: drug and device recall adapters, their cases.
 
 ## Progress
+
+- 2026-11-15: Live check in pm job j41437 (no key): scanned openFDA's bulk exports. Device recall (59,705 records, exported 2026-11-13): 5,539 have a `product_res_number` that is not `Z-NNNN-NNNN`, nearly all the older `Z-NNNN-YY` form from 2000-2006, plus a few like `Z1006-2010` and `Z-034-2010`; every malformed value is distinct, so at most one is blank. Device enforcement (40,481): 11, including one `""` (event 94520) and `Z-1548-201`-style truncations. Drug enforcement (18,110): 2,596, mostly the older `D-NNN-YYYY` form, plus `""` (event 100178) and the `N/A` 0975 found (event 99860). So device recall pages do carry such records today.
+- 2026-11-15: Recorded on base 648240afe in pm job j41440 (no key). Device searches `--product-code NPR`, `--initiated-from/--initiated-to 2009-03-12`, `2009-07-21` and `2004-06` fail whole as a bad reply on the base: each page holds a record such as `Z1006-2010` (Roche Factor II kit, cfres_id 86392). Drug searches for 2013-02-27 (4 records, all declined, events 64727 x3 and 65061) and 2013-10-18 (6 records, 5 declined, all event 66568) answer `partial` with a single `recall_number` problem and no record named, so five declined records read as one.
