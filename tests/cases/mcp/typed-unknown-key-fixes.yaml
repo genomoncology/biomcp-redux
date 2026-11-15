@@ -119,7 +119,9 @@
         "/error/code": "usage.arguments",
         "/error/option": "c",
         "/next/0/name": "trial",
-        "/next/0/arguments/search/condition": "melanoma"
+        "/next/0/arguments/search/condition": [
+          "melanoma"
+        ]
       }
     },
     {
