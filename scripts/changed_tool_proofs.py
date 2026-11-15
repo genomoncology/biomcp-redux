@@ -10,18 +10,17 @@ code (crates/biomcp/tests/, crates/biomcp/Cargo.toml, crates/biomcp/build.rs,
 crates/biomcp-test-support/), the Makefile that names the proof command, this script, or
 the workspace manifest, lock file, toolchain or .cargo/.
 
-Every proof except the slow ones (SLOW) is selected by a change to the product code every
-proof group runs: crates/biomcp/src/ (the binary and its MCP server, run by the mcp-http,
-schema-discovery, cache-resilience and article proofs), crates/biomcp-types/ (its
-embedded schemas and types; runner/report-parity reads them too), crates/biomcp-query/
-(source terms, requests and the HGNC query), crates/biomcp-fetch/ (the fetch layer the
-HGNC and fixture-evidence proofs call directly), and shared adapter code:
-crates/biomcp-adapters/ outside a single source's module.
+Every proof except the slow ones (SLOW) is selected by a change to product code:
+crates/biomcp/src/, crates/biomcp-types/, crates/biomcp-query/, crates/biomcp-fetch/ and
+crates/biomcp-adapters/. Every proof group runs it (mcp-http, schema-discovery,
+cache-resilience, article-semantic-sections, and runner/report-parity through
+biomcp-types), and which adapters a proof reaches is not listed by hand, because such a
+list drifts.
 
-Some proofs are selected by one source's adapter module or recorded data alone
-(ADAPTER_PROOFS, PROOF_INPUTS), and the help discovery proof by the files the binary's
-build script embeds. Any other single-source adapter module (OTHER_SOURCE_ADAPTERS), and
-every other path, such as other tests/cases/ and tests/replies/ data, docs and scripts,
+Files outside product code that a proof reads, or that the binary's build script embeds,
+add the proofs that read them (PROOF_INPUTS): recorded HGNC replies, the recorded
+article replies, the CIViC fixtures, and skills/, tests/cases/ and the embedded docs.
+Every other path, such as other tests/cases/ and tests/replies/ data, docs and scripts,
 selects no proof. When no base can be found it runs every proof rather than none.
 """
 import os
@@ -34,27 +33,15 @@ PRODUCT = 'all but the slow proofs'
 WORKSPACE_FILES = ('Cargo.toml', 'Cargo.lock', 'rust-toolchain', 'rust-toolchain.toml', 'Makefile')
 EVERY_INPUTS = ('.cargo/', 'crates/biomcp/tests/', 'crates/biomcp/Cargo.toml', 'crates/biomcp/build.rs',
                 'crates/biomcp-test-support/', 'scripts/changed_tool_proofs.py')
-PRODUCT_INPUTS = ('crates/biomcp/src/', 'crates/biomcp-types/', 'crates/biomcp-query/', 'crates/biomcp-fetch/')
+PRODUCT_INPUTS = ('crates/biomcp/src/', 'crates/biomcp-types/', 'crates/biomcp-query/', 'crates/biomcp-fetch/',
+                  'crates/biomcp-adapters/')
 # Proofs over 30 s alone, which product changes do not select (0944, measured in j41018):
 # rejects-bad-cases took 264 s and selects-and-lists-cases 75 s; the rest took 15 s or less.
 # Speeding them up is a follow-up ticket, filed by the PM from 0944; until then they run
 # when runner, proof or build files change and in `make proof` and `make full-suite`.
 SLOW = ('schema-discovery/rejects-bad-cases', 'schema-discovery/selects-and-lists-cases')
-ADAPTERS = 'crates/biomcp-adapters/src/'
 HELP = 'schema-discovery/catalog-and-help-reply-discovery'
 NATIVE = 'schema-discovery/persistent-native-evidence'
-# A source adapter module and the proofs that run it.
-ADAPTER_PROOFS = {'hgnc': ('cache-resilience/hgnc-',),
-                  'semantic_scholar': ('article-semantic-sections/',),
-                  'pubmed': ('article-semantic-sections/',), 'civic': (NATIVE,)}
-# Single-source adapter modules no proof runs; any other adapter path is shared code.
-OTHER_SOURCE_ADAPTERS = frozenset('''
-    alphagenome mygene oncokb complex_portal gnomad interpro uniprot hpo reactome wikipathways
-    clingen gencc hpa europepmc pubtator pmc_oa icite litvar orcid litsense allele_registry ctgov
-    mutalyzer myvariant nci variantvalidator cbioportal clinvar erepo hotspots gwas chembl ddinter
-    drugsfda ema mychem openfda_label opentargets monarch mydisease ols orphadata seer faers maude
-    fda_cdx fda_pma gtr who_ivd clinpgx cpic fda_510k who_pq vaers cellosaurus fda_device_recall
-    fda_drug_recall'''.split())
 # Files a proof reads, or the binary's build script embeds, and the proofs they select.
 PROOF_INPUTS = {
     'tests/replies/trial/gene/hgnc/': ('cache-resilience/hgnc-',),
@@ -71,20 +58,18 @@ def proofs(path):
         return (EVERY,)
     if path.startswith(PRODUCT_INPUTS):
         return (PRODUCT,)
-    if path.startswith('crates/biomcp-adapters/'):
-        name = path[len(ADAPTERS):].split('/')[0].removesuffix('.rs') if path.startswith(ADAPTERS) else ''
-        if name in OTHER_SOURCE_ADAPTERS:
-            return ()
-        return ADAPTER_PROOFS.get(name, (PRODUCT,))
     return tuple(name for prefix, names in PROOF_INPUTS.items() if path.startswith(prefix) for name in names)
 
 
 def selected(paths):
-    """Name filters to run: [EVERY], [PRODUCT], or the narrower filters the paths select."""
+    """Name filters to run: [EVERY], [PRODUCT] plus any narrower filter naming a slow proof,
+    or the narrower filters the paths select."""
     filters = {name for path in paths for name in proofs(path)}
-    for whole in (EVERY, PRODUCT):
-        if whole in filters:
-            return [whole]
+    if EVERY in filters:
+        return [EVERY]
+    if PRODUCT in filters:
+        return [PRODUCT] + sorted(name for name in filters - {PRODUCT}
+                                  if any(name in slow for slow in SLOW))
     return sorted(filters)
 
 

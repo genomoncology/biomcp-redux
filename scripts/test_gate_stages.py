@@ -215,28 +215,27 @@ class GateStages(unittest.TestCase):
             native = 'schema-discovery/persistent-native-evidence'
             help_proof = 'schema-discovery/catalog-and-help-reply-discovery'
             for number, (paths, shown, ran) in enumerate((
-                    (['crates/biomcp-adapters/src/gtr/map.rs', 'docs/charter.md', 'tests/replies/gene/x.json',
-                      'scripts/landing_gate.py'], 'none', []),
-                    (['crates/biomcp-adapters/src/hgnc/sync.rs'], hgnc, [cargo_line(hgnc)]),
+                    (['docs/charter.md', 'tests/replies/gene/x.json', 'scripts/landing_gate.py'], 'none', []),
                     (['tests/replies/trial/gene/hgnc/reply.json'], hgnc, [cargo_line(hgnc)]),
-                    (['crates/biomcp-adapters/src/semantic_scholar.rs', 'tests/fixtures/drug/civic/a.body'],
+                    (['tests/replies/article/edges/live/pubmed/a.json', 'tests/fixtures/drug/civic/a.body'],
                      f'{article},{native}', [cargo_line(article), cargo_line(native)]),
                     (['tests/cases/gene/hgnc.yaml', 'skills/SKILL.md'], help_proof, [cargo_line(help_proof)]),
+                    (['tests/fixtures/drug/civic/caf\u00e9 \u00e9.body'], native, [cargo_line(native)]),
+                    (['crates/biomcp-adapters/src/ctgov/search.rs'], 'all-but-slow', [product]),
+                    (['crates/biomcp-adapters/src/gtr/map.rs'], 'all-but-slow', [product]),
                     (['crates/biomcp-adapters/src/raw.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp-adapters/src/registry/sources.rs'], 'all-but-slow', [product]),
                     (['crates/biomcp/src/main.rs'], 'all-but-slow', [product]),
                     (['crates/biomcp-types/src/lib.rs'], 'all-but-slow', [product]),
+                    (['crates/biomcp-types/schemas/gene-card.json'], 'all-but-slow', [product]),
                     (['crates/biomcp-query/src/sources/terms.rs'], 'all-but-slow', [product]),
                     (['crates/biomcp-fetch/src/lib.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp/src/main.rs', 'crates/biomcp-adapters/src/hgnc/sync.rs'],
+                    (['crates/biomcp/src/main.rs', 'tests/replies/trial/gene/hgnc/reply.json'],
                      'all-but-slow', [product]),
                     (['crates/biomcp/src/main.rs', 'crates/biomcp/tests/runner/proof.rs'], 'all', [every]),
                     (['crates/biomcp/tests/runner/assertions/offsets.rs'], 'all', [every]),
                     (['crates/biomcp-test-support/src/lib.rs'], 'all', [every]),
-                    (['crates/biomcp-types/schemas/gene-card.json'], 'all-but-slow', [product]),
                     (['Makefile'], 'all', [every]),
-                    (['Cargo.lock'], 'all', [every]),
-                    (['tests/fixtures/drug/civic/caf\u00e9 \u00e9.body'], native, [cargo_line(native)]))):
+                    (['Cargo.lock'], 'all', [every]))):
                 with self.subTest(paths=paths):
                     git('checkout', '-q', '-b', f'ticket-{number}', 'main')
                     for path in paths:
