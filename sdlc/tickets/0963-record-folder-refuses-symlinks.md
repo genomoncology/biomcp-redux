@@ -31,3 +31,11 @@ A test proves that a symlink inside a `--record` folder is still refused after 0
 ## Changes
 
 - Changes: one test, and the record code only if the test fails.
+
+## Progress
+
+Build, 2026-11-15.
+
+- Test first (job j41198 on the M5): `symlink_inside_record_folder_is_refused_for_recording_and_replay` in `crates/biomcp-fetch/tests/record.rs` (body in `record/bytes.rs`) puts a symlink inside the record folder pointing outside it. Binary replies were refused, but a JSON reply was recorded straight through the symlinked source folder into the outside folder (`Ok(())` where a refusal was expected). Only binary reply files checked for symlinks; the recording file itself did not.
+- Fix: `crates/biomcp-fetch/src/record.rs` refuses a symlinked source folder or recording file, for recording and replay, with `recording-malformed`, as binary reply files already do. The record folder's own symlinked parents still resolve once (0954).
+- The test now shows: recording a JSON and a binary reply through a symlinked source folder fails and writes nothing outside; replaying through a symlinked source folder, or through symlinked recording and reply files, fails for both reply kinds without reaching the network; the same recording replays from its real folder. `binary_capture_follows_a_symlinked_parent_folder` and case `pathway/sync-local-failure` still pass (j41220).
