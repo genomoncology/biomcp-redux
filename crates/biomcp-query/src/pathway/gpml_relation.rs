@@ -3,17 +3,15 @@ use super::{relation::Saved, relation::Selection};
 use crate::{Ctx, Outcome, status};
 use biodata::{PathwayId, PathwaySpecies};
 use biomcp_adapters::wikipathways;
-use biomcp_fetch::{Deadline, RequestError, SourceError};
-use biomcp_types::{
-    PathwayGenes, PathwayHeader, PathwayPageInfo, PathwayTotalKind, Reason, Source,
-};
+use biomcp_fetch::{Deadline, RequestError};
+use biomcp_types::{PathwayGenes, PathwayHeader, PathwayPageInfo, PathwayTotalKind, Source};
 
 pub(super) fn fetch(
     cx: &Ctx<'_>,
     q: &Selection<'_>,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Saved, RequestError> {
+) -> Result<Option<Saved>, RequestError> {
     let PathwayId::Wikipathways(id) = q.id else {
         return Err(biomcp_fetch::InputError::Serialization.into());
     };
@@ -28,19 +26,12 @@ pub(super) fn fetch(
         // The stored human catalog admits the identity; its date is never a GPML revision.
         let card = wikipathways::card(&leg, id, false)?;
         if card.value.is_none() {
-            return Err(SourceError {
-                source: Source::WikiPathways,
-                reason: Reason::NotFound,
-                status: None,
-                tls_cause: None,
-                retry_after: None,
-            }
-            .into());
+            return Ok(None);
         }
         let mapped = wikipathways::members(&leg, id)?;
         let rows = mapped.value;
         let count = rows.items.len();
-        Ok::<_, RequestError>(Saved {
+        Ok::<_, RequestError>(Some(Saved {
             dropped: card.refusals == biomcp_adapters::Refusal::Refused
                 || mapped.refusals == biomcp_adapters::Refusal::Refused,
             genes: Some(PathwayGenes {
@@ -66,14 +57,16 @@ pub(super) fn fetch(
             events: None,
             sources: Vec::new(),
             problems: card.problems.into_iter().chain(mapped.problems).collect(),
-        })
+        }))
     })();
     out.sources.push(status::source(
         Source::WikiPathways,
         leg.finish(),
         reply.as_ref().err().copied(),
     ));
-    let mut saved = reply?;
+    let Some(mut saved) = reply? else {
+        return Ok(None);
+    };
     saved.sources = out.sources.clone();
-    Ok(saved)
+    Ok(Some(saved))
 }
