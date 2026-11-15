@@ -31,3 +31,11 @@ The two tool proofs 0944 keeps out of product-change landings, `schema-discovery
 ## Changes
 
 - Changes: the two proofs and the runner code they use, `scripts/changed_tool_proofs.py`, its test.
+
+## Progress
+
+- Measured where the time went (j41155, main at 75f65e4f6): `rejects-bad-cases` 282 s and `selects-and-lists-cases` 82 s alone. Each starts the `tools` runner once per probe case (about 58 and 13 starts), and every start took about 4.6 s, even `tools --proofs --list`, while the product call it checks took 0.04 s. The start-up cost was the runner compiling a JSON Schema validator for every embedded schema (`Registry::embedded()` in `discover` and `tool_trials`).
+- Changed: the embedded registry checks each schema's identity at start-up and compiles each validator the first time a reply needs it (`crates/biomcp/tests/runner/schema.rs`). `Registry::new`, used by proofs with small fixture registries, still compiles everything at once, so an unregistered reference still fails at construction. Because nothing else proved every embedded schema compiles, `schema-discovery/resolves-only-registered-schema-references` now compiles all of them. The proofs' checks and names are unchanged.
+- After (j41166): runner start-up 0.11 s (j41161); `rejects-bad-cases` 11.0 s, `selects-and-lists-cases` 3.9 s, `resolves-only-registered-schema-references` 4.6 s, each alone with cargo start-up.
+- `SLOW` is gone from `scripts/changed_tool_proofs.py`: product code now selects every proof, like runner code. `scripts/test_gate_stages.py` shows `crates/biomcp/src/main.rs` and each other product path now running the whole catalog with no `--skip`. `docs/development.md` says the same.
+- Gate time on a typical `crates/biomcp/src` change: the whole catalog took 15.3 s after the build (j41166), against 21 s for 0944's selection without the two slow proofs (j41030), so the change adds no time and catches what those two proofs check.
