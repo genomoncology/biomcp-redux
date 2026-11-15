@@ -53,7 +53,7 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
         candidate
             .as_object_mut()?
             .insert(name.into(), Value::String(text.clone()));
-        let step = complete((verb, entity), &schema, &candidate)?;
+        let next = completed_steps((verb, entity), &schema, &candidate)?;
         let property = schema.get("properties")?.get(name)?;
         let argument = if property.get("x-positional").is_some() {
             name.to_owned()
@@ -64,7 +64,7 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
             argument: Some(argument.into()),
             message: Some(ErrorMessage::ArgumentGuidance),
             valid_values: super::validation::accepted(&schema, property),
-            next: super::recovery::guidance(step, [verb, entity]),
+            next,
         })
     })
 }
@@ -104,6 +104,25 @@ fn open_text(schema: &Value, value: &Value, name: &str) -> bool {
 
 /// The checked call, with any required argument that has one possible value filled in.
 pub(super) fn complete(path: (&str, &str), schema: &Value, value: &Value) -> Option<Step> {
+    completion(path, schema, value).map(|(step, _)| step)
+}
+
+/// The refusal's next steps for a completed call: the call alone when it is certain, and
+/// help beside it when it is a guess.
+pub(super) fn completed_steps(
+    path: (&str, &str),
+    schema: &Value,
+    value: &Value,
+) -> Option<Vec<Step>> {
+    let (step, certain) = completion(path, schema, value)?;
+    Some(if certain {
+        vec![step]
+    } else {
+        vec![step, super::validation::help([path.0, path.1])]
+    })
+}
+
+fn completion(path: (&str, &str), schema: &Value, value: &Value) -> Option<(Step, bool)> {
     let via = biomcp_types::COMMANDS
         .iter()
         .find(|command| (command.verb, command.entity) == path)?
@@ -366,7 +385,8 @@ fn accession(name: &str) -> bool {
 }
 
 /// The canonical call for words the grammar accepts, or the corrected call its refusal
-/// already names.
+/// already names. A refusal whose only correction drops an unknown option offers none here:
+/// dropping a key would widen the caller's query.
 pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
     match super::parse(root, args) {
         Ok(parsed) => match parsed.action? {
@@ -375,6 +395,7 @@ pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
             }
             _ => None,
         },
+        Err(cause) if cause.dropped => None,
         Err(cause) => match cause.usage {
             Some(biomcp_types::UsageError::Arguments(arguments)) => arguments
                 .next

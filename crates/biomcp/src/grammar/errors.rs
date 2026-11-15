@@ -144,7 +144,7 @@ fn parser_correction(
     path: &[&str],
     error: &clap::Error,
     args: &[std::ffi::OsString],
-) -> Option<biomcp_types::Step> {
+) -> Option<(biomcp_types::Step, bool)> {
     // A stopped value parse can omit later filters; never turn that partial input into a new query.
     if !matches!(
         error.kind(),
@@ -189,10 +189,13 @@ fn parser_correction(
         super::sections::misplaced((verb, entity), &schema, value, spelling?)
     };
     if let Some(step) = value.as_ref().and_then(misplaced) {
-        return Some(step);
+        return Some((step, true));
     }
     let Some(value) = value else {
-        return read(false).as_ref().and_then(misplaced);
+        return read(false)
+            .as_ref()
+            .and_then(misplaced)
+            .map(|step| (step, true));
     };
     let declaration = biomcp_types::COMMANDS
         .iter()
@@ -222,16 +225,26 @@ pub(super) fn parse_invalid(
     };
     if let Some(mut arguments) = parser_usage(command, &path, error) {
         let registered_argument = invalid_argument(command, &path, error).is_some();
+        let mut only_dropped = false;
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
         } else {
-            spelling.and_then(|spelling| flag_fix(root, &path, spelling, args))
+            spelling
+                .and_then(|spelling| {
+                    flag_fix(root, &path, spelling, args).or_else(|| {
+                        let step = super::recovery::dropped(root, spelling, args);
+                        only_dropped = step.is_some();
+                        step
+                    })
+                })
+                .map(|step| (step, true))
         };
         super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
             prefer_argument_error: registered_argument,
+            dropped: only_dropped,
         };
     }
     if let Some(spelling) = spelling
@@ -243,12 +256,13 @@ pub(super) fn parse_invalid(
             && let Some(step) = flag_fix(root, &path, spelling, args)
         {
             arguments.argument = Some(spelling.into());
-            super::recovery::next(&mut arguments, Some(step));
+            super::recovery::next(&mut arguments, Some((step, true)));
         }
         return super::ParseInvalid {
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
             prefer_argument_error: false,
+            dropped: false,
         };
     }
     let message = match path.as_slice() {
@@ -266,6 +280,7 @@ pub(super) fn parse_invalid(
                 .map(UsageError::Arguments)
         }),
         prefer_argument_error: false,
+        dropped: false,
     }
 }
 
@@ -281,6 +296,7 @@ pub(super) fn checked_invalid(
         .map(|mut arguments| {
             let names: Vec<_> = cause.arguments().iter().map(AsRef::as_ref).collect();
             let corrected = super::recovery::trial_first_page(via, (verb, entity), value, cause)
+                .map(|step| (step, true))
                 .or_else(|| {
                     super::validation::schema(verb, entity).and_then(|schema| {
                         super::recovery::corrected(
@@ -303,6 +319,7 @@ pub(super) fn checked_invalid(
         usage,
         // A rejected value may still be an explicitly retired spelling.
         prefer_argument_error: false,
+        dropped: false,
     }
 }
 
@@ -357,11 +374,21 @@ pub(super) fn source_filter(
             corrected
                 .as_object_mut()?
                 .insert((*replacement).into(), filter_value.clone());
-            replacement_step(via, verb, entity, &schema, &corrected)
-                .unwrap_or_else(|| super::validation::help([verb, entity]))
+            vec![
+                replacement_step(via, verb, entity, &schema, &corrected)
+                    .unwrap_or_else(|| super::validation::help([verb, entity])),
+            ]
         } else {
-            super::recovery::corrected(via, (verb, entity), &schema, value, &[name], true)
-                .unwrap_or_else(|| super::validation::help([verb, entity]))
+            let sources: Vec<&str> = valid.iter().map(|source| source.as_str()).collect();
+            let swapped =
+                super::recovery::source_swap(via, (verb, entity), &schema, value, &sources);
+            match swapped.or_else(|| {
+                super::recovery::corrected(via, (verb, entity), &schema, value, &[name], true)
+            }) {
+                Some((step, true)) => vec![step],
+                Some((step, false)) => vec![step, super::validation::help([verb, entity])],
+                None => vec![super::validation::help([verb, entity])],
+            }
         };
         return Some(super::ParseInvalid {
             argument: None,
@@ -371,9 +398,10 @@ pub(super) fn source_filter(
                     .message()
                     .or(Some(biomcp_types::ErrorMessage::UnsupportedFilter)),
                 valid_values: Some(valid.into()),
-                next: super::recovery::guidance(next, [verb, entity]),
+                next,
             })),
             prefer_argument_error: true,
+            dropped: false,
         });
     }
     None
@@ -478,7 +506,7 @@ fn replacement_step(
     schema: &serde_json::Value,
     value: &serde_json::Value,
 ) -> Option<biomcp_types::Step> {
-    super::rewrite::request(via, verb, entity, value.clone()).ok()?;
+    let request = super::rewrite::request(via, verb, entity, value.clone()).ok()?;
     let mut args: Vec<Box<str>> = vec![verb.into(), entity.into()];
     let properties = schema.get("properties")?.as_object()?;
     for (name, property) in properties {
@@ -508,6 +536,7 @@ fn replacement_step(
     Some(biomcp_types::Step {
         kind: biomcp_types::StepKind::Configure,
         args: args.into(),
+        options: super::options(&request),
     })
 }
 

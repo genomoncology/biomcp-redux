@@ -1,7 +1,7 @@
 {
   "live_check": "offline parser checks; no source requests",
   "feature": "mcp-parity",
-  "story": "A typed call refused for an argument its action does not take gets the fix the command line gives the same mistake ahead of the help step: search text under another name, a source typed as its own argument or one the record does not need, a short flag's letter, several such keys at once, and a full HGVS name as variant. A key with no command-line fix keeps only the help step.",
+  "story": "A typed call refused for an argument its action does not take gets the fix the command line gives the same mistake in place of the help step, with the options that call also takes: search text under another name, a source typed as its own argument or one the record does not need, a short flag's letter, several such keys at once, and a full HGVS name as variant. A key with no command-line fix keeps only the help step, never the call without the key.",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -27,7 +27,11 @@
         "/next/0/name": "diagnostic",
         "/next/0/arguments/action": "search",
         "/next/0/arguments/search/query": "colorectal",
-        "/next/0/arguments/search/source": "fda-pma"
+        "/next/0/arguments/search/source": "fda-pma",
+        "/next/0/options/decision_from": "<YYYY-MM-DD>",
+        "/next": {
+          "count": 1
+        }
       }
     },
     {
@@ -193,7 +197,9 @@
             "coding": "c.68_69del"
           }
         },
-        "/next/1/name": "help"
+        "/next": {
+          "count": 1
+        }
       }
     },
     {
@@ -232,6 +238,29 @@
         "/error/code": "usage.arguments",
         "/error/option": "gene_symbol",
         "/next/0/name": "help"
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "gene",
+        "arguments": {
+          "action": "get",
+          "get": {
+            "id": "MSTN",
+            "bogus": 5
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "bogus",
+        "/next/0/name": "help",
+        "/next": {
+          "count": 1
+        }
       }
     }
   ]

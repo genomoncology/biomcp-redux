@@ -41,7 +41,7 @@
         "/status": "complete",
         "/result/header/accession": "CVCL_2119"
       },
-      "max_bytes": 2392,
+      "max_bytes": 2823,
       "full_output_bytes": true
     },
     {
@@ -54,7 +54,7 @@
         "/status": "complete",
         "/result/header/accession": "CVCL_0004"
       },
-      "max_bytes": 2143,
+      "max_bytes": 2580,
       "full_output_bytes": true
     }
   ]

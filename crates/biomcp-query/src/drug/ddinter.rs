@@ -198,6 +198,14 @@ fn page(
     body: DrugInteractions,
     out: &mut Outcome,
 ) -> DrugInteractions {
+    let unlisted = match &body.interactions {
+        Section::Data { data, .. } => data.total == Some(0),
+        Section::Empty { .. } => true,
+        _ => false,
+    };
+    if query.partner().is_some() && !body.partners.is_empty() && unlisted {
+        label_steps(&body, fresh, out);
+    }
     if let Section::Data { data, .. } = &body.interactions {
         let returned = data.records.len() as u32;
         let total = data.total.unwrap_or(0);
@@ -227,6 +235,28 @@ fn page(
         }
     }
     body
+}
+/// A named pair DDInter lists no row for: each drug's own label interactions section, which
+/// another source BioMCP reads states, since no row does not mean no interaction.
+fn label_steps(body: &DrugInteractions, fresh: bool, out: &mut Outcome) {
+    let names = std::iter::once(&body.identity)
+        .chain(body.partners.first())
+        .filter_map(|header| header.name.clone());
+    for name in names {
+        let get = DrugGet::named(name, DrugSource::OpenfdaLabel).and_then(|get| {
+            let heading = biodata::Text::new("drug_interactions")
+                .map_err(|_| biomcp_types::QueryInvalid::new(&["label_section"]))?;
+            get.for_label(heading)
+        });
+        if let Some(get) = crate::next::checked(get, Source::Ddinter, &mut out.problems) {
+            out.next.push(crate::next::Step::run(
+                StepKind::Section,
+                &[Source::OpenfdaLabel],
+                Request::GetDrug(get),
+                fresh,
+            ));
+        }
+    }
 }
 fn sync_step(out: &mut Outcome) {
     if out

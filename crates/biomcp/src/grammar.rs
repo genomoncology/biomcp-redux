@@ -14,7 +14,10 @@ mod errors;
 mod metadata;
 mod positional;
 pub(crate) use positional::candidate;
+mod options;
+pub(crate) use options::{first_page, options, section_page};
 mod recovery;
+pub(crate) use recovery::prepared;
 mod sections;
 mod tree;
 pub(crate) use tree::Root;
@@ -244,6 +247,9 @@ pub(crate) struct ParseInvalid {
     pub(crate) argument: Option<String>,
     pub(crate) usage: Option<biomcp_types::UsageError>,
     pub(crate) prefer_argument_error: bool,
+    /// The refusal's only correction is the same call without an unknown option, which may
+    /// widen it; a caller that must not widen a query skips it.
+    pub(crate) dropped: bool,
 }
 pub(crate) fn parse(root: &Command, args: &[OsString]) -> Result<Parsed, ParseInvalid> {
     let args = entry::arguments(args, root);

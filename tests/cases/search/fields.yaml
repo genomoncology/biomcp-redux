@@ -90,12 +90,9 @@
             "url"
           ]
         },
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "trial"
-          ]
+        "/next/0/args/0": "--fields=sponsor",
+        "/next": {
+          "count": 1
         }
       }
     },

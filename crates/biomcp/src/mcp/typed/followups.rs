@@ -28,6 +28,11 @@ pub(super) fn project(
             if let Some(kind) = step.get("kind") {
                 call.as_object_mut()?.insert("kind".into(), kind.clone());
             }
+            if let Some(options) = step.get("options").and_then(Value::as_object)
+                && let Some(options) = options_for(&call, &args, options, tools)
+            {
+                call.as_object_mut()?.insert("options".into(), options);
+            }
             Some(call)
         });
         if let Some(call) = call {
@@ -41,6 +46,37 @@ pub(super) fn project(
     }
     calls.reverse();
     Ok(calls)
+}
+
+/// A step's command-line options under the argument names the called tool advertises; an
+/// option the tool does not advertise is left out.
+fn options_for(
+    call: &Value,
+    args: &[Value],
+    options: &serde_json::Map<String, Value>,
+    tools: &super::grouping::Catalog,
+) -> Option<Value> {
+    let tool = tools
+        .tools
+        .iter()
+        .find(|tool| tool.get("name") == call.get("name"))?;
+    let mut properties = tool.pointer("/inputSchema/properties")?;
+    if let Some(action) = call.pointer("/arguments/action").and_then(Value::as_str) {
+        properties = properties.get(action)?.get("properties")?;
+    }
+    let command = super::name(args.first()?.as_str()?, args.get(1)?.as_str()?);
+    let mut typed = serde_json::Map::new();
+    for (option, placeholder) in options {
+        let field = option.trim_start_matches('-').replace('-', "_");
+        let named = super::grouping::advertised(&command, &serde_json::json!({ field: null }));
+        let Some(name) = named.as_object().and_then(|fields| fields.keys().next()) else {
+            continue;
+        };
+        if properties.get(name).is_some() {
+            typed.insert(name.clone(), placeholder.clone());
+        }
+    }
+    (!typed.is_empty()).then_some(Value::Object(typed))
 }
 
 /// A carried `--fields=a,b` global becomes the typed call's `fields` list.

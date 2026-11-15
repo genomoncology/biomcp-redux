@@ -212,7 +212,7 @@ pub(super) fn call(canonical: Value, catalog: &Catalog) -> Option<Value> {
 }
 
 /// A registry command's arguments under their advertised names.
-fn advertised(command: &str, arguments: &Value) -> Value {
+pub(super) fn advertised(command: &str, arguments: &Value) -> Value {
     let forms = crate::grammar::command_paths()
         .into_iter()
         .find(|(verb, entity, _)| super::name(verb, entity) == command)

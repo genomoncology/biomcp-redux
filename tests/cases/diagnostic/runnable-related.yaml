@@ -1,0 +1,70 @@
+{
+  "live_check": "FDA public native API replies captured 2026-11-04; reuses the diagnostic/device-approvals recording",
+  "feature": "runnable-related-queries",
+  "story": "A diagnostic search's first page stays lean: its follow-ups are runnable calls, it offers no help step and does not repeat its own call with every filter, over the CLI and typed MCP; a date window the search takes still runs.",
+  "replay": "diagnostic/device-approvals",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--manufacturer",
+        "Foundation Medicine"
+      ],
+      "expect": {
+        "/page/total": 100,
+        "/next": {
+          "count": 6
+        },
+        "/next/*/kind": {
+          "excludes": "configure"
+        }
+      },
+      "max_bytes": 3185
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-pma",
+            "manufacturer": "Foundation Medicine"
+          }
+        }
+      },
+      "expect": {
+        "/page/total": 100,
+        "/next": {
+          "count": 6
+        },
+        "/next/*/kind": {
+          "excludes": "configure"
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--manufacturer",
+        "Foundation Medicine",
+        "--decision-from",
+        "2017-11-30",
+        "--decision-to",
+        "2017-11-30"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    }
+  ]
+}

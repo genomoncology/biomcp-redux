@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation; reuses the ddinter-synthetic recording",
   "feature": "drug-ddinter",
-  "story": "One call answers whether DDInter lists a drug pair across all fifteen published partitions: a partner by DDInter ID or complete name keeps only that pair's rows and level, a pair DDInter does not list returns no row, a partner DDInter does not name says so and offers the name search, and every reply says the files carry levels only, no management text.",
+  "story": "One call answers whether DDInter lists a drug pair across all fifteen published partitions: a partner by DDInter ID or complete name keeps only that pair's rows and level, a pair DDInter does not list returns no row and offers each drug's label interactions section, a partner DDInter does not name says so and offers the name search, and every reply says the files carry levels only, no management text.",
   "replay": "drug/ddinter-synthetic",
   "steps": [
     {
@@ -80,7 +80,45 @@
         "/result/partners/*/id": [
           "DDInter9004"
         ],
-        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
+        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/next": {
+          "equals": [
+            {
+              "args": [
+                "get",
+                "drug",
+                "Synthetic Anchor One",
+                "label",
+                "--label-section",
+                "drug_interactions",
+                "--source",
+                "openfda-label"
+              ],
+              "kind": "section",
+              "options": {
+                "--section-limit": "<1-200>",
+                "--section-offset": "<N>"
+              }
+            },
+            {
+              "args": [
+                "get",
+                "drug",
+                "Synthetic PartnerFour",
+                "label",
+                "--label-section",
+                "drug_interactions",
+                "--source",
+                "openfda-label"
+              ],
+              "kind": "section",
+              "options": {
+                "--section-limit": "<1-200>",
+                "--section-offset": "<N>"
+              }
+            }
+          ]
+        }
       },
       "max_bytes": 3000
     },

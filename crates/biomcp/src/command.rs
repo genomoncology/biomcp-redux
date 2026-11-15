@@ -95,7 +95,7 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source, encoding);
     }
-    let action = match action.prepare() {
+    let action = match prepare(action) {
         Ok(action) => action,
         Err(error) => return usage_envelope(error, encoding),
     };
@@ -114,6 +114,18 @@ fn dispatch_using(
         encoding,
     )?;
     hosted_keys::outcome(outcome, parsed.globals.hosted, encoding)
+}
+
+/// Check an action before any source is read; a refused request names its corrected call.
+fn prepare(action: Action) -> Result<Action, UsageError> {
+    let request = match &action {
+        Action::Run { request, .. } => Some(request.clone()),
+        _ => None,
+    };
+    action.prepare().map_err(|error| match &request {
+        Some(request) => crate::grammar::prepared(request, error),
+        None => error,
+    })
 }
 
 fn parse_arguments(
@@ -311,7 +323,7 @@ fn finished(
     result
         .finish(fetch, request, fresh)
         .map_err(io::Error::other)?;
-    let steps = steps::next(&result, globals)?;
+    let steps = steps::next(request, &result, globals)?;
     let meta = ResponseMeta {
         encoding,
         exit: response_status(&result),
@@ -383,6 +395,7 @@ fn parse_refusal(
                         .chain(path.into_iter().map(String::into_boxed_str))
                         .collect::<Vec<_>>()
                         .into(),
+                    options: Default::default(),
                 },
             },
             encoding,
@@ -417,6 +430,7 @@ fn parse_refusal(
         arguments.next = vec![biomcp_types::Step {
             kind: biomcp_types::StepKind::Configure,
             args: vec!["mcp-config".into(), "--client".into(), "mcp-servers".into()].into(),
+            options: Default::default(),
         }];
     }
     if root == Some("key") {
@@ -430,6 +444,7 @@ fn parse_refusal(
                     biomcp_query::sources::key_name(*name).into(),
                 ]
                 .into(),
+                options: Default::default(),
             })
             .collect();
     }

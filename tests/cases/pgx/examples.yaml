@@ -55,7 +55,7 @@
         "/query/gene": "DPYD",
         "/query/source": "cpic"
       },
-      "max_bytes": 779
+      "max_bytes": 1000
     },
     {
       "run": [

@@ -64,7 +64,7 @@ The source credential names `ONCOKB_TOKEN`, `NCBI_API_KEY`, `S2_API_KEY`, `NCI_A
 
 ## Output migration
 
-Every JSON reply advertises its schema identity. Read `result` for records, `sources` for source outcomes and terms, `problems` for typed failures, `status` for completeness, `page` for paging and `next` for argument arrays. Commands have their own typed result shapes; 0.9 fields are not a compatibility interface. Missing optional values stay absent. Source-native identifiers and assertions remain separate when sources disagree. Counts preserve their source scope and never establish clinical eligibility or an assayed denominator.
+Every JSON reply advertises its schema identity. Read `result` for records, `sources` for source outcomes and terms, `problems` for typed failures, `status` for completeness, `page` for paging and `next` for argument arrays. A `next` step may also carry `options`, the flags its call also takes, each with a placeholder to fill in; a refusal's first step is the corrected call when one exists. Commands have their own typed result shapes; 0.9 fields are not a compatibility interface. Missing optional values stay absent. Source-native identifiers and assertions remain separate when sources disagree. Counts preserve their source scope and never establish clinical eligibility or an assayed denominator.
 
 The 0.9 metadata and error fields change as follows:
 

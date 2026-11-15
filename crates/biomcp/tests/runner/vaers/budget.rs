@@ -35,8 +35,8 @@ pub(super) fn check(value: &Value) -> Check {
         .is_some_and(|v| v > 0)
     {
         (
-            crate::runner::output_limit("vaers-budget-measured-1835")?,
-            crate::runner::output_limit("vaers-budget-measured-1723")?,
+            crate::runner::output_limit("vaers-budget-measured-2177")?,
+            crate::runner::output_limit("vaers-budget-measured-2064")?,
         )
     } else if value.pointer("/query/section") == Some(&json!("seriousness")) {
         (
@@ -50,8 +50,8 @@ pub(super) fn check(value: &Value) -> Check {
         )
     } else {
         (
-            crate::runner::output_limit("vaers-budget-measured-1993")?,
-            crate::runner::output_limit("vaers-budget-measured-1881")?,
+            crate::runner::output_limit("vaers-budget-measured-2346")?,
+            crate::runner::output_limit("vaers-budget-measured-2233")?,
         )
     };
     if full > (measured_full * 115).div_ceil(100)

@@ -23,15 +23,22 @@
         "/error/valid_values": [
           "monarch"
         ],
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "phenotype"
-          ]
-        }
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001250",
+          "hierarchy"
+        ],
+        "/next": {
+          "count": 2
+        },
+        "/next/1/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 354
+      "max_bytes": 461
     },
     {
       "run": [
@@ -53,15 +60,23 @@
         "/error/valid_values": [
           "monarch"
         ],
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "phenotype"
-          ]
-        }
+        "/next": {
+          "count": 2
+        },
+        "/next/0/kind": "configure",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001250",
+          "diseases"
+        ],
+        "/next/1/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 354
+      "max_bytes": 461
     },
     {
       "run": [
@@ -83,15 +98,23 @@
         "/error/valid_values": [
           "monarch"
         ],
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "phenotype"
-          ]
-        }
+        "/next": {
+          "count": 2
+        },
+        "/next/0/kind": "configure",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001250",
+          "genes"
+        ],
+        "/next/1/args": [
+          "help",
+          "get",
+          "phenotype"
+        ]
       },
-      "max_bytes": 354
+      "max_bytes": 461
     },
     {
       "run": [

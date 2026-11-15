@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Missing options, unknown options, bad enum values and bad typed IDs each name one argument, its accepted form and command help.",
+  "story": "An unknown option names itself and the command's options, and the first next step is the same call without it. When the word after it could be the caller's own search word, that would be a guess, so help stays. The call offered without it must also pass the check made before any source is read, so it carries the one source that check names.",
   "steps": [
     {
       "run": [
@@ -20,12 +20,67 @@
         "/error/option": "--country",
         "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
         "/error/valid_values/0": "--civic-cursor",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "drug"
-          ]
+        "/next/0/args": [
+          "get",
+          "drug",
+          "CHEMBL941",
+          "--source",
+          "chembl"
+        ],
+        "/next": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--bogus",
+        "imatinib",
+        "--source",
+        "fda-drug-recall"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--bogus",
+        "/next/0/args/0": "help",
+        "/next": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0013267",
+        "genes",
+        "--section-limit",
+        "5",
+        "--bogus",
+        "x"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--bogus",
+        "/next/0/args": [
+          "get",
+          "disease",
+          "MONDO:0013267",
+          "genes",
+          "--section-limit",
+          "5",
+          "--source",
+          "monarch"
+        ],
+        "/next": {
+          "count": 1
         }
       }
     }

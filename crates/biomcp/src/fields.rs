@@ -120,6 +120,7 @@ fn help_step(path: (&str, &str)) -> Step {
     Step {
         kind: StepKind::Configure,
         args: vec!["help".into(), path.0.into(), path.1.into()].into(),
+        options: Default::default(),
     }
 }
 
@@ -150,7 +151,9 @@ pub(crate) fn check(parsed: &crate::grammar::Parsed) -> Result<(), UsageError> {
         .and_then(|(_, id)| reply_row(id))
         .unwrap_or(row);
     let mut next = kept_step(parsed, &row);
-    next.push(help_step(path));
+    if next.is_empty() {
+        next.push(help_step(path));
+    }
     Err(UsageError::Arguments(UsageArguments {
         argument: Some("--fields".into()),
         valid_values: row
@@ -258,7 +261,9 @@ fn source_check(
         return Ok(());
     }
     let mut next = kept_step(parsed, &row);
-    next.push(help_step(path));
+    if next.is_empty() {
+        next.push(help_step(path));
+    }
     Err(UsageError::SourceSelector {
         source,
         message: ErrorMessage::ArgumentGuidance,

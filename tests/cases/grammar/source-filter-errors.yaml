@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "synthetic",
-  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity.",
+  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity. Swapping a source the caller named for the one that takes the filter, or dropping the filter, is a guess that keeps help beside it.",
   "steps": [
     {
       "run": [
@@ -21,13 +21,22 @@
           "faers"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "adverse-event"
-          ]
-        }
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 2
+        },
+        "/next/0/args": [
+          "search",
+          "adverse-event",
+          "pump",
+          "--reaction",
+          "Headache"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "adverse-event"
+        ]
       }
     },
     {
@@ -48,13 +57,24 @@
           "fda-drug-recall"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "drug"
-          ]
-        }
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 2
+        },
+        "/next/0/args": [
+          "search",
+          "drug",
+          "artemether",
+          "--initiated-from",
+          "2026-01-01",
+          "--source",
+          "fda-drug-recall"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "drug"
+        ]
       }
     },
     {
@@ -103,13 +123,23 @@
           "who-ivd"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "diagnostic"
-          ]
-        }
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 2
+        },
+        "/next/0/args": [
+          "search",
+          "diagnostic",
+          "--gene",
+          "BRAF",
+          "--source",
+          "gtr"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "diagnostic"
+        ]
       }
     },
     {
@@ -129,13 +159,21 @@
           "reactome"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "pathway"
-          ]
-        }
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 2
+        },
+        "/next/0/args": [
+          "search",
+          "pathway",
+          "--gene",
+          "BRAF"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "pathway"
+        ]
       }
     },
     {
@@ -154,13 +192,15 @@
           "reactome"
         ],
         "/error/message": "a selected source does not support the requested filters",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "pathway"
-          ]
-        }
+        "/next/0/kind": "configure",
+        "/next": {
+          "count": 1
+        },
+        "/next/0/args": [
+          "help",
+          "search",
+          "pathway"
+        ]
       }
     },
     {

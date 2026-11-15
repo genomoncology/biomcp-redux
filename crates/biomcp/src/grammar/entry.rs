@@ -352,5 +352,6 @@ fn checked_section(entity: &str, section: &str) -> Result<(), super::ParseInvali
             },
         )),
         prefer_argument_error: true,
+        dropped: false,
     })
 }
