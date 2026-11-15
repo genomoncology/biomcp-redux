@@ -2,7 +2,7 @@
   "feature": "cell-line-identity",
   "live_check": "public",
   "story": "A full cell-line search page reports Cellosaurus's own match count as its total, beside its next page step.",
-  "verified": "Captured live 2026-11-15 in pm job j41467 and recorded in RECORD_JOB: Cellosaurus's JSON search reply has only cell-line-list and no count, and rows=0 gives an empty list; the txt format's header states response.numFound (2,355 for idsy:\"HeLa\") and echoes query.q, at 373 bytes in about 0.35 s.",
+  "verified": "Captured live 2026-11-15 in pm job j41467 and recorded in pm job j41475: Cellosaurus's JSON search reply has only cell-line-list and no count, and rows=0 gives an empty list; the txt format's header states response.numFound (2,355 for idsy:\"HeLa\") and echoes query.q, at 373 bytes in about 0.35 s.",
   "replay": "cell-line/search-total",
   "steps": [
     {

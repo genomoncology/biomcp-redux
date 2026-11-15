@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cellosaurus",
+  "url": "https://api.cellosaurus.org/search/cell-line?q=idsy%3A%22MOLM13%22&format=txt&fields=ac&rows=0",
+  "exchanges": [
+    {
+      "fetched": 1794784542,
+      "status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "delay_ms": 119,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "aca5370e006051500e9780d2f6c56d6eb12106c3ddfabffe6836234a7d91e3cb-0.bin"
+      }
+    }
+  ]
+}

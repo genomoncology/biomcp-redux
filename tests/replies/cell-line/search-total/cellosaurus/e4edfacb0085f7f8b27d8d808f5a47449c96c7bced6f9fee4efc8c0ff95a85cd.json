@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "cellosaurus",
+  "url": "https://api.cellosaurus.org/search/cell-line?q=idsy%3A%22HeLa%22&format=txt&fields=ac&rows=0",
+  "exchanges": [
+    {
+      "fetched": 1794784541,
+      "status": 200,
+      "content_type": "text/plain; charset=utf-8",
+      "delay_ms": 117,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "e4edfacb0085f7f8b27d8d808f5a47449c96c7bced6f9fee4efc8c0ff95a85cd-0.bin"
+      }
+    }
+  ]
+}
