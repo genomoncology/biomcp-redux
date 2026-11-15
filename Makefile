@@ -40,7 +40,7 @@ full-suite:
 	+$(PYTHON) scripts/landing_gate.py --full
 
 # Keep these sequential even when the caller uses make -j.
-.PHONY: pre-job check-cheap proof gate-stage-check
+.PHONY: pre-job check-cheap proof tool-proofs changed-tool-proofs gate-stage-check
 pre-job: check-cheap
 
 LINT_GOALS = unused-dependencies check-no-default-features lint-workspace lint-tools lint-rustdoc
@@ -53,8 +53,21 @@ check-cheap:
 shell-check:
 	$(PYTHON) scripts/check_shell.py
 
+# Plain cargo test reuses the cases build, where trials.py vendors and rebuilds every crate (0944).
+TOOL_PROOFS = BIOMCP_TEST_PYTHON="$(PYTHON)" cargo test --locked -p biomcp --test tools -- --proofs
+
+# Without PROOFS, the whole tooling-proof catalog.
 proof: pre-job
-	$(PYTHON) scripts/trials.py --target tools --proofs $(PROOFS)
+	$(if $(strip $(PROOFS)),$(PYTHON) scripts/trials.py --target tools --proofs $(PROOFS),$(TOOL_PROOFS))
+
+# The full suite runs every proof and the landing gate the proofs the branch changed, as
+# scripts/changed_tool_proofs.py selects them;
+# pre-job has already linted them (0944).
+tool-proofs:
+	$(TOOL_PROOFS) $(if $(strip $(RUST_TEST_THREADS)),--test-threads $(RUST_TEST_THREADS))
+
+changed-tool-proofs:
+	$(PYTHON) scripts/changed_tool_proofs.py
 
 gate-stage-check:
 	$(PYTHON) -m unittest scripts.test_gate_stages
