@@ -40,7 +40,7 @@ pub fn get(
     for row in rows {
         match row.value {
             Native::Version(v) => versions.push(v),
-            Native::Specimens(x) => xml = xml.or(Some(x)),
+            Native::Test(x) => xml = xml.or(Some(x)),
             Native::Lab(_) => {}
             Native::Refused(r) => {
                 refusals = crate::Refusal::Refused;

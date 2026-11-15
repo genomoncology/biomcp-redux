@@ -186,13 +186,45 @@ pub struct GtrCard {
     /// The laboratory's certifications (such as CLIA, CAP and ISO15189) as GTR's XML release lists them; state licenses stay in `state_licenses`.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub laboratory_certifications: Box<[GtrLabCertification]>,
-    /// The GTR file that `header.specimens` and `laboratory_certifications` came from; absent when neither is present.
+    /// The laboratory's mailing address as GTR's XML release lists it; absent when GTR lists none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub laboratory_address: Option<GtrLabAddress>,
+    /// The laboratory's directors, by GTR's display name, as its XML release lists them.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub laboratory_directors: Box<[Text]>,
+    /// The laboratory's how-to-order link for this test, as published; absent when GTR lists none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub order_url: Option<Text>,
+    /// The laboratory's own page for this test, as published; absent when GTR lists none.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub test_url: Option<Text>,
+    /// The GTR file that `header.specimens` and the laboratory and link fields above came from; absent when none is present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub xml_release_url: Option<Text>,
     /// Source-supported named pages.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub sections: Box<[DiagnosticSection]>,
+}
+/// A laboratory's mailing address as published, without validation.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GtrLabAddress {
+    /// Street lines in order.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub lines: Box<[Text]>,
+    /// City.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub city: Option<Text>,
+    /// State or region.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<Text>,
+    /// Postal code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub postcode: Option<Text>,
+    /// Country.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub country: Option<Text>,
 }
 /// One laboratory certification as published; an expiration date is shown, never judged.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

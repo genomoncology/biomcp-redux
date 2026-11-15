@@ -1,6 +1,7 @@
 # 0899 — ema-picks-earliest-authorisation
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 9d2e5ba4065ffe3921044db6f5cded265a3e40f7
 
 Milestone: 7
 
@@ -31,3 +32,9 @@ A regulatory-affairs user comparing first approvals across markets is misled tod
 ## Changes
 
 - Changes: the EMA drug lookup in `crates/biomcp-query/src/drug/`, `crates/biomcp-types/src/drug/markets.rs` and `crates/biomcp-types/schemas/drug-markets.json` (description only: the `matches` text ends "this row is one of them", false when the market reports 0; say "a found row is one of them"), `tests/cases/drug/markets.yaml`, `tests/replies/drug/markets/` (README: NDA204790 and NDA021335 are also asked twice, like NDA020596; or reuse the first read in `fda()` at `markets.rs:78` so none is).
+
+## Progress
+
+- 2026-11-15: The recorded EMA medicines file (2026-11-13) already holds Epivir. Its four lamivudine medicines in file order are Lamivudine Teva Pharma B.V. (EMEA/H/C/001111, 10/12/2009), Epivir (EMEA/H/C/000107, 08/08/1996), Zeffix (EMEA/H/C/000242, 29/07/1999) and Lamivudine Teva (EMEA/H/C/001113, 23/10/2009). Imatinib's earliest of 8 EMA matches is Glivec (07/11/2001, already chosen); dolutegravir has one match.
+- The EMA name lookup now ranks exact brand before generic, then earliest `marketing_authorisation_date` (undated last), keeping file order among equals. Its choice reads "exact brand before generic, then earliest marketing authorisation; source search order among equals"; the get-drug input description says EMA prefers earliest authorisation. The markets case now expects EMEA/H/C/000107, Epivir, 1996-08-08 for lamivudine; dolutegravir and imatinib records are unchanged.
+- The `matches` description now ends "a found row is one of them". The replies README notes NDA204790 and NDA021335 are each asked twice (2 exchanges recorded, as for NDA020596).

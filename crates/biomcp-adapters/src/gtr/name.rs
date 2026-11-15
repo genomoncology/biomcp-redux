@@ -125,7 +125,7 @@ pub(super) fn read(
                 }
                 list.push(v);
             }
-            Native::Refused(_) | Native::Relation(_) | Native::Specimens(_) | Native::Lab(_) => {}
+            Native::Refused(_) | Native::Relation(_) | Native::Test(_) | Native::Lab(_) => {}
         }
     }
     let matches: HashMap<_, _> = versions
@@ -229,7 +229,7 @@ fn specimens(
     }
     let mut out = HashMap::new();
     for row in rows {
-        if let Native::Specimens(x) = row.value {
+        if let Native::Test(x) = row.value {
             out.entry(x.id.clone()).or_insert(x);
         }
     }

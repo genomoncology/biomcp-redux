@@ -72,7 +72,7 @@
           "description": "Drugs@FDA sponsor, EMA marketing authorisation holder, or WHO applicant."
         },
         "matches": {
-          "description": "How many records in this source matched the name; this row is one of them.",
+          "description": "How many records in this source matched the name; a found row is one of them.",
           "format": "uint64",
           "minimum": 0,
           "type": [
@@ -986,7 +986,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",
