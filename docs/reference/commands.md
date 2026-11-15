@@ -1103,7 +1103,7 @@ Cell-owned typed NDA/BLA application. Value form: string; example: --drug-applic
 - `--gene`: Exact gene symbol.
 Exact source gene_symbol field, without alias expansion. Value form: string; example: --gene BRCA1; only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.
-Exact source GeneID, exclusive with gene symbol. Value form: string; example: --gene-id 672; only with --source gtr.
+Exact source GeneID, exclusive with gene symbol. Value form: string; example: --gene-id 1956; only with --source gtr.
 - `--initiated-from`: First date, YYYY-MM-DD.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-device-recall.
 - `--initiated-to`: Last date, YYYY-MM-DD.

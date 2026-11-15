@@ -2869,7 +2869,7 @@
               "type": "null"
             }
           ],
-          "description": "Exact MedGen:CUI.\nExact MedGen:CUI identifier only.",
+          "description": "Exact MedGen:CUI.\nExact MedGen:CUI identifier only; with a gene, tests that list both.",
           "x-required-component": "gtr"
         },
         "date_from": {
