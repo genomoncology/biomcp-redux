@@ -109,7 +109,15 @@ fn newer_file_is_refused_untouched() {
     let path = folder.path().join("saved.sqlite");
     let mut store = SavedStore::open(&path).unwrap();
     store
-        .list_add(&text("genes"), &[NewItem { entity: text("gene"), id: text("BRAF"), source: None, note: None }])
+        .list_add(
+            &text("genes"),
+            &[NewItem {
+                entity: text("gene"),
+                id: text("BRAF"),
+                source: None,
+                note: None,
+            }],
+        )
         .unwrap();
     drop(store);
     let newer = i64::try_from(MIGRATIONS.len() + 1).unwrap();
@@ -131,11 +139,19 @@ fn newer_file_is_refused_untouched() {
     let changes: i64 = connection
         .query_row("PRAGMA data_version", [], |row| row.get(0))
         .unwrap();
-    assert_eq!(SavedStore::open(&path).err(), Some(SavedError::Newer), "newer file refused");
+    assert_eq!(
+        SavedStore::open(&path).err(),
+        Some(SavedError::Newer),
+        "newer file refused"
+    );
     let after: i64 = connection
         .query_row("PRAGMA data_version", [], |row| row.get(0))
         .unwrap();
     assert_eq!(after, changes, "no other connection wrote the refused file");
-    assert_eq!(state(&connection), before, "refused file keeps its version, tables and items");
+    assert_eq!(
+        state(&connection),
+        before,
+        "refused file keeps its version, tables and items"
+    );
     assert_eq!(before.0, newer, "the newer version stays");
 }
