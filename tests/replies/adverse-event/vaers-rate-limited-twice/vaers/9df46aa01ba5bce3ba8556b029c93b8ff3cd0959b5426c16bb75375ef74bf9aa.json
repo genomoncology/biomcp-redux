@@ -1,0 +1,33 @@
+{
+  "method": "POST",
+  "source": "vaers",
+  "url": "https://wonder.cdc.gov/controller/datarequest/D8",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "c768ab536ccd6014df03043d5d9b49e4271bb74c3cabf9cb0ceb5bb3393d47d5"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794745873,
+      "status": 429,
+      "content_type": "text/html;charset=ISO-8859-1",
+      "delay_ms": 553,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<?xml version=\"1.0\"?>\n<page>\n<platform>prod</platform>\n<title>Processing Error</title><message>Request rate exceeded. To protect system resources, API/XML requests must have at least 15 seconds between consecutive requests. Please implement a 15-second wait period in your code before making the next request. For questions, contact CDC WONDER User Support at cwus@cdc.gov.</message>\n</page>"
+      }
+    },
+    {
+      "fetched": 1794745888,
+      "status": 429,
+      "content_type": "text/html;charset=ISO-8859-1",
+      "delay_ms": 553,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "<?xml version=\"1.0\"?>\n<page>\n<platform>prod</platform>\n<title>Processing Error</title><message>Request rate exceeded. To protect system resources, API/XML requests must have at least 15 seconds between consecutive requests. Please implement a 15-second wait period in your code before making the next request. For questions, contact CDC WONDER User Support at cwus@cdc.gov.</message>\n</page>"
+      }
+    }
+  ]
+}

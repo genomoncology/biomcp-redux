@@ -1,0 +1,34 @@
+{
+  "feature": "vaers-summary",
+  "story": "When CDC WONDER refuses a VAERS table and refuses the one retry too, the source fails honestly as rate-limited and its notice says to retry in 15 seconds, the spacing WONDER asks for.",
+  "live_check": "synthetic: WONDER's recorded 429 from pm job j41113 replayed for both requests",
+  "replay": "adverse-event/vaers-rate-limited-twice",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "MMR",
+        "age",
+        "--source",
+        "vaers"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "MMR",
+        "age",
+        "--source",
+        "vaers"
+      ],
+      "exit": 4,
+      "max_bytes": 2000,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "vaers",
+        "/sources/0/reason": "rate-limited",
+        "/sources/0/notices/0/retry_after_seconds": 15
+      }
+    }
+  ]
+}
