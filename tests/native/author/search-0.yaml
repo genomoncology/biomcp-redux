@@ -1,6 +1,7 @@
 {
   "feature": "author-search",
   "story": "Exact retained source metadata preserves provider identity and record-scoped counts",
+  "live_check": "Live Semantic Scholar check (0973): each expected ID is a real record the source returns for this name; Semantic Scholar is noncommercial, and no reply is kept in Git.",
   "harvest": "sdlc/planning/slices/author.md",
   "steps": [
     {

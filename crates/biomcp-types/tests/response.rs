@@ -347,7 +347,7 @@ fn registered_reply_ids_are_unique_and_read_their_concrete_envelope()
 fn interaction_page_states_its_total_before_its_rows() -> Result<(), Box<dyn std::error::Error>> {
     // 0937: an agent reading only the start of a long reply must see that the rows are one page.
     let row = json!(
-        {"anchor":{"id":"DDInter1","namespace":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2",
+        {"anchor":{"id":"DDInter9001","namespace":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter9002",
         "namespace":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter",
         "record":"B-synthetic"}}
     );

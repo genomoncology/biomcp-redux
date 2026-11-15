@@ -9,6 +9,7 @@
   },
   "risk": "Exact author request forms lack retained current source evidence",
   "stop": "Stop each source at first failed or empty required witness; no retry, redirect, fallback, extra page or replacement absent probe",
+  "live_inputs": "Live capture (0973): each ORCID person and works request must name a real record, so they name two real iDs; ORCID is noncommercial, and no reply is kept in Git.",
   "phase1": [
     {
       "id": "byline-17611497",

@@ -5,6 +5,7 @@ pub(crate) static DECL: SourceDecl = SourceDecl {
     display: "ORCID",
     discovery_aliases: &[],
     registry_order: Some(41),
+    // The live health check must read a real public record, so it keeps one real iD (0973).
     probe: Probe::Get("/0000-0002-4299-3018/person", &[]),
     components: &[],
     auxiliary: &[],

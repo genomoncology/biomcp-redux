@@ -125,7 +125,7 @@ fn called_sources_read_only_their_own_environment_key_once() {
         ),
         (
             vec![SecretName::OrcidAccessToken],
-            vec!["get", "author", "orcid:0000-0002-4299-3018"],
+            vec!["get", "author", "orcid:0000-0000-0000-0925"],
         ),
         (
             vec![SecretName::NcbiApiKey],
@@ -279,7 +279,7 @@ fn saved_query_pages_never_resolve_credentials() {
 fn disabled_author_sources_never_read_credentials() {
     for (source, id) in [
         ("semantic-scholar", "semantic-scholar:123"),
-        ("orcid", "orcid:0000-0002-4299-3018"),
+        ("orcid", "orcid:0000-0000-0000-0925"),
     ] {
         for selector in [source, "noncommercial"] {
             let mut commands = vec![vec!["get", "author", id], vec!["author", "papers", id]];

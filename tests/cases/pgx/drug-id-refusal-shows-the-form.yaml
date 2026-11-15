@@ -34,7 +34,7 @@
         "--source",
         "cpic",
         "--drug-id",
-        "PA166104521"
+        "PA900000003"
       ],
       "exit": 2,
       "expect": {
