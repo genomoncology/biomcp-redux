@@ -74,7 +74,7 @@ impl Recordings {
             .ok_or(RecordError::Malformed)?;
         let binary_owner =
             owner.with_file_name(format!("{stem}-grpc-{}.json", recording.exchanges.len()));
-        rpc.messages = publish_messages(&binary_owner, spool)?;
+        rpc.messages = publish_messages(&capture.dir, &binary_owner, spool)?;
         recording.exchanges.push(Exchange {
             fetched: crate::cache::timestamp(),
             status: 200,
@@ -86,7 +86,7 @@ impl Recordings {
             body: Body::Text(String::new()),
             rpc: Some(rpc),
         });
-        let result = publish(&owner, recording, MAX_FILE_BYTES);
+        let result = publish(&capture.dir, &owner, recording, MAX_FILE_BYTES);
         if result.is_err() {
             let exchange = recording.exchanges.pop().ok_or(RecordError::Malformed)?;
             if let Some(rpc) = exchange.rpc {
@@ -105,11 +105,15 @@ impl Recordings {
         let Self::Replay { dir, .. } = self else {
             return Err(RecordError::Malformed);
         };
-        sidecar::read(&path(dir, source, key), &message.sidecar, limit)
+        sidecar::read(dir, &path(dir, source, key), &message.sidecar, limit)
     }
 }
 
-fn publish_messages(owner: &Path, spool: &mut Spool) -> Result<Vec<Message>, RecordError> {
+fn publish_messages(
+    root: &Path,
+    owner: &Path,
+    spool: &mut Spool,
+) -> Result<Vec<Message>, RecordError> {
     let mut messages = Vec::new();
     for index in 0..spool.messages.len() {
         let result = (|| {
@@ -118,7 +122,7 @@ fn publish_messages(owner: &Path, spool: &mut Spool) -> Result<Vec<Message>, Rec
                 .get(index)
                 .ok_or(RecordError::Malformed)?
                 .delay_ms;
-            let sidecar = sidecar::publish(owner, index, &spool.message(index)?)?;
+            let sidecar = sidecar::publish(root, owner, index, &spool.message(index)?)?;
             Ok(Message { sidecar, delay_ms })
         })();
         match result {
