@@ -89,15 +89,22 @@ fn has_key(value: &Value, name: &str) -> bool {
 /// ORCID's own published test record, a fictitious researcher.
 const ORCID_EXAMPLE: &str = "0000-0002-1825-0097";
 
-/// A real ID may stay only where a live call needs a real record and the file says so:
-/// a JSON `live_check` or `live_inputs` field, or a code comment, naming a "real record".
+/// The ORCID health check reads one real public record; split so this file names no real iD.
+const PROBE: (&str, &str) = (
+    "crates/biomcp-adapters/src/orcid/decl.rs",
+    concat!("0000-0002-", "4299-3018"),
+);
+
+/// A real ID may stay only in the ORCID health probe, or in a live check under tests/native or
+/// a live capture under scripts whose `live_check` or `live_inputs` field names a "real record".
 pub(super) fn ids(root: &Path) -> Check {
     let mut files = Vec::new();
-    for folder in ["crates", "tests/native", "scripts", "sdlc/planning"] {
+    for folder in ["crates", "tests", "scripts", "sdlc/planning"] {
         let path = root.join(folder);
         if path.exists() {
             files.extend(all_files(&path)?.into_iter().filter(|file| {
-                folder != "crates" || file.extension().is_some_and(|extension| extension == "rs")
+                (folder != "crates" || file.extension().is_some_and(|extension| extension == "rs"))
+                    && !file.starts_with(root.join("tests/replies"))
             }));
         }
     }
@@ -106,13 +113,13 @@ pub(super) fn ids(root: &Path) -> Check {
         let Ok(text) = fs::read_to_string(&path) else {
             continue;
         };
-        let ids = real_ids(&text);
-        if !ids.is_empty() && !justified(&path, &text) {
-            found.push(format!(
-                "{} ({})",
-                path.strip_prefix(root)?.to_string_lossy(),
-                ids.join(", ")
-            ));
+        let relative = path.strip_prefix(root)?.to_string_lossy().replace('\\', "/");
+        let ids: Vec<String> = real_ids(&text)
+            .into_iter()
+            .filter(|id| (relative.as_str(), id.as_str()) != PROBE)
+            .collect();
+        if !ids.is_empty() && !justified(&relative, &text) {
+            found.push(format!("{relative} ({})", ids.join(", ")));
         }
     }
     if found.is_empty() {
@@ -126,23 +133,16 @@ pub(super) fn ids(root: &Path) -> Check {
     }
 }
 
-fn justified(path: &Path, text: &str) -> bool {
-    let field = serde_json::from_str::<Value>(text).is_ok_and(|value| {
-        ["live_check", "live_inputs"].iter().any(|key| {
-            value
-                .get(key)
-                .and_then(Value::as_str)
-                .is_some_and(|reason| reason.contains("real record"))
-        })
-    });
-    let hash = path
-        .extension()
-        .is_some_and(|extension| extension == "py" || extension == "sh");
-    field
-        || text.lines().any(|line| {
-            let line = line.trim_start();
-            (line.starts_with("//") || (hash && line.starts_with('#')))
-                && line.contains("real record")
+/// Only live checks and live captures may give a reason; code comments never excuse a real ID.
+fn justified(relative: &str, text: &str) -> bool {
+    (relative.starts_with("tests/native/") || relative.starts_with("scripts/"))
+        && serde_json::from_str::<Value>(text).is_ok_and(|value| {
+            ["live_check", "live_inputs"].iter().any(|key| {
+                value
+                    .get(key)
+                    .and_then(Value::as_str)
+                    .is_some_and(|reason| reason.contains("real record"))
+            })
         })
 }
 
@@ -349,5 +349,29 @@ fn real_ids_outside_replies_fail() -> Check {
         native.join("a.yaml"),
         case("a live call needs a real record"),
     )?;
-    ids(root.path())
+    ids(root.path())?;
+    let cases = root.path().join("tests/cases");
+    fs::create_dir_all(&cases)?;
+    fs::write(cases.join("a.yaml"), case("a live call needs a real record"))?;
+    if ids(root.path()).is_ok() {
+        return Err("a live check outside tests/native excused a real ID".into());
+    }
+    fs::remove_file(cases.join("a.yaml"))?;
+    fs::write(
+        tests.join("a.rs"),
+        format!("// a live call needs a real record\n\"{orcid}\"\n"),
+    )?;
+    if ids(root.path()).is_ok() {
+        return Err("a Rust comment excused a real ID".into());
+    }
+    fs::remove_file(tests.join("a.rs"))?;
+    let probe = root.path().join(PROBE.0);
+    fs::create_dir_all(probe.parent().ok_or("probe folder")?)?;
+    fs::write(&probe, format!("\"{}\"\n", PROBE.1))?;
+    ids(root.path())?;
+    fs::write(&probe, format!("\"{}\" \"{orcid}\"\n", PROBE.1))?;
+    if ids(root.path()).is_ok() {
+        return Err("the health probe file excused a second real ID".into());
+    }
+    Ok(())
 }
