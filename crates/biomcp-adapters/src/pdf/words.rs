@@ -3,10 +3,11 @@
 //! lopdf 0.47's `extract_text` adds a space after every `TJ` array. Word-made FDA summaries
 //! break one word across several text operations whenever the character spacing changes, so
 //! that space split words: P150047's summary read "plasmid sta ndard" and "teste d" (0968).
-//! This reader keeps lopdf's decoding, its line breaks at `ET`, `T*`, `'` and `"`, and its
-//! space for a wide `TJ` kerning gap, and adds a space between operations only when the next
-//! glyph starts a word gap or a line away from where the last one ended, as poppler's
-//! `pdftotext` decides. A font without glyph widths keeps lopdf's space after each `TJ` array.
+//! This reader keeps lopdf's decoding, its line breaks at `T*`, `'` and `"`, and its space
+//! for a wide `TJ` kerning gap. It adds a space between operations only when the next glyph
+//! starts a word gap or a line away from where the last one ended, as poppler's `pdftotext`
+//! decides, and keeps lopdf's line break at `ET` unless the next text object runs on in the
+//! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
 use lopdf::{Dictionary, Document, Encoding, Object, ObjectId, content::Content};
 use std::collections::BTreeMap;
 
@@ -29,6 +30,9 @@ pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::
     let mut reader = Reader::default();
     for operation in &content.operations {
         reader.apply(&operation.operator, &operation.operands, &fonts)?;
+    }
+    if reader.pending {
+        reader.newline();
     }
     Ok(reader.text)
 }
@@ -162,6 +166,17 @@ impl Matrix {
             f: values.next()??,
         })
     }
+    /// This matrix followed by `then`, as text space maps through the CTM to the page.
+    fn times(self, then: Self) -> Self {
+        Self {
+            a: self.a * then.a + self.b * then.c,
+            b: self.a * then.b + self.b * then.d,
+            c: self.c * then.a + self.d * then.c,
+            d: self.c * then.b + self.d * then.d,
+            e: self.e * then.a + self.f * then.c + then.e,
+            f: self.e * then.b + self.f * then.d + then.f,
+        }
+    }
     /// This matrix moved by `(x, y)` in its own text space.
     fn moved(self, x: f32, y: f32) -> Self {
         Self {
@@ -172,9 +187,10 @@ impl Matrix {
     }
 }
 
-/// Text state parameters that `q` and `Q` save and restore with the graphics state.
+/// The CTM and text state parameters that `q` and `Q` save and restore.
 #[derive(Clone)]
 struct State {
+    ctm: Matrix,
     char_space: f32,
     word_space: f32,
     scale: f32,
@@ -186,6 +202,7 @@ struct State {
 impl Default for State {
     fn default() -> Self {
         Self {
+            ctm: Matrix::default(),
             char_space: 0.0,
             word_space: 0.0,
             scale: 1.0,
@@ -196,8 +213,8 @@ impl Default for State {
     }
 }
 
-/// Where the last shown glyph ended and the font height there. Without widths the end is
-/// unknown, and `array` keeps lopdf's space after a `TJ` array.
+/// Where on the page the last shown glyph ended and the font height there. Without widths
+/// the end is unknown, and `array` keeps lopdf's space after a `TJ` array.
 #[derive(Clone, Copy)]
 struct End {
     x: f32,
@@ -215,6 +232,16 @@ struct Reader {
     line: Matrix,
     matrix: Matrix,
     end: Option<End>,
+    /// An `ET` line break waiting to see whether the next text continues the same word.
+    pending: bool,
+}
+
+/// How the next shown text sits against the last: run on, a word gap away, or on another line.
+#[derive(Clone, Copy, PartialEq)]
+enum Place {
+    Joined,
+    Word,
+    Line,
 }
 
 fn float(operands: &[Object], at: usize) -> f32 {
@@ -230,11 +257,19 @@ impl Reader {
             "BT" => {
                 self.line = Matrix::default();
                 self.matrix = self.line;
-                self.end = None;
             }
+            // lopdf ends each text object with a line break. Word draws table-cell text in
+            // separate text objects, so the break is kept only if the next text is not the
+            // same word running on ("Mutatio" then "ns" on one baseline in P150047).
+            "ET" if self.end.is_some_and(|end| end.measured) => self.pending = true,
             "ET" => {
                 self.newline();
                 self.end = None;
+            }
+            "cm" => {
+                if let Some(matrix) = Matrix::from(operands) {
+                    self.state.ctm = matrix.times(self.state.ctm);
+                }
             }
             "q" => self.saved.push(self.state.clone()),
             "Q" => {
@@ -281,6 +316,7 @@ impl Reader {
     }
 
     fn newline(&mut self) {
+        self.pending = false;
         if !self.text.ends_with('\n') {
             self.text.push('\n');
         }
@@ -331,15 +367,23 @@ impl Reader {
         if shown.is_empty() {
             return Ok(());
         }
-        let breaks = self.end.is_some_and(|end| self.breaks(end));
-        if breaks && !ends_blank(&self.text) && !shown.starts_with(char::is_whitespace) {
+        let place = self.end.map_or(Place::Joined, |end| self.place(end));
+        if std::mem::take(&mut self.pending) {
+            if place != Place::Joined {
+                self.newline();
+            }
+        } else if place != Place::Joined
+            && !ends_blank(&self.text)
+            && !shown.starts_with(char::is_whitespace)
+        {
             self.text.push(' ');
         }
         self.text.push_str(&shown);
         self.matrix = start.moved(advance, 0.0);
+        let page = self.matrix.times(self.state.ctm);
         self.end = Some(End {
-            x: self.matrix.e,
-            y: self.matrix.f,
+            x: page.e,
+            y: page.f,
             height: self.height(),
             measured: widths.is_some(),
             array,
@@ -370,26 +414,34 @@ impl Reader {
             .sum()
     }
 
-    /// The font size measured along the text matrix's vertical axis.
+    /// The font size on the page, measured along the text's vertical axis.
     fn height(&self) -> f32 {
-        self.state.size * self.matrix.c.hypot(self.matrix.d)
+        let page = self.matrix.times(self.state.ctm);
+        self.state.size * page.c.hypot(page.d)
     }
 
-    /// Whether the pen now sits a word gap or a line away from where the last glyph ended.
-    fn breaks(&self, end: End) -> bool {
-        let height = end.height.max(self.height());
-        let length = self.matrix.a.hypot(self.matrix.b);
+    /// Where the pen now sits against where the last glyph ended.
+    fn place(&self, end: End) -> Place {
         if !end.measured {
-            return end.array;
+            return if end.array { Place::Word } else { Place::Joined };
         }
+        let page = self.matrix.times(self.state.ctm);
+        let height = end.height.max(self.height());
+        let length = page.a.hypot(page.b);
         if height <= 0.0 || length <= 0.0 {
-            return true;
+            return Place::Word;
         }
-        let (x, y) = (self.matrix.e - end.x, self.matrix.f - end.y);
-        let (along_x, along_y) = (self.matrix.a / length, self.matrix.b / length);
+        let (x, y) = (page.e - end.x, page.f - end.y);
+        let (along_x, along_y) = (page.a / length, page.b / length);
         let along = x * along_x + y * along_y;
         let across = (x * along_y - y * along_x).abs();
-        across > LINE_GAP * height || along > WORD_GAP * height || along < -height
+        if across > LINE_GAP * height {
+            Place::Line
+        } else if along > WORD_GAP * height || along < -height {
+            Place::Word
+        } else {
+            Place::Joined
+        }
     }
 }
 
