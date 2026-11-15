@@ -1,0 +1,21 @@
+{
+  "feature": "sync-local-failure-names-cause",
+  "live_check": "Replays the WikiPathways search-catalog recording metadata captured live in pm job j40885, with its reply file name changed to an unsafe ../outside.bin; no live provider call",
+  "story": "A WikiPathways sync that fails on the local side, here because its recorded search-catalog reply names an unsafe file, exits 5 and says why in local_error instead of failing with no reason.",
+  "replay": "pathway/sync-recording-malformed",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "wikipathways"
+      ],
+      "exit": 5,
+      "expect": {
+        "/status": "failed",
+        "/local_error": "recording-malformed",
+        "/sources/0/source": "wikipathways",
+        "/sources/0/state": "failed"
+      }
+    }
+  ]
+}

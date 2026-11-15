@@ -30,7 +30,7 @@ pub struct Envelope<T: ResponseBody> {
     schema: String,
     /// Overall outcome.
     pub status: Status,
-    /// Bounded local cache failure, independent of provider outcomes.
+    /// Bounded local cache or recording failure, independent of provider outcomes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub local_error: Option<super::CacheProblem>,
     /// Parsed query.

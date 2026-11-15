@@ -220,3 +220,37 @@ pub(super) fn body_overflow_preserves_explicit_reader_reason() {
         );
     }
 }
+
+/// A --record folder reached through a symlinked parent, as macOS reaches /var/folders through
+/// /var, still captures and replays binary replies (0954).
+#[cfg(unix)]
+pub(super) fn capture_through_symlinked_parent_round_trips() {
+    let root = tempfile::tempdir().unwrap();
+    std::fs::create_dir(root.path().join("real")).unwrap();
+    let link = root.path().join("link");
+    std::os::unix::fs::symlink(root.path().join("real"), &link).unwrap();
+    let server = Server::new();
+    let spec = spec(&server);
+    let capture = Fetch::open(FetchConfig {
+        mode: Mode::Record {
+            dir: link.join("capture"),
+        },
+        max_body: 2,
+        ..FetchConfig::default()
+    })
+    .unwrap();
+    record_binary_replies(&capture, &server, spec);
+    drop(capture);
+    let replay = fetch(Mode::Replay {
+        dir: link.join("capture"),
+    });
+    assert_eq!(
+        [bytes(&replay, spec).unwrap(), bytes(&replay, spec).unwrap()],
+        [b"first\x00\xff".to_vec(), b"second\x00\xfe".to_vec()],
+        "A capture under a symlinked parent folder must record and replay its binary replies"
+    );
+    assert!(
+        server.requests.try_recv().is_err(),
+        "Replay through a symlinked parent folder must not reach the network"
+    );
+}

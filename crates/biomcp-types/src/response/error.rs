@@ -364,7 +364,7 @@ pub struct ErrorEnvelope {
     schema: ErrorSchema,
     status: ErrorStatus,
     error: ErrorDetail,
-    /// Bounded cache failure when local startup cannot open its store.
+    /// Bounded cache or recording failure when local startup cannot open its store or capture.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub local_error: Option<super::CacheProblem>,
     /// Typed restart when a snapshot cannot answer this query.

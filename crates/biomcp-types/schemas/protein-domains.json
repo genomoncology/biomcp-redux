@@ -137,7 +137,7 @@
       "type": "object"
     },
     "Reply_CacheProblem": {
-      "description": "A local cache failure that leaves the provider outcome intact.",
+      "description": "A local cache or recording failure, independent of what the provider returned.",
       "enum": [
         "busy",
         "database",
@@ -146,7 +146,14 @@
         "internal",
         "limit",
         "snapshot",
-        "version"
+        "version",
+        "recording-conflict",
+        "recording-io",
+        "recording-missing",
+        "recording-exhausted",
+        "recording-malformed",
+        "recording-limit",
+        "recording-non-utf8"
       ],
       "type": "string"
     },
@@ -1117,7 +1124,7 @@
           "type": "null"
         }
       ],
-      "description": "Bounded local cache failure, independent of provider outcomes."
+      "description": "Bounded local cache or recording failure, independent of provider outcomes."
     },
     "next": {
       "description": "Available next commands.",
