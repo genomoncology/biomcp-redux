@@ -1,0 +1,720 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=status%3A%22Ongoing%22&limit=10&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794775366,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 397,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 10,
+              "total": 2857
+            }
+          },
+          "results": [
+            {
+              "status": "Ongoing",
+              "city": "Singapore",
+              "state": "",
+              "country": "Singapore",
+              "classification": "Class II",
+              "openfda": {
+                "application_number": [
+                  "M017"
+                ],
+                "brand_name": [
+                  "MENTHOL AND METHYL SALICYLATE"
+                ],
+                "generic_name": [
+                  "ELECTRIC MEDICATED BALM ULTRA STRENGTH"
+                ],
+                "manufacturer_name": [
+                  "FEI FAH MEDICAL MANUFACTURING PTE LTD"
+                ],
+                "product_ndc": [
+                  "63299-001"
+                ],
+                "product_type": [
+                  "HUMAN OTC DRUG"
+                ],
+                "route": [
+                  "TOPICAL"
+                ],
+                "substance_name": [
+                  "MENTHOL",
+                  "METHYL SALICYLATE"
+                ],
+                "rxcui": [
+                  "2002730"
+                ],
+                "spl_id": [
+                  "4344ef98-ce28-2cec-e063-6294a90a1c74"
+                ],
+                "spl_set_id": [
+                  "91e6d3b9-25bb-4015-9d96-bd27f93e5ada"
+                ],
+                "package_ndc": [
+                  "63299-001-01",
+                  "63299-001-02"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "L7T10EIP3A",
+                  "LAV5U5022Y"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100211",
+              "recalling_firm": "Fei Fah Medical Manufacturing Pte. Ltd.",
+              "address_1": "61 Kaki Bukit Avenue 1",
+              "address_2": "#02-29 Shun Li Industrial Park",
+              "postal_code": "N/A",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide within the U.S",
+              "recall_number": "",
+              "product_description": "ULTRA STRENTGH, ELECTRIC MIDICATED BALM (menthol 16% and methyl salicylate 32%) packaged in a) Net 2.45 oz (70g) (NDC 63299-001-01) and b) 10g (NDC 63299-001-02), Manufactured by Fei Fah Medical Mfg Pte Ltd, Singapore, U.S Distributor: SOLISTICE MEDICINE COMPANY, 215 West Ann Street, Los Angeles, CA 90012",
+              "product_quantity": "171,120 units",
+              "reason_for_recall": "CGMP Deviations",
+              "recall_initiation_date": "20261023",
+              "center_classification_date": "20261027",
+              "report_date": "20261104",
+              "code_info": "Lot: a)23FEBU7001-019, Exp. Date: October 2028; 24FEBU7001-020, Exp. Date: November 2029. b) 23FEBU1001-9, Exp. Date: October 2028; 24FEBU1001-004, Exp. Date: November 2029.",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Rangareddy District",
+              "state": "",
+              "country": "India",
+              "classification": "Class II",
+              "openfda": {
+                "application_number": [
+                  "ANDA211933"
+                ],
+                "brand_name": [
+                  "ATORVASTATIN CALCIUM"
+                ],
+                "generic_name": [
+                  "ATORVASTATIN CALCIUM"
+                ],
+                "manufacturer_name": [
+                  "Novadoz Pharmaceuticals LLC"
+                ],
+                "product_ndc": [
+                  "72205-022",
+                  "72205-023",
+                  "72205-024",
+                  "72205-025"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "ATORVASTATIN CALCIUM TRIHYDRATE"
+                ],
+                "rxcui": [
+                  "259255",
+                  "617310",
+                  "617311",
+                  "617312"
+                ],
+                "spl_id": [
+                  "11823aa6-547f-4c0b-983a-65b837f94e89"
+                ],
+                "spl_set_id": [
+                  "bc448f40-421c-490f-8c39-fa8135507973"
+                ],
+                "package_ndc": [
+                  "72205-022-30",
+                  "72205-022-90",
+                  "72205-022-05",
+                  "72205-022-99",
+                  "72205-023-30",
+                  "72205-023-90",
+                  "72205-023-05",
+                  "72205-023-99",
+                  "72205-024-30",
+                  "72205-024-90",
+                  "72205-024-05",
+                  "72205-024-99",
+                  "72205-025-30",
+                  "72205-025-90",
+                  "72205-025-05",
+                  "72205-025-99"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0372205025905",
+                  "0372205025059",
+                  "0372205024052"
+                ],
+                "unii": [
+                  "48A5M73Z4Q"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100172",
+              "recalling_firm": "MSN Laboratories Private Limited (Formulations Division, Unit-II)",
+              "address_1": "Survey # 1277, 1319-1324",
+              "address_2": "Nandigama (Village & Mandal)",
+              "postal_code": "N/A",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide in the USA.",
+              "recall_number": "",
+              "product_description": "Atorvastatin Calcium Tablets, USP, 40mg, 1000 tablets per bottle, Rx only, Manufactured by: MSL Laboratories Private Limited, Telangana - 509228, India; Distributed by: Novadoz Pharmaceuticals LLC, Piscataway, NJ 08854-3714.  NDC: 72205-024-99",
+              "product_quantity": "13,296 1,000-count bottles",
+              "reason_for_recall": "Presence of Foreign Tablets/Capsules",
+              "recall_initiation_date": "20261021",
+              "center_classification_date": "20261029",
+              "report_date": "20261104",
+              "code_info": "Lot: DRF09618A, Exp 08-31-2029, DRG02110A, Exp 01-31-2030.",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "San Antonio",
+              "state": "TX",
+              "country": "United States",
+              "classification": "Not Yet Classified",
+              "openfda": {
+                "application_number": [
+                  "ANDA209190"
+                ],
+                "brand_name": [
+                  "TRIDACAINE III"
+                ],
+                "generic_name": [
+                  "LIDOCAINE"
+                ],
+                "manufacturer_name": [
+                  "Trifluent Pharma LLC"
+                ],
+                "product_ndc": [
+                  "73352-835"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "TOPICAL"
+                ],
+                "substance_name": [
+                  "LIDOCAINE"
+                ],
+                "rxcui": [
+                  "1745091",
+                  "2678310"
+                ],
+                "spl_id": [
+                  "6301ec53-9e39-4e52-ac77-44be136b5327"
+                ],
+                "spl_set_id": [
+                  "9b47102e-3b35-4aa7-a380-cd02ba9eac65"
+                ],
+                "package_ndc": [
+                  "73352-835-01",
+                  "73352-835-15"
+                ],
+                "original_packager_product_ndc": [
+                  "82347-0505"
+                ],
+                "upc": [
+                  "0373352835157"
+                ],
+                "nui": [
+                  "N0000175682",
+                  "M0000897",
+                  "N0000175426",
+                  "N0000175976"
+                ],
+                "pharm_class_epc": [
+                  "Amide Local Anesthetic [EPC]",
+                  "Antiarrhythmic [EPC]"
+                ],
+                "pharm_class_cs": [
+                  "Amides [CS]"
+                ],
+                "pharm_class_pe": [
+                  "Local Anesthesia [PE]"
+                ],
+                "unii": [
+                  "98PI200987"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100178",
+              "recalling_firm": "Trifluent Pharma LLC",
+              "address_1": "4310 West Ave",
+              "address_2": "",
+              "postal_code": "78213-3033",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Telephone",
+              "distribution_pattern": "US",
+              "recall_number": "",
+              "product_description": "Tridacaine III / Lidocaine Patch 5%, 15 envelopes containing 1 patch each per pouch, Rx only, Distributed by: Trifluent Pharma San Antonio, TX 78213, NDC 73352-835-15.",
+              "product_quantity": "68 pouches",
+              "reason_for_recall": "Labeling: Incorrect or Missing Lot and/or Exp Date. Incorrect expiration date printed on the label.",
+              "recall_initiation_date": "20261016",
+              "report_date": "20261104",
+              "code_info": "Lot #: L2606225A, Exp. Date 06/22/2029.",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Columbia",
+              "state": "SC",
+              "country": "United States",
+              "classification": "Class II",
+              "openfda": {
+                "application_number": [
+                  "ANDA216486"
+                ],
+                "brand_name": [
+                  "FORMOTEROL FUMARATE INHALATION SOLUTION"
+                ],
+                "generic_name": [
+                  "FORMOTEROL FUMARATE DIHYDRATE"
+                ],
+                "manufacturer_name": [
+                  "Ritedose Pharmaceuticals, LLC"
+                ],
+                "product_ndc": [
+                  "76204-030"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "RESPIRATORY (INHALATION)"
+                ],
+                "substance_name": [
+                  "FORMOTEROL FUMARATE"
+                ],
+                "rxcui": [
+                  "1246319"
+                ],
+                "spl_id": [
+                  "459f276c-d771-4ae9-e063-6394a90a3476"
+                ],
+                "spl_set_id": [
+                  "2d9bf685-8886-4865-834b-2748af124b79"
+                ],
+                "package_ndc": [
+                  "76204-030-02",
+                  "76204-030-01"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "W34SHF8J2K"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100124",
+              "recalling_firm": "The Ritedose Corporation",
+              "address_1": "1 Technology Cir",
+              "address_2": "",
+              "postal_code": "29203-9591",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide within the U.S",
+              "recall_number": "",
+              "product_description": "Formoterol Fumarate Inhalation Solution, 20mcg/2mL, packaged in cartons of 30 individually wrapped vials (NDC 76204-030-01) and 60 individually wrapped vials (NDC 76204-030-02), Rx only, Manufactured for and by: Ritedose Pharmaceuticals, LLC, Columbia, SC",
+              "product_quantity": "3210 Cartons",
+              "reason_for_recall": "Failed Impurities/Degradation Specification",
+              "recall_initiation_date": "20261015",
+              "center_classification_date": "20261023",
+              "report_date": "20261104",
+              "code_info": "Lot: 25BL0, Expires: 02/28/2027",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Ronkonkoma",
+              "state": "NY",
+              "country": "United States",
+              "classification": "Class III",
+              "openfda": {},
+              "product_type": "Drugs",
+              "event_id": "100132",
+              "recalling_firm": "Prodose, Inc.",
+              "address_1": "2004 Orville Dr N Ste 2",
+              "address_2": "",
+              "postal_code": "11779-7645",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide in the USA",
+              "recall_number": "",
+              "product_description": "ValuHealth Extra Strength Pain Relief Acetaminophen 500 mg, 40-caplets per bottle, Distributed by:Prodose, Inc. Ronkonkoma, NY 11779, Made in India. UPC 8 50026 88900 0",
+              "product_quantity": "100,134 40-count bottles",
+              "reason_for_recall": "Incorrect label placed on product: Outer carton label correctly identifies drug product in bottle as ValuHealth Extra Strength Pain Relief Acetaminophen 500 mg,but inner label on bottle says ValuHealth Extra Strength Pain Relief PM",
+              "recall_initiation_date": "20261014",
+              "center_classification_date": "20261026",
+              "report_date": "20261104",
+              "code_info": "Lot #: P260252, Exp 4/30/2029",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Rochester",
+              "state": "MI",
+              "country": "United States",
+              "classification": "Class I",
+              "openfda": {
+                "application_number": [
+                  "ANDA091665"
+                ],
+                "brand_name": [
+                  "ARGATROBAN"
+                ],
+                "generic_name": [
+                  "ARGATROBAN"
+                ],
+                "manufacturer_name": [
+                  "Par Health USA, LLC"
+                ],
+                "product_ndc": [
+                  "42023-182"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "INTRAVENOUS"
+                ],
+                "substance_name": [
+                  "ARGATROBAN"
+                ],
+                "rxcui": [
+                  "308351"
+                ],
+                "spl_id": [
+                  "05c8d32d-744b-4758-a94e-d912f410bbf7"
+                ],
+                "spl_set_id": [
+                  "d4e5238f-2378-424e-bda2-f1a2cf874041"
+                ],
+                "package_ndc": [
+                  "42023-182-01"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000175980",
+                  "N0000175518",
+                  "N0000009963"
+                ],
+                "pharm_class_epc": [
+                  "Anti-coagulant [EPC]",
+                  "Direct Thrombin Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Thrombin Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "IY90U61Z3S"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100072",
+              "recalling_firm": "Par Health USA, LLC",
+              "address_1": "870 Parkdale Rd",
+              "address_2": "",
+              "postal_code": "48307-1740",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Press Release",
+              "distribution_pattern": "Nationwide within the United States",
+              "recall_number": "",
+              "product_description": "Argatroban Injection, USP, 250 mg/2.5mL (100 mg/mL), 2.5 mL x 1 Single Dose Vial, Rx only, Manufactured for: Endo USA, Malvern,PA 19355/Argatroban Injection, 250 mg/2.5mL (100 mg/mL), 2.5 mL x 1 Single Dose Vial, Rx only,  Distributed by: Par Pharmaceutical, Chestnut Ridge, NY 10977, NDC 42023-182-01.",
+              "product_quantity": "18,991 vials",
+              "reason_for_recall": "Particulate matter: particulate matter identified as cellulose, polystyrene, polyethylene teraphalate, stainless steel, or stopper material in the product solution.",
+              "recall_initiation_date": "20261013",
+              "center_classification_date": "20261026",
+              "report_date": "20261028",
+              "code_info": "Lot #: 83449, Exp Date: 10/2026; 82682, Exp Date: 11/2026; 86714, 87302, 87560, Exp Date: 02/2027; 87753, 88401, Exp Date: 03/2027; 88614, 88836, Exp Date: 04/2027; 90220, Exp Date: 05/2027; 91216, 91219, Exp Date: 06/2027; 92004, 92006, Exp Date: 07/2027; 92009, 92596, 92782, 93107, 93329, Exp Date: 08/2027; 93890, Exp Date: 09/2027.",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Rochester",
+              "state": "MI",
+              "country": "United States",
+              "classification": "Class I",
+              "openfda": {
+                "application_number": [
+                  "ANDA091665"
+                ],
+                "brand_name": [
+                  "ARGATROBAN"
+                ],
+                "generic_name": [
+                  "ARGATROBAN"
+                ],
+                "manufacturer_name": [
+                  "Par Health USA, LLC"
+                ],
+                "product_ndc": [
+                  "42023-182"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "INTRAVENOUS"
+                ],
+                "substance_name": [
+                  "ARGATROBAN"
+                ],
+                "rxcui": [
+                  "308351"
+                ],
+                "spl_id": [
+                  "493ddc78-4566-486f-8cdd-7d6868ddf153"
+                ],
+                "spl_set_id": [
+                  "1a67a87d-59cb-414c-a11e-ab8f0a9bb778"
+                ],
+                "package_ndc": [
+                  "42023-182-89"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "nui": [
+                  "N0000175980",
+                  "N0000175518",
+                  "N0000009963"
+                ],
+                "pharm_class_epc": [
+                  "Anti-coagulant [EPC]",
+                  "Direct Thrombin Inhibitor [EPC]"
+                ],
+                "pharm_class_moa": [
+                  "Thrombin Inhibitors [MoA]"
+                ],
+                "unii": [
+                  "IY90U61Z3S"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100072",
+              "recalling_firm": "Par Health USA, LLC",
+              "address_1": "870 Parkdale Rd",
+              "address_2": "",
+              "postal_code": "48307-1740",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Press Release",
+              "distribution_pattern": "Nationwide within the United States",
+              "recall_number": "",
+              "product_description": "Argatroban Injection, USP, 250 mg/2.5mL (100 mg/mL), 2.5 mL x 1 Single Dose Vial, Rx only, Manufactured for: Endo USA, Malvern,PA 19355/ Argatroban Injection, 250 mg/2.5mL (100 mg/mL), 2.5 mL x 1 Single Dose Vial, Rx only, Distributed by: Par Pharmaceutical, Cranbury, NJ 08512, NDC 42023-182-89.",
+              "product_quantity": "1944 vials",
+              "reason_for_recall": "Particulate matter: particulate matter identified as cellulose, polystyrene, polyethylene teraphalate, stainless steel, or stopper material in the product solution.",
+              "recall_initiation_date": "20261013",
+              "center_classification_date": "20261026",
+              "report_date": "20261028",
+              "code_info": "Lot #: 84193, Exp Date: 10/2026; 92880, Exp Date: 08/2027.",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Elmwood Park",
+              "state": "NJ",
+              "country": "United States",
+              "classification": "Class II",
+              "openfda": {
+                "application_number": [
+                  "ANDA209227"
+                ],
+                "brand_name": [
+                  "ABIRATERONE ACETATE"
+                ],
+                "generic_name": [
+                  "ABIRATERONE ACETATE"
+                ],
+                "manufacturer_name": [
+                  "Glenmark Pharmaceuticals Inc., USA"
+                ],
+                "product_ndc": [
+                  "68462-135",
+                  "68462-882"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "ORAL"
+                ],
+                "substance_name": [
+                  "ABIRATERONE ACETATE"
+                ],
+                "rxcui": [
+                  "1100075",
+                  "1918042"
+                ],
+                "spl_id": [
+                  "ccb0d191-e233-4e8c-9485-044cbbdba4aa"
+                ],
+                "spl_set_id": [
+                  "ba32c453-a231-452a-a6d9-b3e57afb2e75"
+                ],
+                "package_ndc": [
+                  "68462-135-08",
+                  "68462-882-60"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "upc": [
+                  "0368462882603"
+                ],
+                "unii": [
+                  "EM5OCB9YJ6"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100128",
+              "recalling_firm": "Glenmark Pharmaceuticals Inc., USA",
+              "address_1": "619 River Dr",
+              "address_2": "",
+              "postal_code": "07407-1317",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "",
+              "distribution_pattern": "Nationwide within the United States",
+              "recall_number": "",
+              "product_description": "Abiraterone Acetate Tablets USP 500 mg, 60-count bottles, Rx only, Distributed by: Glenmark Pharmaceuticals USA, Elmwood Park, NJ 07407, NDC 68462-882-60",
+              "product_quantity": "1296 bottles",
+              "reason_for_recall": "Labeling: Not Elsewhere Classified",
+              "recall_initiation_date": "20261009",
+              "center_classification_date": "20261023",
+              "report_date": "20261104",
+              "code_info": "Lot #: 13250135, Exp. Date 11/2027",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Irving",
+              "state": "TX",
+              "country": "United States",
+              "classification": "Class II",
+              "openfda": {},
+              "product_type": "Drugs",
+              "event_id": "100109",
+              "recalling_firm": "Right Value Drug Stores LLC",
+              "address_1": "8400 Esters Blvd Ste 190",
+              "address_2": "",
+              "postal_code": "75063-2217",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "Nationwide in the USA.",
+              "recall_number": "",
+              "product_description": "Testosterone Cypionate, 200 mg/mL, packaged in a) 5 mL vials (NDC 73271-1225-1) and b) 30 m vials ( NDC 73271-1226-2) This Is A Compounded Dug, Intramuscular Use, Office Use Only, 8400 Esters Blvd, STE 190, Irving, TX 75063.",
+              "product_quantity": "4675 vials",
+              "reason_for_recall": "Lack of sterility assurance.",
+              "recall_initiation_date": "20261009",
+              "center_classification_date": "20261019",
+              "report_date": "20261028",
+              "code_info": "a) Lot 10212025@3, BUD 10/21/2026; 10292025@4, BUD 10/29/2026; 10282025@6, BUD: 10/29/2026; 12012025@1, BUD: 12/01/2026; 04072026@1, BUD: 04/01/2027; 05262026@3, BUD 05/08/2027; 05262026@7, BUD 11/17/2026; 05272026@1, BUD 05/08/2027; 05272026@2, BUD: 11/22/2026; 07032026@1, BUD 05/08/2027; 07022026@1, BUD: 05/08/2027; 07062026@3, BUD: 05/08/2027; 07072026@3, BUD: 12/30/2026.  b) 04012026@2, BUD 04/01/2027.",
+              "more_code_info": ""
+            },
+            {
+              "status": "Ongoing",
+              "city": "Chicago",
+              "state": "IL",
+              "country": "United States",
+              "classification": "Class III",
+              "openfda": {
+                "application_number": [
+                  "ANDA074688"
+                ],
+                "brand_name": [
+                  "VECURONIUM BROMIDE"
+                ],
+                "generic_name": [
+                  "VECURONIUM BROMIDE"
+                ],
+                "manufacturer_name": [
+                  "Meitheal Pharmaceuticals Inc."
+                ],
+                "product_ndc": [
+                  "71288-744",
+                  "71288-745"
+                ],
+                "product_type": [
+                  "HUMAN PRESCRIPTION DRUG"
+                ],
+                "route": [
+                  "INTRAVENOUS"
+                ],
+                "substance_name": [
+                  "VECURONIUM BROMIDE"
+                ],
+                "rxcui": [
+                  "859437"
+                ],
+                "spl_id": [
+                  "ef72e810-c31d-4c0a-8a7f-b1cfd8ac15ec"
+                ],
+                "spl_set_id": [
+                  "53653418-0464-4cd2-a987-3d31be36098f"
+                ],
+                "package_ndc": [
+                  "71288-744-10",
+                  "71288-744-11",
+                  "71288-745-20",
+                  "71288-745-21"
+                ],
+                "is_original_packager": [
+                  true
+                ],
+                "unii": [
+                  "7E4PHP5N1D"
+                ]
+              },
+              "product_type": "Drugs",
+              "event_id": "100110",
+              "recalling_firm": "Meitheal Pharmaceuticals, Inc",
+              "address_1": "8700 W Bryn Mawr Ave Ste 600s",
+              "address_2": "",
+              "postal_code": "60631-3529",
+              "voluntary_mandated": "Voluntary: Firm initiated",
+              "initial_firm_notification": "Letter",
+              "distribution_pattern": "US. Nationwide",
+              "recall_number": "",
+              "product_description": "Vecuronium Bromide for Injection, 10mg, 10 Single-Dose Vials per carton, Sterile, Rx Only, Mfd. for Meitheal Pharmaceuticals, Chicago, IL.  NDC: 71288-744-11",
+              "product_quantity": "121,800 vials",
+              "reason_for_recall": "Labeling: Label Lacks Warning or Rx Legend",
+              "recall_initiation_date": "20261008",
+              "center_classification_date": "20261029",
+              "report_date": "20261104",
+              "code_info": "Lot# T1P0213A: Exp.  30-Apr-29  Lot# T1P0313A: Exp.  30-Apr-29  Lot# T1P0412A: Exp. 30-Sep-28  Lot# T1P0413A: Exp. 30-Apr-29  Lot# T1P0512A: Exp.  30-Sep-28  Lot# T1P0513A: Exp.  30-Apr-29",
+              "more_code_info": ""
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

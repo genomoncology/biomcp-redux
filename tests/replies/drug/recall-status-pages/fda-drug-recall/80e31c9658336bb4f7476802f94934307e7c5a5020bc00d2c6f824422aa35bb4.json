@@ -1,0 +1,338 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=reason_for_recall%3A%22contamination%22&limit=10&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794775367,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 336,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 10,
+      "total": 2073
+    }
+  },
+  "results": [
+    {
+      "status": "Ongoing",
+      "city": "Tomball",
+      "state": "TX",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "100004",
+      "recalling_firm": "Greenwich Rx",
+      "address_1": "9733 Fm 2902 Rd. Suite 100",
+      "address_2": "",
+      "postal_code": "77375",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Press Release",
+      "distribution_pattern": "US Nationwide in th USA",
+      "recall_number": "D-0084-2027",
+      "product_description": "Glutathione Injection (Glutathione-L, Ascorbic Acid, Sodium Hydroxide, Bacteriostatic Water), 200 mg/mL, 10 mL multi-dose vial, Rx only, Subcutaneous Only, Greenwich Rx.",
+      "product_quantity": "4,319 vials",
+      "reason_for_recall": "Microbial Contamination of Sterile Products",
+      "recall_initiation_date": "20261001",
+      "center_classification_date": "20261027",
+      "report_date": "20261028",
+      "code_info": "Lot # 0060-062426-1, BUD: 10/02/2026; Lot # 0060-062726-1, BUD: 10/05/2026; Lot # 0060-070926-1, BUD: 10/17/2026; Lot # 0060-071426-1, BUD: 10/22/2026; Lot #0060-071426-2, BUD: 10/22/2026; Lot # 0060-072026-1, BUD: 10/28/2026; Lot # 0060-072726-1, BUD: 11/04/2026; Lot #0060-072926-1, BUD: 11/06/2026; Lot # 0060-073126-1; BUD: 11/08/2026; Lot # 0060-080426-1, BUD: 11/12/2026; Lot #: 0060-080526-1, BUD: 11/13/2026; Lot # 0060-081826-1, BUD: 11/26/2026.",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Brampton",
+      "state": "",
+      "country": "Canada",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99866",
+      "recalling_firm": "SV Labs Toronto Corporation",
+      "address_1": "296 Orenda Rd",
+      "address_2": "",
+      "postal_code": "N/A",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "E-Mail",
+      "distribution_pattern": "IL only",
+      "recall_number": "D-0879-2026",
+      "product_description": "Benzoyl Peroxide Wash, USP, 10%, packaged in a)5 FL OZ (148mL) bottles (NDC 0536-1261-63), and b) 8.5 FL OZ (237 mL) bottles (NDC 0536-1351-42), Distributed by: Rugby Laboratories, 17177 N. Laurel Park Drive, Suite 233, Livonia, MI 48152.",
+      "product_quantity": "",
+      "reason_for_recall": "Microbial contamination of topical product.",
+      "recall_initiation_date": "20260901",
+      "center_classification_date": "20260930",
+      "report_date": "20261007",
+      "code_info": "a) Lot #: 0575-01-366, Exp. Date Jan-27; 0565-02-336, Exp. Date FEB-27;  b) Lot #: 0645-02-355,  0575-02-336, Exp. Date Feb-27;  0565-12-317, Exp. Date Dec-26",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Brampton",
+      "state": "",
+      "country": "Canada",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99866",
+      "recalling_firm": "SV Labs Toronto Corporation",
+      "address_1": "296 Orenda Rd",
+      "address_2": "",
+      "postal_code": "N/A",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "E-Mail",
+      "distribution_pattern": "IL only",
+      "recall_number": "D-0878-2026",
+      "product_description": "Benzoyl Peroxide Wash, USP, 5%, 5 FL OZ (148 mL), Distributed by: Rugby Laboratories, 17177 N. Laurel Park Drive, Suite 233, Livonia, MI 48152.  NDC: 0536-1259-63",
+      "product_quantity": "",
+      "reason_for_recall": "Microbial contamination of topical product.",
+      "recall_initiation_date": "20260901",
+      "center_classification_date": "20260930",
+      "report_date": "20261007",
+      "code_info": "Lot #: 0525-02-345, Exp. Date 02/2027",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Franklin",
+      "state": "TN",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99751",
+      "recalling_firm": "Lexia LLC",
+      "address_1": "367 Riverside Dr Ste 100",
+      "address_2": "N/A",
+      "postal_code": "37064-8977",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Distributed in the state of Colorado (US).",
+      "recall_number": "D-0828-2026",
+      "product_description": "Broadway Joe's Pain Cream, (Histamine Dihydrochloride 0.025%), 1500mg CBD Isolate, 1000mg Hempseed oil,  2 oz-jar, Produced for Broadway Joe's, Franklin, TN, 37067, NDC 83088-8120-5, UPC 8 50041 64003 7",
+      "product_quantity": "2,400 2 oz-jars",
+      "reason_for_recall": "CGMP Deviations: Potential contamination of raw material",
+      "recall_initiation_date": "20260821",
+      "center_classification_date": "20260902",
+      "report_date": "20260909",
+      "code_info": "Lot #: T1110, Exp: 1/7/2027; T1111, Exp: 1/9/2027; T1112, Exp: 1/16/2027; T1113, Exp: 1/17/2027; T1114, Exp: 1/17/2027",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Franklin",
+      "state": "TN",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99751",
+      "recalling_firm": "Lexia LLC",
+      "address_1": "367 Riverside Dr Ste 100",
+      "address_2": "N/A",
+      "postal_code": "37064-8977",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Distributed in the state of Colorado (US).",
+      "recall_number": "D-0829-2026",
+      "product_description": "Broadway Joe's Pain Cream, 3000 gm CBD, (Histamine Dihydrochloride 0.025%) (CDB Isolate 3000mg, HempSeed Oil 2000mg),4 oz-jar, Produced for Broadway Joe's, Franklin, TN, 37067, NDC 83088-8120-6; UPC 8 50041 64004 4",
+      "product_quantity": "1,200 4 oz-Jar",
+      "reason_for_recall": "CGMP Deviations: Potential contamination of raw material",
+      "recall_initiation_date": "20260821",
+      "center_classification_date": "20260902",
+      "report_date": "20260909",
+      "code_info": "Lot #: T1110, Exp: 1/7/2027;  T1111, Exp: 1/9/2027; T1112, Exp: 1/16/2027; T1113, Exp: 1/17/2027; T1114, Exp: 1/17/2027",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Cary",
+      "state": "IL",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "NDA021669"
+        ],
+        "brand_name": [
+          "CHLORHEXIDINE GLUCONATE"
+        ],
+        "generic_name": [
+          "CHLORHEXIDINE GLUCONATE"
+        ],
+        "manufacturer_name": [
+          "Sage Products LLC"
+        ],
+        "product_ndc": [
+          "53462-705"
+        ],
+        "product_type": [
+          "HUMAN OTC DRUG"
+        ],
+        "route": [
+          "TOPICAL"
+        ],
+        "substance_name": [
+          "CHLORHEXIDINE GLUCONATE"
+        ],
+        "rxcui": [
+          "846127"
+        ],
+        "spl_id": [
+          "54620ea3-da65-c5d7-e063-6394a90ad14a"
+        ],
+        "spl_set_id": [
+          "bdb6a012-37e5-4664-84a3-134bea284744"
+        ],
+        "package_ndc": [
+          "53462-705-20",
+          "53462-705-23",
+          "53462-705-26"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0618029850607"
+        ],
+        "unii": [
+          "MOR84MUD8E"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99657",
+      "recalling_firm": "Sage Products, LLC",
+      "address_1": "3909 3 Oaks Rd",
+      "address_2": "N/A",
+      "postal_code": "60013-1804",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "US Nationwide.",
+      "recall_number": "D-0837-2026",
+      "product_description": "2% Chlorhexidine Gluconate* Cloth, Non-sterile, 6 Disposable cloths, Sage Products LLC, 3909 Three Oaks Road, Cary, Illinois 60013.  NDC: 53462-705-26",
+      "product_quantity": "165,536 packages",
+      "reason_for_recall": "Cross Contamination with Other Products",
+      "recall_initiation_date": "20260818",
+      "center_classification_date": "20260911",
+      "report_date": "20260909",
+      "code_info": "Lot 108491 with case sequence numbers 14841 through 20013.",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Houston",
+      "state": "TX",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99662",
+      "recalling_firm": "OPTIMAL BALANCE PHARMACY",
+      "address_1": "2204 Cypress Creek Pkwy",
+      "address_2": "N/A",
+      "postal_code": "77090-3113",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "E-Mail",
+      "distribution_pattern": "USA Nationwide.",
+      "recall_number": "D-0851-2026",
+      "product_description": "Glutathione 200 mg/mL, 30 mL sterile multidose vial, Each vial contains: Glutathione, Ascorbic Acid, Benzyl Alcohol & sterile water for injection, For IM or IV Injection Use Only, RX only,  Optimal Balance Pharmacy, 2204 Cypress Creek Pkwy Suite F, Houston, TX 77090",
+      "product_quantity": "53 vials",
+      "reason_for_recall": "Microbial Contamination of Sterile Products - out of specifications results were obtained for bacterial endotoxin.",
+      "recall_initiation_date": "20260805",
+      "center_classification_date": "20260916",
+      "report_date": "20260909",
+      "code_info": "Lot#: LG342009076, Beyond Use Date: 10/4/26",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Tarrytown",
+      "state": "NY",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99532",
+      "recalling_firm": "Prestige Brands Holdings",
+      "address_1": "660 White Plains Rd",
+      "address_2": "",
+      "postal_code": "10591-5139",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide in the USA.",
+      "recall_number": "D-0766-2026",
+      "product_description": "CLEAR EYES Maximum Itchy Eye Relief, 0.5 fl oz (15 mL) per dropper bottle, Sterile, Dist. by Medtech Products Inc., Tarrytown, NY 10591, a Prestige Consumer Healthcare Company.  NDC: 67172-999-01 UPC 6 78112 65920 3",
+      "product_quantity": "39,060 15mL-bottles",
+      "reason_for_recall": "Lack of assurance of sterility. The recall is due to potential contamination",
+      "recall_initiation_date": "20260729",
+      "center_classification_date": "20260814",
+      "report_date": "20260819",
+      "code_info": "Lot 2552A, Exp 09/30/2027",
+      "more_code_info": ""
+    },
+    {
+      "status": "Ongoing",
+      "city": "Tomball",
+      "state": "TX",
+      "country": "United States",
+      "classification": "Not Yet Classified",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99860",
+      "recalling_firm": "Centric Compounding LLC",
+      "address_1": "909 Graham Dr Ste D",
+      "address_2": "N/A",
+      "postal_code": "77375-3335",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "E-Mail",
+      "distribution_pattern": "USA Nationwide.",
+      "recall_number": "N/A",
+      "product_description": "Tri-Immune Boost (Glutathione: 200 mg, Ascorbic Acid: 200 mg, Zinc: 2.5 mg), 30 mL vial, Rx only, Centric Compounding, 7447 Harwin Dr. Suite 111, Houston, TX 77036",
+      "product_quantity": "N/A",
+      "reason_for_recall": "Microbial Contamination of Sterile Products - out of specifications results were obtained for bacterial endotoxin.",
+      "recall_initiation_date": "20260727",
+      "report_date": "20261014",
+      "code_info": "Lot #: 071626:B, Beyond Use Date: 8/30/26"
+    },
+    {
+      "status": "Ongoing",
+      "city": "Austin",
+      "state": "TX",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "99509",
+      "recalling_firm": "Victory Medical Center Pharmacy",
+      "address_1": "4303 Victory Dr",
+      "address_2": "",
+      "postal_code": "78704-7507",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Telephone",
+      "distribution_pattern": "USA Nationwide",
+      "recall_number": "D-0772-2026",
+      "product_description": "Glutathione (MDV), 200 mg/mL, 30 mL vial, each mL contains Glutathione 200 mg, Ascorbic Acid 20 mg, Benzyl Alcohol 1.5%, Na Hydroxide (Ph Adjust) in sterile water for injection, VMC.",
+      "product_quantity": "91",
+      "reason_for_recall": "Microbial Contamination of Sterile Products - out of specifications results were obtained for bacterial endotoxin.",
+      "recall_initiation_date": "20260701",
+      "center_classification_date": "20260819",
+      "report_date": "20260819",
+      "code_info": "Lot # 1984345, 1980571, 1981940, Use Before Date: 08/27/2026.",
+      "more_code_info": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

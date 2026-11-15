@@ -1,0 +1,40 @@
+{
+  "feature": "drug-recall",
+  "live_check": "synthetic authored variant of a recorded FDA recall page with every recall number blanked; exclude from live calls",
+  "story": "A drug recall page whose matched records all lack a recall number reports a partial page with no rows and a recall_number problem, not an absent answer, and still offers the next page.",
+  "verified": "Authored from the openFDA reply recorded 2026-11-15 in pm job j41420; only each recall_number was blanked. See tests/replies/drug/recall-all-declined/README.md.",
+  "replay": "drug/recall-all-declined",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--status",
+        "Ongoing"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 2857,
+        "/page/returned": 0,
+        "/sources/0/state": "ok",
+        "/problems/*/field": {
+          "includes": "recall_number"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "drug",
+            "--offset",
+            "10",
+            "--source",
+            "fda-drug-recall",
+            "--status",
+            "Ongoing"
+          ]
+        }
+      }
+    }
+  ]
+}
