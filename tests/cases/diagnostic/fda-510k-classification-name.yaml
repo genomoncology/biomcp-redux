@@ -1,7 +1,7 @@
 {
   "feature": "device-approval-search",
   "live_check": "public",
-  "story": "A 510(k) search takes a phrase in FDA's device classification name, which openFDA adds to each 510(k) and De Novo record as openfda.device_name; the persona's cell-free question returns openFDA's 4 records, the de novo PGDx elio plasma focus Dx DEN230046 among them, and source_query names the field. The same phrase as a device name finds only the blood tubes, and the filter is refused for PMA and for non-ASCII text.",
+  "story": "A 510(k) search takes a phrase in FDA's device classification name, which openFDA adds to each 510(k) and De Novo record as openfda.device_name; the persona's cell-free question returns openFDA's 4 records, the de novo PGDx elio plasma focus Dx DEN230046 among them, read as de-novo-granted without openFDA's Unknown description, and source_query names the field. The same phrase as a device name finds only the blood tubes, and the filter is refused for PMA and for non-ASCII text.",
   "verified": "Native openFDA device 510(k) replies recorded 2026-11-14 by biomcp --record in pm jobs j40733 and j40739. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Committed byte for byte with a final newline; sizes and SHA-256 are in tests/replies/diagnostic/classification-name/README.md. No rows or values invented.",
   "replay": "diagnostic/classification-name",
   "steps": [
@@ -30,6 +30,18 @@
         "/result/source_query": "openfda.device_name:\"cell-free\"",
         "/result/items/*/header/k_number": {
           "includes": "DEN230046"
+        },
+        "/result/items/1/header/k_number": "DEN230046",
+        "/result/items/1/header/decision_code": "DENG",
+        "/result/items/1/header/decision_reading": "de-novo-granted",
+        "/result/items/1/header": {
+          "omits": [
+            "decision_description"
+          ]
+        },
+        "/result/items/0/header/decision_description": "Substantially Equivalent",
+        "/result/items/*/header/decision_description": {
+          "excludes": "Unknown"
         }
       }
     },
