@@ -26,6 +26,8 @@ pub(super) fn next(
     Ok(source_steps(globals, steps))
 }
 
+const PAGING: [&str; 4] = ["--limit", "--offset", "--section-limit", "--section-offset"];
+
 /// A first page also offers its own call with the options it could add, after the follow-ups
 /// and outside their cap.
 fn adjust(
@@ -41,8 +43,9 @@ fn adjust(
     {
         return Ok(None);
     }
+    // Paging alone is what the page step already offers.
     let options = crate::grammar::options(request);
-    if options.is_empty() {
+    if options.keys().all(|name| PAGING.contains(&name.as_ref())) {
         return Ok(None);
     }
     let mut step = crate::spell::step(
