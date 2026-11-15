@@ -1,4 +1,5 @@
 //! Replies from noncommercial sources are synthetic, and a README beside them says so (0695, 0920).
+//! The marker is a line `Synthetic: <source>` in README.md in the source folder or its case folder.
 use super::Check;
 use biomcp_types::{Source, Use};
 use serde_json::Value;
@@ -41,7 +42,7 @@ pub(super) fn check(root: &Path) -> Check {
                     .get("exchanges")
                     .is_some_and(|value| has_key(value, name))
         });
-        if (sources.contains(source) || carried) && !marked(&replies, &path)? {
+        if (sources.contains(source) || carried) && !marked(&path, source)? {
             unmarked.push(format!(
                 "{} ({source})",
                 path.strip_prefix(root)?.to_string_lossy()
@@ -52,24 +53,24 @@ pub(super) fn check(root: &Path) -> Check {
         Ok(())
     } else {
         Err(format!(
-            "replies from noncommercial sources need a nearby README.md saying they are synthetic:\n{}",
+            "replies from noncommercial sources need `Synthetic: <source>` in README.md in their source or case folder:\n{}",
             unmarked.join("\n")
         )
         .into())
     }
 }
 
-/// The nearest README.md above the recording, inside tests/replies, must say "synthetic".
-fn marked(replies: &Path, path: &Path) -> Result<bool, std::io::Error> {
-    let mut folder = path.parent();
-    while let Some(current) = folder.filter(|current| *current != replies) {
-        let readme = current.join("README.md");
+/// Only the source folder and its case folder may mark a recording, never a broader ancestor.
+fn marked(path: &Path, source: &str) -> Result<bool, std::io::Error> {
+    let marker = format!("Synthetic: {source}");
+    for folder in path.ancestors().skip(1).take(2) {
+        let readme = folder.join("README.md");
         if readme.exists() {
-            return Ok(fs::read_to_string(readme)?
-                .to_lowercase()
-                .contains("synthetic"));
+            let text = fs::read_to_string(readme)?;
+            if text.lines().any(|line| line.trim() == marker) {
+                return Ok(true);
+            }
         }
-        folder = current.parent();
     }
     Ok(false)
 }
@@ -129,11 +130,25 @@ fn unmarked_noncommercial_replies_fail() -> Check {
     }
     fs::write(
         root.path().join("tests/replies/area/README.md"),
-        "Real rows.",
+        "Synthetic: semantic-scholar\nSynthetic: myvariant\n",
     )?;
     if check(root.path()).is_ok() {
-        return Err("a README that does not say synthetic passed".into());
+        return Err("an ancestor README above the case folder covered it".into());
     }
-    fs::write(case.join("README.md"), "These rows are Synthetic.")?;
+    fs::write(
+        case.join("README.md"),
+        "These rows are synthetic in another sense.\nSynthetic: pubmed\n",
+    )?;
+    if check(root.path()).is_ok() {
+        return Err("a README without the source's marker passed".into());
+    }
+    fs::write(case.join("README.md"), "Synthetic: semantic-scholar\n")?;
+    let error = check(root.path()).err().ok_or("an unmarked source passed")?;
+    if !error.to_string().contains("(myvariant)")
+        || error.to_string().contains("(semantic-scholar)")
+    {
+        return Err(format!("the case marker covered the wrong sources: {error}").into());
+    }
+    fs::write(case.join("myvariant").join("README.md"), "Synthetic: myvariant\n")?;
     check(root.path())
 }

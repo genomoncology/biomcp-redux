@@ -1,1 +1,3 @@
 Every response body is synthetic. Request methods, URLs and recording filenames come unchanged from actual CLI local delivery recordings. Public parent identifiers retain request identity. Original provider bodies and capture provenance remain outside Git. Values do not support clinical or licensing conclusions.
+
+Synthetic: myvariant
