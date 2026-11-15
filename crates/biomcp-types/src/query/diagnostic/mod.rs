@@ -359,14 +359,6 @@ impl DiagnosticSearch {
     pub fn manufacturer(&self) -> Option<&Text> {
         self.0.manufacturer.as_ref()
     }
-    /// A device recall name character openFDA refuses: a letter outside ASCII, or a combining mark
-    /// that belongs to one. The micro sign counts as a symbol, as on device labels (0901).
-    pub fn name_letter_outside_ascii(c: char) -> bool {
-        !c.is_ascii()
-            && c != '\u{b5}'
-            && (c.is_alphabetic()
-                || matches!(c, '\u{300}'..='\u{36f}' | '\u{1ab0}'..='\u{1aff}' | '\u{1dc0}'..='\u{1dff}' | '\u{20d0}'..='\u{20ff}' | '\u{fe20}'..='\u{fe2f}'))
-    }
     /// Exact native FDA product code.
     pub fn product_code(&self) -> Option<&Text> {
         self.0.product_code.as_ref()

@@ -28,6 +28,16 @@ fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
     Ok(())
 }
 
+/// A device recall name character openFDA refuses: a letter outside ASCII, or a combining mark
+/// that belongs to one. The micro sign counts as a symbol, as on device labels (0901).
+fn letter_outside_ascii(c: char) -> bool {
+    !c.is_ascii()
+        && c != '\u{b5}'
+        && (c.is_alphabetic()
+            || matches!(c, '\u{300}'..='\u{36f}' | '\u{1ab0}'..='\u{1aff}' | '\u{1dc0}'..='\u{1dff}'
+                | '\u{20d0}'..='\u{20ff}' | '\u{fe20}'..='\u{fe2f}'))
+}
+
 /// The drug recall search names the recalling firm --firm; a device recall takes either name (0901).
 pub(super) fn fold_firm(v: &mut SearchFields) -> Result<(), QueryInvalid> {
     if v.firm.is_none() {
@@ -63,14 +73,20 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
     }
     // openFDA answers HTTP 400 to any character outside ASCII (live, 2026-11-15). The adapter spaces
     // symbols such as ® like refused punctuation; a letter is refused before the request.
-    if v.name.as_ref().is_some_and(|v| {
-        v.as_str()
-            .chars()
-            .any(super::DiagnosticSearch::name_letter_outside_ascii)
-    }) {
+    if v.name
+        .as_ref()
+        .is_some_and(|v| v.as_str().chars().any(letter_outside_ascii))
+    {
         return Err(
             QueryInvalid::new(&["name"]).with_message(crate::ErrorMessage::DeviceRecallNameAscii)
         );
+    }
+    // A name of symbols alone leaves no word once they become spaces, so it is refused.
+    if v.name
+        .as_ref()
+        .is_some_and(|v| !v.as_str().chars().any(|c| c.is_ascii_alphanumeric()))
+    {
+        return Err(QueryInvalid::new(&["name"]));
     }
     if v.classification.is_some() && v.product_code.is_some() {
         return Err(QueryInvalid::new(&["product_code", "classification"])
