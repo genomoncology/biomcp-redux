@@ -1,6 +1,4 @@
 //! What a publisher PDF link says about its host, read from the link text alone.
-use biomcp_types::ArticleInput;
-
 /// The host of a publisher link, lowercased, when the link is http(s).
 pub fn host(url: &str) -> Option<String> {
     let rest = url
@@ -18,9 +16,9 @@ pub fn europepmc(url: &str) -> bool {
     host(url).is_some_and(|host| host == "europepmc.org" || host.ends_with(".europepmc.org"))
 }
 
-/// The PMC or Europe PMC preprint identity a link names, such as
+/// The PMC or Europe PMC preprint identity a link names, uppercased, such as
 /// `articles/pmc123?pdf=render`, `accid=PMC123` or `pprId=PPR123`.
-pub fn named_text(url: &str) -> Option<ArticleInput> {
+pub fn named_id(url: &str) -> Option<String> {
     url.split(['/', '?', '&', '=', '#'])
         .map(str::to_ascii_uppercase)
         .find(|token| {
@@ -30,5 +28,4 @@ pub fn named_text(url: &str) -> Option<ArticleInput> {
                 })
             })
         })
-        .and_then(|token| token.parse().ok())
 }

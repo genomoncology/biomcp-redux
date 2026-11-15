@@ -80,12 +80,8 @@ fn execute<'a>(
     if let Err(error) = &result
         && let Some(refused) = pdf::refused(error)
     {
-        source.notices.push(refusal(
-            &link.url,
-            refused,
-            open_text(&link.url, &query.input),
-            out,
-        ));
+        let open = open_text(&link.url, &query.input, &mut out.problems);
+        source.notices.push(refusal(&link.url, refused, open, out));
     }
     if let Some(existing) = out
         .sources
@@ -106,11 +102,16 @@ fn execute<'a>(
 
 /// The open full-text identity for a refused PDF: the PMC or preprint the link
 /// names, else the caller's PubMed, PMC or Europe PMC identity.
-fn open_text(url: &biodata::Text, input: &ArticleInput) -> Option<ArticleInput> {
-    pdf::publisher::named_text(url.as_str()).or_else(|| match input {
-        ArticleInput::Doi(_) => None,
-        input => Some(input.clone()),
-    })
+fn open_text(
+    url: &biodata::Text,
+    input: &ArticleInput,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<ArticleInput> {
+    match pdf::publisher::named_id(url.as_str()) {
+        Some(id) => crate::next::checked(id.parse::<ArticleInput>(), Source::SemanticScholar, problems),
+        None if matches!(input, ArticleInput::Doi(_)) => None,
+        None => Some(input.clone()),
+    }
 }
 
 /// Say who refused the PDF and why, and point to the open full text when one is named.
@@ -133,7 +134,7 @@ fn refusal(
     } else {
         "This does not show that the paper is closed."
     };
-    let next = if open.is_some_and(|input| fulltext_next(input, out)) {
+    let next = if open.is_some_and(|input| fulltext_next(input, Source::SemanticScholar, out)) {
         "Its full text, where open, is readable with the next command; the URL opens in \
          a browser."
     } else {
@@ -151,11 +152,13 @@ fn refusal(
 }
 
 /// Offer `get article ID fulltext`, the open text reader for PMC and Europe PMC.
-fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
+fn fulltext_next(input: ArticleInput, source: Source, out: &mut Outcome) -> bool {
     let sources = super::next::text_sources(&input);
-    let Ok(query) =
-        ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into())
-    else {
+    let Some(query) = crate::next::checked(
+        ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into()),
+        source,
+        &mut out.problems,
+    ) else {
         return false;
     };
     out.next.push(crate::next::Step::run(
@@ -174,7 +177,7 @@ fn europepmc_refused(query: &ArticlePdf, id: &impl std::fmt::Display, out: &mut 
         Source::EuropePmc,
         biomcp_types::SourceStatus::Skipped(Some(Reason::Rejected)),
     );
-    fulltext_next(query.input.clone(), out);
+    fulltext_next(query.input.clone(), Source::EuropePmc, out);
     source.notices.push(SourceNotice::RequestGuidance {
         data_date: None,
         message: format!(
