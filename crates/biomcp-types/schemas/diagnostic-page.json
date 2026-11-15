@@ -102,8 +102,8 @@
       "type": "object"
     },
     "Reply_DeviceRecallNumber": {
-      "description": "Native FDA product recall number, independent of its event number.",
-      "pattern": "^Z-[0-9]{4}-[0-9]{4}$",
+      "description": "Native FDA product recall number, Z-NNNN-YYYY or the older Z-NNNN-YY, independent of its event number.",
+      "pattern": "^Z-[0-9]{4}-([0-9]{4}|[0-9]{2})$",
       "type": "string"
     },
     "Reply_DiagnosticCandidate": {
