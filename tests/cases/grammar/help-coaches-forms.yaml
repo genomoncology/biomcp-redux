@@ -52,11 +52,9 @@
           "--source",
           "fda-pma"
         ],
-        "/next/1/args": [
-          "help",
-          "search",
-          "diagnostic"
-        ]
+        "/next": {
+          "count": 1
+        }
       }
     },
     {

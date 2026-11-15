@@ -33,12 +33,8 @@
         "/next/0/args": {
           "includes": "Revolution Medicines"
         },
-        "/next/1/args": {
-          "equals": [
-            "help",
-            "search",
-            "trial"
-          ]
+        "/next": {
+          "count": 1
         }
       }
     },

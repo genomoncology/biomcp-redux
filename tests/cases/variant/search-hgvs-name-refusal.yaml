@@ -1,7 +1,7 @@
 {
   "feature": "variant-search",
   "live_check": "local-only validation; no source requests",
-  "story": "A full HGVS name given to search variant --variant is refused with the same search spelled as --gene and --coding (or --protein), built from the name, ahead of the help step; a name without a gene, or with a bare Ensembl or GenBank accession in the gene's place, keeps only the help step.",
+  "story": "A full HGVS name given to search variant --variant is refused with the same search spelled as --gene and --coding (or --protein), built from the name in place of the help step; a name without a gene, or with a bare Ensembl or GenBank accession in the gene's place, keeps only the help step.",
   "verified": "Bench dx-lab-director 2026-11-15-r4 calls 73-75: --variant \"NM_007294.4(BRCA1):c.68_69del\" was refused with the option list and a help step; the agent read help and ran --gene BRCA1 --coding c.68_69del, which returned clinvar:17662.",
   "steps": [
     {
@@ -25,11 +25,9 @@
           "--gene",
           "BRCA1"
         ],
-        "/next/1/args": [
-          "help",
-          "search",
-          "variant"
-        ]
+        "/next": {
+          "count": 1
+        }
       }
     },
     {
