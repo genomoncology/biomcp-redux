@@ -1,0 +1,293 @@
+{
+  "method": "GET",
+  "source": "chembl",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?molecule_synonyms__molecule_synonym__iexact=rifampicin&limit=50&offset=0",
+  "exchanges": [
+    {
+      "fetched": 1794773280,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 30000,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "molecules": [
+            {
+              "atc_classifications": [
+                "J04AB02"
+              ],
+              "availability_type": 1,
+              "biotherapeutic": null,
+              "black_box_warning": 0,
+              "chemical_probe": 0,
+              "chirality": 1,
+              "cross_references": [
+                {
+                  "xref_id": "rifampin",
+                  "xref_name": "rifampin",
+                  "xref_src": "DailyMed"
+                }
+              ],
+              "dosed_ingredient": true,
+              "first_approval": 1971,
+              "first_in_class": 0,
+              "helm_notation": null,
+              "inorganic_flag": 0,
+              "max_phase": "4.0",
+              "molecule_chembl_id": "CHEMBL374478",
+              "molecule_hierarchy": {
+                "active_chembl_id": "CHEMBL374478",
+                "molecule_chembl_id": "CHEMBL374478",
+                "parent_chembl_id": "CHEMBL374478"
+              },
+              "molecule_properties": {
+                "alogp": "4.34",
+                "aromatic_rings": 2,
+                "full_molformula": "C43H58N4O12",
+                "full_mwt": "822.95",
+                "hba": 15,
+                "hbd": 6,
+                "heavy_atoms": 59,
+                "mw_freebase": "822.95",
+                "np_likeness_score": "1.66",
+                "num_ro5_violations": 3,
+                "psa": "220.15",
+                "qed_weighted": "0.11",
+                "ro3_pass": "N",
+                "rtb": 4
+              },
+              "molecule_structures": {
+                "canonical_smiles": "CO[C@H]1/C=C/O[C@@]2(C)Oc3c(C)c(O)c4c(O)c(c(/C=N/N5CCN(C)CC5)c(O)c4c3C2=O)NC(=O)/C(C)=C\\C=C\\[C@H](C)[C@H](O)[C@@H](C)[C@@H](O)[C@@H](C)[C@H](OC(C)=O)[C@@H]1C",
+                "molfile": "\n     RDKit          2D\n\n 59 63  0  0  0  0  0  0  0  0999 V2000\n    8.3750  -22.8792    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   10.5500  -21.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   10.5500  -22.4667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.6625  -22.4667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.0875  -21.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.0875  -22.4667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.1917  -23.6833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.2667  -21.2083    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    7.0250  -22.8792    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    9.8292  -21.2083    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.8292  -22.8792    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    8.3750  -21.2083    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    8.1542  -23.6833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.6625  -21.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.9333  -20.3792    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.2667  -20.3792    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.6625  -19.9375    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    8.3750  -18.7500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.6625  -19.1208    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.2667  -22.8792    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.9333  -21.2083    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   12.6917  -22.8792    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    9.0875  -19.1208    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.9667  -22.4667    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n   12.0083  -19.9375    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.2500  -23.6833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    6.2375  -19.9417    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   14.1083  -23.7125    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0\n    5.8917  -23.0750    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.4125  -19.9417    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.2250  -22.4667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.2250  -21.6250    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   11.2667  -18.7500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    8.5625  -24.3875    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   12.0083  -19.1208    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   10.5500  -19.9667    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   12.6833  -23.7000    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   13.3958  -22.4667    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.8292  -18.7500    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   10.5500  -19.1208    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.9708  -19.2458    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    9.8292  -20.3833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    9.8292  -23.7000    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    8.3750  -20.3833    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n   14.1083  -22.8917    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   13.3875  -24.1125    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    6.9333  -18.7458    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    9.0875  -19.9417    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    7.1917  -24.5083    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    7.6625  -20.8042    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    8.3750  -19.5208    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    8.3750  -17.9292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.5083  -21.2208    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0\n    6.9333  -22.0292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   14.8167  -24.1292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n   12.7250  -20.3417    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    5.0125  -20.6583    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    9.8292  -17.9292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n    4.7917  -21.6292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0\n  2  3  1  0\n  3 11  2  0\n  4  1  2  0\n  5  6  2  0\n  6  1  1  0\n  7 13  1  0\n  8  2  1  0\n  9  4  1  0\n 10  5  1  0\n 11  6  1  0\n 12  5  1  0\n 13  1  1  0\n 14  4  1  0\n 15 21  1  0\n 16  8  1  0\n 17 15  1  0\n 18 19  1  0\n 19 17  1  0\n 20  3  1  0\n 21 32  1  0\n 22 24  1  0\n 23 18  1  0\n 24 20  2  0\n 25 16  1  0\n 26  7  1  0\n 15 27  1  1\n 28 45  1  0\n 29 26  1  0\n 30 27  1  0\n 31 29  2  0\n 32 31  1  0\n 33 35  1  0\n 34 13  2  0\n 35 25  2  0\n 36 16  2  0\n 37 22  1  0\n 38 22  1  0\n 39 40  1  0\n 40 33  2  0\n 41 30  2  0\n 42 10  1  0\n 43 11  1  0\n 44 12  1  0\n 45 38  1  0\n 46 37  1  0\n 19 47  1  6\n 23 48  1  6\n  7 49  1  6\n 50 14  1  0\n 17 51  1  1\n 18 52  1  6\n 32 53  1  6\n 21 54  1  6\n 55 28  1  0\n 56 25  1  0\n 57 30  1  0\n 39 58  1  1\n 59 53  1  0\n 12 14  2  0\n  7  9  1  0\n  2 10  2  0\n 28 46  1  0\n 23 39  1  0\nM  END\n> <chembl_id>\nCHEMBL374478\n\n> <chembl_pref_name>\nRIFAMPIN",
+                "standard_inchi": "InChI=1S/C43H58N4O12/c1-21-12-11-13-22(2)42(55)45-33-28(20-44-47-17-15-46(9)16-18-47)37(52)30-31(38(33)53)36(51)26(6)40-32(30)41(54)43(8,59-40)57-19-14-29(56-10)23(3)39(58-27(7)48)25(5)35(50)24(4)34(21)49/h11-14,19-21,23-25,29,34-35,39,49-53H,15-18H2,1-10H3,(H,45,55)/b12-11+,19-14+,22-13-,44-20+/t21-,23+,24+,25+,29-,34-,35+,39+,43-/m0/s1",
+                "standard_inchi_key": "JQXXHWHPUNPDRT-WLSIYKJHSA-N"
+              },
+              "molecule_synonyms": [
+                {
+                  "molecule_synonym": "Abrifam",
+                  "syn_type": "OTHER",
+                  "synonyms": "ABRIFAM"
+                },
+                {
+                  "molecule_synonym": "BA 411661E",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "BA 411661E"
+                },
+                {
+                  "molecule_synonym": "BA 41166/E",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "BA 41166/E"
+                },
+                {
+                  "molecule_synonym": "BA-41166/E",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "BA-41166/E"
+                },
+                {
+                  "molecule_synonym": "BA-41166E",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "BA-41166E"
+                },
+                {
+                  "molecule_synonym": "Eremfat",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "EREMFAT"
+                },
+                {
+                  "molecule_synonym": "L-5103",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "L-5103"
+                },
+                {
+                  "molecule_synonym": "L-5103 LEPETIT",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "L-5103 LEPETIT"
+                },
+                {
+                  "molecule_synonym": "L-5103-LEPETIT",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "L-5103-LEPETIT"
+                },
+                {
+                  "molecule_synonym": "NIH-10782",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "NIH-10782"
+                },
+                {
+                  "molecule_synonym": "NSC-113926",
+                  "syn_type": "RESEARCH_CODE",
+                  "synonyms": "NSC-113926"
+                },
+                {
+                  "molecule_synonym": "Rifa",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "RIFA"
+                },
+                {
+                  "molecule_synonym": "Rifadin",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "RIFADIN"
+                },
+                {
+                  "molecule_synonym": "Rifadine",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFADINE"
+                },
+                {
+                  "molecule_synonym": "Rifaldazine",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFALDAZINE"
+                },
+                {
+                  "molecule_synonym": "Rifaldin",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFALDIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicin",
+                  "syn_type": "ATC",
+                  "synonyms": "RIFAMPICIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicin",
+                  "syn_type": "BAN",
+                  "synonyms": "RIFAMPICIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicin",
+                  "syn_type": "BNF",
+                  "synonyms": "RIFAMPICIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicin",
+                  "syn_type": "INN",
+                  "synonyms": "RIFAMPICIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicin",
+                  "syn_type": "JAN",
+                  "synonyms": "RIFAMPICIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicin",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFAMPICIN"
+                },
+                {
+                  "molecule_synonym": "Rifampicina",
+                  "syn_type": "INN_SPANISH",
+                  "synonyms": "RIFAMPICINA"
+                },
+                {
+                  "molecule_synonym": "Rifampicine",
+                  "syn_type": "INN_FRENCH",
+                  "synonyms": "RIFAMPICINE"
+                },
+                {
+                  "molecule_synonym": "Rifampicinum",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFAMPICINUM"
+                },
+                {
+                  "molecule_synonym": "Rifampin",
+                  "syn_type": "FDA",
+                  "synonyms": "RIFAMPIN"
+                },
+                {
+                  "molecule_synonym": "Rifampin",
+                  "syn_type": "MERCK_INDEX",
+                  "synonyms": "RIFAMPIN"
+                },
+                {
+                  "molecule_synonym": "Rifampin",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFAMPIN"
+                },
+                {
+                  "molecule_synonym": "Rifampin",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "RIFAMPIN"
+                },
+                {
+                  "molecule_synonym": "Rifampin",
+                  "syn_type": "USAN",
+                  "synonyms": "RIFAMPIN"
+                },
+                {
+                  "molecule_synonym": "Rifampin",
+                  "syn_type": "USP",
+                  "synonyms": "RIFAMPIN"
+                },
+                {
+                  "molecule_synonym": "Rifampin component of rifamate",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "RIFAMPIN COMPONENT OF RIFAMATE"
+                },
+                {
+                  "molecule_synonym": "Rifampin component of rifater",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "RIFAMPIN COMPONENT OF RIFATER"
+                },
+                {
+                  "molecule_synonym": "Rifamycin amp",
+                  "syn_type": "MERCK_INDEX",
+                  "synonyms": "RIFAMYCIN AMP"
+                },
+                {
+                  "molecule_synonym": "Rifapiam",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFAPIAM"
+                },
+                {
+                  "molecule_synonym": "Rifaprodin",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFAPRODIN"
+                },
+                {
+                  "molecule_synonym": "Rifoldin",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIFOLDIN"
+                },
+                {
+                  "molecule_synonym": "Rimactan",
+                  "syn_type": "OTHER",
+                  "synonyms": "RIMACTAN"
+                },
+                {
+                  "molecule_synonym": "Rimactane",
+                  "syn_type": "TRADE_NAME",
+                  "synonyms": "RIMACTANE"
+                }
+              ],
+              "molecule_type": "Small molecule",
+              "natural_product": 1,
+              "oral": true,
+              "orphan": 0,
+              "parenteral": true,
+              "polymer_flag": 0,
+              "pref_name": "RIFAMPIN",
+              "prodrug": 0,
+              "structure_type": "MOL",
+              "therapeutic_flag": true,
+              "topical": false,
+              "usan_stem": "-pin; rifa-",
+              "usan_stem_definition": "tricyclic compounds; antibiotics (rifamycin derivatives)",
+              "usan_substem": "-pin; rifa-",
+              "usan_year": 1968,
+              "veterinary": 0,
+              "withdrawn_flag": false
+            }
+          ],
+          "page_meta": {
+            "limit": 50,
+            "next": null,
+            "offset": 0,
+            "previous": null,
+            "total_count": 1
+          }
+        }
+      }
+    }
+  ]
+}
