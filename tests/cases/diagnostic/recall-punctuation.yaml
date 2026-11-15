@@ -70,7 +70,7 @@
         "/result/items/0/header/recall_number": "Z-2723-2026",
         "/sources/0/state": "ok",
         "/sources/0/notices/*/message": {
-          "includes": "and the phrase searched was \"infusion pump\"."
+          "includes": "--name matched the words of openFDA's product_description as one phrase, ignoring case and punctuation, without plural or synonym expansion: the total counts recall records whose description holds the phrase, a different set from a --product-code search. openFDA refuses some punctuation, such as | and ?, and every character outside ASCII, such as ®, so each became a space, or an accented letter its base letter, and the phrase searched was \"infusion pump\"."
         }
       }
     }
