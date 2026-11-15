@@ -76,8 +76,8 @@
       },
       "required": [
         "accession",
-        "items",
-        "offset"
+        "offset",
+        "items"
       ],
       "type": "object"
     },

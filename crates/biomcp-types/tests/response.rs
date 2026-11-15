@@ -539,7 +539,11 @@ fn last_four_pages_state_their_totals_before_their_rows() -> Outcome {
         &["page"],
         "items",
     )?;
-    declared_first::<ProteinSectionPage<serde_json::Value>>(json!({"items":[],"total":0}), &["total"], "items")?;
+    declared_first::<ProteinSectionPage<serde_json::Value>>(
+        json!({"items":[],"total":0}),
+        &["total"],
+        "items",
+    )?;
     let capped = json!({"total":0});
     let section = json!({"accession":"CVCL_0004","items":capped,"offset":0});
     declared_first::<CellLineNames>(section.clone(), &["offset"], "items")?;

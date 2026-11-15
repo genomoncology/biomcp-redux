@@ -288,8 +288,8 @@
       },
       "required": [
         "accession",
-        "items",
-        "offset"
+        "offset",
+        "items"
       ],
       "type": "object"
     },
@@ -589,10 +589,10 @@
       },
       "required": [
         "accession",
+        "offset",
         "species",
         "diseases",
-        "warnings",
-        "offset"
+        "warnings"
       ],
       "type": "object"
     },
@@ -659,8 +659,8 @@
       },
       "required": [
         "accession",
-        "items",
-        "offset"
+        "offset",
+        "items"
       ],
       "type": "object"
     },
@@ -880,8 +880,8 @@
       },
       "required": [
         "accession",
-        "items",
-        "offset"
+        "offset",
+        "items"
       ],
       "type": "object"
     },
@@ -1100,8 +1100,8 @@
       },
       "required": [
         "accession",
-        "items",
-        "offset"
+        "offset",
+        "items"
       ],
       "type": "object"
     },

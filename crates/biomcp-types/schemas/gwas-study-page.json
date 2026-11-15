@@ -133,8 +133,8 @@
         }
       },
       "required": [
-        "items",
-        "page"
+        "page",
+        "items"
       ],
       "type": "object"
     },
