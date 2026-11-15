@@ -163,8 +163,9 @@ pub(super) fn trial_first_page(
 }
 
 /// A request refused before any source is read, for one argument with named valid values:
-/// when exactly one valid value passes the check, that call replaces help. When several
-/// pass, any one would be a guess, so help stays.
+/// when the call already asks for something and exactly one valid value passes the check,
+/// that call replaces help. When several pass, or the call names nothing but the command,
+/// any value would be a guess, so help stays.
 pub(crate) fn prepared(
     request: &biomcp_types::Request,
     mut error: biomcp_types::UsageError,
@@ -172,7 +173,7 @@ pub(crate) fn prepared(
     let biomcp_types::UsageError::Arguments(arguments) = &mut error else {
         return error;
     };
-    if arguments.next.iter().any(|step| !is_help(step)) {
+    if arguments.next.iter().any(|step| !is_help(step)) || !super::options::asked(request) {
         return error;
     }
     let (Some(argument), Some(values)) = (&arguments.argument, &arguments.valid_values) else {

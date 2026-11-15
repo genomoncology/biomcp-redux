@@ -91,7 +91,11 @@ pub(super) fn fix(
         call(options.iter().collect()).or_else(|| call(options.iter().rev().collect()))?;
     // The fix carries the options its call also takes, as a command-line correction does.
     if step.options.is_empty() {
-        let words: Vec<OsString> = step.args.iter().map(|word| OsString::from(&**word)).collect();
+        let words: Vec<OsString> = step
+            .args
+            .iter()
+            .map(|word| OsString::from(&**word))
+            .collect();
         if let Ok(parsed) = crate::grammar::parse(root, &words)
             && let Some(biomcp_query::Action::Run { request, .. }) = parsed.action
         {

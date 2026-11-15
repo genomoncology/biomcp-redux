@@ -89,6 +89,23 @@ pub(crate) fn first_page(request: &Request) -> bool {
             .all(|name| value.get(*name).is_none_or(Value::is_null))
 }
 
+/// The call names something besides its source: an ID, a word, a section or a filter.
+pub(crate) fn asked(request: &Request) -> bool {
+    let (verb, entity) = request.path();
+    let (Some(schema), Ok(value)) = (
+        super::validation::schema(verb, entity),
+        super::rewrite::query_value(request),
+    ) else {
+        return false;
+    };
+    let Some(properties) = schema.get("properties").and_then(Value::as_object) else {
+        return false;
+    };
+    properties
+        .iter()
+        .any(|(name, property)| name != "source" && set(value.get(name), property))
+}
+
 /// A get that names a section, where a section field exists: one section's own reply.
 pub(crate) fn section_page(request: &Request) -> bool {
     let (verb, entity) = request.path();
