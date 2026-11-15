@@ -26,19 +26,42 @@ use biomcp_types::{
 /// Search the selected source directly without consulting another source.
 fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
     if query.source() == DrugSource::FdaDrugRecall {
-        return recall::search(cx, query);
+        let mut out = recall::search(cx, query);
+        crate::openfda_text::disclose(
+            &mut out,
+            Source::FdaDrugRecall,
+            [
+                ("The drug name", query.query()),
+                ("--firm", query.firm()),
+                ("--status", query.status()),
+                ("--reason", query.reason()),
+            ],
+        );
+        return out;
     }
     if query.source() == DrugSource::WhoPq {
         return who::search(cx, query);
     }
     if query.source() == DrugSource::Drugsfda {
-        return drugsfda::search(cx, query);
+        let mut out = drugsfda::search(cx, query);
+        let name = [("The drug name", query.query())];
+        crate::openfda_text::disclose(&mut out, Source::Drugsfda, name);
+        return out;
     }
     if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
         return native::search(cx, query);
     }
     if query.source() == DrugSource::OpenfdaLabel {
-        return openfda_label::search(cx, query);
+        let mut out = openfda_label::search(cx, query);
+        crate::openfda_text::disclose(
+            &mut out,
+            Source::OpenfdaLabel,
+            [
+                ("The drug name", query.query()),
+                ("--indication", query.indication()),
+            ],
+        );
+        return out;
     }
     if query.source() == DrugSource::Civic {
         return civic::search(cx, query);

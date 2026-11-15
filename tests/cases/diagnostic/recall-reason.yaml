@@ -177,7 +177,7 @@
         "/result/source_query": "product_description:\"Alaris pump\"",
         "/result/items/0/header/recall_number": "Z-0212-2027",
         "/sources/0/notices/*/message": {
-          "includes": "--name matched the words of openFDA's product_description as one phrase, ignoring case and punctuation, without plural or synonym expansion: the total counts recall records whose description holds the phrase, a different set from a --product-code search. openFDA refuses some punctuation, such as | and ?, and every symbol outside ASCII, such as ®, so each became a space and the phrase searched was \"Alaris pump\"."
+          "includes": "--name matched the words of openFDA's product_description as one phrase, ignoring case and punctuation, without plural or synonym expansion: the total counts recall records whose description holds the phrase, a different set from a --product-code search. openFDA refuses some punctuation, such as | and ?, and every character outside ASCII, such as ®, so each became a space, or an accented letter its base letter, and the phrase searched was \"Alaris pump\"."
         }
       }
     },

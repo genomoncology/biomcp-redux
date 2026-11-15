@@ -2,6 +2,7 @@
 use biomcp_fetch::{Input, Read};
 mod map;
 mod phrase;
+pub(crate) use phrase::phrase;
 pub use phrase::spaced_name;
 mod raw;
 use biodata::DeviceRecallNumber;
@@ -51,7 +52,7 @@ pub fn expression(q: &DiagnosticSearch) -> String {
         terms.push(format!("classification:\"{v}\""));
     }
     if let Some(v) = q.name() {
-        terms.push(format!("product_description:{}", literal(v.as_str())));
+        terms.push(format!("product_description:{}", phrase(v)));
     }
     if let Some(v) = q.manufacturer() {
         terms.push(format!("recalling_firm:{}", literal(v.as_str())));

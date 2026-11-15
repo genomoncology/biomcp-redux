@@ -197,18 +197,12 @@ singleton! {
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
         DeviceRecallClassificationProductCode => "--classification selects device enforcement records, which carry no product code; \
             drop --product-code, or drop --classification and read each returned row's classification",
-        DeviceRecallNameAscii => "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, \
-            such as e for é",
         DiagnosticIntendedUsePma => "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; \
             openFDA publishes no intended-use text for 510(k) records, so select them with --product-code, \
             whose FDA classification name describes the device type",
-        DiagnosticIntendedUseAscii => "--intended-use needs ASCII text with a letter or digit, such as e for é, because openFDA \
-            refuses any non-ASCII character in a phrase",
         DiagnosticClassificationName510k => "--classification-name matches FDA's device classification name on 510(k) \
             and De Novo records and needs --source fda-510k",
         DiagnosticGeneOrGeneId => "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both",
-        DiagnosticClassificationNameAscii => "--classification-name needs ASCII text with a letter or digit, such as e for é, \
-            because openFDA refuses any non-ASCII character in a phrase",
         TrialCriteria => "retired; use: --criteria for literal registry eligibility text",
         TrialVariant => "retired; use: --variant for explicit discovery text",
         TrialSince => "renamed; use: --updated-since",

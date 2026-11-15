@@ -57,16 +57,38 @@ fn finish_bundle(
         ));
     }
 }
+/// The openFDA firm and product code values every device source searches.
+fn firm(q: &DiagnosticSearch) -> [(&'static str, Option<&biodata::Text>); 2] {
+    [
+        ("--manufacturer", q.manufacturer()),
+        ("--product-code", q.product_code()),
+    ]
+}
 /// Search only stored source-native GTR relations and retain matched selectors.
 pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     if matches!(
         q.source(),
         DiagnosticSearchSource::FdaPma | DiagnosticSearchSource::Fda510k
     ) {
-        return device_search::search(cx, q);
+        let mut out = device_search::search(cx, q);
+        let source = if q.source() == DiagnosticSearchSource::FdaPma {
+            Source::FdaPma
+        } else {
+            Source::Fda510k
+        };
+        let values = [
+            ("--name", q.name()),
+            ("--intended-use", q.intended_use()),
+            ("--classification-name", q.classification_name()),
+        ];
+        crate::openfda_text::disclose(&mut out, source, values.into_iter().chain(firm(q)));
+        return out;
     }
     if q.source() == DiagnosticSearchSource::FdaDeviceRecall {
-        return recall::search(cx, q);
+        // The recall name notice already names the phrase searched (0901).
+        let mut out = recall::search(cx, q);
+        crate::openfda_text::disclose(&mut out, Source::FdaDeviceRecall, firm(q));
+        return out;
     }
     if q.source() == DiagnosticSearchSource::FdaCdx {
         return companion::search(cx, q);
