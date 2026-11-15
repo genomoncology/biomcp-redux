@@ -37,3 +37,8 @@ Narrowed 2026-11-13 by PM decision. 0897 (device recall search by device name) a
 ## Changes
 
 - Changes: the device recall adapter and query, `crates/biomcp-types/` (an optional row field and an added filter name), `tests/cases/diagnostic/`, `docs/`.
+
+## Progress
+
+- 2026-11-15: Measured live. openFDA answers HTTP 400 to `"Alaris® pump"`, `"Alaris™ pump"`, `"µm"` and `"café"` inside a device recall phrase; `"Alaris pump"` counts 49. Abbott's 2025 device recalls count 34 recall records (9 Class I enforcement records); every enforcement record read for Abbott and Roche in 2025 had a recall record, so no live row is enforcement-only.
+- 2026-11-15: `--firm` is now another name for `--manufacturer` on `search diagnostic --source fda-device-recall` (MCP field `firm`); it sends the same request, is refused with `--manufacturer` or on another source. An enforcement-only row under `--classification` carries the enforcement record's `reason_for_recall`, and the notice says those rows show the recall number, classification and reason. A device name refuses only letters outside ASCII (and their combining marks); other non-ASCII characters, including ®, ™ and µ, become spaces like refused punctuation, and the name notice adds the phrase searched. Recorded case `tests/cases/diagnostic/recall-reason.yaml` (pm job j41122) and a response-edited enforcement-only step in `tests/cases/diagnostic/recall.yaml`; `docs/cautions.md` updated.

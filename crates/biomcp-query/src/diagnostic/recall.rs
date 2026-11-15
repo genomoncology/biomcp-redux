@@ -98,7 +98,10 @@ const SPACED_NOTICE: &str = "openFDA refuses some punctuation, such as | and ?, 
 /// Count rows the exact join left without their other openFDA record; nothing is inferred for them.
 fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNotice {
     let (missing, shown) = if q.classification().is_some() {
-        ("recall", "only the recall number, classification and reason")
+        (
+            "recall",
+            "only the recall number, classification and reason",
+        )
     } else {
         ("enforcement", "no classification")
     };

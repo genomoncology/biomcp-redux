@@ -1,0 +1,220 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "public",
+  "story": "A year of one manufacturer's device recalls is scanned in one call: every row of Abbott's 2025 device recalls carries openFDA's reason_for_recall, and --firm, the drug recall search's name for the recalling firm, gives the same request and rows as --manufacturer, with or without --classification. A device name copied from a label with a symbol outside ASCII, such as Alaris® pump, searches the phrase with the symbol spaced, and the notice names the phrase searched.",
+  "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-15 by biomcp --record in pm job j41122. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection retains source identifiers, firm, product code, status, dates, product description, reason, root cause, submission numbers, classification and native counts; address, contact, action, distribution, quantity and lot text omitted. Recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-reason/README.md. No rows or values invented.",
+  "replay": "diagnostic/recall-reason",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Abbott",
+        "--initiated-from",
+        "2025-01-01",
+        "--initiated-to",
+        "2025-12-31"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Abbott",
+        "--initiated-from",
+        "2025-01-01",
+        "--initiated-to",
+        "2025-12-31"
+      ],
+      "max_bytes": 5360,
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott",
+        "/query": {
+          "omits": [
+            "firm"
+          ]
+        },
+        "/page/total": 34,
+        "/page/returned": 5,
+        "/result/source_query": "recalling_firm:\"Abbott\" AND event_date_initiated:[2025-01-01 TO 2025-12-31]",
+        "/result/items/*/header/recall_number": [
+          "Z-1020-2026",
+          "Z-1021-2026",
+          "Z-1022-2026",
+          "Z-1023-2026",
+          "Z-0961-2026"
+        ],
+        "/result/items/*/classification": [
+          "Class I",
+          "Class I",
+          "Class I",
+          "Class I",
+          "Class II"
+        ],
+        "/result/items/*/reason": [
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Abbott Laboratories is recalling their Alinity ci-series System Control Module, a chemistry/immunoassay anayzer, by correction. The reason for the recall is potential performance issues found in the Alinity ci-series System software versions 3.6.1. and lower that could lead to erroneous results for multiple analytes. The issue was identified by Abbott during the internal testing of complaint investigations."
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--firm",
+        "Abbott",
+        "--initiated-from",
+        "2025-01-01",
+        "--initiated-to",
+        "2025-12-31"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--firm",
+        "Abbott",
+        "--initiated-from",
+        "2025-01-01",
+        "--initiated-to",
+        "2025-12-31"
+      ],
+      "max_bytes": 5360,
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott",
+        "/query": {
+          "omits": [
+            "firm"
+          ]
+        },
+        "/page/total": 34,
+        "/page/returned": 5,
+        "/result/source_query": "recalling_firm:\"Abbott\" AND event_date_initiated:[2025-01-01 TO 2025-12-31]",
+        "/result/items/*/header/recall_number": [
+          "Z-1020-2026",
+          "Z-1021-2026",
+          "Z-1022-2026",
+          "Z-1023-2026",
+          "Z-0961-2026"
+        ],
+        "/result/items/*/classification": [
+          "Class I",
+          "Class I",
+          "Class I",
+          "Class I",
+          "Class II"
+        ],
+        "/result/items/*/reason": [
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Abbott Laboratories is recalling their Alinity ci-series System Control Module, a chemistry/immunoassay anayzer, by correction. The reason for the recall is potential performance issues found in the Alinity ci-series System software versions 3.6.1. and lower that could lead to erroneous results for multiple analytes. The issue was identified by Abbott during the internal testing of complaint investigations."
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--firm",
+        "Abbott",
+        "--classification",
+        "Class I",
+        "--initiated-from",
+        "2025-01-01",
+        "--initiated-to",
+        "2025-12-31"
+      ],
+      "max_bytes": 5360,
+      "expect": {
+        "/status": "complete",
+        "/page/total": 9,
+        "/result/source_query": "classification:\"Class I\" AND recalling_firm:\"Abbott\" AND recall_initiation_date:[20250101 TO 20251231]",
+        "/result/items/*/header/recall_number": [
+          "Z-1020-2026",
+          "Z-1021-2026",
+          "Z-1022-2026",
+          "Z-1023-2026",
+          "Z-0112-2026"
+        ],
+        "/result/items/*/reason": [
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Abbott has become aware of a limited number of tip detachment events during catheter removal from the packaging."
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--name",
+        "Alaris® pump"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/name": "Alaris® pump",
+        "/page/total": 49,
+        "/result/source_query": "product_description:\"Alaris pump\"",
+        "/result/items/0/header/recall_number": "Z-0212-2027",
+        "/sources/0/notices/*/message": {
+          "includes": "--name matched the words of openFDA's product_description as one phrase, ignoring case and punctuation, without plural or synonym expansion: the total counts recall records whose description holds the phrase, a different set from a --product-code search. openFDA refuses some punctuation, such as | and ?, and every symbol outside ASCII, such as ®, so each became a space and the phrase searched was \"Alaris pump\"."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--firm",
+        "Abbott",
+        "--manufacturer",
+        "Abbott"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--firm"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--firm",
+        "Abbott"
+      ],
+      "exit": 2,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--firm",
+        "/error/valid_values": [
+          "fda-device-recall"
+        ]
+      }
+    }
+  ]
+}

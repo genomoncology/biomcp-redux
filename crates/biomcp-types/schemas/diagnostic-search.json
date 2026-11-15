@@ -217,6 +217,18 @@
       "description": "NDA/BLA application.\nCell-owned typed NDA/BLA application.",
       "x-required-component": "fda-cdx"
     },
+    "firm": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Text"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only.",
+      "x-required-component": "fda-device-recall"
+    },
     "gene": {
       "anyOf": [
         {

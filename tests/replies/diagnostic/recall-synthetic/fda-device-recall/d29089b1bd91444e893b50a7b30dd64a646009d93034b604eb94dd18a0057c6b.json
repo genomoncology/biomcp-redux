@@ -1,0 +1,88 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%28%22Z-1020-2026%22%20OR%20%22Z-1021-2026%22%20OR%20%22Z-1022-2026%22%20OR%20%22Z-1023-2026%22%20OR%20%22Z-0112-2026%22%29&limit=5&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794746490,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 851,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 4
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-1020-2026",
+              "res_event_number": "98049",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "product_code": "QLG",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2025-11-24",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+              "root_cause_description": "Process control",
+              "product_description": "FreeStyle Libre 3 Sensor REF 72081-01\nUDI-DI code: 00357599818005\n\nThe FreeStyle Libre 3 sensor is a component of the FreeStyle Libre 3 Continuous Glucose Monitoring System.",
+              "k_numbers": [
+                "K212132"
+              ]
+            },
+            {
+              "product_res_number": "Z-1021-2026",
+              "res_event_number": "98049",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "product_code": "QLG",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2025-11-24",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+              "root_cause_description": "Process control",
+              "product_description": "FreeStyle Libre 3 Plus Sensor REF 78768-01\nUDI-DI code: 00357599844011\n\nThe FreeStyle Libre 3 Plus sensor is a component of the FreeStyle Libre 3 Continuous Glucose Monitoring System.",
+              "k_numbers": [
+                "K233537"
+              ]
+            },
+            {
+              "product_res_number": "Z-1022-2026",
+              "res_event_number": "98049",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "product_code": "QLG",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2025-11-24",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+              "root_cause_description": "Process control",
+              "product_description": "FreeStyle Libre 3 Plus Sensor REF 78769-01\nUDI-DI code: 00357599843014\n\nThe FreeStyle Libre 3 Plus sensor is a component of the FreeStyle Libre 3 Continuous Glucose Monitoring System.",
+              "k_numbers": [
+                "K233537"
+              ]
+            },
+            {
+              "product_res_number": "Z-1023-2026",
+              "res_event_number": "98049",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "product_code": "QLG",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2025-11-24",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+              "root_cause_description": "Process control",
+              "product_description": "FreeStyle Libre 3 Plus Sensor REF 72080-01\nUDI-DI code: 00357599819002\n\nThe FreeStyle Libre 3 Plus sensor is a component of the FreeStyle Libre 3 Continuous Glucose Monitoring System.",
+              "k_numbers": [
+                "K212132"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
