@@ -136,9 +136,9 @@ pub fn whole(
         return Ok((result, String::new()));
     }
     let mut text = String::new();
-    for page in pages.keys() {
+    for page in pages.values() {
         check()?;
-        let part = match document.extract_text_with_limit(&[*page], MAX_EXPANDED_BYTES) {
+        let part = match super::words::page(&document, *page, MAX_EXPANDED_BYTES) {
             Ok(part) => part,
             Err(lopdf::Error::Decompress(lopdf::DecompressError::MemoryLimitExceeded {
                 ..
