@@ -195,6 +195,9 @@ struct SearchFields {
     #[doc = "Stored bundle revision.\nImmutable stored bundle revision retained by a continuation."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     bundle_revision: Option<Text>,
+    /// The caller typed --firm, which folds into manufacturer, so a notice names --firm (0976).
+    #[serde(skip)]
+    firm_typed: bool,
 }
 crate::query::validation::checked_query!(DiagnosticSearch, SearchFields);
 impl TryFrom<SearchFields> for DiagnosticSearch {
@@ -313,6 +316,7 @@ impl DiagnosticSearch {
             limit: limit(),
             offset: 0,
             bundle_revision: None,
+            firm_typed: false,
         })
     }
 
@@ -371,6 +375,15 @@ impl DiagnosticSearch {
     /// WHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase.
     pub fn manufacturer(&self) -> Option<&Text> {
         self.0.manufacturer.as_ref()
+    }
+    /// The option the caller typed for the manufacturer: --firm on a device recall, else
+    /// --manufacturer.
+    pub fn manufacturer_option(&self) -> &'static str {
+        if self.0.firm_typed {
+            "--firm"
+        } else {
+            "--manufacturer"
+        }
     }
     /// Exact native FDA product code.
     pub fn product_code(&self) -> Option<&Text> {

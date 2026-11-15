@@ -23,8 +23,10 @@ fn base(c: char) -> Option<String> {
 
 /// Text as openFDA accepts it. openFDA also answers HTTP 400 to every character outside ASCII
 /// (live, 2026-11-15), and FDA records spell names in ASCII, so an accented Latin letter becomes
-/// its base letter (Nestlé, NESTLE); a refused character or any other non-ASCII character becomes
-/// a space, and spaces collapse. Text openFDA accepts is returned unchanged.
+/// its base letter (Nestlé, NESTLE); a combining accent mark (U+0300 to U+036F, as macOS pastes
+/// a decomposed letter) is dropped, so its base letter keeps the word whole (0976); a refused
+/// character or any other non-ASCII character becomes a space, and spaces collapse. Text openFDA
+/// accepts is returned unchanged.
 pub fn openfda_words(text: &str) -> Cow<'_, str> {
     if text.chars().all(sent) {
         return Cow::Borrowed(text);
@@ -35,7 +37,7 @@ pub fn openfda_words(text: &str) -> Cow<'_, str> {
             out.push(c);
         } else if let Some(base) = base(c) {
             out.push_str(&base);
-        } else {
+        } else if !('\u{0300}'..='\u{036F}').contains(&c) {
             out.push(' ');
         }
     }
