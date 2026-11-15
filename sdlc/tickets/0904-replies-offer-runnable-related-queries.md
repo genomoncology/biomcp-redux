@@ -92,3 +92,7 @@ Build on the existing `next` steps. No new step kind and no kind removed.
 - Sizes: j41316 measured every case step on main and on the branch with ceilings logged instead of enforced; j41331 re-measured the final rules. 189 of 603 measured case steps grew: median +226 bytes, most trial searches +570 to +880 (a trial search takes about twenty filters), refusals that lost their help step shrank by 5. 61 case ceilings and the Markdown pathway ceiling were raised to measured plus 15% (sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md), as were the measured runner budgets for research article and trial search (1732 to 2192, 8192 to 9913), VAERS summaries (four phases, about +340), study file and navigation pages (1416/1415) and phenotype retained sections (871). No global cap moved.
 - Changed expectations: refusals whose correction now replaces help (`--fields`, source filters, missing `--source`, unknown option, HGVS name, phenotype admission, typed reply forms); first pages that now end with their own call (paging-end, wider-zero, four-term-short).
 
+
+### Gate, 2026-11-15
+
+- `make --keep-going landing-gate docs-check schema-release-check` passed in j41341 on 1efcd64f7, which was already up to date with origin/main.
