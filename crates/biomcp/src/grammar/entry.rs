@@ -200,7 +200,7 @@ fn help_reordered<'a>(
         .find(|name| {
             super::command_paths()
                 .iter()
-                .any(|(_, entity, _)| *entity == name)
+                .any(|(_, entity, _)| entity == name)
         })?;
     Some(if has_section(entity, word) {
         vec!["get".into(), entity.into(), word.into()]
