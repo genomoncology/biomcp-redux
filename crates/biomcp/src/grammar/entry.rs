@@ -155,10 +155,21 @@ pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<S
         if let Some(typed) = typed_order(root, &path, word, words.clone()) {
             return Some(typed);
         }
+        if help
+            && path.is_empty()
+            && let Some(page) = help_reordered(command, word, words.clone())
+        {
+            return Some(page);
+        }
         if command.get_subcommands().next().is_some() {
+            let word = word.to_lowercase();
             let nearest = command
                 .get_subcommands()
-                .min_by_key(|child| distance(word, child.get_name()))?;
+                .min_by_key(|child| distance(&word, child.get_name()))?;
+            // A far guess under help names an unrelated page; the parent's help lists the real ones.
+            if help && 2 * distance(&word, nearest.get_name()) > nearest.get_name().len() {
+                return Some(path);
+            }
             // A help suggestion never names help twice; plain help lists every command.
             if nearest.get_name() != "help" {
                 path.push(nearest.get_name().to_owned());
@@ -173,6 +184,38 @@ pub(super) fn unknown_command(args: &[OsString], root: &Command) -> Option<Vec<S
             .then_some(path);
     }
     None
+}
+
+// `help interactions drug`: a later word names an entity, so its page (or that get
+// section's page, when the unknown word is one of its sections) is the nearest real one.
+fn help_reordered<'a>(
+    help: &Command,
+    word: &str,
+    rest: impl Iterator<Item = &'a OsString>,
+) -> Option<Vec<String>> {
+    let entity = rest
+        .filter_map(|word| word.to_str())
+        .filter_map(|word| help.find_subcommand(word))
+        .map(Command::get_name)
+        .find(|name| {
+            super::command_paths()
+                .iter()
+                .any(|(_, entity, _)| *entity == name)
+        })?;
+    Some(if has_section(entity, word) {
+        vec!["get".into(), entity.into(), word.into()]
+    } else {
+        vec![entity.into()]
+    })
+}
+
+fn has_section(entity: &str, section: &str) -> bool {
+    super::validation::schema("get", entity)
+        .and_then(|schema| {
+            let property = schema.pointer("/properties/section")?;
+            super::validation::accepted(&schema, property)
+        })
+        .is_some_and(|words| words.iter().any(|word| word.as_str() == section))
 }
 
 // A command typed in reverse has one exact path, so it needs no nearest-name guess.
