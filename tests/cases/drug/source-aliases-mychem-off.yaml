@@ -1,0 +1,37 @@
+{
+  "feature": "drug-native-sources",
+  "story": "With MyChem off, the alias lookup reads no ChEMBL record: MyChem holds the copy of ChEMBL's records it would read, and ChEMBL's own API is not asked, so ChEMBL is not listed.",
+  "verified": "All replies and alias relations are explicitly authored synthetic examples. The replay holds ChEMBL API replies for this name, so a ChEMBL request would answer and list ChEMBL.",
+  "replay": "drug/source-aliases",
+  "config": {
+    "disable_sources": [
+      "mychem",
+      "openfda-label"
+    ]
+  },
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "Orphan code",
+        "--source",
+        "opentargets",
+        "--limit",
+        "1"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/sources/*/source": [
+          "opentargets",
+          "mychem",
+          "openfda-label"
+        ],
+        "/sources/1/reason": "disabled",
+        "/sources/2/reason": "disabled"
+      }
+    }
+  ],
+  "live_check": "Authored synthetic alias responses; local replay only, excluded from provider live checks."
+}

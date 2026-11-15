@@ -16,6 +16,8 @@ A search refused for missing input whose fix would be one of several sources (ba
 
 - Proof: `tests/cases/grammar/usage-missing-option.yaml` asserts bare `search drug` gets help as its first next step and no `--source` guess; it fails on the base commit.
 - Proof: a case where exactly one source works (as `get disease MONDO:0013267 genes` needs `--source monarch`) still gets that call as its first step.
+- Proof: a case where no source was named and the default source refuses a filter gets the one swapped source as its only next step (0904's certain swap path, uncovered at 17c2033f1).
+- Also: set the three `--source hpo` refusal caps in `tests/cases/phenotype/admission.yaml` to 458 (measured 398 plus 15%; 0904 set 461).
 
 ## Starts from
 
