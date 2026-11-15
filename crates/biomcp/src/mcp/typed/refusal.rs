@@ -52,7 +52,10 @@ pub(super) fn fix(
         format!("--{}", key.replace('_', "-"))
     };
     let mut words = Vec::new();
-    for value in value.as_array().map_or_else(|| vec![value], |values| values.iter().collect()) {
+    for value in value
+        .as_array()
+        .map_or_else(|| vec![value], |values| values.iter().collect())
+    {
         match value {
             Value::Bool(true) => words.push(OsString::from(&spelling)),
             Value::String(text) => words.extend([OsString::from(&spelling), text.into()]),

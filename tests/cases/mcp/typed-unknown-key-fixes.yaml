@@ -14,7 +14,7 @@
           "action": "search",
           "search": {
             "source": "fda-pma",
-            "query": "colorectal"
+            "search": "colorectal"
           }
         }
       },
@@ -23,10 +23,10 @@
       "expect": {
         "/status": "usage",
         "/error/code": "usage.arguments",
-        "/error/option": "query",
+        "/error/option": "search",
         "/next/0/name": "diagnostic",
         "/next/0/arguments/action": "search",
-        "/next/0/arguments/search/name": "colorectal",
+        "/next/0/arguments/search/query": "colorectal",
         "/next/0/arguments/search/source": "fda-pma"
       }
     },
@@ -48,7 +48,7 @@
         "/error/code": "usage.arguments",
         "/error/option": "q",
         "/next/0/name": "diagnostic",
-        "/next/0/arguments/search/name": "colorectal",
+        "/next/0/arguments/search/query": "colorectal",
         "/next/0/arguments/search/source": "fda-pma"
       }
     },
