@@ -31,3 +31,9 @@ A typed MCP call refused for an unknown argument gets the same runnable fixes a 
 ## Changes
 
 - Changes: the typed MCP refusal path, its cases.
+
+## Progress
+
+- 2026-11-15: a typed call refused for a key its action does not take now gets the command line's fix for the same mistake ahead of the help step. The server spells the key as the option a CLI caller would have typed (`q` as `-q`, `who_pq` as `--who-pq`, `search` as `--search`), adds it to the refused call's command line, and asks the ordinary parser for its first non-help fix, so every `flag_fix` branch (text flag, source flag, respelling, HGVS name) applies and a call the parser would refuse is never suggested. The fix is then shown in typed form like any other next step. Other refusals (a missing or doubled argument) are unchanged, and so is the refusal schema (`crates/biomcp/src/mcp/typed.rs` `command_call`, `refusal::fix` in `crates/biomcp/src/mcp/typed/refusal.rs`).
+- Measured in jobs on the M5: `diagnostic` search with `search` or `q` gets `{query: colorectal, source: fda-pma}`; `drug` search with `who_pq: true` gets `source: who-pq`; `gene` get with `source: hgnc` gets the call without it; `trial` search with `c` gets `condition`; `variant` search with `variant: "NM_007294.4(BRCA1):c.68_69del"` gets `{gene: BRCA1, coding: c.68_69del}` then help; a name without a gene and `gene_symbol` keep only help. Schema and docs regeneration changed nothing; `check-cheap` and all `mcp-parity` cases passed.
+- Case: `tests/cases/mcp/typed-unknown-key-fixes.yaml` (offline; no source requests). Search text sent as `query`, `text`, `name` or `keyword` is already accepted as typed aliases, so the text-flag case uses `search` and `q`.
