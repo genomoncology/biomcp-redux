@@ -20,6 +20,7 @@ pub(crate) fn cli(
     let mut args = vec![verb.into(), entity.into()];
     // Parser indices own positional order; flags precede them to keep literal values safe.
     let mut positional = Vec::new();
+    let values = crate::key_order::sorted(values);
     for (key, value) in values.as_object()? {
         if let Some(flags) = schema
             .get("properties")?

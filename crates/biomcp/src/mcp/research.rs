@@ -178,7 +178,7 @@ fn render_view(view: View, original: Value) -> io::Result<Value> {
             let text = text::render(&original)?;
             let mut metadata = original;
             if let Some(fields) = metadata.as_object_mut() {
-                fields.remove("result");
+                fields.shift_remove("result");
             }
             serde_json::to_value(biomcp_types::ResearchFetch {
                 id: id.into(),

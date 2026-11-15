@@ -203,6 +203,25 @@ fn trial_contracts() -> Vec<Contract> {
     }
 }
 
+/// Checked-in contracts list names alphabetically at every depth, as they did before
+/// serde_json kept insertion order (0972), so the files and the binary that reads them stay as they were.
+fn sorted(value: &Value) -> Value {
+    match value {
+        Value::Object(fields) => {
+            let mut names: Vec<_> = fields.iter().collect();
+            names.sort_unstable_by(|left, right| left.0.cmp(right.0));
+            Value::Object(
+                names
+                    .into_iter()
+                    .map(|(name, field)| (name.clone(), sorted(field)))
+                    .collect(),
+            )
+        }
+        Value::Array(items) => Value::Array(items.iter().map(sorted).collect()),
+        _ => value.clone(),
+    }
+}
+
 #[test]
 fn checked_in_schema_definition_names_have_one_body() -> Result<(), Box<dyn std::error::Error>> {
     release::checked_in_schema_definition_names_have_one_body()
@@ -238,7 +257,7 @@ fn checked_in_schemas_match_types() {
             }
             let bytes = format!(
                 "{}\n",
-                serde_json::to_string_pretty(&new).expect("serialize schema")
+                serde_json::to_string_pretty(&sorted(&new)).expect("serialize schema")
             );
             (path, bytes)
         })
