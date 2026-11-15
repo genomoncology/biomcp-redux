@@ -1,6 +1,7 @@
 # 0967 — de-novo-rows-show-the-decision
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: a99494b0fbf9e2328b442d271a0a1c1f10bd1306
 
 Milestone: 7
 
@@ -31,3 +32,9 @@ dx-lab-director round 4 (2026-11-15): de novo rows show openFDA's "Unknown" next
 ## Changes
 
 - Changes: the de novo row mapping, its case.
+
+## Progress
+
+- Measured live 2026-11-15 (job j41185, openFDA data updated 2026-11-02): openFDA's 510(k) data holds 492 DEN records, all with `decision_code` DENG; counting records whose `decision_description` is "Unknown" by code gives DENG 492, so every DEN record reads "Unknown" (DEN230046 among them). The count is of DEN records; DENG on records outside DEN numbers was not measured (openFDA refused a count on `decision_code:DENG`). SESK, SESU, SEKD, SESD and SESP are also "Unknown" there; they get no reading, so they keep openFDA's description.
+- 510(k) rows and cards now put `decision_reading` right after `k_number`, ahead of the device and decision fields, and leave out `decision_description` when a reading is present and openFDA's description is "Unknown". `decision_code` DENG stays, so openFDA's own decision stays readable. Other descriptions are unchanged. Schema change: field order and descriptions only; the field was already optional.
+- Proof: `tests/cases/diagnostic/fda-510k-classification-name.yaml` (the round 4 cell-free search, recorded 2026-11-14) checks both de novo rows (DEN230046, DEN200001) read `de-novo-granted` with no `decision_description`, and both K rows keep "Substantially Equivalent"; `tests/cases/diagnostic/510k-de-novo.yaml` checks the same on the DEN170058 card and that K233537 keeps "Substantially Equivalent".
