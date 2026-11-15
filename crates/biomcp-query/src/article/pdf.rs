@@ -5,7 +5,10 @@ use biomcp_types::ReplyBody;
 
 use biomcp_adapters::{pdf, semantic_scholar};
 use biomcp_fetch::{Deadline, RequestError};
-use biomcp_types::{ArticlePdf, ArticlePdfResult, PdfLink, Reason, ReplyData, Section, Source};
+use biomcp_types::{
+    ArticleGet, ArticleInput, ArticlePdf, ArticlePdfResult, ArticleSectionWord, PdfLink, Reason,
+    ReplyData, Request, Section, Source, SourceNotice, StepKind,
+};
 /// Download only when the caller supplied a path and the interface permits local writes.
 pub fn download(cx: &Ctx<'_>, query: &ArticlePdf, allow_save: bool) -> Download {
     let command = cx.fetch.command_deadline(cx.budget);
@@ -65,11 +68,18 @@ fn execute<'a>(
         }
     });
     *deadline = super::consume(*deadline, started, leg.remaining());
-    let source = status::source(
+    let mut source = status::source(
         Source::SemanticScholar,
         leg.finish(),
         result.as_ref().err().copied(),
     );
+    if let Err(error) = &result
+        && let Some(refused) = pdf::refused(error)
+    {
+        source
+            .notices
+            .push(refusal(&link.url, refused, open_text(&link.url, &query.input), out));
+    }
     if let Some(existing) = out
         .sources
         .iter_mut()
@@ -85,6 +95,60 @@ fn execute<'a>(
     }
     *file = Some((link, bytes));
     Ok(())
+}
+
+/// The open full-text identity for a refused PDF: the PMC or preprint the link
+/// names, else the caller's PubMed, PMC or Europe PMC identity.
+fn open_text(url: &biodata::Text, input: &ArticleInput) -> Option<ArticleInput> {
+    pdf::publisher::named_text(url.as_str()).or_else(|| match input {
+        ArticleInput::Doi(_) => None,
+        input => Some(input.clone()),
+    })
+}
+
+/// Say who refused the PDF and why, and point to the open full text when one is named.
+fn refusal(
+    url: &biodata::Text,
+    (status, meaning): (u16, &str),
+    open: Option<ArticleInput>,
+    out: &mut Outcome,
+) -> SourceNotice {
+    let url = url.as_str();
+    let europepmc = pdf::publisher::europepmc(url);
+    let host = if europepmc {
+        "Europe PMC".to_owned()
+    } else {
+        pdf::publisher::host(url).unwrap_or_else(|| "The publisher".to_owned())
+    };
+    let why = if europepmc {
+        "Europe PMC does not give PDFs to automated clients such as BioMCP, and BioMCP does \
+         not get around that."
+    } else {
+        "This does not show that the paper is closed."
+    };
+    let step = open.and_then(|input| {
+        ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into()).ok()
+    });
+    let next = if let Some(query) = step {
+        out.next.push(crate::next::Step::run(
+            StepKind::Section,
+            &super::next::text_sources(&query.input()[0]),
+            Request::GetArticle(query),
+            false,
+        ));
+        "Read its open full text with the next command, or open the URL in a browser."
+    } else {
+        "Open the URL in a browser."
+    };
+    SourceNotice::RequestGuidance {
+        data_date: None,
+        message: format!(
+            "{host} refused the PDF at {url} with HTTP {status}{meaning}, so no file was \
+             saved. {why} {next}"
+        )
+        .into(),
+        retry_after_seconds: None,
+    }
 }
 
 /// Bounded download before the binary decides how to install the file.

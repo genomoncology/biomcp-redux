@@ -23,21 +23,7 @@ fn error(source: Source, reason: Reason) -> RequestError {
 /// page, pm jobs j38804 and j38812) and 406 (pm jobs j40615 and j40668). The status
 /// is the only reason BioMCP reads, so the notice reports it without guessing why.
 pub fn refusal(url: &biodata::Text, error: &RequestError) -> Option<SourceNotice> {
-    let RequestError::Source(source) = error else {
-        return None;
-    };
-    let status = source
-        .status
-        .filter(|status| source.reason == Reason::Rejected && (400..500).contains(status))?;
-    let meaning = match status {
-        401 => " Unauthorized",
-        403 => " Forbidden",
-        404 => " Not Found",
-        406 => " Not Acceptable",
-        410 => " Gone",
-        429 => " Too Many Requests",
-        _ => "",
-    };
+    let (status, meaning) = super::download::refused(error)?;
     Some(SourceNotice::RequestGuidance {
         data_date: None,
         message: format!(
