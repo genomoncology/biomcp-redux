@@ -127,10 +127,8 @@ pub(super) fn event(
         .filter_map(|(key, _)| {
             Some(AuthorizationDate {
                 role: problems.optional(key, Some(Text::new(role(key))))?,
-                date: problems.optional(
-                    key,
-                    row.field(key).map(|value| value.and_then(raw::date)),
-                )?,
+                date: problems
+                    .optional(key, row.field(key).map(|value| value.and_then(raw::date)))?,
             })
         })
         .collect();
