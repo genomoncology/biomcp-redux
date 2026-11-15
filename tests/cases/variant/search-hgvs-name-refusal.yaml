@@ -144,6 +144,42 @@
           "variant"
         ]
       }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "AAA03565:p.Val600Glu"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "NC_000017.11(ENST00000357654):c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
     }
   ]
 }
