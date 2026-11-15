@@ -116,13 +116,22 @@ fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     // named, so help stays beside it. The call's options are checked by the cases.
     let next = value.get("next").and_then(Value::as_array).map(|next| {
         next.iter()
-            .map(|step| json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]}))
+            .map(|step| {
+                json!({"kind": step["kind"], "name": step["name"], "arguments": step["arguments"]})
+            })
             .collect::<Vec<_>>()
     });
     if index == 2
         && next
             != Some(vec![
-                json!({"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["summary","eligibility"],"source":"nci"}}}),
+                json!({"kind": "configure", "name": "trial", "arguments": {
+                    "action": "get",
+                    "get": {
+                        "id": ["NCT07491445"],
+                        "section": ["summary", "eligibility"],
+                        "source": "nci"
+                    }
+                }}),
                 json!({"kind":"configure","name":"help","arguments":{"command":"get trial"}}),
             ])
     {
