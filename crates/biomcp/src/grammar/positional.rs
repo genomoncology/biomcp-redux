@@ -360,8 +360,7 @@ fn accession(name: &str) -> bool {
     let digits = name.get(letters..).unwrap_or_default();
     let numbered = !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit());
     numbered
-        && (name.starts_with("ENS")
-            || matches!((letters, digits.len()), (1, 5) | (2, 6) | (2, 8)))
+        && (name.starts_with("ENS") || matches!((letters, digits.len()), (1, 5) | (2, 6) | (2, 8)))
 }
 
 /// The canonical call for words the grammar accepts, or the corrected call its refusal
