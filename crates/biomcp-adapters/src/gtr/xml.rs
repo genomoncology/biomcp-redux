@@ -1,6 +1,8 @@
-//! One pass over GTR's full XML release, keeping only specimens and lab certifications.
-//! `GTRLabData` holds one `GTRLab` (with `LabCertification`) and its `GTRLabTest`
-//! siblings (with `Specimen/SpecimenType`), per the publisher's GTRPublicData.xsd.
+//! One pass over GTR's full XML release, keeping only specimens, order and test links,
+//! and each lab's certifications, mailing address and directors.
+//! `GTRLabData` holds one `GTRLab` (with `LabCertification`, `Organization/MailingAddress`
+//! and `Personnel`) and its `GTRLabTest` siblings (with `Specimen/SpecimenType`,
+//! `Order/URL` and `TestURL`), per the publisher's GTRPublicData.xsd.
 use biomcp_fetch::BadReply;
 use quick_xml::{Reader, events::Event};
 use serde::Serialize;
@@ -9,15 +11,50 @@ use std::io::BufRead;
 /// The XSD nests well under this; deeper input is refused, not followed.
 const NESTING: usize = 64;
 
-#[derive(Serialize)]
-struct Test<'a> {
-    xml_test: &'a str,
-    specimens: &'a [String],
+#[derive(Default, Serialize)]
+struct Test {
+    #[serde(rename = "xml_test")]
+    id: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    specimens: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    order_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    test_url: Option<String>,
 }
-#[derive(Serialize)]
-struct Lab<'a> {
-    xml_lab: &'a str,
-    certifications: &'a [Certification],
+#[derive(Default, Serialize)]
+struct Lab {
+    #[serde(rename = "xml_lab")]
+    id: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    certifications: Vec<Certification>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    address: Option<Address>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    directors: Vec<String>,
+}
+/// The lab's `MailingAddress`, the address GTR's own esummary gives as `offererlocation`.
+#[derive(Default, Serialize)]
+struct Address {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    lines: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    city: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    postcode: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    country: Option<String>,
+}
+impl Address {
+    fn is_empty(&self) -> bool {
+        self.lines.is_empty()
+            && self.city.is_none()
+            && self.state.is_none()
+            && self.postcode.is_none()
+            && self.country.is_none()
+    }
 }
 #[derive(Default, Serialize)]
 struct Certification {
@@ -31,17 +68,30 @@ struct Certification {
 #[derive(Clone, Copy)]
 enum Leaf {
     Specimen,
+    OrderUrl,
+    TestUrl,
     Name,
     Number,
     Expires,
+    Line,
+    City,
+    State,
+    PostCode,
+    Country,
+    Director,
 }
 #[derive(Default)]
 struct State {
     stack: Vec<String>,
-    lab: Option<(Option<String>, Vec<Certification>)>,
+    /// The lab, with `None` as its ID when the attribute is missing.
+    lab: Option<(Option<String>, Lab)>,
     /// Only `Type="Certification"`; state licenses are already on the card.
     cert: Option<Certification>,
-    test: Option<(Option<String>, Vec<String>)>,
+    /// Inside a public `MailingAddress`.
+    address: Option<Address>,
+    /// Inside a `Personnel` with `IsDirector="true"`.
+    director: bool,
+    test: Option<(Option<String>, Test)>,
     leaf: Option<(Leaf, String)>,
 }
 impl State {
@@ -71,18 +121,53 @@ pub(super) fn rows(
                     return Err(BadReply);
                 }
                 if s.under(&["GTRLabData", "GTRLab"]) {
-                    s.lab = Some((attr(&tag, "id")?, Vec::new()));
+                    s.lab = Some((attr(&tag, "id")?, Lab::default()));
                 } else if s.under(&["GTRLabData", "GTRLabTest"]) {
                     let id = attr(&tag, "GTRAccession")?
                         .zip(attr(&tag, "Version")?)
                         .map(|(a, v)| format!("{a}.{v}"))
                         .filter(|id| id.parse::<biodata::GtrTestId>().is_ok());
-                    s.test = Some((id, Vec::new()));
+                    s.test = Some((id, Test::default()));
                 } else if s.under(&["GTRLabData", "GTRLab", "LabCertification"]) {
                     s.cert = (attr(&tag, "Type")?.as_deref() == Some("Certification"))
                         .then(Certification::default);
-                } else if s.under(&["GTRLabTest", "Specimen", "SpecimenType"]) && s.test.is_some() {
-                    s.leaf = Some((Leaf::Specimen, String::new()));
+                } else if s.under(&["GTRLab", "Organization", "MailingAddress"]) {
+                    // Only addresses the publisher marks public (Public is required by the XSD).
+                    s.address = (attr(&tag, "Public")?.as_deref() != Some("false"))
+                        .then(Address::default);
+                } else if s.under(&["GTRLabData", "GTRLab", "Personnel"]) {
+                    s.director = attr(&tag, "IsDirector")?.as_deref() == Some("true");
+                } else if s.test.is_some() {
+                    let leaf = if s.under(&["GTRLabTest", "Specimen", "SpecimenType"]) {
+                        Some(Leaf::Specimen)
+                    } else if s.under(&["GTRLabData", "GTRLabTest", "Order", "URL"]) {
+                        Some(Leaf::OrderUrl)
+                    } else if s.under(&["GTRLabData", "GTRLabTest", "TestURL"]) {
+                        Some(Leaf::TestUrl)
+                    } else {
+                        None
+                    };
+                    s.leaf = leaf.map(|leaf| (leaf, String::new()));
+                } else if s.address.is_some() {
+                    let leaf = if s.under(&["MailingAddress", "Line1"])
+                        || s.under(&["MailingAddress", "Line2"])
+                        || s.under(&["MailingAddress", "Line3"])
+                    {
+                        Some(Leaf::Line)
+                    } else if s.under(&["MailingAddress", "City"]) {
+                        Some(Leaf::City)
+                    } else if s.under(&["MailingAddress", "State"]) {
+                        Some(Leaf::State)
+                    } else if s.under(&["MailingAddress", "PostCode"]) {
+                        Some(Leaf::PostCode)
+                    } else if s.under(&["MailingAddress", "Country"]) {
+                        Some(Leaf::Country)
+                    } else {
+                        None
+                    };
+                    s.leaf = leaf.map(|leaf| (leaf, String::new()));
+                } else if s.director && s.under(&["Personnel", "Person", "DisplayName"]) {
+                    s.leaf = Some((Leaf::Director, String::new()));
                 } else if s.cert.is_some() {
                     let leaf = if s.under(&["LabCertification", "Name"]) {
                         Some(Leaf::Name)
@@ -138,22 +223,41 @@ pub(super) fn rows(
 fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) -> Result<(), BadReply> {
     if let Some((leaf, value)) = s.leaf.take() {
         let value = value.trim().to_owned();
+        if value.is_empty() {
+            return Ok(());
+        }
         match leaf {
-            Leaf::Specimen => {
-                if let Some((_, list)) = &mut s.test
-                    && !value.is_empty()
-                {
-                    list.push(value);
+            Leaf::Specimen | Leaf::OrderUrl | Leaf::TestUrl => {
+                if let Some((_, t)) = &mut s.test {
+                    match leaf {
+                        Leaf::Specimen => t.specimens.push(value),
+                        Leaf::OrderUrl => t.order_url = Some(value),
+                        _ => t.test_url = Some(value),
+                    }
+                }
+            }
+            Leaf::Director => {
+                if let Some((_, lab)) = &mut s.lab {
+                    lab.directors.push(value);
                 }
             }
             Leaf::Name | Leaf::Number | Leaf::Expires => {
-                if let Some(cert) = &mut s.cert
-                    && !value.is_empty()
-                {
+                if let Some(cert) = &mut s.cert {
                     match leaf {
                         Leaf::Name => cert.name = value,
                         Leaf::Number => cert.number = Some(value),
                         _ => cert.expiration_date = Some(value),
+                    }
+                }
+            }
+            Leaf::Line | Leaf::City | Leaf::State | Leaf::PostCode | Leaf::Country => {
+                if let Some(a) = &mut s.address {
+                    match leaf {
+                        Leaf::Line => a.lines.push(value),
+                        Leaf::City => a.city = Some(value),
+                        Leaf::State => a.state = Some(value),
+                        Leaf::PostCode => a.postcode = Some(value),
+                        _ => a.country = Some(value),
                     }
                 }
             }
@@ -162,38 +266,38 @@ fn end(s: &mut State, emit: &mut dyn FnMut(Option<String>)) -> Result<(), BadRep
     }
     if s.under(&["GTRLabData", "GTRLab", "LabCertification"]) {
         if let Some(cert) = s.cert.take()
-            && let Some((_, list)) = &mut s.lab
+            && let Some((_, lab)) = &mut s.lab
         {
-            list.push(cert);
+            lab.certifications.push(cert);
         }
-    } else if s.under(&["GTRLabData", "GTRLab"]) {
-        if let Some((id, list)) = s.lab.take()
-            && !list.is_empty()
+    } else if s.under(&["GTRLab", "Organization", "MailingAddress"]) {
+        if let Some(a) = s.address.take().filter(|a| !a.is_empty())
+            && let Some((_, lab)) = &mut s.lab
         {
-            let named = list.iter().all(|c| !c.name.is_empty());
+            lab.address = Some(a);
+        }
+    } else if s.under(&["GTRLabData", "GTRLab", "Personnel"]) {
+        s.director = false;
+    } else if s.under(&["GTRLabData", "GTRLab"]) {
+        if let Some((id, lab)) = s.lab.take()
+            && (!lab.certifications.is_empty()
+                || lab.address.is_some()
+                || !lab.directors.is_empty())
+        {
+            let named = lab.certifications.iter().all(|c| !c.name.is_empty());
             let row = id
                 .filter(|_| named)
-                .map(|id| {
-                    serde_json::to_string(&Lab {
-                        xml_lab: &id,
-                        certifications: &list,
-                    })
-                })
+                .map(|id| serde_json::to_string(&Lab { id, ..lab }))
                 .transpose()
                 .map_err(|_| BadReply)?;
             emit(row);
         }
     } else if s.under(&["GTRLabData", "GTRLabTest"])
-        && let Some((id, list)) = s.test.take()
-        && !list.is_empty()
+        && let Some((id, test)) = s.test.take()
+        && (!test.specimens.is_empty() || test.order_url.is_some() || test.test_url.is_some())
     {
         let row = id
-            .map(|id| {
-                serde_json::to_string(&Test {
-                    xml_test: &id,
-                    specimens: &list,
-                })
-            })
+            .map(|id| serde_json::to_string(&Test { id, ..test }))
             .transpose()
             .map_err(|_| BadReply)?;
         emit(row);

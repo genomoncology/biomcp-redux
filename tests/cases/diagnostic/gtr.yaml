@@ -111,7 +111,22 @@
             "CAP"
           ]
         },
-        "/result/laboratory_certifications/0/expiration_date": "2027-01-31"
+        "/result/laboratory_certifications/0/expiration_date": "2027-01-31",
+        "/result/laboratory_address": {
+          "equals": {
+            "lines": [
+              "1 Synthetic Way"
+            ],
+            "city": "Testville",
+            "state": "Ohio",
+            "country": "United States"
+          }
+        },
+        "/result/laboratory_directors": [
+          "A. Synthetic & Co, PhD, Lab Director"
+        ],
+        "/result/order_url": "https://example.org/order?test=6692&x=1",
+        "/result/test_url": "https://example.org/tests/6692"
       }
     },
     {

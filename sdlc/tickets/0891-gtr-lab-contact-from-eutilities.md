@@ -31,3 +31,18 @@ A GTR test card (and, if the cost is measured and small, a search page) carries 
 ## Changes
 
 - Changes: `crates/biomcp-adapters/src/gtr/`, `crates/biomcp-types/`, `tests/cases/diagnostic/`, `docs/`
+
+## Progress
+
+Design check, 2026-11-15.
+
+- Since this ticket was filed, 0931 added GTR's full XML release (`gtr_ftp.xml.gz`) to the stored GTR set. That file already holds every field this ticket asks for, so the card reads them from the stored copy, not from E-utilities: no per-card network call, no rate limit, and no E-utilities failure mode to handle. The bulk files stay the source of the test list and counts.
+- Checked on the 2026-11-14 copy of the XML (the one 0931's cuts came from) against live `esummary db=gtr` on 2026-11-15 for 560508, 500162 and 559466: esummary's `offererlocation` is the lab's `Organization/MailingAddress` (line 1-3, city, state, postcode, country), `directorlist` is the `Person/DisplayName` of each `Personnel` with `IsDirector="true"`, `orderurl` is the test's `Order/URL`, and `testurl` its `TestURL`. Values matched exactly, including both links being empty for 559466.
+- Across the whole XML: all 341 labs have a mailing address (none marked non-public) and at least one director (at most 37); the address and director names average 272 bytes per lab, 1,572 at most. Of 63,256 tests, 38,605 list an order link and 38,827 a test link, 63 bytes per test on average (338 at most), about 4 MB in all; every link starts with http(s). The lab's mailing postcode can differ from the test file's `facility_postcode` (Athena: 01752 against 01605).
+- Search rows: the full set would add about 335 bytes per row (lab address and directors 272, links 63) to rows of about 850-900 bytes, roughly +35-40% on a 50-row page, and every page would need a lab read. That is not small, so search rows stay as they are; the card carries the fields, and the caution says so.
+
+Build, 2026-11-15.
+
+- The XML reader keeps each lab's public `MailingAddress` and its directors' display names (no emails, phones or other personnel), and each test's `Order/URL` and `TestURL`. A lab or test row is kept when it has any kept value.
+- Card: optional `laboratory_address` (lines, city, state, postcode, country), `laboratory_directors`, `order_url` and `test_url`; each is absent when GTR lists none. `xml_release_url` now also appears when only these fields came from the XML.
+- Cases: `diagnostic/gtr-kmt2d` re-cuts the same 2026-11-14 XML for the KMT2D tests' labs and tests, now also keeping `Organization/MailingAddress`, director `Personnel` (display name only), `Order` and `TestURL`, values unchanged (the old cut rebuilt byte-for-byte from that file first). GTR000500162.7 (University of Chicago) shows the address, two directors and both links; GTR000559466.2 (Athena) has address and six directors but no links, and the card omits both. The synthetic case checks that a non-director and the street address are not read, entity decoding in a director name and an order link, and that a research test's link is not kept.

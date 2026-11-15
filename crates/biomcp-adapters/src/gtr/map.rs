@@ -88,8 +88,9 @@ pub(super) fn card(
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<GtrCard, RequestError> {
     let header = header(v, xml, problems)?;
+    let lab = lab.filter(|lab| *lab.id == *v.lab_id);
+    let test = xml.filter(|x| x.id == v.test_accession_ver);
     let laboratory_certifications: Box<[_]> = lab
-        .filter(|lab| *lab.id == *v.lab_id)
         .into_iter()
         .flat_map(|lab| lab.certifications.iter())
         .filter_map(|c| {
@@ -106,7 +107,56 @@ pub(super) fn card(
             })
         })
         .collect();
-    let xml_release_url = if header.specimens.is_empty() && laboratory_certifications.is_empty() {
+    let laboratory_address = lab
+        .and_then(|lab| lab.address.as_ref())
+        .map(|a| biomcp_types::GtrLabAddress {
+            lines: a
+                .lines
+                .iter()
+                .filter_map(|l| optional(l, "MailingAddress/Line", v, problems))
+                .collect(),
+            city: a
+                .city
+                .as_deref()
+                .and_then(|x| optional(x, "MailingAddress/City", v, problems)),
+            state: a
+                .state
+                .as_deref()
+                .and_then(|x| optional(x, "MailingAddress/State", v, problems)),
+            postcode: a
+                .postcode
+                .as_deref()
+                .and_then(|x| optional(x, "MailingAddress/PostCode", v, problems)),
+            country: a
+                .country
+                .as_deref()
+                .and_then(|x| optional(x, "MailingAddress/Country", v, problems)),
+        })
+        .filter(|a| {
+            !a.lines.is_empty()
+                || a.city.is_some()
+                || a.state.is_some()
+                || a.postcode.is_some()
+                || a.country.is_some()
+        });
+    let laboratory_directors: Box<[_]> = lab
+        .into_iter()
+        .flat_map(|lab| lab.directors.iter())
+        .filter_map(|d| optional(d, "Personnel/DisplayName", v, problems))
+        .collect();
+    let order_url = test
+        .and_then(|t| t.order_url.as_deref())
+        .and_then(|u| optional(u, "Order/URL", v, problems));
+    let test_url = test
+        .and_then(|t| t.test_url.as_deref())
+        .and_then(|u| optional(u, "TestURL", v, problems));
+    let xml_release_url = if header.specimens.is_empty()
+        && laboratory_certifications.is_empty()
+        && laboratory_address.is_none()
+        && laboratory_directors.is_empty()
+        && order_url.is_none()
+        && test_url.is_none()
+    {
         None
     } else {
         Some(
@@ -134,6 +184,10 @@ pub(super) fn card(
         state_licenses: v.state_licenses.clone(),
         state_license_numbers: v.state_license_numbers.clone(),
         laboratory_certifications,
+        laboratory_address,
+        laboratory_directors,
+        order_url,
+        test_url,
         xml_release_url,
         sections: vec![
             DiagnosticSection::Genes,
