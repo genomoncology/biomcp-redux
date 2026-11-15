@@ -3576,7 +3576,7 @@ Options:
 
       --civic-cursor <civic_cursor>
           Cursor
-          Native CIViC cursor, retained unchanged.
+          Native CIViC cursor, retained unchanged. Only with section civic or all.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3584,10 +3584,10 @@ Options:
       --civic-kind <civic_kind>
           Claims; help get variant
           Claims
-          Native CIViC claim collection within the selected profile.
+          Native CIViC claim collection within the selected profile. Only with section civic or all.
 
       --civic-profile <civic_profile>
-          Selected CIViC molecular profile for native claim paging.
+          Selected CIViC molecular profile for native claim paging. Only with section civic or all.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3597,11 +3597,11 @@ Options:
 
       --disease <disease>
           Disease
-          CIViC disease name text; CIViC matches it natively against evidence and assertion diseases.
+          CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all.
 
       --drug <drug>
           Drug
-          CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies.
+          CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all.
 
       --evidence-level <evidence_level>...
           A–E; help get variant
@@ -3657,14 +3657,14 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Assembly
 MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string; example: --build GRCh37.
 - `--civic-cursor`: Cursor
-Source CIViC cursor, retained unchanged. Value form: string; example: --civic-cursor 0:E2.
+Source CIViC cursor, retained unchanged. Only with section civic or all. Value form: string; example: --civic-cursor 0:E2.
 - `--civic-kind`: Claims
-Source CIViC claim collection within the selected profile. Value form: string; example: --civic-kind evidence.
-- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer; example: --civic-profile 12.
+Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
 - `--disease`: Disease
-CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string; example: --disease lung.
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
-CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string; example: --drug erlotinib.
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all. Value form: string; example: --drug erlotinib.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.

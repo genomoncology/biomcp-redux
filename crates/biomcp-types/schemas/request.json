@@ -4395,7 +4395,7 @@
               "type": "null"
             }
           ],
-          "description": "Cursor\nNative CIViC cursor, retained unchanged."
+          "description": "Cursor\nNative CIViC cursor, retained unchanged. Only with section civic or all."
         },
         "civic_kind": {
           "anyOf": [
@@ -4406,10 +4406,10 @@
               "type": "null"
             }
           ],
-          "description": "Claims\nNative CIViC claim collection within the selected profile."
+          "description": "Claims\nNative CIViC claim collection within the selected profile. Only with section civic or all."
         },
         "civic_profile": {
-          "description": "Selected CIViC molecular profile for native claim paging.",
+          "description": "Selected CIViC molecular profile for native claim paging. Only with section civic or all.",
           "format": "uint64",
           "maximum": 2147483647,
           "minimum": 1,
@@ -4431,7 +4431,7 @@
               "type": "null"
             }
           ],
-          "description": "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases."
+          "description": "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all."
         },
         "drug": {
           "anyOf": [
@@ -4442,7 +4442,7 @@
               "type": "null"
             }
           ],
-          "description": "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies."
+          "description": "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all."
         },
         "evidence_level": {
           "description": "A–E\nNative CIViC evidence levels; repeat to include several levels.\nOnly with --source civic on get drug, and the civic section on get variant.",
