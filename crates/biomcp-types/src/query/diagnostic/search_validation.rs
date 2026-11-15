@@ -46,8 +46,13 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
         }
         return Ok(());
     }
-    // openFDA answers HTTP 400 to a letter outside ASCII, so the name is refused before the request.
-    if v.name.as_ref().is_some_and(|v| !v.as_str().is_ascii()) {
+    // openFDA answers HTTP 400 to any character outside ASCII (live, 2026-11-15). The adapter spaces
+    // symbols such as ® like refused punctuation; a letter is refused before the request.
+    if v.name.as_ref().is_some_and(|v| {
+        v.as_str()
+            .chars()
+            .any(super::DiagnosticSearch::name_letter_outside_ascii)
+    }) {
         return Err(
             QueryInvalid::new(&["name"]).with_message(crate::ErrorMessage::DeviceRecallNameAscii)
         );

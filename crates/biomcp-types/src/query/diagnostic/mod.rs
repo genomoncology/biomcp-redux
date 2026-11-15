@@ -129,6 +129,10 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = MANUFACTURER_SOURCES)))]
     manufacturer: Option<Text>,
+    #[doc = "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only."]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
+    firm: Option<Text>,
     #[doc = "FDA product code.\nExact native FDA product code; PMA, 510(k) and device recalls only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = PRODUCT_CODE_SOURCES)))]
@@ -189,7 +193,17 @@ struct SearchFields {
 crate::query::validation::checked_query!(DiagnosticSearch, SearchFields);
 impl TryFrom<SearchFields> for DiagnosticSearch {
     type Error = QueryInvalid;
-    fn try_from(v: SearchFields) -> Result<Self, Self::Error> {
+    fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
+        // The drug recall search names the recalling firm --firm; a device recall takes either name (0901).
+        if v.firm.is_some() {
+            if v.source != DiagnosticSearchSource::FdaDeviceRecall {
+                return Err(QueryInvalid::new(&["source", "firm"]));
+            }
+            if v.manufacturer.is_some() {
+                return Err(QueryInvalid::new(&["firm", "manufacturer"]));
+            }
+            v.manufacturer = v.firm.take();
+        }
         let gtr = v.gene_id.is_some()
             || v.gene.is_some()
             || v.condition_id.is_some()
@@ -282,6 +296,7 @@ impl DiagnosticSearch {
             sort: None,
             marker: None,
             manufacturer: None,
+            firm: None,
             name: None,
             intended_use: None,
             classification_name: None,
@@ -350,6 +365,14 @@ impl DiagnosticSearch {
     /// WHO manufacturer words, native FDA applicant (PMA/510(k)) or recalling_firm phrase.
     pub fn manufacturer(&self) -> Option<&Text> {
         self.0.manufacturer.as_ref()
+    }
+    /// A device recall name character openFDA refuses: a letter outside ASCII, or a combining mark
+    /// that belongs to one. The micro sign counts as a symbol, as on device labels (0901).
+    pub fn name_letter_outside_ascii(c: char) -> bool {
+        !c.is_ascii()
+            && c != '\u{b5}'
+            && (c.is_alphabetic()
+                || matches!(c, '\u{300}'..='\u{36f}' | '\u{1ab0}'..='\u{1aff}' | '\u{1dc0}'..='\u{1dff}' | '\u{20d0}'..='\u{20ff}' | '\u{fe20}'..='\u{fe2f}'))
     }
     /// Exact native FDA product code.
     pub fn product_code(&self) -> Option<&Text> {

@@ -3,7 +3,7 @@ use crate::{
     mapped::{Mapped, field_text, push_problem, record},
     raw::Field,
 };
-use biodata::{DeviceRecallNumber, Text};
+use biodata::Text;
 use biomcp_types::{DeviceRecallCard, DeviceRecallHeader, DiagnosticCandidate, Problem, Source};
 const SOURCE: Source = Source::FdaDeviceRecall;
 /// openFDA free text carries line breaks, which `Text` can hold only as literal
@@ -162,11 +162,19 @@ pub(super) fn row(row: raw::Record, problems: &mut Vec<Problem>) -> Row {
         reason: row.value.reason,
     }
 }
-/// An enforcement record without its recall record retains only the shared identity.
-pub(super) fn bare(recall_number: DeviceRecallNumber) -> Row {
+/// An enforcement record without its recall record retains the shared identity and its own
+/// reason_for_recall, which both openFDA datasets publish (0901).
+pub(super) fn bare(class: &mut raw::Enforcement, problems: &mut Vec<Problem>) -> Row {
+    let reason = field_text(
+        problems,
+        SOURCE,
+        record(&class.recall_number),
+        "reason_for_recall",
+        one_line(class.reason_for_recall.take()),
+    );
     Row {
         header: DeviceRecallHeader {
-            recall_number,
+            recall_number: class.recall_number.clone(),
             event_number: None,
             firm: None,
             product_code: None,
@@ -174,7 +182,7 @@ pub(super) fn bare(recall_number: DeviceRecallNumber) -> Row {
             initiated: None,
         },
         product_description: None,
-        reason: None,
+        reason,
     }
 }
 /// One search row; a row without an enforcement record states no classification.

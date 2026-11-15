@@ -73,7 +73,11 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
             source.notices.push(guidance(CLASS_NOTICE.into()));
         }
         if q.name().is_some() {
-            source.notices.push(guidance(NAME_NOTICE.into()));
+            let message = match adapter::spaced_name(q) {
+                Some(words) => format!("{NAME_NOTICE} {SPACED_NOTICE}\"{words}\"."),
+                None => NAME_NOTICE.into(),
+            };
+            source.notices.push(guidance(message));
         }
         if unmatched.0 > 0 {
             source
@@ -89,10 +93,12 @@ const CLASS_NOTICE: &str = "--classification selects openFDA device enforcement 
 const NAME_NOTICE: &str = "--name matched the words of openFDA's product_description as one phrase, \
     ignoring case and punctuation, without plural or synonym expansion: the total counts recall records \
     whose description holds the phrase, a different set from a --product-code search.";
+const SPACED_NOTICE: &str = "openFDA refuses some punctuation, such as | and ?, and every symbol outside ASCII, \
+    such as ®, so each became a space and the phrase searched was ";
 /// Count rows the exact join left without their other openFDA record; nothing is inferred for them.
 fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNotice {
     let (missing, shown) = if q.classification().is_some() {
-        ("recall", "only the recall number and classification")
+        ("recall", "only the recall number, classification and reason")
     } else {
         ("enforcement", "no classification")
     };
