@@ -1,5 +1,5 @@
 {
-  "feature": "cell-line-search",
+  "feature": "cell-line-identity",
   "live_check": "public",
   "story": "A full cell-line search page says Cellosaurus's search reply gives no total, beside its next page step.",
   "verified": "Captured live 2026-11-15 in pm job j41438: Cellosaurus's JSON search for HeLa with rows=3 returns three cell lines and no count; its JSON reply has only cell-line-list. (Its txt format's header states response.numFound, which BioMCP does not read.)",

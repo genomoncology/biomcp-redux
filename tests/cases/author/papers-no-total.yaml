@@ -2,7 +2,7 @@
   "live_check": "synthetic control",
   "feature": "author-papers",
   "story": "A Semantic Scholar author paper page says the source gives no total, beside its next page step",
-  "verified": "Semantic Scholar's live author papers reply for semantic-scholar:1965563 (pm job j41438, 2026-11-15) held offset, next and data, with no total. This replay is the synthetic author/papers reply in the same shape.",
+  "verified": "A live Semantic Scholar author papers reply (pm job j41438, 2026-11-15) held offset, next and data, with no total. This replay is the synthetic author/papers reply in the same shape.",
   "replay": "author/papers",
   "steps": [
     {

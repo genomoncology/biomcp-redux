@@ -410,7 +410,8 @@
         "source",
         "observed",
         "distinct-references",
-        "data-nodes"
+        "data-nodes",
+        "read"
       ],
       "type": "string"
     },

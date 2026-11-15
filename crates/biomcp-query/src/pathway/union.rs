@@ -153,7 +153,9 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
             let error = reply.as_ref().err().copied();
             out.local = out.local.or_else(|| error.and_then(status::local));
             let mut source = status::source(Source::WikiPathways, leg.finish(), error);
-            source.count = reply.as_ref().ok().map(|(rows, _)| rows.value.len() as u64);
+            if let Ok((rows, _)) = &reply {
+                source.count = Some(rows.value.len() as u64);
+            }
             saved.3.push(source);
             let state = match reply {
                 Ok((rows, info)) => {
@@ -205,7 +207,9 @@ fn refill(
         out.local = out.local.or_else(|| error.and_then(status::local));
         if let Some(source) = saved.3.get_mut(index) {
             *source = status::source(Source::Reactome, leg.finish(), error);
-            source.count = reply.as_ref().ok().map(|reply| reply.total);
+            if let Ok(reply) = &reply {
+                source.count = Some(reply.total);
+            }
         }
         match reply {
             Ok(reply) => {
