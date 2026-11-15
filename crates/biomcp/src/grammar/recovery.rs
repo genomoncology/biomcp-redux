@@ -21,6 +21,8 @@ pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
     Some(step)
 }
 
+/// A corrected call, and whether it is certain: false when it picked one of several listed
+/// values that would each pass, which is a guess that keeps help beside it.
 pub(super) fn corrected(
     via: Rewrite,
     path: (&str, &str),
@@ -28,9 +30,9 @@ pub(super) fn corrected(
     value: &Value,
     names: &[&str],
     allow_omission: bool,
-) -> Option<Step> {
+) -> Option<(Step, bool)> {
     if let Some(step) = checked(via, path, value.clone()) {
-        return Some(step);
+        return Some((step, true));
     }
     for name in names {
         let property = schema.get("properties")?.get(*name)?;
@@ -53,7 +55,7 @@ pub(super) fn corrected(
                     .as_object_mut()?
                     .insert((*name).into(), Value::Array(accepted));
                 if let Some(step) = checked(via, path, candidate) {
-                    return Some(step);
+                    return Some((step, true));
                 }
             }
         }
@@ -62,32 +64,25 @@ pub(super) fn corrected(
             let mut candidate = value.clone();
             candidate.as_object_mut()?.remove(*name);
             if let Some(step) = checked(via, path, candidate) {
-                return Some(step);
+                return Some((step, true));
             }
         }
         let missing = value.get(*name).is_none() || allow_omission;
-        let try_value = |replacement: Value| {
-            let mut candidate = value.clone();
-            candidate
-                .as_object_mut()?
-                .insert((*name).into(), replacement);
-            checked(via, path, candidate)
-        };
-        let mut values = candidates(schema, property, missing);
-        // A declared default is the value the caller left out, so it is tried alone first.
-        // Otherwise a correction is offered only when exactly one listed value passes:
-        // picking among several is a guess.
-        let default = (missing && property.get("default").is_some() && !values.is_empty())
-            .then(|| values.remove(0));
-        let found = default.and_then(&try_value).or_else(|| {
-            let mut passing = values.into_iter().filter_map(&try_value);
-            match (passing.next(), passing.next()) {
-                (Some(only), None) => Some(only),
-                _ => None,
-            }
-        });
-        if found.is_some() {
-            return found;
+        let defaulted = missing && property.get("default").is_some();
+        let mut passing = candidates(schema, property, missing)
+            .into_iter()
+            .enumerate()
+            .filter_map(|(index, replacement)| {
+                let mut candidate = value.clone();
+                candidate
+                    .as_object_mut()?
+                    .insert((*name).into(), replacement);
+                checked(via, path, candidate).map(|step| (index, step))
+            });
+        if let Some((index, step)) = passing.next() {
+            // The declared default, or the only listed value that passes, is certain.
+            let certain = (defaulted && index == 0) || passing.next().is_none();
+            return Some((step, certain));
         }
     }
     None
@@ -136,10 +131,13 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
-/// A runnable correction replaces help: the refusal's first step is the call to run.
-pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
-    if let Some(step) = corrected {
-        arguments.next.retain(|step| !is_help(step));
+/// A certain correction replaces help: the refusal's first step is the call to run. A guess
+/// among several passing values goes first but keeps help beside it.
+pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<(Step, bool)>) {
+    if let Some((step, certain)) = corrected {
+        if certain {
+            arguments.next.retain(|step| !is_help(step));
+        }
         arguments.next.insert(0, step);
     }
 }
@@ -227,6 +225,6 @@ pub(crate) fn prepared(
         (Some(only), None) => Some(only),
         _ => None,
     };
-    next(arguments, corrected);
+    next(arguments, corrected.map(|step| (step, true)));
     error
 }

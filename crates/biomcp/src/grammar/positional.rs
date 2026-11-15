@@ -116,7 +116,7 @@ pub(super) fn complete(path: (&str, &str), schema: &Value, value: &Value) -> Opt
         .filter_map(Value::as_str)
         .filter(|name| value.get(*name).is_none())
         .collect::<Vec<_>>();
-    super::recovery::corrected(via, path, schema, value, &missing, false)
+    super::recovery::corrected(via, path, schema, value, &missing, false).map(|(step, _)| step)
 }
 
 /// The call's words without the positional words after its command, and those words.
