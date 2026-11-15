@@ -18,8 +18,8 @@ pub(super) enum Native {
 pub(super) struct XmlTest {
     #[serde(rename = "xml_test")]
     pub id: GtrTestId,
-    #[serde(default)]
-    pub specimens: Vec<Box<str>>,
+    /// Absent when the test lists none.
+    pub specimens: Option<Vec<Box<str>>>,
     /// `Order/URL`: how to order the test.
     pub order_url: Option<Box<str>>,
     /// `TestURL`: the lab's page for the test.
@@ -29,18 +29,16 @@ pub(super) struct XmlTest {
 pub(super) struct XmlLab {
     #[serde(rename = "xml_lab")]
     pub id: Box<str>,
-    #[serde(default)]
-    pub certifications: Vec<XmlCertification>,
+    /// Absent when the lab lists none.
+    pub certifications: Option<Vec<XmlCertification>>,
     pub address: Option<XmlAddress>,
     /// Display names of the lab's `Personnel` marked `IsDirector`.
-    #[serde(default)]
-    pub directors: Vec<Box<str>>,
+    pub directors: Option<Vec<Box<str>>>,
 }
 /// The lab's public `MailingAddress`.
 #[derive(Debug, Deserialize)]
 pub(super) struct XmlAddress {
-    #[serde(default)]
-    pub lines: Vec<Box<str>>,
+    pub lines: Option<Vec<Box<str>>>,
     pub city: Option<Box<str>>,
     pub state: Option<Box<str>>,
     pub postcode: Option<Box<str>>,
