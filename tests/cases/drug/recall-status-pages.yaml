@@ -1,0 +1,64 @@
+{
+  "feature": "drug-recall",
+  "live_check": "public",
+  "story": "A default-size drug recall page holding a record whose recall number is empty or N/A returns its other rows as a partial page with a recall_number problem, and its next page starts after all ten native records.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41420 on base commit 8ac4f1674, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/recall-status-pages/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "drug/recall-status-pages",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--status",
+        "Ongoing"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 2857,
+        "/page/returned": 9,
+        "/result/items/1/recall_number": "D-0113-2027",
+        "/result/items/2/recall_number": "D-0073-2027",
+        "/result/items/8/recall_number": "D-0108-2027",
+        "/sources/0/state": "ok",
+        "/problems/*/field": {
+          "includes": "recall_number"
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "drug",
+            "--source",
+            "fda-drug-recall",
+            "--status",
+            "Ongoing",
+            "--offset",
+            "10"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--reason",
+        "contamination"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 2073,
+        "/page/returned": 9,
+        "/result/items/7/recall_number": "D-0766-2026",
+        "/result/items/8/recall_number": "D-0772-2026",
+        "/sources/0/state": "ok",
+        "/problems/*/field": {
+          "includes": "recall_number"
+        }
+      }
+    }
+  ]
+}
