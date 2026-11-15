@@ -11,6 +11,8 @@ mod feature_contract;
 mod lints;
 #[path = "ratchets/module_shape.rs"]
 mod module_shape;
+#[path = "ratchets/noncommercial_replies.rs"]
+mod noncommercial_replies;
 #[path = "ratchets/placement.rs"]
 mod placement;
 #[path = "ratchets/process_setup.rs"]
@@ -47,6 +49,7 @@ fn check(root: &Path) -> Check {
         source::check(root),
         process_setup::check(root),
         source_declarations::check(root),
+        noncommercial_replies::check(root),
     ])
 }
 

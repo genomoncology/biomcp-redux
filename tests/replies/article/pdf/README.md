@@ -1,1 +1,3 @@
 These replies are synthetic and contain BioMCP-owned text. Actual CLI captures from the PDF ticket supplied every request URL and identity. Response-only edits replace the PubMed prose, PDF bytes and selected failures. The selected paper identifiers and publisher URLs remain unchanged. The original 16-page publisher PDF and source replies remain outside Git.
+
+Semantic Scholar's API terms are noncommercial, so its replies here are authored too: paper IDs are zero-padded hex and PDF links point to example.org. In 0920 the `closed/` reply, recorded live with only a `CLOSED` status, gained an invented paper ID and is now an authored reply of the same shape.

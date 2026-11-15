@@ -19,14 +19,14 @@
       "run": [
         "get",
         "diagnostic",
-        "0466-046-00",
+        "9466-946-00",
         "--source",
         "who-ivd"
       ],
       "max_bytes": 2739,
       "expect": {
         "/result/kind": "who-ivd-product",
-        "/result/id": "0466-046-00",
+        "/result/id": "9466-946-00",
         "/result/native_rows/0/product_name": "Synthetic \"quoted\" product",
         "/result/native_rows/1/product_code": "two\nlines",
         "/result/native_rows/8/product_code": "CODE-8",

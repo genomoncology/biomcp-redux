@@ -28,8 +28,8 @@ fn native_id_grammars_refuse_wrappers_and_incomplete_identities() {
         assert!(serde_json::from_value::<GtrTestId>(json!(value)).is_err());
     }
     assert_eq!(
-        roundtrip::<WhoProductId>(json!("0466-046-00")),
-        "0466-046-00"
+        roundtrip::<WhoProductId>(json!("9466-946-00")),
+        "9466-946-00"
     );
     for id in ["13641-013-00", "10304-118-00", "10307-04545-00"] {
         assert_eq!(roundtrip::<WhoProductId>(json!(id)), id);
@@ -110,7 +110,7 @@ fn checked_get_keeps_base_supplement_and_section_scope() {
         json!({"source":"gtr","id":"GTR000006692.3","section":"genes"}),
         json!({"source":"gtr","id":"GTR000006692.3","section":"conditions"}),
         json!({"source":"gtr","id":"GTR000006692.3","section":"methods"}),
-        json!({"source":"who-ivd","id":"0466-046-00"}),
+        json!({"source":"who-ivd","id":"9466-946-00"}),
         json!({"source":"fda-pma","id":"P150013","section":"supplements"}),
         json!({"source":"fda-pma","id":"P150013","supplement":"S020","section":"regulatory"}),
     ] {
@@ -127,7 +127,7 @@ fn checked_get_keeps_base_supplement_and_section_scope() {
         json!({"source":"gtr","id":"GTR000006692"}),
         json!({"source":"gtr","id":"GTR000006692.3","section":"all"}),
         json!({"source":"gtr","id":"GTR000006692.3","supplement":"S020"}),
-        json!({"source":"who-ivd","id":"0466-046-00","section":"genes"}),
+        json!({"source":"who-ivd","id":"9466-946-00","section":"genes"}),
         json!({"source":"fda-pma","id":"P150013","section":"genes"}),
         json!({"source":"fda-pma","id":"P150013","supplement":"S020","section":"supplements"}),
         json!({"source":"fda-pma","id":"P150013/S020"}),
@@ -173,7 +173,7 @@ fn who() -> Value {
             )
         })
         .collect();
-    json!({"id":"0466-046-00","native_rows":rows})
+    json!({"id":"9466-946-00","native_rows":rows})
 }
 fn companion(group: bool) -> Value {
     let headers = if group {
@@ -445,7 +445,7 @@ fn all_eight_consumer_schemas_accept_their_source_owned_views() {
     envelope::<DiagnosticPage>(search, json!({"items":[]}));
     let mut card = who();
     card["kind"] = json!("who-ivd-product");
-    envelope::<DiagnosticCard>(json!({"source":"who-ivd","id":"0466-046-00"}), card);
+    envelope::<DiagnosticCard>(json!({"source":"who-ivd","id":"9466-946-00"}), card);
     envelope::<DiagnosticGenes>(get.clone(), json!({"items":[gene()]}));
     envelope::<DiagnosticConditions>(get.clone(), json!({"items":[condition()]}));
     envelope::<DiagnosticMethods>(get, json!({"items":[method()]}));

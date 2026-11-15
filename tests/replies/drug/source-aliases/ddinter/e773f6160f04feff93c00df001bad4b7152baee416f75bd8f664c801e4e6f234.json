@@ -11,7 +11,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "text",
-        "value": "DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level\r\nDDInter22,Synthetic Anchor TwentyTwo,DDInter23,Synthetic PartnerTwentyThree,Moderate\r\n"
+        "value": "DDInterID_A,Drug_A,DDInterID_B,Drug_B,Level\r\nDDInter9022,Synthetic Anchor TwentyTwo,DDInter9023,Synthetic PartnerTwentyThree,Moderate\r\n"
       }
     }
   ]
