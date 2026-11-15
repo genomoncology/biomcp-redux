@@ -40,9 +40,14 @@
           ]
         },
         "/result/items/0/header/decision_description": "Substantially Equivalent",
-        "/result/items/*/header/decision_description": {
-          "excludes": "Unknown"
-        }
+        "/result/items/3/header/k_number": "DEN200001",
+        "/result/items/3/header/decision_reading": "de-novo-granted",
+        "/result/items/3/header": {
+          "omits": [
+            "decision_description"
+          ]
+        },
+        "/result/items/2/header/decision_description": "Substantially Equivalent"
       }
     },
     {
