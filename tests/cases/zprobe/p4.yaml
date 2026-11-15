@@ -1,0 +1,8 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "probe 4",
+  "steps": [
+    {"mcp": ["search","gene","BRAF","--source-pacing","x"], "hosted": true, "offline": true, "is_error": true, "expect": {"/error/code": "probe"}}
+  ]
+}

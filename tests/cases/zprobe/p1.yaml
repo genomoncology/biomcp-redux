@@ -1,0 +1,8 @@
+{
+  "feature": "query-validation",
+  "live_check": "local-only validation; no source requests",
+  "story": "probe 1",
+  "steps": [
+    {"mcp": ["search","article","BRAF","--save"], "hosted": true, "offline": true, "is_error": true, "expect": {"/error/code": "probe"}}
+  ]
+}
