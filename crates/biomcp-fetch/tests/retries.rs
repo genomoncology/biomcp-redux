@@ -155,6 +155,79 @@ fn throttle_waits_outlast_three_attempts_only_where_declared() {
 }
 
 #[test]
+fn throttle_retry_sends_a_refused_post_once_more_and_names_its_wait() {
+    // CDC WONDER answers 429 with no Retry-After and admits one request per two minutes locally.
+    let wait = Duration::from_millis(400);
+    for second in [200, 429] {
+        let server = Server::new();
+        let quota = Box::leak(Box::new(
+            Quota::new(SourceKey::declare("retry"), Rate::every_seconds(120), None, 1)
+                .refuse_wait(),
+        ));
+        let spec = server.spec(quota, KeyUse::None);
+        let endpoint = spec.post_form("/answer").throttle_retry(wait);
+        let fetch = Fetch::open(FetchConfig::default()).unwrap();
+        thread::scope(|scope| {
+            let worker = scope.spawn(|| {
+                fetch
+                    .leg(spec, fetch.deadline(Duration::from_secs(10)))
+                    .call(&endpoint, Input::Params(&[]), Read::<Answer>::json())
+                    .map(|received| received.value)
+            });
+            let first = server.next();
+            let started = first.started;
+            first.respond(429, "", "Request rate exceeded.");
+            let retry = server.next();
+            assert!(retry.started.duration_since(started) >= wait);
+            if second == 200 {
+                retry.ok();
+                assert!(worker.join().unwrap().unwrap().answer);
+            } else {
+                retry.respond(429, "", "Request rate exceeded.");
+                let error = worker.join().unwrap().unwrap_err();
+                let biomcp_fetch::RequestError::Source(error) = error else {
+                    panic!("expected provider failure: {error}");
+                };
+                assert_eq!(
+                    (error.reason, error.status, error.retry_after),
+                    (Reason::RateLimited, Some(429), Some(wait))
+                );
+            }
+            assert!(server.requests.try_recv().is_err());
+        });
+    }
+}
+
+#[test]
+fn a_post_without_throttle_retry_is_sent_once() {
+    let server = Server::new();
+    let spec = server.spec(quota(), KeyUse::None);
+    let fetch = Fetch::open(FetchConfig::default()).unwrap();
+    thread::scope(|scope| {
+        let worker = scope.spawn(|| {
+            fetch
+                .leg(spec, fetch.deadline(Duration::from_secs(5)))
+                .call(
+                    &spec.post_form("/answer"),
+                    Input::Params(&[]),
+                    Read::<Answer>::json(),
+                )
+                .map(|received| received.value)
+        });
+        server.next().respond(429, "", "");
+        let error = worker.join().unwrap().unwrap_err();
+        let biomcp_fetch::RequestError::Source(error) = error else {
+            panic!("expected provider failure: {error}");
+        };
+        assert_eq!(
+            (error.reason, error.status, error.retry_after),
+            (Reason::RateLimited, Some(429), None)
+        );
+        assert!(server.requests.try_recv().is_err());
+    });
+}
+
+#[test]
 fn provider_wait_beyond_budget_is_rate_limited_with_typed_duration() {
     for value in [
         "3600".to_owned(),
