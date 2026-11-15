@@ -22,6 +22,7 @@ pub(crate) struct Prepared {
     pub(crate) double_gzip: bool,
     pub(crate) stall_limit: Option<std::time::Duration>,
     pub(crate) wait_throttle: bool,
+    pub(crate) throttle_retry: Option<std::time::Duration>,
     pub(crate) publisher: bool,
     pub(crate) exact_count: bool,
 }
@@ -70,6 +71,7 @@ impl Prepared {
             double_gzip: false,
             stall_limit: None,
             wait_throttle: false,
+            throttle_retry: None,
             publisher: false,
             exact_count: false,
         }
