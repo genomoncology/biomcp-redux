@@ -80,8 +80,8 @@ fn check() -> Check {
         return Err(String::from_utf8_lossy(&output.stdout).into());
     }
     let value: Value = serde_json::from_slice(&output.stdout)?;
-    // The title keeps every source character; its line breaks are visible escapes.
-    let title = SOURCE.replace('\n', "\\u{000a}");
+    // The title keeps every other source character; each line break reads as a space (0961).
+    let title = SOURCE.replace('\n', " ");
     if value.pointer("/result/items/0/answer/card/title") != Some(&json!(title)) {
         return Err(format!("JSON title is not the plain source string: {value}").into());
     }

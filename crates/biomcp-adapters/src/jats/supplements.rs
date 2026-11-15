@@ -50,7 +50,7 @@ fn label(
     Ok(item
         .value(&["label"])?
         .filter(|v| !v.trim().is_empty())
-        .and_then(|v| problems.optional("supplements.label", Some(Text::from_source(&v)))))
+        .and_then(|v| problems.optional("supplements.label", Some(crate::native_text::admit(&v)))))
 }
 fn caption(item: crate::xml_element::Element<'_>) -> Result<Option<Markdown>, BadReply> {
     let Some(caption) = item.child("caption")? else {

@@ -64,7 +64,7 @@ pub(super) fn select(
             );
             out.push(Supplement {
                 file: SupplementFile {
-                    name: Text::from_source(name)
+                    name: crate::native_text::admit(name)
                         .map_err(|_| biomcp_fetch::bad_reply(biomcp_types::Source::PmcOa, None))?,
                     kind,
                     label: item.label.clone(),

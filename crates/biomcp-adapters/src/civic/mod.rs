@@ -168,7 +168,7 @@ fn map(
             field
                 .as_ref()
                 .ok_or(())
-                .and_then(|text| Text::from_source(text).map_err(|_| ()))
+                .and_then(|text| crate::native_text::admit(text).map_err(|_| ()))
         }),
     );
     let variants = cx.optional(

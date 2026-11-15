@@ -83,7 +83,7 @@ impl XmlReply for Body {
             figures.push(FigureCaption {
                 label: problems.optional(
                     "figures.label",
-                    Some(Text::from_source(
+                    Some(crate::native_text::admit(
                         &fig.value(&["label"])?.unwrap_or_else(|| "Figure".into()),
                     )),
                 ),
@@ -139,7 +139,7 @@ fn header(
     };
     let title = metadata
         .value(&["title-group", "article-title"])?
-        .and_then(|s| problems.optional("title", Some(Text::from_source(&s))));
+        .and_then(|s| problems.optional("title", Some(crate::native_text::admit(&s))));
     let mut ids = Vec::new();
     for id in metadata.children("article-id")? {
         if let Some(kind) = id.attr("pub-id-type")? {

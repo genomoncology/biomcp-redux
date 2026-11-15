@@ -53,7 +53,7 @@ impl Record {
             .flatten()
         {
             let value =
-                problems.optional("spl_product_data_elements", Some(Text::from_source(value)));
+                problems.optional("spl_product_data_elements", Some(crate::native_text::admit(value)));
             if name.is_none() {
                 name = value;
             }

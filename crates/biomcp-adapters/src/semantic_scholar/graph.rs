@@ -3,7 +3,6 @@ use crate::{
     mapped::{Problems, record},
     raw::Field,
 };
-use biodata::Text;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, PathSegment, Reply, RequestError};
 use biomcp_types::ArticleInput;
 use biomcp_types::Capped;
@@ -196,7 +195,7 @@ impl Edge {
                                 record: item.pmid.and_then(record),
                                 list: Vec::new(),
                             };
-                            let value = p.optional("contexts", Some(Text::from_source(&text)));
+                            let value = p.optional("contexts", Some(crate::native_text::admit(&text)));
                             problems.extend(p.list);
                             value
                         })

@@ -34,7 +34,7 @@ pub(super) fn identity(id: &str, name: Option<&str>) -> Result<DrugIdentity, bio
     Ok(DrugIdentity {
         id: id.parse()?,
         namespace: Text::new("ddinter")?,
-        name: name.map(Text::from_source).transpose()?,
+        name: name.map(crate::native_text::admit).transpose()?,
         // The CSV describes drug pairs, without identifying ingredient/product level.
         identity_level: DrugIdentityLevel::Unknown,
         r#type: None,
