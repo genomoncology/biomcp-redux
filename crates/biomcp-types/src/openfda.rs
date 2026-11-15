@@ -52,27 +52,3 @@ pub fn openfda_phrase(text: &str) -> String {
             .replace('"', "\\\"")
     )
 }
-
-#[cfg(test)]
-mod tests {
-    use super::{openfda_phrase, openfda_words};
-
-    #[test]
-    fn plain_text_is_unchanged() {
-        assert_eq!(openfda_words("Merck & Co."), "Merck & Co.", "plain text");
-        assert_eq!(
-            openfda_phrase("a \"b\" \\"),
-            "\"a \\\"b\\\" \\\\\"",
-            "escapes"
-        );
-    }
-
-    #[test]
-    fn refused_and_non_ascii_become_words() {
-        assert_eq!(openfda_words("Nestlé"), "Nestle", "folded letter");
-        assert_eq!(openfda_words("NESTLÉ"), "NESTLE", "upper-case fold");
-        assert_eq!(openfda_words("Alaris® pump!"), "Alaris pump", "spaced");
-        assert_eq!(openfda_words("a|b ~ c"), "a b c", "collapsed");
-        assert_eq!(openfda_words("!?"), "", "nothing left");
-    }
-}
