@@ -13,7 +13,7 @@ use biomcp_types::{
     CellLineFilteredPage, CellLineGet, CellLinePage, CellLineSearchCommand, ReplyData, Request,
     Source, Status, StepKind,
 };
-/// One native window; a full one also reads Cellosaurus's own count, never an estimate.
+/// One native window; a full or past-the-end one also reads Cellosaurus's own count.
 pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
@@ -21,10 +21,12 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     let reply = cellosaurus::search(&leg, query);
     let error = reply.as_ref().err().copied();
     // Only a full window can leave rows unread; a short one ends the source's matches.
+    // An empty page past the start says nothing of how many came before, so it also asks.
     let full = reply
         .as_ref()
         .is_ok_and(|page| page.received == query.limit());
-    let count = full.then(|| cellosaurus::count(&leg, query));
+    let past_end = query.offset() > 0 && reply.as_ref().is_ok_and(|page| page.received == 0);
+    let count = (full || past_end).then(|| cellosaurus::count(&leg, query));
     let mut out = empty(search_body(
         CellLinePage {
             items: Box::default(),
@@ -80,7 +82,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-/// Cellosaurus's own count on a full page, or the rows read to the end of a short one.
+/// Cellosaurus's own count on a full or empty later page, else the rows read to the end.
 /// A failed count leaves no total and says so; the page step still follows a full page.
 fn report_total(
     out: &mut Outcome,
@@ -108,7 +110,7 @@ fn report_total(
                     .push(biomcp_types::SourceNotice::RequestGuidance {
                         data_date: None,
                         message: "BioMCP could not read Cellosaurus's match count, so this \
-                            page has no total; a full page has a next page step."
+                            page has no total; a full page still has a next page step."
                             .into(),
                         retry_after_seconds: None,
                     });

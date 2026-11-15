@@ -19,6 +19,16 @@
           "includes": "page"
         }
       }
+    },
+    {
+      "run": ["search", "cell-line", "HeLa", "--offset", "5000", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 5000,
+        "/page/returned": 0,
+        "/page/total": 2355,
+        "/sources/0/count": 2355
+      }
     }
   ]
 }
