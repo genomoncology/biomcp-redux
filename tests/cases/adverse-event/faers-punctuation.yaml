@@ -2,7 +2,7 @@
   "feature": "adverse-event-search",
   "live_check": "public",
   "story": "A FAERS drug name or reaction holding punctuation openFDA refuses is searched as the same words without it; source_query shows the phrase sent. A source notice names each value sent as other words. A --drug of a symbol alone beside another name matches nothing itself while the other name still returns reports, and the notice says only that value matched nothing.",
-  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373, j41394 and j41434, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "adverse-event/openfda-punctuation",
   "steps": [
     {
