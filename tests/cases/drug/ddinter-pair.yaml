@@ -80,7 +80,10 @@
         "/result/partners/*/id": [
           "DDInter4"
         ],
-        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together."
+        "/result/hint": "DDInter's published files give each listed pair a level and no management or mechanism text. A pair with no row is one these files do not list, which does not show the drugs are safe together.",
+        "/next": {
+          "equals": []
+        }
       },
       "max_bytes": 3000
     },
