@@ -1,9 +1,0 @@
-{
-  "feature": "query-validation",
-  "live_check": "local-only validation; no source requests",
-  "story": "probe 1",
-  "config": {"disable_sources": ["reactome", "wikipathways", "cpic"]},
-  "steps": [
-    {"mcp": ["search","pathway","BRAF","--source","bogus"], "hosted": true, "offline": true, "is_error": true, "key_order": {"/error": ["probe"]}, "expect": {"/error": "probe"}}
-  ]
-}

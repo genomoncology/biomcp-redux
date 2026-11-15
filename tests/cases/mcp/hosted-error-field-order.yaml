@@ -1,0 +1,30 @@
+{
+  "feature": "mcp-parity",
+  "live_check": "local-only validation; no source requests",
+  "story": "A hosted server's usage refusal lists the error's fields in the CLI's order, whether it keeps the accepted values or drops them because it serves none of them.",
+  "verified": "0972: with serde_json's preserve_order, Map::remove swaps the last field into the removed slot; hosted drops valid_values with shift_remove, so code still comes before message. Both pathway sources are disabled, so a hosted server offers no source to name.",
+  "config": {"disable_sources": ["reactome", "wikipathways"]},
+  "steps": [
+    {
+      "run": ["search", "gene", "BRAF", "--source", "bogus"],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "key_order": {"/error": ["option", "valid_values", "code", "message"]}
+    },
+    {
+      "mcp": ["search", "gene", "BRAF", "--source", "bogus"],
+      "hosted": true,
+      "offline": true,
+      "is_error": true,
+      "key_order": {"/error": ["option", "valid_values", "code", "message"]}
+    },
+    {
+      "mcp": ["search", "pathway", "BRAF", "--source", "bogus"],
+      "hosted": true,
+      "offline": true,
+      "is_error": true,
+      "key_order": {"/error": ["option", "code", "message"]}
+    }
+  ]
+}
