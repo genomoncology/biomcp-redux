@@ -1,0 +1,35 @@
+{
+  "feature": "vaers-summary",
+  "story": "When CDC WONDER refuses a VAERS table because another table was asked for less than 15 seconds earlier, BioMCP waits the 15 seconds WONDER asks for and asks once more, so the MMR age table still completes in one call, on the command line and over MCP.",
+  "live_check": "public",
+  "verified": "Both exchanges recorded live 2026-11-15 with biomcp --record in pm job j41113, a second after an MMR seriousness table: WONDER answered HTTP 429 with no Retry-After, BioMCP waited 15 s, and the same request then returned the table; bodies unchanged. Details in tests/replies/adverse-event/vaers-rate-limited-retry/README.md.",
+  "replay": "adverse-event/vaers-rate-limited-retry",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "MMR",
+        "age",
+        "--source",
+        "vaers"
+      ],
+      "mcp": [
+        "search",
+        "adverse-event",
+        "MMR",
+        "age",
+        "--source",
+        "vaers"
+      ],
+      "max_bytes": 10000,
+      "expect": {
+        "/status": "complete",
+        "/query/section": "age",
+        "/page/total": 13,
+        "/result/report_total": "84,145",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

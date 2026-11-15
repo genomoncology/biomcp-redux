@@ -114,17 +114,6 @@ fn info(leg: &Leg<'_>) -> Result<(biodata::Text, biodata::Text), RequestError> {
     ))
 }
 
-enum Job {
-    Info,
-    Count(String),
-    Ids(String, u64),
-}
-enum Done {
-    Info(biodata::Text, biodata::Text),
-    Count(u64),
-    Ids(u64, Vec<u64>),
-}
-
 fn count_terms(base: &str, plp: &str) -> [String; 10] {
     [
         base.to_owned(),
@@ -138,20 +127,6 @@ fn count_terms(base: &str, plp: &str) -> [String; 10] {
         format!("{base} AND {B} AND {LB}"),
         format!("{plp} AND {GRCH38}"),
     ]
-}
-
-fn run(child: &Leg<'_>, job: &Job) -> Result<Done, RequestError> {
-    Ok(match job {
-        Job::Info => {
-            let (build, updated) = info(child)?;
-            Done::Info(build, updated)
-        }
-        Job::Count(term) => Done::Count(count(child, term)?),
-        Job::Ids(term, start) => {
-            let (total, ids) = ids(child, term, *start)?;
-            Done::Ids(total, ids)
-        }
-    })
 }
 
 /// Split the overlapping property counts, in `count_terms` order, into disjoint buckets.
@@ -180,43 +155,20 @@ pub fn gene_counts(leg: &Leg<'_>, gene_id: u32) -> Result<ClinVarGeneCounts, Req
         .iter()
         .map(|status| format!("{plp} AND \"{status}\"[rvst]"))
         .collect();
-    let jobs: Vec<Job> = std::iter::once(Job::Info)
-        .chain(count_terms(&base, &plp).into_iter().map(Job::Count))
-        .chain(reviews.iter().map(|term| Job::Ids(term.clone(), 0)))
-        .collect();
-    let mut release = None;
-    let mut numbers = Vec::new();
+    let (build, updated) = info(leg)?;
+    let mut numbers = [0u64; 10];
+    for (number, term) in numbers.iter_mut().zip(count_terms(&base, &plp)) {
+        *number = count(leg, &term)?;
+    }
     let mut lists = Vec::new();
-    for job in &jobs {
-        match run(leg, job)? {
-            Done::Info(build, updated) => release = Some((build, updated)),
-            Done::Count(n) => numbers.push(n),
-            Done::Ids(total, ids) => lists.push((total, ids)),
+    for term in &reviews {
+        let (total, mut found) = ids(leg, term, 0)?;
+        // Later pages for a status listing more than one page of records.
+        for page in 1..total.div_ceil(ID_PAGE) {
+            found.extend(ids(leg, term, page * ID_PAGE)?.1);
         }
+        lists.push((total, found));
     }
-    let (build, updated) = release.ok_or_else(|| bad_reply(Source::ClinVar, None))?;
-    // Later pages for a status listing more than one page of records.
-    let (owners, more): (Vec<usize>, Vec<Job>) = reviews
-        .iter()
-        .zip(&lists)
-        .enumerate()
-        .flat_map(|(index, (term, (total, _)))| {
-            (1..total.div_ceil(ID_PAGE))
-                .map(move |page| (index, Job::Ids(term.clone(), page * ID_PAGE)))
-        })
-        .unzip();
-    for (index, job) in owners.into_iter().zip(&more) {
-        let Done::Ids(_, ids) = run(leg, job)? else {
-            return Err(bad_reply(Source::ClinVar, None));
-        };
-        lists
-            .get_mut(index)
-            .ok_or_else(|| bad_reply(Source::ClinVar, None))?
-            .1
-            .extend(ids);
-    }
-    let numbers =
-        <[u64; 10]>::try_from(numbers.as_slice()).map_err(|_| bad_reply(Source::ClinVar, None))?;
     let [records, p, lp, both, .., grch38] = numbers;
     let germline = germline(numbers);
     let total = (p + lp).saturating_sub(both);

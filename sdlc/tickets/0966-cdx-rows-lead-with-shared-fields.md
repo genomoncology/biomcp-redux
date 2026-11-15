@@ -1,0 +1,33 @@
+# 0966 — cdx-rows-lead-with-shared-fields
+
+Status: OPEN.
+
+Milestone: 7
+
+## Outcome
+
+An agent reading FDA CDx search rows uses BioMCP's shared fields (diagnostic, indication, device, drug, row_date) rather than FDA's per-table cell names, so rows from both FDA tables read the same way: the shared fields come first in each row (or FDA's cells sit under one key), within the 1.0.0 schema and reply caps.
+
+## Why
+
+dx-lab-director round 4 (2026-11-15): the agent still read FDA's column names; the 5 rows from FDA's second table, which spells its columns differently, came back empty in its scripts (calls 41, 46, 47) and Q4 lost ONCO/Reveal and MI Cancer Seek. 0959's help line naming the shared fields was in its reply at call 6 and did not change this. Evidence: bench `personas/dx-lab-director/runs/2026-11-15-r4/` (job j41109, BioMCP 95a74e246, bench 0051).
+
+## Proof
+
+- Proof: the persona's CDx query replayed from a recording shows both tables' rows with the shared fields first (or FDA's cells nested), and a jq over `.diagnostic`/`.drug` gets all rows.
+
+## Starts from
+
+- Starts from: 0959 and 0933 (CDx rows); the CDx row type in `crates/biomcp-types/src/response/diagnostic/`; the round 4 log calls 41-47.
+
+## Keeps
+
+- Keeps: every FDA cell value; the 1.0.0 schema rules (field order and nesting changes must pass `schema-release-check`; if a nesting change is not allowed, order alone); reply caps.
+
+## Defers
+
+- Defers: a skill line, since the skill has 3 bytes free under its 4 KB limit after 0948.
+
+## Changes
+
+- Changes: CDx row serialization, cases, regenerated docs.

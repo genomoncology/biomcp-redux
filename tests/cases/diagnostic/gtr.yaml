@@ -1,7 +1,7 @@
 {
   "live_check": "synthetic authored or response-edited replies; no live provider observation",
   "feature": "diagnostic-gtr",
-  "story": "A complete synthetic GTR pair preserves exact selectors, quoted cells, native relations, conflicts, orphan rows and independent method lists.",
+  "story": "A complete synthetic GTR pair preserves exact selectors, quoted cells, native relations, conflicts, orphan rows and independent method lists; the card skips a mailing address marked Public=\"0\" and a certification without a name, and reads XSD booleans written as 1 or 0.",
   "replay": "diagnostic/gtr-synthetic",
   "steps": [
     {
@@ -94,7 +94,7 @@
         "--source",
         "gtr"
       ],
-      "max_bytes": 1858,
+      "max_bytes": 2171,
       "expect": {
         "/result/kind": "gtr-test",
         "/result/header/url": "https://www.ncbi.nlm.nih.gov/gtr/tests/classic/6692/",
@@ -111,7 +111,22 @@
             "CAP"
           ]
         },
-        "/result/laboratory_certifications/0/expiration_date": "2027-01-31"
+        "/result/laboratory_certifications/0/expiration_date": "2027-01-31",
+        "/result/laboratory_address": {
+          "equals": {
+            "lines": [
+              "1 Synthetic Way"
+            ],
+            "city": "Testville",
+            "state": "Ohio",
+            "country": "United States"
+          }
+        },
+        "/result/laboratory_directors": [
+          "A. Synthetic & Co, PhD, Lab Director"
+        ],
+        "/result/order_url": "https://example.org/order?test=6692&x=1",
+        "/result/test_url": "https://example.org/tests/6692"
       }
     },
     {

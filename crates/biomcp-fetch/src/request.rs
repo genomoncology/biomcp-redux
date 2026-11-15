@@ -160,6 +160,7 @@ impl Leg<'_> {
         prepared.double_gzip = ep.double_gzip;
         prepared.stall_limit = ep.stall_limit.filter(|_| prepared.idempotent);
         prepared.wait_throttle = ep.wait_throttle && prepared.idempotent;
+        prepared.throttle_retry = ep.throttle_retry;
         prepared.exact_count = ep.exact_count;
         if ep.exact_count {
             use sha2::Digest;
@@ -203,11 +204,16 @@ impl Leg<'_> {
         // Waits a throttle reply asks for do not count as attempts on a `wait_throttle` endpoint;
         // the budget bounds them.
         let mut attempt = 0;
+        // A `throttle_retry` request sent once more keeps its admission: the source refused it unread.
+        let mut held = None;
         while attempt < crate::retry::ATTEMPTS {
-            let permit = self
-                .acquire_quota()
-                .map_err(|delay| self.quota_failure(delay))?
-                .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?;
+            let permit = match held.take() {
+                Some(permit) => permit,
+                None => self
+                    .acquire_quota()
+                    .map_err(|delay| self.quota_failure(delay))?
+                    .ok_or_else(|| self.failure(Reason::DeadlineExceeded, None))?,
+            };
             let started = Instant::now();
             let limit = prepared.stall_limit.filter(|_| attempt == 0);
             let exchange = self.exchange(prepared, codec, limit);
@@ -225,7 +231,9 @@ impl Leg<'_> {
                     {
                         return self.decode(response, codec).map_err(Into::into);
                     }
-                    let delay = response.retry_after;
+                    let delay = response
+                        .retry_after
+                        .or(prepared.throttle_retry.filter(|_| status == 429));
                     (
                         self.failure(crate::retry::status_reason(status), Some(status)),
                         crate::retry::retry_status(status),
@@ -241,23 +249,20 @@ impl Leg<'_> {
                     (failure, retryable, None)
                 }
             };
-            drop(permit);
+            let once_more =
+                prepared.throttle_retry.is_some() && error.status == Some(429) && attempt == 0;
+            held = once_more.then_some(permit);
+            let retries = prepared.idempotent || once_more;
             if self.budget().expired() {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }
             error.retry_after = delay;
-            if prepared.idempotent
-                && retryable
-                && delay.is_some_and(|wait| wait >= self.budget().remaining())
-            {
+            if retries && retryable && delay.is_some_and(|wait| wait >= self.budget().remaining()) {
                 error.reason = Reason::RateLimited;
                 return Err(error.into());
             }
             let throttled = prepared.wait_throttle && error.status == Some(429) && delay.is_some();
-            if !prepared.idempotent
-                || !retryable
-                || (!throttled && attempt + 1 == crate::retry::ATTEMPTS)
-            {
+            if !retries || !retryable || (!throttled && attempt + 1 == crate::retry::ATTEMPTS) {
                 return Err(error.into());
             }
             // A zero or past retry time still waits the ordinary backoff, so no refusal is hammered.
@@ -365,8 +370,9 @@ impl Leg<'_> {
             retry_after,
         };
         if let Err(error) = self.contain_response(prepared, &wire, &wire.body, status) {
-            // NCBI's 429 names the api-key it throttled. A throttle reply is retried and never
-            // read, so it keeps its status and loses its body; any other reflection is refused.
+            // A 429 from any source may name the key it throttled, as NCBI's body does. A
+            // throttle reply is retried and never read, so it keeps its status and loses its
+            // body; a key left in its headers, or in any other reply, is refused.
             if status != 429 {
                 return Err(Failure::Local(error));
             }

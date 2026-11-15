@@ -79,6 +79,10 @@ CVX vaccine identity lookup and sync are unavailable because no mapping to WONDE
 
 CDC WONDER returns a VAERS table in its own order, which for symptoms is alphabetical, and its request form offers no sort. The COVID-19 symptom table has about 13,000 rows. `search adverse-event COVID19 --source vaers --sort reports` orders the whole table BioMCP already received by WONDER's own Events Reported count, largest first, before it pages; equal counts and rows without a count keep the source's order. Later pages and the other tables keep the order, and following the sort step reuses the table already held, with no new WONDER request. Each row's count and percent, the footer and the report total are WONDER's. A report may list several symptoms, so the percents do not add to 100.
 
+## VAERS rate limit
+
+CDC WONDER refuses a table request that comes less than 15 seconds after the last one it accepted from the same address, and its refusal names no wait. BioMCP then waits 15 seconds and asks once more, within the VAERS command's 60-second limit. If WONDER refuses again, the source fails as `rate-limited` and its notice gives `retry_after_seconds: 15`.
+
 ## FAERS report sections
 
 FAERS `search adverse-event --aggregate reactions` requests openFDA's exact reaction-term counts across matching reports. The reply separates these buckets from report headers and retains native terms, counts and order. A report may list several drugs and several reactions: buckets can overlap and do not identify a causal drug–reaction pair. BioMCP never sums them into a report total or derives rates, incidence, risk or comparative safety. The source provides no exposure denominator.
@@ -101,11 +105,13 @@ EMA's medicines file holds some `?` characters where a symbol such as `≥` was 
 
 Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
-Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. GTR's stored files hold no laboratory street, city, director or order link; the GTR page lists them. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
+Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. Search rows do not carry the laboratory's street, city, directors or order link; the test's card does. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
 
 `--name` matches literal text inside the native `lab_test_name`, ignoring letter case, across every stored version row, including tests with no gene or condition link. It counts current cards and conflicting identities before paging; a test whose only card is not current is left out. A name match has no matched relation unless a relation selector is also given. Tests whose name holds the text as whole words, with no letter or digit touching either end, come first, then tests where it sits only inside a longer word, each group in source order; `name_match` says `whole-word` or `partial-word` on each row. There is no fuzzy matching.
 
 ## GTR cards
+
+A card carries, from GTR's XML release, the laboratory's mailing address (`laboratory_address`), its directors by GTR's display name (`laboratory_directors`) and the laboratory's how-to-order and test page links (`order_url`, `test_url`) as published; each is absent when GTR lists none, and the links are the laboratory's own pages, not checked by BioMCP.
 
 The `genes`, `conditions` and `methods` sections page independent native rows with `--section-limit` and `--section-offset`. Relation pages distinguish native row totals from distinct identifier totals. A GTR listing states source membership and laboratory submission facts; it does not establish variant coverage, clinical availability, FDA authorization or NIH endorsement.
 
@@ -191,7 +197,7 @@ GenCC documents its new-format CSV export, weekly publication cadence, condition
 
 ## ClinVar gene counts
 
-`get gene BRCA1 clinvar` counts ClinVar variation records (VCV) that list the gene's NCBI Gene ID, each record once whatever its assemblies. Records that also list other genes count too: most BRCA1 records that list a second gene name a small variant that ClinVar also places in an overlapping regulatory element, not a large deletion. Classification buckets follow each record's aggregate germline classification and do not overlap; somatic clinical impact and oncogenicity are not counted. `pathogenic_or_likely_grch38` keeps the pathogenic or likely pathogenic records that have a GRCh38 position, which is what a GRCh38 row count of ClinVar's `variant_summary.txt.gz` gives; the rest are mostly exon-level deletions and duplications placed only on GRCh37.
+`get gene BRCA1 clinvar` counts ClinVar variation records (VCV) that list the gene's NCBI Gene ID, each record once whatever its assemblies. Records that also list other genes count too: most BRCA1 records that list a second gene name a small variant that ClinVar also places in an overlapping regulatory element, not a large deletion. Classification buckets follow the terms in each record's aggregate germline label, which ClinVar joins with `/` and `;`: "Pathogenic; risk factor" counts as pathogenic, "Conflicting classifications of pathogenicity; risk factor" as conflicting, and a label with no classification term, such as "risk factor", "Pathogenic, low penetrance" or a bare "VUS-high", as other. The buckets do not overlap except for the rare label that lists terms from two of them; somatic clinical impact and oncogenicity are not counted. `pathogenic_or_likely_grch38` keeps the pathogenic or likely pathogenic records that have a GRCh38 position, which is what a GRCh38 row count of ClinVar's `variant_summary.txt.gz` gives; the rest are mostly exon-level deletions and duplications placed only on GRCh37.
 
 The counts come from E-utilities searches with `retmax=0`. ClinVar's review status search also matches somatic review statuses, so the pathogenic or likely pathogenic review buckets come from Variation ID lists, and the few records listed under more than one status are summarized to read their germline review status. `build` and `build_updated` name the ClinVar release that answered. Counts can differ by a few from a summary file of another release.
 

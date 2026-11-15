@@ -1,0 +1,296 @@
+{
+  "feature": "schema-discovery",
+  "live_check": "local-only generated help and parser refusals; no source requests",
+  "story": "Each entity name that help questions prints is a help target: the underscore form answers with the same page as the hyphen form. A help word that names no page is pointed at the nearest real page, or at plain help when none is near, never at an unrelated page.",
+  "steps": [
+    {
+      "run": [
+        "help",
+        "adverse-event"
+      ],
+      "max_bytes": 991,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/query/command": [
+          "adverse-event"
+        ],
+        "/result/commands/*/command": [
+          [
+            "help",
+            "adverse-event"
+          ],
+          [
+            "search",
+            "adverse-event"
+          ],
+          [
+            "get",
+            "adverse-event"
+          ],
+          [
+            "help",
+            "adverse-event"
+          ]
+        ],
+        "/result/commands/0/description": "adverse_event (search adverse-event, get adverse-event): Safety reports: drug side effects, medical device problems and vaccine reactions reported to regulators, with counts by reaction."
+      }
+    },
+    {
+      "run": [
+        "help",
+        "adverse_event"
+      ],
+      "mcp": [
+        "help",
+        "adverse_event"
+      ],
+      "max_bytes": 991,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/query/command": [
+          "adverse-event"
+        ],
+        "/result/commands/*/command": [
+          [
+            "help",
+            "adverse-event"
+          ],
+          [
+            "search",
+            "adverse-event"
+          ],
+          [
+            "get",
+            "adverse-event"
+          ],
+          [
+            "help",
+            "adverse-event"
+          ]
+        ],
+        "/result/commands/0/description": "adverse_event (search adverse-event, get adverse-event): Safety reports: drug side effects, medical device problems and vaccine reactions reported to regulators, with counts by reaction."
+      }
+    },
+    {
+      "run": [
+        "help",
+        "cell-line"
+      ],
+      "max_bytes": 1488,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/query/command": [
+          "cell-line"
+        ],
+        "/result/commands/*/command": [
+          [
+            "help",
+            "cell-line"
+          ],
+          [
+            "cell-line",
+            "assay-count"
+          ],
+          [
+            "search",
+            "cell-line"
+          ],
+          [
+            "get",
+            "cell-line"
+          ],
+          [
+            "cell-line"
+          ],
+          [
+            "help",
+            "cell-line"
+          ],
+          [
+            "help",
+            "cell-line",
+            "assay-count"
+          ]
+        ],
+        "/result/commands/0/description": "cell_line (search cell-line, get cell-line): Research cell lines: find one by name, disease, gene or mutation; read its identity, origin, variants and cross-references. Also cell-line assay-count (ChEMBL assay count)."
+      }
+    },
+    {
+      "run": [
+        "help",
+        "cell_line"
+      ],
+      "mcp": [
+        "help",
+        "cell_line"
+      ],
+      "max_bytes": 1488,
+      "expect": {
+        "/schema": "biomcp.help/6",
+        "/status": "complete",
+        "/query/command": [
+          "cell-line"
+        ],
+        "/result/commands/*/command": [
+          [
+            "help",
+            "cell-line"
+          ],
+          [
+            "cell-line",
+            "assay-count"
+          ],
+          [
+            "search",
+            "cell-line"
+          ],
+          [
+            "get",
+            "cell-line"
+          ],
+          [
+            "cell-line"
+          ],
+          [
+            "help",
+            "cell-line"
+          ],
+          [
+            "help",
+            "cell-line",
+            "assay-count"
+          ]
+        ],
+        "/result/commands/0/description": "cell_line (search cell-line, get cell-line): Research cell lines: find one by name, disease, gene or mutation; read its identity, origin, variants and cross-references. Also cell-line assay-count (ChEMBL assay count)."
+      }
+    },
+    {
+      "run": [
+        "help",
+        "interactions",
+        "drug"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help",
+          "get",
+          "drug",
+          "interactions"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "format",
+        "trial"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help",
+          "trial"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "format"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "COMMAND"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "COMMAND",
+        "ENTITY"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "questoins"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help",
+          "questions"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "drg"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help",
+          "get",
+          "drug"
+        ]
+      }
+    },
+    {
+      "run": [
+        "help",
+        "get",
+        "xyzzy"
+      ],
+      "exit": 2,
+      "expect": {
+        "/schema": "biomcp.error/4",
+        "/error/code": "usage.unknown_command",
+        "/next/0/args": [
+          "help",
+          "get"
+        ]
+      }
+    }
+  ]
+}

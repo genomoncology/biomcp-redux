@@ -127,7 +127,7 @@ fn cards(
                 .entry(v.test_accession_ver.clone())
                 .or_default()
                 .push(v),
-            Native::Specimens(x) => {
+            Native::Test(x) => {
                 xml.entry(x.id.clone()).or_insert(x);
             }
             _ => {}

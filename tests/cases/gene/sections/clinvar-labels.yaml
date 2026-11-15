@@ -1,0 +1,38 @@
+{
+  "live_check": "public",
+  "feature": "gene-clinvar",
+  "story": "CD46's ClinVar records with combined labels land where the field descriptions say: Pathogenic/Pathogenic, low penetrance counts as pathogenic, Likely pathogenic/Pathogenic, low penetrance as likely pathogenic, and a bare Pathogenic, low penetrance or VUS-mid as other",
+  "replay": "gene/clinvar-labels",
+  "steps": [
+    {
+      "run": [
+        "get",
+        "gene",
+        "CD46",
+        "clinvar"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/sections/clinvar/state": "data",
+        "/result/items/0/sections/clinvar/data/build": "Build261108-1750.3",
+        "/result/items/0/sections/clinvar/data/term": "4179[gid]",
+        "/result/items/0/sections/clinvar/data/records": 639,
+        "/result/items/0/sections/clinvar/data/germline": {
+          "equals": {
+            "pathogenic": 45,
+            "likely_pathogenic": 26,
+            "pathogenic_likely_pathogenic": 12,
+            "uncertain_significance": 320,
+            "conflicting": 38,
+            "likely_benign": 111,
+            "benign": 39,
+            "benign_likely_benign": 10,
+            "other": 38
+          }
+        },
+        "/result/items/0/sections/clinvar/data/pathogenic_or_likely": 83
+      },
+      "max_bytes": 3600
+    }
+  ]
+}

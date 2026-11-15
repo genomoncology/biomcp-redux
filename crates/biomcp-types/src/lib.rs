@@ -222,7 +222,7 @@ pub use response::{
     DiagnosticCompanion, DiagnosticConditions, DiagnosticGenes, DiagnosticLaboratory,
     DiagnosticMethods, DiagnosticPage, DiagnosticRegulatory, DiagnosticRegulatoryField,
     DiagnosticRegulatoryFragment, DiagnosticSummary, DiagnosticSupplements, GtrCard, GtrHeader,
-    GtrLabCertification, GtrNameMatch, GtrNativeStatus,
+    GtrLabAddress, GtrLabCertification, GtrNameMatch, GtrNativeStatus,
 };
 
 pub use response::{

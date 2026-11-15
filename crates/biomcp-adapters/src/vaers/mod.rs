@@ -24,6 +24,10 @@ pub static SPEC: SourceSpec = SourceSpec {
     deadline: Duration::from_secs(60),
     command_budget: Some(Duration::from_secs(60)),
 };
+/// WONDER's 429 names no Retry-After header; its body asks for 15 seconds between consecutive
+/// requests, and a request 15 seconds after the last accepted one succeeded live (j41108,
+/// sdlc/tickets/0917-vaers-rate-limit-says-when-to-retry.md).
+const WONDER_SPACING: Duration = Duration::from_secs(15);
 const TEMPLATE: &str = include_str!("request.xml");
 /// Read exactly one requested table through checked shared cache admission.
 pub fn read(
@@ -42,6 +46,7 @@ pub fn read(
         );
     let endpoint = SPEC
         .post_form("/controller/datarequest/D8")
+        .throttle_retry(WONDER_SPACING)
         .fresh(Freshness::Days(1));
     let (reply, _) = leg
         .call(

@@ -15,7 +15,7 @@ pub struct ClinVarGeneCounts {
     pub term: Text,
     /// Variation records that list this gene.
     pub records: u64,
-    /// Records by aggregate germline classification; the buckets do not overlap.
+    /// Records by the classification terms in their aggregate germline label.
     pub germline: ClinVarGermlineCounts,
     /// Pathogenic, likely pathogenic and pathogenic/likely pathogenic records together.
     pub pathogenic_or_likely: u64,
@@ -24,27 +24,39 @@ pub struct ClinVarGeneCounts {
     /// Pathogenic or likely pathogenic records by their germline review status; the buckets do not overlap.
     pub pathogenic_or_likely_review: ClinVarReviewCounts,
 }
-/// Disjoint germline classification counts in ClinVar's own terms.
+/// Germline classification counts by the terms in each record's aggregate label. ClinVar joins
+/// a label's terms with `/` and `;`, as in "Pathogenic/Likely pathogenic; risk factor", and each
+/// record counts in the bucket of the classification terms its label lists. "Pathogenic, low
+/// penetrance" and "VUS-high" are terms of their own. The buckets do not overlap, except for the
+/// rare label that lists terms from two of them, such as "Uncertain significance;
+/// Pathogenic/Likely pathogenic".
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ClinVarGermlineCounts {
-    /// Pathogenic.
+    /// Records whose label includes Pathogenic and not Likely pathogenic, such as "Pathogenic; risk
+    /// factor" and "Pathogenic/Pathogenic, low penetrance".
     pub pathogenic: u64,
-    /// Likely pathogenic.
+    /// Records whose label includes Likely pathogenic and not Pathogenic, such as "Likely
+    /// pathogenic/Pathogenic, low penetrance".
     pub likely_pathogenic: u64,
-    /// Pathogenic/Likely pathogenic.
+    /// Records whose label includes both Pathogenic and Likely pathogenic, such as
+    /// "Pathogenic/Likely pathogenic/Pathogenic, low penetrance; risk factor".
     pub pathogenic_likely_pathogenic: u64,
-    /// Uncertain significance.
+    /// Records whose label includes Uncertain significance, such as "Uncertain
+    /// significance/VUS-high".
     pub uncertain_significance: u64,
-    /// Conflicting classifications of pathogenicity.
+    /// Records whose label includes Conflicting classifications of pathogenicity, such as
+    /// "Conflicting classifications of pathogenicity; risk factor".
     pub conflicting: u64,
-    /// Likely benign.
+    /// Records whose label includes Likely benign and not Benign.
     pub likely_benign: u64,
-    /// Benign.
+    /// Records whose label includes Benign and not Likely benign.
     pub benign: u64,
-    /// Benign/Likely benign.
+    /// Records whose label includes both Benign and Likely benign.
     pub benign_likely_benign: u64,
-    /// Every other record: no germline classification, not provided, risk factor and other terms.
+    /// Records whose label includes none of the terms above: no germline classification, not
+    /// provided, risk factor alone, "Pathogenic, low penetrance" alone, a bare VUS-high or VUS-mid,
+    /// and other terms.
     pub other: u64,
 }
 /// Disjoint germline review status counts.
