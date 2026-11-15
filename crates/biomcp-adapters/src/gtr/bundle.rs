@@ -51,8 +51,7 @@ pub(super) fn read(
 /// Synchronize both native files atomically and count identities before any status filter.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<SyncResult>, RequestError> {
     let info = fetch.sync_set(&SET)?;
-    let deadline = fetch.deadline(fetch.sync_budget());
-    let leg = fetch.leg(&SPEC, deadline);
+    let leg = fetch.sync_leg(&SPEC);
     let (rows, snapshot) = read(&leg, Find::Exact(KeyKind::Band, "versions"))?;
     if info.content_revision != snapshot.content_revision {
         return Err(biomcp_fetch::bad_reply(biomcp_types::Source::Gtr, None));

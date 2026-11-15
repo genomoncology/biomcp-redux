@@ -69,9 +69,7 @@ impl<R: Row> BundleSet<R> {
 impl Fetch {
     /// Download and check every part, then atomically replace the complete stored set.
     pub fn sync_set<R: Row>(&self, set: &BundleSet<R>) -> Result<BundleInfo, RequestError> {
-        let deadline = self.deadline(self.config.sync_budget);
-        let mut leg = self.leg(set.spec, deadline);
-        leg.deadline = deadline;
+        let leg = self.sync_leg(set.spec);
         let bundle = set.stored();
         leg.bundle_source(&bundle)?;
         let cache = leg.bundle_cache()?;

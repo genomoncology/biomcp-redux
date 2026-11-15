@@ -228,16 +228,11 @@ impl BundleSync {
 impl Fetch {
     /// Synchronize while preserving a refused refresh separately from the active catalog.
     pub fn sync_catalog<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleSync, RequestError> {
-        let deadline = self.deadline(self.config.sync_budget);
-        let mut leg = self.leg(bundle.spec, deadline);
-        leg.deadline = deadline;
-        leg.sync_bundle(bundle, false)
+        self.sync_leg(bundle.spec).sync_bundle(bundle, false)
     }
     /// Synchronize a declared bundle under the configured independent sync budget.
     pub fn sync<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleInfo, RequestError> {
-        let deadline = self.deadline(self.config.sync_budget);
-        let mut leg = self.leg(bundle.spec, deadline);
-        leg.deadline = deadline;
+        let leg = self.sync_leg(bundle.spec);
         let mut info = leg.sync_bundle(bundle, false)?.published(&leg)?;
         // A busy cache must not fail a sync that already published; the date stays unknown.
         info.data_date = match leg.stored_data_date(bundle) {

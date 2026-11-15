@@ -395,6 +395,15 @@ impl Fetch {
             .map_or(budget, |end| budget.min(end.remaining()))
     }
 
+    /// Start a leg on the configured sync time limit, not capped by the source's own request
+    /// deadline, so a sync and any read it makes of its own store share one limit (0951).
+    pub fn sync_leg(&self, spec: &'static SourceSpec) -> Leg<'_> {
+        let deadline = self.deadline(self.config.sync_budget);
+        let mut leg = self.leg(spec, deadline);
+        leg.deadline = deadline;
+        leg
+    }
+
     /// Start a leg capped by this source's budget.
     /// Replay legs spend independent virtual budgets and share provider quota schedules.
     /// Requests reject deadlines from a different clock domain or replay client.

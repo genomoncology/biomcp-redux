@@ -32,7 +32,7 @@ const CATALOGS: BundleSet<CatalogRow> = BundleSet {
 /// Download both metadata catalogs and publish their checked pair atomically.
 pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<WikiPathwaysSync>, RequestError> {
     let info = fetch.sync_set(&CATALOGS)?;
-    let leg = fetch.leg(&SPEC, fetch.deadline(SPEC.deadline));
+    let leg = fetch.sync_leg(&SPEC);
     let (rows, _) = leg.stored_set_rows(&CATALOGS, Find::Exact(KeyKind::Band, "catalog"))?;
     let search = rows
         .iter()
