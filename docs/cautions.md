@@ -105,11 +105,13 @@ EMA's medicines file holds some `?` characters where a symbol such as `≥` was 
 
 Diagnostic reads use the stored pair and never synchronize it. Combine one relation selector with the native `--type` value. Search pages count distinct accession/version identities and preserve the relation that matched. Conflicting identities have no selected card.
 
-Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. GTR's stored files hold no laboratory street, city, director or order link; the GTR page lists them. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
+Each resolved row carries `gene_count`, the distinct symbols in the test's native genes cell (1 for a single-gene test, hundreds for an exome-scale one), its native `method_categories`, and the laboratory's state, postcode and country. `url` is the test's GTR page. Search rows do not carry the laboratory's street, city, directors or order link; the test's card does. A page holds at most 50 rows, so a gene with a few hundred tests takes a few pages: `page.total` gives the count and the reply offers the next page.
 
 `--name` matches literal text inside the native `lab_test_name`, ignoring letter case, across every stored version row, including tests with no gene or condition link. It counts current cards and conflicting identities before paging; a test whose only card is not current is left out. A name match has no matched relation unless a relation selector is also given. Tests whose name holds the text as whole words, with no letter or digit touching either end, come first, then tests where it sits only inside a longer word, each group in source order; `name_match` says `whole-word` or `partial-word` on each row. There is no fuzzy matching.
 
 ## GTR cards
+
+A card carries, from GTR's XML release, the laboratory's mailing address (`laboratory_address`), its directors by GTR's display name (`laboratory_directors`) and the laboratory's how-to-order and test page links (`order_url`, `test_url`) as published; each is absent when GTR lists none, and the links are the laboratory's own pages, not checked by BioMCP.
 
 The `genes`, `conditions` and `methods` sections page independent native rows with `--section-limit` and `--section-offset`. Relation pages distinguish native row totals from distinct identifier totals. A GTR listing states source membership and laboratory submission facts; it does not establish variant coverage, clinical availability, FDA authorization or NIH endorsement.
 
