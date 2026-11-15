@@ -96,3 +96,21 @@ Build on the existing `next` steps. No new step kind and no kind removed.
 ### Gate, 2026-11-15
 
 - `make --keep-going landing-gate docs-check schema-release-check` passed in j41341 on 1efcd64f7, which was already up to date with origin/main.
+
+### Review fixes, 2026-11-15
+
+An independent review rejected 3d44a1569. Changed:
+
+- A refused value is no longer replaced by a guess. `grammar/recovery.rs::prepared` offers a corrected call only when the call already names something (an ID, a word, a section or a filter; counts and switches don't count, `grammar/options.rs::asked`) and exactly one valid value passes the check. Bare `search drug` keeps its help step again; `get disease MONDO:0013267 genes --section-limit 5` gets `--source monarch` (both in `tests/cases/grammar/usage-missing-option.yaml`).
+- Dropping an unknown option no longer drops the caller's search word. When the word after the unknown option also reads as part of the call, `grammar/errors.rs::dropped` offers nothing and help stays (`search drug --bogus imatinib --source fda-drug-recall` in `usage-unknown-option.yaml`).
+- Search pages no longer end with their own call and every filter. Only a section's own first page (a get that names a section, such as `get drug BLA761445 approvals`) offers its own call with options (`command/steps.rs::adjust`). Section steps on cards and refusals' corrected calls keep their options. `diagnostic/runnable-related.yaml` now asserts that the search page stays lean.
+- Merged origin/main with 0970. A typed refusal's fix now replaces the help step, carries the options its call takes, and is never only the call without the unknown key: a refusal whose only correction is dropping an unknown option marks itself (`ParseInvalid::dropped`) and `grammar::candidate` offers nothing for it, so such keys keep only help as 0970 says. `mcp/typed-unknown-key-fixes.yaml` expects the HGVS-name fix alone and the options on the `diagnostic` fix.
+- Not done: running a DDInter label step from a case (optional in the review). The label steps' drug names are synthetic, so running one would need a recorded openFDA reply for a made-up name.
+
+### Re-measured, 2026-11-15
+
+- j41353 measured every case step on the branch and on origin/main with ceilings logged instead of enforced; j41361 re-measured the branch with line-atomic logging after the first log interleaved some lines.
+- Search first pages are back to main's sizes: gene search 462 and 650 bytes (main 462, 650; the rejected build was +39%), diagnostic recall 864/838/779/866 (unchanged), trial search 6106-6387 (unchanged; was +570-880).
+- What still grows is cards and section pages: 85 of 613 measured steps grew, median +160 bytes. Drug name cards +280-300 (each section step's options), approvals pages +240-270, trial cards +160, protein and pathway cards +170-230, VAERS summaries +96-138, the DDInter unlisted pair +414 (two label steps). Two refusals that lost their help step shrank by 5.
+- Ceilings: every case ceiling the rejected build raised is back to main's when the reply fits it, and otherwise measured plus 15% (sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md); about 50 went back to main's value. Still raised: cell-line examples (2823, 2580), pathway examples (887, 871) and Markdown (893), pgx examples (1000), protein gene-crossrefs and displayed features (1298, 1351), study examples (1470, 1471), trial documents (3131), trial cards NCT04303780 (2351, 3028) and NCT02987543 sites (3181). Runner budgets: research article and trial search back to 1732 and 8192; VAERS seriousness and age back to main; VAERS default summary 2346/2233 (was raised to 2501/2388) and summary with reports 2177/2064; study files and navigation pages 1416/1415; phenotype retained sections 871. The new runnable-related cases' ceilings are measured plus 15% (diagnostic 3185, drug card 1026, approvals 3326).
+
