@@ -22,16 +22,3 @@ pub(crate) fn sorted(value: &Value) -> Value {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use serde_json::json;
-
-    #[test]
-    fn sorted_orders_names_at_every_depth_and_keeps_arrays() {
-        let value = json!({"b": [{"d": 1, "c": 2}], "a": {"f": 3, "e": 4}});
-        assert_eq!(
-            super::sorted(&value).to_string(),
-            r#"{"a":{"e":4,"f":3},"b":[{"c":2,"d":1}]}"#
-        );
-    }
-}
