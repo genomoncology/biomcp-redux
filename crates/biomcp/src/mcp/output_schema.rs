@@ -95,8 +95,8 @@ fn shape(root: &Value) -> io::Result<Value> {
             let value = if matches!(key.as_str(), "schema" | "status") {
                 let mut compact = node.clone();
                 if let Some(fields) = compact.as_object_mut() {
-                    fields.remove("description");
-                    fields.remove("title");
+                    fields.shift_remove("description");
+                    fields.shift_remove("title");
                 }
                 compact
             } else if let Some(kind) = node.get("type") {

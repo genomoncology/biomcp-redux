@@ -11,7 +11,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "json",
-        "value": {"paperId": "25f989a17f3320271cfb93b4f26cc7fc5ffbb463", "openAccessPdf": {"url": "https://www.biorxiv.org/content/biorxiv/early/2026/01/24/2026.01.22.701073.full.pdf", "status": "GREEN", "license": null}}
+        "value": {"paperId": "00000000000000000000000000000000000f965a", "openAccessPdf": {"url": "https://www.biorxiv.org/content/biorxiv/early/2026/01/24/2026.01.22.701073.full.pdf", "status": "GREEN", "license": null}}
       }
     }
   ]

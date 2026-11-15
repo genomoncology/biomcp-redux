@@ -312,6 +312,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise streamed gzip XML parts and their decoded bound through the public transport API.",
     ),
     (
+        "crates/biomcp-fetch/tests/bundle/set_record.rs",
+        "Record and replay a multi-file sync whose part exceeds the ordinary record limits through the public Fetch API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/bundle/shutdown.rs",
         "Cancel and join server-owned bundle work while preserving caller cancellation independence and published rows through the public Fetch API.",
     ),
@@ -451,6 +455,10 @@ const ALLOWED: &[(&str, &str)] = &[
     (
         "crates/biomcp/tests/ratchets/dependency_sources.rs",
         "Reject unapproved Git revisions and missing source policy inputs through the dependency guard.",
+    ),
+    (
+        "crates/biomcp/tests/ratchets/noncommercial_replies.rs",
+        "Prove unmarked noncommercial replies are refused in an isolated tree.",
     ),
     (
         "crates/biomcp/tests/ratchets/proof.rs",

@@ -32,5 +32,5 @@
       "max_bytes": 2500
     }
   ],
-  "verified": "0965, pm job j41270 on the M5: replies BioMCP recorded live. Semantic Scholar answered 429 then 200 with Cell's open-access PDF link (HYBRID, CCBYNCND), and Cell answered HTTP 403 with a Cloudflare 'Just a moment...' browser check. Before 0965 the reply said only rejected (j41261)."
+  "verified": "0965, pm job j41270 on the M5: replies BioMCP recorded live. Semantic Scholar answered 429 then 200 with Cell's open-access PDF link; 0920 made that 200 authored, with an invented paper ID and no license label. Cell answered HTTP 403 with a Cloudflare 'Just a moment...' browser check. Before 0965 the reply said only rejected (j41261)."
 }

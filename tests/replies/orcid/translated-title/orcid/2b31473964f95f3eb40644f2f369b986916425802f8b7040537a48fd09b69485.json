@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "orcid",
-  "url": "https://pub.orcid.org/v3.0/0000-0002-4299-3018/works",
+  "url": "https://pub.orcid.org/v3.0/0000-0000-0000-0925/works",
   "exchanges": [
     {
       "status": 200,
@@ -11,7 +11,7 @@
       "body": {
         "kind": "json",
         "value": {
-          "path": "/0000-0002-4299-3018/works",
+          "path": "/0000-0000-0000-0925/works",
           "group": [
             {
               "external-ids": {
@@ -19,7 +19,7 @@
               },
               "work-summary": [
                 {
-                  "path": "/0000-0002-4299-3018/work/1",
+                  "path": "/0000-0000-0000-0925/work/1",
                   "put-code": 1,
                   "visibility": "public",
                   "title": {
@@ -27,7 +27,10 @@
                       "value": "Synthetic work"
                     },
                     "subtitle": null,
-                    "translated-title": null
+                    "translated-title": {
+                      "content": "Synthetic translation",
+                      "language-code": "en"
+                    }
                   },
                   "type": "journal-article",
                   "publication-date": {
@@ -42,7 +45,7 @@
                   "display-index": "1",
                   "source": {
                     "source-orcid": {
-                      "path": "0000-0002-4299-3018"
+                      "path": "0000-0000-0000-0925"
                     },
                     "source-client-id": null,
                     "source-name": {
@@ -70,7 +73,7 @@
                   }
                 },
                 {
-                  "path": "/0000-0002-4299-3018/work/2",
+                  "path": "/0000-0000-0000-0925/work/2",
                   "put-code": 2,
                   "visibility": "public",
                   "title": {
@@ -93,7 +96,7 @@
                   "display-index": "1",
                   "source": {
                     "source-orcid": {
-                      "path": "0000-0002-4299-3018"
+                      "path": "0000-0000-0000-0925"
                     },
                     "source-client-id": null,
                     "source-name": {
@@ -121,7 +124,7 @@
                   }
                 },
                 {
-                  "path": "/0000-0002-4299-3018/work/3",
+                  "path": "/0000-0000-0000-0925/work/3",
                   "put-code": 3,
                   "visibility": "PUBLIC",
                   "title": {
@@ -144,7 +147,7 @@
                   "display-index": "1",
                   "source": {
                     "source-orcid": {
-                      "path": "0000-0002-4299-3018"
+                      "path": "0000-0000-0000-0925"
                     },
                     "source-client-id": null,
                     "source-name": {
@@ -172,7 +175,7 @@
                   }
                 },
                 {
-                  "path": "/0000-0002-4299-3018/work/4",
+                  "path": "/0000-0000-0000-0925/work/4",
                   "put-code": 4,
                   "visibility": "private",
                   "title": {
@@ -195,7 +198,7 @@
                   "display-index": "1",
                   "source": {
                     "source-orcid": {
-                      "path": "0000-0002-4299-3018"
+                      "path": "0000-0000-0000-0925"
                     },
                     "source-client-id": null,
                     "source-name": {
@@ -223,7 +226,7 @@
                   }
                 },
                 {
-                  "path": "/0000-0002-4299-3018/work/5",
+                  "path": "/0000-0000-0000-0925/work/5",
                   "put-code": 5,
                   "visibility": "limited",
                   "title": {
@@ -246,7 +249,7 @@
                   "display-index": "1",
                   "source": {
                     "source-orcid": {
-                      "path": "0000-0002-4299-3018"
+                      "path": "0000-0000-0000-0925"
                     },
                     "source-client-id": null,
                     "source-name": {
@@ -274,7 +277,7 @@
                   }
                 },
                 {
-                  "path": "/0000-0002-4299-3018/work/6",
+                  "path": "/0000-0000-0000-0925/work/6",
                   "put-code": 6,
                   "visibility": null,
                   "title": {
@@ -297,7 +300,7 @@
                   "display-index": "1",
                   "source": {
                     "source-orcid": {
-                      "path": "0000-0002-4299-3018"
+                      "path": "0000-0000-0000-0925"
                     },
                     "source-client-id": null,
                     "source-name": {
@@ -318,65 +321,6 @@
                       {
                         "external-id-type": "doi",
                         "external-id-value": "10.1000/synthetic",
-                        "external-id-relationship": "part-of",
-                        "external-id-url": null
-                      }
-                    ]
-                  }
-                },
-                42
-              ]
-            },
-            {
-              "external-ids": {
-                "external-id": []
-              },
-              "work-summary": [
-                {
-                  "path": "/0000-0002-4299-3018/work/7",
-                  "put-code": 7,
-                  "visibility": "public",
-                  "title": {
-                    "title": {
-                      "value": "Second synthetic work"
-                    },
-                    "subtitle": null,
-                    "translated-title": null
-                  },
-                  "type": "journal-article",
-                  "publication-date": {
-                    "year": {
-                      "value": "2024"
-                    },
-                    "month": null,
-                    "day": null
-                  },
-                  "journal-title": null,
-                  "url": null,
-                  "display-index": "1",
-                  "source": {
-                    "source-orcid": {
-                      "path": "0000-0002-4299-3018"
-                    },
-                    "source-client-id": null,
-                    "source-name": {
-                      "value": "Synthetic source"
-                    },
-                    "assertion-origin-orcid": null,
-                    "assertion-origin-client-id": null,
-                    "assertion-origin-name": null
-                  },
-                  "external-ids": {
-                    "external-id": [
-                      {
-                        "external-id-type": "pmid",
-                        "external-id-value": "124",
-                        "external-id-relationship": "self",
-                        "external-id-url": null
-                      },
-                      {
-                        "external-id-type": "doi",
-                        "external-id-value": "10.1000/synthetic-second",
                         "external-id-relationship": "part-of",
                         "external-id-url": null
                       }

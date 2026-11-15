@@ -103,8 +103,8 @@ fn spot_words(tools: &[Value]) -> Result<(), String> {
 /// 0962: an MCP agent learns the FDA CDx fields both tables share from the diagnostic tool
 /// itself, as CLI agents do from help, and only while fda-cdx is offered.
 fn cdx_shared_fields(env: &Environment, local: &[Value], hosted: &[Value]) -> Result<(), String> {
-    const SENTENCE: &str = "FDA CDx rows of both tables carry diagnostic, indication, device, drug \
-        and row_date beside FDA's cells, whose headers differ by table.";
+    const SENTENCE: &str = "FDA CDx rows of both tables start with row_date, diagnostic, \
+        indication, device and drug, before FDA's cells, whose headers differ by table.";
     let description = |tools: &[Value]| {
         tools
             .iter()

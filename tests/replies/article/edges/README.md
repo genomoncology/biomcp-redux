@@ -1,0 +1,3 @@
+# Citation edges: synthetic Semantic Scholar pages
+
+Semantic Scholar's API terms are noncommercial, so these replays hold no real Semantic Scholar rows (0695, 0920). The request URLs are real: `live/` asks for the references of PMIDs 33123537 and 34096690, and `synthetic-window/` pages through the citations of PMID 23000897. Every response body is authored. Paper IDs are zero-padded hex, DOIs sit under 10.1234/synthetic, MAG and corpus IDs start with 9 and PubMed IDs with 99, titles read "Synthetic … reference" and citation contexts are filler text. The `live/pubmed/` replies are real PubMed records, which are public.

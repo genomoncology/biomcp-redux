@@ -11,7 +11,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "json",
-        "value": {"paperId": "758db88987fd8bc8811e800fabe8257dbd3a23f5", "openAccessPdf": {"url": "http://www.cell.com/article/S0092867418302290/pdf", "status": "HYBRID", "license": "CCBYNCND"}}
+        "value": {"paperId": "00000000000000000000000000000000000f965b", "openAccessPdf": {"url": "http://www.cell.com/article/S0092867418302290/pdf", "status": "HYBRID", "license": null}}
       }
     }
   ]

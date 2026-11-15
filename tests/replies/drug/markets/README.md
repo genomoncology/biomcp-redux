@@ -27,3 +27,5 @@ WHO PQ is a noncommercial source, so its export is not kept here (0695, 0910). `
 - Dolutegravir: 13 rows; the first five and the last two are undated. The first dated row in export order is SYN202 (9 Nov 2017); the earliest is SYN201 (22 Sep 2013), listed right after it, so the case expects SYN201.
 - Imatinib: no row names it.
 - Lamivudine: 16 rows. The first dated row is SYN104 (3 Sep 2003); after it SYN101, SYN102 and SYN105 tie on the earliest date (7 Jun 2001), so the case expects SYN101, the first of the tie in export order.
+
+Synthetic: who-pq

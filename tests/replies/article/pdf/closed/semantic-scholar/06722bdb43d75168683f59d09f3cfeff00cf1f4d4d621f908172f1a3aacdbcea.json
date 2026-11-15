@@ -12,6 +12,7 @@
       "body": {
         "kind": "json",
         "value": {
+          "paperId": "000000000000000000000000000000000000000c",
           "openAccessPdf": {
             "url": "",
             "status": "CLOSED",

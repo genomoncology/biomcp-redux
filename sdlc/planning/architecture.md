@@ -234,6 +234,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp-fetch/tests/bundle/rejections.rs` | Exercise rejected source rows, persisted revalidation and old-store migration through the public transport API. |
 | `crates/biomcp-fetch/tests/bundle/rows.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/bundle/streamed.rs` | Exercise streamed gzip XML parts and their decoded bound through the public transport API. |
+| `crates/biomcp-fetch/tests/bundle/set_record.rs` | Record and replay a multi-file sync whose part exceeds the ordinary record limits through the public Fetch API. |
 | `crates/biomcp-fetch/tests/bundle/shutdown.rs` | Cancel and join server-owned bundle work while preserving caller cancellation independence and published rows through the public Fetch API. |
 | `crates/biomcp-fetch/tests/cache.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
 | `crates/biomcp-fetch/tests/cache/credentials.rs` | Exercise transport ownership, local server behavior and cache/record failures through its public API. |
@@ -269,6 +270,7 @@ The runner tool proof `schema-discovery/capture-retains-replay-owner` drops the 
 | `crates/biomcp/tests/ratchets.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 | `crates/biomcp/tests/ratchets/lints.rs` | Prove the shared Clippy settings reject planted scalar, banned-type and reason drift. |
 | `crates/biomcp/tests/ratchets/dependency_sources.rs` | Reject unapproved Git revisions and missing source policy inputs through the dependency guard. |
+| `crates/biomcp/tests/ratchets/noncommercial_replies.rs` | Prove unmarked noncommercial replies are refused in an isolated tree. |
 | `crates/biomcp/tests/ratchets/proof.rs` | Enforce repository structure and prove refusal of planted violations in isolated trees. |
 | `crates/biomcp-query/tests/article_rights.rs` | Inspect raw replies, ranked pools and full-text refusal identities through public queries using synthetic transport. |
 | `crates/biomcp-query/tests/article_rights/authors.rs` | Prove private abstract refusal metadata survives raw cache reuse and rewrite legacy author continuation bytes through public queries. |

@@ -10,7 +10,7 @@ use std::{
 };
 type Check<T = ()> = Result<T, Box<dyn std::error::Error>>;
 const NAME: &str = "who-ivd";
-const ID: &str = "0466-046-00";
+const ID: &str = "0999-999-99";
 
 pub(super) fn trials() -> Vec<Trial> {
     [

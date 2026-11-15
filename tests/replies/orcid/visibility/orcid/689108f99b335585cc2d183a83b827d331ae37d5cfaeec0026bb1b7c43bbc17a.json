@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "orcid",
-  "url": "https://pub.orcid.org/v3.0/0000-0002-4299-3018/person",
+  "url": "https://pub.orcid.org/v3.0/0000-0000-0000-0925/person",
   "exchanges": [
     {
       "status": 200,
@@ -11,9 +11,9 @@
       "body": {
         "kind": "json",
         "value": {
-          "path": "/0000-0002-4299-3018/person",
+          "path": "/0000-0000-0000-0925/person",
           "name": {
-            "path": "0000-0002-4299-3018",
+            "path": "0000-0000-0000-0925",
             "visibility": "public",
             "credit-name": null,
             "given-names": {

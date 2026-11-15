@@ -25,6 +25,8 @@ pub struct Read<'a, T> {
     pub(crate) json_rejections: bool,
     pub(crate) json_absence: bool,
     octet_stream: Option<&'static str>,
+    /// A bundle-set part records its bytes under the set's limits, not the ordinary binary cap.
+    pub(crate) set_part: bool,
     parse: fn(&[u8]) -> Option<T>,
     range_check: Option<&'a RangeCheck<'a, T>>,
 }
@@ -118,6 +120,7 @@ impl<'a, T: Reply> Read<'a, T> {
             range_check: None,
             diagnostic_inputs: None,
             octet_stream: None,
+            set_part: false,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
@@ -148,6 +151,7 @@ impl<'a, T: Reply> Read<'a, T> {
             range_check: None,
             diagnostic_inputs: None,
             octet_stream: None,
+            set_part: false,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,
@@ -222,6 +226,7 @@ impl Read<'_, Probe> {
             json_rejections: false,
             json_absence: false,
             octet_stream: None,
+            set_part: false,
             parse: |_| Some(Probe),
         }
     }
@@ -231,6 +236,11 @@ impl<'a> Read<'a, Bytes> {
     /// Select the declared binary document media.
     pub fn document_media(mut self, media: crate::DocumentMedia) -> Self {
         self.codec = Codec::Bytes(media.media());
+        self
+    }
+    /// Record and replay these bytes as one part of a bundle set (0906).
+    pub(crate) fn set_part(mut self) -> Self {
+        self.set_part = true;
         self
     }
 
@@ -247,6 +257,7 @@ impl<'a> Read<'a, Bytes> {
             range_check: None,
             diagnostic_inputs: None,
             octet_stream: None,
+            set_part: false,
             limit: None,
             overflow_reason: biomcp_types::Reason::TooLarge,
             json_rejections: false,

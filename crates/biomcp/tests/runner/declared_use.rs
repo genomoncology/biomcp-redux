@@ -99,7 +99,7 @@ fn admission() -> Result<(), String> {
             &[
                 "get",
                 "drug",
-                "DDInter1",
+                "DDInter9001",
                 "interactions",
                 "--source",
                 "ddinter",

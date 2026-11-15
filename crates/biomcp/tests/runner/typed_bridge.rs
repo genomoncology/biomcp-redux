@@ -156,7 +156,7 @@ fn fresh_cases() -> Check {
             vec![
                 "get",
                 "drug",
-                "DDInter1",
+                "DDInter9001",
                 "interactions",
                 "--source",
                 "ddinter",
@@ -167,7 +167,7 @@ fn fresh_cases() -> Check {
             ],
             crate::runner::protocol::typed_catalog::entity(
                 "get_drug",
-                json!({"input":"DDInter1","section":["interactions"],"source":"ddinter","section_limit":1,"section_offset":1}),
+                json!({"input":"DDInter9001","section":["interactions"],"source":"ddinter","section_limit":1,"section_offset":1}),
             ),
         ),
     ] {

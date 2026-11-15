@@ -160,8 +160,8 @@ fn part_body<R: Row>(
         Ok(())
     };
     let read = match format {
-        RowFormat::StreamedXml { .. } => crate::Read::bytes(),
-        _ => crate::Read::bytes().validate_body(&check),
+        RowFormat::StreamedXml { .. } => crate::Read::bytes().set_part(),
+        _ => crate::Read::bytes().set_part().validate_body(&check),
     };
     let read = match format {
         RowFormat::Document { media } => read.document_media(media),

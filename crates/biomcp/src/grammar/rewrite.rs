@@ -137,7 +137,7 @@ pub(crate) fn query_value(request: &Request) -> Result<Value, serde_json::Error>
             }
         }
     }
-    Ok(value)
+    Ok(crate::key_order::sorted(&value))
 }
 
 macro_rules! boundary {

@@ -3323,7 +3323,7 @@ Only with --source openfda-label. Value form: string; example: --label-section i
 - `--partner`: Interaction partner.
 A DDInter ID or complete drug name, ignoring letter case; DDInter interactions only.
 Keeps only the pairs with that drug. A name DDInter does not use is tried under the
-names other sources state for it, as the drug itself is. Value form: string; example: --partner DDInter5; only with --source ddinter.
+names other sources state for it, as the drug itself is. Value form: string; example: --partner DDInter9005; only with --source ddinter.
 - `--product-number`: FDA product number.
 Explicit source application product number, only for approvals. Only with --source drugsfda. Value form: string; example: --product-number 001.
 - `section`: Source sections.

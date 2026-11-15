@@ -185,7 +185,13 @@ fn tool_text(reply: &Value, is_error: bool) -> Result<(Value, String), String> {
         .get("structuredContent")
         .ok_or("MCP missing structuredContent")?;
     let value = one_value(result)?;
-    Ok((value, structured.to_string()))
+    // Byte checks read the text copy an agent reads when the form sends one (0972).
+    let text = result
+        .pointer("/content/0/text")
+        .and_then(Value::as_str)
+        .filter(|text| serde_json::from_str::<Value>(text).is_ok())
+        .map_or_else(|| structured.to_string(), str::to_owned);
+    Ok((value, text))
 }
 
 /// One HTTP tool call's reply exactly as the server sent it.
