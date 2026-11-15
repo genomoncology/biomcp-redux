@@ -32,7 +32,7 @@
               "description": "Whole cells keyed by this table’s exact headers."
             },
             "device": {
-              "description": "Device number and date cell text.",
+              "description": "FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.",
               "type": [
                 "string",
                 "null"
@@ -115,7 +115,7 @@
               "description": "Whole cells keyed by this table’s exact headers."
             },
             "device": {
-              "description": "Device number and date cell text.",
+              "description": "FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.",
               "type": [
                 "string",
                 "null"

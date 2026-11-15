@@ -300,8 +300,8 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
 }
 /// Help only: FDA spells the two companion tables' headers differently, so readers need the shared names (0959).
 /// The typed tool description shares the command summary and has no room for this under its budget.
-const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables carry diagnostic, indication, device, drug and row_date \
-    beside FDA's cells, whose headers differ by table.";
+const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, \
+    before FDA's cells, whose headers differ by table.";
 
 fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for (command, description) in [
