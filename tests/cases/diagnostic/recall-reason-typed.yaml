@@ -1,0 +1,52 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "recorded only; reuses the recall-reason replay",
+  "story": "The typed diagnostic tool's search action takes firm, the drug recall search's name for the recalling firm, without advertising it, and gets the same Abbott 2025 device recall rows as manufacturer.",
+  "replay": "diagnostic/recall-reason",
+  "config": {
+    "mcp_tool_mode": "typed",
+    "mcp_typed_output_schema": true
+  },
+  "steps": [
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-device-recall",
+            "firm": "Abbott",
+            "initiated_from": "2025-01-01",
+            "initiated_to": "2025-12-31"
+          }
+        }
+      },
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott",
+        "/query": {
+          "omits": [
+            "firm"
+          ]
+        },
+        "/page/total": 34,
+        "/page/returned": 5,
+        "/result/source_query": "recalling_firm:\"Abbott\" AND event_date_initiated:[2025-01-01 TO 2025-12-31]",
+        "/result/items/*/header/recall_number": [
+          "Z-1020-2026",
+          "Z-1021-2026",
+          "Z-1022-2026",
+          "Z-1023-2026",
+          "Z-0961-2026"
+        ],
+        "/result/items/*/reason": [
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results",
+          "Abbott Laboratories is recalling their Alinity ci-series System Control Module, a chemistry/immunoassay anayzer, by correction. The reason for the recall is potential performance issues found in the Alinity ci-series System software versions 3.6.1. and lower that could lead to erroneous results for multiple analytes. The issue was identified by Abbott during the internal testing of complaint investigations."
+        ]
+      }
+    }
+  ]
+}

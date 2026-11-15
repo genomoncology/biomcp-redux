@@ -62,14 +62,19 @@ impl Medicine {
         field(&self.fields, name)
     }
 }
+/// A field's text, with a blank cell read as absent: EMA's files leave a cell blank when the
+/// medicine or referral has no such value (2026-11-15: 2,705 of 2,765 medicines have a blank
+/// `opinion_status`, 833 a blank `revision_number`, 44 of 593 referrals a blank decision date).
+/// A value that is not text stays an error, which the mapping reports as a problem.
 fn field<'a>(
     fields: &'a BTreeMap<String, crate::raw::Field<String>>,
     name: &str,
 ) -> Option<Result<&'a str, BadReply>> {
-    fields.get(name).map(|value| match value {
-        crate::raw::Field::Value(value) => Ok(value.as_str()),
-        crate::raw::Field::Invalid(_) => Err(BadReply),
-    })
+    match fields.get(name)? {
+        crate::raw::Field::Value(value) if value.is_empty() => None,
+        crate::raw::Field::Value(value) => Some(Ok(value.as_str())),
+        crate::raw::Field::Invalid(_) => Some(Err(BadReply)),
+    }
 }
 /// One row of EMA's referrals file, keyed by its `reference_number`.
 #[derive(Debug)]
@@ -81,8 +86,8 @@ pub(super) struct Referral {
 impl<'de> Deserialize<'de> for Referral {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let value = Fields::deserialize(deserializer)?;
-        let reference = match field(&value.fields, "reference_number") {
-            Some(Ok(reference)) => reference.to_owned(),
+        let reference = match value.fields.get("reference_number") {
+            Some(crate::raw::Field::Value(reference)) => reference.to_owned(),
             _ => return Err(serde::de::Error::custom("Invalid EMA referral record")),
         };
         Ok(Self {

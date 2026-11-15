@@ -109,7 +109,6 @@ pub(super) fn card(row: &raw::Medicine, problems: &mut crate::mapped::Problems) 
         updated: problems.optional(
             "last_updated_date",
             row.field("last_updated_date")
-                .filter(|value| !matches!(value, Ok("")))
                 .map(|value| value.and_then(raw::date)),
         ),
         retrieved: None,
@@ -128,12 +127,8 @@ pub(super) fn event(
         .filter_map(|(key, _)| {
             Some(AuthorizationDate {
                 role: problems.optional(key, Some(Text::new(role(key))))?,
-                date: problems.optional(
-                    key,
-                    row.field(key)
-                        .filter(|value| !matches!(value, Ok("")))
-                        .map(|value| value.and_then(raw::date)),
-                )?,
+                date: problems
+                    .optional(key, row.field(key).map(|value| value.and_then(raw::date)))?,
             })
         })
         .collect();

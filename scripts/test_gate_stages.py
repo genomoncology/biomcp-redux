@@ -209,8 +209,6 @@ class GateStages(unittest.TestCase):
                 return ('cargo test --locked -p biomcp --test tools -- --proofs ' + (name + ' ' if name else '')
                         + f'--test-threads 3 python={sys.executable}')
             every = cargo_line()
-            product = cargo_line('--skip schema-discovery/rejects-bad-cases '
-                                 '--skip schema-discovery/selects-and-lists-cases')
             hgnc, article = 'cache-resilience/hgnc-', 'article-semantic-sections/'
             native = 'schema-discovery/persistent-native-evidence'
             help_proof = 'schema-discovery/catalog-and-help-reply-discovery'
@@ -221,16 +219,16 @@ class GateStages(unittest.TestCase):
                      f'{article},{native}', [cargo_line(article), cargo_line(native)]),
                     (['tests/cases/gene/hgnc.yaml', 'skills/SKILL.md'], help_proof, [cargo_line(help_proof)]),
                     (['tests/fixtures/drug/civic/caf\u00e9 \u00e9.body'], native, [cargo_line(native)]),
-                    (['crates/biomcp-adapters/src/ctgov/search.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp-adapters/src/gtr/map.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp-adapters/src/raw.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp/src/main.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp-types/src/lib.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp-types/schemas/gene-card.json'], 'all-but-slow', [product]),
-                    (['crates/biomcp-query/src/sources/terms.rs'], 'all-but-slow', [product]),
-                    (['crates/biomcp-fetch/src/lib.rs'], 'all-but-slow', [product]),
+                    (['crates/biomcp-adapters/src/ctgov/search.rs'], 'all', [every]),
+                    (['crates/biomcp-adapters/src/gtr/map.rs'], 'all', [every]),
+                    (['crates/biomcp-adapters/src/raw.rs'], 'all', [every]),
+                    (['crates/biomcp/src/main.rs'], 'all', [every]),
+                    (['crates/biomcp-types/src/lib.rs'], 'all', [every]),
+                    (['crates/biomcp-types/schemas/gene-card.json'], 'all', [every]),
+                    (['crates/biomcp-query/src/sources/terms.rs'], 'all', [every]),
+                    (['crates/biomcp-fetch/src/lib.rs'], 'all', [every]),
                     (['crates/biomcp/src/main.rs', 'tests/replies/trial/gene/hgnc/reply.json'],
-                     'all-but-slow', [product]),
+                     'all', [every]),
                     (['crates/biomcp/src/main.rs', 'crates/biomcp/tests/runner/proof.rs'], 'all', [every]),
                     (['crates/biomcp/tests/runner/assertions/offsets.rs'], 'all', [every]),
                     (['crates/biomcp-test-support/src/lib.rs'], 'all', [every]),

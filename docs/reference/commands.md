@@ -1011,6 +1011,16 @@ Options:
           NDA/BLA application.
           Cell-owned typed NDA/BLA application.
 
+      --fresh[=<fresh>]
+          Request fresh source data instead of cached replies.
+
+          [default: false]
+          [possible values: true, false]
+
+      --firm <firm>
+          Recall firm phrase.
+          The drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only.
+
       --gene <gene>
           Exact gene symbol.
           Exact source gene_symbol field, without alias expansion.
@@ -1078,7 +1088,7 @@ Options:
 
 ```
 
-Search diagnostic laboratory tests and devices. FDA CDx rows of both tables carry diagnostic, indication, device, drug and row_date beside FDA's cells, whose headers differ by table. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
+Search diagnostic laboratory tests and devices. FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, before FDA's cells, whose headers differ by table. Sources: fda-510k, fda-cdx, fda-device-recall, fda-pma, gtr, who-ivd.
 Listed choices accept any letter case; replies use their listed spelling.
 Options apply to every listed source unless their description restricts them.
 
@@ -1106,6 +1116,8 @@ Inclusive source decision date, YYYY-MM-DD; PMA and 510(k) only. Value form: str
 Exact PMA application, application/supplement or source K identity. Value form: string; example: --device-id P200010/S026; only with --source fda-cdx.
 - `--drug-application`: NDA/BLA application.
 Cell-owned typed NDA/BLA application. Value form: string; example: --drug-application NDA208065; only with --source fda-cdx.
+- `--firm`: Recall firm phrase.
+The drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only. Value form: string; example: --firm Abbott; only with --source fda-device-recall.
 - `--gene`: Exact gene symbol.
 Exact source gene_symbol field, without alias expansion. Value form: string; example: --gene BRCA1; only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.
@@ -3582,7 +3594,7 @@ Options:
 
       --civic-cursor <civic_cursor>
           Cursor
-          Native CIViC cursor, retained unchanged.
+          Native CIViC cursor, retained unchanged. Only with section civic or all.
 
       --disable-sources <disable-sources>
           Exclude source names or source terms groups. Example: --disable-sources civic.
@@ -3590,10 +3602,10 @@ Options:
       --civic-kind <civic_kind>
           Claims; help get variant
           Claims
-          Native CIViC claim collection within the selected profile.
+          Native CIViC claim collection within the selected profile. Only with section civic or all.
 
       --civic-profile <civic_profile>
-          Selected CIViC molecular profile for native claim paging.
+          Selected CIViC molecular profile for native claim paging. Only with section civic or all.
 
       --source_pacing <source_pacing>
           Override source pacing with a JSON map of rate, keyed_rate and in_flight values. Example: --source_pacing '{}'.
@@ -3603,11 +3615,11 @@ Options:
 
       --disease <disease>
           Disease
-          CIViC disease name text; CIViC matches it natively against evidence and assertion diseases.
+          CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all.
 
       --drug <drug>
           Drug
-          CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies.
+          CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all.
 
       --evidence-level <evidence_level>...
           A–E; help get variant
@@ -3663,14 +3675,14 @@ Options apply to every listed source unless their description restricts them.
 - `--build`: Assembly
 MyVariant identity assembly defaults to GRCh38; chromosome genomic HGVS requires an explicit build. Value form: string; example: --build GRCh37.
 - `--civic-cursor`: Cursor
-Source CIViC cursor, retained unchanged. Value form: string; example: --civic-cursor 0:E2.
+Source CIViC cursor, retained unchanged. Only with section civic or all. Value form: string; example: --civic-cursor 0:E2.
 - `--civic-kind`: Claims
-Source CIViC claim collection within the selected profile. Value form: string; example: --civic-kind evidence.
-- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Value form: integer; example: --civic-profile 12.
+Source CIViC claim collection within the selected profile. Only with section civic or all. Value form: string; example: --civic-kind evidence.
+- `--civic-profile`: Selected CIViC molecular profile for source claim paging. Only with section civic or all. Value form: integer; example: --civic-profile 12.
 - `--disease`: Disease
-CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Value form: string; example: --disease lung.
+CIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all. Value form: string; example: --disease lung.
 - `--drug`: Drug
-CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Value form: string; example: --drug erlotinib.
+CIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all. Value form: string; example: --drug erlotinib.
 - `--evidence-level`: A–E
 Source CIViC evidence levels; repeat to include several levels.
 Only with --source civic on get drug, and the civic section on get variant. Value form: repeatable values (repeat the flag); example: --evidence-level A.

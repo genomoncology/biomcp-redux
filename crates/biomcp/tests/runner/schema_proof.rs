@@ -185,6 +185,8 @@ fn raw_artifacts(registry: &Registry) -> Result<(), String> {
 
 tool_only! {
 fn references() -> Result<(), String> {
+    // The embedded registry compiles on first use, so prove here that every artifact compiles.
+    super::schema::Registry::embedded()?.compile_all()?;
     let parent = json!({"$id":"fixture.parent/1", "type":"object", "required":["schema", "child"],
         "properties":{"schema":{"const":"fixture.parent/1"},
             "child":{"$ref":"../fixture.child/1#/$defs/Count"}}});

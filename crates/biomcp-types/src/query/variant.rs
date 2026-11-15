@@ -44,7 +44,7 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     /// Source rows to skip independently of identity candidate paging.
     #[serde(default)]
     section_offset: u32,
-    /// Selected CIViC molecular profile for native claim paging.
+    /// Selected CIViC molecular profile for native claim paging. Only with section civic or all.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = 2147483647)))]
     civic_profile: Option<u64>,
@@ -52,18 +52,18 @@ struct Fields<R: ResolverChoice = VariantResolver> {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Oncokb)))]
     tumor_type: Option<crate::Text>,
-    #[doc = "Claims\nNative CIViC claim collection within the selected profile."]
+    #[doc = "Claims\nNative CIViC claim collection within the selected profile. Only with section civic or all."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_kind: Option<CivicClaimKind>,
-    #[doc = "Cursor\nNative CIViC cursor, retained unchanged."]
+    #[doc = "Cursor\nNative CIViC cursor, retained unchanged. Only with section civic or all."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     civic_cursor: Option<crate::Text>,
     #[serde(flatten)]
     evidence_filter: crate::CivicEvidenceFilter,
-    #[doc = "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases."]
+    #[doc = "Disease\nCIViC disease name text; CIViC matches it natively against evidence and assertion diseases. Only with section civic or all."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     disease: Option<crate::Text>,
-    #[doc = "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies."]
+    #[doc = "Drug\nCIViC therapy name text; CIViC matches it natively against evidence and assertion therapies. Only with section civic or all."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     drug: Option<crate::Text>,
     #[doc = "Resolver.\nResolver for reference-qualified notation; never repairs the input locally."]

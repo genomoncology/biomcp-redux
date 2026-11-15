@@ -179,6 +179,18 @@ pub(super) fn advertise(input: &mut Value, forms: &[Form]) {
     }
 }
 
+/// A field that only renames another, such as a device recall's `firm` for `manufacturer`, is
+/// accepted like a guessed name without being advertised, so it costs the action nothing (0901).
+pub(super) fn unadvertise(input: &mut Value, schema: &Value) {
+    if let Some(properties) = input.get_mut("properties").and_then(Value::as_object_mut) {
+        properties.retain(|key, _| {
+            schema
+                .pointer(&format!("/properties/{key}/x-alias-of"))
+                .is_none()
+        });
+    }
+}
+
 /// The argument a call got wrong and what it may be; no values means it was left out.
 pub(super) struct Refused {
     pub(super) argument: String,

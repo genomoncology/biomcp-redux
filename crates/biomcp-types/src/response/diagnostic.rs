@@ -480,13 +480,16 @@ impl ResponseBody for DiagnosticSummary {
 }
 
 /// A physical companion-table row; the two table layouts cannot acquire each other’s cells.
-/// Both kinds also carry the row date and shared cell names copied as text from FDA's original cells.
+/// Both kinds lead with the row date and shared cell names copied as text from FDA's original cells.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub enum CompanionDiagnosticRow {
     /// One complete native individual table row.
     Individual {
+        /// Row date and shared names, ahead of FDA's own cells.
+        #[serde(flatten)]
+        shared: CompanionShared,
         /// Immutable local snapshot revision, not a publisher row ID.
         snapshot: Box<str>,
         /// Zero-based physical data-row index in its table.
@@ -499,12 +502,12 @@ pub enum CompanionDiagnosticRow {
         /// Unambiguous typed applications owned by this row’s drug cell.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         drug_applications: Box<[DiagnosticDrugApplication]>,
-        /// Shared names and row date.
-        #[serde(flatten)]
-        shared: CompanionShared,
     },
     /// One complete native group table row.
     Group {
+        /// Row date and shared names, ahead of FDA's own cells.
+        #[serde(flatten)]
+        shared: CompanionShared,
         /// Immutable local snapshot revision, not a publisher row ID.
         snapshot: Box<str>,
         /// Zero-based physical data-row index in its table.
@@ -517,9 +520,6 @@ pub enum CompanionDiagnosticRow {
         /// Unambiguous typed applications owned by this row’s drug cell.
         #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
         drug_applications: Box<[DiagnosticDrugApplication]>,
-        /// Shared names and row date.
-        #[serde(flatten)]
-        shared: CompanionShared,
     },
 }
 /// Fields both FDA companion tables carry under one name.
@@ -535,7 +535,7 @@ pub struct CompanionShared {
     /// Indication and sample type cell text.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub indication: Option<Box<str>>,
-    /// Device number and date cell text.
+    /// FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub device: Option<Box<str>>,
     /// Drug cell text; in the group table, the drug group cell.
