@@ -1,6 +1,7 @@
 # 0956 — gene-with-gene-id-refusal-names-the-pair
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: e2b48cae5407c143684471da4f5d9d180ef34f7a
 
 Milestone: 7
 
@@ -31,3 +32,9 @@ Milestone: 7
 ## Changes
 
 - Changes: diagnostic search validation, a case under `tests/cases/diagnostic/`.
+
+## Progress
+
+- The refusal of `--gene` with `--gene-id` now carries its own message: "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both". The option shown stays `--gene` and the refusal itself is unchanged; no new combination is accepted.
+- The new message widens the error message enum in `crates/biomcp-types/schemas/error.json` (regenerated in j41048; rustfmt made no change there).
+- Case `diagnostic/gtr-gene-condition.yaml` gains an offline step for `search diagnostic --source gtr --gene EGFR --gene-id 1956` that expects the new message; on main it gets the generic argument guidance. No source is called, so no reply was recorded.

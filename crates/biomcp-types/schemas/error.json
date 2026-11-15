@@ -206,6 +206,7 @@
         "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; openFDA publishes no intended-use text for 510(k) records, so select them with --product-code, whose FDA classification name describes the device type",
         "--intended-use needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase",
         "--classification-name matches FDA's device classification name on 510(k) and De Novo records and needs --source fda-510k",
+        "--gene and --gene-id each name one gene, by symbol or by NCBI GeneID; give one of them, not both",
         "--classification-name needs ASCII text with a letter or digit, such as e for é, because openFDA refuses any non-ASCII character in a phrase",
         "retired; use: --criteria for literal registry eligibility text",
         "retired; use: --variant for explicit discovery text",
