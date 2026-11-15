@@ -61,46 +61,60 @@ pub struct SavedStore {
     connection: Connection,
 }
 
-/// The schema version a file states: the number of migration statements it has run.
-fn version(connection: &Connection) -> Result<usize, SavedError> {
+/// Highest file compatibility this build reads. Raise it only for a change older 1.x builds
+/// cannot read; additive migrations never raise it (sdlc/planning/saved-work.md, Compatibility).
+pub const COMPATIBILITY: i64 = 1;
+
+/// A meta value; a file without the meta table has none.
+fn meta(connection: &Connection, key: &str) -> Result<Option<i64>, SavedError> {
     let has_meta: bool = connection.query_row(
         "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type='table' AND name='meta')",
         [],
         |row| row.get(0),
     )?;
     if !has_meta {
-        return Ok(0);
+        return Ok(None);
     }
-    let value: Option<i64> = connection
-        .query_row("SELECT value FROM meta WHERE key='schema'", [], |row| {
-            row.get(0)
-        })
-        .optional()?;
-    usize::try_from(value.unwrap_or(0)).map_err(|_| SavedError::Database)
+    Ok(connection
+        .query_row("SELECT value FROM meta WHERE key=?1", [key], |row| row.get(0))
+        .optional()?)
+}
+
+/// How many migration statements the file has run; this only chooses which to run next.
+fn version(connection: &Connection) -> Result<usize, SavedError> {
+    usize::try_from(meta(connection, "schema")?.unwrap_or(0)).map_err(|_| SavedError::Database)
+}
+
+/// Refuse a file that says it needs a newer reader; a missing key means 1.
+fn check_compatibility(connection: &Connection) -> Result<(), SavedError> {
+    if meta(connection, "compatibility")?.unwrap_or(1) > COMPATIBILITY {
+        Err(SavedError::Newer)
+    } else {
+        Ok(())
+    }
 }
 
 impl SavedStore {
-    /// Open or create the file and bring its schema up to this build.
+    /// Open or create the file and run the migrations it lacks. A file with more additive
+    /// migrations than this build knows opens as it is; one needing a newer reader is refused.
     pub fn open(path: &Path) -> Result<Self, SavedError> {
         let mut connection = Connection::open(path)?;
         connection.busy_timeout(std::time::Duration::from_secs(5))?;
-        if version(&connection)? > MIGRATIONS.len() {
-            return Err(SavedError::Newer);
-        }
+        check_compatibility(&connection)?;
         if version(&connection)? < MIGRATIONS.len() {
             let tx = connection.transaction_with_behavior(TransactionBehavior::Immediate)?;
+            check_compatibility(&tx)?;
             let applied = version(&tx)?;
-            if applied > MIGRATIONS.len() {
-                return Err(SavedError::Newer);
+            if applied < MIGRATIONS.len() {
+                for statement in MIGRATIONS.iter().skip(applied) {
+                    tx.execute_batch(statement)?;
+                }
+                tx.execute(
+                    "INSERT INTO meta(key,value) VALUES('schema',?1) \
+                     ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                    [i64::try_from(MIGRATIONS.len()).map_err(|_| SavedError::Database)?],
+                )?;
             }
-            for statement in MIGRATIONS.iter().skip(applied) {
-                tx.execute_batch(statement)?;
-            }
-            tx.execute(
-                "INSERT INTO meta(key,value) VALUES('schema',?1) \
-                 ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-                [i64::try_from(MIGRATIONS.len()).map_err(|_| SavedError::Database)?],
-            )?;
             tx.commit()?;
         }
         Ok(Self { connection })
@@ -192,21 +206,35 @@ impl SavedStore {
         })
     }
 
-    /// Remove items with these identifiers from a list.
-    pub fn list_remove(&mut self, name: &str, ids: &[Text]) -> Result<SavedList, SavedError> {
+    /// Remove items with these identifiers from a list. Return the list and the identifiers
+    /// it did not hold; a remove that removes nothing leaves `modified` as it was.
+    pub fn list_remove(
+        &mut self,
+        name: &str,
+        ids: &[Text],
+    ) -> Result<(SavedList, Vec<Text>), SavedError> {
         self.write(|tx, now| {
             let id = list_id(tx, name)?.ok_or(SavedError::Unknown)?;
+            let mut missing = Vec::new();
+            let mut removed = Vec::new();
             for item in ids {
-                tx.execute(
+                let count = tx.execute(
                     "DELETE FROM saved_list_item WHERE list=?1 AND id=?2",
                     params![id, item.as_str()],
                 )?;
+                if count > 0 {
+                    removed.push(item);
+                } else if !removed.contains(&item) && !missing.contains(item) {
+                    missing.push(item.clone());
+                }
             }
-            tx.execute(
-                "UPDATE saved_list SET updated=?2 WHERE id=?1",
-                params![id, seconds(now)?],
-            )?;
-            list(tx, &id)
+            if !removed.is_empty() {
+                tx.execute(
+                    "UPDATE saved_list SET updated=?2 WHERE id=?1",
+                    params![id, seconds(now)?],
+                )?;
+            }
+            Ok((list(tx, &id)?, missing))
         })
     }
 

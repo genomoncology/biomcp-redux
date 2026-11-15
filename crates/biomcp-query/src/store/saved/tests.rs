@@ -1,5 +1,5 @@
 //! Saved store migrations, round trips and newer-file refusal.
-use super::{MIGRATIONS, NewItem, SavedError, SavedStore, migrations::only_adds};
+use super::{COMPATIBILITY, MIGRATIONS, NewItem, SavedError, SavedStore, migrations::only_adds};
 use biodata::Text;
 
 fn text(value: &str) -> Text {
@@ -77,8 +77,14 @@ fn lists_and_searches_round_trip() {
     let ids: Vec<_> = list.items.iter().map(|i| i.reference.id.as_str()).collect();
     assert_eq!(ids, ["BRAF", "NRAS", "KIT"], "set insert in added order");
     assert_eq!(list.name.as_str(), "Genes", "the first spelling stays");
-    let list = store.list_remove("GENES", &[text("NRAS")]).unwrap();
+    let (list, missing) = store
+        .list_remove("GENES", &[text("NRAS"), text("TP53")])
+        .unwrap();
     assert_eq!(list.items.len(), 2, "one item removed");
+    assert_eq!(missing, [text("TP53")], "an ID the list did not hold is reported");
+    let (unchanged, missing) = store.list_remove("genes", &[text("NRAS")]).unwrap();
+    assert_eq!(unchanged.modified, list.modified, "nothing removed leaves modified");
+    assert_eq!(missing, [text("NRAS")], "a removed ID is now missing");
     drop(store);
     let mut store = SavedStore::open(&path).unwrap();
     let all = store.show(None).unwrap();
@@ -103,11 +109,8 @@ fn lists_and_searches_round_trip() {
     );
 }
 
-#[test]
-fn newer_file_is_refused_untouched() {
-    let folder = tempfile::tempdir().unwrap();
-    let path = folder.path().join("saved.sqlite");
-    let mut store = SavedStore::open(&path).unwrap();
+fn genes(path: &std::path::Path) {
+    let mut store = SavedStore::open(path).unwrap();
     store
         .list_add(
             &text("genes"),
@@ -119,16 +122,60 @@ fn newer_file_is_refused_untouched() {
             }],
         )
         .unwrap();
-    drop(store);
-    let newer = i64::try_from(MIGRATIONS.len() + 1).unwrap();
+}
+
+#[test]
+fn file_with_later_additive_migrations_opens() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("saved.sqlite");
+    genes(&path);
+    let later = i64::try_from(MIGRATIONS.len() + 2).unwrap();
     let connection = rusqlite::Connection::open(&path).unwrap();
     connection
-        .execute("UPDATE meta SET value=?1 WHERE key='schema'", [newer])
+        .execute_batch(
+            "ALTER TABLE saved_list ADD COLUMN color TEXT NOT NULL DEFAULT ''; \
+             CREATE TABLE saved_later(id TEXT PRIMARY KEY);",
+        )
+        .unwrap();
+    connection
+        .execute("UPDATE meta SET value=?1 WHERE key='schema'", [later])
+        .unwrap();
+    let mut store = SavedStore::open(&path).expect("a later 1.x file opens");
+    let list = store
+        .list_add(
+            &text("genes"),
+            &[NewItem {
+                entity: text("gene"),
+                id: text("KIT"),
+                source: None,
+                note: None,
+            }],
+        )
+        .unwrap();
+    assert_eq!(list.items.len(), 2, "an older build writes the later file");
+    let schema: i64 = connection
+        .query_row("SELECT value FROM meta WHERE key='schema'", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(schema, later, "an older build never lowers the migration count");
+}
+
+#[test]
+fn newer_file_is_refused_untouched() {
+    let folder = tempfile::tempdir().unwrap();
+    let path = folder.path().join("saved.sqlite");
+    genes(&path);
+    let newer = COMPATIBILITY + 1;
+    let connection = rusqlite::Connection::open(&path).unwrap();
+    connection
+        .execute(
+            "INSERT INTO meta(key,value) VALUES('compatibility',?1)",
+            [newer],
+        )
         .unwrap();
     let state = |connection: &rusqlite::Connection| -> (i64, i64, i64) {
         connection
             .query_row(
-                "SELECT (SELECT value FROM meta WHERE key='schema'), \
+                "SELECT (SELECT value FROM meta WHERE key='compatibility'), \
                  (SELECT count(*) FROM sqlite_master), (SELECT count(*) FROM saved_list_item)",
                 [],
                 |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
@@ -142,16 +189,12 @@ fn newer_file_is_refused_untouched() {
     assert_eq!(
         SavedStore::open(&path).err(),
         Some(SavedError::Newer),
-        "newer file refused"
+        "a file needing a newer reader is refused"
     );
     let after: i64 = connection
         .query_row("PRAGMA data_version", [], |row| row.get(0))
         .unwrap();
     assert_eq!(after, changes, "no other connection wrote the refused file");
-    assert_eq!(
-        state(&connection),
-        before,
-        "refused file keeps its version, tables and items"
-    );
-    assert_eq!(before.0, newer, "the newer version stays");
+    assert_eq!(state(&connection), before, "refused file keeps its key, tables and items");
+    assert_eq!(before.0, newer, "the newer key stays");
 }

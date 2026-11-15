@@ -111,22 +111,32 @@ pub(crate) fn cli(
     let words: Vec<&str> = crate::grammar::command_words(root, args).collect();
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
+        ["saved", rest @ ..] if asks_help(args) => {
+            Some(help(root, settings, args, &command_path(rest)))
+        }
         ["saved", ..] => Some(run(root, settings, args)),
         ["help", "saved", rest @ ..] => {
-            let path: Vec<&str> = rest
-                .iter()
-                .copied()
-                .take_while(|word| !word.starts_with('-'))
-                .collect();
-            Some(help(root, settings, args, &path))
+            Some(help(root, settings, args, &command_path(rest)))
         }
-        ["search", ..] if saves => Some(save_search(root, settings, args)),
-        _ if saves => Some(usage(
-            Encoding::cli(root, settings, args),
-            UsageError::argument(SAVE_AS.into()),
-        )),
+        _ if saves => Some(save_search(root, settings, args)),
         _ => None,
     }
+}
+
+/// The subcommand words before the first option.
+fn command_path<'a>(words: &[&'a str]) -> Vec<&'a str> {
+    words
+        .iter()
+        .copied()
+        .take_while(|word| !word.starts_with('-'))
+        .collect()
+}
+
+/// `-h` or `--help` under `saved` answers as `help saved ...` does.
+fn asks_help(args: &[OsString]) -> bool {
+    args.iter()
+        .take_while(|arg| *arg != "--")
+        .any(|arg| arg == "-h" || arg == "--help")
 }
 
 fn save_as_position(args: &[OsString]) -> Option<usize> {
@@ -196,9 +206,14 @@ fn save_search(
     };
     let request = match crate::grammar::parse(root, &rest).map(|parsed| parsed.action) {
         Ok(Some(biomcp_query::Action::Run { request, .. })) => request,
-        // The ordinary command reports its own usage error.
-        _ => return crate::command::dispatch(root, settings, &rest),
+        // A command that is not a search refuses the option; others report their own error.
+        Ok(_) => return usage(encoding, UsageError::argument(SAVE_AS.into())),
+        Err(_) => return crate::command::dispatch(root, settings, &rest),
     };
+    // A saved search reruns from its first page: a pool, cursor or offset expires.
+    if request.path().0 != "search" || !crate::grammar::first_page(&request) {
+        return usage(encoding, UsageError::argument(SAVE_AS.into()));
+    }
     let Some(words) = kept_words(root, &rest) else {
         return usage(encoding, UsageError::arguments());
     };
@@ -283,9 +298,10 @@ fn run(
             Ok(None) => Ok(Saved::default()),
             Ok(Some(store)) => store.show(name),
         },
-        "delete" => match open(encoding, true)? {
+        "delete" => match open(encoding, false)? {
             Err(outcome) => return Ok(outcome),
-            Ok(None) => Err(SavedError::Database),
+            Ok(None) if name.is_some() => Err(SavedError::Unknown),
+            Ok(None) => Ok(Saved::default()),
             Ok(Some(mut store)) => store.delete(name),
         },
         "list" => return list(root, encoding, matches),
@@ -327,7 +343,14 @@ fn list(
             Ok(None) => Err(SavedError::Unknown),
             Ok(Some(mut store)) => store.list_remove(name.as_str(), &ids),
         };
-        return reply(encoding, result.map(one_list), "NAME");
+        return reply(
+            encoding,
+            result.map(|(list, missing)| Saved {
+                missing,
+                ..one_list(list)
+            }),
+            "NAME",
+        );
     }
     let items = match new_items(root, matches, &ids) {
         Ok(items) => items,
@@ -345,6 +368,7 @@ fn one_list(list: biomcp_types::SavedList) -> Saved {
     Saved {
         searches: Vec::new(),
         lists: vec![list],
+        missing: Vec::new(),
     }
 }
 
@@ -431,7 +455,7 @@ fn failure(encoding: Encoding, error: SavedError, argument: &str) -> io::Result<
         }
         SavedError::Database => return encoding.encode(ErrorEnvelope::local(), Exit::Local),
         SavedError::Taken => ErrorMessage::SavedNameTaken,
-        SavedError::Unknown => ErrorMessage::SavedUnknownName,
+        SavedError::Unknown => ErrorMessage::SavedRecordUnknown,
     };
     usage(
         encoding,
@@ -565,5 +589,20 @@ fn argument(arg: &Arg) -> HelpArgument {
         minimum: None,
         maximum: None,
         choices: Vec::new(),
+    }
+}
+
+/// The command-line root help line for saved work; MCP help never carries it.
+pub(crate) fn root_help() -> HelpCommand {
+    HelpCommand {
+        command: vec!["saved".into()],
+        description: "Keep named searches (search ... --save-as NAME) and lists of record IDs on \
+            this machine; command line only. Run biomcp help saved."
+            .into(),
+        reply_schemas: vec![Saved::SCHEMA.into()],
+        arguments: Vec::new(),
+        sections: Vec::new(),
+        section_rule: None,
+        examples: Vec::new(),
     }
 }

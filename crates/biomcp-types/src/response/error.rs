@@ -87,7 +87,7 @@ singleton! {
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
  McpHosted => "this command is unavailable in hosted mode",
- SavedUnknownName => "no saved search or list has this name; biomcp saved show lists the names",
+ SavedRecordUnknown => "no saved search or list has this name; biomcp saved show lists the names",
  SavedNameTaken => "a saved search or list already has this name; choose another name or delete it with biomcp saved \
  delete NAME",
  SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",

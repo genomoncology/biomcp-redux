@@ -86,6 +86,9 @@ pub struct Saved {
     /// Saved lists, by project and name.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub lists: Vec<SavedList>,
+    /// IDs a list remove named that the list did not hold.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub missing: Vec<crate::Text>,
 }
 impl crate::ResponseBody for Saved {
     const SCHEMA: &'static str = "biomcp.saved/1";

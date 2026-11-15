@@ -8,10 +8,14 @@ use serde_json::Value;
 use std::{fs, path::Path, path::PathBuf};
 
 pub(super) fn trials() -> Vec<Trial> {
-    vec![transcript_trial(
-        "saved-work/checked-in-files-export",
-        || exports().map_err(Into::into),
-    )]
+    vec![
+        transcript_trial("saved-work/checked-in-files-export", || {
+            exports().map_err(Into::into)
+        }),
+        transcript_trial("saved-work/data-folder-shared-with-cache", || {
+            shared_folder().map_err(Into::into)
+        }),
+    ]
 }
 
 /// Where the product resolves saved.sqlite inside an isolated test environment.
@@ -132,6 +136,43 @@ fn exports() -> Result<(), String> {
                 folder.display()
             ));
         }
+    }
+    Ok(())
+}
+
+/// With the data folder set to the cache folder, store clean still keeps saved.sqlite.
+fn shared_folder() -> Result<(), String> {
+    let env = Environment::new().map_err(|error| error.to_string())?;
+    let cache = env.root().join("cache");
+    let run_shared = |args: &[&str]| -> Result<Value, String> {
+        let args: Vec<String> = args.iter().map(|arg| (*arg).to_owned()).collect();
+        let output = env
+            .command(env!("CARGO_BIN_EXE_biomcp"), &args)
+            .env("XDG_DATA_HOME", &cache)
+            .env("APPDATA", &cache)
+            .output()
+            .map_err(|error| error.to_string())?;
+        if !output.status.success() {
+            return Err(format!("{args:?} failed: {}", String::from_utf8_lossy(&output.stdout)));
+        }
+        serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())
+    };
+    let saved = cache.join("biomcp/saved.sqlite");
+    run_shared(&["saved", "delete", "--all"])?;
+    run_shared(&["saved", "show"])?;
+    if saved.exists() {
+        return Err("reads and an empty delete created saved.sqlite".into());
+    }
+    run_shared(&["saved", "list", "add", "braf-genes", "--entity", "gene", "BRAF"])?;
+    if !saved.exists() {
+        return Err("saved.sqlite is not in the shared cache folder".into());
+    }
+    run_shared(&["store", "clean"])?;
+    let shown = run_shared(&["saved", "show", "braf-genes"])?;
+    if !saved.exists()
+        || shown.pointer("/result/lists/0/items/0/ref/id") != Some(&Value::from("BRAF"))
+    {
+        return Err(format!("store clean lost the list: {shown}"));
     }
     Ok(())
 }
