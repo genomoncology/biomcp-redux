@@ -31,7 +31,7 @@ pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     // A field that renames a sibling names that sibling (0901).
     if object
         .get("x-alias-of")
-        .is_some_and(|value| !value.as_str().is_some_and(|name| !name.is_empty()))
+        .is_some_and(|value| value.as_str().is_none_or(str::is_empty))
     {
         return Err("invalid alias annotation".into());
     }
