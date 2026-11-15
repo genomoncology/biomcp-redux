@@ -18,12 +18,13 @@
         "/error/code": "usage.arguments",
         "/error/option": "--build",
         "/error/message": "use: variant normalize --source <car|mutalyzer|variantvalidator|all> --hgvs <TEXT>; VariantValidator and all require --build",
-        "/next/0/args/*": {
-          "includes_all_of": [
-            "--build",
-            "--source",
-            "all"
-          ]
+        "/next/0/args": [
+          "help",
+          "variant",
+          "normalize"
+        ],
+        "/next": {
+          "count": 1
         }
       }
     },

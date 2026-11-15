@@ -39,15 +39,18 @@ pub(super) fn search(cx: &Ctx<'_>, q: &DrugSearch) -> Outcome {
         let sent = super::widen::retain(cx, q, widened.as_ref(), deadline, true, &mut out);
         let q = &sent;
         {
-            let found = returned != 0;
+            // A page whose matched records were all declined still matched records.
+            let found = returned != 0 || page.refusals == biomcp_adapters::Refusal::Refused;
             crate::status::item(&mut out, found, false, false);
         };
         out.problems = page.problems;
+        out.include_refusals(page.refusals);
         record_steps(cx.fresh, &page.items, &mut out);
+        // The next page starts after every native record, declined ones included.
         if let Some(offset) = q
             .offset()
-            .checked_add(returned)
-            .filter(|n| returned > 0 && u64::from(*n) < page.total)
+            .checked_add(page.consumed)
+            .filter(|n| page.consumed > 0 && u64::from(*n) < page.total)
         {
             out.next.push(crate::next::Step::run(
                 StepKind::Page,

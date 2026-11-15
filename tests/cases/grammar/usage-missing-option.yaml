@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "A missing option names its accepted values. When exactly one value lets the call run, that call is the only next step; when several would, the first is offered as a guess and help stays beside it.",
+  "story": "A missing option names its accepted values. When exactly one value lets the call run, that call is the only next step; when several would, help is the only next step and no value is guessed.",
   "steps": [
     {
       "run": [
@@ -20,22 +20,14 @@
             "drugsfda"
           ]
         },
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "search",
-            "drug"
-          ]
+        "/next": {
+          "count": 1
         },
         "/next/0/args": [
+          "help",
           "search",
-          "drug",
-          "--source",
-          "fda-drug-recall"
-        ],
-        "/next": {
-          "count": 2
-        }
+          "drug"
+        ]
       }
     },
     {

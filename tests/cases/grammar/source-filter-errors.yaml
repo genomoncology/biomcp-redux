@@ -1,8 +1,40 @@
 {
   "feature": "query-validation",
   "live_check": "synthetic",
-  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity. Swapping a source the caller named for the one that takes the filter, or dropping the filter, is a guess that keeps help beside it.",
+  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity. Swapping a source the caller named for the one that takes the filter, or dropping the filter, is a guess that keeps help beside it. When the caller named no source and exactly one other source takes the filter, that call is the only next step.",
   "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "pump",
+        "--event-type",
+        "malfunction"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--event-type",
+        "/error/valid_values": [
+          "maude"
+        ],
+        "/next/0/kind": "configure",
+        "/next/0/args": [
+          "search",
+          "adverse-event",
+          "pump",
+          "--event-type",
+          "malfunction",
+          "--source",
+          "maude"
+        ],
+        "/next": {
+          "count": 1
+        }
+      }
+    },
     {
       "run": [
         "search",

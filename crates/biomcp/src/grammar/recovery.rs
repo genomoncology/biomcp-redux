@@ -21,9 +21,10 @@ pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
     Some(step)
 }
 
-/// A corrected call, and whether it is certain: false when it picked one of several listed
-/// values that would each pass, filled a bare command, or dropped what the caller asked for,
-/// which is a guess that keeps help beside it.
+/// A corrected call, and whether it is certain: false only when `allow_omission` let it drop
+/// what the caller asked for, which is a guess that keeps help beside it. A listed value is
+/// offered only when it is certain; a bare command, or several values that would each pass,
+/// get no correction.
 pub(super) fn corrected(
     via: Rewrite,
     path: (&str, &str),
@@ -83,10 +84,13 @@ pub(super) fn corrected(
             });
         if let Some((index, step)) = passing.next() {
             // The declared default is certain, and so is the only listed value that passes when
-            // the call already names what it is after. A bare command gets the value as a guess.
+            // the call already names what it is after. Otherwise the value is a guess: on a bare
+            // command the call shows no intent to pick it (bare `search drug` runs only on
+            // recalls), and among several passing values the first is only the first declared.
+            // Help alone answers those refusals.
             let certain = (defaulted && index == 0)
                 || (passing.next().is_none() && super::options::names_something(schema, value));
-            return Some((step, certain));
+            return certain.then_some((step, true));
         }
     }
     None
@@ -135,13 +139,10 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
-/// A certain correction replaces help: the refusal's first step is the call to run. A guess
-/// among several passing values goes first but keeps help beside it.
-pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<(Step, bool)>) {
-    if let Some((step, certain)) = corrected {
-        if certain {
-            arguments.next.retain(|step| !is_help(step));
-        }
+/// A certain correction replaces help: the refusal's only step is the call to run.
+pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
+    if let Some(step) = corrected {
+        arguments.next.retain(|step| !is_help(step));
         arguments.next.insert(0, step);
     }
 }
@@ -229,7 +230,7 @@ pub(crate) fn prepared(
         (Some(only), None) => Some(only),
         _ => None,
     };
-    next(arguments, corrected.map(|step| (step, true)));
+    next(arguments, corrected);
     error
 }
 
