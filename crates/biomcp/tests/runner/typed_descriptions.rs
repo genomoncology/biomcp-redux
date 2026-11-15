@@ -16,6 +16,7 @@ pub(super) fn check(env: &Environment) -> Result<(), String> {
     standalone(&hosted)?;
     standalone(&crate::runner::protocol::typed_catalog::commands(&hosted))?;
     examples(&hosted, false)?;
+    cdx_shared_fields(env, &entities, &hosted)?;
     faers_drug(&tools)?;
     for (verb, entity, id) in biomcp_types::command_paths() {
         let name = format!("{verb}_{entity}").replace('-', "_");
@@ -96,6 +97,48 @@ fn spot_words(tools: &[Value]) -> Result<(), String> {
         if !words.into_iter().all(|word| description.contains(word)) {
             return Err(format!("{name}: missing search words"));
         }
+    }
+    Ok(())
+}
+/// 0962: an MCP agent learns the FDA CDx fields both tables share from the diagnostic tool
+/// itself, as CLI agents do from help, and only while fda-cdx is offered.
+fn cdx_shared_fields(env: &Environment, local: &[Value], hosted: &[Value]) -> Result<(), String> {
+    const SENTENCE: &str = "FDA CDx rows of both tables carry diagnostic, indication, device, drug \
+        and row_date beside FDA's cells, whose headers differ by table.";
+    let description = |tools: &[Value]| {
+        tools
+            .iter()
+            .find(|tool| tool["name"] == "diagnostic")
+            .and_then(|tool| tool["description"].as_str())
+            .map(str::to_owned)
+            .ok_or("diagnostic tool description")
+    };
+    for text in [description(local)?, description(hosted)?] {
+        if !text.ends_with(SENTENCE) {
+            return Err(format!(
+                "diagnostic tool lacks the CDx shared fields: {text}"
+            ));
+        }
+    }
+    let replies = exchange_with_globals(
+        env,
+        &[request(json!(3), "tools/list", json!({}))],
+        &[
+            "--offline".into(),
+            "--disable-sources".into(),
+            "fda-cdx".into(),
+        ],
+    )?;
+    let without = replies
+        .first()
+        .and_then(|reply| reply.pointer("/result/tools"))
+        .and_then(Value::as_array)
+        .ok_or("tools without fda-cdx")?;
+    let text = description(without)?;
+    if text.contains("CDx rows") {
+        return Err(format!(
+            "diagnostic tool names CDx rows without fda-cdx: {text}"
+        ));
     }
     Ok(())
 }

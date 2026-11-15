@@ -104,7 +104,7 @@ fn provenance(
 /// What a person would ask the tool for, its sources by full name, one search and one get
 /// example, the other actions in a few words, and what the tool is not for.
 pub(super) fn tool(
-    (_, asks, _, [search, get], not_for): &super::catalog::front_map::EntityTool,
+    (name, asks, _, [search, get], not_for): &super::catalog::front_map::EntityTool,
     sources: &BTreeSet<String>,
     actions: &[(&str, &str)],
     excluded: &BTreeSet<biomcp_types::Source>,
@@ -136,8 +136,17 @@ pub(super) fn tool(
         parts.push(plain(&format!("Other actions: {}.", others.join(", "))));
     }
     parts.push(plain(&format!("{not_for}.")));
+    if *name == "diagnostic" && sources.contains("fda-cdx") {
+        parts.push(CDX_SHARED_FIELDS.into());
+    }
     parts.join(" ")
 }
+
+/// FDA spells the two companion tables' headers differently, so MCP agents need the shared
+/// names too (0962). It sits on the entity tool, outside the action budget, and says
+/// "beside" because MCP replies list fields alphabetically, so `cells` may come first.
+const CDX_SHARED_FIELDS: &str = "FDA CDx rows of both tables carry diagnostic, \
+    indication, device, drug and row_date beside FDA's cells, whose headers differ by table.";
 
 /// An action's object keeps its command's description; citations says what it lists.
 pub(super) fn action(action: &str, description: &str) -> String {
