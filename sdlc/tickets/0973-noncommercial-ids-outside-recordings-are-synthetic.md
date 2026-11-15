@@ -18,7 +18,7 @@ Outside `tests/replies`, test code, fixtures, planning files and scripts no long
 
 ## Starts from
 
-- Starts from: 0920's review list: tests/native/orcid/*, tests/native/author*/*, crates/biomcp-types/tests/author_contracts.rs, crates/biomcp/src/config/credential_reads_tests.rs, crates/biomcp-types/tests/drug_contracts.rs:397-404, crates/biomcp-types/tests/response.rs:350, scripts/orcid_native.py, scripts/author_capture_plan.json, sdlc/planning/slices/author.md.
+- Starts from: 0920's review list (plus the "replaced" notes 0920 left in tests/replies/orcid/README.md and the two WHO IVD READMEs, which still name the real IDs; say "a real ID" instead): tests/native/orcid/*, tests/native/author*/*, crates/biomcp-types/tests/author_contracts.rs, crates/biomcp/src/config/credential_reads_tests.rs, crates/biomcp-types/tests/drug_contracts.rs:397-404, crates/biomcp-types/tests/response.rs:350, scripts/orcid_native.py, scripts/author_capture_plan.json, sdlc/planning/slices/author.md.
 
 ## Keeps
 
