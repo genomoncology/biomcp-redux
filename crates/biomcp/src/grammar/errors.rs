@@ -227,14 +227,13 @@ pub(super) fn parse_invalid(
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
         } else {
-            spelling
-                .and_then(|spelling| {
-                    flag_fix(root, &path, spelling, args).or_else(|| {
-                        let step = super::recovery::dropped(root, spelling, args);
-                        only_dropped = step.is_some();
-                        step
-                    })
+            spelling.and_then(|spelling| {
+                flag_fix(root, &path, spelling, args).or_else(|| {
+                    let step = super::recovery::dropped(root, spelling, args);
+                    only_dropped = step.is_some();
+                    step
                 })
+            })
         };
         super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
