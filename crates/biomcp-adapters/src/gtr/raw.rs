@@ -64,16 +64,26 @@ impl Refused {
             .and_then(crate::raw::Field::as_ref);
         let gene_id = self.object_id.as_ref().and_then(crate::raw::Field::as_ref);
         let medgen = self.medgen.as_ref().and_then(crate::raw::Field::as_ref);
-        q.test_type().is_none_or(|kind| {
-            self.test_type.as_ref().and_then(crate::raw::Field::as_ref) == Some(&kind)
-        }) && q.gene().is_none_or(|gene| {
+        let gene = q.gene().is_none_or(|gene| {
             object == Some(&Object::Gene) && symbol.map(|s| &**s) == Some(gene.as_str())
         }) && q.gene_id().is_none_or(|gene| {
             object == Some(&Object::Gene) && gene_id.is_some_and(|id| **id == gene.to_string())
-        }) && q.condition_id().is_none_or(|condition| {
+        });
+        let condition = q.condition_id().is_none_or(|condition| {
             object == Some(&Object::Condition)
                 && medgen.is_some_and(|id| format!("MedGen:{id}") == condition.as_str())
-        }) && self.named(q)
+        });
+        // A gene with a condition reads both sides; a refused row on either side may hide a joined test.
+        let selected = if super::search::gene_selected(q) && q.condition_id().is_some() {
+            gene || condition
+        } else {
+            gene && condition
+        };
+        selected
+            && q.test_type().is_none_or(|kind| {
+                self.test_type.as_ref().and_then(crate::raw::Field::as_ref) == Some(&kind)
+            })
+            && self.named(q)
     }
     /// A refused row without a readable name cannot be ruled out, so it is disclosed.
     fn named(&self, q: &biomcp_types::DiagnosticSearch) -> bool {

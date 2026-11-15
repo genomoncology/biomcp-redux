@@ -87,7 +87,7 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Gtr)))]
     gene: Option<GeneSymbol>,
-    #[doc = "Exact MedGen:CUI.\nExact MedGen:CUI identifier only."]
+    #[doc = "Exact MedGen:CUI.\nExact MedGen:CUI identifier only; with a gene, tests that list both."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(regex(pattern = "^MedGen:C[0-9]+$")))]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::Gtr)))]
@@ -202,17 +202,9 @@ impl TryFrom<SearchFields> for DiagnosticSearch {
         if !(1..=50).contains(&v.limit) {
             return Err(QueryInvalid::new(&["limit"]));
         }
-        if [
-            v.gene.is_some(),
-            v.gene_id.is_some(),
-            v.condition_id.is_some(),
-        ]
-        .into_iter()
-        .filter(|v| *v)
-        .count()
-            > 1
-        {
-            return Err(QueryInvalid::new(&["gene", "gene_id", "condition_id"]));
+        // A gene and a condition together keep tests that list both (0949).
+        if v.gene.is_some() && v.gene_id.is_some() {
+            return Err(QueryInvalid::new(&["gene", "gene_id"]));
         }
         if v.source == DiagnosticSearchSource::Gtr && (cdx || who) {
             return Err(QueryInvalid::new(&[

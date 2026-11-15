@@ -966,7 +966,7 @@ Options:
 
       --condition-id <condition_id>
           Exact MedGen:CUI.
-          Exact MedGen:CUI identifier only.
+          Exact MedGen:CUI identifier only; with a gene, tests that list both.
 
       --config <config>
           Read configuration from this file. Example: --config config.json.
@@ -1087,7 +1087,7 @@ Source enforcement classification; FDA device recalls only. Selects enforcement 
 - `--classification-name`: FDA classification name phrase.
 Phrase in openFDA's 510(k) openfda.device_name, FDA's name for the product code's device type, not the submitted device_name --name matches; 510(k) only. Value form: string; example: --classification-name cell-free; only with --source fda-510k.
 - `--condition-id`: Exact MedGen:CUI.
-Exact MedGen:CUI identifier only. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
+Exact MedGen:CUI identifier only; with a gene, tests that list both. Value form: string; example: --condition-id MedGen:C2676676; only with --source gtr.
 - `--date-from`: First row date, YYYY-MM-DD.
 Inclusive newest date in an FDA companion row's device cell; fda-cdx only. Undated rows are left out and named in problems. Value form: string; example: --date-from 2026-07-01; only with --source fda-cdx.
 - `--date-to`: Last row date, YYYY-MM-DD.
@@ -1103,7 +1103,7 @@ Cell-owned typed NDA/BLA application. Value form: string; example: --drug-applic
 - `--gene`: Exact gene symbol.
 Exact source gene_symbol field, without alias expansion. Value form: string; example: --gene BRCA1; only with --source gtr.
 - `--gene-id`: Exact NCBI GeneID.
-Exact source GeneID, exclusive with gene symbol. Value form: string; example: --gene-id 672; only with --source gtr.
+Exact source GeneID, exclusive with gene symbol. Value form: string; example: --gene-id 1956; only with --source gtr.
 - `--initiated-from`: First date, YYYY-MM-DD.
 Inclusive initiation date, YYYY-MM-DD; FDA device recalls only. Value form: string; example: --initiated-from 2024-01-01; only with --source fda-device-recall.
 - `--initiated-to`: Last date, YYYY-MM-DD.
