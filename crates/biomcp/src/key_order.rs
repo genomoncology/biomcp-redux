@@ -21,4 +21,3 @@ pub(crate) fn sorted(value: &Value) -> Value {
         _ => value.clone(),
     }
 }
-
