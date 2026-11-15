@@ -143,12 +143,17 @@ fn unmarked_noncommercial_replies_fail() -> Check {
         return Err("a README without the source's marker passed".into());
     }
     fs::write(case.join("README.md"), "Synthetic: semantic-scholar\n")?;
-    let error = check(root.path()).err().ok_or("an unmarked source passed")?;
+    let error = check(root.path())
+        .err()
+        .ok_or("an unmarked source passed")?;
     if !error.to_string().contains("(myvariant)")
         || error.to_string().contains("(semantic-scholar)")
     {
         return Err(format!("the case marker covered the wrong sources: {error}").into());
     }
-    fs::write(case.join("myvariant").join("README.md"), "Synthetic: myvariant\n")?;
+    fs::write(
+        case.join("myvariant").join("README.md"),
+        "Synthetic: myvariant\n",
+    )?;
     check(root.path())
 }
