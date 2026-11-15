@@ -298,6 +298,56 @@ pub(super) fn respelled(
     candidate(root, &args)
 }
 
+/// A full HGVS name typed as `search variant --variant`, such as
+/// `NM_007294.4(BRCA1):c.68_69del` or `BRCA1:c.68_69del`: the same call with its gene as
+/// `--gene` and its change as `--coding` or `--protein`. A name without a gene is left to help.
+pub(super) fn hgvs_flag(
+    root: &Command,
+    path: &[&str],
+    spelling: &str,
+    args: &[OsString],
+) -> Option<Step> {
+    if path != ["search", "variant"]
+        || spelling != "--variant"
+        || args.iter().any(|word| word.to_str() == Some("--gene"))
+    {
+        return None;
+    }
+    let index = args.iter().position(|word| {
+        word.to_str()
+            .is_some_and(|word| word == spelling || word.starts_with("--variant="))
+    })?;
+    let word = args.get(index)?.to_str()?;
+    let (value, width) = match word.strip_prefix("--variant=") {
+        Some(value) => (value, 1),
+        None => (args.get(index + 1)?.to_str()?, 2),
+    };
+    let (name, change) = value.split_once(':')?;
+    let gene = name
+        .rsplit_once('(')
+        .and_then(|(_, gene)| gene.strip_suffix(')'))
+        .unwrap_or(name);
+    let option = if change.starts_with("c.") {
+        "--coding"
+    } else if change.starts_with("p.") {
+        "--protein"
+    } else {
+        return None;
+    };
+    if gene.is_empty() || !gene.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
+        return None;
+    }
+    let replacement = [
+        OsString::from("--gene"),
+        OsString::from(gene),
+        OsString::from(option),
+        OsString::from(change),
+    ];
+    let mut args = args.to_vec();
+    args.splice(index..index + width, replacement);
+    candidate(root, &args)
+}
+
 /// The canonical call for words the grammar accepts, or the corrected call its refusal
 /// already names.
 pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {

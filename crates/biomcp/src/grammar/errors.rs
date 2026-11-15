@@ -521,6 +521,7 @@ fn flag_fix(
     super::positional::text_flag(root, path, spelling, args)
         .or_else(|| super::positional::source_flag(root, path, spelling, args))
         .or_else(|| super::positional::respelled(root, path, spelling, args))
+        .or_else(|| super::positional::hgvs_flag(root, path, spelling, args))
 }
 
 /// The root parser, with errors ignored along the command path unless `strict`.
