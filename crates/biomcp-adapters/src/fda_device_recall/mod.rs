@@ -35,10 +35,14 @@ pub struct Page {
     pub items: Box<[DiagnosticCandidate]>,
     /// Native count of recall records; enforcement records under a classification filter.
     pub total: u64,
-    /// Rejected optional values with record provenance.
+    /// Rejected optional values with record provenance, and one problem per declined record.
     pub problems: Vec<Problem>,
     /// Rows whose exact identity has no record in the joined openFDA dataset.
     pub unmatched: u32,
+    /// Whether a native record was declined for a malformed recall number.
+    pub refusals: crate::Refusal,
+    /// Native records on the page, declined ones included; the next page starts after them.
+    pub consumed: u32,
     /// A failed join leaves the selected rows and their total unchanged.
     pub join_failure: Option<Failure>,
 }
@@ -116,6 +120,18 @@ fn selected<T: crate::openfda::Item>(
         raw::Response::Absent { .. } => (Vec::new(), 0),
     })
 }
+/// The page's records with a well-formed recall number; each declined record adds a problem.
+fn admitted<T, K: raw::Key>(rows: Vec<raw::Row<T, K>>, problems: &mut Vec<Problem>) -> Vec<T> {
+    rows.into_iter()
+        .filter_map(|row| match row {
+            raw::Row::Admitted(row) => Some(row),
+            raw::Row::Declined(key) => {
+                problems.push(key.problem());
+                None
+            }
+        })
+        .collect()
+}
 type Joined<A, B> = (Vec<(A, Option<B>)>, u32, Option<Failure>);
 /// One exact request pairs a page with its records in the other openFDA recall dataset.
 fn joined<A: Identity, B: Identity + crate::openfda::Item>(
@@ -151,9 +167,15 @@ fn joined<A: Identity, B: Identity + crate::openfda::Item>(
 /// A classification selects enforcement records first, then joins their native recall records.
 pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError> {
     let mut problems = Vec::new();
-    let (items, total, unmatched, join_failure) = if q.classification().is_some() {
-        let (found, total) =
-            selected::<raw::Enforcement>(leg, q, ENFORCEMENT, "recall_initiation_date:desc")?;
+    let (items, total, consumed, unmatched, join_failure): (Box<[_]>, _, _, _, _) = if q.classification().is_some() {
+        let (found, total) = selected::<raw::Row<raw::Enforcement, raw::EnforcementKey>>(
+            leg,
+            q,
+            ENFORCEMENT,
+            "recall_initiation_date:desc",
+        )?;
+        let consumed = found.len();
+        let found = admitted(found, &mut problems);
         let (rows, unmatched, failure) =
             joined::<_, raw::Record>(leg, found, RECALL, "product_res_number");
         let items = rows
@@ -166,9 +188,16 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
                 map::candidate(row, Some(class), &mut problems)
             })
             .collect();
-        (items, total, unmatched, failure)
+        (items, total, consumed, unmatched, failure)
     } else {
-        let (found, total) = selected::<raw::Record>(leg, q, RECALL, "event_date_initiated:desc")?;
+        let (found, total) = selected::<raw::Row<raw::Record, raw::RecordKey>>(
+            leg,
+            q,
+            RECALL,
+            "event_date_initiated:desc",
+        )?;
+        let consumed = found.len();
+        let found = admitted(found, &mut problems);
         let (rows, unmatched, failure) =
             joined::<_, raw::Enforcement>(leg, found, ENFORCEMENT, "recall_number");
         let items = rows
@@ -178,13 +207,20 @@ pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError>
                 map::candidate(row, class, &mut problems)
             })
             .collect();
-        (items, total, unmatched, failure)
+        (items, total, consumed, unmatched, failure)
+    };
+    let refusals = if items.len() < consumed {
+        crate::Refusal::Refused
+    } else {
+        crate::Refusal::None
     };
     Ok(Page {
         items,
         total,
         problems,
         unmatched,
+        refusals,
+        consumed: u32::try_from(consumed).unwrap_or(u32::MAX),
         join_failure,
     })
 }

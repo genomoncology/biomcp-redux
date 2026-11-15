@@ -30,15 +30,19 @@ pub(crate) fn date(
     date
 }
 /// A record without a well-formed recall number has no identity, so it is declined with a
-/// `recall_number` problem instead of failing its page.
+/// `record.declined` problem naming its openFDA `event_id` instead of failing its page.
 pub(super) fn mapped(row: raw::Record) -> Mapped<Option<DrugRecallCard>> {
     let mut problems = Vec::new();
     let Some(recall_number) = row.recall_number.and_then(Field::value) else {
-        push_problem(&mut problems, SOURCE, None, "recall_number");
         return Mapped {
             refusals: crate::Refusal::Refused,
             value: None,
-            problems,
+            problems: vec![crate::mapped::declined(
+                SOURCE,
+                "recall_number",
+                "event_id",
+                row.event_id.as_ref(),
+            )],
         };
     };
     let id = record(&recall_number);

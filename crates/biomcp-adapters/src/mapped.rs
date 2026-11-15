@@ -32,6 +32,35 @@ pub(crate) fn problem(
     }
 }
 
+/// A record left off its page because its identity `field` is unusable. It has no canonical
+/// identifier, so `record` names it by a native source key, such as `event_id:100178`. Each
+/// declined record keeps its own problem, so a page states how many it declined.
+pub(crate) fn declined(
+    source: biomcp_types::Source,
+    field: &str,
+    key: &str,
+    value: Option<&Field<String>>,
+) -> Problem {
+    let record = value
+        .and_then(Field::as_ref)
+        .and_then(|v| text(&format!("{key}:{}", v.trim())).ok());
+    Problem {
+        source,
+        record,
+        field: field.into(),
+        code: biomcp_types::ProblemCode::RecordDeclined,
+    }
+}
+
+/// Add a record's problems to its page: a rejected field once, each declined record once.
+pub(crate) fn page_problems(page: &mut Vec<Problem>, record: Vec<Problem>) {
+    for problem in record {
+        if problem.code == biomcp_types::ProblemCode::RecordDeclined || !page.contains(&problem) {
+            page.push(problem);
+        }
+    }
+}
+
 /// Report each rejected field once per source record.
 pub(crate) fn push_problem(
     problems: &mut Vec<Problem>,

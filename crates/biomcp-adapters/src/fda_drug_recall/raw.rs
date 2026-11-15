@@ -8,6 +8,8 @@ use serde::Deserialize;
 pub(super) struct Record {
     /// openFDA sends some records with an empty or `N/A` recall number.
     pub recall_number: Option<Field<DrugRecallNumber>>,
+    /// openFDA's recall event key, which names a record declined for its recall number.
+    pub event_id: Option<Field<String>>,
     pub classification: Option<Field<String>>,
     pub status: Option<Field<String>>,
     pub recalling_firm: Option<Field<String>>,
