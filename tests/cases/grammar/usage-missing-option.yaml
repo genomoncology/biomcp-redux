@@ -53,12 +53,16 @@
       "expect": {
         "/error/code": "usage.arguments",
         "/next/0/kind": "configure",
-        "/next/0/args": {
-          "includes": [
-            "--source",
-            "monarch"
-          ]
-        },
+        "/next/0/args": [
+          "get",
+          "disease",
+          "MONDO:0013267",
+          "genes",
+          "--section-limit",
+          "5",
+          "--source",
+          "monarch"
+        ],
         "/next": {
           "count": 1
         }
