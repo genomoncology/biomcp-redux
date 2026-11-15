@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Missing options, unknown options, bad enum values and bad typed IDs each name one argument, its accepted form and command help.",
+  "story": "An unknown option names itself and the command's options, and the first next step is the same call without it.",
   "steps": [
     {
       "run": [
@@ -20,12 +20,15 @@
         "/error/option": "--country",
         "/error/message": "option is missing or invalid; choose an accepted value or form and use the suggested help command",
         "/error/valid_values/0": "--civic-cursor",
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "drug"
-          ]
+        "/next/0/args": [
+          "get",
+          "drug",
+          "CHEMBL941",
+          "--source",
+          "chembl"
+        ],
+        "/next": {
+          "count": 1
         }
       }
     }
