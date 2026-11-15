@@ -231,3 +231,44 @@ pub(crate) fn prepared(
     next(arguments, corrected.map(|step| (step, true)));
     error
 }
+
+/// An option no spelling of this command takes: the same call without it, and without the
+/// word after it when that word is not an option, if that call checks. No call is offered
+/// when the word after it could also be the caller's own operand.
+pub(super) fn dropped(
+    root: &clap::Command,
+    spelling: &str,
+    args: &[std::ffi::OsString],
+) -> Option<biomcp_types::Step> {
+    let spelling = spelling.split('=').next()?;
+    let at = args.iter().position(|word| {
+        word.to_str().is_some_and(|word| {
+            word == spelling
+                || word
+                    .strip_prefix(spelling)
+                    .is_some_and(|rest| rest.starts_with('='))
+        })
+    })?;
+    if args.iter().take(at).any(|word| word.to_str() == Some("--")) {
+        return None;
+    }
+    let mut without = args.to_vec();
+    let flag = without.remove(at);
+    if !flag.to_str()?.contains('=')
+        && without
+            .get(at)
+            .and_then(|word| word.to_str())
+            .is_some_and(|word| !word.starts_with('-'))
+    {
+        // The word after the option may be its value or the caller's own search word. When
+        // the call also reads with that word kept, which one it is would be a guess.
+        if super::parse(root, &without).is_ok() {
+            return None;
+        }
+        without.remove(at);
+    }
+    match super::parse(root, &without).ok()?.action? {
+        biomcp_query::Action::Run { request, .. } => super::recovery::run(&request),
+        _ => None,
+    }
+}
