@@ -13,7 +13,11 @@ use biodata::{
 
 #[macro_use]
 mod response_page;
+mod latin;
 mod paged;
+pub use latin::latin_base;
+mod openfda;
+pub use openfda::{openfda_phrase, openfda_words};
 pub use paged::Paged;
 mod research;
 pub use research::{

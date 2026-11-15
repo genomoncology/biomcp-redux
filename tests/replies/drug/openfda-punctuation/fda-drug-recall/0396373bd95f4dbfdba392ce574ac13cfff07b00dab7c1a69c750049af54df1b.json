@@ -1,0 +1,58 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=reason_for_recall%3A%22Salmonella%22&limit=1&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794767615,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 338,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 28
+    }
+  },
+  "results": [
+    {
+      "status": "Terminated",
+      "city": "Springfield",
+      "state": "OR",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "82247",
+      "recalling_firm": "Todd Holiday dba Sunstone Organics",
+      "address_1": "4061 Main St Ste C",
+      "address_2": "N/A",
+      "postal_code": "97478-8136",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Telephone",
+      "distribution_pattern": "California, Nebraska, Oregon, Washington",
+      "recall_number": "D-0988-2019",
+      "product_description": "White Vein Kratom, packaged in a) 20 count capsules (UPC 00859667007347), b) 60 count capsules (UPC 00859667007354), c) 150 count capsules (UPC  00859667007361), Sunstone Organics Springfield, Oregon 97473 541-972-3327.",
+      "product_quantity": "N/A",
+      "reason_for_recall": "MICROBIAL CONTAMINATION OF NON-STERILE PRODUCTS: Analysis of samples were positive for Salmonella.",
+      "recall_initiation_date": "20190213",
+      "center_classification_date": "20190311",
+      "termination_date": "20230214",
+      "report_date": "20190313",
+      "code_info": "Lot #119"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

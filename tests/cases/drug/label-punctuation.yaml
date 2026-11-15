@@ -1,0 +1,53 @@
+{
+  "feature": "drug-label",
+  "live_check": "public",
+  "story": "A label name or indication holding punctuation openFDA refuses is searched as the same words without it, with the plain value's labels and total. A source notice names each value sent as other words.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "drug/openfda-punctuation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--exact-term",
+        "--limit",
+        "1",
+        "--source",
+        "openfda-label",
+        "Keytruda?"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/query": "Keytruda?",
+        "/page/total": 2,
+        "/result/items/0/id": "9333c79b-d487-4538-a9f0-71b91a02b287",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "The drug name was searched as \"Keytruda\": openFDA refuses some punctuation and every character outside ASCII."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "openfda-label",
+        "--limit",
+        "1",
+        "--indication",
+        "melanoma;"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/indication": "melanoma;",
+        "/page/total": 48,
+        "/result/items/0/id": "097d166f-b73b-41d3-9b37-7653cd2a0c41",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--indication was searched as \"melanoma\": openFDA refuses some punctuation and every character outside ASCII."
+        }
+      }
+    }
+  ]
+}

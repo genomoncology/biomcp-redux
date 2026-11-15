@@ -4,9 +4,7 @@ use super::AdverseEventSerious;
 /// Bounds repeated names before transport. The publisher query-parameters reference
 /// (https://open.fda.gov/apis/query-parameters/) does not specify a search-length cap.
 pub(super) const FAERS_QUERY_MAX_BYTES: usize = 4096;
-fn literal(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
+use crate::openfda_phrase as literal;
 /// Exact literal source expression with analyzed reaction phrase-match semantics.
 impl super::AdverseEventSearch {
     /// Literal native FAERS query, checked against FAERS_QUERY_MAX_BYTES at construction.

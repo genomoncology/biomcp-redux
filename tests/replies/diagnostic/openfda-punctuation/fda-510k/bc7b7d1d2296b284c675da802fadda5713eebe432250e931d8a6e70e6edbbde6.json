@@ -1,0 +1,125 @@
+{
+  "method": "GET",
+  "source": "fda-510k",
+  "url": "https://api.fda.gov/device/510k.json?limit=1&skip=0&sort=decision_date%3Adesc&search=openfda.device_name%3A%22infusion%20pump%22",
+  "exchanges": [
+    {
+      "fetched": 1794771037,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 438,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-02",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 43
+    }
+  },
+  "results": [
+    {
+      "third_party_flag": "N",
+      "city": "Irvine",
+      "advisory_committee_description": "Clinical Chemistry",
+      "address_1": "11 Hughes",
+      "address_2": "",
+      "statement_or_summary": "Summary",
+      "product_code": "QFG",
+      "openfda": {
+        "device_name": "Alternate Controller Enabled Insulin Infusion Pump",
+        "medical_specialty_description": "Clinical Chemistry",
+        "regulation_number": "880.5730",
+        "device_class": "2",
+        "registration_number": [
+          "3042027705",
+          "3030970576",
+          "1220477",
+          "3013756811",
+          "3008824097",
+          "3016540876",
+          "3007981285",
+          "3005627859",
+          "3019004087",
+          "2029275",
+          "2030598",
+          "3047799708",
+          "3016245399",
+          "2246552",
+          "3026266833",
+          "3019807891",
+          "2022435",
+          "2032098",
+          "3010291427",
+          "3014585508",
+          "2030624",
+          "2032227",
+          "2024024",
+          "3014197758",
+          "3044561902",
+          "3016798778",
+          "3015192982",
+          "3032746481",
+          "1220973"
+        ],
+        "fei_number": [
+          "3042027705",
+          "3030970576",
+          "1220477",
+          "3013756811",
+          "1000518731",
+          "3008824097",
+          "3016540876",
+          "3000206435",
+          "3007981285",
+          "3005627859",
+          "3019004087",
+          "3047799708",
+          "1000306431",
+          "3016245399",
+          "2246552",
+          "3003058448",
+          "3026266833",
+          "3019807891",
+          "2022435",
+          "3003166194",
+          "3010291427",
+          "3014585508",
+          "2024024",
+          "3014197758",
+          "3044561902",
+          "3016798778",
+          "3015192982",
+          "3032746481",
+          "1220973"
+        ]
+      },
+      "zip_code": "92618",
+      "applicant": "Beta Bionics, Inc.",
+      "decision_date": "2026-10-21",
+      "decision_code": "SESE",
+      "country_code": "US",
+      "device_name": "Mint ACE Pump",
+      "advisory_committee": "CH",
+      "contact": "Liz  Cooper",
+      "expedited_review_flag": "",
+      "k_number": "K263422",
+      "state": "CA",
+      "date_received": "2026-09-25",
+      "review_advisory_committee": "CH",
+      "postal_code": "92618",
+      "decision_description": "Substantially Equivalent",
+      "clearance_type": "Special"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

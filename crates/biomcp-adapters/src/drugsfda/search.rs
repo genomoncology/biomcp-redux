@@ -38,8 +38,14 @@ pub enum NameStep {
 }
 
 fn sponsor(applicant: &Text) -> String {
+    let prefix = applicant_prefix(applicant);
+    // An applicant of refused characters alone leaves no prefix; openFDA answers an empty phrase
+    // with no matches (live, 2026-11-15), where a bare wildcard would select every sponsor.
+    if prefix.is_empty() {
+        return "sponsor_name:\"\"".into();
+    }
     let mut term = String::from("sponsor_name:");
-    for c in applicant_prefix(applicant).chars() {
+    for c in prefix.chars() {
         if !c.is_alphanumeric() {
             term.push('\\');
         }

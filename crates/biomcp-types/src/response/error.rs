@@ -197,6 +197,8 @@ singleton! {
         TrialFacilityRadius => "the registry cannot bind --facility and radius to one site; choose one filter",
         DeviceRecallClassificationProductCode => "--classification selects device enforcement records, which carry no product code; \
             drop --product-code, or drop --classification and read each returned row's classification",
+        // The three *Ascii messages are no longer sent (0841); removing them narrows the checked-in
+        // error schema, which needs a reviewed transition first.
         DeviceRecallNameAscii => "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, \
             such as e for é",
         DiagnosticIntendedUsePma => "--intended-use matches the FDA PMA approval-order statement and needs --source fda-pma; \

@@ -23,22 +23,40 @@ use biomcp_adapters::mychem;
 use biomcp_types::{
     DrugGet, DrugPage, DrugSearch, DrugSource, PageInfo, Request, Source, StepKind,
 };
+/// Search an openFDA drug source and name each typed value sent as other words (0841).
+fn openfda_search(cx: &Ctx<'_>, query: &DrugSearch) -> Option<Outcome> {
+    let (mut out, source, values) = match query.source() {
+        DrugSource::FdaDrugRecall => (
+            recall::search(cx, query),
+            Source::FdaDrugRecall,
+            vec![
+                ("--firm", query.firm()),
+                ("--status", query.status()),
+                ("--reason", query.reason()),
+            ],
+        ),
+        DrugSource::Drugsfda => (drugsfda::search(cx, query), Source::Drugsfda, vec![]),
+        DrugSource::OpenfdaLabel => (
+            openfda_label::search(cx, query),
+            Source::OpenfdaLabel,
+            vec![("--indication", query.indication())],
+        ),
+        _ => return None,
+    };
+    let name = ("The drug name", query.query());
+    crate::openfda_text::disclose(&mut out, source, std::iter::once(name).chain(values));
+    Some(out)
+}
 /// Search the selected source directly without consulting another source.
 fn search(cx: &Ctx<'_>, query: &DrugSearch) -> Outcome {
-    if query.source() == DrugSource::FdaDrugRecall {
-        return recall::search(cx, query);
+    if let Some(out) = openfda_search(cx, query) {
+        return out;
     }
     if query.source() == DrugSource::WhoPq {
         return who::search(cx, query);
     }
-    if query.source() == DrugSource::Drugsfda {
-        return drugsfda::search(cx, query);
-    }
     if matches!(query.source(), DrugSource::Chembl | DrugSource::Opentargets) {
         return native::search(cx, query);
-    }
-    if query.source() == DrugSource::OpenfdaLabel {
-        return openfda_label::search(cx, query);
     }
     if query.source() == DrugSource::Civic {
         return civic::search(cx, query);

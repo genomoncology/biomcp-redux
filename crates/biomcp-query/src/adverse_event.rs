@@ -31,6 +31,28 @@ pub(crate) fn search_command(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcom
         search(cx, query, query, deadline)
     };
     command.finish(deadline.remaining());
+    disclose(out, query)
+}
+/// Name each typed openFDA value sent as other words (0841).
+fn disclose(mut out: Outcome, query: &AdverseEventSearch) -> Outcome {
+    let source = if query.source() == biomcp_types::AdverseEventSource::Faers {
+        Source::Faers
+    } else {
+        Source::Maude
+    };
+    let named = [
+        ("The search text", query.text()),
+        ("--manufacturer", query.manufacturer()),
+        ("--problem", query.problem()),
+        ("--reaction", query.reaction()),
+    ];
+    let listed = (query.drug().iter().map(|v| ("--drug", Some(v)))).chain(
+        query
+            .product_code()
+            .iter()
+            .map(|v| ("--product-code", Some(v))),
+    );
+    crate::openfda_text::disclose(&mut out, source, named.into_iter().chain(listed));
     out
 }
 

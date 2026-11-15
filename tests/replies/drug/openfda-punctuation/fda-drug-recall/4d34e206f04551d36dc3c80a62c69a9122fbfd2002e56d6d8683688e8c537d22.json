@@ -1,0 +1,166 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=recalling_firm%3A%22Pfizer%22&limit=1&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794767614,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 702,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 158
+    }
+  },
+  "results": [
+    {
+      "status": "Ongoing",
+      "city": "Manhattan",
+      "state": "NY",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {
+        "application_number": [
+          "NDA021301"
+        ],
+        "brand_name": [
+          "LEVOXYL"
+        ],
+        "generic_name": [
+          "LEVOTHYROXINE SODIUM"
+        ],
+        "manufacturer_name": [
+          "Pfizer Laboratories Div Pfizer Inc"
+        ],
+        "product_ndc": [
+          "60793-850",
+          "60793-851",
+          "60793-852",
+          "60793-853",
+          "60793-854",
+          "60793-855",
+          "60793-856",
+          "60793-857",
+          "60793-858",
+          "60793-859",
+          "60793-860"
+        ],
+        "product_type": [
+          "HUMAN PRESCRIPTION DRUG"
+        ],
+        "route": [
+          "ORAL"
+        ],
+        "substance_name": [
+          "LEVOTHYROXINE SODIUM"
+        ],
+        "rxcui": [
+          "892246",
+          "892251",
+          "966157",
+          "966164",
+          "966170",
+          "966175",
+          "966184",
+          "966190",
+          "966194",
+          "966200",
+          "966204",
+          "966211",
+          "966220",
+          "966221",
+          "966222",
+          "966224",
+          "966225",
+          "966248",
+          "966249",
+          "966253",
+          "966270",
+          "966283"
+        ],
+        "spl_id": [
+          "e230c170-2a16-47d0-bce7-ac0414c192f7"
+        ],
+        "spl_set_id": [
+          "758588c3-c63e-491b-0aa2-4f50d80cb174"
+        ],
+        "package_ndc": [
+          "60793-850-10",
+          "60793-850-01",
+          "60793-851-10",
+          "60793-851-01",
+          "60793-852-10",
+          "60793-852-01",
+          "60793-853-10",
+          "60793-853-01",
+          "60793-854-10",
+          "60793-854-01",
+          "60793-855-10",
+          "60793-855-01",
+          "60793-856-10",
+          "60793-856-01",
+          "60793-857-10",
+          "60793-857-01",
+          "60793-858-10",
+          "60793-858-01",
+          "60793-859-10",
+          "60793-859-01",
+          "60793-860-10",
+          "60793-860-01"
+        ],
+        "is_original_packager": [
+          true
+        ],
+        "upc": [
+          "0360793856018",
+          "0360793850016",
+          "0360793852010",
+          "0360793851013",
+          "0360793857015",
+          "0360793853017",
+          "0360793854014",
+          "0360793858012",
+          "0360793855011",
+          "0360793859019",
+          "0360793860015"
+        ],
+        "unii": [
+          "9J765S329G"
+        ]
+      },
+      "product_type": "Drugs",
+      "event_id": "99963",
+      "recalling_firm": "Pfizer",
+      "address_1": "66 Hudson Blvd",
+      "address_2": "",
+      "postal_code": "10001-2189",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "US Nationwide and Puerto Rico",
+      "recall_number": "D-0052-2027",
+      "product_description": "Levoxyl (levothyroxine sodium tablets, USP), tablets, 175 mcg, 100 tablet bottle, Rx only, Distributed by Pfizer Inc., New York, NY 10017, Made in Austria.  NDC 60793-859-01.",
+      "product_quantity": "15,815 100-count bottles",
+      "reason_for_recall": "Subpotent Drug: confirmed out-of-specification (OOS) assay during stability testing.",
+      "recall_initiation_date": "20260929",
+      "center_classification_date": "20261016",
+      "report_date": "20261028",
+      "code_info": "Lot # 24W06, Exp: 11/30/2026",
+      "more_code_info": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

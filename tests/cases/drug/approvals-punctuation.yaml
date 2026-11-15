@@ -1,0 +1,95 @@
+{
+  "feature": "drug-approvals",
+  "live_check": "public",
+  "story": "A Drugs@FDA name or applicant holding punctuation or a letter outside ASCII, which openFDA refuses, is searched as the words openFDA accepts: Keytruda® finds Keytruda's applications, an applicant's refused punctuation is dropped from the sponsor prefix, Nestlé is sent as NESTLE and answers empty because no Drugs@FDA sponsor starts with it, and an applicant of refused characters alone answers empty rather than selecting every sponsor. A source notice names each value sent as other words.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/drug/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "drug/openfda-punctuation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "drug",
+        "--exact-term",
+        "--limit",
+        "1",
+        "--source",
+        "drugsfda",
+        "Keytruda®"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/query": "Keytruda®",
+        "/page/total": 2,
+        "/result/items/0/id": "BLA125514",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "The drug name was searched as \"Keytruda\": openFDA refuses some punctuation and every character outside ASCII."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "1",
+        "--applicant",
+        "Merck Sharp Dohme!"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/applicant": "Merck Sharp Dohme!",
+        "/page/total": 26,
+        "/result/items/0/id": "NDA020903",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--applicant matches sponsor names starting with \"MERCK SHARP DOHME\", ignoring letter case."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "1",
+        "--applicant",
+        "Nestlé"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/applicant": "Nestlé",
+        "/page/total": 0,
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--applicant matches sponsor names starting with \"NESTLE\", ignoring letter case."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "drugsfda",
+        "--limit",
+        "1",
+        "--applicant",
+        "!"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/applicant": "!",
+        "/page/total": 0,
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--applicant held no letter or digit openFDA accepts, so it matched no sponsor."
+        }
+      }
+    }
+  ]
+}

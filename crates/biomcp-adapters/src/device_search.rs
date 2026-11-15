@@ -13,10 +13,7 @@ pub struct Page {
     pub problems: Vec<Problem>,
 }
 fn literal(value: &biodata::Text) -> String {
-    format!(
-        "\"{}\"",
-        value.as_str().replace('\\', "\\\\").replace('"', "\\\"")
-    )
+    biomcp_types::openfda_phrase(value.as_str())
 }
 /// The exact openFDA search expression for a PMA (`trade_name`) or 510(k) (`device_name`) page.
 pub(crate) fn expression(q: &DiagnosticSearch, name: &str) -> String {

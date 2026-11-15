@@ -1,0 +1,58 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%22Z-3065-2026%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794767621,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 137,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "status": "Ongoing",
+      "city": "Deerfield",
+      "state": "IL",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Devices",
+      "event_id": "99557",
+      "recalling_firm": "Baxter Healthcare Corporation",
+      "address_1": "1 Baxter Pkwy",
+      "address_2": "N/A",
+      "postal_code": "60015-4625",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "US Nationwide distribution including in the states of AK, AL, AR, AZ, CA, CO, FL, GA, HI, IA, ID, IL, IN, KS, KY, LA, MA, MD, MI, MN, MO, MS, MT, NC, ND, NE, NH, NJ, NM, NV, NY, OH, OK, OR, PA, SC, SD, TN, TX, UT, VA, VT, WA, WI, and WV.",
+      "recall_number": "Z-3065-2026",
+      "product_description": "Baxter Novum IQ Syringe Pump, Model Number 40800BAXUS",
+      "product_quantity": "14601 units",
+      "reason_for_recall": "A software issue that may occur during a Volume/Time (VOT) multi-syringe infusion when a syringe reaches empty and is replaced while a Volume To Be Infused (VTBI) remains.",
+      "recall_initiation_date": "20260811",
+      "center_classification_date": "20260831",
+      "report_date": "20260909",
+      "code_info": "UDI-DI 05413765852428, all serial numbers",
+      "more_code_info": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

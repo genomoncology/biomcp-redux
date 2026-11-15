@@ -1,0 +1,205 @@
+{
+  "method": "GET",
+  "source": "maude",
+  "url": "https://api.fda.gov/device/event.json?search=device.manufacturer_d_name%3A%22Medtronic%22&limit=1&skip=0&sort=date_received%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794767617,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 509,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 3393840
+    }
+  },
+  "results": [
+    {
+      "manufacturer_contact_zip_ext": "-439",
+      "manufacturer_g1_address_2": "Case Postale",
+      "event_location": "",
+      "report_to_fda": "",
+      "manufacturer_contact_t_name": "",
+      "manufacturer_contact_state": "MN",
+      "manufacturer_link_flag": "Y",
+      "manufacturer_contact_address_2": "",
+      "manufacturer_g1_city": "Tolochenaz Vaud",
+      "manufacturer_contact_address_1": "8200 Coral Sea St NE",
+      "manufacturer_contact_pcity": "+1(763)5",
+      "event_type": "Injury",
+      "report_number": "9614453-2026-04431",
+      "type_of_report": [
+        "Initial submission"
+      ],
+      "product_problem_flag": "Y",
+      "date_received": "20261030",
+      "manufacturer_address_2": "",
+      "pma_pmn_number": "P220012",
+      "date_of_event": "20250120",
+      "reprocessed_and_reused_flag": "N",
+      "manufacturer_address_1": "",
+      "exemption_number": "",
+      "manufacturer_contact_zip_code": "55112",
+      "reporter_occupation_code": "PHYSICIAN",
+      "manufacturer_contact_plocal": "+1(763)526-9277",
+      "noe_summarized": "1",
+      "manufacturer_contact_l_name": "Torenvliet",
+      "source_type": [
+        "Foreign",
+        "Study",
+        "Health Professional"
+      ],
+      "distributor_zip_code_ext": "",
+      "manufacturer_g1_postal_code": "1131",
+      "manufacturer_g1_state": "",
+      "reporter_country_code": "PL",
+      "manufacturer_contact_area_code": "",
+      "date_added": "20261030",
+      "manufacturer_contact_f_name": "Gerard",
+      "device_date_of_manufacturer": "20240610",
+      "previous_use_code": "I",
+      "device": [
+        {
+          "device_event_key": "",
+          "implant_flag": "",
+          "date_removed_flag": "",
+          "device_sequence_number": "1821255",
+          "implant_date_year": "2024",
+          "date_removed_year": "",
+          "serviced_by_3rd_party_flag": "N",
+          "date_received": "20261030",
+          "brand_name": "Aurora EV-ICD¿ MRI SureScan¿",
+          "generic_name": "IMPLANTABLE CARDIOVERTER DEFIBRILLATOR (NON-CRT)",
+          "manufacturer_d_name": "Medtronic Europe Sarl",
+          "manufacturer_d_address_1": "Route du Molliau 31",
+          "manufacturer_d_address_2": "Case Postale",
+          "manufacturer_d_city": "Tolochenaz Vaud",
+          "manufacturer_d_state": "",
+          "manufacturer_d_zip_code": "1131",
+          "manufacturer_d_zip_code_ext": "",
+          "manufacturer_d_country": "SZ",
+          "manufacturer_d_postal_code": "1131",
+          "device_operator": "LAY USER/PATIENT",
+          "expiration_date_of_device": "20251128",
+          "model_number": "DVEA3E4",
+          "catalog_number": "DVEA3E4",
+          "lot_number": "",
+          "other_id_number": "",
+          "device_availability": "No",
+          "device_report_product_code": "LWS",
+          "device_age_text": "",
+          "device_evaluated_by_manufacturer": "",
+          "combination_product_flag": "N",
+          "udi_di": "00763000368463",
+          "udi_public": "(01)00763000368463(17)251128",
+          "openfda": {
+            "device_name": "Implantable Cardioverter Defibrillator (Non-Crt)",
+            "medical_specialty_description": "Unknown",
+            "regulation_number": "",
+            "device_class": "3"
+          }
+        }
+      ],
+      "product_problems": [
+        "Signal Artifact/Noise",
+        "Electromagnetic Interference",
+        "Device Sensing Problem"
+      ],
+      "reporter_state_code": "",
+      "manufacturer_zip_code": "",
+      "suppl_dates_mfr_received": "",
+      "mfr_report_type": "Thirty-Day",
+      "manufacturer_contact_country": "US",
+      "date_changed": "20261030",
+      "health_professional": "Y",
+      "summary_report_flag": "N",
+      "manufacturer_g1_zip_code_ext": "",
+      "manufacturer_contact_extension": "",
+      "manufacturer_city": "",
+      "manufacturer_contact_phone_number": "",
+      "patient": [
+        {
+          "patient_sequence_number": "1",
+          "date_received": "20261030",
+          "sequence_number_treatment": [
+            "EV240152"
+          ],
+          "sequence_number_outcome": [
+            "Required Intervention"
+          ],
+          "patient_age": "",
+          "patient_sex": "Female",
+          "patient_weight": "214 LB",
+          "patient_ethnicity": "",
+          "patient_race": "",
+          "patient_problems": [
+            "No Clinical Signs, Symptoms or Conditions"
+          ]
+        }
+      ],
+      "distributor_city": "",
+      "date_report": "20261029",
+      "initial_report_to_fda": "",
+      "distributor_state": "",
+      "event_key": "",
+      "manufacturer_g1_country": "SZ",
+      "manufacturer_contact_city": "Mounds View",
+      "mdr_report_key": "51243986",
+      "removal_correction_number": "",
+      "number_devices_in_event": "",
+      "date_manufacturer_received": "20261026",
+      "manufacturer_name": "",
+      "report_source_code": "Manufacturer report",
+      "remedial_action": [
+        ""
+      ],
+      "manufacturer_g1_zip_code": "1131",
+      "report_to_manufacturer": "",
+      "manufacturer_zip_code_ext": "",
+      "manufacturer_g1_name": "Medtronic Europe Sarl",
+      "adverse_event_flag": "Y",
+      "distributor_address_1": "",
+      "manufacturer_state": "",
+      "distributor_address_2": "",
+      "manufacturer_postal_code": "",
+      "single_use_flag": "Y",
+      "manufacturer_country": "",
+      "mdr_text": [
+        {
+          "mdr_text_key": "16129784789",
+          "text_type_code": "Description of Event or Problem",
+          "patient_sequence_number": "0",
+          "text": "It was reported that the Extravascular (EV) lead exhibited noise which was detected as Non-Sustained Ventricular Tachycardia. Reprogramming was done and the EV lead remains in use. The patient is a participant in a clinical study. No patient complications have been reported as a result of this event. It was further reported that the noise on the lead that was detected as Non-Sustained Ventricular Tachycardia was probably due to Electromagnetic Interference (EMI) on the Extravascular Implantable Cardioverter Defibrillator (EV-ICD). During a device check, respiration and arm movement did not provoke the noise. The device was reprogrammed to avoid the oversensing. The device remains in use."
+        },
+        {
+          "mdr_text_key": "16629784791",
+          "text_type_code": "Additional Manufacturer Narrative",
+          "patient_sequence_number": "0",
+          "text": "Medtronic submits this report to comply with FDA regulations 21 CFR Parts 4 and 803. Medtronic has made reasonable efforts to provide as much relevant information as is available to the company as of the submission date of this report. This report does not constitute an admission or a conclusion by FDA, Medtronic, or its employees that the device, Medtronic, or its employee caused or contributed to the event described in the report. Any required fields that are unpopulated are blank because the information is currently unknown or unavailable. Medtronic will submit a supplemental report if additional relevant information becomes known."
+        }
+      ],
+      "number_patients_in_event": "",
+      "distributor_name": "",
+      "manufacturer_g1_address_1": "Route du Molliau 31",
+      "distributor_zip_code": "",
+      "manufacturer_contact_postal_code": "55112-4391",
+      "manufacturer_contact_exchange": "",
+      "manufacturer_contact_pcountry": "",
+      "suppl_dates_fda_received": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "feature": "diagnostic-device-recall",
   "live_check": "public",
-  "story": "A device recall search takes a device name, matched as one phrase on the recall's native product_description; the persona's infusion-pump question returns openFDA's total of 87 recall records for 2021-11-13 to 2026-11-13 with class, firm, product description and reason on each row, the exact openFDA expression in source_query and a notice that names the field and says the total differs from a product-code search. Punctuation openFDA refuses inside a phrase is spaced, and a letter outside ASCII is refused before the request.",
+  "story": "A device recall search takes a device name, matched as one phrase on the recall's native product_description; the persona's infusion-pump question returns openFDA's total of 87 recall records for 2021-11-13 to 2026-11-13 with class, firm, product description and reason on each row, the exact openFDA expression in source_query and a notice that names the field and says the total differs from a product-code search. Punctuation openFDA refuses inside a phrase is spaced, and a name with no letter or digit is refused before the request.",
   "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-13 by biomcp --record in pm job j39528. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. Git projection retains source identifiers, firm, product code, status, dates, product description, reason, root cause, submission numbers, classification and native counts; address, contact, action, distribution, quantity and lot text omitted. Recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-name/README.md. No rows or values invented.",
   "replay": "diagnostic/recall-name",
   "steps": [
@@ -114,13 +114,12 @@
         "--source",
         "fda-device-recall",
         "--name",
-        "Nestlé"
+        "®"
       ],
       "exit": 2,
       "expect": {
         "/error/code": "usage.arguments",
-        "/error/option": "--name",
-        "/error/message": "openFDA refuses letters outside ASCII in a device name; spell the name in ASCII letters, such as e for é"
+        "/error/option": "--name"
       }
     }
   ]

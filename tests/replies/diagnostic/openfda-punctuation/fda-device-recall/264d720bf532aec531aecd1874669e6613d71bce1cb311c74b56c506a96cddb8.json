@@ -1,0 +1,104 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=recalling_firm%3A%22Abbott%22&limit=1&skip=0&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794767620,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 332,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-12",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 911
+    }
+  },
+  "results": [
+    {
+      "cfres_id": "222724",
+      "product_res_number": "Z-0191-2027",
+      "event_date_initiated": "2026-09-10",
+      "event_date_posted": "2026-10-16",
+      "recall_status": "Open, Classified",
+      "res_event_number": "99844",
+      "product_code": "NGV",
+      "pma_numbers": [
+        "P200049"
+      ],
+      "product_description": "Amplatzer Amulet Left Atrial Appendage Occluder\n\nModel Numbers\n1. 9-ACP2-007-016\n2. 9-ACP2-007-018\n3. 9-ACP2-007-020\n4. 9-ACP2-007-022\n5. 9-ACP2-010-025\n6. 9-ACP2-010-028\n7. 9-ACP2-010-031\n8. 9-ACP2-010-034",
+      "code_info": "UDI-DI\n1. 00811806013459\n2. 00811806013466\n3. 00811806013473\n4. 00811806013480\n5. 00811806013497\n6. 00811806013503\n7. 00811806013510\n8. 00811806013527\n\nAll lots/serial numbers.",
+      "firm_fei_number": "3005334138",
+      "recalling_firm": "Abbott",
+      "address_1": "5050 Nathan Ln N",
+      "city": "Plymouth",
+      "state": "MN",
+      "postal_code": "55442-3209",
+      "additional_info_contact": "Shelley Lange\n612-346-3514",
+      "reason_for_recall": "Changes to Instructions for Use (IFU) for the device regarding risk of Pulmonary Artery Injury (PAI).",
+      "root_cause_description": "Labeling design",
+      "action": "US IFU was updated and is available via https://manuals.eifu.abbott as of September 4, 2026.\n\nThe firm began notifying consignees of the updated IFU on September 10, 2026.\n\nAbbott asks that physician users continue to follow all procedural steps that have already been provided via training, and that are now included in the IFU, as presented below:\n\" After the landing zone has been identified, assess the closest distance to the pulmonary artery.\n\" A distance =1.5 mm represents significant risk for a pulmonary artery injury; a distance between 1.5 and 3.0 mm represents a theoretical risk for a pulmonary artery injury; and a distance >3.0 mm represents a lower risk for a pulmonary artery injury.\n\" To reduce the risk of pulmonary artery injury, consider an alternative landing zone or device orientation when clinically appropriate and C.L.O.S.E. criteria can still be met.\n\" If the risk of pulmonary artery injury cannot be adequately minimized, the physician should carefully consider whether to proceed with device implantation.",
+      "distribution_pattern": "Worldwide - US Nationwide distribution.",
+      "openfda": {
+        "pma_number": [
+          "P200049",
+          "P130013"
+        ],
+        "registration_number": [
+          "2134265",
+          "3005334138",
+          "2183744",
+          "1928237",
+          "3012179728",
+          "2135147",
+          "1225687",
+          "3010220595",
+          "3002807314",
+          "3014918977",
+          "1000121056",
+          "3010273872",
+          "2124215",
+          "3007113487",
+          "9681260",
+          "3005012805",
+          "1721676"
+        ],
+        "fei_number": [
+          "3005334138",
+          "3002806565",
+          "2183744",
+          "3001451463",
+          "1928237",
+          "3012179728",
+          "3002095335",
+          "3010220595",
+          "3002807314",
+          "3014918977",
+          "1000121056",
+          "3010273872",
+          "2124215",
+          "3007113487",
+          "3005012805",
+          "1721676"
+        ],
+        "device_name": "System, Appendage Closure, Left Atrial",
+        "medical_specialty_description": "Unknown",
+        "regulation_number": "",
+        "device_class": "3"
+      }
+    }
+  ]
+}
+      }
+    }
+  ]
+}

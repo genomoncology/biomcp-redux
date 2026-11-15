@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "fda-pma",
+  "url": "https://api.fda.gov/device/pma.json?limit=1&skip=0&sort=decision_date%3Adesc&search=ao_statement%3A%22glucose%20e%22",
+  "exchanges": [
+    {
+      "fetched": 1794771038,
+      "status": 404,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 341,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "error": {
+    "code": "NOT_FOUND",
+    "message": "No matches found!"
+  }
+}
+      }
+    }
+  ]
+}

@@ -28,14 +28,12 @@ fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
     Ok(())
 }
 
-/// A device recall name character openFDA refuses: a letter outside ASCII, or a combining mark
-/// that belongs to one. The micro sign counts as a symbol, as on device labels (0901).
-fn letter_outside_ascii(c: char) -> bool {
-    !c.is_ascii()
-        && c != '\u{b5}'
-        && (c.is_alphabetic()
-            || matches!(c, '\u{300}'..='\u{36f}' | '\u{1ab0}'..='\u{1aff}' | '\u{1dc0}'..='\u{1dff}'
-                | '\u{20d0}'..='\u{20ff}' | '\u{fe20}'..='\u{fe2f}'))
+/// Whether openFDA text keeps a letter or digit once refused characters become spaces and
+/// accented letters their base letters (0841); a value of symbols alone leaves no word to search.
+fn has_word(text: &biodata::Text) -> bool {
+    crate::openfda_words(text.as_str())
+        .chars()
+        .any(|c| c.is_ascii_alphanumeric())
 }
 
 /// The drug recall search names the recalling firm --firm; a device recall takes either name (0901).
@@ -71,21 +69,8 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
         }
         return Ok(());
     }
-    // openFDA answers HTTP 400 to any character outside ASCII (live, 2026-11-15). The adapter spaces
-    // symbols such as ® like refused punctuation; a letter is refused before the request.
-    if v.name
-        .as_ref()
-        .is_some_and(|v| v.as_str().chars().any(letter_outside_ascii))
-    {
-        return Err(
-            QueryInvalid::new(&["name"]).with_message(crate::ErrorMessage::DeviceRecallNameAscii)
-        );
-    }
     // A name of symbols alone leaves no word once they become spaces, so it is refused.
-    if v.name
-        .as_ref()
-        .is_some_and(|v| !v.as_str().chars().any(|c| c.is_ascii_alphanumeric()))
-    {
+    if v.name.as_ref().is_some_and(|v| !has_word(v)) {
         return Err(QueryInvalid::new(&["name"]));
     }
     if v.classification.is_some() && v.product_code.is_some() {
@@ -132,10 +117,8 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
             return Err(QueryInvalid::new(&["source", "intended_use"])
                 .with_message(crate::ErrorMessage::DiagnosticIntendedUsePma));
         }
-        // openFDA answers HTTP 400 to a letter outside ASCII inside a phrase.
-        if !text.as_str().is_ascii() || !text.as_str().chars().any(char::is_alphanumeric) {
-            return Err(QueryInvalid::new(&["intended_use"])
-                .with_message(crate::ErrorMessage::DiagnosticIntendedUseAscii));
+        if !has_word(text) {
+            return Err(QueryInvalid::new(&["intended_use"]));
         }
     }
     // FDA's classification name reaches 510(k) records through openFDA's harmonized block (live, 2026-11-14);
@@ -145,9 +128,8 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
             return Err(QueryInvalid::new(&["source", "classification_name"])
                 .with_message(crate::ErrorMessage::DiagnosticClassificationName510k));
         }
-        if !text.as_str().is_ascii() || !text.as_str().chars().any(char::is_alphanumeric) {
-            return Err(QueryInvalid::new(&["classification_name"])
-                .with_message(crate::ErrorMessage::DiagnosticClassificationNameAscii));
+        if !has_word(text) {
+            return Err(QueryInvalid::new(&["classification_name"]));
         }
     }
     if !device_source(v) {

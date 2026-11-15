@@ -93,8 +93,8 @@ const CLASS_NOTICE: &str = "--classification selects openFDA device enforcement 
 const NAME_NOTICE: &str = "--name matched the words of openFDA's product_description as one phrase, \
     ignoring case and punctuation, without plural or synonym expansion: the total counts recall records \
     whose description holds the phrase, a different set from a --product-code search.";
-const SPACED_NOTICE: &str = "openFDA refuses some punctuation, such as | and ?, and every symbol outside ASCII, \
-    such as ®, so each became a space and the phrase searched was ";
+const SPACED_NOTICE: &str = "openFDA refuses some punctuation, such as | and ?, and every character outside \
+    ASCII, such as ®, so each became a space, or an accented letter its base letter, and the phrase searched was ";
 /// Count rows the exact join left without their other openFDA record; nothing is inferred for them.
 fn unmatched_notice(q: &DiagnosticSearch, rows: u32, returned: u32) -> SourceNotice {
     let (missing, shown) = if q.classification().is_some() {

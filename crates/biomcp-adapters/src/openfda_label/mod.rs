@@ -50,9 +50,7 @@ pub struct Page {
     /// This reply's actual original retrieval metadata.
     pub metadata: ReplyMetadata,
 }
-fn literal(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
+use biomcp_types::openfda_phrase as literal;
 mod search;
 pub use search::{
     NameGroup, NameStep, Search, search, search_expanded, search_indication, search_names,
