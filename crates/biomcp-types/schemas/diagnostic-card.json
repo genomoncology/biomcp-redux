@@ -485,7 +485,7 @@
               ]
             },
             "decision_description": {
-              "description": "Native decision_description; missing and empty remain distinct.",
+              "description": "Native decision_description; missing and empty remain distinct. Left out as Unknown when decision_reading is present.",
               "type": [
                 "string",
                 "null"
@@ -500,7 +500,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Plain reading of a decision_code whose openFDA decision_description does not name it; absent otherwise."
+              "description": "BioMCP's reading of a decision_code whose openFDA description does not name it, such as de-novo-granted for DENG; absent otherwise."
             },
             "device_name": {
               "description": "Native device_name; missing and empty remain distinct.",
