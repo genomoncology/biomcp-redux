@@ -118,7 +118,22 @@ fn papers_past_the_lookup_cap_say_they_went_unchecked() {
     let papers: Vec<u32> = (2001..=2025).collect();
     let dir = tempfile::tempdir().unwrap();
     let (stub, fetch) = fixture::live(dir.path(), move |request| {
-        Ok(fixture::many_papers(request, &papers))
+        let reply = fixture::many_papers(request, &papers);
+        if !request.contains("esummary") {
+            return Ok(reply);
+        }
+        // Only the first page's papers have PMC records. A paper without one is settled by
+        // its summary alone, so the cap still decides which papers go unchecked, but the
+        // lookup sends 6 record requests instead of 40. The 40 overran the lookup's 3-second
+        // budget on a loaded machine, and the abandoned request stopped this one-connection
+        // stub, which then refused the page's title read (0971).
+        let mut reply: serde_json::Value = serde_json::from_str(&reply).unwrap();
+        for id in 2004..=2025 {
+            if let Some(header) = reply["result"].get_mut(id.to_string()) {
+                header["articleids"] = serde_json::json!([]);
+            }
+        }
+        Ok(reply.to_string())
     });
     let out = run(&fetch);
     let Some(pool) = out.page.clone().and_then(|page| page.pool) else {
