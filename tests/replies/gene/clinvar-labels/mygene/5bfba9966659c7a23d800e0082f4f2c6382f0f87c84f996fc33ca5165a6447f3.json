@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "source": "mygene",
+  "url": "https://mygene.info/v3/gene",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "7910ec3fdb3825e45e1c9b2d373cee9ea7f25941df7a8b43877c6d92669a284f"
+  },
+  "exchanges": [
+    {
+      "fetched": 1794710258,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 292,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": [{"query":"4179","HGNC":"6953","_id":"4179","_version":1,"entrezgene":"4179","genomic_pos":{"chr":"1","end":207795516,"ensemblgene":"ENSG00000117335","start":207752037,"strand":1},"genomic_pos_hg19":{"chr":"1","end":207968858,"start":207925402,"strand":1},"summary":"The protein encoded by this gene is a type I membrane protein and is a regulatory part of the complement system. The encoded protein has cofactor activity for inactivation of complement components C3b and C4b by serum factor I, which protects the host cell from damage by complement. In addition, the encoded protein can act as a receptor for the Edmonston strain of measles virus, human herpesvirus-6, and type IV pili of pathogenic Neisseria. Finally, the protein encoded by this gene may be involved in the fusion of the spermatozoa with the oocyte during fertilization. Mutations at this locus have been associated with susceptibility to hemolytic uremic syndrome. Alternatively spliced transcript variants encoding different isoforms have been described. [provided by RefSeq, Jun 2010]."}]
+      }
+    }
+  ]
+}
