@@ -232,6 +232,13 @@ fn advance(
     saved: &mut Saved,
     out: &mut Outcome,
 ) {
+    // The previous page's total less the rows still queued is what earlier pages handed out;
+    // on the first page that is zero.
+    let handed = saved
+        .0
+        .page
+        .total
+        .saturating_sub(saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>());
     refill(cx, q, deadline, saved, out);
     let mut items = Vec::new();
     let mut misses = 0;
@@ -258,7 +265,7 @@ fn advance(
     }
     let returned = items.len() as u32;
     // Rows handed out before this page, on it, and still queued from either source.
-    let read = u64::from(q.offset())
+    let read = handed
         + u64::from(returned)
         + saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>();
     let continuing = saved.1.iter().any(|s| !s.0.is_empty() || s.1.is_some());

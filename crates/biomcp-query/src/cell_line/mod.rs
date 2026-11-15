@@ -55,8 +55,8 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
                 .notices
                 .push(biomcp_types::SourceNotice::RequestGuidance {
                     data_date: None,
-                    message: "Cellosaurus's search reply gives no total; a full page has a next \
-                        page step."
+                    message: "The Cellosaurus JSON search reply BioMCP reads gives no total; a \
+                        full page has a next page step."
                         .into(),
                     retry_after_seconds: None,
                 });

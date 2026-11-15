@@ -243,10 +243,18 @@ fn render(cx: &Ctx<'_>, q: &GwasSearch, saved: Saved, pool: Option<Pool>, out: &
             .notices
             .push(biomcp_types::SourceNotice::RequestGuidance {
                 data_date: None,
-                message: format!(
-                    "GWAS Catalog's count of {source_total} is before the p-value cut; the count \
-                     at or below it is known when paging reaches the end."
-                )
+                message: if saved.done {
+                    format!(
+                        "GWAS Catalog's count of {source_total} is before the p-value cut; some \
+                         rows had no exact p-value or were refused, so the count at or below it \
+                         is unknown."
+                    )
+                } else {
+                    format!(
+                        "GWAS Catalog's count of {source_total} is before the p-value cut; the \
+                         count at or below it is known when paging reaches the end."
+                    )
+                }
                 .into(),
                 retry_after_seconds: None,
             });

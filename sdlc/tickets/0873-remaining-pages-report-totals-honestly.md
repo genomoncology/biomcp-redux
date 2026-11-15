@@ -67,3 +67,10 @@ The pages 0859's survey left behind report a total honestly: the source's own co
 - Author paper caps follow the new measured size plus 15%: `author/papers.yaml` and `papers-disabled-pool.yaml` 864 to 1,060 (measured 921), `papers-details.yaml` 1,359 to 1,698 (measured 1,476).
 - Checks: j41443 regenerated the four pathway schemas (the `read` kind widens the enum) and found two ratchet hits, a real Semantic Scholar ID in a case's note and `.ok()` drops in the pathway union; j41444 ran the pathway, GWAS, cell-line, article, author and mcp-parity cases (all new cases passed; only the author caps above failed).
 - Gate `make --keep-going landing-gate docs-check schema-release-check` passed in pm job j41447 at f04408bb5 (978 cases).
+
+### Review fixes, 2026-11-15
+
+- GWAS: a walk that ends with rows dropped (no exact p-value, or refused) now says the count at or below the cut is unknown, instead of saying paging will reveal it. Case `gwas/threshold-dropped.yaml` replays an authored copy of j41438's page with `pvalue_mantissa` removed from the second row; its README says so.
+- Cell line: the notice now says the Cellosaurus JSON search reply BioMCP reads gives no total (its txt format states `numFound`; reading it is a separate ticket).
+- `tests/replies/pathway/union-totals/README.md` states the trim (2,218 to 24 rows, "MAPK" in the title without regard to case) and the recording job.
+- Pathway type descriptions mention `read`. The union's `read` total now counts rows actually handed out (the previous page's total less rows still queued), so an empty page's `next_offset` step of one no longer adds a row never read.
