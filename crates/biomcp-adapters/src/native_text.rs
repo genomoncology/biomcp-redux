@@ -26,9 +26,7 @@ pub struct NativeText(Text);
 impl<'de> Deserialize<'de> for NativeText {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
         let value = String::deserialize(d)?;
-        admit(&value)
-            .map(Self)
-            .map_err(serde::de::Error::custom)
+        admit(&value).map(Self).map_err(serde::de::Error::custom)
     }
 }
 impl std::ops::Deref for NativeText {

@@ -195,7 +195,8 @@ impl Edge {
                                 record: item.pmid.and_then(record),
                                 list: Vec::new(),
                             };
-                            let value = p.optional("contexts", Some(crate::native_text::admit(&text)));
+                            let value =
+                                p.optional("contexts", Some(crate::native_text::admit(&text)));
                             problems.extend(p.list);
                             value
                         })

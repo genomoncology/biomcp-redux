@@ -31,3 +31,12 @@ Source text with line breaks reads as text in every reply: no adapter prints a s
 ## Changes
 
 - Changes: the adapters' text mapping, possibly one shared helper, their cases.
+
+## Progress
+
+- 2026-11-15, scope: `Text::from_source` reached replies from 16 adapter files directly, from `mapped::field_text`, `mapped::source_text` and `Problems::text`, and from every `NativeText` field (about 40 more raw types), so the 23-file list undercounted.
+- Evidence: a scan of the JSON source replies under `tests/replies` (2,299 files) found real line breaks in ctgov, nci, reactome, openfda-label, maude, fda-pma and fda-device-recall. ctgov descriptions and eligibility, nci descriptions, Reactome summations and label sections are `Markdown` fields, which already keep real line breaks; the openfda-label, maude and fda-pma ones are synthetic. Only device recall text reached a `Text` field. Live probes found none in OLS MONDO descriptions, Semantic Scholar abstracts, MyDisease definitions or 765 openFDA drug enforcement records from 2025. Reactome marks paragraphs with `<br><br>`, so its paragraphs survive in text too.
+- Rule chosen: one shared rule. Every `Text` field forbids controls in the 1.0.0 `Reply_Text` pattern, so no `Text` field can keep a real line break without widening the frozen contract; prose where paragraphs matter is already `Markdown`. So every source text admission joins the non-empty trimmed lines with one space, exactly as 0947 did for recalls. Other controls keep their visible escapes, and strict admission (`Text::new`) still refuses them.
+- Changed: `native_text::admit` holds the rule; `NativeText`, `mapped::field_text`, `mapped::source_text`, `Problems::text` and the 16 direct callers use it instead of `Text::from_source`. The recall mapping's own `one_line` copy is gone; its case is unchanged. biodata is unchanged.
+- Proof: the case runner now refuses any CLI, MCP or named-tool reply holding the text `\u{000a}` or `\u{000d}`; pm job j41237 ran all 953 cases with it and only a draft Reactome case failed, because Reactome summations already keep real line breaks (dropped). `diagnostic/recall-line-breaks` passes through the shared helper. The `markdown-view/source-fields-are-data` trial, whose PubMed title holds line breaks, now expects spaces where it expected `\u{000a}`.
+- Open: strict fields still refuse a source line break as a problem, e.g. NCI site phones and emails joined by `\r`; the ticket keeps that refusal.

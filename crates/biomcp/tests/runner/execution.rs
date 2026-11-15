@@ -229,8 +229,13 @@ fn names_argument(reply: &Value, call: &impl std::fmt::Debug) -> Result<(), Stri
 /// `\u{000d}` escape (0961).
 fn line_breaks_read_as_text(reply: &Value) -> Result<(), String> {
     let text = reply.to_string();
-    match ["u{000a}", "u{000d}"].into_iter().find(|escape| text.contains(escape)) {
-        Some(escape) => Err(format!("reply prints a line break as the literal \\{escape}")),
+    match ["u{000a}", "u{000d}"]
+        .into_iter()
+        .find(|escape| text.contains(escape))
+    {
+        Some(escape) => Err(format!(
+            "reply prints a line break as the literal \\{escape}"
+        )),
         None => Ok(()),
     }
 }
