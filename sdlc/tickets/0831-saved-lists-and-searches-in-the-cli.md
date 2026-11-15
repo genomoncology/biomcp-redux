@@ -45,3 +45,4 @@ It is the first piece of milestone 9 a person can use, and every later piece (wh
 - Checks: job j41462 passed `make check-cheap`, the store tests (3) and the `saved-work/` cases (lists, searches, checked-in file export).
 - Gate j41464 failed only the history secret scan: the fixture's `request_key` (a SHA-256) matched gitleaks `generic-api-key`. Added a reviewed binding in `release/secrets.ignore.jsonl`.
 - Gate j41466 failed `temporal_properties_have_one_type_across_registered_schemas`: `updated` is a `PartialDate` elsewhere, so the list's change time is `modified` on the wire (the column stays `updated`). Schemas and the fixture were regenerated in job j41478.
+- Gate j41481 passed on 01004c693: `make --keep-going landing-gate docs-check schema-release-check`.
