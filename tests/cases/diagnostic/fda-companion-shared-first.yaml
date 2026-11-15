@@ -1,0 +1,34 @@
+{
+  "feature": "diagnostic-cdx",
+  "live_check": "public",
+  "story": "A lab director scripts over FDA companion diagnostic rows for one drug: each row opens with the date, diagnostic, indication, device and drug that both FDA tables share, ahead of FDA's own cells whose headers differ by table, so one key per field reads every row of both tables.",
+  "verified": "Replays the FDA companion diagnostic page recorded for diagnostic/cdx-group-join on 2026-11-13 (see diagnostic/fda-companion-dates for its live check). TAGRISSO's NDA208065 has 15 rows, 10 from the individual table and 5 from the group table; July 2026 holds individual row 30 and group row 0. dx-lab-director round 4 (2026-11-15) keyed on the individual table's cell header and lost the 5 group rows.",
+  "replay": "diagnostic/cdx-group-join",
+  "steps": [
+    {
+      "run": ["sync", "fda-cdx"],
+      "expect": {"/result/rows": 244}
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--date-from", "2026-07-01", "--date-to", "2026-07-31"],
+      "starts_within": {
+        "/result/items/0/cells": 1
+      },
+      "expect": {
+        "/result/items/*/kind": ["individual", "group"],
+        "/result/items/*/drug": {"count": 2}
+      }
+    },
+    {
+      "run": ["search", "diagnostic", "--source", "fda-cdx", "--drug-application", "NDA208065", "--limit", "50"],
+      "expect": {
+        "/page/total": 15,
+        "/result/items/*/kind": {"includes": "group"},
+        "/result/items/*/diagnostic": {"count": 15},
+        "/result/items/*/drug": {"count": 15},
+        "/result/items/*/device": {"count": 15},
+        "/result/items/*/row_date": {"count": 15}
+      }
+    }
+  ]
+}
