@@ -75,7 +75,7 @@ class GateStages(unittest.TestCase):
 
     def test_gate_runs_its_stages_in_order_and_stops_on_a_failing_stage(self):
         landing = ['rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
-                   'tool-proofs', 'changed-library-tests']
+                   'changed-tool-proofs', 'changed-library-tests']
         full = ['audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
                 'tensor-proto-check', 'library-tests', 'tool-proofs', 'coverage']
         with tempfile.TemporaryDirectory() as temporary:
@@ -86,7 +86,7 @@ class GateStages(unittest.TestCase):
             make.chmod(0o755)
             env = {**os.environ, 'PATH': str(tools) + os.pathsep + os.environ['PATH']}
             for arguments, stages, failing in (([], landing, 'none'), ([], landing, 'cases'),
-                                               ([], landing, 'tool-proofs'),
+                                               ([], landing, 'changed-tool-proofs'),
                                                ([], landing, 'secrets'), ([], landing, 'pre-job'),
                                                (['--full'], full, 'none')):
                 with self.subTest(arguments=arguments, failing=failing):
@@ -180,6 +180,56 @@ class GateStages(unittest.TestCase):
             self.assertIn('crates=none', run(base='ticket').stdout)
             result = run(base='missing')
             self.assertIn('running every crate', result.stdout)
+            self.assertIn(every, result.stdout)
+
+    def test_changed_tool_proofs_run_the_proofs_the_branch_changed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root, tools = Path(temporary) / 'repo', Path(temporary) / 'bin'
+            root.mkdir(); tools.mkdir()
+            cargo = tools / 'cargo'
+            cargo.write_text('#!/bin/sh\nprintf "cargo %s python=%s\\n" "$*" "$BIOMCP_TEST_PYTHON"\n'
+                             '[ -z "$CARGO_FAIL" ] || exit 9\n')
+            cargo.chmod(0o755)
+            env = {**environment(Path(temporary)), 'PATH': str(tools) + os.pathsep + os.defpath,
+                   'GIT_CONFIG_NOSYSTEM': '1', 'RUST_TEST_THREADS': '3'}
+            def git(*args):
+                subprocess.run(['git', '-C', str(root), *args], env=env, check=True, capture_output=True)
+            def commit(path):
+                (root / path).parent.mkdir(parents=True, exist_ok=True)
+                (root / path).write_text(path)
+                git('add', '.'); git('commit', '-qm', 'Change ' + path)
+            git('init', '-q', '-b', 'main')
+            git('config', 'user.name', 'Fixture'); git('config', 'user.email', 'fixture@example.invalid')
+            commit('README.md')
+            def run(base='main', **extra):
+                return subprocess.run([sys.executable, str(ROOT / 'scripts/changed_tool_proofs.py')],
+                                      cwd=root, env={**env, 'TOOL_PROOFS_BASE': base, **extra},
+                                      capture_output=True, text=True)
+            every = ('cargo test --locked -p biomcp --test tools -- --proofs --test-threads 3 '
+                     f'python={sys.executable}')
+            for number, (path, shown, ran) in enumerate((
+                    ('crates/biomcp-adapters/src/lib.rs', 'none', None),
+                    ('tests/cases/gene/hgnc.yaml', 'none', None),
+                    ('tests/replies/trial/gene/hgnc/reply.json', 'cache-resilience/hgnc-',
+                     'cargo test --locked -p biomcp --test tools -- --proofs cache-resilience/hgnc- '
+                     f'--test-threads 3 python={sys.executable}'),
+                    ('crates/biomcp/tests/runner/assertions/offsets.rs', 'all', every),
+                    ('crates/biomcp-test-support/src/lib.rs', 'all', every),
+                    ('crates/biomcp-types/schemas/gene-card.json', 'all', every),
+                    ('Cargo.lock', 'all', every))):
+                with self.subTest(path=path):
+                    git('checkout', '-q', '-b', f'ticket-{number}', 'main')
+                    commit(path)
+                    result = run()
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertRegex(result.stdout, rf'tool-proofs base=[0-9a-f]{{40}} proofs={re.escape(shown)}\n')
+                    self.assertEqual([line for line in result.stdout.splitlines() if line.startswith('cargo ')],
+                                     [ran] if ran else [])
+            result = run(CARGO_FAIL='1')
+            self.assertEqual(result.returncode, 9)
+            result = run(base='missing')
+            self.assertIn('tool-proofs: no base from missing', result.stdout)
+            self.assertIn('proofs=all', result.stdout)
             self.assertIn(every, result.stdout)
 
     def test_cheap_check_parses_tracked_shell_scripts_by_shebang(self):

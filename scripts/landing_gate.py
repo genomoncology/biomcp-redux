@@ -7,9 +7,10 @@ import time
 # change before the compile in pre-job. The first-read check proves the documented
 # examples and first read against the debug binary pre-job builds. Changed-library-tests
 # runs the library tests of the crates the branch changed, so a ticket's own tests run (0914).
-# Tool-proofs runs the tooling-proof catalog, so a broken proof fails the gate (0944).
+# Changed-tool-proofs runs the tooling proofs the branch changed, so a broken proof fails the
+# gate; the full suite runs them all (0944).
 LANDING = ('rights', 'audit', 'secrets', 'pre-job', 'first-read-check', 'workflow-lint', 'cases',
-           'tool-proofs', 'changed-library-tests')
+           'changed-tool-proofs', 'changed-library-tests')
 FULL = ('audit', 'secrets-full', 'pre-job', 'workflow-lint', 'docs-check',
         'tensor-proto-check', 'library-tests', 'tool-proofs', 'coverage')
 
