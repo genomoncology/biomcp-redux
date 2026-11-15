@@ -523,7 +523,20 @@ fn equal(pointer: &str, expected: &Value, actual: &Value) -> Result<(), String> 
     }
 }
 
+thread_local! {
+    pub(super) static MEASURE_AT: std::cell::RefCell<String> = const { std::cell::RefCell::new(String::new()) };
+}
 fn ceiling(pointer: &str, key: &str, actual: usize, limit: Option<u64>) -> Result<(), String> {
+    if let Ok(log) = std::env::var("CASE_CEILING_LOG")
+        && let Some(limit) = limit
+    {
+        use std::io::Write;
+        let at = MEASURE_AT.with(|at| at.borrow().clone());
+        if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(log) {
+            let _ = writeln!(file, "{at}\t{pointer}\t{key}\t{limit}\t{actual}");
+        }
+        return Ok(());
+    }
     if let Some(limit) = limit.filter(|limit| actual as u64 > *limit) {
         return Err(format!(
             "{pointer} {key}: expected <= {limit}, actual {actual}"

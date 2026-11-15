@@ -250,6 +250,7 @@ fn run_case_owned(
     let mut previous = None;
     for (index, (step, expectations)) in case.steps.iter().zip(&expectations).enumerate() {
         transcript::case_step(index);
+        assertions::MEASURE_AT.with(|at| *at.borrow_mut() = format!("{}\t{}", path.display(), index));
         previous = Some(
             run_sequence(
                 step,
