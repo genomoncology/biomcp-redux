@@ -2,7 +2,8 @@
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
   "story": "probe 2",
+  "config": {"disable_sources": ["reactome", "wikipathways", "cpic"]},
   "steps": [
-    {"mcp": ["get","article","123","--replace"], "hosted": true, "offline": true, "is_error": true, "expect": {"/error": "probe"}}
+    {"mcp": ["search","pgx","CYP2D6","--source","bogus"], "hosted": true, "offline": true, "is_error": true, "key_order": {"/error": ["probe"]}, "expect": {"/error": "probe"}}
   ]
 }
