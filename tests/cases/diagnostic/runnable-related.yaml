@@ -1,0 +1,71 @@
+{
+  "live_check": "FDA public native API replies captured 2026-11-04; reuses the diagnostic/device-approvals recording",
+  "feature": "runnable-related-queries",
+  "story": "A diagnostic search's first page offers its own call with the filters its source also takes as fill-in templates, and a filled-in template runs, over the CLI and MCP.",
+  "replay": "diagnostic/device-approvals",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--manufacturer",
+        "Foundation Medicine"
+      ],
+      "mcp": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--manufacturer",
+        "Foundation Medicine"
+      ],
+      "expect": {
+        "/page/total": 100,
+        "/next/*/kind": {
+          "includes": "configure"
+        },
+        "/next": {
+          "equals": []
+        }
+      },
+      "max_bytes": 16000
+    },
+    {
+      "mcp_call": {
+        "name": "diagnostic",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "source": "fda-pma",
+            "manufacturer": "Foundation Medicine"
+          }
+        }
+      },
+      "expect": {
+        "/page/total": 100,
+        "/next": {
+          "equals": []
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-pma",
+        "--manufacturer",
+        "Foundation Medicine",
+        "--decision-from",
+        "2017-11-30",
+        "--decision-to",
+        "2017-11-30"
+      ],
+      "expect": {
+        "/status": "complete"
+      }
+    }
+  ]
+}

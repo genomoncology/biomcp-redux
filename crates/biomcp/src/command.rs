@@ -95,19 +95,9 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source, encoding);
     }
-    let request = match &action {
-        Action::Run { request, .. } => Some(request.clone()),
-        _ => None,
-    };
-    let action = match action.prepare() {
+    let action = match prepare(action) {
         Ok(action) => action,
-        Err(error) => {
-            let error = match &request {
-                Some(request) => crate::grammar::prepared(request, error),
-                None => error,
-            };
-            return usage_envelope(error, encoding);
-        }
+        Err(error) => return usage_envelope(error, encoding),
     };
     let transport = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,
@@ -124,6 +114,18 @@ fn dispatch_using(
         encoding,
     )?;
     hosted_keys::outcome(outcome, parsed.globals.hosted, encoding)
+}
+
+/// Check an action before any source is read; a refused request names its corrected call.
+fn prepare(action: Action) -> Result<Action, UsageError> {
+    let request = match &action {
+        Action::Run { request, .. } => Some(request.clone()),
+        _ => None,
+    };
+    action.prepare().map_err(|error| match &request {
+        Some(request) => crate::grammar::prepared(request, error),
+        None => error,
+    })
 }
 
 fn parse_arguments(
