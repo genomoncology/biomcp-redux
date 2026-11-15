@@ -62,7 +62,6 @@ pub(super) fn decision(
     let date = found.optional(
         DECISION_ROLE,
         row.field(DECISION_ROLE)
-            .filter(|value| !matches!(value, Ok("")))
             .map(|value| value.and_then(raw::date)),
     );
     problems.list.extend(found.list);

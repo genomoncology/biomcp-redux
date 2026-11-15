@@ -109,7 +109,6 @@ pub(super) fn card(row: &raw::Medicine, problems: &mut crate::mapped::Problems) 
         updated: problems.optional(
             "last_updated_date",
             row.field("last_updated_date")
-                .filter(|value| !matches!(value, Ok("")))
                 .map(|value| value.and_then(raw::date)),
         ),
         retrieved: None,
@@ -130,9 +129,7 @@ pub(super) fn event(
                 role: problems.optional(key, Some(Text::new(role(key))))?,
                 date: problems.optional(
                     key,
-                    row.field(key)
-                        .filter(|value| !matches!(value, Ok("")))
-                        .map(|value| value.and_then(raw::date)),
+                    row.field(key).map(|value| value.and_then(raw::date)),
                 )?,
             })
         })
@@ -145,15 +142,7 @@ pub(super) fn event(
             let status = item(row, problems, "medicine_status");
             problems.required("medicine_status", status)
         },
-        // EMA's medicines file of 2026-11-15 holds three opinion_status values: "Positive" (45),
-        // "Negative" (15) and blank (2,705, Keytruda among them). A blank cell means no opinion
-        // status, as a blank date cell means no date; any other unreadable value stays a problem.
-        kind: problems.optional(
-            "opinion_status",
-            row.field("opinion_status")
-                .filter(|value| !matches!(value, Ok("")))
-                .map(|value| value.and_then(crate::mapped::source_text)),
-        ),
+        kind: item(row, problems, "opinion_status"),
         dates,
         indication: problems.optional(
             "therapeutic_indication",
