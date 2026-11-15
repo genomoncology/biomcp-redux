@@ -276,7 +276,10 @@ impl Reader {
         let along = x * along_x + y * along_y;
         let across = (x * along_y - y * along_x).abs();
         // A degenerate or non-finite matrix places nothing, so keep the words apart.
-        if height <= 0.0 || length <= 0.0 || !(height.is_finite() && along.is_finite() && across.is_finite()) {
+        if height <= 0.0
+            || length <= 0.0
+            || !(height.is_finite() && along.is_finite() && across.is_finite())
+        {
             Place::Word
         } else if across > LINE_GAP * height {
             Place::Line
