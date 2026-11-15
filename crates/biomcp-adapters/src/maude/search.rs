@@ -2,10 +2,7 @@ use super::{SPEC, raw};
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError};
 use biomcp_types::{AdverseEventHeader, AdverseEventSearch, AdverseEventSource, Source};
 fn phrase(field: &str, text: &biodata::Text) -> String {
-    format!(
-        "{field}:\"{}\"",
-        text.as_str().replace('\\', "\\\\").replace('"', "\\\"")
-    )
+    format!("{field}:{}", biomcp_types::openfda_phrase(text.as_str()))
 }
 /// Source-native phrases and exact product-code OR groups joined with AND.
 pub fn expression(query: &AdverseEventSearch) -> String {

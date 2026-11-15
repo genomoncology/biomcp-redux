@@ -34,10 +34,7 @@ pub struct Page {
     pub problems: Vec<Problem>,
 }
 fn literal(value: &Text) -> String {
-    format!(
-        "\"{}\"",
-        value.as_str().replace('\\', "\\\\").replace('"', "\\\"")
-    )
+    biomcp_types::openfda_phrase(value.as_str())
 }
 /// BioMCP's own bound on one native recall request, so a name group stays one request.
 const NAME_QUERY_MAX_BYTES: usize = 4096;

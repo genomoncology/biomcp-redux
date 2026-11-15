@@ -85,12 +85,11 @@ impl Page {
         self.matched.unwrap_or(self.total) > 0
     }
 }
-fn literal(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
-/// The sponsor-name prefix an applicant selects: the source stores sponsor names in upper case.
+use biomcp_types::openfda_phrase as literal;
+/// The sponsor-name prefix an applicant selects: the source stores sponsor names in upper case,
+/// spelled as openFDA accepts them (Nestlé, NESTLE).
 pub fn applicant_prefix(applicant: &Text) -> String {
-    applicant.as_str().to_uppercase()
+    biomcp_types::openfda_words(applicant.as_str()).to_uppercase()
 }
 /// Name resolution uses the existing word selector to retain all exact and approved single-term generic forms.
 pub fn search_names(

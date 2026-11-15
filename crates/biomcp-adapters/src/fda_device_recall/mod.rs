@@ -42,9 +42,7 @@ pub struct Page {
     /// A failed join leaves the selected rows and their total unchanged.
     pub join_failure: Option<Failure>,
 }
-fn literal(value: &str) -> String {
-    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
+use biomcp_types::openfda_phrase as literal;
 /// Recall selectors; a classification selects enforcement records and their field spellings.
 /// Both datasets spell the device name field product_description.
 pub fn expression(q: &DiagnosticSearch) -> String {
