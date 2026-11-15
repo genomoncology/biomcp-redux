@@ -21,7 +21,7 @@
           "includes": "molecule_chembl_id"
         }
       },
-      "max_bytes": 730
+      "max_bytes": 880
     },
     {
       "run": [
@@ -40,7 +40,7 @@
           "includes": "molecule_chembl_id"
         }
       },
-      "max_bytes": 730
+      "max_bytes": 880
     }
   ],
   "verified": "The cache controls and extra empty alias-authority replies are authored synthetic data, not provider observations. Default drug lookup behavior remains enabled; primary native request counts still prove cache admission."
