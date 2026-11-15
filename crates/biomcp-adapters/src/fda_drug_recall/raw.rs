@@ -6,7 +6,8 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Record {
-    pub recall_number: DrugRecallNumber,
+    /// openFDA sends some records with an empty or `N/A` recall number.
+    pub recall_number: Option<Field<DrugRecallNumber>>,
     pub classification: Option<Field<String>>,
     pub status: Option<Field<String>>,
     pub recalling_firm: Option<Field<String>>,

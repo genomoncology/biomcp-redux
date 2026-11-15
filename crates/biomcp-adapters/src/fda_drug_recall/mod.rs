@@ -3,6 +3,7 @@ use biomcp_fetch::{Input, Read};
 mod map;
 mod raw;
 use biodata::{DrugRecallNumber, Text};
+use crate::raw::Field;
 use biomcp_fetch::{Arg, BadReply, Freshness, Leg, RequestError, SourceSpec, Terms};
 use biomcp_types::{DrugRecallCard, DrugRecallHeader, DrugSearch, Problem, Source, Use};
 pub(crate) use map::date;
@@ -32,6 +33,10 @@ pub struct Page {
     pub total: u64,
     /// Rejected optional values with record provenance.
     pub problems: Vec<Problem>,
+    /// Whether a native record was declined, such as one without a recall number.
+    pub refusals: crate::Refusal,
+    /// Native records on the page, declined ones included; the next page starts after them.
+    pub consumed: u32,
 }
 fn literal(value: &Text) -> String {
     biomcp_types::openfda_phrase(value.as_str())
@@ -115,15 +120,23 @@ pub fn search_names(leg: &Leg<'_>, q: &DrugSearch, names: &[Text]) -> Result<Pag
         items: Box::default(),
         total: 0,
         problems: Vec::new(),
+        refusals: crate::Refusal::None,
+        consumed: 0,
     };
     if let raw::Response::Page { meta, results } = reply {
         page.total = meta.results.total;
+        page.consumed = u32::try_from(results.len()).unwrap_or(u32::MAX);
         page.items = results
             .into_iter()
-            .map(|row| {
+            .filter_map(|row| {
                 let row = map::mapped(row);
-                page.problems.extend(row.problems);
-                row.value.header
+                for problem in row.problems {
+                    if !page.problems.contains(&problem) {
+                        page.problems.push(problem);
+                    }
+                }
+                page.refusals.include(row.refusals);
+                row.value.map(|card| card.header)
             })
             .collect();
     }
@@ -159,7 +172,8 @@ fn exact(
         .fresh(Freshness::Days(1))
         .bytes(2 * 1024 * 1024)
         .json_absence();
-    let identity = |reply: &raw::Response<raw::Record>| !matches!(reply,raw::Response::Page {results,..} if results.iter().any(|r|&r.recall_number!=id));
+    let carries = |r: &raw::Record| r.recall_number.as_ref().and_then(Field::as_ref) == Some(id);
+    let identity = |reply: &raw::Response<raw::Record>| !matches!(reply,raw::Response::Page {results,..} if !results.iter().all(carries));
     let reply = leg
         .call(
             &endpoint,
@@ -200,7 +214,16 @@ pub fn get(
     leg: &Leg<'_>,
     id: &DrugRecallNumber,
 ) -> Result<Option<crate::Mapped<DrugRecallCard>>, Failure> {
-    exact(leg, "/drug/enforcement.json", "recall_number", id).map(|row| row.map(map::mapped))
+    // The identity check admits only rows carrying this recall number, so each maps to a card.
+    exact(leg, "/drug/enforcement.json", "recall_number", id).map(|row| {
+        row.map(map::mapped).and_then(|row| {
+            row.value.map(|value| crate::Mapped {
+                value,
+                problems: row.problems,
+                refusals: row.refusals,
+            })
+        })
+    })
 }
 
 /// Complete source policy and command declaration.

@@ -29,9 +29,19 @@ pub(crate) fn date(
     }
     date
 }
-pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
+/// A record without a well-formed recall number has no identity, so it is declined with a
+/// `recall_number` problem instead of failing its page.
+pub(super) fn mapped(row: raw::Record) -> Mapped<Option<DrugRecallCard>> {
     let mut problems = Vec::new();
-    let id = record(&row.recall_number);
+    let Some(recall_number) = row.recall_number.and_then(Field::value) else {
+        push_problem(&mut problems, SOURCE, None, "recall_number");
+        return Mapped {
+            refusals: crate::Refusal::Refused,
+            value: None,
+            problems,
+        };
+    };
+    let id = record(&recall_number);
     let initiated = date(
         SOURCE,
         row.recall_initiation_date,
@@ -58,7 +68,7 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
         admit(&mut problems, SOURCE, id.clone(), field, value)
     };
     let header = DrugRecallHeader {
-        recall_number: row.recall_number,
+        recall_number,
         classification: text("classification", row.classification),
         status: text("status", row.status),
         firm: text("recalling_firm", row.recalling_firm),
@@ -75,7 +85,7 @@ pub(super) fn mapped(row: raw::Record) -> Mapped<DrugRecallCard> {
     };
     Mapped {
         refusals: crate::Refusal::None,
-        value,
+        value: Some(value),
         problems,
     }
 }
