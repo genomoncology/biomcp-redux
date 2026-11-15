@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=4179%5Bgid%5D%20AND%20%28%22clinsig%20pathogenic%22%5Bprop%5D%20OR%20%22clinsig%20likely%20pathogenic%22%5Bprop%5D%29%20AND%20%22criteria%20provided%2C%20single%20submitter%22%5Brvst%5D&retmax=10000&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1794710259,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 78,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"55","retmax":"55","retstart":"0","idlist":["5005623","4976865","4976824","4930739","4930709","4930665","4888392","4876742","4854685","4852331","4682508","4291283","4291258","4291217","4291212","4291210","4291209","4291203","4291191","4291190","4291184","4291182","4291179","4291174","3895487","3894572","3722028","3621483","3578197","3248093","3236246","3236244","3068272","2708593","2707695","2703750","2075354","2065946","1939914","1809264","1712459","1500521","1385626","1371221","1162902","1162901","829903","816482","635500","545154","523270","253654","58112","17047","17044"],"translationset":[],"translationstack":[{"term":"4179[gid]","field":"gid","count":"639","explode":"N"},{"term":"\"clinsig pathogenic\"[prop]","field":"prop","count":"266550","explode":"N"},{"term":"\"clinsig likely pathogenic\"[prop]","field":"prop","count":"183668","explode":"N"},"OR","GROUP","AND",{"term":"\"criteria provided, single submitter\"[rvst]","field":"rvst","count":"3351853","explode":"N"},"AND"],"querytranslation":"4179[gid] AND (\"clinsig pathogenic\"[prop] OR \"clinsig likely pathogenic\"[prop]) AND \"criteria provided, single submitter\"[rvst]"}}
+      }
+    }
+  ]
+}

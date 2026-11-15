@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "clinvar",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=4179%5Bgid%5D%20AND%20%22clinsig%20benign%22%5Bprop%5D%20AND%20%22clinsig%20likely%20benign%22%5Bprop%5D&retmax=0&retmode=json&tool=biomcp",
+  "exchanges": [
+    {
+      "fetched": 1794710259,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 53,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"header":{"type":"esearch","version":"0.3"},"esearchresult":{"count":"10","retmax":"0","retstart":"0","idlist":[],"translationset":[],"translationstack":[{"term":"4179[gid]","field":"gid","count":"639","explode":"N"},{"term":"\"clinsig benign\"[prop]","field":"prop","count":"282694","explode":"N"},"AND",{"term":"\"clinsig likely benign\"[prop]","field":"prop","count":"1233702","explode":"N"},"AND"],"querytranslation":"4179[gid] AND \"clinsig benign\"[prop] AND \"clinsig likely benign\"[prop]"}}
+      }
+    }
+  ]
+}

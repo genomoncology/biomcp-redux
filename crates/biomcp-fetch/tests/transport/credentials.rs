@@ -147,6 +147,40 @@ fn throttle_replies_naming_the_key_retry_without_disclosure() {
 }
 
 #[test]
+fn throttle_replies_echoing_the_key_in_a_header_are_refused_without_retry() {
+    let secret = "placeholder-header-throttled-key";
+    let media = format!("application/json\r\nContent-Range: {secret}");
+    let body = format!(r#"{{"error":"API rate limit exceeded","api-key":"{secret}"}}"#);
+    let stub = Stub::new(429, &media, &body, None);
+    let spec = stub.spec(
+        KeyUse::Optional(credential(KeyPlace::Query("api_key"))),
+        Duration::from_secs(10),
+    );
+    let mut config = FetchConfig::default();
+    config
+        .secrets
+        .insert(SecretName::NcbiApiKey, Secret::new(secret));
+    let fetch = Fetch::open(config).unwrap();
+    let leg = fetch.leg(spec, fetch.deadline(Duration::from_secs(10)));
+    let error = leg
+        .call(
+            &spec.get("/answer"),
+            Input::Params(&[]),
+            Read::<Answer>::json(),
+        )
+        .unwrap_err();
+    let biomcp_fetch::RequestError::Source(error) = error else {
+        panic!("expected provider failure: {error}");
+    };
+    assert_eq!(error.reason, Reason::BadReply);
+    assert_eq!(error.status, Some(429));
+    for formatted in [format!("{leg:?}"), format!("{error:?}"), error.to_string()] {
+        assert!(!formatted.contains(secret), "the key stays out of failures");
+    }
+    assert_eq!(stub.finish().len(), 1, "a header echo is not retried");
+}
+
+#[test]
 #[expect(
     clippy::disallowed_types,
     reason = "Observe owned test workers without leaking shared state across cases"
