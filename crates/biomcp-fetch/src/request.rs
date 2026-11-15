@@ -257,10 +257,7 @@ impl Leg<'_> {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
             }
             error.retry_after = delay;
-            if retries
-                && retryable
-                && delay.is_some_and(|wait| wait >= self.budget().remaining())
-            {
+            if retries && retryable && delay.is_some_and(|wait| wait >= self.budget().remaining()) {
                 error.reason = Reason::RateLimited;
                 return Err(error.into());
             }
