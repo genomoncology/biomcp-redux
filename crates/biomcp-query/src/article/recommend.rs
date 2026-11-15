@@ -42,7 +42,7 @@ pub(crate) fn run(cx: &Ctx<'_>, query: &ArticleRecommend) -> Outcome {
 pub(super) fn body(items: Box<[biomcp_types::ArticleItem]>, empty: bool) -> ArticleRecommendations {
     ArticleRecommendations {
         items,
-        scope: "Semantic Scholar recommends from its pool of recent papers".into(),
+        scope: "Semantic Scholar recommends from its pool of recent papers and gives no total; the page total counts the papers it returned".into(),
         notice: empty.then_some(EvidenceNotice::NoRecommendations),
     }
 }

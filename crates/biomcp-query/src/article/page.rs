@@ -262,6 +262,9 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     };
     actions(query, pool, returned, held, out);
     if let Cursor::Search(search) = query {
+        if u64::from(query.offset().saturating_add(returned)) >= held {
+            window_end(out);
+        }
         super::next::search(search, total, partial, out);
     }
     if partial {
@@ -286,10 +289,15 @@ fn finish(query: Cursor<'_>, pool: &Pool, rows: Vec<StoredItem>, out: &mut Outco
     }
 }
 
-/// One source's own count when it matched more than the retrieved window holds.
-/// Several sources' counts are never summed; their union keeps the held size.
+/// One searched source's own count when it matched more than the retrieved window holds.
+/// Several sources' counts are never summed; their union keeps the held size. Sources
+/// that only resolved names or titles retrieve no window, so they are not counted.
 fn source_total(sources: &[biomcp_types::SourceOutcome]) -> Option<u64> {
-    let [source] = sources else {
+    let searched: Vec<_> = sources
+        .iter()
+        .filter(|s| s.retrieved_count.is_some())
+        .collect();
+    let [source] = searched.as_slice() else {
         return None;
     };
     source
@@ -307,6 +315,30 @@ fn truncated(sources: &[biomcp_types::SourceOutcome]) -> bool {
                 .iter()
                 .any(|n| matches!(n, biomcp_types::SourceNotice::GraphTruncated { .. }))
     })
+}
+/// At the end of the read window, say why rows a source matched past it have no page step.
+fn window_end(out: &mut Outcome) {
+    for source in &mut out.sources {
+        let Some((count, read)) = source
+            .count
+            .zip(source.retrieved_count)
+            .filter(|(count, read)| *count > u64::from(*read))
+        else {
+            continue;
+        };
+        let name = biomcp_adapters::registry::display_name(source.source);
+        source
+            .notices
+            .push(biomcp_types::SourceNotice::RequestGuidance {
+                data_date: None,
+                message: format!(
+                    "{name} matched {count}, but BioMCP reads only its first {read}, so rows past \
+                     those can't be paged. Narrow the search to reach them."
+                )
+                .into(),
+                retry_after_seconds: None,
+            });
+    }
 }
 /// Page steps stay inside the held window, even when the source matched more.
 fn actions(query: Cursor<'_>, pool: &Pool, returned: u32, held: u64, out: &mut Outcome) {
@@ -435,6 +467,11 @@ pub(super) fn fetched<'a>(
         .collect();
     live_titles(cx, deadline, &mut items, out);
     let untitled = items.iter().any(|item| item.header.is_none());
+    if matches!(query, Cursor::Search(_))
+        && u64::from(query.offset()).saturating_add(items.len() as u64) >= held
+    {
+        window_end(out);
+    }
     out.page = Some(PageInfo {
         offset: query.offset(),
         returned: items.len() as u32,

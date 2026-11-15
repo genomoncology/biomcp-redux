@@ -21,7 +21,7 @@
         "/page/total": 5,
         "/result/items/0/pmid": "99300002",
         "/result/items/1/pmid": "99300001",
-        "/result/scope": "Semantic Scholar recommends from its pool of recent papers"
+        "/result/scope": "Semantic Scholar recommends from its pool of recent papers and gives no total; the page total counts the papers it returned"
       },
       "max_bytes": 5200
     }

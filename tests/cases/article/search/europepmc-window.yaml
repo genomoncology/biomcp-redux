@@ -1,0 +1,40 @@
+{
+  "feature": "article-search",
+  "live_check": "public",
+  "story": "A Europe PMC search with drug names keeps Europe PMC's own count as the total, and its last page inside the read window says why rows past it can't be paged",
+  "verified": "Captured live 2026-11-15 in pm job j41438: Europe PMC's search for tebentafusp and its ChEMBL names states hitCount 1,178 and returns the first 100 rows; MyChem resolved the names and PubMed gave titles. On main the total was 100, because the name sources counted as extra sources, and the page at offset 97 had no page step and no sentence.",
+  "replay": "article/search/europepmc-window",
+  "steps": [
+    {
+      "run": ["search", "article", "tebentafusp", "--source", "europepmc", "--limit", "3"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1178,
+        "/page/truncated": true,
+        "/page/pool/size": 100,
+        "/sources/2/source": "europepmc",
+        "/sources/2/count": 1178,
+        "/sources/2": {
+          "omits": ["notices"]
+        },
+        "/next/*/kind": {
+          "includes": "page"
+        }
+      }
+    },
+    {
+      "run": ["search", "article", "tebentafusp", "--source", "europepmc", "--limit", "3", "--offset", "97"],
+      "expect": {
+        "/status": "complete",
+        "/page/offset": 97,
+        "/page/returned": 3,
+        "/page/total": 1178,
+        "/sources/2/source": "europepmc",
+        "/sources/2/notices/0/message": "Europe PMC matched 1178, but BioMCP reads only its first 100, so rows past those can't be paged. Narrow the search to reach them.",
+        "/next/*/kind": {
+          "excludes": "page"
+        }
+      }
+    }
+  ]
+}

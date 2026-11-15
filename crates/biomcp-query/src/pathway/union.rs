@@ -20,7 +20,7 @@ type Saved = (
     bool,
 );
 fn key(q: &PathwaySearch) -> Result<Vec<u8>, RequestError> {
-    source_snapshot::key("pathway-union", &q.restart())
+    source_snapshot::key("pathway-union/2", &q.restart())
 }
 fn page(q: &PathwaySearch) -> PathwayPage {
     PathwayPage {
@@ -29,7 +29,7 @@ fn page(q: &PathwaySearch) -> PathwayPage {
             offset: q.offset(),
             returned: 0,
             total: 0,
-            total_kind: PathwayTotalKind::Source,
+            total_kind: PathwayTotalKind::Read,
             next_offset: None,
             pool: None,
         },
@@ -159,6 +159,9 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
                 Ok((rows, info)) => {
                     saved.5 |= rows.refusals == biomcp_adapters::Refusal::Refused;
                     let total = rows.value.len() as u64;
+                    if let Some(source) = saved.3.last_mut() {
+                        source.count = Some(total);
+                    }
                     saved.4.extend(rows.problems);
                     (
                         rows.value,
@@ -208,6 +211,9 @@ fn refill(
         }
         match reply {
             Ok(reply) => {
+                if let Some(source) = saved.3.get_mut(index) {
+                    source.count = Some(reply.total);
+                }
                 saved.5 |= reply.rows.refusals == biomcp_adapters::Refusal::Refused;
                 let next = offset.saturating_add(reply.consumed);
                 state.0 = reply.rows.value;
@@ -226,6 +232,13 @@ fn advance(
     saved: &mut Saved,
     out: &mut Outcome,
 ) {
+    // The previous page's total less the rows still queued is what earlier pages handed out;
+    // on the first page that is zero.
+    let handed = saved
+        .0
+        .page
+        .total
+        .saturating_sub(saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>());
     refill(cx, q, deadline, saved, out);
     let mut items = Vec::new();
     let mut misses = 0;
@@ -251,14 +264,17 @@ fn advance(
         }
     }
     let returned = items.len() as u32;
+    // Rows handed out before this page, on it, and still queued from either source.
+    let read = handed + u64::from(returned) + saved.1.iter().map(|s| s.0.len() as u64).sum::<u64>();
     let continuing = saved.1.iter().any(|s| !s.0.is_empty() || s.1.is_some());
     saved.0 = PathwayPage {
         items: items.into(),
         page: PathwayPageInfo {
             offset: q.offset(),
             returned,
-            total: saved.1.iter().map(|s| s.2).sum(),
-            total_kind: PathwayTotalKind::Source,
+            // Each source's own count stays in its source report; totals are never summed.
+            total: read,
+            total_kind: PathwayTotalKind::Read,
             next_offset: continuing.then_some(q.offset().saturating_add(returned.max(1))),
             pool: None,
         },
