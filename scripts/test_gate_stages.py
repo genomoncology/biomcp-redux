@@ -205,26 +205,41 @@ class GateStages(unittest.TestCase):
                 return subprocess.run([sys.executable, str(ROOT / 'scripts/changed_tool_proofs.py')],
                                       cwd=root, env={**env, 'TOOL_PROOFS_BASE': base, **extra},
                                       capture_output=True, text=True)
-            every = ('cargo test --locked -p biomcp --test tools -- --proofs --test-threads 3 '
-                     f'python={sys.executable}')
-            for number, (path, shown, ran) in enumerate((
-                    ('crates/biomcp-adapters/src/lib.rs', 'none', None),
-                    ('tests/cases/gene/hgnc.yaml', 'none', None),
-                    ('tests/replies/trial/gene/hgnc/reply.json', 'cache-resilience/hgnc-',
-                     'cargo test --locked -p biomcp --test tools -- --proofs cache-resilience/hgnc- '
-                     f'--test-threads 3 python={sys.executable}'),
-                    ('crates/biomcp/tests/runner/assertions/offsets.rs', 'all', every),
-                    ('crates/biomcp-test-support/src/lib.rs', 'all', every),
-                    ('crates/biomcp-types/schemas/gene-card.json', 'all', every),
-                    ('Cargo.lock', 'all', every))):
-                with self.subTest(path=path):
+            def cargo_line(name=''):
+                return ('cargo test --locked -p biomcp --test tools -- --proofs ' + (name + ' ' if name else '')
+                        + f'--test-threads 3 python={sys.executable}')
+            every = cargo_line()
+            hgnc, article = 'cache-resilience/hgnc-', 'article-semantic-sections/'
+            native = 'schema-discovery/persistent-native-evidence'
+            help_proof = 'schema-discovery/catalog-and-help-reply-discovery'
+            for number, (paths, shown, ran) in enumerate((
+                    (['crates/biomcp-adapters/src/gtr/map.rs', 'docs/charter.md', 'tests/replies/gene/x.json',
+                      'scripts/landing_gate.py'], 'none', []),
+                    (['crates/biomcp-adapters/src/hgnc/sync.rs'], hgnc, [cargo_line(hgnc)]),
+                    (['tests/replies/trial/gene/hgnc/reply.json'], hgnc, [cargo_line(hgnc)]),
+                    (['crates/biomcp-adapters/src/semantic_scholar.rs', 'tests/fixtures/drug/civic/a.body'],
+                     f'{article},{native}', [cargo_line(article), cargo_line(native)]),
+                    (['tests/cases/gene/hgnc.yaml', 'skills/SKILL.md'], help_proof, [cargo_line(help_proof)]),
+                    (['crates/biomcp-adapters/src/raw.rs'], 'all', [every]),
+                    (['crates/biomcp-adapters/src/registry/sources.rs'], 'all', [every]),
+                    (['crates/biomcp/src/main.rs'], 'all', [every]),
+                    (['crates/biomcp-types/src/lib.rs'], 'all', [every]),
+                    (['crates/biomcp-query/src/sources/terms.rs'], 'all', [every]),
+                    (['crates/biomcp-fetch/src/lib.rs'], 'all', [every]),
+                    (['crates/biomcp/tests/runner/assertions/offsets.rs'], 'all', [every]),
+                    (['crates/biomcp-test-support/src/lib.rs'], 'all', [every]),
+                    (['crates/biomcp-types/schemas/gene-card.json'], 'all', [every]),
+                    (['Makefile'], 'all', [every]),
+                    (['Cargo.lock'], 'all', [every]),
+                    (['tests/fixtures/drug/civic/caf\u00e9 \u00e9.body'], native, [cargo_line(native)]))):
+                with self.subTest(paths=paths):
                     git('checkout', '-q', '-b', f'ticket-{number}', 'main')
-                    commit(path)
+                    for path in paths:
+                        commit(path)
                     result = run()
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertRegex(result.stdout, rf'tool-proofs base=[0-9a-f]{{40}} proofs={re.escape(shown)}\n')
-                    self.assertEqual([line for line in result.stdout.splitlines() if line.startswith('cargo ')],
-                                     [ran] if ran else [])
+                    self.assertEqual([line for line in result.stdout.splitlines() if line.startswith('cargo ')], ran)
             result = run(CARGO_FAIL='1')
             self.assertEqual(result.returncode, 9)
             result = run(base='missing')
