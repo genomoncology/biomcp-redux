@@ -309,7 +309,10 @@ pub(super) fn hgvs_flag(
 ) -> Option<Step> {
     if path != ["search", "variant"]
         || spelling != "--variant"
-        || args.iter().any(|word| word.to_str() == Some("--gene"))
+        || args.iter().any(|word| {
+            word.to_str()
+                .is_some_and(|word| word == "--gene" || word.starts_with("--gene="))
+        })
     {
         return None;
     }
@@ -323,10 +326,11 @@ pub(super) fn hgvs_flag(
         None => (args.get(index + 1)?.to_str()?, 2),
     };
     let (name, change) = value.split_once(':')?;
-    let gene = name
-        .rsplit_once('(')
-        .and_then(|(_, gene)| gene.strip_suffix(')'))
-        .unwrap_or(name);
+    let gene = match name.rsplit_once('(') {
+        Some((_, gene)) => gene.strip_suffix(')')?,
+        None if accession(name) => return None,
+        None => name,
+    };
     let option = if change.starts_with("c.") {
         "--coding"
     } else if change.starts_with("p.") {
@@ -346,6 +350,18 @@ pub(super) fn hgvs_flag(
     let mut args = args.to_vec();
     args.splice(index..index + width, replacement);
     candidate(root, &args)
+}
+
+/// A bare prefix that names a sequence, not a gene: an Ensembl ID such as ENST00000357654 or
+/// ENSP00000350283, or a GenBank accession such as U14680 or AY123456 (one letter and five
+/// digits, or two letters and six or eight digits).
+fn accession(name: &str) -> bool {
+    let letters = name.chars().take_while(char::is_ascii_alphabetic).count();
+    let digits = name.get(letters..).unwrap_or_default();
+    let numbered = !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit());
+    numbered
+        && (name.starts_with("ENS")
+            || matches!((letters, digits.len()), (1, 5) | (2, 6) | (2, 8)))
 }
 
 /// The canonical call for words the grammar accepts, or the corrected call its refusal
