@@ -70,7 +70,7 @@ pub struct SavedList {
     /// Unix seconds when the list was made.
     pub created: u64,
     /// Unix seconds when an item was last added or removed.
-    pub updated: u64,
+    pub modified: u64,
     /// Items in the order they were added.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub items: Vec<SavedListItem>,

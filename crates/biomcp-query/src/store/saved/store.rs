@@ -398,7 +398,7 @@ fn list(connection: &Connection, id: &str) -> Result<SavedList, SavedError> {
         name: text(&name)?,
         project: text(&project)?,
         created: unsigned(created)?,
-        updated: unsigned(updated)?,
+        modified: unsigned(updated)?,
         items,
     })
 }
