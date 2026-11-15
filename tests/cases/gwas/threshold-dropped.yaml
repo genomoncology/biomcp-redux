@@ -11,7 +11,7 @@
         "/page/total": 6,
         "/page/returned": 1,
         "/page/truncated": false,
-        "/sources/0/notices/0/message": "GWAS Catalog's count of 6 is before the p-value cut; some rows had no exact p-value or were refused, so the count at or below it is unknown.",
+        "/sources/0/notices/0/message": "GWAS Catalog's count of 6 is before the p-value cut; some rows could not be checked against the cut, so the count at or below it is unknown.",
         "/result": {
           "omits": ["qualifying_total"]
         },

@@ -24,6 +24,16 @@
         "/sources/1/source": "wikipathways",
         "/sources/1/count": 7
       }
+    },
+    {
+      "follow": "page",
+      "expect": {
+        "/result/page/offset": 5,
+        "/result/page/returned": 5,
+        "/result/page/total_kind": "read",
+        "/result/page/total": 12,
+        "/result/page/next_offset": 10
+      }
     }
   ]
 }

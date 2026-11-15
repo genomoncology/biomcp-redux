@@ -20,7 +20,7 @@ type Saved = (
     bool,
 );
 fn key(q: &PathwaySearch) -> Result<Vec<u8>, RequestError> {
-    source_snapshot::key("pathway-union", &q.restart())
+    source_snapshot::key("pathway-union/2", &q.restart())
 }
 fn page(q: &PathwaySearch) -> PathwayPage {
     PathwayPage {
