@@ -152,15 +152,16 @@ fn initial(cx: &Ctx<'_>, q: &PathwaySearch, deadline: Deadline<'_>, out: &mut Ou
             let reply = wikipathways::search(&leg, q.query().map_or("", |v| v.as_str()));
             let error = reply.as_ref().err().copied();
             out.local = out.local.or_else(|| error.and_then(status::local));
-            let mut source = status::source(Source::WikiPathways, leg.finish(), error);
-            if let Ok((rows, _)) = &reply {
-                source.count = Some(rows.value.len() as u64);
-            }
-            saved.3.push(source);
+            saved
+                .3
+                .push(status::source(Source::WikiPathways, leg.finish(), error));
             let state = match reply {
                 Ok((rows, info)) => {
                     saved.5 |= rows.refusals == biomcp_adapters::Refusal::Refused;
                     let total = rows.value.len() as u64;
+                    if let Some(source) = saved.3.last_mut() {
+                        source.count = Some(total);
+                    }
                     saved.4.extend(rows.problems);
                     (
                         rows.value,
@@ -207,12 +208,12 @@ fn refill(
         out.local = out.local.or_else(|| error.and_then(status::local));
         if let Some(source) = saved.3.get_mut(index) {
             *source = status::source(Source::Reactome, leg.finish(), error);
-            if let Ok(reply) = &reply {
-                source.count = Some(reply.total);
-            }
         }
         match reply {
             Ok(reply) => {
+                if let Some(source) = saved.3.get_mut(index) {
+                    source.count = Some(reply.total);
+                }
                 saved.5 |= reply.rows.refusals == biomcp_adapters::Refusal::Refused;
                 let next = offset.saturating_add(reply.consumed);
                 state.0 = reply.rows.value;

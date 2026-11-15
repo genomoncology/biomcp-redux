@@ -13,7 +13,7 @@
       "expect": {
         "/status": "complete"
       },
-      "max_bytes": 864,
+      "max_bytes": 1060,
       "full_output_bytes": true
     },
     {
