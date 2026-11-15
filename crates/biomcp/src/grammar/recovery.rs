@@ -134,7 +134,9 @@ pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Opti
 }
 
 fn is_help(step: &Step) -> bool {
-    step.args.first().is_some_and(|word| word.as_ref() == "help")
+    step.args
+        .first()
+        .is_some_and(|word| word.as_ref() == "help")
 }
 
 /// Restart an unbound trial page without discarding its selection or source filters.
@@ -192,7 +194,11 @@ pub(crate) fn prepared(
         let mut candidate = value.clone();
         candidate.as_object_mut()?.insert(
             name.clone(),
-            if array { Value::Array(vec![choice]) } else { choice },
+            if array {
+                Value::Array(vec![choice])
+            } else {
+                choice
+            },
         );
         let request = super::rewrite::request(request.rewrite(), verb, entity, candidate).ok()?;
         // The corrected call must pass the same check that refused this one.

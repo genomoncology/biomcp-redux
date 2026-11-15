@@ -243,12 +243,11 @@ fn label_steps(body: &DrugInteractions, fresh: bool, out: &mut Outcome) {
         .chain(body.partners.first())
         .filter_map(|header| header.name.clone());
     for name in names {
-        let get = DrugGet::named(name, DrugSource::OpenfdaLabel)
-            .and_then(|get| {
-                let heading = biodata::Text::new("drug_interactions")
-                    .map_err(|_| biomcp_types::QueryInvalid::new(&["label_section"]))?;
-                get.for_label(heading)
-            });
+        let get = DrugGet::named(name, DrugSource::OpenfdaLabel).and_then(|get| {
+            let heading = biodata::Text::new("drug_interactions")
+                .map_err(|_| biomcp_types::QueryInvalid::new(&["label_section"]))?;
+            get.for_label(heading)
+        });
         if let Some(get) = crate::next::checked(get, Source::Ddinter, &mut out.problems) {
             out.next.push(crate::next::Step::run(
                 StepKind::Section,

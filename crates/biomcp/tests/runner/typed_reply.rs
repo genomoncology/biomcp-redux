@@ -114,9 +114,9 @@ fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     }
     // The corrected call replaces help; its options are checked by the cases.
     let next = value.get("next").and_then(Value::as_array);
-    let first = next.and_then(|next| next.first()).map(|step| {
-        json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]})
-    });
+    let first = next
+        .and_then(|next| next.first())
+        .map(|step| json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]}));
     if index == 2
         && (next.map(Vec::len) != Some(1)
             || first

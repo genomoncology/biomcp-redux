@@ -543,11 +543,7 @@ fn dropped(
                     .is_some_and(|rest| rest.starts_with('='))
         })
     })?;
-    if args
-        .iter()
-        .take(at)
-        .any(|word| word.to_str() == Some("--"))
-    {
+    if args.iter().take(at).any(|word| word.to_str() == Some("--")) {
         return None;
     }
     let mut without = args.to_vec();

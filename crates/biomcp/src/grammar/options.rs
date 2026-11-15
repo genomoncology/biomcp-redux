@@ -95,9 +95,8 @@ pub(crate) fn identity_card(request: &Request) -> bool {
     verb == "get"
         && super::validation::schema(verb, entity)
             .is_some_and(|schema| schema.pointer("/properties/section").is_some())
-        && super::rewrite::query_value(request).is_ok_and(|value| {
-            !set(value.get("section"), &Value::Null)
-        })
+        && super::rewrite::query_value(request)
+            .is_ok_and(|value| !set(value.get("section"), &Value::Null))
 }
 
 fn set(value: Option<&Value>, property: &Value) -> bool {
