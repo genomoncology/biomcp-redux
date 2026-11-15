@@ -127,6 +127,26 @@
           "includes": "query"
         }
       }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {}
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "source",
+        "/next/0/name": "help",
+        "/next": {
+          "count": 1
+        }
+      }
     }
   ]
 }
