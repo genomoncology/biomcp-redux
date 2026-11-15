@@ -5,9 +5,9 @@ Recorded on 2026-11-13 by `biomcp --record` without keys: Drugs@FDA for dolutegr
 | Request | Status | Kept as |
 | --- | --- | --- |
 | `https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22dolutegravir%22%20OR%20products.active_ingredients.name%3A%22dolutegravir%22&limit=50` | 200 | unchanged |
-| `https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA204790%22&limit=1` | 200 | unchanged |
+| `https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA204790%22&limit=1` | 200 | unchanged (asked twice in the call, both kept) |
 | `https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22imatinib%22%20OR%20products.active_ingredients.name%3A%22imatinib%22&limit=50` | 200 | unchanged |
-| `https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1` | 200 | unchanged |
+| `https://api.fda.gov/drug/drugsfda.json?search=application_number%3A%22NDA021335%22&limit=1` | 200 | unchanged (asked twice in the call, both kept) |
 | `https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22lamivudine%22%20OR%20products.active_ingredients.name%3A%22lamivudine%22&limit=50` | 200 | unchanged |
 | `https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22lamivudine%22%20OR%20products.active_ingredients.name%3A%22lamivudine%22&limit=50&skip=50` | 200 | unchanged |
 | `https://api.fda.gov/drug/drugsfda.json?search=products.brand_name%3A%22lamivudine%22%20OR%20products.active_ingredients.name%3A%22lamivudine%22&limit=50&skip=100` | 200 | unchanged |
@@ -18,7 +18,7 @@ Recorded on 2026-11-13 by `biomcp --record` without keys: Drugs@FDA for dolutegr
 
 The openFDA publisher dataset date was 2026-11-12. The EMA medicines file (timestamp 2026-11-13T18:02:10Z) held 2,765 records and the referrals file 593. Both are trimmed: the medicines file keeps the 22 records whose INN or active substance names dolutegravir, imatinib or lamivudine (Combivir, Delstrigo, Dovato, Dutrebis, Epivir, Glivec, Imatinib Accord, Imatinib Actavis, Imatinib Koanaa, Imatinib Teva, Imatinib Teva B.V., Imatinib medac, Juluca, Kivexa, Lamivudine Teva, Lamivudine Teva Pharma B.V., Lamivudine/Zidovudine Teva, Ruvise, Tivicay, Triumeq, Trizivir, Zeffix), and the referrals file keeps its first record, EMA/REF/0000369747. Each kept record and its fields are unchanged; only `meta.total_records` is set to the kept count.
 
-Checked live the same day: FDA's Drugs@FDA overview page for application 204790, a WHO product page and EMA's Tivicay EPAR page each answered 200. WHO's own list links each product as `/prequal/medicines/` followed by its reference number in lower case with spaces as hyphens. Lamivudine matches 138 Drugs@FDA applications and 4 EMA medicines; the chosen records are NDA020596 (EPIVIR) and EMEA/H/C/001111.
+Checked live the same day: FDA's Drugs@FDA overview page for application 204790, a WHO product page and EMA's Tivicay EPAR page each answered 200. WHO's own list links each product as `/prequal/medicines/` followed by its reference number in lower case with spaces as hyphens. Lamivudine matches 138 Drugs@FDA applications and 4 EMA medicines; the chosen records are NDA020596 (EPIVIR) and EMEA/H/C/000107 (Epivir). The four EMA lamivudine medicines are Epivir (EMEA/H/C/000107, authorised 08/08/1996), Zeffix (EMEA/H/C/000242, 29/07/1999), Lamivudine Teva (EMEA/H/C/001113, 23/10/2009) and Lamivudine Teva Pharma B.V. (EMEA/H/C/001111, 10/12/2009, first in the file's order); the EMA lookup takes the earliest authorisation (0899).
 
 ## WHO PQ rows are synthetic
 

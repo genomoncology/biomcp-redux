@@ -54,14 +54,20 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Words(query))?;
-    Ok(name_headers(&rows, query, false))
+    let found = name_headers(&rows, query, false);
+    Ok(crate::Mapped {
+        refusals: found.refusals,
+        value: found.value.into_iter().map(|(header, _)| header).collect(),
+        problems: found.problems,
+    })
 }
 /// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
 /// Native ID lookup remains indexed; reads never synchronize or modify the stored snapshot.
+/// Each match comes with its `marketing_authorisation_date`, absent when blank or unreadable.
 pub fn search_names(
     leg: &Leg<'_>,
     query: &str,
-) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
+) -> Result<crate::Mapped<Vec<(DrugHeader, Option<biodata::PartialDate>)>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Prefix(KeyKind::Id, ""))?;
     Ok(name_headers(&rows, query, true))
 }
@@ -69,7 +75,7 @@ fn name_headers(
     rows: &[raw::Medicine],
     query: &str,
     only_matches: bool,
-) -> crate::Mapped<Vec<DrugHeader>> {
+) -> crate::Mapped<Vec<(DrugHeader, Option<biodata::PartialDate>)>> {
     let mut problems = fields(None);
     let value = rows
         .iter()
@@ -99,7 +105,11 @@ fn name_headers(
             problems.record = Some(row.record.clone());
             let mut header = map::header(row, &mut problems);
             header.matched_name = matched;
-            Some(header)
+            let authorised = row
+                .field("marketing_authorisation_date")
+                .and_then(Result::ok)
+                .and_then(|date| raw::date(date).ok());
+            Some((header, authorised))
         })
         .collect();
     crate::Mapped {
