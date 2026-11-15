@@ -8,7 +8,9 @@
 //! starts a word gap or a line away from where the last one ended, as poppler's `pdftotext`
 //! decides, and keeps lopdf's line break at `ET` unless the next text object runs on in the
 //! same word. A font without glyph widths keeps lopdf's space after each `TJ` array.
-use lopdf::{Dictionary, Document, Encoding, Object, ObjectId, content::Content};
+use super::fonts::{Widths, number, widths};
+use super::state::{Matrix, State};
+use lopdf::{Document, Encoding, Object, ObjectId, content::Content};
 use std::collections::BTreeMap;
 
 /// A gap wider than this share of the font size is a word break: poppler's `pdftotext`
@@ -38,180 +40,6 @@ pub(super) fn page(document: &Document, page: ObjectId, limit: usize) -> lopdf::
 }
 
 type Fonts<'a> = BTreeMap<Vec<u8>, (Encoding<'a>, Option<Widths>)>;
-
-/// Glyph widths in thousandths of an em, keyed by the first code of each run of codes.
-struct Widths {
-    two_byte: bool,
-    runs: BTreeMap<u32, (u32, f32)>,
-    default: f32,
-}
-
-impl Widths {
-    fn of(&self, code: u32) -> f32 {
-        self.runs
-            .range(..=code)
-            .next_back()
-            .filter(|(_, (last, _))| code <= *last)
-            .map_or(self.default, |(_, (_, width))| *width)
-    }
-}
-
-fn widths(document: &Document, font: &Dictionary) -> Option<Widths> {
-    match font.get(b"Subtype").and_then(Object::as_name).ok()? {
-        b"Type0" => composite_widths(document, font),
-        b"Type3" => None,
-        _ => simple_widths(document, font),
-    }
-}
-
-fn number(document: &Document, object: &Object) -> Option<f32> {
-    document.dereference(object).ok()?.1.as_float().ok()
-}
-
-fn array<'a>(document: &'a Document, object: &'a Object) -> Option<&'a Vec<Object>> {
-    document.dereference(object).ok()?.1.as_array().ok()
-}
-
-/// PDF 32000-1 §9.6.1: `Widths` from `FirstChar`; a code outside them has `MissingWidth`.
-fn simple_widths(document: &Document, font: &Dictionary) -> Option<Widths> {
-    let first = number(document, font.get(b"FirstChar").ok()?)? as u32;
-    let list = array(document, font.get(b"Widths").ok()?)?;
-    let mut runs = BTreeMap::new();
-    for (at, width) in list.iter().enumerate() {
-        let code = first.saturating_add(at as u32);
-        runs.insert(code, (code, number(document, width)?));
-    }
-    let default = font
-        .get_deref(b"FontDescriptor", document)
-        .and_then(Object::as_dict)
-        .ok()
-        .and_then(|descriptor| descriptor.get(b"MissingWidth").ok())
-        .and_then(|width| number(document, width))
-        .unwrap_or(0.0);
-    Some(Widths {
-        two_byte: false,
-        runs,
-        default,
-    })
-}
-
-/// PDF 32000-1 §9.7.4.3: the descendant font's `W` runs over two-byte codes, else `DW`.
-fn composite_widths(document: &Document, font: &Dictionary) -> Option<Widths> {
-    let descendant = array(document, font.get(b"DescendantFonts").ok()?)?.first()?;
-    let descendant = document.dereference(descendant).ok()?.1.as_dict().ok()?;
-    let default = descendant
-        .get(b"DW")
-        .ok()
-        .and_then(|width| number(document, width))
-        .unwrap_or(1000.0);
-    let mut runs = BTreeMap::new();
-    if let Ok(list) = descendant.get(b"W") {
-        let mut items = array(document, list)?.iter();
-        while let Some(first) = items.next() {
-            let first = number(document, first)? as u32;
-            match document.dereference(items.next()?).ok()?.1 {
-                Object::Array(each) => {
-                    for (at, width) in each.iter().enumerate() {
-                        let code = first.saturating_add(at as u32);
-                        runs.insert(code, (code, number(document, width)?));
-                    }
-                }
-                last => {
-                    let last = last.as_float().ok()? as u32;
-                    runs.insert(first, (last, number(document, items.next()?)?));
-                }
-            }
-        }
-    }
-    Some(Widths {
-        two_byte: true,
-        runs,
-        default,
-    })
-}
-
-/// A text or line matrix `[a b c d e f]`.
-#[derive(Clone, Copy)]
-struct Matrix {
-    a: f32,
-    b: f32,
-    c: f32,
-    d: f32,
-    e: f32,
-    f: f32,
-}
-
-impl Default for Matrix {
-    fn default() -> Self {
-        Self {
-            a: 1.0,
-            b: 0.0,
-            c: 0.0,
-            d: 1.0,
-            e: 0.0,
-            f: 0.0,
-        }
-    }
-}
-
-impl Matrix {
-    fn from(operands: &[Object]) -> Option<Self> {
-        let mut values = operands.iter().map(|value| value.as_float().ok());
-        Some(Self {
-            a: values.next()??,
-            b: values.next()??,
-            c: values.next()??,
-            d: values.next()??,
-            e: values.next()??,
-            f: values.next()??,
-        })
-    }
-    /// This matrix followed by `then`, as text space maps through the CTM to the page.
-    fn times(self, then: Self) -> Self {
-        Self {
-            a: self.a * then.a + self.b * then.c,
-            b: self.a * then.b + self.b * then.d,
-            c: self.c * then.a + self.d * then.c,
-            d: self.c * then.b + self.d * then.d,
-            e: self.e * then.a + self.f * then.c + then.e,
-            f: self.e * then.b + self.f * then.d + then.f,
-        }
-    }
-    /// This matrix moved by `(x, y)` in its own text space.
-    fn moved(self, x: f32, y: f32) -> Self {
-        Self {
-            e: self.e + self.a * x + self.c * y,
-            f: self.f + self.b * x + self.d * y,
-            ..self
-        }
-    }
-}
-
-/// The CTM and text state parameters that `q` and `Q` save and restore.
-#[derive(Clone)]
-struct State {
-    ctm: Matrix,
-    char_space: f32,
-    word_space: f32,
-    scale: f32,
-    leading: f32,
-    size: f32,
-    font: Vec<u8>,
-}
-
-impl Default for State {
-    fn default() -> Self {
-        Self {
-            ctm: Matrix::default(),
-            char_space: 0.0,
-            word_space: 0.0,
-            scale: 1.0,
-            leading: 0.0,
-            size: 0.0,
-            font: Vec::new(),
-        }
-    }
-}
 
 /// Where on the page the last shown glyph ended and the font height there. Without widths
 /// the end is unknown, and `array` keeps lopdf's space after a `TJ` array.
@@ -247,12 +75,17 @@ enum Place {
 fn float(operands: &[Object], at: usize) -> f32 {
     operands
         .get(at)
-        .and_then(|value| value.as_float().ok())
+        .and_then(number)
         .unwrap_or(0.0)
 }
 
 impl Reader {
-    fn apply(&mut self, operator: &str, operands: &[Object], fonts: &Fonts<'_>) -> lopdf::Result<()> {
+    fn apply(
+        &mut self,
+        operator: &str,
+        operands: &[Object],
+        fonts: &Fonts<'_>,
+    ) -> lopdf::Result<()> {
         match operator {
             "BT" => {
                 self.line = Matrix::default();
@@ -282,11 +115,10 @@ impl Reader {
             "Tz" => self.state.scale = float(operands, 0) / 100.0,
             "TL" => self.state.leading = float(operands, 0),
             "Tf" => {
-                self.state.font = operands
-                    .first()
-                    .and_then(|name| name.as_name().ok())
-                    .map(<[u8]>::to_vec)
-                    .unwrap_or_default();
+                self.state.font = match operands.first() {
+                    Some(Object::Name(name)) => name.clone(),
+                    _ => Vec::new(),
+                };
                 self.state.size = float(operands, 1);
             }
             "Td" => self.move_line(float(operands, 0), float(operands, 1)),
@@ -353,7 +185,7 @@ impl Reader {
                         if let Object::String(bytes, _) = item {
                             encoding.write_to_string(bytes, &mut shown)?;
                             advance += self.advance(bytes, widths.as_ref());
-                        } else if let Ok(adjust) = item.as_float() {
+                        } else if let Some(adjust) = number(item) {
                             if adjust < KERNING_SPACE && !ends_blank(&shown) {
                                 shown.push(' ');
                             }
@@ -399,7 +231,10 @@ impl Reader {
         let codes: Vec<u32> = if widths.two_byte {
             bytes
                 .chunks(2)
-                .map(|pair| pair.iter().fold(0, |code, byte| code * 256 + u32::from(*byte)))
+                .map(|pair| {
+                    pair.iter()
+                        .fold(0, |code, byte| code * 256 + u32::from(*byte))
+                })
                 .collect()
         } else {
             bytes.iter().map(|byte| u32::from(*byte)).collect()
@@ -408,7 +243,11 @@ impl Reader {
         codes
             .into_iter()
             .map(|code| {
-                let word = if !widths.two_byte && code == 32 { state.word_space } else { 0.0 };
+                let word = if !widths.two_byte && code == 32 {
+                    state.word_space
+                } else {
+                    0.0
+                };
                 (widths.of(code) / 1000.0 * state.size + state.char_space + word) * state.scale
             })
             .sum()
@@ -423,7 +262,11 @@ impl Reader {
     /// Where the pen now sits against where the last glyph ended.
     fn place(&self, end: End) -> Place {
         if !end.measured {
-            return if end.array { Place::Word } else { Place::Joined };
+            return if end.array {
+                Place::Word
+            } else {
+                Place::Joined
+            };
         }
         let page = self.matrix.times(self.state.ctm);
         let height = end.height.max(self.height());
