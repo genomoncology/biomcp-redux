@@ -511,6 +511,10 @@ fn binary_sidecars_are_ordered_and_confined() {
 fn binary_capture_follows_a_symlinked_parent_folder() {
     bytes::capture_through_symlinked_parent_round_trips();
 }
+#[test]
+fn symlink_inside_record_folder_is_refused_for_recording_and_replay() {
+    bytes::symlink_inside_record_folder_is_refused();
+}
 
 #[test]
 fn cut_binary_body_never_returns_partial_bytes() {
