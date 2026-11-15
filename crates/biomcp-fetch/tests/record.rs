@@ -512,6 +512,12 @@ fn binary_capture_follows_a_symlinked_parent_folder() {
     bytes::capture_through_symlinked_parent_round_trips();
 }
 
+#[cfg(unix)]
+#[test]
+fn symlink_inside_record_folder_is_refused_for_recording_and_replay() {
+    bytes::symlink_inside_record_folder_is_refused();
+}
+
 #[test]
 fn cut_binary_body_never_returns_partial_bytes() {
     bytes::cut_binary_body_is_refused_before_returning_bytes();
