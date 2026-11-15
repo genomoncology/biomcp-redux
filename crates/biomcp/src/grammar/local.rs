@@ -53,7 +53,7 @@ pub(super) fn serve_command() -> Command {
 pub(super) fn help_command(root: &Command) -> Command {
     let mut help = Command::new("help");
     for command in root.get_subcommands() {
-        let mut child = help_tree(command);
+        let mut child = tool_alias(help_tree(command));
         if command.get_name() == "get" {
             child = child
                 .mut_subcommands(|entity| {
@@ -79,16 +79,11 @@ pub(super) fn help_command(root: &Command) -> Command {
     }
     for (_, entity, _) in super::command_paths() {
         if help.find_subcommand(entity).is_none() {
-            let mut alias = Command::new(entity);
+            let mut alias = tool_alias(Command::new(entity));
             if sections(entity) {
                 alias = alias.arg(section_word());
             }
             help = help.subcommand(alias);
-        }
-        // `help questions` lists entities by tool name, so `help adverse_event` answers too.
-        let tool = entity.replace('-', "_");
-        if tool != entity && help.find_subcommand(&tool).is_none() {
-            help = help.mut_subcommand(entity, |page| page.alias(tool));
         }
     }
     help.subcommand(
@@ -115,6 +110,22 @@ pub(super) fn help_command(root: &Command) -> Command {
     .subcommand(
         Command::new("relations").about("Map entities through sections and search filters."),
     )
+}
+
+/// `help questions` lists entities by tool name, so `help adverse_event` answers as
+/// `help adverse-event` does.
+fn tool_alias(page: Command) -> Command {
+    let name = page.get_name();
+    if name.contains('-')
+        && super::command_paths()
+            .iter()
+            .any(|(_, entity, _)| *entity == name)
+    {
+        let tool = name.replace('-', "_");
+        page.alias(tool)
+    } else {
+        page
+    }
 }
 
 /// A get command whose schema names sections takes one section word in its help.
