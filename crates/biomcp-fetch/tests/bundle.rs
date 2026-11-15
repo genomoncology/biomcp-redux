@@ -446,6 +446,9 @@ mod rejections;
 #[path = "bundle/resume.rs"]
 mod resume;
 
+#[path = "bundle/set_record.rs"]
+mod set_record;
+
 #[path = "bundle/shutdown.rs"]
 mod shutdown;
 

@@ -105,7 +105,12 @@ impl Recordings {
         let Self::Replay { dir, .. } = self else {
             return Err(RecordError::Malformed);
         };
-        sidecar::read(dir, &path(dir, source, key), &message.sidecar, limit)
+        sidecar::read(
+            dir,
+            &path(dir, source, key),
+            &message.sidecar,
+            limit.min(sidecar::MAX_BINARY_BYTES),
+        )
     }
 }
 
@@ -122,7 +127,13 @@ fn publish_messages(
                 .get(index)
                 .ok_or(RecordError::Malformed)?
                 .delay_ms;
-            let sidecar = sidecar::publish(root, owner, index, &spool.message(index)?)?;
+            let sidecar = sidecar::publish(
+                root,
+                owner,
+                index,
+                &spool.message(index)?,
+                sidecar::MAX_BINARY_BYTES,
+            )?;
             Ok(Message { sidecar, delay_ms })
         })();
         match result {

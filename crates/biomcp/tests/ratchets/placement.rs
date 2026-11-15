@@ -312,6 +312,10 @@ const ALLOWED: &[(&str, &str)] = &[
         "Exercise streamed gzip XML parts and their decoded bound through the public transport API.",
     ),
     (
+        "crates/biomcp-fetch/tests/bundle/set_record.rs",
+        "Record and replay a multi-file sync whose part exceeds the ordinary record limits through the public Fetch API.",
+    ),
+    (
         "crates/biomcp-fetch/tests/bundle/shutdown.rs",
         "Cancel and join server-owned bundle work while preserving caller cancellation independence and published rows through the public Fetch API.",
     ),

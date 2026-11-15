@@ -402,6 +402,7 @@ impl Leg<'_> {
                 &prepared.url,
                 prepared.recording(),
                 codec.limit.unwrap_or(self.fetch.config.max_body),
+                codec.set_part,
             )
             .map_err(|error| {
                 if codec.limit.is_some() && error == crate::RecordError::Limit {
@@ -518,6 +519,7 @@ impl Leg<'_> {
             &prepared.url,
             prepared.recording(),
             exchange,
+            codec.set_part,
         )
     }
 
