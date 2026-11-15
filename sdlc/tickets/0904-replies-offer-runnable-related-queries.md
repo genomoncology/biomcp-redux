@@ -127,4 +127,4 @@ An independent review rejected 3d44a1569. Changed:
 
 - Swapping in the one accepting source is certain only when the caller named no source, so the refused source was the default. When the caller named a source (`--source`, or `source` in a typed call), the swapped call is a guess: it comes first and help stays beside it (`grammar/recovery.rs::source_swap`). `search adverse-event pump --source maude --reaction Headache`, `search drug artemether --source who-pq --initiated-from 2026-01-01`, `search pathway --source wikipathways --gene BRAF`, the three `get phenotype HP:0001250 ... --source hpo` refusals and the typed trial refusal (ctgov to nci) now offer the swapped call plus help. The swapped call must also pass the check made before any source is read.
 - Measured in j41399: the phenotype refusals with help beside the swapped call are 398 bytes (main 331, with help only); their ceiling is 461, measured plus 15% for the longest section word.
-
+- Measured in j41409: `search drug Enhertu --source ema --name-selector preferred` now offers the ChEMBL call plus help, 418 bytes (main 337); its ceiling is 481.
