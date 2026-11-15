@@ -443,7 +443,7 @@ pub struct DiagnosticClearance {
     /// Native decision_code; missing and empty remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_code: Option<Box<str>>,
-    /// Native decision_description; missing and empty remain distinct. Left out as Unknown when decision_reading is present.
+    /// Native decision_description; missing and empty remain distinct. Left out when openFDA's value is "Unknown" and decision_reading is present.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_description: Option<Box<str>>,
     /// Native decision_date; missing and empty remain distinct.
