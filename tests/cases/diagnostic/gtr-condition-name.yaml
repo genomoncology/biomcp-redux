@@ -37,7 +37,7 @@
         "--condition",
         "non-small cell"
       ],
-      "max_bytes": 100000,
+      "max_bytes": 6161,
       "expect": {
         "/page/total": 19,
         "/result/items/0/header/id": "GTR000500500.2",
@@ -60,7 +60,7 @@
         "--condition",
         "Non-small cell lung cancer"
       ],
-      "max_bytes": 100000,
+      "max_bytes": 6298,
       "expect": {
         "/page/total": 12
       }
@@ -74,7 +74,7 @@
         "--condition",
         "nonsmall cell"
       ],
-      "max_bytes": 100000,
+      "max_bytes": 4714,
       "expect": {
         "/page/total": 19
       }
