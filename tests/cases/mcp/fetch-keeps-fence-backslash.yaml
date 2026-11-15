@@ -1,0 +1,107 @@
+feature: mcp-research
+live_check: "synthetic response-only shape test over the recorded Europe PMC core request identity; tests/replies/article/preprint/synthetic-backslash-doi/README.md"
+story: The research fetch tool's plain-text view keeps a backslash inside a fenced next step as written.
+replay: article/preprint/synthetic-backslash-doi
+steps:
+  - mcp_call:
+      name: fetch
+      arguments:
+        id: article PPR1064174 fulltext
+    expect:
+      /id: article PPR1064174 fulltext
+      /url: https://doi.org/10.1000/a\.b
+      # The sh fence keeps '10.1000/a\.b'; removing the fence copy prints a.b.
+      /text: |
+        ````text
+        ## Next
+
+        **fresh:**
+
+        ```sh
+        biomcp get article PPR1064174 fulltext --fresh
+        ```
+
+        **section:**
+
+        ```sh
+        biomcp get article '10.1000/a\.b' pdf
+        ```
+
+        **section:**
+
+        ```sh
+        biomcp get article PPR1064174 tldr pdf
+        ```
+
+        ## Problems
+
+        | Code | Field | Record | Source |
+        | --- | --- | --- | --- |
+        | value.unknown | license | PPR1064174 | europepmc |
+
+        ## Query
+
+        ### Input
+
+        - PPR1064174
+
+        ### Section
+
+        - fulltext
+
+        ## Result
+
+        ### Items
+
+        #### Answer
+
+        ##### Card
+
+        ###### Authors
+
+        **total:** 0
+
+        **doi:** 10.1000/a\.b
+
+        **europepmc_id:** PPR1064174
+
+        **title:** Synthetic preprint with a backslash DOI
+
+        **fetched:** 1792854232
+
+        ##### Match
+
+        **kind:** europepmc-id
+
+        **resolution:** resolved
+
+        **input:** PPR1064174
+
+        #### More
+
+        - tldr
+        - pdf
+
+        #### Sections
+
+        ##### Fulltext
+
+        europepmc failed (reason: not-open); resolve this reason and retry the request.
+
+        **reason:** not-open
+
+        **source:** europepmc
+
+        **state:** unavailable
+
+        **status:** complete
+
+
+        ## Sources
+
+        | Source | State | Terms | Terms url | Use |
+        | --- | --- | --- | --- | --- |
+        | europepmc | ok | Europe PMC copyright; record-specific licenses | <https://europepmc.org/help#copyright> | per-record |
+
+        **status:** partial
+        ````
