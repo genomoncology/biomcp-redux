@@ -1,0 +1,58 @@
+{
+  "method": "GET",
+  "source": "fda-drug-recall",
+  "url": "https://api.fda.gov/drug/enforcement.json?search=recalling_firm%3A%22Qualitest%22%20AND%20recall_initiation_date%3A%5B20150325%20TO%2020150325%5D&limit=10&skip=0&sort=recall_initiation_date%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794784277,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 336,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 10,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "status": "Terminated",
+      "city": "Huntsville",
+      "state": "AL",
+      "country": "United States",
+      "classification": "Class III",
+      "openfda": {},
+      "product_type": "Drugs",
+      "event_id": "70852",
+      "recalling_firm": "Qualitest Pharmaceuticals",
+      "address_1": "120 Vintage Dr NE",
+      "address_2": "N/A",
+      "postal_code": "35811-8216",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Nationwide",
+      "recall_number": "D00432-2015",
+      "product_description": "PROMETHAZINE VC WITH CODEINE SYRUP, EACH 5 ml contains:  Codeine Phosphate 10 mg, Promethazine Hydrochloride 6.25 mg, Phenylephrine Hydrochloride 5 mg, alcohol 7%, (a) 4 fl oz bottle (NDC 0603-1588-54) and (b) 16 fl oz bottle (NDC 0603-1588-58) Rx only, Manufactured for QUALITEST PHARMACEUTICALS, HUNTSVILLE, AL 35811.",
+      "product_quantity": "36,732 units",
+      "reason_for_recall": "Failed Impurities/Degradation Specifications: A stability lot was out of specification for a known impurity at the 8 month Controlled Room Temperature stability time-point.",
+      "recall_initiation_date": "20150325",
+      "center_classification_date": "20150406",
+      "termination_date": "20160712",
+      "report_date": "20150415",
+      "code_info": "Lot #:   (a) L073D14A, Exp 07/31/15.  Lot #: (b) L073D14B, Exp 07/31/15; 0000002247, Exp 03/31/16; L063B14A, Exp 05/31/15"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

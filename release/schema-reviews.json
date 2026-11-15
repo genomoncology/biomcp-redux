@@ -15,6 +15,13 @@
       "review": "0978: admit FDA's older published device recall form Z-NNNN-YY. openFDA's bulk export scan of 2026-11-15 (pm job j41468) found 5,511 of 59,705 device recall records numbered Z-NNNN-YY, initiated 1997-2006, which BioMCP declined; their lookups by product_res_number.exact return exactly that record. Every value the old pattern accepted still matches. Typos and cut-short values (Z1006-2010, Z-3011-201, Z-NNN-YYYY, Z-NNNN-N) stay declined. BioData 0025 widens the type."
     },
     {
+      "schema": "biomcp.diagnostic-page/6",
+      "path": "/result/items/[]/@identity_status=device-recall/header/recall_number",
+      "from": "^Z-[0-9]{4}-[0-9]{4}$",
+      "to": "^Z-[0-9]{4}-([0-9]{4}|[0-9]{2})$",
+      "review": "0978: admit FDA's older published device recall form Z-NNNN-YY. openFDA's bulk export scan of 2026-11-15 (pm job j41468) found 5,511 of 59,705 device recall records numbered Z-NNNN-YY, initiated 1997-2006, which BioMCP declined; their lookups by product_res_number.exact return exactly that record. Every value the old pattern accepted still matches. Typos and cut-short values (Z1006-2010, Z-3011-201, Z-NNN-YYYY, Z-NNNN-N) stay declined. BioData 0025 widens the type."
+    },
+    {
       "schema": "biodata.drug-recall-number/1",
       "path": "",
       "from": "^D-[0-9]{4}-[0-9]{4}$",

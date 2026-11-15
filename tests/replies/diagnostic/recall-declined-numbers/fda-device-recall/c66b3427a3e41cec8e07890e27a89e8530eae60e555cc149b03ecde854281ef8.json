@@ -1,0 +1,51 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_res_number.exact%3A%22Z-1192-03%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794784279,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 335,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 1,
+              "total": 1
+            }
+          },
+          "results": [
+            {
+              "cfres_id": "29051",
+              "product_res_number": "Z-1192-03",
+              "event_date_initiated": "2003-08-08",
+              "event_date_posted": "2003-08-29",
+              "recall_status": "Terminated",
+              "event_date_terminated": "2004-03-11",
+              "res_event_number": "27041",
+              "product_code": "74DWF",
+              "k_numbers": [
+                "K925442"
+              ],
+              "product_description": "Sarns brand Retrograde Cardioplegia Cannula, 13 Fr, steerable stylet, ribbed balloon, manual-inflate.  Catalog # 5578",
+              "recalling_firm": "Terumo Cardiovascular Systems Corp",
+              "reason_for_recall": "Product is labeled as sterile, but inadequate package seal results in lack of assurance of sterility.",
+              "root_cause_description": "Other",
+              "distribution_pattern": "United States, Canada, Chile, China, Germany and Japan.",
+              "openfda": {}
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

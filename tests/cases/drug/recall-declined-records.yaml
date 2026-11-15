@@ -1,8 +1,8 @@
 {
   "feature": "drug-recall",
   "live_check": "public",
-  "story": "A drug recall page that declines records without a usable recall number names each declined record in its own record.declined problem by the raw recall number openFDA sent (event_id only when the number is blank or N/A), so the problems count and tell apart the declined records, and keeps the other rows as a partial page.",
-  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41440 on base commit 648240afe, without a key; bodies unchanged. On that base each page answered partial with one recall_number problem naming no record. Requests, sizes and SHA-256 are in tests/replies/drug/recall-declined-records/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A drug recall page shows records numbered in FDA's older D-NNN-YYYY form as rows, and get finds a recall by such a number. A record whose recall number is malformed, such as one cut short or missing a hyphen, is still declined: the page keeps its other rows as a partial page and names the declined record in its own record.declined problem by the raw recall number openFDA sent (event_id only when the number is blank or N/A).",
+  "verified": "Native openFDA replies recorded by biomcp --record without a key: the 2013-10-18 and 2013-02-27 pages on 2026-11-15 in pm job j41440 (0977), the Olympia, Qualitest and D-502-2013 replies on 2026-11-15 in pm job j41472; bodies unchanged. On base commit 94395bcad the 2013 pages declined every D-NNN-YYYY record (0977's expectations) and get drug D-404-2014 was refused as a usage error before any request (pm job j41441). Requests, sizes and SHA-256 are in tests/replies/drug/recall-declined-records/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "drug/recall-declined-records",
   "steps": [
     {
@@ -17,43 +17,16 @@
         "2013-10-18"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/page/total": 6,
-        "/page/returned": 1,
-        "/result/items/0/recall_number": "D-1161-2014",
+        "/page/returned": 6,
+        "/result/items/0/recall_number": "D-404-2014",
+        "/result/items/4/recall_number": "D-405-2014",
+        "/result/items/5/recall_number": "D-1161-2014",
         "/sources/0/state": "ok",
-        "/problems": {
-          "equals": [
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-404-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-402-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-403-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-401-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-405-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            }
+        "": {
+          "omits": [
+            "problems"
           ]
         }
       }
@@ -70,38 +43,111 @@
         "2013-02-27"
       ],
       "expect": {
-        "/status": "partial",
+        "/status": "complete",
         "/page/total": 4,
+        "/page/returned": 4,
+        "/result/items/0/recall_number": "D-400-2014",
+        "/result/items/3/recall_number": "D-623-2013",
+        "/sources/0/state": "ok",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--firm",
+        "Olympia",
+        "--initiated-from",
+        "2013-05-29",
+        "--initiated-to",
+        "2013-05-29"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 105,
+        "/page/returned": 9,
+        "/result/items/0/recall_number": "D-722-2013",
+        "/result/items/8/recall_number": "D-764-2013",
+        "/sources/0/state": "ok",
+        "/problems": {
+          "equals": [
+            {
+              "source": "fda-drug-recall",
+              "record": "recall_number:D-751-013",
+              "field": "recall_number",
+              "code": "record.declined"
+            }
+          ]
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "drug",
+            "--firm",
+            "Olympia",
+            "--initiated-from",
+            "2013-05-29",
+            "--initiated-to",
+            "2013-05-29",
+            "--offset",
+            "10",
+            "--source",
+            "fda-drug-recall"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--source",
+        "fda-drug-recall",
+        "--firm",
+        "Qualitest",
+        "--initiated-from",
+        "2015-03-25",
+        "--initiated-to",
+        "2015-03-25"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/page/total": 1,
         "/page/returned": 0,
         "/sources/0/state": "ok",
         "/problems": {
           "equals": [
             {
               "source": "fda-drug-recall",
-              "record": "recall_number:D-400-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-398-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-399-2014",
-              "field": "recall_number",
-              "code": "record.declined"
-            },
-            {
-              "source": "fda-drug-recall",
-              "record": "recall_number:D-623-2013",
+              "record": "recall_number:D00432-2015",
               "field": "recall_number",
               "code": "record.declined"
             }
           ]
         }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "drug",
+        "D-502-2013",
+        "--source",
+        "fda-drug-recall"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/header/recall_number": "D-502-2013",
+        "/result/header/firm": "Hospira Inc.",
+        "/result/header/initiated": "2013-04-30",
+        "/sources/0/state": "ok"
       }
     }
   ]
