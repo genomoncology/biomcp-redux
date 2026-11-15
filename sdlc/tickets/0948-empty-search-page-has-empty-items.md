@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-A search page with no matches carries an empty `items` list (or the source's list field), so scripts that read `.items` don't break on zero results.
+An empty search page's reply says plainly that zero results leave `items` out and `page.total`/`page.returned` are 0.
 
 ## Why
 
@@ -14,7 +14,7 @@ dx-lab-director round 2 call 27: an empty search page had no `items` key and the
 
 ## Proof
 
-- Proof: a recorded empty search case asserts `items` is present and empty.
+- Proof: the recorded empty search case asserts `items` is absent and the page counts are 0; the README and the envelope `page` description say so.
 
 ## Starts from
 
@@ -37,3 +37,5 @@ dx-lab-director round 2 call 27: an empty search page had no `items` key and the
 - Stopped for a decision: the ticket conflicts with Ian's decision `sdlc/decisions/2026-10-23-json-is-the-default-output.md` ("the envelope omits nulls, empty lists, unrequested sections and repeated commands") and 0362, which made it a runner check: `reject_empty_lists` in `crates/biomcp/tests/runner/schema.rs:114` fails any recorded reply that holds an empty list, with one narrow exception for typed gnomAD filters (0610).
 - Branch state (2775f6c28): every reply row list named `items` (43 fields, including the `page!` macro and `Capped<T>`), plus `AlphaGenomeScorerPage.rows` and `DrugCivicPage.records`, keeps `#[serde(default)]` but no longer skips when empty. A schema-only skip test (`crate::no_schema_default`, `paged.rs`) keeps the generated schemas byte for byte: the fields stay optional and get no `default` annotation, so the 1.0.0 baseline is untouched. The `--name cell-free` step of `diagnostic/intended-use.yaml` asserts `/result/items: []`; seven cases that asserted `omits: [items]` now assert `[]`.
 - Gate j41088: fmt, clippy, ratchets and both schema checks (`generated_schemas_preserve_release_contracts`, `checked_in_schemas_match_types`) pass. Cases fail: 110 (plus `readme/trial.yaml` in docs-check), 91 read in the failure list all "product reply contains an empty list", at `/result/items` and at nested `Capped` lists such as `/result/warnings/items` and `/result/items/2/interventions/items`.
+- PM decision 2026-11-14: option 2. Ian's decision `sdlc/decisions/2026-10-23-json-is-the-default-output.md` stands (replies omit empty lists, because size matters more than format); a ticket does not override it. The code change is reverted (commits 903c8597d and 7a6820cdc revert 2775f6c28 and ced9deaf4), and the Outcome is reworded to state the omission plainly instead.
+- Changed: `README.md` (the JSON output paragraph) says replies leave out nulls and empty lists, so a zero-result search has `page.total` and `page.returned` 0 and no `result.items`. The envelope `page` field description (`crates/biomcp-types/src/response/envelope.rs`) says the same; a description change only, regenerated into the checked-in schema files. The persona's `--name cell-free` step in `tests/cases/diagnostic/intended-use.yaml` asserts total 0, returned 0 and `/result` omits `items`.
