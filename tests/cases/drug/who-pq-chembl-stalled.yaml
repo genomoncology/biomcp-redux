@@ -1,10 +1,10 @@
 {
   "feature": "drug-who-medicines",
-  "story": "A WHO PQ search that finds nothing under the typed name retries under the name ChEMBL's record states, read from MyChem's copy of ChEMBL, so it widens and completes while ChEMBL's own API stalls.",
-  "live_check": "synthetic authored WHO PQ export rows and source replies; no live provider observation",
+  "story": "A WHO PQ search for a real drug that finds nothing under the typed name retries under the name ChEMBL's record states, read from MyChem's copy of ChEMBL, so it widens and completes while ChEMBL's own API stalls.",
+  "live_check": "real MyChem, MyChem-copy, openFDA label and ChEMBL replies recorded live in j41412; synthetic WHO PQ export rows; authored ChEMBL delay",
   "replay": "drug/who-pq-chembl-stalled-synthetic",
   "config": {
-    "command_timeout_seconds": 9
+    "command_timeout_seconds": 15
   },
   "steps": [
     {
@@ -21,19 +21,19 @@
       "run": [
         "search",
         "drug",
-        "SW-7",
+        "rifampicin",
         "--source",
         "who-pq"
       ],
       "expect": {
         "/status": "complete",
-        "/query/query": "SYNTHETIC MEDICINE S",
+        "/query/query": "RIFAMPIN",
         "/page/total": 1,
         "/result/items/*/reference": [
-          "SYN-CS01"
+          "SYN-RF01"
         ],
         "/sources/0/source": "who-pq",
-        "/sources/0/notices/0/message": "The search for \"SW-7\" returned no rows. chembl record CHEMBL9100001 supplies the name \"SYNTHETIC MEDICINE S\"; tried the selected source with that name. Returned rows and totals belong to the selected source."
+        "/sources/0/notices/0/message": "The search for \"rifampicin\" returned no rows. chembl record CHEMBL374478 supplies the name \"RIFAMPIN\"; tried the selected source with that name. Returned rows and totals belong to the selected source."
       },
       "max_bytes": 40000
     }

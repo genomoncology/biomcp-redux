@@ -338,6 +338,10 @@ fn chembl(cx: &Ctx<'_>, input: &Text, evidence: &mut Evidence) -> Option<Stated>
         ));
         return None;
     }
+    // MyChem holds the copy, so with MyChem off ChEMBL's record is not read, as for search names.
+    if cx.fetch.disabled(DrugSource::Mychem.source()) {
+        return None;
+    }
     let copy = super::search_names::chembl_copy(cx, input);
     evidence.sources.extend(copy.evidence);
     evidence.problems.extend(copy.problems);

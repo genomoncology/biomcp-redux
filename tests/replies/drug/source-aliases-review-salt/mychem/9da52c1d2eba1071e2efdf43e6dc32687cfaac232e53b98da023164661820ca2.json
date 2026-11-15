@@ -6,13 +6,15 @@
     {
       "fetched": 1793329799,
       "status": 200,
-      "content_type": "application/json",
+      "content_type": "application/json; charset=UTF-8",
       "delay_ms": 0,
       "retry_after_ms": null,
       "body": {
         "kind": "json",
         "value": {
+          "took": 2,
           "total": 0,
+          "max_score": null,
           "hits": []
         }
       }

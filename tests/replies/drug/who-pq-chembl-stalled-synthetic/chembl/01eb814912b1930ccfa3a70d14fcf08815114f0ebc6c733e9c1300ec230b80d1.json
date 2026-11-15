@@ -1,22 +1,24 @@
 {
   "method": "GET",
   "source": "chembl",
-  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?pref_name__iexact=EX-66&limit=50&offset=0",
+  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?pref_name__iexact=rifampicin&limit=50&offset=0",
   "exchanges": [
     {
-      "fetched": 1793329799,
+      "fetched": 1794773280,
       "status": 200,
       "content_type": "application/json",
-      "delay_ms": 0,
+      "delay_ms": 30000,
       "retry_after_ms": null,
       "body": {
         "kind": "json",
         "value": {
           "molecules": [],
           "page_meta": {
-            "total_count": 0,
+            "limit": 50,
+            "next": null,
             "offset": 0,
-            "limit": 50
+            "previous": null,
+            "total_count": 0
           }
         }
       }

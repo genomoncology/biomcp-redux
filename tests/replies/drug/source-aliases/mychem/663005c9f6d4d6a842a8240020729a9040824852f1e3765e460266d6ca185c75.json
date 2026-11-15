@@ -6,48 +6,56 @@
     {
       "fetched": 1793329799,
       "status": 200,
-      "content_type": "application/json",
+      "content_type": "application/json; charset=UTF-8",
       "delay_ms": 0,
       "retry_after_ms": null,
       "body": {
         "kind": "json",
         "value": {
+          "took": 2,
           "total": 2,
+          "max_score": 27.5,
           "hits": [
             {
-              "_id": "CHEMBL941",
-              "_version": 1,
+              "_id": "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+              "_score": 27.5,
               "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
                 "molecule_chembl_id": "CHEMBL941",
-                "pref_name": "Ambiguous therapy",
                 "molecule_synonyms": [
                   {
                     "molecule_synonym": "EX-66",
-                    "syn_type": "RESEARCH_CODE"
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "EX-66"
                   },
                   {
                     "molecule_synonym": "Experimental synonym",
-                    "syn_type": "RESEARCH_CODE"
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "EXPERIMENTAL SYNONYM"
                   }
-                ]
+                ],
+                "pref_name": "Ambiguous therapy"
               }
             },
             {
-              "_id": "CHEMBL1201585",
-              "_version": 1,
+              "_id": "KTUFNOKKBVMGRW-UHFFFAOYSA-M",
+              "_score": 26.0,
               "chembl": {
+                "_license": "http://bit.ly/2KAUCAm",
                 "molecule_chembl_id": "CHEMBL1201585",
-                "pref_name": "Ambiguous therapy",
                 "molecule_synonyms": [
                   {
                     "molecule_synonym": "EX-66",
-                    "syn_type": "RESEARCH_CODE"
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "EX-66"
                   },
                   {
                     "molecule_synonym": "Experimental synonym",
-                    "syn_type": "RESEARCH_CODE"
+                    "syn_type": "RESEARCH_CODE",
+                    "synonyms": "EXPERIMENTAL SYNONYM"
                   }
-                ]
+                ],
+                "pref_name": "Ambiguous therapy"
               }
             }
           ]
