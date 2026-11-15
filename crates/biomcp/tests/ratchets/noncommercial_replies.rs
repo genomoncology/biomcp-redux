@@ -113,7 +113,10 @@ pub(super) fn ids(root: &Path) -> Check {
         let Ok(text) = fs::read_to_string(&path) else {
             continue;
         };
-        let relative = path.strip_prefix(root)?.to_string_lossy().replace('\\', "/");
+        let relative = path
+            .strip_prefix(root)?
+            .to_string_lossy()
+            .replace('\\', "/");
         let ids: Vec<String> = real_ids(&text)
             .into_iter()
             .filter(|id| (relative.as_str(), id.as_str()) != PROBE)
@@ -352,7 +355,10 @@ fn real_ids_outside_replies_fail() -> Check {
     ids(root.path())?;
     let cases = root.path().join("tests/cases");
     fs::create_dir_all(&cases)?;
-    fs::write(cases.join("a.yaml"), case("a live call needs a real record"))?;
+    fs::write(
+        cases.join("a.yaml"),
+        case("a live call needs a real record"),
+    )?;
     if ids(root.path()).is_ok() {
         return Err("a live check outside tests/native excused a real ID".into());
     }
