@@ -112,12 +112,19 @@ fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     if index == 0 && value.get("status") != Some(&json!("complete")) {
         return Err(format!("recorded search did not succeed: {value}"));
     }
+    // The one source that reads both sections keeps them, in place of help; its options
+    // are checked by the cases.
+    let first = value
+        .get("next")
+        .and_then(Value::as_array)
+        .filter(|next| next.len() == 1)
+        .and_then(|next| next.first())
+        .map(|step| json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]}));
     if index == 2
-        && value.get("next")
-            != Some(&json!([
-                {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["eligibility"]}}},
-                {"kind":"configure","name":"help","arguments":{"command":"get trial"}}
-            ]))
+        && first
+            != Some(json!(
+                {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["summary","eligibility"],"source":"nci"}}}
+            ))
     {
         return Err(format!("typed reply lost ordered recovery steps: {value}"));
     }
