@@ -124,8 +124,11 @@ impl Reader {
                 self.move_line(float(operands, 0), float(operands, 1));
             }
             "Tm" => {
-                self.line = Matrix::from(operands).unwrap_or_default();
-                self.matrix = self.line;
+                // A `Tm` without six numbers leaves the text where it was.
+                if let Some(matrix) = Matrix::from(operands) {
+                    self.line = matrix;
+                    self.matrix = matrix;
+                }
             }
             "T*" => self.next_line(),
             "Tj" | "TJ" => self.show(operands, fonts)?,
@@ -268,14 +271,14 @@ impl Reader {
         let page = self.matrix.times(self.state.ctm);
         let height = end.height.max(self.height());
         let length = page.a.hypot(page.b);
-        if height <= 0.0 || length <= 0.0 {
-            return Place::Word;
-        }
         let (x, y) = (page.e - end.x, page.f - end.y);
         let (along_x, along_y) = (page.a / length, page.b / length);
         let along = x * along_x + y * along_y;
         let across = (x * along_y - y * along_x).abs();
-        if across > LINE_GAP * height {
+        // A degenerate or non-finite matrix places nothing, so keep the words apart.
+        if height <= 0.0 || length <= 0.0 || !(height.is_finite() && along.is_finite() && across.is_finite()) {
+            Place::Word
+        } else if across > LINE_GAP * height {
             Place::Line
         } else if along > WORD_GAP * height || along < -height {
             Place::Word

@@ -2,7 +2,10 @@
 //!
 //! A font whose widths are missing or not numbers has no widths, and the reader then keeps
 //! lopdf's word breaks for it. A reference to an object the file does not hold reads as
-//! absent: PDF 32000-1 §7.3.10 treats it as the null object, not an error.
+//! absent: PDF 32000-1 §7.3.10 treats it as the null object, not an error. A composite
+//! (Type0) font is read as Identity-H: each two-byte code is the glyph ID its `W` widths
+//! name. Every FDA document recorded for BioMCP's cases uses that encoding; a font with
+//! another CMap gets widths for the wrong codes, which can misplace a word break.
 use lopdf::{Dictionary, Document, Object};
 use std::collections::BTreeMap;
 
