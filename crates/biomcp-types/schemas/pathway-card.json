@@ -1732,6 +1732,13 @@
         "kind": {
           "$ref": "#/$defs/Reply_StepKind",
           "description": "Purpose of the action."
+        },
+        "options": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Options this call also takes, each with a placeholder to fill in, such as\n`\"--decision-from\": \"<YYYY-MM-DD>\"`; add any of them to `args`. MCP names them as tool\narguments. Absent when the step is only runnable as it is.",
+          "type": "object"
         }
       },
       "required": [
