@@ -9,7 +9,10 @@ fn text(value: &str) -> Text {
 #[test]
 fn migrations_only_add() {
     for statement in MIGRATIONS {
-        assert!(only_adds(statement), "migration does more than add: {statement}");
+        assert!(
+            only_adds(statement),
+            "migration does more than add: {statement}"
+        );
     }
     for statement in [
         "DROP TABLE saved_search",
@@ -44,7 +47,10 @@ fn lists_and_searches_round_trip() {
     let again = store
         .save_search(&text("melanoma"), &args, "biomcp.trial-search/1", "00")
         .unwrap();
-    assert_eq!(search, again, "the same words under the same name change nothing");
+    assert_eq!(
+        search, again,
+        "the same words under the same name change nothing"
+    );
     assert_eq!(search.id.as_str().len(), 32, "16 random bytes in hex");
     assert_eq!(
         store.check_search_name("MELANOMA", &["search".to_owned()]),
@@ -76,13 +82,25 @@ fn lists_and_searches_round_trip() {
     drop(store);
     let mut store = SavedStore::open(&path).unwrap();
     let all = store.show(None).unwrap();
-    assert_eq!((all.searches.len(), all.lists.len()), (1, 1), "reopened file keeps both");
-    assert_eq!(store.show(Some("nothing")).err(), Some(SavedError::Unknown), "unknown name");
+    assert_eq!(
+        (all.searches.len(), all.lists.len()),
+        (1, 1),
+        "reopened file keeps both"
+    );
+    assert_eq!(
+        store.show(Some("nothing")).err(),
+        Some(SavedError::Unknown),
+        "unknown name"
+    );
     let deleted = store.delete(Some("melanoma")).unwrap();
     assert_eq!(deleted.searches.len(), 1, "deleted search returned");
     let deleted = store.delete(None).unwrap();
     assert_eq!(deleted.lists.len(), 1, "delete all returns the rest");
-    assert_eq!(store.show(None).unwrap(), Default::default(), "nothing left");
+    assert_eq!(
+        store.show(None).unwrap(),
+        Default::default(),
+        "nothing left"
+    );
 }
 
 #[test]
@@ -103,6 +121,14 @@ fn newer_file_is_refused_untouched() {
         .unwrap();
     drop(connection);
     let before = std::fs::read(&path).unwrap();
-    assert_eq!(SavedStore::open(&path).err(), Some(SavedError::Newer), "newer file refused");
-    assert_eq!(std::fs::read(&path).unwrap(), before, "refused file unchanged");
+    assert_eq!(
+        SavedStore::open(&path).err(),
+        Some(SavedError::Newer),
+        "newer file refused"
+    );
+    assert_eq!(
+        std::fs::read(&path).unwrap(),
+        before,
+        "refused file unchanged"
+    );
 }

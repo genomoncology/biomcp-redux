@@ -175,7 +175,10 @@ impl SavedStore {
                         id,
                         item.entity.as_str(),
                         item.id.as_str(),
-                        item.source.as_ref().map(ToString::to_string).unwrap_or_default(),
+                        item.source
+                            .as_ref()
+                            .map(ToString::to_string)
+                            .unwrap_or_default(),
                         item.note.as_ref().map(Text::as_str),
                         seconds(now)?
                     ],
@@ -217,10 +220,7 @@ impl SavedStore {
         self.write(|tx, _| {
             let deleted = select(tx, name)?;
             for search in &deleted.searches {
-                tx.execute(
-                    "DELETE FROM saved_search WHERE id=?1",
-                    [search.id.as_str()],
-                )?;
+                tx.execute("DELETE FROM saved_search WHERE id=?1", [search.id.as_str()])?;
             }
             for list in &deleted.lists {
                 tx.execute(
@@ -238,7 +238,11 @@ fn seconds(now: u64) -> Result<i64, SavedError> {
     i64::try_from(now).map_err(|_| SavedError::Database)
 }
 
-fn search_name_free(connection: &Connection, name: &str, args: &[String]) -> Result<(), SavedError> {
+fn search_name_free(
+    connection: &Connection,
+    name: &str,
+    args: &[String],
+) -> Result<(), SavedError> {
     if list_id(connection, name)?.is_some() {
         return Err(SavedError::Taken);
     }
@@ -312,7 +316,16 @@ fn unsigned(value: i64) -> Result<u64, SavedError> {
     u64::try_from(value).map_err(|_| SavedError::Database)
 }
 
-type SearchRow = (String, String, String, String, String, String, i64, Option<i64>);
+type SearchRow = (
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    i64,
+    Option<i64>,
+);
 
 fn search(connection: &Connection, id: &str) -> Result<SavedSearch, SavedError> {
     let row: SearchRow = connection.query_row(
@@ -348,8 +361,8 @@ fn search(connection: &Connection, id: &str) -> Result<SavedSearch, SavedError> 
 type ItemRow = (String, String, String, Option<String>, i64);
 
 fn list(connection: &Connection, id: &str) -> Result<SavedList, SavedError> {
-    let (list_id, name, project, created, updated): (String, String, String, i64, i64) =
-        connection.query_row(
+    let (list_id, name, project, created, updated): (String, String, String, i64, i64) = connection
+        .query_row(
             "SELECT id,name,project,created,updated FROM saved_list WHERE id=?1",
             [id],
             |r| Ok((r.get(0)?, r.get(1)?, r.get(2)?, r.get(3)?, r.get(4)?)),

@@ -50,18 +50,45 @@ fn requested_output() -> Option<PathBuf> {
 fn write(out: &Path) -> Result<(), String> {
     let env = Environment::new().map_err(|error| error.to_string())?;
     let replay = fixtures().join("replies/trial/condition");
-    let mut search = vec!["search", "trial", "--condition", "melanoma", "--save-as", "melanoma-trials"];
+    let mut search = vec![
+        "search",
+        "trial",
+        "--condition",
+        "melanoma",
+        "--save-as",
+        "melanoma-trials",
+    ];
     let globals = env.globals(Some(replay.as_path()), false);
     search.extend(globals.iter().map(String::as_str));
     run(&env, &search)?;
     run(
         &env,
         &[
-            "saved", "list", "add", "melanoma-picks", "--entity", "trial", "--note",
-            "Recruiting in the US", "NCT04631731", "NCT05355701",
+            "saved",
+            "list",
+            "add",
+            "melanoma-picks",
+            "--entity",
+            "trial",
+            "--note",
+            "Recruiting in the US",
+            "NCT04631731",
+            "NCT05355701",
         ],
     )?;
-    run(&env, &["saved", "list", "add", "braf-genes", "--entity", "gene", "BRAF", "NRAS"])?;
+    run(
+        &env,
+        &[
+            "saved",
+            "list",
+            "add",
+            "braf-genes",
+            "--entity",
+            "gene",
+            "BRAF",
+            "NRAS",
+        ],
+    )?;
     let folder = out.join(env!("CARGO_PKG_VERSION"));
     fs::create_dir_all(&folder).map_err(|error| error.to_string())?;
     fs::copy(saved_file(&env), folder.join("saved.sqlite")).map_err(|error| error.to_string())?;

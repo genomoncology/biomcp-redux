@@ -28,9 +28,15 @@ pub(super) fn only_adds(statement: &str) -> bool {
         .collect();
     let text = words.join(" ");
     let single = !text.trim_end_matches(';').contains(';');
-    let forbidden = ["DROP", "RENAME", "DELETE", "UPDATE", "INSERT", "REPLACE", "SELECT", "PRAGMA"]
-        .iter()
-        .any(|word| words.iter().any(|w| w.trim_matches(|c: char| !c.is_ascii_alphabetic()) == *word));
+    let forbidden = [
+        "DROP", "RENAME", "DELETE", "UPDATE", "INSERT", "REPLACE", "SELECT", "PRAGMA",
+    ]
+    .iter()
+    .any(|word| {
+        words
+            .iter()
+            .any(|w| w.trim_matches(|c: char| !c.is_ascii_alphabetic()) == *word)
+    });
     let kind = text.starts_with("CREATE TABLE ")
         || text.starts_with("CREATE INDEX ")
         || text.starts_with("CREATE UNIQUE INDEX ")

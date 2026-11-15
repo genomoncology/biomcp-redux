@@ -5,12 +5,12 @@
 //! tool lands in its own ticket.
 use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
+use biodata::Text;
 use biomcp_query::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Help, HelpArgument, HelpCommand, HelpQuery,
     ResponseBody, Saved, Source, Status, UsageArguments, UsageError,
 };
-use biodata::Text;
 use clap::{Arg, ArgAction, ArgMatches, Command};
 use std::{ffi::OsString, io, path::Path};
 
@@ -123,12 +123,10 @@ pub(crate) fn cli(
 }
 
 fn save_as_position(args: &[OsString]) -> Option<usize> {
-    args.iter()
-        .take_while(|arg| *arg != "--")
-        .position(|arg| {
-            arg.to_str()
-                .is_some_and(|arg| arg == SAVE_AS || arg.starts_with("--save-as="))
-        })
+    args.iter().take_while(|arg| *arg != "--").position(|arg| {
+        arg.to_str()
+            .is_some_and(|arg| arg == SAVE_AS || arg.starts_with("--save-as="))
+    })
 }
 
 /// Split `--save-as NAME` from the search words.
@@ -301,9 +299,17 @@ fn list(
     let Some(name) = name else {
         return usage(encoding, UsageError::argument("NAME".into()));
     };
-    let ids: Vec<&String> = matches.get_many::<String>("id").into_iter().flatten().collect();
+    let ids: Vec<&String> = matches
+        .get_many::<String>("id")
+        .into_iter()
+        .flatten()
+        .collect();
     if verb == "remove" {
-        let Some(ids) = ids.iter().map(|id| Text::new(id).ok()).collect::<Option<Vec<_>>>() else {
+        let Some(ids) = ids
+            .iter()
+            .map(|id| Text::new(id).ok())
+            .collect::<Option<Vec<_>>>()
+        else {
             return usage(encoding, UsageError::argument("ID".into()));
         };
         let result = match open(encoding, false)? {
@@ -391,7 +397,11 @@ fn new_items(
     Ok(items)
 }
 
-fn reply(encoding: Encoding, result: Result<Saved, SavedError>, argument: &str) -> io::Result<Outcome> {
+fn reply(
+    encoding: Encoding,
+    result: Result<Saved, SavedError>,
+    argument: &str,
+) -> io::Result<Outcome> {
     match result {
         Ok(saved) => encoding.encode(
             Envelope::new(Status::Complete, biomcp_types::EmptyQuery {}, Some(saved)),
@@ -451,7 +461,12 @@ fn help(
 ) -> io::Result<Outcome> {
     let encoding = Encoding::cli(root, settings, args);
     let mut commands = vec![HelpCommand {
-        command: vec!["search".into(), "<entity>".into(), SAVE_AS.into(), "NAME".into()],
+        command: vec![
+            "search".into(),
+            "<entity>".into(),
+            SAVE_AS.into(),
+            "NAME".into(),
+        ],
         description: "Save a search under NAME when it succeeds; its words, without options \
             such as --format or --config, are what runs again. biomcp saved show lists it."
             .into(),
@@ -460,9 +475,16 @@ fn help(
         sections: Vec::new(),
         section_rule: None,
         examples: vec![
-            ["search", "trial", "--condition", "melanoma", SAVE_AS, "melanoma-trials"]
-                .map(String::from)
-                .to_vec(),
+            [
+                "search",
+                "trial",
+                "--condition",
+                "melanoma",
+                SAVE_AS,
+                "melanoma-trials",
+            ]
+            .map(String::from)
+            .to_vec(),
         ],
     }];
     walk(&grammar(), vec!["saved".into()], &mut commands);
@@ -488,7 +510,10 @@ fn walk(command: &Command, path: Vec<String>, commands: &mut Vec<HelpCommand>) {
     if command.get_subcommands().next().is_none() {
         commands.push(HelpCommand {
             command: path.clone(),
-            description: command.get_about().map(ToString::to_string).unwrap_or_default(),
+            description: command
+                .get_about()
+                .map(ToString::to_string)
+                .unwrap_or_default(),
             reply_schemas: vec![Saved::SCHEMA.into()],
             arguments: command.get_arguments().map(argument).collect(),
             sections: Vec::new(),
@@ -512,9 +537,10 @@ fn walk(command: &Command, path: Vec<String>, commands: &mut Vec<HelpCommand>) {
 
 fn argument(arg: &Arg) -> HelpArgument {
     HelpArgument {
-        name: arg
-            .get_long()
-            .map_or_else(|| arg.get_id().to_string().to_uppercase(), |name| format!("--{name}")),
+        name: arg.get_long().map_or_else(
+            || arg.get_id().to_string().to_uppercase(),
+            |name| format!("--{name}"),
+        ),
         description: arg.get_help().map(ToString::to_string).unwrap_or_default(),
         value_type: if matches!(arg.get_action(), ArgAction::SetTrue) {
             "boolean"

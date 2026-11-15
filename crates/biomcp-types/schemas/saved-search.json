@@ -1,0 +1,69 @@
+{
+  "$defs": {
+    "Reply_Text": {
+      "description": "Bounded nonempty text with surrounding Unicode whitespace removed.",
+      "maxLength": 1048576,
+      "minLength": 1,
+      "pattern": "^(?![\\s\\S]*[\\x00-\\x1f\\x7f-\\x9f\\u061c\\u200e\\u200f\\u202a-\\u202e\\u2066-\\u2069])",
+      "type": "string"
+    }
+  },
+  "$id": "biomcp.saved-search/1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "A search kept by name; its command words are what runs again.",
+  "properties": {
+    "args": {
+      "description": "Command words as given, without the save option.",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "checked": {
+      "description": "Unix seconds when the search was last checked for changes.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "created": {
+      "description": "Unix seconds when the search was saved.",
+      "format": "uint64",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "id": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "Random 16-byte identifier in hex."
+    },
+    "name": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "Name, unique in its project without regard to case."
+    },
+    "project": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "Project holding the search."
+    },
+    "request_key": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "SHA-256 of the checked request at save time, in hex."
+    },
+    "schema": {
+      "$ref": "#/$defs/Reply_Text",
+      "description": "Request schema identity at save time."
+    }
+  },
+  "required": [
+    "id",
+    "name",
+    "project",
+    "args",
+    "schema",
+    "request_key",
+    "created"
+  ],
+  "title": "SavedSearch",
+  "type": "object"
+}
