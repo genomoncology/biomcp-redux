@@ -266,7 +266,7 @@
         },
         "germline": {
           "$ref": "#/$defs/Reply_ClinVarGermlineCounts",
-          "description": "Records by aggregate germline classification; the buckets do not overlap."
+          "description": "Records by the classification terms in their aggregate germline label."
         },
         "pathogenic_or_likely": {
           "description": "Pathogenic, likely pathogenic and pathogenic/likely pathogenic records together.",
@@ -313,58 +313,58 @@
       "type": "object"
     },
     "Reply_ClinVarGermlineCounts": {
-      "description": "Disjoint germline classification counts in ClinVar's own terms.",
+      "description": "Germline classification counts by the terms in each record's aggregate label. ClinVar joins\na label's terms with `/` and `;`, as in \"Pathogenic/Likely pathogenic; risk factor\", and each\nrecord counts in the bucket of the classification terms its label lists. \"Pathogenic, low\npenetrance\" and \"VUS-high\" are terms of their own. The buckets do not overlap, except for the\nrare label that lists terms from two of them, such as \"Uncertain significance;\nPathogenic/Likely pathogenic\".",
       "properties": {
         "benign": {
-          "description": "Benign.",
+          "description": "Records whose label includes Benign and not Likely benign.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "benign_likely_benign": {
-          "description": "Benign/Likely benign.",
+          "description": "Records whose label includes both Benign and Likely benign.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "conflicting": {
-          "description": "Conflicting classifications of pathogenicity.",
+          "description": "Records whose label includes Conflicting classifications of pathogenicity, such as\n\"Conflicting classifications of pathogenicity; risk factor\".",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "likely_benign": {
-          "description": "Likely benign.",
+          "description": "Records whose label includes Likely benign and not Benign.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "likely_pathogenic": {
-          "description": "Likely pathogenic.",
+          "description": "Records whose label includes Likely pathogenic and not Pathogenic, such as \"Likely\npathogenic/Pathogenic, low penetrance\".",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "other": {
-          "description": "Every other record: no germline classification, not provided, risk factor and other terms.",
+          "description": "Records whose label includes none of the terms above: no germline classification, not\nprovided, risk factor alone, \"Pathogenic, low penetrance\" alone, a bare VUS-high or VUS-mid,\nand other terms.",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "pathogenic": {
-          "description": "Pathogenic.",
+          "description": "Records whose label includes Pathogenic and not Likely pathogenic, such as \"Pathogenic; risk\nfactor\" and \"Pathogenic/Pathogenic, low penetrance\".",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "pathogenic_likely_pathogenic": {
-          "description": "Pathogenic/Likely pathogenic.",
+          "description": "Records whose label includes both Pathogenic and Likely pathogenic, such as\n\"Pathogenic/Likely pathogenic/Pathogenic, low penetrance; risk factor\".",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
         },
         "uncertain_significance": {
-          "description": "Uncertain significance.",
+          "description": "Records whose label includes Uncertain significance, such as \"Uncertain\nsignificance/VUS-high\".",
           "format": "uint64",
           "minimum": 0,
           "type": "integer"
