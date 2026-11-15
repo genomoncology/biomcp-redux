@@ -61,10 +61,10 @@ pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader
         problems: found.problems,
     })
 }
-/// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
-/// Native ID lookup remains indexed; reads never synchronize or modify the stored snapshot.
 /// A name match with its `marketing_authorisation_date`, absent when blank or unreadable.
 pub type Authorised = (DrugHeader, Option<biodata::PartialDate>);
+/// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
+/// Native ID lookup remains indexed; reads never synchronize or modify the stored snapshot.
 /// Each match comes with its authorisation date.
 pub fn search_names(
     leg: &Leg<'_>,
