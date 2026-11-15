@@ -127,6 +127,31 @@
           "includes": "query"
         }
       }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {}
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/next/0/name": "help",
+        "/next": {
+          "count": 1
+        },
+        "/error/valid_values": {
+          "includes_all_of": [
+            "drugsfda",
+            "fda-drug-recall"
+          ]
+        }
+      }
     }
   ]
 }
