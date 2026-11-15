@@ -296,10 +296,6 @@ impl Fetch {
         })
     }
 
-    /// Configured time limit for one explicit bundle synchronization and its follow-up read.
-    pub fn sync_budget(&self) -> Duration {
-        self.config.sync_budget
-    }
     /// Whether this command explicitly forbids upstream requests.
     pub fn is_offline(&self) -> bool {
         matches!(self.mode, Mode::Offline)
@@ -393,15 +389,6 @@ impl Fetch {
         self.call_end
             .as_ref()
             .map_or(budget, |end| budget.min(end.remaining()))
-    }
-
-    /// Start a leg on the configured sync time limit, not capped by the source's own request
-    /// deadline, so a sync and any read it makes of its own store share one limit (0951).
-    pub fn sync_leg(&self, spec: &'static SourceSpec) -> Leg<'_> {
-        let deadline = self.deadline(self.config.sync_budget);
-        let mut leg = self.leg(spec, deadline);
-        leg.deadline = deadline;
-        leg
     }
 
     /// Start a leg capped by this source's budget.

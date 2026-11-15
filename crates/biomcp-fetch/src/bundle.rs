@@ -226,6 +226,18 @@ impl BundleSync {
     }
 }
 impl Fetch {
+    /// Configured time limit for one explicit bundle synchronization and each read it makes.
+    pub fn sync_budget(&self) -> std::time::Duration {
+        self.config.sync_budget
+    }
+    /// Start a leg on the configured sync time limit, not capped by the source's own request
+    /// deadline, so a sync and any read it makes of its own store use that limit (0951).
+    pub fn sync_leg(&self, spec: &'static SourceSpec) -> crate::Leg<'_> {
+        let deadline = self.deadline(self.config.sync_budget);
+        let mut leg = self.leg(spec, deadline);
+        leg.deadline = deadline;
+        leg
+    }
     /// Synchronize while preserving a refused refresh separately from the active catalog.
     pub fn sync_catalog<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleSync, RequestError> {
         self.sync_leg(bundle.spec).sync_bundle(bundle, false)
