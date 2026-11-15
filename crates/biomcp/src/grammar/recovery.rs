@@ -22,7 +22,8 @@ pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
 }
 
 /// A corrected call, and whether it is certain: false when it picked one of several listed
-/// values that would each pass, which is a guess that keeps help beside it.
+/// values that would each pass, or filled a bare command, which is a guess that keeps help
+/// beside it.
 pub(super) fn corrected(
     via: Rewrite,
     path: (&str, &str),
@@ -80,8 +81,10 @@ pub(super) fn corrected(
                 checked(via, path, candidate).map(|step| (index, step))
             });
         if let Some((index, step)) = passing.next() {
-            // The declared default, or the only listed value that passes, is certain.
-            let certain = (defaulted && index == 0) || passing.next().is_none();
+            // The declared default is certain, and so is the only listed value that passes when
+            // the call already names what it is after. A bare command gets the value as a guess.
+            let certain = (defaulted && index == 0)
+                || (passing.next().is_none() && super::options::names_something(schema, value));
             return Some((step, certain));
         }
     }

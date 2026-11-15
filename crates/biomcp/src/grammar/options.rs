@@ -99,11 +99,16 @@ pub(crate) fn asked(request: &Request) -> bool {
     ) else {
         return false;
     };
+    names_something(&schema, &value)
+}
+
+/// The query value sets a field other than its source that is not a count or a switch.
+pub(super) fn names_something(schema: &Value, value: &Value) -> bool {
     let Some(properties) = schema.get("properties").and_then(Value::as_object) else {
         return false;
     };
     properties.iter().any(|(name, property)| {
-        let resolved = super::validation::resolve(&schema, property);
+        let resolved = super::validation::resolve(schema, property);
         name != "source"
             && !matches!(
                 super::property_type(resolved),
