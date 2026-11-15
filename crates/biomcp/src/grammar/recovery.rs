@@ -195,6 +195,13 @@ pub(crate) fn prepared(
             if array { Value::Array(vec![choice]) } else { choice },
         );
         let request = super::rewrite::request(request.rewrite(), verb, entity, candidate).ok()?;
+        // The corrected call must pass the same check that refused this one.
+        biomcp_query::Action::Run {
+            request: request.clone(),
+            fresh: false,
+        }
+        .prepare()
+        .ok()?;
         run(&request)
     });
     next(arguments, corrected);
