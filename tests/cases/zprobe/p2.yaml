@@ -3,6 +3,6 @@
   "live_check": "local-only validation; no source requests",
   "story": "probe 2",
   "steps": [
-    {"mcp": ["get","article","123","--replace"], "hosted": true, "offline": true, "is_error": true, "expect": {"/error/code": "probe"}}
+    {"mcp": ["get","article","123","--replace"], "hosted": true, "offline": true, "is_error": true, "expect": {"/error": "probe"}}
   ]
 }

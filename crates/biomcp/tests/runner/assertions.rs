@@ -317,6 +317,7 @@ pub(super) fn check(
         step.max_bytes.map(|v| v as u64),
     )?;
     offsets::check(stdout, step)?;
+    offsets::check_order(stdout, step)?;
     if expectations.is_empty() && step.max_tokens.is_none() {
         return Ok(());
     }
