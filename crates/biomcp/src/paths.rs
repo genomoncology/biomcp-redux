@@ -12,6 +12,20 @@ pub(crate) fn config(
             .map(|root| root.join("biomcp/config.json"))
     }
 }
+/// Saved work lives in the data folder, never the cache folder, so no cache cleanup,
+/// predecessor scan or drop-and-rebuild can reach it.
+pub(crate) fn saved(
+    xdg: Option<PathBuf>,
+    home: Option<PathBuf>,
+    appdata: Option<PathBuf>,
+) -> Option<PathBuf> {
+    if cfg!(windows) {
+        appdata.map(|root| root.join("biomcp/saved.sqlite"))
+    } else {
+        xdg.or_else(|| home.map(|root| root.join(".local/share")))
+            .map(|root| root.join("biomcp/saved.sqlite"))
+    }
+}
 pub(crate) fn cache(
     xdg: Option<PathBuf>,
     home: Option<PathBuf>,
@@ -60,4 +74,25 @@ pub(crate) fn cache_predecessors(active: Option<&std::path::Path>) -> Vec<PathBu
         })
         .filter(|path| path != active)
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{cache, cache_predecessors, saved};
+    use std::path::PathBuf;
+
+    #[test]
+    fn saved_file_is_outside_every_cache_path() {
+        let home = Some(PathBuf::from("home"));
+        let roaming = Some(PathBuf::from("roaming"));
+        let local = Some(PathBuf::from("local"));
+        let saved = saved(None, home.clone(), roaming).unwrap();
+        let cache = cache(None, home, local).unwrap();
+        assert_ne!(saved.parent(), cache.parent(), "saved work is outside the cache folder");
+        assert!(
+            !cache_predecessors(Some(&cache)).contains(&saved),
+            "no cache generation names the saved file"
+        );
+        assert_eq!(saved.file_name().and_then(|name| name.to_str()), Some("saved.sqlite"), "saved file name");
+    }
 }

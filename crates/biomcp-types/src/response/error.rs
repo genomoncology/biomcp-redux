@@ -87,6 +87,10 @@ singleton! {
  McpStoreClean => "store clean is unavailable over MCP; run it from the command line",
  McpKey => "key is unavailable over MCP; run it from the command line",
  McpHosted => "this command is unavailable in hosted mode",
+ SavedUnknownName => "no saved search or list has this name; biomcp saved show lists the names",
+ SavedNameTaken => "a saved search or list already has this name; choose another name or delete it with biomcp saved \
+ delete NAME",
+ SavedNewer => "saved.sqlite was written by a newer BioMCP; upgrade BioMCP to read it; the file is unchanged",
  HostedKey => "add the source key in your account settings",
  UnknownCommand => "unknown command; use the suggested help command",
  Local => "local configuration, cache or recording failed",
@@ -507,6 +511,10 @@ impl ErrorEnvelope {
     /// Report a local failure without paths or provider diagnostics.
     pub fn local() -> Self {
         Self::empty(ErrorStatus::Local, ErrorCode::Local, ErrorMessage::Local)
+    }
+    /// Report a local failure with fixed guidance.
+    pub fn local_message(message: ErrorMessage) -> Self {
+        Self::empty(ErrorStatus::Local, ErrorCode::Local, message)
     }
     /// Name a rejected configuration field without its value.
     pub fn configuration(option: String) -> Self {

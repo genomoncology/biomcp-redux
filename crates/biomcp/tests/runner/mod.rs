@@ -122,6 +122,7 @@ mod snapshot_errors;
 mod source_queries;
 mod source_terms;
 mod source_text;
+mod saved_files;
 mod store_clean;
 mod store_coexistence;
 mod study_catalog;

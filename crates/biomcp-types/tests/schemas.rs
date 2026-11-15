@@ -148,6 +148,9 @@ fn registry() -> Vec<Contract> {
         HgncStatus => ("hgnc-status", "biodata.hgnc-status/2"),
         Build => ("build", "biodata.build/2"),
         Strand => ("strand", "biodata.strand/1"),
+        SavedRef => ("saved-ref", "biomcp.saved-ref/1"),
+        SavedSearch => ("saved-search", "biomcp.saved-search/1"),
+        SavedList => ("saved-list", "biomcp.saved-list/1"),
     };
     contracts.extend(common_registry());
     contracts.extend(article_registry());
