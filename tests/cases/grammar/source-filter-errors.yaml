@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "synthetic",
-  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity.",
+  "story": "Source-incompatible filters name accepting sources and a declared replacement, while invalid source values keep their own identity. A filter only one source takes keeps the filter with that source; dropping a filter is a guess that keeps help beside it.",
   "steps": [
     {
       "run": [
@@ -29,8 +29,8 @@
           "search",
           "adverse-event",
           "pump",
-          "--source",
-          "maude"
+          "--reaction",
+          "Headache"
         ]
       }
     },
@@ -55,7 +55,16 @@
         "/next/0/kind": "configure",
         "/next": {
           "count": 1
-        }
+        },
+        "/next/0/args": [
+          "search",
+          "drug",
+          "artemether",
+          "--initiated-from",
+          "2026-01-01",
+          "--source",
+          "fda-drug-recall"
+        ]
       }
     },
     {
@@ -106,8 +115,21 @@
         "/error/message": "a selected source does not support the requested filters",
         "/next/0/kind": "configure",
         "/next": {
-          "count": 1
-        }
+          "count": 2
+        },
+        "/next/0/args": [
+          "search",
+          "diagnostic",
+          "--gene",
+          "BRAF",
+          "--source",
+          "gtr"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "diagnostic"
+        ]
       }
     },
     {
@@ -130,7 +152,13 @@
         "/next/0/kind": "configure",
         "/next": {
           "count": 1
-        }
+        },
+        "/next/0/args": [
+          "search",
+          "pathway",
+          "--gene",
+          "BRAF"
+        ]
       }
     },
     {
@@ -152,7 +180,12 @@
         "/next/0/kind": "configure",
         "/next": {
           "count": 1
-        }
+        },
+        "/next/0/args": [
+          "help",
+          "search",
+          "pathway"
+        ]
       }
     },
     {

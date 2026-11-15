@@ -112,17 +112,12 @@ fn checked(result: &Value, form: &str, index: usize) -> Result<Value, String> {
     if index == 0 && value.get("status") != Some(&json!("complete")) {
         return Err(format!("recorded search did not succeed: {value}"));
     }
-    // The corrected call replaces help; its options are checked by the cases.
-    let next = value.get("next").and_then(Value::as_array);
-    let first = next
-        .and_then(|next| next.first())
-        .map(|step| json!({"kind":step["kind"],"name":step["name"],"arguments":step["arguments"]}));
     if index == 2
-        && (next.map(Vec::len) != Some(1)
-            || first
-                != Some(json!(
-                    {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["eligibility"]}}}
-                )))
+        && value.get("next")
+            != Some(&json!([
+                {"kind":"configure","name":"trial","arguments":{"action":"get","get":{"id":["NCT07491445"],"section":["eligibility"]}}},
+                {"kind":"configure","name":"help","arguments":{"command":"get trial"}}
+            ]))
     {
         return Err(format!("typed reply lost ordered recovery steps: {value}"));
     }

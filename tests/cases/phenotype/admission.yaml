@@ -26,7 +26,8 @@
         "/next/0/args": [
           "get",
           "phenotype",
-          "HP:0001250"
+          "HP:0001250",
+          "hierarchy"
         ],
         "/next": {
           "count": 1
@@ -57,7 +58,13 @@
         "/next": {
           "count": 1
         },
-        "/next/0/kind": "configure"
+        "/next/0/kind": "configure",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001250",
+          "diseases"
+        ]
       },
       "max_bytes": 354
     },
@@ -84,7 +91,13 @@
         "/next": {
           "count": 1
         },
-        "/next/0/kind": "configure"
+        "/next/0/kind": "configure",
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001250",
+          "genes"
+        ]
       },
       "max_bytes": 354
     },

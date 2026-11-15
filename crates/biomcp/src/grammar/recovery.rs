@@ -309,7 +309,11 @@ pub(super) fn source_swap(
         let mut candidate = value.clone();
         candidate.as_object_mut()?.insert(
             "source".into(),
-            if array { Value::Array(vec![source]) } else { source },
+            if array {
+                Value::Array(vec![source])
+            } else {
+                source
+            },
         );
         checked(via, path, candidate)
     });

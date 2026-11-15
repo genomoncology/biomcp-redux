@@ -109,7 +109,11 @@ pub(super) fn complete(path: (&str, &str), schema: &Value, value: &Value) -> Opt
 
 /// The refusal's next steps for a completed call: the call alone when it is certain, and
 /// help beside it when it is a guess.
-pub(super) fn completed_steps(path: (&str, &str), schema: &Value, value: &Value) -> Option<Vec<Step>> {
+pub(super) fn completed_steps(
+    path: (&str, &str),
+    schema: &Value,
+    value: &Value,
+) -> Option<Vec<Step>> {
     let (step, certain) = completion(path, schema, value)?;
     Some(if certain {
         vec![step]
