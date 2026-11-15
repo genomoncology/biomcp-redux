@@ -243,7 +243,8 @@ fn command_call(
             && refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
             && let Some(step) = refusal::fix(root, &args, &input, &values)
         {
-            usage.next.insert(0, step);
+            // A real fix replaces help, as on the command line.
+            usage.next = vec![step];
         }
         return Some(Err(Rejected {
             error,

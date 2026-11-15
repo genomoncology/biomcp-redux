@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "An unknown option names itself and the command's options, and the first next step is the same call without it.",
+  "story": "An unknown option names itself and the command's options, and the first next step is the same call without it. When the word after it could be the caller's own search word, that would be a guess, so help stays.",
   "steps": [
     {
       "run": [
@@ -27,6 +27,26 @@
           "--source",
           "chembl"
         ],
+        "/next": {
+          "count": 1
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "--bogus",
+        "imatinib",
+        "--source",
+        "fda-drug-recall"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/error/option": "--bogus",
+        "/next/0/args/0": "help",
         "/next": {
           "count": 1
         }

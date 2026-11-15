@@ -41,7 +41,8 @@ pub(super) fn known(input: &Value, values: &Value) -> Value {
 /// `who_pq` as `--who-pq`: the fix the command line gives those mistakes, if any. No fix
 /// when a key cannot be spelled as an option. A JSON object's keys have no order, and the
 /// command line fixes some pairs only one way round (`--who-pq -q x`, not `-q x --who-pq`), so
-/// the keys are tried in both orders.
+/// the keys are tried in both orders. The call without the keys is never offered: it would
+/// widen the query.
 pub(super) fn fix(
     root: &crate::grammar::Root,
     args: &[OsString],
@@ -86,7 +87,18 @@ pub(super) fn fix(
         args.splice(at..at, options.into_iter().flatten().cloned());
         crate::grammar::candidate(root, &args)
     };
-    call(options.iter().collect()).or_else(|| call(options.iter().rev().collect()))
+    let mut step =
+        call(options.iter().collect()).or_else(|| call(options.iter().rev().collect()))?;
+    // The fix carries the options its call also takes, as a command-line correction does.
+    if step.options.is_empty() {
+        let words: Vec<OsString> = step.args.iter().map(|word| OsString::from(&**word)).collect();
+        if let Ok(parsed) = crate::grammar::parse(root, &words)
+            && let Some(biomcp_query::Action::Run { request, .. }) = parsed.action
+        {
+            step.options = crate::grammar::options(&request);
+        }
+    }
+    Some(step)
 }
 
 pub(super) fn arguments(

@@ -1,7 +1,7 @@
 {
   "live_check": "FDA public native API replies captured 2026-11-04; reuses the diagnostic/device-approvals recording",
   "feature": "runnable-related-queries",
-  "story": "A diagnostic search's first page offers its own call last, with the filters its source also takes as fill-in templates, and a filled-in template runs, over the CLI and typed MCP.",
+  "story": "A diagnostic search's first page stays lean: its follow-ups are runnable calls, it offers no help step and does not repeat its own call with every filter, over the CLI and typed MCP; a date window the search takes still runs.",
   "replay": "diagnostic/device-approvals",
   "config": {
     "mcp_tool_mode": "typed",
@@ -19,25 +19,11 @@
       ],
       "expect": {
         "/page/total": 100,
-        "/next/6/kind": "configure",
-        "/next/6/args": [
-          "search",
-          "diagnostic",
-          "--manufacturer",
-          "Foundation Medicine",
-          "--source",
-          "fda-pma"
-        ],
-        "/next/6/options": {
-          "equals": {
-            "--decision-from": "<YYYY-MM-DD>",
-            "--decision-to": "<YYYY-MM-DD>",
-            "--intended-use": "<TEXT>",
-            "--limit": "<1-50>",
-            "--name": "<TEXT>",
-            "--offset": "<N>",
-            "--product-code": "<TEXT>"
-          }
+        "/next": {
+          "count": 6
+        },
+        "/next/*/kind": {
+          "excludes": "configure"
         }
       },
       "max_bytes": 16000
@@ -55,11 +41,12 @@
       },
       "expect": {
         "/page/total": 100,
-        "/next/6/kind": "configure",
-        "/next/6/name": "diagnostic",
-        "/next/6/options/decision_from": "<YYYY-MM-DD>",
-        "/next/6/options/intended_use": "<TEXT>",
-        "/next/6/options/product_code": "<TEXT>"
+        "/next": {
+          "count": 6
+        },
+        "/next/*/kind": {
+          "excludes": "configure"
+        }
       }
     },
     {

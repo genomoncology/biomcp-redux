@@ -22,8 +22,8 @@
       "expect": {
         "/status": "complete",
         "/page/total": 0,
-        "/next/0": {
-          "equals": {
+        "/next": [
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -36,10 +36,8 @@
               "--limit",
               "100"
             ]
-          }
-        },
-        "/next/1": {
-          "equals": {
+          },
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -55,13 +53,9 @@
               "L576P"
             ]
           }
-        },
-        "/next/2/kind": "configure",
-        "/next": {
-          "count": 3
-        }
+        ]
       },
-      "max_bytes": 1808
+      "max_bytes": 1541
     },
     {
       "run": [
@@ -180,8 +174,8 @@
             "NCT05178030"
           ]
         },
-        "/next/0": {
-          "equals": {
+        "/next": [
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -194,10 +188,8 @@
               "--limit",
               "100"
             ]
-          }
-        },
-        "/next/1": {
-          "equals": {
+          },
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -210,11 +202,7 @@
               "100"
             ]
           }
-        },
-        "/next/2/kind": "configure",
-        "/next": {
-          "count": 3
-        }
+        ]
       },
       "max_bytes": 63494
     }

@@ -222,11 +222,16 @@ pub(super) fn parse_invalid(
     };
     if let Some(mut arguments) = parser_usage(command, &path, error) {
         let registered_argument = invalid_argument(command, &path, error).is_some();
+        let mut only_dropped = false;
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
         } else {
             spelling.and_then(|spelling| {
-                flag_fix(root, &path, spelling, args).or_else(|| dropped(root, spelling, args))
+                flag_fix(root, &path, spelling, args).or_else(|| {
+                    let step = dropped(root, spelling, args);
+                    only_dropped = step.is_some();
+                    step
+                })
             })
         };
         super::recovery::next(&mut arguments, corrected);
@@ -234,6 +239,7 @@ pub(super) fn parse_invalid(
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
             prefer_argument_error: registered_argument,
+            dropped: only_dropped,
         };
     }
     if let Some(spelling) = spelling
@@ -251,6 +257,7 @@ pub(super) fn parse_invalid(
             argument: None,
             usage: Some(UsageError::Arguments(arguments)),
             prefer_argument_error: false,
+            dropped: false,
         };
     }
     let message = match path.as_slice() {
@@ -268,6 +275,7 @@ pub(super) fn parse_invalid(
                 .map(UsageError::Arguments)
         }),
         prefer_argument_error: false,
+        dropped: false,
     }
 }
 
@@ -305,6 +313,7 @@ pub(super) fn checked_invalid(
         usage,
         // A rejected value may still be an explicitly retired spelling.
         prefer_argument_error: false,
+        dropped: false,
     }
 }
 
@@ -376,6 +385,7 @@ pub(super) fn source_filter(
                 next: vec![next],
             })),
             prefer_argument_error: true,
+            dropped: false,
         });
     }
     None
@@ -528,7 +538,8 @@ fn flag_fix(
 }
 
 /// An option no spelling of this command takes: the same call without it, and without the
-/// word after it when that word is not an option, if that call checks.
+/// word after it when that word is not an option, if that call checks. No call is offered
+/// when the word after it could also be the caller's own operand.
 fn dropped(
     root: &Command,
     spelling: &str,
@@ -548,13 +559,17 @@ fn dropped(
     }
     let mut without = args.to_vec();
     let flag = without.remove(at);
-    // A word after the option is taken as its value, so the call never gains a new operand.
     if !flag.to_str()?.contains('=')
         && without
             .get(at)
             .and_then(|word| word.to_str())
             .is_some_and(|word| !word.starts_with('-'))
     {
+        // The word after the option may be its value or the caller's own search word. When
+        // the call also reads with that word kept, which one it is would be a guess.
+        if super::parse(root, &without).is_ok() {
+            return None;
+        }
         without.remove(at);
     }
     match super::parse(root, &without).ok()?.action? {

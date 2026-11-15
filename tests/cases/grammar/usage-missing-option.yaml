@@ -1,7 +1,7 @@
 {
   "feature": "query-validation",
   "live_check": "local-only validation; no source requests",
-  "story": "Missing options, unknown options, bad enum values and bad typed IDs each name one argument, its accepted form and command help.",
+  "story": "A missing option names its accepted values. When exactly one value lets the call run, that call is the next step; when several would, choosing one would be a guess, so the next step is help.",
   "steps": [
     {
       "run": [
@@ -20,12 +20,37 @@
             "drugsfda"
           ]
         },
-        "/next/0/args": [
-          "search",
-          "drug",
-          "--source",
-          "fda-drug-recall"
-        ],
+        "/next/*/args": {
+          "includes": [
+            "help",
+            "search",
+            "drug"
+          ]
+        },
+        "/next/0/args/0": "help"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "disease",
+        "MONDO:0013267",
+        "genes",
+        "--section-limit",
+        "5"
+      ],
+      "offline": true,
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/code": "usage.arguments",
+        "/next/0/kind": "configure",
+        "/next/0/args": {
+          "includes": [
+            "--source",
+            "monarch"
+          ]
+        },
         "/next": {
           "count": 1
         }

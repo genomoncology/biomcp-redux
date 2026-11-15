@@ -28,18 +28,19 @@ pub(super) fn next(
 
 const PAGING: [&str; 4] = ["--limit", "--offset", "--section-limit", "--section-offset"];
 
-/// A first page also offers its own call with the options it could add, after the follow-ups
-/// and outside their cap.
+/// A section's own first page also offers its own call with the options it could add, after
+/// the follow-ups and outside their cap. A card's options live on the sections it lists, and a
+/// search page offers none: its reply stays lean, and typed MCP lists search arguments in its
+/// schema.
 fn adjust(
     request: &biomcp_types::Request,
     result: &biomcp_query::Outcome,
 ) -> Result<Option<biomcp_types::Step>, serde_json::Error> {
     use biomcp_types::Status::{Complete, Partial};
-    // Only a first page offers it; an identity card's options live on the sections it lists.
     if !matches!(result.status(), Complete | Partial)
         || result.page.is_none()
         || !crate::grammar::first_page(request)
-        || crate::grammar::identity_card(request)
+        || !crate::grammar::section_page(request)
     {
         return Ok(None);
     }

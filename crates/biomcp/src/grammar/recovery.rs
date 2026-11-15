@@ -163,7 +163,8 @@ pub(super) fn trial_first_page(
 }
 
 /// A request refused before any source is read, for one argument with named valid values:
-/// the first valid value the request accepts becomes the corrected call, in place of help.
+/// when exactly one valid value passes the check, that call replaces help. When several
+/// pass, any one would be a guess, so help stays.
 pub(crate) fn prepared(
     request: &biomcp_types::Request,
     mut error: biomcp_types::UsageError,
@@ -189,7 +190,7 @@ pub(crate) fn prepared(
         .pointer(&format!("/properties/{name}"))
         .and_then(super::property_type)
         == Some("array");
-    let corrected = values.iter().find_map(|choice| {
+    let mut passing = values.iter().filter_map(|choice| {
         let choice = Value::from(choice.as_str());
         let mut candidate = value.clone();
         candidate.as_object_mut()?.insert(
@@ -210,6 +211,10 @@ pub(crate) fn prepared(
         .ok()?;
         run(&request)
     });
+    let corrected = match (passing.next(), passing.next()) {
+        (Some(only), None) => Some(only),
+        _ => None,
+    };
     next(arguments, corrected);
     error
 }

@@ -366,7 +366,8 @@ fn accession(name: &str) -> bool {
 }
 
 /// The canonical call for words the grammar accepts, or the corrected call its refusal
-/// already names.
+/// already names. A refusal whose only correction drops an unknown option offers none here:
+/// dropping a key would widen the caller's query.
 pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
     match super::parse(root, args) {
         Ok(parsed) => match parsed.action? {
@@ -375,6 +376,7 @@ pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
             }
             _ => None,
         },
+        Err(cause) if cause.dropped => None,
         Err(cause) => match cause.usage {
             Some(biomcp_types::UsageError::Arguments(arguments)) => arguments
                 .next

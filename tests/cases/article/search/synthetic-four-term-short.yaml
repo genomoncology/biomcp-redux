@@ -34,18 +34,16 @@
         "/status": "complete",
         "/page/total": 1,
         "/page/returned": 1,
-        "/next/0": {
-          "equals": {
+        "/next": [
+          {
             "kind": "disambiguate",
             "args": [
               "get",
               "article",
               "33123537"
             ]
-          }
-        },
-        "/next/1": {
-          "equals": {
+          },
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -71,10 +69,8 @@
               "--variant",
               "K322"
             ]
-          }
-        },
-        "/next/2": {
-          "equals": {
+          },
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -99,10 +95,8 @@
               "--until",
               "2020"
             ]
-          }
-        },
-        "/next/3": {
-          "equals": {
+          },
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -127,10 +121,8 @@
               "--variant",
               "K322"
             ]
-          }
-        },
-        "/next/4": {
-          "equals": {
+          },
+          {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -156,13 +148,9 @@
               "K322"
             ]
           }
-        },
-        "/next/5/kind": "configure",
-        "/next": {
-          "count": 6
-        }
+        ]
       },
-      "max_bytes": 2614
+      "max_bytes": 2211
     }
   ]
 }

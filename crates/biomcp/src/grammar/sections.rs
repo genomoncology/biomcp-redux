@@ -50,6 +50,7 @@ fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<supe
             next: vec![step],
         })),
         prefer_argument_error: true,
+        dropped: false,
     })
 }
 
