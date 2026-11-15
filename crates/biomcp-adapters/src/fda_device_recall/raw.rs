@@ -16,14 +16,14 @@ pub(super) enum Row<T, K> {
 }
 /// The native key of a declined row.
 pub(super) trait Key {
-    fn problem(&self) -> Problem;
+    fn declined(&self) -> Problem;
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct RecordKey {
     pub cfres_id: Option<Field<String>>,
 }
 impl Key for RecordKey {
-    fn problem(&self) -> Problem {
+    fn declined(&self) -> Problem {
         crate::mapped::declined(
             Source::FdaDeviceRecall,
             "product_res_number",
@@ -37,7 +37,7 @@ pub(super) struct EnforcementKey {
     pub event_id: Option<Field<String>>,
 }
 impl Key for EnforcementKey {
-    fn problem(&self) -> Problem {
+    fn declined(&self) -> Problem {
         crate::mapped::declined(
             Source::FdaDeviceRecall,
             "recall_number",

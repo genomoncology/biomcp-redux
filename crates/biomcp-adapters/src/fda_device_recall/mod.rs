@@ -3,7 +3,7 @@ use biomcp_fetch::{Input, Read};
 mod map;
 mod phrase;
 pub(crate) use phrase::phrase;
-pub use phrase::spaced_name;
+pub use phrase::{expression, spaced_name};
 mod raw;
 use biodata::DeviceRecallNumber;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, RequestError, SourceSpec, Terms};
@@ -45,40 +45,6 @@ pub struct Page {
     pub consumed: u32,
     /// A failed join leaves the selected rows and their total unchanged.
     pub join_failure: Option<Failure>,
-}
-use biomcp_types::openfda_phrase as literal;
-/// Recall selectors; a classification selects enforcement records and their field spellings.
-/// Both datasets spell the device name field product_description.
-pub fn expression(q: &DiagnosticSearch) -> String {
-    let class = q.classification();
-    let mut terms = Vec::new();
-    if let Some(v) = class {
-        terms.push(format!("classification:\"{v}\""));
-    }
-    if let Some(v) = q.name() {
-        terms.push(format!("product_description:{}", phrase(v)));
-    }
-    if let Some(v) = q.manufacturer() {
-        terms.push(format!("recalling_firm:{}", literal(v.as_str())));
-    }
-    if let Some(v) = q.product_code() {
-        terms.push(format!("product_code:{}", literal(v.as_str())));
-    }
-    if q.initiated_from().is_some() || q.initiated_to().is_some() {
-        let day = |d: Option<biodata::PartialDate>| match d {
-            Some(d) if class.is_some() => d.to_string().replace('-', ""),
-            Some(d) => d.to_string(),
-            None => "*".into(),
-        };
-        let field = if class.is_some() {
-            "recall_initiation_date"
-        } else {
-            "event_date_initiated"
-        };
-        let (from, to) = (day(q.initiated_from()), day(q.initiated_to()));
-        terms.push(format!("{field}:[{from} TO {to}]"));
-    }
-    terms.join(" AND ")
 }
 /// Native lot lists (`code_info`, `more_code_info`) reach 9.9 MB in one record and
 /// 19 MB across a 50-record page (openFDA bulk export, 2026-11-10), so a smaller
@@ -126,7 +92,7 @@ fn admitted<T, K: raw::Key>(rows: Vec<raw::Row<T, K>>, problems: &mut Vec<Proble
         .filter_map(|row| match row {
             raw::Row::Admitted(row) => Some(row),
             raw::Row::Declined(key) => {
-                problems.push(key.problem());
+                problems.push(key.declined());
                 None
             }
         })
@@ -167,48 +133,49 @@ fn joined<A: Identity, B: Identity + crate::openfda::Item>(
 /// A classification selects enforcement records first, then joins their native recall records.
 pub fn search(leg: &Leg<'_>, q: &DiagnosticSearch) -> Result<Page, RequestError> {
     let mut problems = Vec::new();
-    let (items, total, consumed, unmatched, join_failure): (Box<[_]>, _, _, _, _) = if q.classification().is_some() {
-        let (found, total) = selected::<raw::Row<raw::Enforcement, raw::EnforcementKey>>(
-            leg,
-            q,
-            ENFORCEMENT,
-            "recall_initiation_date:desc",
-        )?;
-        let consumed = found.len();
-        let found = admitted(found, &mut problems);
-        let (rows, unmatched, failure) =
-            joined::<_, raw::Record>(leg, found, RECALL, "product_res_number");
-        let items = rows
-            .into_iter()
-            .map(|(mut class, record)| {
-                let row = match record {
-                    Some(record) => map::row(record, &mut problems),
-                    None => map::bare(&mut class, &mut problems),
-                };
-                map::candidate(row, Some(class), &mut problems)
-            })
-            .collect();
-        (items, total, consumed, unmatched, failure)
-    } else {
-        let (found, total) = selected::<raw::Row<raw::Record, raw::RecordKey>>(
-            leg,
-            q,
-            RECALL,
-            "event_date_initiated:desc",
-        )?;
-        let consumed = found.len();
-        let found = admitted(found, &mut problems);
-        let (rows, unmatched, failure) =
-            joined::<_, raw::Enforcement>(leg, found, ENFORCEMENT, "recall_number");
-        let items = rows
-            .into_iter()
-            .map(|(record, class)| {
-                let row = map::row(record, &mut problems);
-                map::candidate(row, class, &mut problems)
-            })
-            .collect();
-        (items, total, consumed, unmatched, failure)
-    };
+    let (items, total, consumed, unmatched, join_failure): (Box<[_]>, _, _, _, _) =
+        if q.classification().is_some() {
+            let (found, total) = selected::<raw::Row<raw::Enforcement, raw::EnforcementKey>>(
+                leg,
+                q,
+                ENFORCEMENT,
+                "recall_initiation_date:desc",
+            )?;
+            let consumed = found.len();
+            let found = admitted(found, &mut problems);
+            let (rows, unmatched, failure) =
+                joined::<_, raw::Record>(leg, found, RECALL, "product_res_number");
+            let items = rows
+                .into_iter()
+                .map(|(mut class, record)| {
+                    let row = match record {
+                        Some(record) => map::row(record, &mut problems),
+                        None => map::bare(&mut class, &mut problems),
+                    };
+                    map::candidate(row, Some(class), &mut problems)
+                })
+                .collect();
+            (items, total, consumed, unmatched, failure)
+        } else {
+            let (found, total) = selected::<raw::Row<raw::Record, raw::RecordKey>>(
+                leg,
+                q,
+                RECALL,
+                "event_date_initiated:desc",
+            )?;
+            let consumed = found.len();
+            let found = admitted(found, &mut problems);
+            let (rows, unmatched, failure) =
+                joined::<_, raw::Enforcement>(leg, found, ENFORCEMENT, "recall_number");
+            let items = rows
+                .into_iter()
+                .map(|(record, class)| {
+                    let row = map::row(record, &mut problems);
+                    map::candidate(row, class, &mut problems)
+                })
+                .collect();
+            (items, total, consumed, unmatched, failure)
+        };
     let refusals = if items.len() < consumed {
         crate::Refusal::Refused
     } else {

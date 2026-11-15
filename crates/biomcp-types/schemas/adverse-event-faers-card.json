@@ -674,7 +674,7 @@
               "type": "null"
             }
           ],
-          "description": "The record's canonical identifier, when known."
+          "description": "The record's canonical identifier, when known. A `record.declined` problem has none, so\nit names the record by a source key, such as `event_id:100178`."
         },
         "source": {
           "$ref": "#/$defs/Reply_Source",
@@ -694,12 +694,14 @@
       "x-enum-descriptions": [
         " The field value was not recognized.",
         " Native collection exceeds the admitted complete source page.",
-        " A source repeats one exact identity with incompatible records."
+        " A source repeats one exact identity with incompatible records.",
+        " A source record without a usable identity was left off the page; each problem names one such record."
       ],
       "x-extensible-enum": [
         "value.unknown",
         "collection.incomplete",
-        "identity.conflict"
+        "identity.conflict",
+        "record.declined"
       ]
     },
     "Reply_Reason": {
