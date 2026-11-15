@@ -31,3 +31,9 @@ dx-lab-director round 4 (2026-11-15): the agent still read FDA's column names; t
 ## Changes
 
 - Changes: CDx row serialization, cases, regenerated docs.
+
+## Progress
+
+- 2026-11-15, evidence read: round 4's agent keyed on the individual table's header `cells["Diagnostic Name (Manufacturer)"]`, so the 5 group-table TAGRISSO rows read as null (calls 41, 46, 47) and ONCO/Reveal and MI Cancer Seek dropped out of Q4. The CLI printed each row as `kind`, `snapshot`, `index`, `cells`, ids, and only then the shared fields, so FDA's cells were the first thing an agent saw.
+- Changed: each CDx row now prints `kind`, then `row_date`, `diagnostic`, `indication`, `device` and `drug`, then `snapshot`, `index`, FDA's `cells` and the ids. FDA's cells already sit under one key (`cells`), so no nesting changed; only field order moved, which leaves the reply schema's fields and the schema file unchanged (j41158 regenerated schemas and docs with no diff). Every FDA cell value stays. Over MCP, reply fields are listed alphabetically, so the order holds for CLI JSON only; 0962 covers MCP agents.
+- Proof: `tests/cases/diagnostic/fda-companion-shared-first.yaml` replays the recorded FDA page. For July 2026 (one individual and one group row) `drug` must start before each row's `cells` (bytes 701 and 2,918, measured in j41158); for TAGRISSO's NDA208065, all 15 rows (10 individual, 5 group) carry `diagnostic`, `drug`, `device` and `row_date`, so one jq over `.diagnostic`/`.drug` reads every row. Reply size is unchanged.
