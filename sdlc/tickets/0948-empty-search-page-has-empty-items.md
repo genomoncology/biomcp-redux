@@ -6,7 +6,7 @@ Milestone: 7
 
 ## Outcome
 
-An empty search page's reply says plainly that zero results leave `items` out and `page.total`/`page.returned` are 0.
+An empty search page keeps leaving out `items`, like every empty list (Ian, `sdlc/decisions/2026-11-15-empty-search-pages-keep-omitting-items.md`). The README, the envelope `page` description and the skill say that `page.total` and `page.returned` are 0 and that an agent reads `total` before `items`.
 
 ## Why
 
@@ -14,7 +14,7 @@ dx-lab-director round 2 call 27: an empty search page had no `items` key and the
 
 ## Proof
 
-- Proof: the recorded empty search case asserts `items` is absent and the page counts are 0; the README and the envelope `page` description say so.
+- Proof: the recorded empty search case asserts `items` is absent and the page counts are 0; the README, the envelope `page` description and the skill say so.
 
 ## Starts from
 
@@ -39,3 +39,6 @@ dx-lab-director round 2 call 27: an empty search page had no `items` key and the
 - Gate j41088: fmt, clippy, ratchets and both schema checks (`generated_schemas_preserve_release_contracts`, `checked_in_schemas_match_types`) pass. Cases fail: 110 (plus `readme/trial.yaml` in docs-check), 91 read in the failure list all "product reply contains an empty list", at `/result/items` and at nested `Capped` lists such as `/result/warnings/items` and `/result/items/2/interventions/items`.
 - PM decision 2026-11-14: option 2. Ian's decision `sdlc/decisions/2026-10-23-json-is-the-default-output.md` stands (replies omit empty lists, because size matters more than format); a ticket does not override it. The code change is reverted (commits 903c8597d and 7a6820cdc revert 2775f6c28 and ced9deaf4), and the Outcome is reworded to state the omission plainly instead.
 - Changed: `README.md` (the JSON output paragraph) says replies leave out nulls and empty lists, so a zero-result search has `page.total` and `page.returned` 0 and no `result.items`. The envelope `page` field description (`crates/biomcp-types/src/response/envelope.rs`) says the same; a description change only, regenerated into the checked-in schema files. The persona's `--name cell-free` step in `tests/cases/diagnostic/intended-use.yaml` asserts total 0, returned 0 and `/result` omits `items`.
+- Ian decided 2026-11-15 (`sdlc/decisions/2026-11-15-empty-search-pages-keep-omitting-items.md`): keep omitting `items`; the docs and skill say `total` is 0 and to read `total` before `items`. Outcome reworded to match.
+- Gate j41101 failed only the ratchets line-width check (160 characters) at `envelope.rs` line 40. Shortened the `page` description ("the result leaves out `items`") and regenerated the 136 checked-in schema files by the same text substitution; description-only change.
+- `skills/SKILL.md` gains one line: an empty page has `total` 0 and no `items`, so read `total` before `items`.
