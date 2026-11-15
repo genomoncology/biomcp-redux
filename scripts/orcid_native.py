@@ -10,8 +10,15 @@ def step(args, expect, exit=0):
             'is_error': False, 'full_output_bytes': True}
 
 
+def owner_id(name):
+    # The real iDs live only in the live-check owners under tests/native/orcid (0973).
+    owner = json.loads((Path(__file__).resolve().parent.parent / 'tests/native/orcid' / name).read_text())
+    return owner['steps'][0]['run'][2].removeprefix('orcid:')
+
+
 def prepare(records, cases, replay):
-    for identifier, total in [('0000-0002-4299-3018', 380), ('0000-0002-7433-2740', 2)]:
+    for total in [380, 2]:
+        identifier = owner_id(f'orcid-{total}-groups.yaml')
         person = records[identifier + '-person'][1]
         name = person['name']
         display = (name['credit-name'] or {}).get('value') or ' '.join(
@@ -49,8 +56,8 @@ def prepare(records, cases, replay):
             steps.append(owner)
         case = {'feature': 'author-orcid', 'story': 'Retained exact public ORCID names and grouped works',
                 'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay), 'steps': steps}
-        save(case, cases, 'orcid-' + identifier + '.yaml')
-    identifier = '0000-0002-4299-3018'
+        save(case, cases, f'orcid-{total}-groups.yaml')
+    identifier = owner_id('orcid-native-identifiers.yaml')
     works = records[identifier + '-works'][1]['group']
     case = {'feature': 'author-orcid', 'story': 'Native PMID and DOI claims retain provenance',
             'harvest': 'sdlc/planning/slices/author.md', 'replay': str(replay),

@@ -87,7 +87,7 @@ fn pairs() -> Check {
             {
                 let replacement = if invalid {
                     format!(
-                        "{native}invalid,Synthetic declined drug,DDInter99,Synthetic partner,Moderate\r\n"
+                        "{native}invalid,Synthetic declined drug,DDInter9099,Synthetic partner,Moderate\r\n"
                     )
                 } else {
                     native.replace("Moderate", " ")

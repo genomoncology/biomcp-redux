@@ -55,8 +55,8 @@ fn explicit_sources_and_section_ownership_are_checked_before_io()
     ] {
         assert!(serde_json::from_value::<PgxGet>(value).is_err());
     }
-    let a: ClinPgxAccession = "PA166134421".parse()?;
-    assert_eq!(a.to_string(), "PA166134421");
+    let a: ClinPgxAccession = "PA900000001".parse()?;
+    assert_eq!(a.to_string(), "PA900000001");
     assert_ne!(
         std::any::TypeId::of::<ClinPgxAccession>(),
         std::any::TypeId::of::<biodata::PaId>()
@@ -65,9 +65,9 @@ fn explicit_sources_and_section_ownership_are_checked_before_io()
         "PA",
         "PA0",
         "PA-1",
-        "pa166134421",
-        " PA166134421",
-        "clinpgx:PA166134421",
+        "pa900000001",
+        " PA900000001",
+        "clinpgx:PA900000001",
     ] {
         assert!(invalid.parse::<ClinPgxAccession>().is_err());
     }
