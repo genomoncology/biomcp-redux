@@ -65,18 +65,29 @@ pub(super) fn corrected(
                 return Some(step);
             }
         }
-        for replacement in candidates(
-            schema,
-            property,
-            value.get(*name).is_none() || allow_omission,
-        ) {
+        let missing = value.get(*name).is_none() || allow_omission;
+        let try_value = |replacement: Value| {
             let mut candidate = value.clone();
             candidate
                 .as_object_mut()?
                 .insert((*name).into(), replacement);
-            if let Some(step) = checked(via, path, candidate) {
-                return Some(step);
+            checked(via, path, candidate)
+        };
+        let mut values = candidates(schema, property, missing);
+        // A declared default is the value the caller left out, so it is tried alone first.
+        // Otherwise a correction is offered only when exactly one listed value passes:
+        // picking among several is a guess.
+        let default = (missing && property.get("default").is_some() && !values.is_empty())
+            .then(|| values.remove(0));
+        let found = default.and_then(&try_value).or_else(|| {
+            let mut passing = values.into_iter().filter_map(&try_value);
+            match (passing.next(), passing.next()) {
+                (Some(only), None) => Some(only),
+                _ => None,
             }
+        });
+        if found.is_some() {
+            return found;
         }
     }
     None
