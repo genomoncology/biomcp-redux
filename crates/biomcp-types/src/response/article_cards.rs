@@ -49,10 +49,7 @@ pub struct ArticleCardItem {
 pub struct ArticleCards {
     /// Per-input answers.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[ArticleCardItem]>,
 }
 impl super::ResponseBody for ArticleCards {

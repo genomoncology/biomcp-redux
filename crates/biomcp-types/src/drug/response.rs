@@ -87,10 +87,7 @@ pub struct DrugPage {
     pub total: Option<u64>,
     /// Native candidates, preserving their separate identity levels.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[DrugHeader]>,
 }
 /// One bounded native row page, without fabricating an unknown total.

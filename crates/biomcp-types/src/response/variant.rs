@@ -125,10 +125,7 @@ pub struct VariantPage {
     pub excluded: Option<VariantSearchExclusions>,
     /// Native source order, preserving every candidate including repeated source identities.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[VariantHeader]>,
 }
 /// Count of candidates withheld from a fallback search, with a stable reason.

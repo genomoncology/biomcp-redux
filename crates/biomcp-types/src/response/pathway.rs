@@ -59,10 +59,7 @@ pub struct PathwayPage {
     pub page: PathwayPageInfo,
     /// Whole admitted pathway headers in native order.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[PathwayHeader]>,
 }
 impl ResponseBody for PathwayPage {
@@ -111,10 +108,7 @@ pub struct PathwayGenes {
     pub physical_entities: u64,
     /// Distinct namespaced source references in first occurrence order.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[PathwayMember]>,
 }
 impl ResponseBody for PathwayGenes {

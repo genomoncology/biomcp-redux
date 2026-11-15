@@ -90,10 +90,7 @@ pub struct PhenotypeAncestor {
 pub struct PhenotypeMatches {
     /// Ranked rows in source order; Monarch scores them, BioMCP does not rerank.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[PhenotypeMatch]>,
     /// The queried HP terms with the labels Monarch matched, in caller order.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
@@ -202,10 +199,7 @@ macro_rules! associations {
         pub struct $name {
             /// Native association rows in source order, without deduplication.
             #[serde(default)]
-            #[cfg_attr(
-                feature = "schema",
-                schemars(skip_serializing_if = "crate::no_schema_default")
-            )]
+            #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
             pub items: Box<[DiseaseAssociationItem]>,
             /// Publisher direct graph scope; this supplies no causal assertion.
             pub direct: bool,

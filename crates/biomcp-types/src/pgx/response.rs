@@ -49,10 +49,7 @@ macro_rules! collection {
             pub page: PgxPageInfo,
             /// Complete native rows without duplicate summaries.
             #[serde(default)]
-            #[cfg_attr(
-                feature = "schema",
-                schemars(skip_serializing_if = "crate::no_schema_default")
-            )]
+            #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
             pub items: Box<[$row]>,
         }
         impl ResponseBody for $name {

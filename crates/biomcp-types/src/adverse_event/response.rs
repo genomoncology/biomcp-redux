@@ -101,10 +101,7 @@ pub struct AdverseEventPage {
     pub fetched: Option<u64>,
     /// Native ordered report candidates.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[AdverseEventHeader]>,
     /// Explicit reports unit for envelope page totals.
     pub unit: ReportUnit,

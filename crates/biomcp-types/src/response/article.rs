@@ -85,10 +85,7 @@ pub struct ArticleItem {
 pub struct ArticlePage {
     /// Original ordered items.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[ArticleItem]>,
     /// Nearby source candidates when an exact variant was not uniquely selected.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -105,10 +102,7 @@ impl super::ResponseBody for ArticlePage {
 pub struct ArticleEdgePage {
     /// Papers in the fixed edge pool.
     #[serde(default)]
-    #[cfg_attr(
-        feature = "schema",
-        schemars(skip_serializing_if = "crate::no_schema_default")
-    )]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[ArticleEdgeItem]>,
 }
 impl super::ResponseBody for ArticleEdgePage {
