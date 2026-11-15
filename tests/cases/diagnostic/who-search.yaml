@@ -23,7 +23,7 @@
         "--marker",
         "hIv"
       ],
-      "max_bytes": 2733,
+      "max_bytes": 2366,
       "expect": {
         "/page/total": 7,
         "/page/returned": 5,

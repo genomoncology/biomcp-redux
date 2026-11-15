@@ -216,8 +216,8 @@ fn scenario(query: &str, args: Vec<&str>, capture: &str) -> Result<(), String> {
         .and_then(Value::as_array)
         .ok_or("CLI rows missing")?;
     let search_cap = match args.get(1).map(String::as_str) {
-        Some("article") => crate::runner::output_limit("research-measured-2192")?,
-        Some("trial") => crate::runner::output_limit("research-measured-9913")?,
+        Some("article") => crate::runner::output_limit("research-measured-1732")?,
+        Some("trial") => crate::runner::output_limit("research-measured-8192")?,
         _ => crate::runner::output_limit("research-measured-2864")?,
     };
     bounded(&wrapped, search_cap)?;

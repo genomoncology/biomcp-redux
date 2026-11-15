@@ -24,7 +24,7 @@
         "--device-id",
         "P200010/S026"
       ],
-      "max_bytes": 2697,
+      "max_bytes": 2100,
       "expect": {
         "/schema": "biomcp.diagnostic-companion/4",
         "/page/offset": 0,

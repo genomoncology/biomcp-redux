@@ -24,10 +24,10 @@
         "/page/total": 1,
         "/result/items/0/id": "160",
         "": {
-          "max_bytes": 1644
+          "max_bytes": 1201
         }
       },
-      "max_bytes": 1785,
+      "max_bytes": 1415,
       "full_output_bytes": true
     },
     {

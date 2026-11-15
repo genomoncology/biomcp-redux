@@ -21,7 +21,7 @@
         "/result/items/0/exact_p_value/mantissa": "4",
         "/result/items/0/exact_p_value/exponent": -254
       },
-      "max_bytes": 2135
+      "max_bytes": 1828
     },
     {
       "run": [
@@ -38,7 +38,7 @@
         "/result/items/0/exact_p_value/mantissa": "4",
         "/result/items/0/exact_p_value/exponent": -254
       },
-      "max_bytes": 2167
+      "max_bytes": 1835
     },
     {
       "run": [

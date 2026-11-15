@@ -38,7 +38,7 @@
           }
         }
       },
-      "max_bytes": 4000
+      "max_bytes": 1026
     },
     {
       "follow": "section",
@@ -108,7 +108,7 @@
           }
         }
       },
-      "max_bytes": 20000
+      "max_bytes": 3326
     },
     {
       "mcp_call": {

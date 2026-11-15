@@ -22,10 +22,10 @@
         "/page/total": 20,
         "/result/source_updated": "2024-09-01",
         "": {
-          "max_bytes": 2510
+          "max_bytes": 1880
         }
       },
-      "max_bytes": 2511
+      "max_bytes": 1881
     },
     {
       "run": [
@@ -43,11 +43,11 @@
         "/query/received_to": "2024-12-31",
         "/result/source_query": "(patient.drug.openfda.generic_name:\"pembrolizumab\" OR patient.drug.openfda.brand_name:\"pembrolizumab\" OR patient.drug.medicinalproduct:\"pembrolizumab\") AND receivedate:[20240101 TO 20241231]",
         "": {
-          "max_bytes": 2683
+          "max_bytes": 2035
         }
       },
-      "max_bytes": 2685,
-      "max_tokens": 672
+      "max_bytes": 2036,
+      "max_tokens": 509
     }
   ]
 }

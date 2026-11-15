@@ -89,7 +89,8 @@ pub(crate) fn first_page(request: &Request) -> bool {
             .all(|name| value.get(*name).is_none_or(Value::is_null))
 }
 
-/// The call names something besides its source: an ID, a word, a section or a filter.
+/// The call names something besides its source: an ID, a word, a section or a filter. Counts
+/// and switches, such as a default `limit`, do not say what the caller is after.
 pub(crate) fn asked(request: &Request) -> bool {
     let (verb, entity) = request.path();
     let (Some(schema), Ok(value)) = (
@@ -101,9 +102,15 @@ pub(crate) fn asked(request: &Request) -> bool {
     let Some(properties) = schema.get("properties").and_then(Value::as_object) else {
         return false;
     };
-    properties
-        .iter()
-        .any(|(name, property)| name != "source" && set(value.get(name), property))
+    properties.iter().any(|(name, property)| {
+        let resolved = super::validation::resolve(&schema, property);
+        name != "source"
+            && !matches!(
+                super::property_type(resolved),
+                Some("integer" | "number" | "boolean")
+            )
+            && set(value.get(name), property)
+    })
 }
 
 /// A get that names a section, where a section field exists: one section's own reply.

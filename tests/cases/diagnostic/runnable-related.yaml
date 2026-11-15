@@ -26,7 +26,7 @@
           "excludes": "configure"
         }
       },
-      "max_bytes": 16000
+      "max_bytes": 3185
     },
     {
       "mcp_call": {

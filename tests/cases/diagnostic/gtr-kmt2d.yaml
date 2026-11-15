@@ -37,7 +37,7 @@
         "--limit",
         "1"
       ],
-      "max_bytes": 1913,
+      "max_bytes": 1660,
       "expect": {
         "/page/total": 211,
         "/result/items/0/header/id": "GTR000324750.2",

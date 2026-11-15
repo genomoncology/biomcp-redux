@@ -40,18 +40,18 @@ pub(super) fn check(value: &Value) -> Check {
         )
     } else if value.pointer("/query/section") == Some(&json!("seriousness")) {
         (
-            crate::runner::output_limit("vaers-budget-measured-2241")?,
-            crate::runner::output_limit("vaers-budget-measured-2128")?,
+            crate::runner::output_limit("vaers-budget-measured-1918")?,
+            crate::runner::output_limit("vaers-budget-measured-1806")?,
         )
     } else if value.pointer("/query/section") == Some(&json!("age")) {
         (
-            crate::runner::output_limit("vaers-budget-measured-2234")?,
-            crate::runner::output_limit("vaers-budget-measured-2121")?,
+            crate::runner::output_limit("vaers-budget-measured-1919")?,
+            crate::runner::output_limit("vaers-budget-measured-1807")?,
         )
     } else {
         (
-            crate::runner::output_limit("vaers-budget-measured-2501")?,
-            crate::runner::output_limit("vaers-budget-measured-2388")?,
+            crate::runner::output_limit("vaers-budget-measured-2346")?,
+            crate::runner::output_limit("vaers-budget-measured-2233")?,
         )
     };
     if full > (measured_full * 115).div_ceil(100)
