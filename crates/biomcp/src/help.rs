@@ -144,7 +144,7 @@ fn section_help(
             let only = only_sources(&argument.description);
             let sections = only_sections(&argument.description);
             (only.is_empty() || only.iter().any(|source| sources.contains(source)))
-                && (sections.is_empty() || sections.iter().any(|word| word == section))
+                && (sections.is_empty() || sections.contains(&section))
         });
         for argument in &mut command.arguments {
             if matches!(argument.name.as_str(), "--source" | "--sources") {
