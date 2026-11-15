@@ -1,0 +1,185 @@
+{
+  "feature": "variant-search",
+  "live_check": "local-only validation; no source requests",
+  "story": "A full HGVS name given to search variant --variant is refused with the same search spelled as --gene and --coding (or --protein), built from the name, ahead of the help step; a name without a gene, or with a bare Ensembl or GenBank accession in the gene's place, keeps only the help step.",
+  "verified": "Bench dx-lab-director 2026-11-15-r4 calls 73-75: --variant \"NM_007294.4(BRCA1):c.68_69del\" was refused with the option list and a help step; the agent read help and ran --gene BRCA1 --coding c.68_69del, which returned clinvar:17662.",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "NM_007294.4(BRCA1):c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "search",
+          "variant",
+          "--coding",
+          "c.68_69del",
+          "--gene",
+          "BRCA1"
+        ],
+        "/next/1/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant=NP_004324.2(BRAF):p.Val600Glu"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "search",
+          "variant",
+          "--gene",
+          "BRAF",
+          "--protein",
+          "p.Val600Glu"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "BRCA1:c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "search",
+          "variant",
+          "--coding",
+          "c.68_69del",
+          "--gene",
+          "BRCA1"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "NM_007294.4:c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "ENST00000357654:c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "ENSP00000350283:p.Val600Glu"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "U14680:c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "AAA03565:p.Val600Glu"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    },
+    {
+      "run": [
+        "search",
+        "variant",
+        "--variant",
+        "NC_000017.11(ENST00000357654):c.68_69del"
+      ],
+      "exit": 2,
+      "is_error": true,
+      "expect": {
+        "/error/option": "--variant",
+        "/next/0/args": [
+          "help",
+          "search",
+          "variant"
+        ]
+      }
+    }
+  ]
+}

@@ -298,6 +298,73 @@ pub(super) fn respelled(
     candidate(root, &args)
 }
 
+/// A full HGVS name typed as `search variant --variant`, such as
+/// `NM_007294.4(BRCA1):c.68_69del` or `BRCA1:c.68_69del`: the same call with its gene as
+/// `--gene` and its change as `--coding` or `--protein`. A name without a gene is left to help.
+pub(super) fn hgvs_flag(
+    root: &Command,
+    path: &[&str],
+    spelling: &str,
+    args: &[OsString],
+) -> Option<Step> {
+    if path != ["search", "variant"]
+        || spelling != "--variant"
+        || args.iter().any(|word| {
+            word.to_str()
+                .is_some_and(|word| word == "--gene" || word.starts_with("--gene="))
+        })
+    {
+        return None;
+    }
+    let index = args.iter().position(|word| {
+        word.to_str()
+            .is_some_and(|word| word == spelling || word.starts_with("--variant="))
+    })?;
+    let word = args.get(index)?.to_str()?;
+    let (value, width) = match word.strip_prefix("--variant=") {
+        Some(value) => (value, 1),
+        None => (args.get(index + 1)?.to_str()?, 2),
+    };
+    let (name, change) = value.split_once(':')?;
+    let gene = match name.rsplit_once('(') {
+        Some((_, gene)) => gene.strip_suffix(')')?,
+        None => name,
+    };
+    if accession(gene) {
+        return None;
+    }
+    let option = if change.starts_with("c.") {
+        "--coding"
+    } else if change.starts_with("p.") {
+        "--protein"
+    } else {
+        return None;
+    };
+    if gene.is_empty() || !gene.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
+        return None;
+    }
+    let replacement = [
+        OsString::from("--gene"),
+        OsString::from(gene),
+        OsString::from(option),
+        OsString::from(change),
+    ];
+    let mut args = args.to_vec();
+    args.splice(index..index + width, replacement);
+    candidate(root, &args)
+}
+
+/// A gene place that names a sequence, not a gene: an Ensembl ID such as ENST00000357654 or
+/// ENSP00000350283, or a GenBank accession such as U14680, AY123456 or AAA03565 (one letter
+/// and five digits, two letters and six or eight, or three letters and five or seven).
+fn accession(name: &str) -> bool {
+    let letters = name.chars().take_while(char::is_ascii_alphabetic).count();
+    let digits = name.get(letters..).unwrap_or_default();
+    let numbered = !digits.is_empty() && digits.bytes().all(|b| b.is_ascii_digit());
+    let sizes = [(1, 5), (2, 6), (2, 8), (3, 5), (3, 7)];
+    numbered && (name.starts_with("ENS") || sizes.contains(&(letters, digits.len())))
+}
+
 /// The canonical call for words the grammar accepts, or the corrected call its refusal
 /// already names.
 pub(crate) fn candidate(root: &Command, args: &[OsString]) -> Option<Step> {
