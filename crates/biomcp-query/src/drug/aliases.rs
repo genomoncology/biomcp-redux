@@ -344,9 +344,15 @@ fn chembl(cx: &Ctx<'_>, input: &Text, evidence: &mut Evidence) -> Option<Stated>
     evidence.local = evidence.local.or(copy.error.and_then(status::local));
     let molecules = copy.molecules?;
     let molecule = molecules.first()?;
+    // The record's ID becomes the follow-up command's input.
+    let id = crate::next::checked(
+        molecule.id.parse::<DrugId>(),
+        DrugSource::Chembl.source(),
+        &mut evidence.problems,
+    )?;
     Some(Stated {
         source: DrugSource::Chembl,
-        id: molecule.id.parse().ok()?,
+        id,
         names: molecule.names.clone(),
         ambiguous: molecules.len() > 1,
     })

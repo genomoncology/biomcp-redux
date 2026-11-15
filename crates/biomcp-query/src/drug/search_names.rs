@@ -274,13 +274,16 @@ pub(super) fn chembl_copy(cx: &Ctx<'_>, input: &Text) -> ChemblCopy {
     command.finish(remaining);
     let copied = biomcp_adapters::registry::outcome(DrugSource::Chembl.source(), parent.status());
     let evidence = vec![parent, copied];
-    let Ok(mapped) = result else {
-        return ChemblCopy {
-            molecules: None,
-            error,
-            evidence,
-            problems: Vec::new(),
-        };
+    let mapped = match result {
+        Ok(mapped) => mapped,
+        Err(_) => {
+            return ChemblCopy {
+                molecules: None,
+                error,
+                evidence,
+                problems: Vec::new(),
+            };
+        }
     };
     let complete = mapped.refusals != biomcp_adapters::Refusal::Refused
         && u64::from(mapped.value.received) == mapped.value.total;

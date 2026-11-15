@@ -12,8 +12,7 @@
       "body": {
         "kind": "json",
         "value": {
-          "total": 0,
-          "hits": []
+          "malformed": "authored invalid source reply"
         }
       }
     }
