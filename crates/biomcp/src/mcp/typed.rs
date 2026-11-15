@@ -241,7 +241,7 @@ fn command_call(
         )?;
         if let biomcp_types::UsageError::Arguments(usage) = &mut error
             && refusal::unknown(&input, &values).as_ref() == Some(&refused.argument)
-            && let Some(step) = refusal::fix(root, &args, &refused.argument, &values)
+            && let Some(step) = refusal::fix(root, &args, &input, &values)
         {
             usage.next.insert(0, step);
         }

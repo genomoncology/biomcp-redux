@@ -1,7 +1,7 @@
 {
   "live_check": "offline parser checks; no source requests",
   "feature": "mcp-parity",
-  "story": "A typed call refused for an argument its action does not take gets the fix the command line gives the same mistake ahead of the help step: search text under another name, a source typed as its own argument or one the record does not need, a short flag's letter, and a full HGVS name as variant. A key with no command-line fix keeps only the help step.",
+  "story": "A typed call refused for an argument its action does not take gets the fix the command line gives the same mistake ahead of the help step: search text under another name, a source typed as its own argument or one the record does not need, a short flag's letter, several such keys at once, and a full HGVS name as variant. A key with no command-line fix keeps only the help step.",
   "config": {
     "mcp_tool_mode": "typed",
     "mcp_typed_output_schema": true
@@ -122,6 +122,52 @@
         "/next/0/arguments/search/condition": [
           "melanoma"
         ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "trial",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "c": "melanoma",
+            "i": "pembrolizumab"
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/next/0/name": "trial",
+        "/next/0/arguments/search/condition": [
+          "melanoma"
+        ],
+        "/next/0/arguments/search/intervention": [
+          "pembrolizumab"
+        ]
+      }
+    },
+    {
+      "mcp_call": {
+        "name": "drug",
+        "arguments": {
+          "action": "search",
+          "search": {
+            "q": "primaquine",
+            "who_pq": true
+          }
+        }
+      },
+      "offline": true,
+      "is_error": true,
+      "expect": {
+        "/status": "usage",
+        "/error/code": "usage.arguments",
+        "/next/0/name": "drug",
+        "/next/0/arguments/search/query": "primaquine",
+        "/next/0/arguments/search/source": "who-pq"
       }
     },
     {
