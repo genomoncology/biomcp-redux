@@ -1,8 +1,11 @@
 //! Native product recall records with exact optional enforcement classification.
 use biomcp_fetch::{Input, Read};
 mod map;
+mod phrase;
+pub(crate) use phrase::phrase;
+pub use phrase::spaced_name;
 mod raw;
-use biodata::{DeviceRecallNumber, Text};
+use biodata::DeviceRecallNumber;
 use biomcp_fetch::{Arg, BadReply, Endpoint, Freshness, Leg, RequestError, SourceSpec, Terms};
 use biomcp_types::{DeviceRecallCard, DiagnosticCandidate, DiagnosticSearch, Problem, Source, Use};
 use raw::Identity;
@@ -41,34 +44,6 @@ pub struct Page {
 }
 fn literal(value: &str) -> String {
     format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
-}
-/// openFDA answers HTTP 400 to these characters even inside a quoted phrase (live, 2026-11-13).
-/// Its tokenizer splits words at them, so a space finds the same words.
-const REFUSED: &[char] = &['!', '#', '$', ';', '?', '^', '|', '~', '`'];
-/// openFDA also answers HTTP 400 to every character outside ASCII (live, 2026-11-15); the query
-/// refuses letters, so what remains here is a symbol such as ® or ™, spaced like punctuation:
-/// "Alaris® pump" counts the same 49 recall records as "Alaris pump".
-fn spaced(c: char) -> bool {
-    REFUSED.contains(&c) || !c.is_ascii()
-}
-fn words(value: &Text) -> String {
-    let words: String = value
-        .as_str()
-        .chars()
-        .map(|c| if spaced(c) { ' ' } else { c })
-        .collect();
-    words.split_whitespace().collect::<Vec<_>>().join(" ")
-}
-/// Text as one quoted openFDA phrase, with refused characters spaced: the device recall name
-/// (product_description) and the PMA intended-use phrase (ao_statement).
-pub(crate) fn phrase(value: &Text) -> String {
-    literal(&words(value))
-}
-/// The phrase searched for a device recall name whose refused characters became spaces.
-pub fn spaced_name(q: &DiagnosticSearch) -> Option<String> {
-    q.name()
-        .filter(|name| name.as_str().chars().any(spaced))
-        .map(words)
 }
 /// Recall selectors; a classification selects enforcement records and their field spellings.
 /// Both datasets spell the device name field product_description.

@@ -129,7 +129,8 @@ struct SearchFields {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = MANUFACTURER_SOURCES)))]
     manufacturer: Option<Text>,
-    #[doc = "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only."]
+    #[doc = "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: \
+    the same recalling_firm phrase; fda-device-recall only."]
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = crate::Source::FdaDeviceRecall)))]
     firm: Option<Text>,
@@ -194,16 +195,7 @@ crate::query::validation::checked_query!(DiagnosticSearch, SearchFields);
 impl TryFrom<SearchFields> for DiagnosticSearch {
     type Error = QueryInvalid;
     fn try_from(mut v: SearchFields) -> Result<Self, Self::Error> {
-        // The drug recall search names the recalling firm --firm; a device recall takes either name (0901).
-        if v.firm.is_some() {
-            if v.source != DiagnosticSearchSource::FdaDeviceRecall {
-                return Err(QueryInvalid::new(&["source", "firm"]));
-            }
-            if v.manufacturer.is_some() {
-                return Err(QueryInvalid::new(&["firm", "manufacturer"]));
-            }
-            v.manufacturer = v.firm.take();
-        }
+        search_validation::fold_firm(&mut v)?;
         let gtr = v.gene_id.is_some()
             || v.gene.is_some()
             || v.condition_id.is_some()

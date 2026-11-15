@@ -28,6 +28,21 @@ fn validate_cdx_dates(v: &SearchFields) -> Result<(), QueryInvalid> {
     Ok(())
 }
 
+/// The drug recall search names the recalling firm --firm; a device recall takes either name (0901).
+pub(super) fn fold_firm(v: &mut SearchFields) -> Result<(), QueryInvalid> {
+    if v.firm.is_none() {
+        return Ok(());
+    }
+    if v.source != DiagnosticSearchSource::FdaDeviceRecall {
+        return Err(QueryInvalid::new(&["source", "firm"]));
+    }
+    if v.manufacturer.is_some() {
+        return Err(QueryInvalid::new(&["firm", "manufacturer"]));
+    }
+    v.manufacturer = v.firm.take();
+    Ok(())
+}
+
 pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), QueryInvalid> {
     if v.source != DiagnosticSearchSource::FdaDeviceRecall {
         let code = v.product_code.is_some() && !device_source(v);
