@@ -1168,7 +1168,7 @@ Options:
       --event-type <event_type>
           MAUDE event type; help search adverse-event
           MAUDE event type.
-          MAUDE report event type on native event_type: malfunction, injury, death or other.
+          MAUDE report event type on native event_type: malfunction, injury, death or other. Reports with an empty or "No answer provided" event type match no value and fall outside every event-type count.
 
       --exact-term[=<exact_term>]
           Search typed drug names only.
@@ -1266,7 +1266,7 @@ reactions: FAERS reaction-term buckets; needs MedDRA. received-year or received-
 - `--drug`: FAERS drug names; OR.
 FAERS drug name, widened like the main text; repeat --drug for OR. A standalone OR joining names inside one --drug value is refused. Other filters AND with the names. BioMCP caps the escaped source query, including filters, at FAERS_QUERY_MAX_BYTES (4096 bytes). Value form: repeatable values (repeat the flag); example: --drug "synthetic\\B".
 - `--event-type`: MAUDE event type.
-MAUDE report event type on source event_type: malfunction, injury, death or other. Value form: string; example: --event-type malfunction.
+MAUDE report event type on source event_type: malfunction, injury, death or other. Reports with an empty or "No answer provided" event type match no value and fall outside every event-type count. Value form: string; example: --event-type malfunction.
 - `--exact-term`: Search typed drug names only.
 FAERS searches each typed drug name together with the drug's other names by default; this searches only the names as typed. MAUDE and VAERS always search the text as typed. Value form: boolean; example: --exact-term.
 - `--expand-drug-names`: FAERS no-op.
