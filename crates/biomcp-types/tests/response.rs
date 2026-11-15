@@ -527,3 +527,25 @@ fn other_bounded_collections_state_their_totals_before_their_rows() -> Outcome {
     declared_first::<ProteinDomains>(json!({"native_total":0}), &["native_total"], "items")?;
     declared_first::<ProteinComplexes>(json!({"native_total":0}), &["native_total"], "items")
 }
+// 0955: the four 0942 left because moving them reorders their schema `required` lists.
+#[test]
+fn last_four_pages_state_their_totals_before_their_rows() -> Outcome {
+    use biomcp_types::{CellLineChembl, CellLineIdentityPage, CellLineNames, CellLineVariants};
+    use biomcp_types::{CellLineXrefs, GwasStudyPage, ProteinSectionPage, StudyMutations};
+    declared_first::<GwasStudyPage>(json!({"items":[],"page":page()}), &["page"], "items")?;
+    declared_first::<StudyMutations>(
+        json!({"study_id":"brca_tcga_pan_can_atlas_2018","molecular_profile_id":"brca_tcga_pan_can_atlas_2018_mutations",
+        "entrez_gene_id":"1956","items":[],"page":page()}),
+        &["page"],
+        "items",
+    )?;
+    declared_first::<ProteinSectionPage<serde_json::Value>>(json!({"items":[],"total":0}), &["total"], "items")?;
+    let capped = json!({"total":0});
+    let section = json!({"accession":"CVCL_0004","items":capped,"offset":0});
+    declared_first::<CellLineNames>(section.clone(), &["offset"], "items")?;
+    declared_first::<CellLineXrefs>(section.clone(), &["offset"], "items")?;
+    declared_first::<CellLineVariants>(section.clone(), &["offset"], "items")?;
+    declared_first::<CellLineChembl>(section, &["offset"], "items")?;
+    let identity = json!({"accession":"CVCL_0004","species":capped,"diseases":capped,"warnings":capped,"offset":0});
+    declared_first::<CellLineIdentityPage>(identity, &["offset"], "species")
+}

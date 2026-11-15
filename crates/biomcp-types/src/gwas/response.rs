@@ -226,10 +226,10 @@ pub enum GwasPageQuery {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasStudyPage {
-    /// Source study records and their native association totals.
-    pub items: Box<[GwasStudyRow]>,
     /// Native study page scope and total.
     pub page: PageInfo,
+    /// Source study records and their native association totals.
+    pub items: Box<[GwasStudyRow]>,
     /// Same publication and study result mode.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub continuation: Option<GwasSearch>,
