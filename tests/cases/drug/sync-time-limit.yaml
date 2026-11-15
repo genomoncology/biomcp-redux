@@ -1,0 +1,28 @@
+{
+  "feature": "bundle-sync-time-limit",
+  "live_check": "Reuses the drug/markets WHO PQ recording, whose synthetic export was recorded with a 2,419 ms transfer; no live provider call",
+  "story": "A user on a slow connection sets sync_timeout_seconds to 1; a WHO PQ sync whose download takes 2.4 seconds fails with deadline-exceeded, and the reply names the 1-second limit and the setting that raises it.",
+  "replay": "drug/markets",
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-pq"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/sources/0/source": "who-pq",
+        "/sources/0/state": "failed",
+        "/sources/0/reason": "deadline-exceeded",
+        "/sources/0/notices/0/kind": "request-guidance",
+        "/sources/0/notices/0/message": "This sync stopped at its 1-second time limit. Set sync_timeout_seconds in config.json to a larger number of seconds to give a slow download more time."
+      },
+      "max_bytes": 1200
+    }
+  ],
+  "config": {
+    "sync_timeout_seconds": 1
+  }
+}

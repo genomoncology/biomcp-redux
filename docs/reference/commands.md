@@ -5565,7 +5565,7 @@ Options:
 
 ```
 
-Synchronize a local source bundle.
+Synchronize a local source bundle. Set sync_timeout_seconds in config.json to change its time limit (default 120).
 Listed choices accept any letter case; replies use their listed spelling.
 
 - `bundle`: Local source bundle to synchronize.

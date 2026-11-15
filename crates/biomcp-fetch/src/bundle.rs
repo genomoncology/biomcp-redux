@@ -226,18 +226,25 @@ impl BundleSync {
     }
 }
 impl Fetch {
+    /// Configured time limit for one explicit bundle synchronization and each read it makes.
+    pub fn sync_budget(&self) -> std::time::Duration {
+        self.config.sync_budget
+    }
+    /// Start a leg on the configured sync time limit, not capped by the source's own request
+    /// deadline, so a sync and any read it makes of its own store use that limit (0951).
+    pub fn sync_leg(&self, spec: &'static SourceSpec) -> crate::Leg<'_> {
+        let deadline = self.deadline(self.config.sync_budget);
+        let mut leg = self.leg(spec, deadline);
+        leg.deadline = deadline;
+        leg
+    }
     /// Synchronize while preserving a refused refresh separately from the active catalog.
     pub fn sync_catalog<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleSync, RequestError> {
-        let deadline = self.deadline(self.config.sync_budget);
-        let mut leg = self.leg(bundle.spec, deadline);
-        leg.deadline = deadline;
-        leg.sync_bundle(bundle, false)
+        self.sync_leg(bundle.spec).sync_bundle(bundle, false)
     }
     /// Synchronize a declared bundle under the configured independent sync budget.
     pub fn sync<R: Row>(&self, bundle: &Bundle<R>) -> Result<BundleInfo, RequestError> {
-        let deadline = self.deadline(self.config.sync_budget);
-        let mut leg = self.leg(bundle.spec, deadline);
-        leg.deadline = deadline;
+        let leg = self.sync_leg(bundle.spec);
         let mut info = leg.sync_bundle(bundle, false)?.published(&leg)?;
         // A busy cache must not fail a sync that already published; the date stays unknown.
         info.data_date = match leg.stored_data_date(bundle) {
