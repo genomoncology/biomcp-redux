@@ -16,7 +16,7 @@ pub(super) fn for_commands(paths: &[(&str, &str, &str)]) -> io::Result<Value> {
                 json!({"type":"array","items":{
                 "type":"object","properties":{"kind":{"type":"string"},
                     "name":{"type":"string"},"arguments":{"type":"object"},
-                    "options":{"type":"object","additionalProperties":{"type":"string"}}},
+                    "options":{"type":"object"}},
                 "required":["kind","name","arguments"],"additionalProperties":false}}),
             );
         }
