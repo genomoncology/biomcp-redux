@@ -7,9 +7,9 @@ use serde::Deserialize;
 pub(super) enum Native {
     Version(Box<GtrTestVersion>),
     Relation(Relation),
-    /// Specimen types of one exact test version from the XML release.
-    Specimens(XmlTest),
-    /// One laboratory's certifications from the XML release.
+    /// Specimen types and order and test links of one exact test version from the XML release.
+    Test(XmlTest),
+    /// One laboratory's certifications, mailing address and directors from the XML release.
     Lab(XmlLab),
     Refused(Refused),
 }
@@ -18,13 +18,31 @@ pub(super) enum Native {
 pub(super) struct XmlTest {
     #[serde(rename = "xml_test")]
     pub id: GtrTestId,
-    pub specimens: Vec<Box<str>>,
+    /// Absent when the test lists none.
+    pub specimens: Option<Vec<Box<str>>>,
+    /// `Order/URL`: how to order the test.
+    pub order_url: Option<Box<str>>,
+    /// `TestURL`: the lab's page for the test.
+    pub test_url: Option<Box<str>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct XmlLab {
     #[serde(rename = "xml_lab")]
     pub id: Box<str>,
-    pub certifications: Vec<XmlCertification>,
+    /// Absent when the lab lists none.
+    pub certifications: Option<Vec<XmlCertification>>,
+    pub address: Option<XmlAddress>,
+    /// Display names of the lab's `Personnel` marked `IsDirector`.
+    pub directors: Option<Vec<Box<str>>>,
+}
+/// The lab's public `MailingAddress`.
+#[derive(Debug, Deserialize)]
+pub(super) struct XmlAddress {
+    pub lines: Option<Vec<Box<str>>>,
+    pub city: Option<Box<str>>,
+    pub state: Option<Box<str>>,
+    pub postcode: Option<Box<str>>,
+    pub country: Option<Box<str>>,
 }
 #[derive(Debug, Deserialize)]
 pub(super) struct XmlCertification {
@@ -32,7 +50,7 @@ pub(super) struct XmlCertification {
     pub number: Option<Box<str>>,
     pub expiration_date: Option<Box<str>>,
 }
-/// Exact key of a test's XML specimen row alone, without its relation rows.
+/// Exact key of a test's XML row alone, without its relation rows.
 pub(super) fn specimens_key(id: &GtrTestId) -> String {
     format!("gtr-specimens:{id}")
 }
@@ -149,7 +167,7 @@ impl Row for Native {
             (self, part),
             (Self::Version(_), "versions")
                 | (Self::Relation(_), "relations")
-                | (Self::Specimens(_) | Self::Lab(_), "xml")
+                | (Self::Test(_) | Self::Lab(_), "xml")
         ) || matches!((self, part),
             (Self::Refused(r), "versions") if r.test_accession_ver.is_some() && r.accession.is_none()
         ) || matches!((self, part),
@@ -173,7 +191,7 @@ impl Row for Native {
         match self {
             Self::Version(_) => exact.push((KeyKind::Band, "versions".into())),
             Self::Lab(lab) => exact.push((KeyKind::Xref, lab_key(&lab.id).into())),
-            Self::Specimens(x) => exact.push((KeyKind::Xref, specimens_key(&x.id).into())),
+            Self::Test(x) => exact.push((KeyKind::Xref, specimens_key(&x.id).into())),
             Self::Refused(r) if r.test_accession_ver.is_some() => {
                 exact.push((KeyKind::Band, "versions".into()));
             }
@@ -228,7 +246,7 @@ impl Native {
         match self {
             Self::Version(v) => Some(&v.test_accession_ver),
             Self::Relation(v) => Some(&v.id),
-            Self::Specimens(v) => Some(&v.id),
+            Self::Test(v) => Some(&v.id),
             Self::Lab(_) => None,
             Self::Refused(v) => v
                 .accession

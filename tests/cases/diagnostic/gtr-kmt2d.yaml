@@ -1,8 +1,8 @@
 {
-  "verified": "GTR test_condition_gene.txt (Last-Modified 2026-11-05) and test_version.gz fetched live on 2026-11-13, then cut to the 211 KMT2D gene relation rows and those tests' 211 version rows, unchanged. The genes cells give 13 single-gene tests, 16 with 2-10 genes, 46 with 11-100 and 136 with more than 100, the same split E-utilities esummary genecount gave the rare-disease persona that day. gtr_ftp.xml.gz (Last-Modified 2026-11-11) fetched live on 2026-11-14 was cut the same way to these tests' labs (LabCertification) and tests (Specimen), values unchanged (0931).",
+  "verified": "GTR test_condition_gene.txt (Last-Modified 2026-11-05) and test_version.gz fetched live on 2026-11-13, then cut to the 211 KMT2D gene relation rows and those tests' 211 version rows, unchanged. The genes cells give 13 single-gene tests, 16 with 2-10 genes, 46 with 11-100 and 136 with more than 100, the same split E-utilities esummary genecount gave the rare-disease persona that day. gtr_ftp.xml.gz (Last-Modified 2026-11-11) fetched live on 2026-11-14 was cut the same way to these tests' labs (LabCertification, Organization/MailingAddress, and director Personnel with only Person/DisplayName) and tests (Order, Specimen, TestURL), values unchanged (0931, 0891). NCBI E-utilities esummary db=gtr id=500162,559466 on 2026-11-15 gave the same mailing addresses, directors, orderurl and testurl, and none of either link for 559466.",
   "live_check": "public replies cut to one gene's rows; no live provider call",
   "feature": "diagnostic-gtr",
-  "story": "A rare-disease genetic counselor lists every KMT2D test in GTR and sees on each row how many genes it covers, its method categories and where the lab is, so she can count single-gene, panel and exome-scale tests and pick a lab near the family without opening each test.",
+  "story": "A rare-disease genetic counselor lists every KMT2D test in GTR and sees on each row how many genes it covers, its method categories and where the lab is, so she can count single-gene, panel and exome-scale tests and pick a lab near the family without opening each test. On a test's card she sees the lab's mailing address, its directors and the lab's order and test links, so she can tell the family where to order without opening NCBI's page.",
   "replay": "diagnostic/gtr-kmt2d",
   "steps": [
     {
@@ -13,7 +13,7 @@
       "max_bytes": 200,
       "expect": {
         "/schema": "biomcp.sync/7",
-        "/result/rows": 588
+        "/result/rows": 617
       }
     },
     {
@@ -80,6 +80,68 @@
         "/result/items/*/header/gene_count": {
           "equals_file": "gtr-kmt2d-gene-counts.json"
         }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000500162.7",
+        "--source",
+        "gtr"
+      ],
+      "mcp": [
+        "get",
+        "diagnostic",
+        "GTR000500162.7",
+        "--source",
+        "gtr"
+      ],
+      "max_bytes": 3233,
+      "expect": {
+        "/result/kind": "gtr-test",
+        "/result/laboratory_address/lines": [
+          "5841 S. Maryland Ave. Rm G701, MC0077"
+        ],
+        "/result/laboratory_address/city": "Chicago",
+        "/result/laboratory_address/state": "Illinois",
+        "/result/laboratory_address/postcode": "60637-6726",
+        "/result/laboratory_address/country": "United States",
+        "/result/laboratory_directors": [
+          "Soma Das, PhD, ABMGG Board Certified, Diplomate of the American Board of Medica, Lab Director",
+          "Daniela Del Gaudio, PhD, FACMG, Lab Director"
+        ],
+        "/result/order_url": "http://dnatesting.uchicago.edu/submitting-sample",
+        "/result/test_url": "http://dnatesting.uchicago.edu/tests/342",
+        "/result/xml_release_url": "https://ftp.ncbi.nlm.nih.gov/pub/GTR/data/gtr_ftp.xml.gz"
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "GTR000559466.2",
+        "--source",
+        "gtr"
+      ],
+      "max_bytes": 3344,
+      "expect": {
+        "/result/kind": "gtr-test",
+        "/result": {
+          "omits": [
+            "order_url",
+            "test_url"
+          ]
+        },
+        "/result/laboratory_address/lines": [
+          "200 Forest Street",
+          "2nd Floor"
+        ],
+        "/result/laboratory_address/city": "Marlborough",
+        "/result/laboratory_directors": {
+          "count": 6
+        },
+        "/result/header/laboratory/postcode": "01752"
       }
     }
   ]

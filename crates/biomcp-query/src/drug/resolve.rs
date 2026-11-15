@@ -113,6 +113,8 @@ fn chosen_name(
         "exact brand before generic; NDA/BLA before ANDA, then earliest approval"
     } else if query.source() == DrugSource::OpenfdaLabel {
         super::label_choice::RANKING
+    } else if query.source() == DrugSource::Ema {
+        "exact brand before generic, then earliest marketing authorisation; source search order among equals"
     } else {
         "exact brand before generic; source search order among equals"
     })
@@ -508,14 +510,14 @@ fn ema(cx: &Ctx<'_>, get: &DrugGet, query: &DrugSearch) -> (Outcome, Vec<(Rank, 
         let candidates = rows
             .value
             .into_iter()
-            .filter_map(|header| {
+            .filter_map(|(header, authorised)| {
                 header.matched_name.map(|matched| {
                     (
                         (
                             u8::from(matched == DrugNameMatch::Generic),
                             0,
                             Reverse(0),
-                            String::new(),
+                            authorised.map_or_else(|| "9999".into(), |date| date.to_string()),
                         ),
                         header,
                     )

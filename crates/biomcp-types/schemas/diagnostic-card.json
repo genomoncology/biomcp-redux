@@ -271,10 +271,28 @@
               "description": "Native laboratory test identifier, including empty.",
               "type": "string"
             },
+            "laboratory_address": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_GtrLabAddress"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The laboratory's mailing address as GTR's XML release lists it; absent when GTR lists none."
+            },
             "laboratory_certifications": {
               "description": "The laboratory's certifications (such as CLIA, CAP and ISO15189) as GTR's XML release lists them; state licenses stay in `state_licenses`.",
               "items": {
                 "$ref": "#/$defs/Reply_GtrLabCertification"
+              },
+              "type": "array"
+            },
+            "laboratory_directors": {
+              "description": "The laboratory's directors, by GTR's display name, as its XML release lists them.",
+              "items": {
+                "$ref": "#/$defs/Reply_Text"
               },
               "type": "array"
             },
@@ -296,6 +314,17 @@
             "native_status": {
               "$ref": "#/$defs/Reply_GtrNativeStatus",
               "description": "Separate native flags."
+            },
+            "order_url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The laboratory's how-to-order link for this test, as published; absent when GTR lists none."
             },
             "sections": {
               "description": "Source-supported named pages.",
@@ -335,6 +364,17 @@
               "description": "Native order code, including empty.",
               "type": "string"
             },
+            "test_url": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Reply_Text"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The laboratory's own page for this test, as published; absent when GTR lists none."
+            },
             "xml_release_url": {
               "anyOf": [
                 {
@@ -344,7 +384,7 @@
                   "type": "null"
                 }
               ],
-              "description": "The GTR file that `header.specimens` and `laboratory_certifications` came from; absent when neither is present.",
+              "description": "The GTR file that `header.specimens` and the laboratory and link fields above came from; absent when none is present.",
               "format": "uri"
             }
           },
@@ -788,6 +828,63 @@
         "id",
         "url"
       ],
+      "type": "object"
+    },
+    "Reply_GtrLabAddress": {
+      "description": "A laboratory's mailing address as published, without validation.",
+      "properties": {
+        "city": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "City."
+        },
+        "country": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Country."
+        },
+        "lines": {
+          "description": "Street lines in order.",
+          "items": {
+            "$ref": "#/$defs/Reply_Text"
+          },
+          "type": "array"
+        },
+        "postcode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Postal code."
+        },
+        "state": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "State or region."
+        }
+      },
       "type": "object"
     },
     "Reply_GtrLabCertification": {
@@ -1675,7 +1772,7 @@
           "type": "null"
         }
       ],
-      "description": "Search page metadata."
+      "description": "Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists."
     },
     "problems": {
       "description": "Rejected source fields.",

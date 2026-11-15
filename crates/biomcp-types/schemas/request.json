@@ -3258,7 +3258,7 @@
               "type": "null"
             }
           ],
-          "description": "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other.",
+          "description": "MAUDE event type.\nMAUDE report event type on native event_type: malfunction, injury, death or other. Reports with an empty or \"No answer provided\" event type match no value and fall outside every event-type count.",
           "x-required-component": "gmdn"
         },
         "exact_term": {

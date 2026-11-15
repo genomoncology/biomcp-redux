@@ -44,6 +44,7 @@ impl SourceSpec {
             double_gzip: false,
             stall_limit: None,
             wait_throttle: false,
+            throttle_retry: None,
             octet_stream: None,
             publisher: false,
             byte_limit: None,
@@ -105,6 +106,7 @@ pub struct Endpoint {
     pub(crate) double_gzip: bool,
     pub(crate) stall_limit: Option<Duration>,
     pub(crate) wait_throttle: bool,
+    pub(crate) throttle_retry: Option<Duration>,
     pub(crate) octet_stream: Option<&'static str>,
     pub(crate) publisher: bool,
     pub(crate) byte_limit: Option<u64>,
@@ -269,6 +271,13 @@ impl Endpoint {
     /// a fixed number of attempts: a source shares its keyless limit with every client on the IP.
     pub const fn wait_throttle(mut self) -> Self {
         self.wait_throttle = true;
+        self
+    }
+    /// Send a 429-refused request once more, even a POST, after the reply's retry time or `wait`
+    /// when it names none, and report that time if the second is refused too. A 429 is refused
+    /// unread, so the second request repeats nothing. The source's own spacing sets `wait`.
+    pub const fn throttle_retry(mut self, wait: Duration) -> Self {
+        self.throttle_retry = Some(wait);
         self
     }
     /// Attempt this endpoint once, without retries for status or transport failures.
