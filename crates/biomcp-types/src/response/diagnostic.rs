@@ -431,7 +431,8 @@ pub struct DiagnosticPmaRegulatory {
 pub struct DiagnosticClearance {
     /// Exact native K or De Novo DEN number.
     pub k_number: biodata::DiagnosticDeviceId,
-    /// BioMCP's plain reading of a decision_code whose openFDA decision_description does not name it, such as de-novo-granted for DENG; absent otherwise. Read it before decision_code.
+    /// BioMCP's plain reading of a decision_code whose openFDA decision_description does not
+    /// name it, such as de-novo-granted for DENG; absent otherwise. Read it before decision_code.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_reading: Option<DecisionReading>,
     /// Native device_name; missing and empty remain distinct.
@@ -443,7 +444,8 @@ pub struct DiagnosticClearance {
     /// Native decision_code; missing and empty remain distinct.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_code: Option<Box<str>>,
-    /// Native decision_description; missing and empty remain distinct. Left out when decision_reading is present and openFDA's description is Unknown.
+    /// Native decision_description; missing and empty remain distinct. Left out when
+    /// decision_reading is present and openFDA's description is Unknown.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub decision_description: Option<Box<str>>,
     /// Native decision_date; missing and empty remain distinct.
