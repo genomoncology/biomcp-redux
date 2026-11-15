@@ -31,7 +31,7 @@ const SMALL: &str = "name\nSMALL\n";
 /// A set records each part as a sidecar under the set's own ceiling, so a part over the ordinary
 /// 16 MiB record file limit, or over the ordinary 50 MiB binary reply limit, records and replays.
 fn records_and_replays_large_part(big_bytes: usize) {
-    let server = support::Server::new();
+    let server = support::Server::<()>::new();
     let set = BundleSet::<Named> {
         spec: server.spec(&QUOTA, KeyUse::None),
         name: "synthetic-large-set",
