@@ -1,5 +1,7 @@
 //! Literal native Cellosaurus queries and request-bound identity checks.
 use biomcp_fetch::{Input, Read, Received};
+mod count;
+pub use count::count;
 mod identity;
 mod map;
 mod raw;
@@ -88,63 +90,15 @@ pub fn search(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<Page, RequestE
         shown,
     )
 }
-/// Cellosaurus's own match count for the same query. Its JSON search reply states none, but
-/// the txt format's header states `response.numFound`, so one `rows=0` request reads it
-/// (0980, pm job j41467: 373 bytes in about 0.35 s, against 0.46 s for a 10-row JSON page).
-pub fn count(leg: &Leg<'_>, q: &CellLineSearchCommand) -> Result<u64, RequestError> {
-    let query = search_query(q);
-    let endpoint = SPEC
-        .get("/search/cell-line")
-        .bytes(64 * 1024)
-        .fresh(Freshness::Days(1));
-    let args = [
-        ("q", Arg::Text(&query)),
-        ("format", Arg::Text("txt")),
-        ("fields", Arg::Text("ac")),
-        ("rows", Arg::Num(0)),
-    ];
-    let check = |bytes: &[u8]| {
-        num_found(bytes, &query)
-            .map(|_| ())
-            .ok_or(biomcp_types::Reason::BadReply)
-    };
-    let bytes = leg
-        .call(
-            &endpoint,
-            Input::Params(&args),
-            Read::bytes().validate_body(&check),
-        )?
-        .value
-        .0;
-    num_found(&bytes, &query).ok_or_else(|| biomcp_fetch::bad_reply(Source::Cellosaurus, None))
-}
-/// The header's count, only when the header echoes this request's query.
-fn num_found(bytes: &[u8], query: &str) -> Option<u64> {
-    let text = std::str::from_utf8(bytes).ok()?;
-    let mut echoed = None;
-    let mut found = None;
-    for line in text.lines() {
-        let Some(field) = line.strip_prefix("##") else {
-            continue;
-        };
-        let field = field.trim_start();
-        if let Some(value) = field.strip_prefix("query.q: ") {
-            echoed = Some(value);
-        } else if let Some(value) = field.strip_prefix("response.numFound: ") {
-            found = value.trim().parse().ok();
-        }
-    }
-    (echoed? == query).then_some(found?)
-}
 /// The native query for a search's literal text and fields.
 fn search_query(q: &CellLineSearchCommand) -> String {
     let accession = q
         .query()
-        .and_then(|v| v.as_str().parse::<CellosaurusAccession>().ok());
+        .is_some_and(|v| v.as_str().parse::<CellosaurusAccession>().is_ok());
     let mut terms = Vec::new();
     if let Some(text) = q.query() {
         terms.push(literal(
-            if accession.is_some() { "ac" } else { "idsy" },
+            if accession { "ac" } else { "idsy" },
             text.as_str(),
         ));
     }

@@ -1,8 +1,8 @@
 {
   "feature": "cell-line-identity",
   "live_check": "public",
-  "story": "A full cell-line search page says the Cellosaurus JSON search reply BioMCP reads gives no total, beside its next page step.",
-  "verified": "Captured live 2026-11-15 in pm job j41438: Cellosaurus's JSON search for HeLa with rows=3 returns three cell lines and no count; its JSON reply has only cell-line-list. (Its txt format's header states response.numFound, which BioMCP does not read.)",
+  "story": "A full cell-line search page reports Cellosaurus's own match count as its total, beside its next page step.",
+  "verified": "Captured live 2026-11-15 in pm job j41467 and recorded in RECORD_JOB: Cellosaurus's JSON search reply has only cell-line-list and no count, and rows=0 gives an empty list; the txt format's header states response.numFound (2,355 for idsy:\"HeLa\") and echoes query.q, at 373 bytes in about 0.35 s.",
   "replay": "cell-line/search-total",
   "steps": [
     {
@@ -12,7 +12,9 @@
         "/result/items": {
           "count": 3
         },
-        "/sources/0/notices/0/message": "The Cellosaurus JSON search reply BioMCP reads gives no total; a full page has a next page step.",
+        "/page/total": 2355,
+        "/page/returned": 3,
+        "/sources/0/count": 2355,
         "/next/*/kind": {
           "includes": "page"
         }

@@ -24,7 +24,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     let full = reply
         .as_ref()
         .is_ok_and(|page| page.received == query.limit());
-    let count = full.then(|| cellosaurus::count(&leg, query).ok());
+    let count = full.then(|| cellosaurus::count(&leg, query));
     let mut out = empty(search_body(
         CellLinePage {
             items: Box::default(),
@@ -50,38 +50,7 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
             ));
         }
         let read = u64::from(query.offset()) + u64::from(page.received);
-        let total = match count {
-            None => Some(read),
-            Some(found) => found,
-        };
-        let source = out
-            .sources
-            .iter_mut()
-            .find(|s| s.source == Source::Cellosaurus);
-        if let Some(source) = source {
-            if let Some(found) = count.flatten() {
-                source.count = Some(found);
-            } else if full {
-                source
-                    .notices
-                    .push(biomcp_types::SourceNotice::RequestGuidance {
-                        data_date: None,
-                        message: "BioMCP could not read Cellosaurus's match count, so this \
-                            page has no total; a full page has a next page step."
-                            .into(),
-                        retry_after_seconds: None,
-                    });
-            }
-        }
-        if let Some(total) = total {
-            out.page = Some(biomcp_types::PageInfo {
-                offset: query.offset(),
-                returned: page.items.len() as u32,
-                total,
-                pool: None,
-                truncated: None,
-            });
-        }
+        let total = report_total(&mut out, query, read, page.items.len(), count);
         if full
             && total.is_none_or(|total| read < total)
             && let Some(offset) = query.offset().checked_add(query.limit())
@@ -110,6 +79,53 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     recovery(&mut out, Request::SearchCellLine(query.clone()));
     command.finish(deadline.remaining());
     out
+}
+/// Cellosaurus's own count on a full page, or the rows read to the end of a short one.
+/// A failed count leaves no total and says so; the page step still follows a full page.
+fn report_total(
+    out: &mut Outcome,
+    query: &CellLineSearchCommand,
+    read: u64,
+    returned: usize,
+    count: Option<Result<u64, biomcp_fetch::RequestError>>,
+) -> Option<u64> {
+    let source = out
+        .sources
+        .iter_mut()
+        .find(|s| s.source == Source::Cellosaurus);
+    let total = match (count, source) {
+        (None, _) => Some(read),
+        (Some(Ok(found)), source) => {
+            if let Some(source) = source {
+                source.count = Some(found);
+            }
+            Some(found)
+        }
+        (Some(Err(_)), source) => {
+            if let Some(source) = source {
+                source
+                    .notices
+                    .push(biomcp_types::SourceNotice::RequestGuidance {
+                        data_date: None,
+                        message: "BioMCP could not read Cellosaurus's match count, so this \
+                            page has no total; a full page has a next page step."
+                            .into(),
+                        retry_after_seconds: None,
+                    });
+            }
+            None
+        }
+    };
+    if let Some(total) = total {
+        out.page = Some(biomcp_types::PageInfo {
+            offset: query.offset(),
+            returned: u32::try_from(returned).unwrap_or(u32::MAX),
+            total,
+            pool: None,
+            truncated: None,
+        });
+    }
+    total
 }
 /// Retrieve one verified identity, with unselected candidates on ambiguity.
 pub(crate) fn get(cx: &Ctx<'_>, query: &CellLineGet) -> Outcome {
