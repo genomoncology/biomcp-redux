@@ -115,13 +115,19 @@ fn cdx_shared_fields(env: &Environment, local: &[Value], hosted: &[Value]) -> Re
     };
     for text in [description(local)?, description(hosted)?] {
         if !text.ends_with(SENTENCE) {
-            return Err(format!("diagnostic tool lacks the CDx shared fields: {text}"));
+            return Err(format!(
+                "diagnostic tool lacks the CDx shared fields: {text}"
+            ));
         }
     }
     let replies = exchange_with_globals(
         env,
         &[request(json!(3), "tools/list", json!({}))],
-        &["--offline".into(), "--disable-sources".into(), "fda-cdx".into()],
+        &[
+            "--offline".into(),
+            "--disable-sources".into(),
+            "fda-cdx".into(),
+        ],
     )?;
     let without = replies
         .first()
@@ -130,7 +136,9 @@ fn cdx_shared_fields(env: &Environment, local: &[Value], hosted: &[Value]) -> Re
         .ok_or("tools without fda-cdx")?;
     let text = description(without)?;
     if text.contains("CDx rows") {
-        return Err(format!("diagnostic tool names CDx rows without fda-cdx: {text}"));
+        return Err(format!(
+            "diagnostic tool names CDx rows without fda-cdx: {text}"
+        ));
     }
     Ok(())
 }
