@@ -170,6 +170,8 @@ singleton! {
         PgxSectionOffset => "use: --section-offset",
         PgxSource => "choose --source cpic for search, the gene card, recommendations, guidelines or diplotype; annotations requires --source clinpgx",
         PgxPhenotype => "--phenotype filters one drug's CPIC recommendation table; add --drug-id, such as --drug-id RxNorm:32968",
+        PgxDrugId => "--drug-id takes CPIC's drug key, not a drug name, such as --drug-id RxNorm:32968 for clopidogrel; \
+            search pgx --gene <SYMBOL> --source cpic lists each drug's drugid",
         PgxPhase => "unphased variants cannot select a diplotype; --diplotype requires an unchanged declared expression",
         Pharmgkb => "pharmgkb is retired; use: clinpgx",
         NciDisease => "NCI disease filters require an NCIt identifier such as C3224; use --keyword for free text",
