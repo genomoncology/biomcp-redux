@@ -74,3 +74,4 @@ The pages 0859's survey left behind report a total honestly: the source's own co
 - Cell line: the notice now says the Cellosaurus JSON search reply BioMCP reads gives no total (its txt format states `numFound`; reading it is a separate ticket).
 - `tests/replies/pathway/union-totals/README.md` states the trim (2,218 to 24 rows, "MAPK" in the title without regard to case) and the recording job.
 - Pathway type descriptions mention `read`. The union's `read` total now counts rows actually handed out (the previous page's total less rows still queued), so an empty page's `next_offset` step of one no longer adds a row never read.
+- Review fixes checked in j41452 (pathway, GWAS and cell-line cases, ratchets, clippy). Gate passed on the branch merged with origin/main in pm job j41453 at 7776bb908 (979 cases).
