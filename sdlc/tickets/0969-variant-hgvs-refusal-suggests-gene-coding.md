@@ -31,3 +31,9 @@ dx-lab-director round 4 (2026-11-15): the refusal sent the agent to help and cos
 ## Changes
 
 - Changes: variant search refusal, its case.
+
+## Progress
+
+- 2026-11-15: the refusal for an unknown `--variant` on `search variant` now puts the runnable search first in `next`, ahead of the help step: the name's gene goes to `--gene` and its change to `--coding` (`c.`) or `--protein` (`p.`). It takes `TRANSCRIPT(GENE):change` and `GENE:change`, spaced or inline (`--variant=`). A name without a gene, such as `NM_007294.4:c.68_69del`, keeps only the help step. The suggested call goes through the ordinary parser, so a change the search would refuse is never suggested. The message, option list and refusal schema are unchanged (`crates/biomcp/src/grammar/positional.rs` `hgvs_flag`, called from `flag_fix` in `errors.rs`).
+- Measured in job j41186 (debug build of 10984b552): `search variant --variant "NM_007294.4(BRCA1):c.68_69del"` exits 2 with `next[0]` = `search variant --coding c.68_69del --gene BRCA1`; that command, run live, returns 1 hit, `clinvar:17662`, as call 75 did. `--gene BRAF --protein p.Val600Glu` returns rs113488022 / clinvar:13961 live. Schema and docs regeneration changed nothing; `check-cheap` passed.
+- Case: `tests/cases/variant/search-hgvs-name-refusal.yaml` (local-only; no source requests).

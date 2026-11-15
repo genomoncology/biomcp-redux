@@ -20,10 +20,10 @@
         "/next/0/args": [
           "search",
           "variant",
-          "--gene",
-          "BRCA1",
           "--coding",
-          "c.68_69del"
+          "c.68_69del",
+          "--gene",
+          "BRCA1"
         ],
         "/next/1/args": [
           "help",
