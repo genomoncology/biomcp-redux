@@ -31,3 +31,9 @@ dx-lab-director round 2 call 27: an empty search page had no `items` key and the
 ## Changes
 
 - Changes: page types, cases.
+
+## Progress
+
+- Stopped for a decision: the ticket conflicts with Ian's decision `sdlc/decisions/2026-10-23-json-is-the-default-output.md` ("the envelope omits nulls, empty lists, unrequested sections and repeated commands") and 0362, which made it a runner check: `reject_empty_lists` in `crates/biomcp/tests/runner/schema.rs:114` fails any recorded reply that holds an empty list, with one narrow exception for typed gnomAD filters (0610).
+- Branch state (2775f6c28): every reply row list named `items` (43 fields, including the `page!` macro and `Capped<T>`), plus `AlphaGenomeScorerPage.rows` and `DrugCivicPage.records`, keeps `#[serde(default)]` but no longer skips when empty. A schema-only skip test (`crate::no_schema_default`, `paged.rs`) keeps the generated schemas byte for byte: the fields stay optional and get no `default` annotation, so the 1.0.0 baseline is untouched. The `--name cell-free` step of `diagnostic/intended-use.yaml` asserts `/result/items: []`; seven cases that asserted `omits: [items]` now assert `[]`.
+- Gate j41088: fmt, clippy, ratchets and both schema checks (`generated_schemas_preserve_release_contracts`, `checked_in_schemas_match_types`) pass. Cases fail: 110 (plus `readme/trial.yaml` in docs-check), 91 read in the failure list all "product reply contains an empty list", at `/result/items` and at nested `Capped` lists such as `/result/warnings/items` and `/result/items/2/interventions/items`.
