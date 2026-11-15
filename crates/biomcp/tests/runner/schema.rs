@@ -42,20 +42,21 @@ impl Registry {
             .clone()
     }
 
+    tool_only! {
     /// Compile every artifact now, so an unresolvable reference fails at construction.
     pub(super) fn new(artifacts: BTreeMap<String, Value>) -> Result<Self, String> {
         let registry = Self::lazy(artifacts)?;
         registry.compile_all()?;
         Ok(registry)
     }
+    }
 
     // Compiling every embedded schema took about 4.5 s of each runner start, and the
     // runner proofs start it once per probe case, so validators compile on first use (0960).
     fn lazy(artifacts: BTreeMap<String, Value>) -> Result<Self, String> {
-        if let Some(id) = artifacts
-            .iter()
-            .find_map(|(id, value)| (value.get("$id").and_then(Value::as_str) != Some(id)).then_some(id))
-        {
+        if let Some(id) = artifacts.iter().find_map(|(id, value)| {
+            (value.get("$id").and_then(Value::as_str) != Some(id)).then_some(id)
+        }) {
             return Err(format!(
                 "schema validation: artifact identity mismatch {}",
                 bounded(id)
@@ -67,7 +68,10 @@ impl Registry {
                 .map(|(id, value)| (format!("{BASE}{id}"), value.clone()))
                 .collect(),
         ));
-        let validators = artifacts.keys().map(|id| (id.clone(), Compiled::new())).collect();
+        let validators = artifacts
+            .keys()
+            .map(|id| (id.clone(), Compiled::new()))
+            .collect();
         Ok(Self {
             artifacts,
             retriever,
@@ -75,11 +79,13 @@ impl Registry {
         })
     }
 
+    tool_only! {
     /// Compile every artifact; the first one that cannot compile is the error.
     pub(super) fn compile_all(&self) -> Result<(), String> {
         self.artifacts
             .keys()
             .try_for_each(|id| self.validator(id).map(|_| ()))
+    }
     }
 
     fn validator(&self, id: &str) -> Result<&Validator, String> {
