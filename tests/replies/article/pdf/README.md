@@ -1,1 +1,3 @@
 These replies are synthetic and contain BioMCP-owned text. Actual CLI captures from the PDF ticket supplied every request URL and identity. Response-only edits replace the PubMed prose, PDF bytes and selected failures. The selected paper identifiers and publisher URLs remain unchanged. The original 16-page publisher PDF and source replies remain outside Git.
+
+`biorxiv` and `europepmc-refused` are live captures from 0965 (pm jobs j41240 and later). Their request keys, Semantic Scholar replies, statuses and refusal bodies are the sources' own. The bioRxiv PDF body is replaced by the synthetic PDF above, because bioRxiv lists that preprint as cc_no.
