@@ -87,7 +87,7 @@ pub struct DrugMarket {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("format" = "uri")))]
     pub url: Option<Text>,
-    /// How many records in this source matched the name; this row is one of them.
+    /// How many records in this source matched the name; a found row is one of them.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub matches: Option<u64>,
     /// How this record was chosen among the matches.

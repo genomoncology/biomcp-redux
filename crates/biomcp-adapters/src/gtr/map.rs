@@ -67,7 +67,7 @@ pub(super) fn header(
         specimens: xml
             .filter(|x| x.id == v.test_accession_ver)
             .into_iter()
-            .flat_map(|x| x.specimens.iter())
+            .flat_map(|x| x.specimens.iter().flatten())
             .filter_map(|value| optional(value, "SpecimenType", v, problems))
             .collect(),
         url: Text::new(&format!(
@@ -88,25 +88,30 @@ pub(super) fn card(
     problems: &mut Vec<biomcp_types::Problem>,
 ) -> Result<GtrCard, RequestError> {
     let header = header(v, xml, problems)?;
-    let laboratory_certifications: Box<[_]> = lab
-        .filter(|lab| *lab.id == *v.lab_id)
+    let lab = lab.filter(|lab| *lab.id == *v.lab_id);
+    let test = xml.filter(|x| x.id == v.test_accession_ver);
+    let laboratory_certifications = certifications(lab, v, problems);
+    let laboratory_address = lab
+        .and_then(|lab| lab.address.as_ref())
+        .and_then(|a| address(a, v, problems));
+    let laboratory_directors: Box<[_]> = lab
         .into_iter()
-        .flat_map(|lab| lab.certifications.iter())
-        .filter_map(|c| {
-            Some(biomcp_types::GtrLabCertification {
-                name: optional(&c.name, "LabCertification/Name", v, problems)?,
-                number: c
-                    .number
-                    .as_deref()
-                    .and_then(|n| optional(n, "LabCertification/Number", v, problems)),
-                expiration_date: c
-                    .expiration_date
-                    .as_deref()
-                    .and_then(|d| optional(d, "LabCertification/ExpirationDate", v, problems)),
-            })
-        })
+        .flat_map(|lab| lab.directors.iter().flatten())
+        .filter_map(|d| optional(d, "Personnel/DisplayName", v, problems))
         .collect();
-    let xml_release_url = if header.specimens.is_empty() && laboratory_certifications.is_empty() {
+    let order_url = test
+        .and_then(|t| t.order_url.as_deref())
+        .and_then(|u| optional(u, "Order/URL", v, problems));
+    let test_url = test
+        .and_then(|t| t.test_url.as_deref())
+        .and_then(|u| optional(u, "TestURL", v, problems));
+    let xml_release_url = if header.specimens.is_empty()
+        && laboratory_certifications.is_empty()
+        && laboratory_address.is_none()
+        && laboratory_directors.is_empty()
+        && order_url.is_none()
+        && test_url.is_none()
+    {
         None
     } else {
         Some(
@@ -134,6 +139,10 @@ pub(super) fn card(
         state_licenses: v.state_licenses.clone(),
         state_license_numbers: v.state_license_numbers.clone(),
         laboratory_certifications,
+        laboratory_address,
+        laboratory_directors,
+        order_url,
+        test_url,
         xml_release_url,
         sections: vec![
             DiagnosticSection::Genes,
@@ -142,6 +151,58 @@ pub(super) fn card(
         ]
         .into(),
     })
+}
+/// The lab's named certifications as published.
+fn certifications(
+    lab: Option<&XmlLab>,
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Box<[biomcp_types::GtrLabCertification]> {
+    lab.into_iter()
+        .flat_map(|lab| lab.certifications.iter().flatten())
+        .filter_map(|c| {
+            Some(biomcp_types::GtrLabCertification {
+                name: optional(&c.name, "LabCertification/Name", v, problems)?,
+                number: c
+                    .number
+                    .as_deref()
+                    .and_then(|n| optional(n, "LabCertification/Number", v, problems)),
+                expiration_date: c
+                    .expiration_date
+                    .as_deref()
+                    .and_then(|d| optional(d, "LabCertification/ExpirationDate", v, problems)),
+            })
+        })
+        .collect()
+}
+/// The lab's published mailing address; absent when none of its parts is readable.
+fn address(
+    a: &super::raw::XmlAddress,
+    v: &GtrTestVersion,
+    problems: &mut Vec<biomcp_types::Problem>,
+) -> Option<biomcp_types::GtrLabAddress> {
+    let mut part = |value: Option<&str>, field: &str| {
+        value.and_then(|x| optional(x, &format!("MailingAddress/{field}"), v, problems))
+    };
+    let lines: Box<[_]> = a
+        .lines
+        .iter()
+        .flatten()
+        .filter_map(|l| part(Some(&**l), "Line"))
+        .collect();
+    let out = biomcp_types::GtrLabAddress {
+        lines,
+        city: part(a.city.as_deref(), "City"),
+        state: part(a.state.as_deref(), "State"),
+        postcode: part(a.postcode.as_deref(), "PostCode"),
+        country: part(a.country.as_deref(), "Country"),
+    };
+    let empty = out.lines.is_empty()
+        && out.city.is_none()
+        && out.state.is_none()
+        && out.postcode.is_none()
+        && out.country.is_none();
+    (!empty).then_some(out)
 }
 pub(super) fn relation(
     r: &Relation,

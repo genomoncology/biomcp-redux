@@ -54,14 +54,22 @@ pub fn sync(fetch: &Fetch) -> Result<crate::Mapped<biomcp_types::SyncResult>, Re
 /// Literal medicine-name candidates in native bundle order; never synchronize on reads.
 pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Words(query))?;
-    Ok(name_headers(&rows, query, false))
+    let found = name_headers(&rows, query, false);
+    Ok(crate::Mapped {
+        refusals: found.refusals,
+        value: found.value.into_iter().map(|(header, _)| header).collect(),
+        problems: found.problems,
+    })
 }
+/// A name match with its `marketing_authorisation_date`, absent when blank or unreadable.
+pub type Authorised = (DrugHeader, Option<biodata::PartialDate>);
 /// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
 /// Native ID lookup remains indexed; reads never synchronize or modify the stored snapshot.
+/// Each match comes with its authorisation date.
 pub fn search_names(
     leg: &Leg<'_>,
     query: &str,
-) -> Result<crate::Mapped<Vec<DrugHeader>>, RequestError> {
+) -> Result<crate::Mapped<Vec<Authorised>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Prefix(KeyKind::Id, ""))?;
     Ok(name_headers(&rows, query, true))
 }
@@ -69,7 +77,7 @@ fn name_headers(
     rows: &[raw::Medicine],
     query: &str,
     only_matches: bool,
-) -> crate::Mapped<Vec<DrugHeader>> {
+) -> crate::Mapped<Vec<Authorised>> {
     let mut problems = fields(None);
     let value = rows
         .iter()
@@ -99,7 +107,13 @@ fn name_headers(
             problems.record = Some(row.record.clone());
             let mut header = map::header(row, &mut problems);
             header.matched_name = matched;
-            Some(header)
+            let authorised = problems.optional(
+                "marketing_authorisation_date",
+                row.field("marketing_authorisation_date")
+                    .filter(|value| !matches!(value, Ok("")))
+                    .map(|value| value.and_then(raw::date)),
+            );
+            Some((header, authorised))
         })
         .collect();
     crate::Mapped {

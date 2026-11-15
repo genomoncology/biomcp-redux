@@ -1,6 +1,7 @@
 # 0919 — help-takes-the-entity-names-it-lists
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 0f346959f7734fabdecb541ceb57cf239aa33279
 
 Milestone: 7
 
@@ -31,3 +32,9 @@ In the pharmacovigilance persona's round 2 (bench `personas/pv-scientist/runs/20
 ## Changes
 
 - Changes: the help router, `tests/cases/help/`.
+
+## Progress
+
+- Measured on the M5 (job j41137, branch build): `help questions` prints two multi-word entities, `adverse_event` and `cell_line`. Before the change `help cell_line` was refused; with it both underscore forms answer with the same page as the hyphen forms (adverse-event 861 bytes, cell-line 1,293 bytes, unchanged).
+- Changed: the help router takes each hyphenated entity's underscore name as a hidden alias of its help page (both the entity pages and the `cell-line` verb page). An unknown help word now gets a next step to a real page: when a later word names an entity, that entity's page, or `help get ENTITY SECTION` when the unknown word is one of its sections (`help interactions drug` → `help get drug interactions`, `help format trial` → `help trial`); otherwise the nearest name only when it is close (edit distance at most half the name's length: `help questoins` → `help questions`, `help get drg` → `help get drug`); otherwise plain `help` (`help format`, `help COMMAND`, `help COMMAND ENTITY`) or the parent's help (`help get xyzzy` → `help get`). Before, these went to `help version`, `help trial` or similar. Refusals outside help keep their nearest-name guess.
+- Case: `tests/cases/help/entity-names.yaml` (CLI and MCP for the underscore forms, same command list and first description as the hyphen forms, size caps at measured plus 15%).

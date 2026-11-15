@@ -37,7 +37,7 @@ pub struct Envelope<T: ResponseBody> {
     pub query: T::Query,
     // The page comes before the result (0939): an agent that reads only the start of a long
     // reply sees that the rows are one page of more.
-    /// Search page metadata.
+    /// Search page metadata. With zero results, `total` and `returned` are 0 and the result leaves out `items`, because replies omit empty lists.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<PageInfo>,
     /// Answer when available.
