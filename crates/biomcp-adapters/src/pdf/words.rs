@@ -73,10 +73,7 @@ enum Place {
 }
 
 fn float(operands: &[Object], at: usize) -> f32 {
-    operands
-        .get(at)
-        .and_then(number)
-        .unwrap_or(0.0)
+    operands.get(at).and_then(number).unwrap_or(0.0)
 }
 
 impl Reader {

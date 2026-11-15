@@ -85,4 +85,3 @@ impl Default for State {
         }
     }
 }
-
