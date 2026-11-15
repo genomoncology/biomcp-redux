@@ -251,11 +251,7 @@ impl Leg<'_> {
             };
             let once_more =
                 prepared.throttle_retry.is_some() && error.status == Some(429) && attempt == 0;
-            if once_more {
-                held = Some(permit);
-            } else {
-                drop(permit);
-            }
+            held = once_more.then_some(permit);
             let retries = prepared.idempotent || once_more;
             if self.budget().expired() {
                 return Err(self.failure(Reason::DeadlineExceeded, error.status).into());
@@ -269,10 +265,7 @@ impl Leg<'_> {
                 return Err(error.into());
             }
             let throttled = prepared.wait_throttle && error.status == Some(429) && delay.is_some();
-            if !retries
-                || !retryable
-                || (!throttled && attempt + 1 == crate::retry::ATTEMPTS)
-            {
+            if !retries || !retryable || (!throttled && attempt + 1 == crate::retry::ATTEMPTS) {
                 return Err(error.into());
             }
             // A zero or past retry time still waits the ordinary backoff, so no refusal is hammered.

@@ -161,8 +161,13 @@ fn throttle_retry_sends_a_refused_post_once_more_and_names_its_wait() {
     for second in [200, 429] {
         let server = Server::new();
         let quota = Box::leak(Box::new(
-            Quota::new(SourceKey::declare("retry"), Rate::every_seconds(120), None, 1)
-                .refuse_wait(),
+            Quota::new(
+                SourceKey::declare("retry"),
+                Rate::every_seconds(120),
+                None,
+                1,
+            )
+            .refuse_wait(),
         ));
         let spec = server.spec(quota, KeyUse::None);
         let endpoint = spec.post_form("/answer").throttle_retry(wait);

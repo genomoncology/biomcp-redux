@@ -22,6 +22,7 @@
         "vaers"
       ],
       "exit": 4,
+      "is_error": true,
       "max_bytes": 2000,
       "expect": {
         "/status": "failed",
