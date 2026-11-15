@@ -1,0 +1,26 @@
+{
+  "live_check": "public",
+  "feature": "article-pdf",
+  "story": "A bioRxiv preprint PDF that Semantic Scholar links is saved; bioRxiv serves preprint PDFs to automated clients.",
+  "replay": "article/pdf/biorxiv",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "pdf",
+        "10.64898/2026.01.22.701073",
+        "--save",
+        "preprint.pdf"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/state": "ok",
+        "/result/file/state": "data",
+        "/result/file/data/url": "https://www.biorxiv.org/content/biorxiv/early/2026/01/24/2026.01.22.701073.full.pdf",
+        "/result/file/data/status": "green"
+      },
+      "max_bytes": 3000
+    }
+  ],
+  "verified": "0965, pm job j41240 on the M5: BioMCP at 466b30a30 saved this preprint live (HTTP 200 application/pdf, 3,578,936 bytes) with Accept application/pdf and no browser user agent. Probes j41234 and j41236 showed bioRxiv answers 200 PDF to curl for its early and existing-version links and 302 then 403 only for a version that does not exist (0943's v4 link; the paper has v1-v3). The recorded Semantic Scholar reply and publisher status are real; the PDF body is BioMCP's synthetic PDF because bioRxiv lists this preprint as cc_no."
+}

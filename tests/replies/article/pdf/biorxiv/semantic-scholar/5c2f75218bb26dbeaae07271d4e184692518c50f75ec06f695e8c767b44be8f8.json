@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://www.biorxiv.org/content/biorxiv/early/2026/01/24/2026.01.22.701073.full.pdf",
+  "exchanges": [
+    {
+      "fetched": 1794757214,
+      "status": 200,
+      "content_type": "application/pdf",
+      "delay_ms": 2089,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "5c2f75218bb26dbeaae07271d4e184692518c50f75ec06f695e8c767b44be8f8-0.bin"
+      }
+    }
+  ]
+}

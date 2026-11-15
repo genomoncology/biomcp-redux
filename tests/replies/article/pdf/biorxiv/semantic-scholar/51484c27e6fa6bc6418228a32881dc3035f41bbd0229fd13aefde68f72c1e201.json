@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "https://api.semanticscholar.org/graph/v1/paper/DOI%3A10.64898%2F2026.01.22.701073?fields=openAccessPdf",
+  "exchanges": [
+    {
+      "fetched": 1794757213,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 151,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"paperId": "25f989a17f3320271cfb93b4f26cc7fc5ffbb463", "openAccessPdf": {"url": "https://www.biorxiv.org/content/biorxiv/early/2026/01/24/2026.01.22.701073.full.pdf", "status": "GREEN", "license": null}}
+      }
+    }
+  ]
+}
