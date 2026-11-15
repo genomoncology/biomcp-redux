@@ -1,0 +1,90 @@
+{
+  "feature": "maude-reports",
+  "live_check": "public",
+  "story": "A MAUDE device phrase, manufacturer, product code or product problem holding punctuation or a symbol openFDA refuses is searched as the same words without it; source_query shows the phrase sent.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "adverse-event/openfda-punctuation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "maude",
+        "infusion pump!"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/text": "infusion pump!",
+        "/page/total": 2117766,
+        "/result/source_query": "device.generic_name:\"infusion pump\"",
+        "/result/items/0/id": "51243983",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "maude",
+        "--manufacturer",
+        "Medtronic®"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Medtronic®",
+        "/page/total": 3393840,
+        "/result/source_query": "device.manufacturer_d_name:\"Medtronic\"",
+        "/result/items/0/id": "51243986",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "maude",
+        "--product-code",
+        "FRN?"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/product_code": [
+          "FRN?"
+        ],
+        "/page/total": 1840474,
+        "/result/source_query": "device.device_report_product_code.exact:\"FRN\"",
+        "/result/items/0/id": "51243978",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "maude",
+        "--problem",
+        "leak;"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/problem": "leak;",
+        "/page/total": 691529,
+        "/result/source_query": "product_problems:\"leak\"",
+        "/result/items/0/id": "51244072",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

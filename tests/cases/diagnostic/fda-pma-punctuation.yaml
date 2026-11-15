@@ -1,0 +1,49 @@
+{
+  "feature": "diagnostic-pma",
+  "live_check": "public",
+  "story": "A PMA trade name or applicant holding punctuation openFDA refuses is searched as the same words without it; source_query shows the phrase sent.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/diagnostic/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "diagnostic/openfda-punctuation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-pma",
+        "--name",
+        "pump;"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/name": "pump;",
+        "/page/total": 447,
+        "/result/source_query": "trade_name:\"pump\"",
+        "/result/items/0/header/pma_number": "P860004",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-pma",
+        "--manufacturer",
+        "Abbott|"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott|",
+        "/page/total": 5726,
+        "/result/source_query": "applicant:\"Abbott\"",
+        "/result/items/0/header/pma_number": "P010032",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

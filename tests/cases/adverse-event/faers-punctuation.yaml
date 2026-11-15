@@ -1,0 +1,51 @@
+{
+  "feature": "adverse-event-search",
+  "live_check": "public",
+  "story": "A FAERS drug name or reaction holding punctuation openFDA refuses is searched as the same words without it; source_query shows the phrase sent.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "adverse-event/openfda-punctuation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "faers",
+        "--exact-term",
+        "aspirin$"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/text": "aspirin$",
+        "/page/total": 888047,
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"aspirin\" OR patient.drug.openfda.brand_name:\"aspirin\" OR patient.drug.medicinalproduct:\"aspirin\")",
+        "/result/items/0/id": "27325194",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "faers",
+        "--exact-term",
+        "aspirin",
+        "--reaction",
+        "Reye`s syndrome"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/reaction": "Reye`s syndrome",
+        "/page/total": 33,
+        "/result/source_query": "(patient.drug.openfda.generic_name:\"aspirin\" OR patient.drug.openfda.brand_name:\"aspirin\" OR patient.drug.medicinalproduct:\"aspirin\") AND patient.reaction.reactionmeddrapt:\"Reye s syndrome\"",
+        "/result/items/0/id": "21334834",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "method": "GET",
+  "source": "fda-510k",
+  "url": "https://api.fda.gov/device/510k.json?limit=1&skip=0&sort=decision_date%3Adesc&search=applicant%3A%22Abbott%22",
+  "exchanges": [
+    {
+      "fetched": 1794767619,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 344,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-02",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1227
+    }
+  },
+  "results": [
+    {
+      "third_party_flag": "N",
+      "city": "Abbott Park",
+      "advisory_committee_description": "Microbiology",
+      "address_1": "100 Abbott Park Rd.",
+      "address_2": "Cp1",
+      "statement_or_summary": "Summary",
+      "product_code": "MZO",
+      "openfda": {
+        "registration_number": [
+          "3000308930",
+          "1219913",
+          "2250051",
+          "3012494290",
+          "3007111389",
+          "3003297763",
+          "3004142665",
+          "9610240",
+          "3002809144",
+          "2432235",
+          "3013557562",
+          "3022474803",
+          "3011989923",
+          "8031673",
+          "2029372",
+          "9610126",
+          "2032682",
+          "3005333358",
+          "3005529799",
+          "3002642396",
+          "3008576040",
+          "9612316",
+          "3012963943",
+          "1319681"
+        ],
+        "fei_number": [
+          "3000308930",
+          "1000306617",
+          "1219913",
+          "2250051",
+          "3012494290",
+          "3002808328",
+          "3007111389",
+          "3003297763",
+          "3002808212",
+          "3004142665",
+          "3002806559",
+          "3002809144",
+          "2432235",
+          "3013557562",
+          "3022474803",
+          "3011989923",
+          "3003952975",
+          "2967",
+          "3005333358",
+          "3005529799",
+          "3002642396",
+          "3008576040",
+          "1000136573",
+          "3012963943"
+        ],
+        "device_name": "Assay, Enzyme Linked Immunosorbent, Hepatitis C Virus",
+        "medical_specialty_description": "Microbiology",
+        "regulation_number": "866.3169",
+        "device_class": "2"
+      },
+      "zip_code": "60064",
+      "applicant": "Abbott Laboratories",
+      "decision_date": "2026-09-23",
+      "decision_code": "SESE",
+      "country_code": "US",
+      "device_name": "Anti-HCV Next",
+      "advisory_committee": "MI",
+      "contact": "Caroline  Mendes",
+      "expedited_review_flag": "",
+      "k_number": "K262156",
+      "state": "IL",
+      "date_received": "2026-06-26",
+      "review_advisory_committee": "MI",
+      "postal_code": "60064",
+      "decision_description": "Substantially Equivalent",
+      "clearance_type": "Traditional"
+    }
+  ]
+}
+      }
+    }
+  ]
+}

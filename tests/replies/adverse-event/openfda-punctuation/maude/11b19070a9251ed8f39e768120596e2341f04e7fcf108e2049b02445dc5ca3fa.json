@@ -1,0 +1,204 @@
+{
+  "method": "GET",
+  "source": "maude",
+  "url": "https://api.fda.gov/device/event.json?search=device.generic_name%3A%22infusion%20pump%22&limit=1&skip=0&sort=date_received%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794767616,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 440,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 2117766
+    }
+  },
+  "results": [
+    {
+      "manufacturer_contact_zip_ext": "",
+      "manufacturer_g1_address_2": "",
+      "event_location": "",
+      "report_to_fda": "",
+      "manufacturer_contact_t_name": "",
+      "manufacturer_contact_state": "CA",
+      "manufacturer_link_flag": "Y",
+      "manufacturer_contact_address_2": "",
+      "manufacturer_g1_city": "",
+      "manufacturer_contact_address_1": "12400 High Bluff Drive",
+      "manufacturer_contact_pcity": "+1(858)2",
+      "event_type": "Injury",
+      "report_number": "3013756811-2026-197917",
+      "type_of_report": [
+        "Initial submission"
+      ],
+      "product_problem_flag": "Y",
+      "date_received": "20261030",
+      "manufacturer_address_2": "",
+      "pma_pmn_number": "K250792",
+      "date_of_event": "20261009",
+      "reprocessed_and_reused_flag": "N",
+      "manufacturer_address_1": "",
+      "exemption_number": "",
+      "manufacturer_contact_zip_code": "92130",
+      "reporter_occupation_code": "",
+      "manufacturer_contact_plocal": "+1(858)224-6281",
+      "noe_summarized": "1",
+      "manufacturer_contact_l_name": "Connell",
+      "source_type": [
+        "Consumer"
+      ],
+      "distributor_zip_code_ext": "",
+      "manufacturer_g1_postal_code": "",
+      "manufacturer_g1_state": "",
+      "reporter_country_code": "US",
+      "manufacturer_contact_area_code": "",
+      "date_added": "20261030",
+      "manufacturer_contact_f_name": "John",
+      "device_date_of_manufacturer": "20251124",
+      "previous_use_code": "R",
+      "device": [
+        {
+          "device_event_key": "",
+          "implant_flag": "",
+          "date_removed_flag": "",
+          "device_sequence_number": "1821253",
+          "implant_date_year": "",
+          "date_removed_year": "",
+          "serviced_by_3rd_party_flag": "",
+          "date_received": "20261030",
+          "brand_name": "t:slim X2 Insulin Pump with Control-IQ+ Technology",
+          "generic_name": "Alternate Controller Enabled Insulin Infusion Pump",
+          "manufacturer_d_name": "Tandem Diabetes Care",
+          "manufacturer_d_address_1": "12400 High Bluff Drive",
+          "manufacturer_d_address_2": "",
+          "manufacturer_d_city": "San Diego",
+          "manufacturer_d_state": "CA",
+          "manufacturer_d_zip_code": "92130",
+          "manufacturer_d_zip_code_ext": "",
+          "manufacturer_d_country": "US",
+          "manufacturer_d_postal_code": "92130",
+          "device_operator": "LAY USER/PATIENT",
+          "model_number": "1000354",
+          "catalog_number": "1014073",
+          "lot_number": "",
+          "other_id_number": "",
+          "device_availability": "No",
+          "device_report_product_code": "QFG",
+          "device_age_text": "",
+          "device_evaluated_by_manufacturer": "N",
+          "combination_product_flag": "N",
+          "udi_di": "00389152407319",
+          "udi_public": "(01)00389152407319(22)1017690(11)251124",
+          "openfda": {
+            "device_name": "Alternate Controller Enabled Insulin Infusion Pump",
+            "medical_specialty_description": "Clinical Chemistry",
+            "regulation_number": "880.5730",
+            "device_class": "2"
+          }
+        }
+      ],
+      "product_problems": [
+        "Obstruction of Flow"
+      ],
+      "reporter_state_code": "OH",
+      "manufacturer_zip_code": "",
+      "suppl_dates_mfr_received": "",
+      "mfr_report_type": "Thirty-Day",
+      "manufacturer_contact_country": "US",
+      "date_changed": "20261030",
+      "health_professional": "N",
+      "summary_report_flag": "N",
+      "manufacturer_g1_zip_code_ext": "",
+      "manufacturer_contact_extension": "",
+      "manufacturer_city": "",
+      "manufacturer_contact_phone_number": "",
+      "patient": [
+        {
+          "patient_sequence_number": "1",
+          "date_received": "20261030",
+          "sequence_number_treatment": [
+            "Humalog - Insulin",
+            " Tandem - Cartridge",
+            " Unomedical - Infusion Set"
+          ],
+          "sequence_number_outcome": [
+            "Hospitalization",
+            " R"
+          ],
+          "patient_age": "20 YR",
+          "patient_sex": "Unknown",
+          "patient_weight": "135 LB",
+          "patient_ethnicity": "",
+          "patient_race": "",
+          "patient_problems": [
+            "Hyperglycemia",
+            "Elevated Ketones/ Diabetic Ketoacidosis"
+          ]
+        }
+      ],
+      "distributor_city": "",
+      "date_report": "20261029",
+      "initial_report_to_fda": "",
+      "distributor_state": "",
+      "event_key": "",
+      "manufacturer_g1_country": "",
+      "manufacturer_contact_city": "San Diego",
+      "mdr_report_key": "51243983",
+      "removal_correction_number": "",
+      "number_devices_in_event": "",
+      "date_manufacturer_received": "20261010",
+      "manufacturer_name": "",
+      "report_source_code": "Manufacturer report",
+      "remedial_action": [
+        ""
+      ],
+      "manufacturer_g1_zip_code": "",
+      "report_to_manufacturer": "",
+      "manufacturer_zip_code_ext": "",
+      "manufacturer_g1_name": "",
+      "adverse_event_flag": "Y",
+      "distributor_address_1": "",
+      "manufacturer_state": "",
+      "distributor_address_2": "",
+      "manufacturer_postal_code": "",
+      "single_use_flag": "N",
+      "manufacturer_country": "",
+      "mdr_text": [
+        {
+          "mdr_text_key": "16128963597",
+          "text_type_code": "Description of Event or Problem",
+          "patient_sequence_number": "0",
+          "text": "It was reported that pump issued occlusion alarms resulting in the customer going to the emergency room the next date, (b)(6) 2026. The customer was admitted to the hospital's intensive care unit with a blood glucose level of 426 mg/dL, a healthcare provider identified ketone level as dangerous or life threatening. Customer was treated with intravenous fluids of saline and insulin which resolved the issue. The customer was released the same day with issue resolved and no permanent damage. Customer reported using the same cartridge for more than 48 hours and received education from Technical Support to change cartridge every 48 hours with Humalog brand insulin, after which case was closed."
+        },
+        {
+          "mdr_text_key": "16628963598",
+          "text_type_code": "Additional Manufacturer Narrative",
+          "patient_sequence_number": "0",
+          "text": "In use at the time of the event:\\\\CGM model: Unknown.\\\\Mobile OS: iOS / iOS_iPhone XS / Unknown / iOS_17.3.1."
+        }
+      ],
+      "number_patients_in_event": "",
+      "distributor_name": "",
+      "manufacturer_g1_address_1": "",
+      "distributor_zip_code": "",
+      "manufacturer_contact_postal_code": "92130",
+      "manufacturer_contact_exchange": "",
+      "manufacturer_contact_pcountry": "",
+      "suppl_dates_fda_received": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

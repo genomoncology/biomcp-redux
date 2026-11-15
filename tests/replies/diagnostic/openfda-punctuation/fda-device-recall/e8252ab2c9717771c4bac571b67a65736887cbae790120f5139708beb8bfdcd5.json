@@ -1,0 +1,58 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%22Z-0191-2027%22&limit=1&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794767620,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 146,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-11-04",
+    "results": {
+      "skip": 0,
+      "limit": 1,
+      "total": 1
+    }
+  },
+  "results": [
+    {
+      "status": "Ongoing",
+      "city": "Plymouth",
+      "state": "MN",
+      "country": "United States",
+      "classification": "Class II",
+      "openfda": {},
+      "product_type": "Devices",
+      "event_id": "99844",
+      "recalling_firm": "Abbott",
+      "address_1": "5050 Nathan Ln N",
+      "address_2": "",
+      "postal_code": "55442-3209",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Worldwide - US Nationwide distribution.",
+      "recall_number": "Z-0191-2027",
+      "product_description": "Amplatzer Amulet Left Atrial Appendage Occluder    Model Numbers  1. 9-ACP2-007-016  2. 9-ACP2-007-018  3. 9-ACP2-007-020  4. 9-ACP2-007-022  5. 9-ACP2-010-025  6. 9-ACP2-010-028  7. 9-ACP2-010-031  8. 9-ACP2-010-034",
+      "product_quantity": "",
+      "reason_for_recall": "Changes to Instructions for Use (IFU) for the device regarding risk of Pulmonary Artery Injury (PAI).",
+      "recall_initiation_date": "20260910",
+      "center_classification_date": "20261016",
+      "report_date": "20261028",
+      "code_info": "UDI-DI 1. 00811806013459 2. 00811806013466 3. 00811806013473 4. 00811806013480 5. 00811806013497 6. 00811806013503 7. 00811806013510 8. 00811806013527  All lots/serial numbers.",
+      "more_code_info": ""
+    }
+  ]
+}
+      }
+    }
+  ]
+}

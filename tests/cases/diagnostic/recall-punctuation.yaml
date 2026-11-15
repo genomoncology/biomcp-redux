@@ -1,0 +1,49 @@
+{
+  "feature": "diagnostic-device-recall",
+  "live_check": "public",
+  "story": "A device recall firm or product code holding punctuation openFDA refuses is searched as the same words without it; source_query shows the phrase sent.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm job j41373, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/diagnostic/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "replay": "diagnostic/openfda-punctuation",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Abbott#"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/manufacturer": "Abbott#",
+        "/page/total": 911,
+        "/result/source_query": "recalling_firm:\"Abbott\"",
+        "/result/items/0/header/recall_number": "Z-0191-2027",
+        "/sources/0/state": "ok"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--limit",
+        "1",
+        "--source",
+        "fda-device-recall",
+        "--product-code",
+        "FRN$"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/product_code": "FRN$",
+        "/page/total": 721,
+        "/result/source_query": "product_code:\"FRN\"",
+        "/result/items/0/header/recall_number": "Z-3065-2026",
+        "/sources/0/state": "ok"
+      }
+    }
+  ]
+}

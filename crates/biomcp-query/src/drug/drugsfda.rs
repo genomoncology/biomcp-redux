@@ -166,10 +166,13 @@ fn notices(
         return;
     };
     let applicant = query.applicant().map(|applicant| {
-        format!(
-            "--applicant matches sponsor names starting with {:?}, ignoring letter case.",
-            source::applicant_prefix(applicant)
-        )
+        let prefix = source::applicant_prefix(applicant);
+        if prefix.is_empty() {
+            // openFDA refuses every character of this applicant, so it matched no sponsor (0841).
+            return "--applicant held no letter or digit openFDA accepts, so it matched no sponsor."
+                .into();
+        }
+        format!("--applicant matches sponsor names starting with {prefix:?}, ignoring letter case.")
     });
     let sort = (query.sort() == Some(DrugFdaSort::Newest)).then(|| newest(total));
     let whole = matched.map(|n| whole_notices(query, n, read, total.unwrap_or(0)));
