@@ -139,6 +139,10 @@ Rows retain their whole cells and original links. Both tables also give `diagnos
 
 It keeps the source decision fields and offers its exact companion-table selector. It has no sections or free-text search. PMA approval, 510(k) clearance, WHO prequalification and GTR listing remain independent source facts. A listing is not authorization. No source record establishes clinical suitability by itself.
 
+## openFDA text filters
+
+openFDA answers HTTP 400 to `! # $ ; ? ^ | ~`, the backtick and every character outside ASCII, even inside a quoted phrase. Every openFDA text filter (Drugs@FDA, label, drug and device recall, FAERS, MAUDE, 510(k) and PMA) therefore sends an accented Latin letter as its base letter, so `--applicant Nestlé` searches `NESTLE`, and replaces those characters and other non-ASCII characters, such as ®, with a space, which splits words as openFDA's own text search does. A device recall name, `--intended-use` and `--classification-name` still refuse a non-ASCII letter before the request, as their sections say. The reply's `source_query` shows the text sent. Quotes and backslashes stay escaped, so no operator, wildcard or field in a value reaches openFDA as syntax.
+
 ## WHO finished products
 
 Reads never download. Results preserve native combined INN, dosage-form and strength text, empty cells and original dates. WHO prequalification does not establish US or EU authorization. The export-specific reuse grant is unverified, so the source is noncommercial and links WHO's copyright policy.

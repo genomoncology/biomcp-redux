@@ -16,9 +16,7 @@ fn base(c: char) -> Option<String> {
     }
     let mut lower = c.to_lowercase();
     match (lower.next(), lower.next()) {
-        (Some(lower), None) if lower != c => {
-            crate::latin_base(lower).map(str::to_ascii_uppercase)
-        }
+        (Some(lower), None) if lower != c => crate::latin_base(lower).map(str::to_ascii_uppercase),
         _ => None,
     }
 }
@@ -62,7 +60,11 @@ mod tests {
     #[test]
     fn plain_text_is_unchanged() {
         assert_eq!(openfda_words("Merck & Co."), "Merck & Co.", "plain text");
-        assert_eq!(openfda_phrase("a \"b\" \\"), "\"a \\\"b\\\" \\\\\"", "escapes");
+        assert_eq!(
+            openfda_phrase("a \"b\" \\"),
+            "\"a \\\"b\\\" \\\\\"",
+            "escapes"
+        );
     }
 
     #[test]
