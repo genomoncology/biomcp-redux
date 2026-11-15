@@ -10,7 +10,7 @@ fn published_ids_roundtrip_without_source_prefixes() {
         "EMEA/H/C/000406",
         "NDA021335",
         "741ff3e3-dc1a-45a6-84e5-2481b27131aa",
-        "DDInter1744",
+        "DDInter9001",
         "5",
         "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
     ] {
@@ -63,7 +63,7 @@ fn selected_source_checks_its_native_identifier_grammar() {
         ("ema", "EMEA/H/C/000406"),
         ("drugsfda", "NDA021335"),
         ("openfda-label", "741ff3e3-dc1a-45a6-84e5-2481b27131aa"),
-        ("ddinter", "DDInter1744"),
+        ("ddinter", "DDInter9001"),
         ("civic", "5"),
     ] {
         let selected: DrugSource = source.parse().expect("source");
@@ -394,14 +394,14 @@ fn native_indication_ids_keep_their_own_labels_stage_and_references() {
 fn interaction_keeps_both_bundle_origins_and_refuses_duplicate_attribution() {
     use biodata::DrugInteractionClaim;
     let value = json!(
-        {"anchor":{"id":"DDInter1","namespace":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter2",
+        {"anchor":{"id":"DDInter9001","namespace":"ddinter","name":"synthetic anchor","identity_level":"unknown"},"partner":{"id":"DDInter9002",
         "namespace":"ddinter","name":"synthetic partner","identity_level":"unknown"},"level":"native level","attribution":{"source":"ddinter",
         "record":"B-synthetic"},"additional_attributions":[{"source":"ddinter","record":"L-synthetic"}]}
     );
     let parsed: DrugInteractionClaim =
         serde_json::from_value(value.clone()).expect("both bundle origins");
-    assert_eq!(parsed.anchor().id.to_string(), "DDInter1");
-    assert_eq!(parsed.partner().id.to_string(), "DDInter2");
+    assert_eq!(parsed.anchor().id.to_string(), "DDInter9001");
+    assert_eq!(parsed.partner().id.to_string(), "DDInter9002");
     assert_eq!(parsed.level().map(|v| v.as_str()), Some("native level"));
     assert_eq!(
         parsed

@@ -9,9 +9,9 @@ fn roundtrip<T: DeserializeOwned + Serialize>(v: Value) -> Result<Value, serde_j
 #[test]
 fn source_qualified_identity_checks_checksum_and_spelling() {
     for (input, canonical) in [
-        ("semantic-scholar:2060978", "semantic-scholar:2060978"),
-        ("orcid:0000-0002-4299-3018", "orcid:0000-0002-4299-3018"),
-        ("orcid:0000-0002-1694-233X", "orcid:0000-0002-1694-233X"),
+        ("semantic-scholar:123", "semantic-scholar:123"),
+        ("orcid:0000-0000-0000-0925", "orcid:0000-0000-0000-0925"),
+        ("orcid:0000-0000-0000-909X", "orcid:0000-0000-0000-909X"),
     ] {
         let id: AuthorId = input.parse().unwrap();
         assert_eq!(id.to_string(), canonical);
@@ -22,10 +22,10 @@ fn source_qualified_identity_checks_checksum_and_spelling() {
         assert_eq!(canonical.parse::<AuthorId>().unwrap(), id);
     }
     for bad in [
-        "semanticscholar:2060978",
-        "2060978",
-        "0000-0002-4299-3018",
-        "orcid:0000-0002-4299-3019",
+        "semanticscholar:123",
+        "123",
+        "0000-0000-0000-0925",
+        "orcid:0000-0000-0000-0926",
         "semantic-scholar:0",
         "semantic-scholar:12 3",
     ] {
@@ -63,10 +63,10 @@ fn requests_validate_before_io_and_preserve_selection() {
         serde_json::from_value::<AuthorGet>(json!({"ids":vec!["semantic-scholar:123";21]}))
             .is_err()
     );
-    assert!(serde_json::from_value::<AuthorGet>(json!({"ids":["2060978"]})).is_err());
-    let ids = json!({"ids":["semantic-scholar:2060978","orcid:0000-0002-4299-3018"]});
+    assert!(serde_json::from_value::<AuthorGet>(json!({"ids":["123"]})).is_err());
+    let ids = json!({"ids":["semantic-scholar:123","orcid:0000-0000-0000-0925"]});
     assert_eq!(roundtrip::<AuthorGet>(ids.clone()).unwrap(), ids);
-    let p: AuthorPapersQuery = serde_json::from_value(json!({"id":"semantic-scholar:2060978","full":true,"limit":25,"offset":5,"pool":"native-pool"})).unwrap();
+    let p: AuthorPapersQuery = serde_json::from_value(json!({"id":"semantic-scholar:123","full":true,"limit":25,"offset":5,"pool":"native-pool"})).unwrap();
     assert_eq!(p.section(), Some(AuthorPaperSection::Details));
     assert_eq!(p.limit(), 25);
     assert_eq!(p.offset(), 5);
@@ -106,7 +106,7 @@ fn metadata_absence_and_repeated_byline_names_remain_source_local() {
 fn assertion(code: u64, title: Option<&str>) -> Value {
     let mut v = json!(
         {"put_code":code,"work_type":"journal-article","source":{"source_client_id":"APP-1234567890ABCDEF","source_name":"Synthetic source",
-        "assertion_origin_orcid":"0000-0002-4299-3018"},"visibility":"public","external_ids":[{"namespace":"doi","id":"10.1234/example",
+        "assertion_origin_orcid":"0000-0000-0000-0925"},"visibility":"public","external_ids":[{"namespace":"doi","id":"10.1234/example",
         "relationship":"self"},{"namespace":"wosuid","id":"native-value","relationship":"part-of"}]}
     );
     if let (Some(title), Some(object)) = (title, v.as_object_mut()) {
@@ -122,16 +122,16 @@ fn orcid_groups_keep_all_ordered_assertions_and_native_relationships() {
         assertion(1,None)]}
     );
     assert_eq!(roundtrip::<OrcidWorkGroup>(group.clone()).unwrap(), group);
-    let works = json!({"author":"0000-0002-4299-3018","groups":[group],"observed_groups":380,"collection_scope":"whole-public-works-reply"});
+    let works = json!({"author":"0000-0000-0000-0925","groups":[group],"observed_groups":380,"collection_scope":"whole-public-works-reply"});
     assert_eq!(roundtrip::<OrcidWorks>(works.clone()).unwrap(), works);
     assert_eq!(
         roundtrip::<OrcidPublicVisibility>(json!("PUBLIC")).unwrap(),
         json!("public")
     );
     for client in [
-        "APP-KO1W9Y3EYYW6ESL8",
-        "0000-0001-9884-1913",
-        "0000-0002-5982-8983",
+        "APP-0123456789ABCDEF",
+        "0000-0000-0000-9014",
+        "0000-0000-0000-9022",
     ] {
         assert_eq!(client.parse::<OrcidClientId>().unwrap().to_string(), client);
     }
@@ -193,8 +193,8 @@ fn five_standalone_envelopes_validate_without_shared_request_changes() {
     check::<AuthorPapers>(query.clone(), body.clone()).unwrap();
     check::<AuthorPaperDetails>(query, body).unwrap();
     check::<OrcidWorks>(
-        json!({"id":"orcid:0000-0002-4299-3018"}),
-        json!({"author":"0000-0002-4299-3018","groups":[],"observed_groups":0,"collection_scope":"whole-public-works-reply"}),
+        json!({"id":"orcid:0000-0000-0000-0925"}),
+        json!({"author":"0000-0000-0000-0925","groups":[],"observed_groups":0,"collection_scope":"whole-public-works-reply"}),
     )
     .unwrap();
 }

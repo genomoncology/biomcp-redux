@@ -110,7 +110,7 @@ fn sample(key: &str, property: &Value, schema: &Value) -> Value {
         "gene_id" => json!(673),
         "diplotype" => json!("*1/*2"),
         "drug_id" => json!("RxNorm:1234"),
-        "annotation_id" => json!("PA166104949"),
+        "annotation_id" => json!("PA900000002"),
         // A saved-result name has the store's form, so the command reaches its lookup.
         "pool" | "snapshot" | "name_snapshot" => json!("0".repeat(64)),
         // WHO IVD publishes only a year; a year is also a valid WHO PQ bound.

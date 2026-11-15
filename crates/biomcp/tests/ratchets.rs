@@ -50,6 +50,7 @@ fn check(root: &Path) -> Check {
         process_setup::check(root),
         source_declarations::check(root),
         noncommercial_replies::check(root),
+        noncommercial_replies::ids(root),
     ])
 }
 
