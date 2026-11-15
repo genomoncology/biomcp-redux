@@ -98,6 +98,7 @@ pub(super) fn validate_recall(v: &SearchFields, other: bool) -> Result<(), Query
             "gene_id",
             "gene",
             "condition_id",
+            "condition",
             "type",
             "device_id",
             "drug_application",
@@ -179,6 +180,7 @@ pub(super) fn validate_device(v: &SearchFields, other: bool) -> Result<(), Query
             "gene_id",
             "gene",
             "condition_id",
+            "condition",
             "type",
             "device_id",
             "drug_application",
@@ -229,6 +231,17 @@ pub(super) fn validate_who_years(v: &SearchFields) -> Result<(), QueryInvalid> {
         .is_some_and(|(a, b)| a.year() > b.year())
     {
         return Err(QueryInvalid::new(&["prequalified_from", "prequalified_to"]));
+    }
+    Ok(())
+}
+
+/// GTR condition-name text of only spaces, hyphens or punctuation would match nothing.
+pub(super) fn validate_condition(v: &SearchFields) -> Result<(), QueryInvalid> {
+    if v.condition
+        .as_ref()
+        .is_some_and(|v| !v.as_str().chars().any(char::is_alphanumeric))
+    {
+        return Err(QueryInvalid::new(&["condition"]));
     }
     Ok(())
 }

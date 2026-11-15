@@ -202,11 +202,14 @@ pub(super) fn budget(tool: &Value) -> Result<(), String> {
     let length = size(tool);
     // search_trial exposes the complete supported filter set. Even with no descriptions,
     // its supported filter schema structure is 2058 characters; these optional filters cannot fit
-    // the ordinary budget. Restore source-owned numeric guidance within the sole PM-approved exception of 3500.
-    let limit = if field(tool, "name") == "search_trial" {
-        3500
-    } else {
-        ACTION_BUDGET
+    // the ordinary budget. Restore source-owned numeric guidance within the PM-approved exception of 3500.
+    // search_diagnostic serves five FDA and NCBI sources with their own filters; 0964's condition filter
+    // measured 2432, so the PM set 2800 (sdlc/decisions/2026-10-26-measured-entity-caps-need-no-ask.md,
+    // "search_diagnostic action budget for 0964").
+    let limit = match field(tool, "name").as_str() {
+        Some("search_trial") => 3500,
+        Some("search_diagnostic") => 2800,
+        _ => ACTION_BUDGET,
     };
     if length > limit {
         Err(format!(

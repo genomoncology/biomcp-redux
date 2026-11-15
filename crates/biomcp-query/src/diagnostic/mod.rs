@@ -136,19 +136,28 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &DiagnosticSearch) -> Outcome {
     command.finish(deadline.remaining());
     out
 }
-/// Say how GTR matched `--name`, so a zero is read against the matching rule.
+/// Say how GTR matched `--name` and `--condition`, so a zero is read against the matching rule.
 fn name_notice(out: &mut Outcome, q: &DiagnosticSearch) {
-    if q.name().is_some()
-        && let Some(source) = out.sources.last_mut()
-    {
+    let Some(source) = out.sources.last_mut() else {
+        return;
+    };
+    if q.name().is_some() {
         source
             .notices
             .push(recall::guidance(GTR_NAME_NOTICE.into()));
+    }
+    if q.condition().is_some() {
+        source
+            .notices
+            .push(recall::guidance(GTR_CONDITION_NOTICE.into()));
     }
 }
 const GTR_NAME_NOTICE: &str = "--name matched GTR lab_test_name ignoring letter case and hyphens; \
     hyphens and spaces in your text are optional, so non-small cell also finds Nonsmall cell; \
     no synonym or abbreviation expansion.";
+const GTR_CONDITION_NOTICE: &str = "--condition matched the condition names in GTR \
+    condition_identifiers by the same rule as --name; no synonym or abbreviation expansion, \
+    so NSCLC does not find non-small cell lung cancer.";
 fn search_source(
     source: DiagnosticSearchSource,
 ) -> (
