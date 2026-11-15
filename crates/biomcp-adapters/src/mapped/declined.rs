@@ -4,7 +4,7 @@ use biomcp_types::{Problem, ProblemCode, Source};
 
 /// A record left off its page because its identity `field` is unusable. It has no canonical
 /// identifier, so `record` names it by the raw value openFDA sent, such as
-/// `recall_number:D-404-2014`; a blank or `N/A` value names it by a native key instead, such as
+/// `recall_number:D-751-013`; a blank or `N/A` value names it by a native key instead, such as
 /// `event_id:100178`. Each declined record keeps its own problem, so a page states how many it
 /// declined.
 pub(crate) fn declined(

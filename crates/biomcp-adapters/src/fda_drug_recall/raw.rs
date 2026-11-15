@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub(super) struct Record {
-    /// openFDA sends some records with an empty, `N/A` or older-form recall number, so the raw
+    /// openFDA sends some records with an empty, `N/A` or malformed recall number, so the raw
     /// text is kept to name a declined record; map.rs checks it.
     pub recall_number: Option<Field<String>>,
     /// openFDA's recall event key, which names a record declined for its recall number.
