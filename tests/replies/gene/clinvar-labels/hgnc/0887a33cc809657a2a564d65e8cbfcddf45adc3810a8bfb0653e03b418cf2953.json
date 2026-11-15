@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "hgnc",
+  "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
+  "exchanges": [
+    {
+      "fetched": 1794509238,
+      "status": 200,
+      "content_type": "text/tab-separated-values",
+      "delay_ms": 4094,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": "hgnc_id\tsymbol\tname\tlocus_group\tlocus_type\tstatus\tlocation\talias_symbol\talias_name\tprev_symbol\tprev_name\tgene_group\tgene_group_id\tdate_approved_reserved\tdate_symbol_changed\tdate_name_changed\tdate_modified\tentrez_id\tensembl_gene_id\tvega_id\tucsc_id\tena\trefseq_accession\tccds_id\tuniprot_ids\tpubmed_id\tmgd_id\trgd_id\tlsdb\tcosmic\tomim_id\tmirbase\thomeodb\tsnornabase\tbioparadigms_slc\torphanet\tpseudogene.org\thorde_id\tmerops\timgt\tiuphar\tkznf_gene_catalog\tmamit-trnadb\tcd\tlncrnadb\tenzyme_id\tintermediate_filament_db\trna_central_id\tlncipedia\tgtrnadb\tagr\tmane_select\tgencc\nHGNC:6953\tCD46\tCD46 molecule\tprotein-coding gene\tgene with protein product\tApproved\t1q32.2\t\"TRA2.10|MGC26544|TLX\"\ttrophoblast-lymphocyte cross-reactive antigen\t\"MIC10|MCP\"\t\"antigen identified by monoclonal antibody TRA-2-10|membrane cofactor protein (CD46, trophoblast-lymphocyte cross-reactive antigen)|CD46 antigen, complement regulatory protein|CD46 molecule, complement regulatory protein\"\t\"CD molecules|Sushi domain containing|Complement system regulators and receptors\"\t\"471|1179|1639\"\t1988-08-31\t2006-02-09\t2016-01-06\t2023-03-15\t4179\tENSG00000117335\tOTTHUMG00000036397\tuc001hgj.4\tBC030594\tNM_172361\t\"CCDS1479|CCDS1480|CCDS1481|CCDS1482|CCDS1484|CCDS1485|CCDS31008|CCDS31009|CCDS86048\"\tP15529\t\"7929741|24120647\"\tMGI:1203290\tRGD:3061\tLRG_155|http://ftp.ebi.ac.uk/pub/databases/lrgex/LRG_155.xml\t\t120920\t\t\t\t\t119259\t\t\t\t\t\t\t\tCD46\t\t\t\t\t\t\tHGNC:6953\t\"ENST00000367042.6|NM_172351.3\"\tHGNC:6953\n"
+      }
+    }
+  ]
+}
