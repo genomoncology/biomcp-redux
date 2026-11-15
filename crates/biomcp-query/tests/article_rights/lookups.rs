@@ -121,7 +121,9 @@ fn papers_past_the_lookup_cap_say_they_went_unchecked() {
         Ok(fixture::many_papers(request, &papers))
     });
     let out = run(&fetch);
-    let pool = out.page.clone().unwrap().pool.unwrap();
+    let Some(pool) = out.page.clone().and_then(|page| page.pool) else {
+        panic!("a capped search keeps its pool: {out:?}")
+    };
     assert_eq!(out.status(), Status::Partial, "capped pools are not whole");
     assert_eq!(pool.size, 25, "the cap must not remove papers");
     assert!(
