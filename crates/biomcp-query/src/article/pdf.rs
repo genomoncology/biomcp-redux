@@ -152,6 +152,7 @@ fn refusal(
 
 /// Offer `get article ID fulltext`, the open text reader for PMC and Europe PMC.
 fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
+    let sources = super::next::text_sources(&input);
     let Ok(query) =
         ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into())
     else {
@@ -159,7 +160,7 @@ fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
     };
     out.next.push(crate::next::Step::run(
         StepKind::Section,
-        &super::next::text_sources(&query.input()[0]),
+        &sources,
         Request::GetArticle(query),
         false,
     ));
