@@ -31,7 +31,10 @@ pub struct CellLineHeader {
 pub struct CellLinePage {
     /// Native result order, without reranking or selected identity.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[CellLineHeader]>,
     /// What a variation filter matched; only variation-filtered searches carry it.
     #[serde(default, skip_serializing_if = "Option::is_none")]

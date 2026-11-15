@@ -31,7 +31,10 @@ pub fn coordinate_note(spans: bool) -> Option<Box<str>> {
 pub struct ProteinFeatures {
     /// Whole native rows in source order; totals apply only to this collection.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[ProteinFeature]>,
     /// How to read the spans above; present when any row is returned.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -50,7 +53,10 @@ pub struct ProteinDomains {
     pub native_total: u64,
     /// Bounded retained rows in source order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[ProteinDomainMatch]>,
     /// How to read the spans above; present when any row has a fragment, but not inside a card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -77,7 +83,10 @@ pub struct ProteinComplexes {
     pub native_total: u64,
     /// Bounded retained rows in source order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[ProteinComplexHeader]>,
 }
 impl ResponseBody for ProteinComplexes {
@@ -106,7 +115,10 @@ page!(
 pub struct ProteinCard {
     /// One result per input in caller order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[ProteinCardItem]>,
     /// How to read feature and domain spans; present when any section holds one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -183,7 +195,10 @@ impl ResponseBody for ProteinSequenceResult {
 pub struct ProteinFunctionResult {
     /// Native paragraphs in source order, without inferred interpretation.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[ProteinFunction]>,
 }
 impl ResponseBody for ProteinFunctionResult {

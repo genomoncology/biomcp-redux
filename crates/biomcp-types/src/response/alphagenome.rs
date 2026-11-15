@@ -163,7 +163,10 @@ pub struct AlphaGenomeScorerPage {
     pub page: crate::PageInfo,
     /// Paged values in native row-major order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub rows: Box<[AlphaGenomeValue]>,
     /// Next explicit section request, when more native values remain.
     #[serde(skip_serializing_if = "Option::is_none")]

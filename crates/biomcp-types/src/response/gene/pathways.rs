@@ -11,6 +11,9 @@ pub struct Capped<T> {
     pub total: u64,
     /// References in stable source order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[T]>,
 }

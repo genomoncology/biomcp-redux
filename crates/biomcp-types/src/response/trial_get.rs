@@ -9,7 +9,10 @@ use serde::{Deserialize, Serialize};
 pub struct TrialCards {
     /// One answer per requested input, including absence and failure.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[TrialCardItem]>,
     /// Registry processing timestamp, distinct from each study's update and fetch times.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -122,7 +125,10 @@ pub struct TrialRecords<T> {
     pub total: u32,
     /// Complete records in source order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[T]>,
 }
 /// Source arm rows followed by source intervention rows, each in its native order.

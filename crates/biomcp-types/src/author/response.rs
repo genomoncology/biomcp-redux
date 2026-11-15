@@ -10,7 +10,10 @@ use serde::{Deserialize, Serialize};
 pub struct AuthorPage {
     /// Source candidates; no deduplication by display name.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[AuthorHeader]>,
     /// Native matching-record total, if supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -46,7 +49,10 @@ pub struct AuthorPublication {
 pub struct AuthorCards {
     /// Exact returned source cards, with no cross-source links.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[AuthorCardItem]>,
 }
 /// One exact input and its independent outcome.
@@ -71,7 +77,10 @@ macro_rules! papers {
             pub author: AuthorId,
             /// Original source order; no native corpus total is claimed.
             #[serde(default)]
-            #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+            #[cfg_attr(
+                feature = "schema",
+                schemars(skip_serializing_if = "crate::no_schema_default")
+            )]
             pub items: Box<[$row]>,
         }
     };

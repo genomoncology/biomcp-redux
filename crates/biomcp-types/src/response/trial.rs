@@ -5,7 +5,10 @@ use serde::{Deserialize, Serialize};
 pub struct TrialPage {
     /// Native study headers in registry order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[crate::TrialHeader]>,
     /// Registry's source processing timestamp, independently of retrieval time.
     #[serde(skip_serializing_if = "Option::is_none")]

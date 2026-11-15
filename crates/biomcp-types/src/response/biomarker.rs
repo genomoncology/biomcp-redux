@@ -42,7 +42,10 @@ pub struct BiomarkerCard {
 pub struct BiomarkerPage {
     /// Native biomarker headers in source order.
     #[serde(default)]
-    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
+    #[cfg_attr(
+        feature = "schema",
+        schemars(skip_serializing_if = "crate::no_schema_default")
+    )]
     pub items: Box<[BiomarkerHeader]>,
 }
 impl crate::ResponseBody for BiomarkerPage {
