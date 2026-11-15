@@ -1011,12 +1011,6 @@ Options:
           NDA/BLA application.
           Cell-owned typed NDA/BLA application.
 
-      --fresh[=<fresh>]
-          Request fresh source data instead of cached replies.
-
-          [default: false]
-          [possible values: true, false]
-
       --firm <firm>
           Recall firm phrase.
           The drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only.
