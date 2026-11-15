@@ -1,4 +1,4 @@
-//! The values kept from GTR's XML release, the reader's position, and the rows it emits.
+//! The values kept from GTR's XML release (see `xml`), the reader's position, and the rows it emits.
 use biomcp_fetch::BadReply;
 use serde::Serialize;
 

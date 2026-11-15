@@ -6,8 +6,8 @@
 use biomcp_fetch::BadReply;
 use quick_xml::{Reader, events::Event};
 use std::io::BufRead;
-mod kept;
-use kept::{Lab, State, Test};
+
+use super::kept::{self, Lab, State, Test};
 
 /// The XSD nests well under this; deeper input is refused, not followed.
 const NESTING: usize = 64;
