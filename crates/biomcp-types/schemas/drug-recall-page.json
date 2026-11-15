@@ -145,8 +145,8 @@
       "type": "object"
     },
     "Reply_DrugRecallNumber": {
-      "description": "Native FDA drug recall number, independent of its event number.",
-      "pattern": "^D-[0-9]{4}-[0-9]{4}$",
+      "description": "Native FDA drug recall number, D-NNNN-YYYY or the older D-NNN-YYYY, independent of its event number.",
+      "pattern": "^D-[0-9]{3,4}-[0-9]{4}$",
       "type": "string"
     },
     "Reply_DrugRecallPage": {

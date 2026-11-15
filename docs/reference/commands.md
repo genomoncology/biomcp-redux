@@ -2943,7 +2943,7 @@ Options:
       --source <source>
           Explicit source: GTR accession/version, WHO Product ID,; help get diagnostic
           Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-          510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
+          510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY or Z-NNNN-YY.
 
       --supplement <supplement>
           Exact native PMA supplement; absent selects the base row.
@@ -2975,7 +2975,7 @@ Form: get diagnostic ID SECTION; not --section.
 - `--section-limit`: Maximum source rows; omitted means five rows, or one regulatory fragment. Value form: integer; example: --section-limit 2.
 - `--section-offset`: Zero-based source row or fragment offset. Value form: integer; example: --section-offset 9.
 - `--source`: Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY. Value form: string; example: --source who-ivd.
+510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY or Z-NNNN-YY. Value form: string; example: --source who-ivd.
 - `--supplement`: Exact source PMA supplement; absent selects the base row. Value form: string; example: --supplement S020.
 
 GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.

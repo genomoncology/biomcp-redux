@@ -22,7 +22,7 @@ struct GetFields<I = Text> {
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: I,
     /// Explicit source: GTR accession/version, WHO Product ID, PMA P number,
-    /// 510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY.
+    /// 510(k) K or De Novo DEN number or device recall Z-NNNN-YYYY or Z-NNNN-YY.
     source: DiagnosticGetSource,
     /// GTR: genes, conditions, methods. PMA: regulatory, supplements, summary.
     /// WHO, 510(k) and device recalls have no sections; omit for the card.

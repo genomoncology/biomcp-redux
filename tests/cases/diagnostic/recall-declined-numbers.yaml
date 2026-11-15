@@ -1,8 +1,8 @@
 {
   "feature": "diagnostic-device-recall",
   "live_check": "public",
-  "story": "A device recall page holding a record whose recall number is malformed keeps its other rows as a partial page and names the declined record in a record.declined problem by the raw number openFDA sent (cfres_id or event_id only when it is blank or N/A). Its next page starts after every native record on the page.",
-  "verified": "Native openFDA device recall and device enforcement replies recorded 2026-11-15 by biomcp --record in pm job j41441, without a key. On base commit 648240afe the --product-code NPR search failed whole as a bad reply (pm job j41440). Git holds a projection of each 200 body: address, contact, FEI, lot (code_info) and action text are dropped; original and committed sizes are both listed. Requests, recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-declined-numbers/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A device recall page shows records numbered in FDA's older Z-NNNN-YY form as rows, and get finds a recall by such a number. A page holding a record whose recall number is malformed keeps its other rows as a partial page and names the declined record in a record.declined problem by the raw number openFDA sent (cfres_id or event_id only when it is blank or N/A). Its next page starts after every native record on the page.",
+  "verified": "Native openFDA device recall and device enforcement replies recorded without a key by biomcp --record: the NPR and Valorem replies on 2026-11-15 in pm job j41441 (0977), the Terumo and Z-1192-03 replies on 2026-11-15 in pm job j41472. On base commit 648240afe the --product-code NPR search failed whole as a bad reply (pm job j41440); on base commit 94395bcad Z-NNNN-YY numbers were refused by the device recall number type. Git holds a projection of each 200 body: address, contact, FEI, lot (code_info) and action text are dropped; original and committed sizes are both listed. Requests, recorded sizes and SHA-256 are in tests/replies/diagnostic/recall-declined-numbers/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "diagnostic/recall-declined-numbers",
   "steps": [
     {
@@ -75,6 +75,71 @@
             "fda-device-recall"
           ]
         }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "diagnostic",
+        "--source",
+        "fda-device-recall",
+        "--manufacturer",
+        "Terumo Cardiovascular",
+        "--initiated-from",
+        "2003-08-08",
+        "--initiated-to",
+        "2003-08-08"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 6,
+        "/page/returned": 5,
+        "/result/items/*/header/recall_number": [
+          "Z-1190-03",
+          "Z-1191-03",
+          "Z-1192-03",
+          "Z-1193-03",
+          "Z-1194-03"
+        ],
+        "/sources/0/state": "ok",
+        "": {
+          "omits": [
+            "problems"
+          ]
+        },
+        "/next/*/args": {
+          "includes": [
+            "search",
+            "diagnostic",
+            "--initiated-from",
+            "2003-08-08",
+            "--initiated-to",
+            "2003-08-08",
+            "--manufacturer",
+            "Terumo Cardiovascular",
+            "--offset",
+            "5",
+            "--source",
+            "fda-device-recall"
+          ]
+        }
+      }
+    },
+    {
+      "run": [
+        "get",
+        "diagnostic",
+        "Z-1192-03",
+        "--source",
+        "fda-device-recall"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/kind": "device-recall",
+        "/result/header/recall_number": "Z-1192-03",
+        "/result/header/event_number": "27041",
+        "/result/header/firm": "Terumo Cardiovascular Systems Corp",
+        "/sources/0/state": "ok"
       }
     }
   ]
