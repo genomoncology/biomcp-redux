@@ -255,6 +255,7 @@ pub(super) fn capture_through_symlinked_parent_round_trips() {
     );
 }
 
+#[cfg(unix)]
 fn refused(result: Result<(), RequestError>) -> bool {
     matches!(result, Err(RequestError::Recording(RecordError::Malformed)))
 }
@@ -262,9 +263,12 @@ fn refused(result: Result<(), RequestError>) -> bool {
 /// A symlink inside a --record folder that points outside it is refused for recording and replay,
 /// for JSON and binary replies alike, though 0954 resolves the folder's own symlinked parents
 /// (0963).
+pub(super) fn symlink_inside_record_folder_is_refused() {
+    #[cfg(unix)]
+    refuse_symlinks_inside();
+}
 #[cfg(unix)]
-#[test]
-fn symlink_inside_record_folder_is_refused_for_recording_and_replay() {
+fn refuse_symlinks_inside() {
     use std::os::unix::fs::symlink;
     let root = tempfile::tempdir().unwrap();
     let outside = root.path().join("outside");
@@ -317,7 +321,11 @@ fn symlink_inside_record_folder_is_refused_for_recording_and_replay() {
     std::fs::create_dir_all(linked_files.join("pubmed")).unwrap();
     for entry in std::fs::read_dir(real.join("pubmed")).unwrap() {
         let path = entry.unwrap().path();
-        symlink(&path, linked_files.join("pubmed").join(path.file_name().unwrap())).unwrap();
+        symlink(
+            &path,
+            linked_files.join("pubmed").join(path.file_name().unwrap()),
+        )
+        .unwrap();
     }
     for dir in [linked_folder, linked_files] {
         let replay = fetch(Mode::Replay { dir: dir.clone() });
