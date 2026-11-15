@@ -13,13 +13,18 @@ use biomcp_types::{
     CellLineFilteredPage, CellLineGet, CellLinePage, CellLineSearchCommand, ReplyData, Request,
     Source, Status, StepKind,
 };
-/// One native window, with no fabricated total or extra-page fetch.
+/// One native window; a full one also reads Cellosaurus's own count, never an estimate.
 pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&cellosaurus::SPEC, deadline).fresh(cx.fresh);
     let reply = cellosaurus::search(&leg, query);
     let error = reply.as_ref().err().copied();
+    // Only a full window can leave rows unread; a short one ends the source's matches.
+    let full = reply
+        .as_ref()
+        .is_ok_and(|page| page.received == query.limit());
+    let count = full.then(|| cellosaurus::count(&leg, query).ok());
     let mut out = empty(search_body(
         CellLinePage {
             items: Box::default(),
@@ -35,7 +40,6 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
     if let Ok(page) = reply {
         out.include_refusals(page.refusals);
         out.problems.extend(page.problems);
-        let full = page.received == query.limit();
         for row in &page.items {
             out.next.push(crate::next::Step::new(
                 StepKind::Disambiguate,
@@ -45,23 +49,43 @@ pub(crate) fn search(cx: &Ctx<'_>, query: &CellLineSearchCommand) -> Outcome {
                 ))),
             ));
         }
-        if full
-            && let Some(source) = out
-                .sources
-                .iter_mut()
-                .find(|s| s.source == Source::Cellosaurus)
-        {
-            source
-                .notices
-                .push(biomcp_types::SourceNotice::RequestGuidance {
-                    data_date: None,
-                    message: "The Cellosaurus JSON search reply BioMCP reads gives no total; a \
-                        full page has a next page step."
-                        .into(),
-                    retry_after_seconds: None,
-                });
+        let read = u64::from(query.offset()) + u64::from(page.received);
+        let total = match count {
+            None => Some(read),
+            Some(found) => found,
+        };
+        let source = out
+            .sources
+            .iter_mut()
+            .find(|s| s.source == Source::Cellosaurus);
+        if let Some(source) = source {
+            if let Some(found) = count.flatten() {
+                source.count = Some(found);
+            } else if full {
+                source
+                    .notices
+                    .push(biomcp_types::SourceNotice::RequestGuidance {
+                        data_date: None,
+                        message: "BioMCP could not read Cellosaurus's match count, so this \
+                            page has no total; a full page has a next page step."
+                            .into(),
+                        retry_after_seconds: None,
+                    });
+            }
         }
-        if full && let Some(offset) = query.offset().checked_add(query.limit()) {
+        if let Some(total) = total {
+            out.page = Some(biomcp_types::PageInfo {
+                offset: query.offset(),
+                returned: page.items.len() as u32,
+                total,
+                pool: None,
+                truncated: None,
+            });
+        }
+        if full
+            && total.is_none_or(|total| read < total)
+            && let Some(offset) = query.offset().checked_add(query.limit())
+        {
             out.next.push(crate::next::Step::new(
                 StepKind::Page,
                 &[biomcp_types::Source::Cellosaurus],
