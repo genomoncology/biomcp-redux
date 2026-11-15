@@ -1,6 +1,7 @@
 {
   "feature": "author-papers",
   "story": "Retained exact native author paper page preserves source identifiers and disclosure",
+  "live_check": "Live Semantic Scholar check (0973): it must reach a real record, so it names the first-author record of PMID 17611497; Semantic Scholar is noncommercial, and no reply is kept in Git.",
   "steps": [
     {
       "run": [

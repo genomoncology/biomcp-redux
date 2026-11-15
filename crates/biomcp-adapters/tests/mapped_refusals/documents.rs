@@ -31,7 +31,7 @@ pub(super) fn trials() -> Vec<Trial> {
 fn references() -> Check {
     for case in ["optional", "identity", "absent"] {
         let mut row =
-            json!({"objCls":"GuidelineAnnotation","id":"PA166134421","name":{"invalid":true}});
+            json!({"objCls":"GuidelineAnnotation","id":"PA900000001","name":{"invalid":true}});
         if case == "identity" {
             replace(&mut row, "/id", &(json!(false)));
         }

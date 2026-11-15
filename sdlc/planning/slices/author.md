@@ -24,12 +24,12 @@ The questions are derived from the cited publications and public reports. Each a
 | A14 | Does an author have more papers than the default page? | PMID 32955176 | Native total where provided, explicit continuation, and bounded default rows. |
 | A15 | Can I continue without silently changing the query? | PMID 32955176 | The next action keeps source, author ID, page size and metadata selection. |
 | A16 | Are article author IDs globally resolved people? | PMID 32955176 | They identify provider records only; no cross-provider claim. |
-| A17 | Which public works does Charles Swanton's ORCID record claim? | PMID 37046094; ORCID 0000-0002-4299-3018 | Exact public work groups on the requested ORCID, with assertion provenance. |
-| A18 | What public name does that ORCID record state? | PMID 37046094; ORCID 0000-0002-4299-3018 | Public person name from the exact requested record. |
-| A19 | Which claimed works carry identifiers I can pass to article? | PMID 37046094; ORCID 0000-0002-4299-3018 | Native PMID and DOI assertions, preserving identifier type and relationship. |
-| A20 | Are several assertions in one ORCID work group several papers? | PMID 37046094; ORCID 0000-0002-4299-3018 | Preserve group scope and summaries; do not count each assertion as a separate publication. |
+| A17 | Which public works does a researcher's ORCID record claim? | PMID 37046094; a real ORCID iD (the 380-group record) | Exact public work groups on the requested ORCID, with assertion provenance. |
+| A18 | What public name does that ORCID record state? | PMID 37046094; a real ORCID iD (the 380-group record) | Public person name from the exact requested record. |
+| A19 | Which claimed works carry identifiers I can pass to article? | PMID 37046094; a real ORCID iD (the 380-group record) | Native PMID and DOI assertions, preserving identifier type and relationship. |
+| A20 | Are several assertions in one ORCID work group several papers? | PMID 37046094; a real ORCID iD (the 380-group record) | Preserve group scope and summaries; do not count each assertion as a separate publication. |
 | A21 | Which candidate records does a search for Louis Williams return? | Legacy author identity investigation, PMIDs 42146891 and 42056076 | Separate native candidates, including apparent splits; no automatic choice. |
-| A22 | What public works does Atul Butte's ORCID record claim? | Legacy identity investigation; ORCID 0000-0002-7433-2740 | Exact ORCID works; never merge with Semantic Scholar 1716151 by name. |
+| A22 | What public works does a second researcher's ORCID record claim? | Legacy identity investigation; a real ORCID iD (the two-group record) | Exact ORCID works; never merge with a Semantic Scholar record by name. |
 | A23 | Which authors are most prominent on AKT1 E17K? | PMID 17611497 | Native article discovery can show bylines and counts. Neither author API proves a topic-wide author ranking; say unavailable. |
 | A24 | Why does an ORCID person fail when its works succeed? | Public issue 289 | A public lowercase visibility value is accepted; other visibility values stay excluded. |
 
@@ -54,17 +54,17 @@ Status describes the current command answer to each accepted retrieval boundary.
 | A11 | Answered | `tests/native/author/card-34096690.yaml` step 0 owns provider-record citation counts; `tests/cases/author/help.yaml` step 1 states the identity and ranking boundary. |
 | A12 | Answered | `tests/native/author-papers/papers-34096690-details.yaml` steps 0–1 own native details and full; `tests/cases/author/papers-details.yaml` compares identical synthetic details/full pages. |
 | A13 | Unanswered | Archive B `0002.body` is the exact PMID 32955176 paper 404. It supplies no byline or author ID, so no positive author case exists for this question. |
-| A14 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 0–1 own bounded native continuation using explicitly accepted record 2118426986. The unavailable PMID 32955176 identity stays unresolved; the endpoint supplies no total. |
-| A15 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 1–2 own exact selector-preserving and warm continuation on the accepted 2118426986 record. `tests/cases/author/papers-disabled-pool.yaml` owns actual retained-pool controls. |
+| A14 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 0–1 own bounded native continuation using the explicitly accepted PMID 33123537 first-author record. The unavailable PMID 32955176 identity stays unresolved; the endpoint supplies no total. |
+| A15 | Answered | `tests/native/author-papers/papers-33123537.yaml` steps 1–2 own exact selector-preserving and warm continuation on the accepted PMID 33123537 first-author record. `tests/cases/author/papers-disabled-pool.yaml` owns actual retained-pool controls. |
 | A16 | Answered | `tests/cases/author/ordered-cards.yaml` step 0 and `tests/cases/author/help.yaml` step 1 preserve qualified provider records without person resolution. |
-| A17 | Answered | Outside-repo generated `orcid-0000-0002-4299-3018.yaml` steps 1–18, owned by `tests/native/orcid/orcid-0000-0002-4299-3018.yaml`, retain all 380 groups and 453 assertions; j15682. |
-| A18 | Answered | The same generated Swanton case step 0 owns the exact lowercase-public person name; j15682. |
+| A17 | Answered | Outside-repo generated `orcid-380-groups.yaml` steps 1–18, owned by `tests/native/orcid/orcid-380-groups.yaml`, retain all 380 groups and 453 assertions; j15682. |
+| A18 | Answered | The same generated 380-group case step 0 owns the exact lowercase-public person name; j15682. |
 | A19 | Answered | Outside-repo generated `orcid-native-identifiers.yaml` step 0, owned by `tests/native/orcid/orcid-native-identifiers.yaml`, retains exact native PMID/DOI claims and pivot provenance; j15720. |
-| A20 | Answered | Generated Swanton case step 2 and complete walk steps 3–18 preserve group/assertion boundaries and exact ordered put-codes; j15682. `scripts/orcid_native.py` derives the outside-repo expectations. |
+| A20 | Answered | Generated 380-group case step 2 and complete walk steps 3–18 preserve group/assertion boundaries and exact ordered put-codes; j15682. `scripts/orcid_native.py` derives the outside-repo expectations. |
 | A21 | Answered | `tests/native/author/search-0.yaml` step 0 and `tests/native/author/search-5.yaml` step 0 own the two native candidate windows without choosing a person. |
-| A22 | Answered | Outside-repo generated `orcid-0000-0002-7433-2740.yaml` steps 0–3, owned by `tests/native/orcid/orcid-0000-0002-7433-2740.yaml`, retain the exact public name, two groups and two assertions; j15720. |
+| A22 | Answered | Outside-repo generated `orcid-2-groups.yaml` steps 0–3, owned by `tests/native/orcid/orcid-2-groups.yaml`, retain the exact public name, two groups and two assertions; j15720. |
 | A23 | Unanswered | `tests/cases/author/retired.yaml` step 1 proves fixed topic-rank refusal. Both APIs leave topic-wide ranking deferred; refusal is not a ranking answer. |
-| A24 | Answered | `tests/cases/orcid/visibility.yaml` steps 0–1 and `tests/cases/orcid/person-public.yaml` step 0 own public-visibility controls; generated native Swanton/Butte step 0 proves accepted lowercase public names; j15682 and j15720. |
+| A24 | Answered | `tests/cases/orcid/visibility.yaml` steps 0–1 and `tests/cases/orcid/person-public.yaml` step 0 own public-visibility controls; generated native 380-group and two-group step 0 proves accepted lowercase public names; j15682 and j15720. |
 
 ## Prior behavior and public issues
 
@@ -155,7 +155,7 @@ Native source reply measurements and exact identity/paging proofs appear below. 
 | --- | --- | --- |
 | `search author` default page | Exact candidate order, source total, full names/affiliations, request count, compact JSON bytes/tokens, empty and failure outcomes | Measured normalized envelopes below; owning canonical CLI/MCP steps enforce rounded fifteen-percent headroom. |
 | `get author` Semantic Scholar card | Matching returned author ID, optional field/multiplicity inventory, cold/warm timings and bytes/tokens | Measured normalized envelopes below; owning canonical CLI/MCP steps enforce rounded fifteen-percent headroom. |
-| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Measured normalized public cards: Swanton 563 CLI / 562 MCP-text bytes; Butte 568 / 567 in j15682 and j15720. |
+| `get author` ORCID card | Exact checksummed ID, public name visibility, public API provenance, matching returned identity | Measured normalized public cards: 380-group record 563 CLI / 562 MCP-text bytes; two-group record 568 / 567 in j15682 and j15720. |
 | `author papers` compact | Native order, page size/next, unavailable native total, every native identifier and exact article pivot | Retained native measurements below; each owning case holds its measured ceiling. |
 | `author papers details` | Same page as compact, optional abstract and access fields, native bylines and counts, source terms | Retained native measurements below; each owning case holds its measured ceiling. |
 | ORCID groups and assertions | Group cardinality, representative selection without silent loss, external-ID relationship, bounded assertion drill-down | Measured exact public groups and every ordered assertion below; canonical native steps retain independent page ceilings. No representative replaces an assertion. |
@@ -172,7 +172,7 @@ Evidence archive A is Yellow `data/biomcp-redux/0264-author-captures/2290-author
 
 | Initial attempt witness | Initial result | Capability and evidence in archive A |
 | --- | --- | --- |
-| PMID 17611497 byline | Proven, HTTP 200 | A01 exact byline: 24 returned author IDs, first `2060978`; `0000.body`, SHA-256 `47c460ab4001d4c40463da395d7c7412070a4ccf4e4056a0cfb8c6b167b06a6a`. |
+| PMID 17611497 byline | Proven, HTTP 200 | A01 exact byline: 24 returned author IDs; `0000.body`, SHA-256 `47c460ab4001d4c40463da395d7c7412070a4ccf4e4056a0cfb8c6b167b06a6a`. |
 | PMID 33123537 byline | Failed, HTTP 429 | Exact current A05 request failed; `0001.body`, SHA-256 `65ab993d12c5c2cc9b68e6da2bb79b326930283e520363ffcdc145f88cd5a148`. Earlier 0061 native bylines remain historical evidence and do not replace this exact request. |
 | PMID 34096690 byline | Failed prerequisite; not sent | A09 current exact byline remains deferred after the source stop. |
 | PMID 32955176 byline | Failed prerequisite; not sent | A13 current exact byline remains deferred after the source stop. |
@@ -187,10 +187,10 @@ Evidence archive A is Yellow `data/biomcp-redux/0264-author-captures/2290-author
 | Same PMID 32955176 compact papers, offset 5 | Failed prerequisite; not sent | A15 continuation remains deferred; required ID and native next missing. |
 | First PMID 33123537 compact papers, offset 0 | Failed prerequisite; not sent | A06/A08 papers and native identifiers remain deferred. |
 | Author `999999999999999999` exact card | Failed prerequisite; not sent | Semantic Scholar absence remains unproved; absent-versus-failed cases must be labeled synthetic. |
-| ORCID `0000-0002-4299-3018` person | Proven, HTTP 200 | A18 exact `/0000-0002-4299-3018/person`, lowercase `public` name visibility; `0002.body`, SHA-256 `e9a8fda15f08a696c94386638ff4cdc3e5dad23902a3b9ddf6c6c44968f146dc`. |
-| ORCID `0000-0002-4299-3018` works | Proven, HTTP 200 | A17/A19/A20: 380 groups, 453 assertions, up to two summaries per group; `0003.body`, SHA-256 `7fb1493eda38b38eb1e5fc341e725cbf50e761330f3ab828ce7b2224ec171553`. |
-| ORCID `0000-0002-7433-2740` person | Proven, HTTP 200 | Exact `/0000-0002-7433-2740/person`, lowercase `public` name visibility; `0004.body`, SHA-256 `4ad727a35bb96431616d1c81a5de18cb74e0ea53c8747aa30dca825612ff0bcb`. |
-| ORCID `0000-0002-7433-2740` works | Proven, HTTP 200 | A22: two groups and two assertions; `0005.body`, SHA-256 `242b829be3b7ee63ba65113af20ea21fab45298ba019a152568279b29b925710`. |
+| ORCID 380-group record person | Proven, HTTP 200 | A18 exact `/<iD>/person`, lowercase `public` name visibility; `0002.body`, SHA-256 `e9a8fda15f08a696c94386638ff4cdc3e5dad23902a3b9ddf6c6c44968f146dc`. |
+| ORCID 380-group record works | Proven, HTTP 200 | A17/A19/A20: 380 groups, 453 assertions, up to two summaries per group; `0003.body`, SHA-256 `7fb1493eda38b38eb1e5fc341e725cbf50e761330f3ab828ce7b2224ec171553`. |
+| ORCID two-group record person | Proven, HTTP 200 | Exact `/<iD>/person`, lowercase `public` name visibility; `0004.body`, SHA-256 `4ad727a35bb96431616d1c81a5de18cb74e0ea53c8747aa30dca825612ff0bcb`. |
+| ORCID two-group record works | Proven, HTTP 200 | A22: two groups and two assertions; `0005.body`, SHA-256 `242b829be3b7ee63ba65113af20ea21fab45298ba019a152568279b29b925710`. |
 | ORCID `0000-0000-0000-0001` person | Empty, HTTP 404 | Exact checksum-valid absence witness; `0006.body`, SHA-256 `0670f59cceb60cd03fa9d4b9feaaa6627a5da264cc1001919da66fa06688da2b`. |
 
 The Semantic Scholar byline body was 1,350 bytes; its failed second byline was 174 bytes. The two ORCID person replies were 3,513 and 964 bytes. The two ORCID works replies were 886,277 and 2,568 bytes. The ORCID absence reply was 219 bytes. Every returned work assertion had lowercase `public` visibility. The first works reply preserved `doi`, `pmid`, `wosuid`, `eid` and `pmc` identifier types with 922 `self` relationships; the second preserved two `doi` identifiers with `self` relationships. Both retained source and assertion-origin identifiers. No returned external-ID value was missing. Ledger timing records cover only source requests and do not establish command latency. ORCID works replies have whole-record scope and no native total or continuation fields; group and assertion counts above are observed reply cardinalities, not a global publication total. Person replies include fields outside the proposed card; those fields remain outside the product card. No raw person reply, paper body or publisher abstract enters Git.
@@ -205,8 +205,8 @@ Evidence archive B is Yellow `data/biomcp-redux/0264-author-captures/2290-author
 
 | Follow-up witness | Result | Capability and evidence in archive B |
 | --- | --- | --- |
-| PMID 33123537 byline | Proven, HTTP 200 | A05: seven author IDs, first `2118426986`; `0000.body`, 562 bytes, SHA-256 `ff026d53fe524e09a057028bcc5852a006359741b1d2dc6a7dbf5d47c79f2c4c`. |
-| PMID 34096690 byline | Proven, HTTP 200 | A09: 26 author IDs, first `9845886`; `0001.body`, 1,448 bytes, SHA-256 `403f9d766dd8002c633670bd8c0cae2afe52996ac8305c463281277e1f5f7867`. |
+| PMID 33123537 byline | Proven, HTTP 200 | A05: seven author IDs; `0000.body`, 562 bytes, SHA-256 `ff026d53fe524e09a057028bcc5852a006359741b1d2dc6a7dbf5d47c79f2c4c`. |
+| PMID 34096690 byline | Proven, HTTP 200 | A09: 26 author IDs; `0001.body`, 1,448 bytes, SHA-256 `403f9d766dd8002c633670bd8c0cae2afe52996ac8305c463281277e1f5f7867`. |
 | PMID 32955176 byline | Failed prerequisite, HTTP 404 | The exact paper lookup supplied no author ID; A13 and its dependent papers remain unproved. `0002.body`, 50 bytes, SHA-256 `4d638311dd5d95c82a6bbadfacecd07aa61634033fbd1edec7820b6b623ea7c7`. This is not an absent-author witness. |
 | Both search pages, both cards, six papers pages and absent author | Not sent after failed prerequisite | Eleven recipes remain deferred. No native search/papers continuation or positive card/papers shape was captured. Absent-versus-failed Semantic Scholar author cases still require explicit synthetic labels. |
 
@@ -230,13 +230,13 @@ Evidence archive D is Yellow `data/biomcp-redux/0264-author-captures/2290-author
 | --- | --- | --- |
 | Louis Williams search, offset 0 | Proven: five candidates, native total 61, next 5. | `0000.body`, 953 bytes, SHA-256 `b6d9d61bfd0ca3d4a5f80dd918359cafaf4511dd4c9d26b7aa90296ba3a2746d`. |
 | Same search, offset 5 | Proven: five separate candidate IDs, same total, next 10. | `0001.body`, 965 bytes, SHA-256 `6e4276bf7fb51b829b7b284dafa3d04fbaf5ca3b25733f65aabec6a60fdbdbb1`. |
-| Author `2060978` card | Proven: returned ID matches. Native count fields present; affiliations is an empty array. | `0002.body`, 180 bytes, SHA-256 `ade062b9402ef9ef5f6d9f41d2d2594eee02bdbf2683dda563cad1b3dbede5e9`. |
-| Author `9845886` card | Proven: returned ID matches. Native count fields present; affiliations is an empty array. | `0003.body`, 182 bytes, SHA-256 `5a7ca10879cc2cdc46dab8683114b7657ba0a209798a62008c44dbe40d4cd445`. |
-| Author `2060978` compact papers, offset 0 | Proven: five rows in native order, next 5. Every row has a native PMID and DOI. | `0004.body`, 1,753 bytes, SHA-256 `2312f221faecd7f900ab2e7e15304d5fd9d281819503f980eb863d693dfa2675`. |
+| PMID 17611497 first-author card | Proven: returned ID matches. Native count fields present; affiliations is an empty array. | `0002.body`, 180 bytes, SHA-256 `ade062b9402ef9ef5f6d9f41d2d2594eee02bdbf2683dda563cad1b3dbede5e9`. |
+| PMID 34096690 first-author card | Proven: returned ID matches. Native count fields present; affiliations is an empty array. | `0003.body`, 182 bytes, SHA-256 `5a7ca10879cc2cdc46dab8683114b7657ba0a209798a62008c44dbe40d4cd445`. |
+| PMID 17611497 first-author compact papers, offset 0 | Proven: five rows in native order, next 5. Every row has a native PMID and DOI. | `0004.body`, 1,753 bytes, SHA-256 `2312f221faecd7f900ab2e7e15304d5fd9d281819503f980eb863d693dfa2675`. |
 | Same author/page, details | Proven: identical ordered paper IDs; four abstracts present and one null. | `0005.body`, 24,844 bytes, SHA-256 `e9bb06ba54046ae8750092f01292ba85d07b4063375ed5561294fd95b8bd4705`. |
-| Author `9845886` compact papers, offset 0 | Proven: five rows, next 5; two lack a PMID and all five retain a native DOI. | `0006.body`, 1,764 bytes, SHA-256 `f7ea65a40f81fac6f5514bec9522d46f55aa7403f407612c800085a4928b7011`. |
+| PMID 34096690 first-author compact papers, offset 0 | Proven: five rows, next 5; two lack a PMID and all five retain a native DOI. | `0006.body`, 1,764 bytes, SHA-256 `f7ea65a40f81fac6f5514bec9522d46f55aa7403f407612c800085a4928b7011`. |
 | Same author/page, details | Proven: identical ordered paper IDs and five abstracts; `fieldsOfStudy` is null in some rows. | `0007.body`, 21,691 bytes, SHA-256 `c22183840366b625e7ad57d6ff776262ccda305b5a292e5c3c573b9a0a06faac`. |
-| Author `2118426986` compact papers, offset 0 | Proven: five rows, next 5; one lacks a DOI and all five retain a native PMID. | `0008.body`, 1,773 bytes, SHA-256 `64b85e4dd58794bdc8707ad7f633e86bba39b36b84eb65cd9bc70c886cd59398`. |
+| PMID 33123537 first-author compact papers, offset 0 | Proven: five rows, next 5; one lacks a DOI and all five retain a native PMID. | `0008.body`, 1,773 bytes, SHA-256 `64b85e4dd58794bdc8707ad7f633e86bba39b36b84eb65cd9bc70c886cd59398`. |
 | Same author, offset 5 | Proven: five nonoverlapping paper IDs, no next; one lacks a PMID and all five retain a native DOI. | `0009.body`, 1,863 bytes, SHA-256 `5b148691e0e1603922f7edb38bac6c39426e9cc66dc4e8556883bea36e107100`. |
 | Author `999999999999999999` card | Empty: native 404 names the exact requested author ID. This establishes author absence separately from the paper lookup failure. | `0010.body`, 56 bytes, SHA-256 `d60c1d562e64c83e96fe9684e8fc3c41b903d1ff583a374e37d8dc8b0271ac6e`. |
 
@@ -288,7 +288,7 @@ The response schemas are `biomcp.author_page/2` and `biomcp.author_card/3`. The 
 
 Semantic Scholar resolves its credential at an admitted adapter/transport request. This includes raw-cache and replay validation because reflected-credential containment still checks the current credential. A disabled source and a restored query pool do not resolve it. The deferred credential uses the configuration key first, then `S2_API_KEY`; a missing key omits the header. Other credentials retain their existing resolution behavior.
 
-The first-row record for PMID 33123537 has one additional exact card witness. Job j15451 made the approved single request for record `2118426986`, received a native 200 and retained its unchanged 181-byte body with SHA-256 `84dab7a910afdf55a49545196b35116603960ca89d2ceff57a7b6d3a2c8ecd4e`. Yellow `data/biomcp-redux/0264-author-captures/0266-author-card-xowlaemk.tar.gz` has SHA-256 `c077d787ebf31f8308c90a22a9c1085d8fff3ea8c50626afae9d5984f73a4d2a`. The receipt records actual `x-api-key` attachment as a boolean and never records its value. The approved source window was `2026-10-26T17:03:16.126796+00:00` through `2026-10-26T17:03:21.307162+00:00`.
+The first-row record for PMID 33123537 has one additional exact card witness. Job j15451 made the approved single request for that record, received a native 200 and retained its unchanged 181-byte body with SHA-256 `84dab7a910afdf55a49545196b35116603960ca89d2ceff57a7b6d3a2c8ecd4e`. Yellow `data/biomcp-redux/0264-author-captures/0266-author-card-xowlaemk.tar.gz` has SHA-256 `c077d787ebf31f8308c90a22a9c1085d8fff3ea8c50626afae9d5984f73a4d2a`. The receipt records actual `x-api-key` attachment as a boolean and never records its value. The approved source window was `2026-10-26T17:03:16.126796+00:00` through `2026-10-26T17:03:21.307162+00:00`.
 
 The unchanged prelaunch snapshot is archived inside that capture. Its SHA-256 is `10e4667852be1b6a7a2d952ff963e135eb302ad2baa0ee64b3b0ee841a616504`. Yellow `data/biomcp-redux/0264-author-captures/0266-author-card-concurrency.tar.gz`, SHA-256 `f70e3cdf9b36ce51d60c054608ef30a5c3d75f65a6120a39760e4f78fad86464`, binds the post-completion snapshot to the same archive and window. The post snapshot has SHA-256 `17d1ba9a57d812754723345f71c611708cbda87d4ed8809fc6681b65b4a065d2`. Both archives passed outer and member verification and independent cross-machine hash comparison. These bounded owned-job snapshots do not establish visibility of other teams, global jobs or external key holders.
 
@@ -323,7 +323,7 @@ The optional ORCID credential uses `orcid_access_token` from configuration, then
 The accepted capture inventory covers every requested person, works and absent-record URL without query fields. Implementation made no new registry request. Native bodies and expected source text stay outside Git under the retained capture preparation helper. The [ORCID v3 translated-title model](https://github.com/ORCID/orcid-model/blob/main/src/main/java/org/orcid/jaxb/model/v3/release/common/TranslatedTitle.java) defines its `content` field; the adapter preserves it through a typed native structure. The synthetic translated-title case failed with `bad_reply` before this decoder change.
 ### Native papers API and output measurements
 
-The author papers endpoint binds identity through its exact credential-free request URL. The accepted replies expose `offset`, optional `next`, and `data`; they supply neither a top-level author ID nor a total. The adapter checks the requested offset, row limit, native paper IDs and typed external identifiers before reply-cache admission. A different author's body cannot be detected when those native facts agree. Names and byline membership never establish identity. PM ruling m7735 replaces the impossible body-author check with this request-bound contract. A14 and A15 use record `2118426986`; the unresolved PMID `32955176` supplies no replacement identity.
+The author papers endpoint binds identity through its exact credential-free request URL. The accepted replies expose `offset`, optional `next`, and `data`; they supply neither a top-level author ID nor a total. The adapter checks the requested offset, row limit, native paper IDs and typed external identifiers before reply-cache admission. A different author's body cannot be detected when those native facts agree. Names and byline membership never establish identity. PM ruling m7735 replaces the impossible body-author check with this request-bound contract. A14 and A15 use the PMID 33123537 first-author record; the unresolved PMID `32955176` supplies no replacement identity.
 
 Compact and details use separate exact native field selectors. Details and `--full` normalize to the same selector and retained pool identity. The pool key retains the qualified author, disclosure selection and page size; the native next offset selects its window. Checked warm pages make no request. Source policy applies before stored-pool access. Source faults retain publisher terms, and optional-key throttling keeps the deferred key action. A native empty access URL has no checked URL value; other supplied access metadata remains present. Every supplied byline row remains in source order, including missing IDs and repeated names. Its completeness remains unknown.
 
@@ -333,13 +333,13 @@ Job j15660 measured the unchanged accepted source captures on M5 with isolated h
 
 | Native command selection | CLI bytes | Bare result bytes | MCP text bytes | Markdown bytes | Complete MCP frame bytes |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| `2060978` compact | 2403 | 1690 | 2402 | 2538 | 5312 |
-| `2060978` details and full | 23066 | 22316 | 23065 | 20683 | 48808 |
-| `9845886` compact | 2494 | 1727 | 2493 | 2609 | 5486 |
-| `9845886` details and full | 21041 | 20237 | 21040 | 20036 | 43842 |
-| `2118426986` first compact page | 2461 | 1742 | 2460 | 2577 | 5424 |
-| `2118426986` exact continuation | 2475 | 1825 | 2474 | 2591 | 5448 |
-| `2118426986` warm continuation | 2433 | 1825 | 2432 | 2547 | 5360 |
+| 17611497 first author, compact | 2403 | 1690 | 2402 | 2538 | 5312 |
+| 17611497 first author, details and full | 23066 | 22316 | 23065 | 20683 | 48808 |
+| 34096690 first author, compact | 2494 | 1727 | 2493 | 2609 | 5486 |
+| 34096690 first author, details and full | 21041 | 20237 | 21040 | 20036 | 43842 |
+| 33123537 first author, first compact page | 2461 | 1742 | 2460 | 2577 | 5424 |
+| 33123537 first author, exact continuation | 2475 | 1825 | 2474 | 2591 | 5448 |
+| 33123537 first author, warm continuation | 2433 | 1825 | 2432 | 2547 | 5360 |
 | Author papers help | 1037 | 952 | 1036 | 876 | 2432 |
 
 The same discovery measurement returned 3426 description bytes, 8014 compact tools-list bytes and 8015 raw tools-list bytes. The native paper pages supply no total, and all continuations preserve the requested record and selectors. The source archives cover every exact request used here; the missing-request inventory is empty and the implementation made no provider calls.
@@ -347,9 +347,9 @@ The same discovery measurement returned 3426 description bytes, 8014 compact too
 
 ### ORCID normalized output measurements
 
-The Swanton row measurements come from j15682. The remaining native and control measurements come from j15720. CLI includes its terminating newline. Bare result, actual MCP text, Markdown and full RPC remain separate measurements. Each owning canonical YAML step enforces `full_output_bytes`, `max_bytes` and `max_tokens` with the agreed rounded allowance. Publisher data and derived native expected strings remain outside Git.
+The 380-group record's measurements come from j15682. The remaining native and control measurements come from j15720. CLI includes its terminating newline. Bare result, actual MCP text, Markdown and full RPC remain separate measurements. Each owning canonical YAML step enforces `full_output_bytes`, `max_bytes` and `max_tokens` with the agreed rounded allowance. Publisher data and derived native expected strings remain outside Git.
 
-The exact Swanton collection has 380 public groups with 453 ordered assertions. Its local page walk covers every native put-code once in its original group. The Butte collection has two groups and two assertions. The native group at offset 42 supplies a checked PMID pivot with native provenance. A native DOI resolver URL that is not a checked bare DOI stays unchanged as an external-ID claim and offers no inferred article pivot.
+The exact 380-group collection has 380 public groups with 453 ordered assertions. Its local page walk covers every native put-code once in its original group. The two-group collection has two groups and two assertions. The native group at offset 42 supplies a checked PMID pivot with native provenance. A native DOI resolver URL that is not a checked bare DOI stays unchanged as an external-ID claim and offers no inferred article pivot.
 
 Historical help measurements from j15720 are listed separately below. The then-listed author surface included the executable papers route; 0269 retired `list author` in favor of `help author`. Its canonical CLI/MCP owners and the existing Markdown shape own the changed entity ceilings. Other entity and global discovery ceilings remain unchanged. Whole help fits the established ceiling. The MCP description measures 3426 bytes; compact tools/list measures 8014 bytes and the raw frame measures 8015 bytes.
 
@@ -385,33 +385,33 @@ Job j15838 measured the warm disabled search at 342 CLI bytes for its default qu
 
 ## Retained ORCID envelope measurements
 
-These existing native measurements separate each canonical case and page phase. They reuse j15682's completed Swanton walk and j15720's successful Butte and absence outputs. The earlier j15682 Butte decoding failure proves no positive works result; its successful person output is replaced here by the same person's completed j15720 measurement. No provider request or native walk was repeated for this accounting. Each canonical step in `tests/native/orcid/` owns its strict raw CLI/MCP byte and estimated-token ceiling.
+These existing native measurements separate each canonical case and page phase. They reuse j15682's completed 380-group walk and j15720's successful two-group and absence outputs. The earlier j15682 two-group decoding failure proves no positive works result; its successful person output is replaced here by the same person's completed j15720 measurement. No provider request or native walk was repeated for this accounting. Each canonical step in `tests/native/orcid/` owns its strict raw CLI/MCP byte and estimated-token ceiling.
 
 | Canonical case / step | Job | CLI | Bare result | MCP text | Markdown | Full RPC |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| `orcid-0000-0002-4299-3018/0` | j15682 | 563 | 193 | 562 | 582 | 1420 |
-| `orcid-0000-0002-4299-3018/1` | j15682 | 4366 | 3487 | 4365 | 4875 | 9478 |
-| `orcid-0000-0002-4299-3018/2` | j15682 | 1990 | 1310 | 1989 | 2179 | 4436 |
-| `orcid-0000-0002-4299-3018/3` | j15682 | 18933 | 18036 | 18932 | 21487 | 40224 |
-| `orcid-0000-0002-4299-3018/4` | j15682 | 18709 | 17768 | 18708 | 19603 | 40104 |
-| `orcid-0000-0002-4299-3018/5` | j15682 | 23569 | 22664 | 23568 | 22440 | 50734 |
-| `orcid-0000-0002-4299-3018/6` | j15682 | 21683 | 20734 | 21682 | 21611 | 46576 |
-| `orcid-0000-0002-4299-3018/7` | j15682 | 18504 | 17574 | 18503 | 19530 | 39638 |
-| `orcid-0000-0002-4299-3018/8` | j15682 | 18072 | 17166 | 18071 | 18973 | 38752 |
-| `orcid-0000-0002-4299-3018/9` | j15682 | 19150 | 18224 | 19149 | 19656 | 41098 |
-| `orcid-0000-0002-4299-3018/10` | j15682 | 24258 | 23341 | 24257 | 25002 | 51740 |
-| `orcid-0000-0002-4299-3018/11` | j15682 | 24948 | 24016 | 24947 | 25478 | 53254 |
-| `orcid-0000-0002-4299-3018/12` | j15682 | 25314 | 24391 | 25313 | 25908 | 53962 |
-| `orcid-0000-0002-4299-3018/13` | j15682 | 25325 | 24385 | 25324 | 25759 | 54056 |
-| `orcid-0000-0002-4299-3018/14` | j15682 | 22848 | 21906 | 22847 | 23755 | 48692 |
-| `orcid-0000-0002-4299-3018/15` | j15682 | 27025 | 26089 | 27024 | 27776 | 57608 |
-| `orcid-0000-0002-4299-3018/16` | j15682 | 31094 | 30197 | 31093 | 31989 | 66192 |
-| `orcid-0000-0002-4299-3018/17` | j15682 | 31445 | 30539 | 31444 | 32570 | 67020 |
-| `orcid-0000-0002-4299-3018/18` | j15682 | 6903 | 6068 | 6902 | 7289 | 14896 |
-| `orcid-0000-0002-7433-2740/0` | j15720 | 568 | 198 | 567 | 587 | 1430 |
-| `orcid-0000-0002-7433-2740/1` | j15720 | 1371 | 921 | 1370 | 1570 | 3140 |
-| `orcid-0000-0002-7433-2740/2` | j15720 | 1119 | 516 | 1118 | 1232 | 2608 |
-| `orcid-0000-0002-7433-2740/3` | j15720 | 1372 | 921 | 1371 | 1571 | 3142 |
+| `orcid-380-groups/0` | j15682 | 563 | 193 | 562 | 582 | 1420 |
+| `orcid-380-groups/1` | j15682 | 4366 | 3487 | 4365 | 4875 | 9478 |
+| `orcid-380-groups/2` | j15682 | 1990 | 1310 | 1989 | 2179 | 4436 |
+| `orcid-380-groups/3` | j15682 | 18933 | 18036 | 18932 | 21487 | 40224 |
+| `orcid-380-groups/4` | j15682 | 18709 | 17768 | 18708 | 19603 | 40104 |
+| `orcid-380-groups/5` | j15682 | 23569 | 22664 | 23568 | 22440 | 50734 |
+| `orcid-380-groups/6` | j15682 | 21683 | 20734 | 21682 | 21611 | 46576 |
+| `orcid-380-groups/7` | j15682 | 18504 | 17574 | 18503 | 19530 | 39638 |
+| `orcid-380-groups/8` | j15682 | 18072 | 17166 | 18071 | 18973 | 38752 |
+| `orcid-380-groups/9` | j15682 | 19150 | 18224 | 19149 | 19656 | 41098 |
+| `orcid-380-groups/10` | j15682 | 24258 | 23341 | 24257 | 25002 | 51740 |
+| `orcid-380-groups/11` | j15682 | 24948 | 24016 | 24947 | 25478 | 53254 |
+| `orcid-380-groups/12` | j15682 | 25314 | 24391 | 25313 | 25908 | 53962 |
+| `orcid-380-groups/13` | j15682 | 25325 | 24385 | 25324 | 25759 | 54056 |
+| `orcid-380-groups/14` | j15682 | 22848 | 21906 | 22847 | 23755 | 48692 |
+| `orcid-380-groups/15` | j15682 | 27025 | 26089 | 27024 | 27776 | 57608 |
+| `orcid-380-groups/16` | j15682 | 31094 | 30197 | 31093 | 31989 | 66192 |
+| `orcid-380-groups/17` | j15682 | 31445 | 30539 | 31444 | 32570 | 67020 |
+| `orcid-380-groups/18` | j15682 | 6903 | 6068 | 6902 | 7289 | 14896 |
+| `orcid-2-groups/0` | j15720 | 568 | 198 | 567 | 587 | 1430 |
+| `orcid-2-groups/1` | j15720 | 1371 | 921 | 1370 | 1570 | 3140 |
+| `orcid-2-groups/2` | j15720 | 1119 | 516 | 1118 | 1232 | 2608 |
+| `orcid-2-groups/3` | j15720 | 1372 | 921 | 1371 | 1571 | 3142 |
 | `orcid-absent/0` | j15720 | 354 | 67 | 353 | 377 | 972 |
 | `orcid-native-identifiers/0` | j15720 | 1751 | 1015 | 1750 | 1689 | 3980 |
 
@@ -442,9 +442,9 @@ Ruling: **Confirmed, high confidence. Accept the implemented retrieval slice wit
 
 The primary sources are the retained native replies in archives A, B and D above, captured on 2026-10-26, and the canonical CLI/MCP cases named in Current question coverage. The reviewer read their native metadata directly from the retained archives and read the canonical assertions and existing job logs. No provider request or new data query ran. No publisher text or licensed curation answer was copied into this review. These exact capture URLs identify the reviewed source versions:
 
-- [Semantic Scholar paper 17611497](https://api.semanticscholar.org/graph/v1/paper/PMID:17611497?fields=paperId%2CexternalIds%2Cauthors.authorId%2Cauthors.name), archive A `0000.body`: 24 native author rows, first record `2060978`. Archive B's equivalent requests for 33123537 and 34096690 retain seven and 26 rows. Its request for 32955176 returns HTTP 404 and no author record.
-- [Semantic Scholar record 2060978 papers](https://api.semanticscholar.org/graph/v1/author/2060978/papers?fields=paperId%2CexternalIds%2Ctitle%2Cyear%2Cvenue&offset=0&limit=5), archive D `0004.body`: five native rows, offset zero and next five; no total. The other accepted native paper pages have the same absence of a total. Canonical native cases and j15660 verify their normalized output and continuation.
-- [Swanton ORCID public works](https://pub.orcid.org/v3.0/0000-0002-4299-3018/works), archive A `0003.body`: 380 groups contain 453 public assertions. [Butte ORCID public works](https://pub.orcid.org/v3.0/0000-0002-7433-2740/works), archive A `0005.body`: two groups contain two public assertions. The corresponding `/person` replies carry lowercase public name visibility. The generated native assertions in `scripts/orcid_native.py` and j15682/j15720 bind the normalized output to these replies. j15682's failed Butte works step supplies no positive evidence; j15720 supplies the successful result.
+- [Semantic Scholar paper 17611497](https://api.semanticscholar.org/graph/v1/paper/PMID:17611497?fields=paperId%2CexternalIds%2Cauthors.authorId%2Cauthors.name), archive A `0000.body`: 24 native author rows. Archive B's equivalent requests for 33123537 and 34096690 retain seven and 26 rows. Its request for 32955176 returns HTTP 404 and no author record.
+- Semantic Scholar papers for the PMID 17611497 first-author record, archive D `0004.body`: five native rows, offset zero and next five; no total. The other accepted native paper pages have the same absence of a total. Canonical native cases and j15660 verify their normalized output and continuation.
+- The 380-group ORCID record's public works, archive A `0003.body`: 380 groups contain 453 public assertions. The two-group record's public works, archive A `0005.body`: two groups contain two public assertions. The corresponding `/person` replies carry lowercase public name visibility. The generated native assertions in `scripts/orcid_native.py` and j15682/j15720 bind the normalized output to these replies. j15682's failed two-group works step supplies no positive evidence; j15720 supplies the successful result.
 - [The source-use ruling](../../decisions/2026-10-26-new-sources-follow-open-by-default.md), dated 2026-10-26: both sources carry the noncommercial category and commercial users disable that group. `tests/cases/author/help.yaml` states this limitation and the source-failure cases retain the terms. This review accepts the disclosure under that ruling and makes no additional license determination.
 
 All verdicts below have high confidence in the stated retrieval boundary. Identity conflation, an invented byline or an unsupported expertise rank would have high severity because it could misdirect evidence attribution. A missing optional field has lower severity when the output preserves its absence. None of these records establishes clinical expertise, current employment, authorship of every related paper or the validity of a treatment claim.
@@ -452,19 +452,19 @@ All verdicts below have high confidence in the stated retrieval boundary. Identi
 | Case | Verdict | Reason and retained boundary |
 | --- | --- | --- |
 | A01 | Accept partial | The exact first record is accessible. Archive A retains all 24 native byline IDs, but the command displays only the first author. This cannot answer who all the authors are; the partial label must remain. |
-| A02 | Accept answer | The native `2060978` paper page preserves exact IDs and source order. It describes that provider record's page and establishes neither a person's complete corpus nor an expertise ranking. |
+| A02 | Accept answer | The native PMID 17611497 first-author paper page preserves exact IDs and source order. It describes that provider record's page and establishes neither a person's complete corpus nor an expertise ranking. |
 | A03 | Accept answer | Exact-record counts retain `provider_record` scope. The native affiliation collection is empty; that does not establish unemployment or a current institution. Missing fields remain unavailable. |
 | A04 | Accept answer | Native PMID/DOI identifiers support exact article pivots. The pivot establishes an identifier link, without asserting that a title match or a similar name proves identity. |
 | A05 | Accept partial | Archive B retains seven native byline IDs. First-record access preserves a useful entry point, but the command supplies no complete byline. The partial label prevents crediting the first record as the whole author list. |
-| A06 | Accept answer | The accepted `2118426986` record supplies native ordered pages and a checked continuation. The output makes no claim to an independently verified personal publication history. |
+| A06 | Accept answer | The accepted PMID 33123537 first-author record supplies native ordered pages and a checked continuation. The output makes no claim to an independently verified personal publication history. |
 | A07 | Accept answer | Repeated names remain separate records and merge requests receive fixed refusal. Shared names, affiliations or topics cannot resolve the identity ambiguity in these source replies. |
 | A08 | Accept answer | A native paper without a PMID retains its source paper ID and supplied DOI. The exact DOI pivot preserves access without inventing a PMID or losing the original source identity. |
 | A09 | Accept partial | Archive B retains all 26 byline IDs. The command exposes first-record access only. Researchers must not treat that display as a complete investigator list. |
-| A10 | Accept answer | The native `9845886` page belongs to the requested provider record and retains source order. Its membership does not establish topic coverage, clinical specialization or personal ownership beyond the source assertion. |
+| A10 | Accept answer | The native PMID 34096690 first-author page belongs to the requested provider record and retains source order. Its membership does not establish topic coverage, clinical specialization or personal ownership beyond the source assertion. |
 | A11 | Accept answer | Citation counts remain attributed to one provider record and its captured source state. Neither those counts nor the displayed byline establishes topic leadership, evidence quality or clinical expertise. |
 | A12 | Accept answer | Native details and `--full` preserve the same paper identities and source metadata. A null abstract or field stays absent; richer disclosure does not establish scientific validity or byline completeness. |
 | A13 | Accept unavailable | The exact PMID 32955176 paper request returned native 404. It supplied no byline or author ID. The question stays unanswered; this result establishes neither absent authors nor an absent publication in other sources. |
-| A14 | Accept bounded answer | Record `2118426986` proves a page beyond the default. The endpoint supplies no total, and the original 32955176 author identity remains unresolved. The accepted replacement proves paging behavior only. |
+| A14 | Accept bounded answer | The PMID 33123537 first-author record proves a page beyond the default. The endpoint supplies no total, and the original 32955176 author identity remains unresolved. The accepted replacement proves paging behavior only. |
 | A15 | Accept answer | The continuation keeps the accepted record, page size and disclosure selector; the warm result retains that collection. It supplies no evidence about the unresolved 32955176 author. Disabled-source controls prevent cached rows from bypassing the use restriction. |
 | A16 | Accept answer | Qualified IDs identify provider records. The output makes no global person-resolution claim and creates no cross-provider link from bibliographic similarity. |
 | A17 | Accept answer | The complete retained public reply yields 380 groups and 453 assertions, with native provenance and a complete local walk. These are public record claims, not a verified complete personal bibliography. |
@@ -472,7 +472,7 @@ All verdicts below have high confidence in the stated retrieval boundary. Identi
 | A19 | Accept answer | Native identifier types, values and relationships survive normalization. Only a checked self PMID or DOI supplies an article pivot. A part-of claim or unparsed resolver URL does not become an asserted article identity. |
 | A20 | Accept answer | Group boundaries and every ordered assertion survive. Several assertions in one group do not become several publication counts, and group counts do not establish a unique-paper total. |
 | A21 | Accept answer | Both native candidate windows preserve separate IDs, their order and the source's matching-record count. Apparent splits remain candidates; the system chooses no person from the name query. |
-| A22 | Accept answer | The successful j15720 replay preserves the exact ORCID's two public groups and two assertions. It creates no merge with Semantic Scholar `1716151` and asserts no complete lifetime corpus. |
+| A22 | Accept answer | The successful j15720 replay preserves the exact ORCID's two public groups and two assertions. It creates no merge with a Semantic Scholar record and asserts no complete lifetime corpus. |
 | A23 | Accept deferred limitation | The fixed refusal truthfully states that topic-wide ranking is unsupported. Article discovery offers a research starting point but supplies no ranking answer. The question remains unanswered. |
 | A24 | Accept answer | The native lowercase public names and visibility controls distinguish public fields from excluded fields. A successful works request does not imply that a private or unavailable person name should be exposed. |
 

@@ -1,6 +1,7 @@
 {
   "feature": "author-orcid",
   "story": "Native PMID and DOI claims retain provenance",
+  "live_check": "Live ORCID check (0973): only a real record returns public works, so it names one; ORCID is noncommercial, and no reply is kept in Git.",
   "harvest": "sdlc/planning/slices/author.md",
   "steps": [
     {
