@@ -144,7 +144,11 @@ fn read_inner(
             return Ok(());
         }
         None => {
-            let saved = fetch(cx, q, deadline, out)?;
+            let Some(saved) = fetch(cx, q, deadline, out)? else {
+                // The source answered and doesn't hold this pathway.
+                crate::status::item(out, false, false, false);
+                return Ok(());
+            };
             let pool = crate::publish::keep(
                 source_snapshot::publish(
                     cx,
@@ -257,7 +261,7 @@ fn fetch(
     q: &Selection<'_>,
     deadline: Deadline<'_>,
     out: &mut Outcome,
-) -> Result<Saved, RequestError> {
+) -> Result<Option<Saved>, RequestError> {
     if matches!(q.id, PathwayId::Wikipathways(_)) {
         return super::gpml_relation::fetch(cx, q, deadline, out);
     }
@@ -272,13 +276,9 @@ fn fetch(
                 let mapped = reactome::card(&leg, id, false)?;
                 out.include_refusals(mapped.refusals);
                 out.problems.extend(mapped.problems);
-                let card = mapped.value.ok_or(SourceError {
-                    source: Source::Reactome,
-                    reason: Reason::NotFound,
-                    status: Some(404),
-                    tls_cause: None,
-                    retry_after: None,
-                })?;
+                let Some(card) = mapped.value else {
+                    return Ok(None);
+                };
                 PathwayHeader {
                     id: card.pathway.id,
                     name: card.pathway.name,
@@ -316,17 +316,19 @@ fn fetch(
                 items: rows.value.into(),
             });
         }
-        Ok::<_, RequestError>(saved)
+        Ok::<_, RequestError>(Some(saved))
     })();
     out.sources.push(status::source(
         Source::Reactome,
         leg.finish(),
         reply.as_ref().err().copied(),
     ));
-    let mut saved = reply?;
+    let Some(mut saved) = reply? else {
+        return Ok(None);
+    };
     saved.sources = out.sources.clone();
     saved.problems.extend(out.problems.clone());
-    Ok(saved)
+    Ok(Some(saved))
 }
 fn full_page(size: usize, kind: PathwayTotalKind) -> PathwayPageInfo {
     PathwayPageInfo {
