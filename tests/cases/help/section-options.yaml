@@ -77,7 +77,7 @@
         "variant",
         "clinvar"
       ],
-      "max_bytes": 9999,
+      "max_bytes": 3212,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",
@@ -104,7 +104,7 @@
         "variant",
         "population"
       ],
-      "max_bytes": 9999,
+      "max_bytes": 3161,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",
@@ -131,7 +131,7 @@
         "variant",
         "civic"
       ],
-      "max_bytes": 9999,
+      "max_bytes": 5549,
       "expect": {
         "/schema": "biomcp.help/6",
         "/status": "complete",
