@@ -72,7 +72,7 @@
           "description": "Drugs@FDA sponsor, EMA marketing authorisation holder, or WHO applicant."
         },
         "matches": {
-          "description": "How many records in this source matched the name; this row is one of them.",
+          "description": "How many records in this source matched the name; a found row is one of them.",
           "format": "uint64",
           "minimum": 0,
           "type": [
