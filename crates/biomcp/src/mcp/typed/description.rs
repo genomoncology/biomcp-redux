@@ -143,10 +143,10 @@ pub(super) fn tool(
 }
 
 /// FDA spells the two companion tables' headers differently, so MCP agents need the shared
-/// names too (0962). It sits on the entity tool, outside the action budget, and says
-/// "beside" because MCP replies list fields alphabetically, so `cells` may come first.
-const CDX_SHARED_FIELDS: &str = "FDA CDx rows of both tables carry diagnostic, \
-    indication, device, drug and row_date beside FDA's cells, whose headers differ by table.";
+/// names too (0962). It sits on the entity tool, outside the action budget, and matches
+/// help's wording now that MCP replies keep the CLI's field order (0972).
+const CDX_SHARED_FIELDS: &str = "FDA CDx rows of both tables start with row_date, diagnostic, \
+    indication, device and drug, before FDA's cells, whose headers differ by table.";
 
 /// An action's object keeps its command's description; citations says what it lists.
 pub(super) fn action(action: &str, description: &str) -> String {

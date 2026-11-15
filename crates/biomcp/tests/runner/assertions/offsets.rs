@@ -7,6 +7,15 @@ pub(super) fn validate(step: &Step) -> Result<(), String> {
     if !step.starts_within.is_empty() && (markdown(step) || step.stdout.is_some()) {
         return Err("starts_within requires a JSON reply".into());
     }
+    if !step.key_order.is_empty() && (markdown(step) || step.stdout.is_some()) {
+        return Err("key_order requires a JSON reply".into());
+    }
+    for pointer in step.key_order.keys() {
+        validate_pointer(pointer)?;
+        if pointer.split('/').any(|token| token == "*") {
+            return Err(format!("{pointer}: key_order requires an exact pointer"));
+        }
+    }
     for pointer in step.starts_within.keys() {
         validate_pointer(pointer)?;
         if pointer.split('/').any(|token| token == "*") {
@@ -25,6 +34,31 @@ pub(super) fn check(stdout: &[u8], step: &Step) -> Result<(), String> {
         if start >= *limit {
             return Err(format!(
                 "{pointer} starts_within: expected a start before byte {limit}, actual byte {start}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Each selected object lists exactly these names, in this order, as the raw reply sends them.
+/// serde_json keeps insertion order in this workspace (0972), so parsing keeps the wire order.
+pub(super) fn check_order(stdout: &[u8], step: &Step) -> Result<(), String> {
+    if step.key_order.is_empty() {
+        return Ok(());
+    }
+    let value: serde_json::Value =
+        serde_json::from_slice(stdout).map_err(|error| format!("stdout JSON: {error}"))?;
+    for (pointer, expected) in &step.key_order {
+        let actual: Vec<&str> = value
+            .pointer(pointer)
+            .and_then(serde_json::Value::as_object)
+            .ok_or_else(|| format!("{pointer} key_order: no object"))?
+            .keys()
+            .map(String::as_str)
+            .collect();
+        if actual != *expected {
+            return Err(format!(
+                "{pointer} key_order: expected {expected:?}, actual {actual:?}"
             ));
         }
     }

@@ -10,6 +10,7 @@ use serde_json::Value;
 use std::{collections::BTreeSet, io};
 
 pub(crate) fn markdown(value: &Value) -> io::Result<Vec<u8>> {
+    let value = &crate::key_order::sorted(value);
     let identity = value
         .get("schema")
         .and_then(Value::as_str)

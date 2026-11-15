@@ -105,8 +105,8 @@ pub(super) fn hosted_schema(
 ) -> Value {
     schema = caller_schema(schema, verb, entity, excluded);
     if let Some(properties) = schema.get_mut("properties").and_then(Value::as_object_mut) {
-        properties.remove("save");
-        properties.remove("replace");
+        properties.shift_remove("save");
+        properties.shift_remove("replace");
     }
     schema
 }

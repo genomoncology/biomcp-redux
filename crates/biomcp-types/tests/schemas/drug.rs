@@ -28,12 +28,13 @@ fn header_and_card_exclude_deeper_disclosures_from_the_public_contract() {
         );
     }
     let schema = serde_json::to_value(schemars::schema_for!(DrugHeader)).expect("header schema");
-    let keys: Vec<_> = schema["properties"]
+    let mut keys: Vec<_> = schema["properties"]
         .as_object()
         .expect("header properties")
         .keys()
         .map(String::as_str)
         .collect();
+    keys.sort_unstable();
     assert_eq!(
         keys,
         [

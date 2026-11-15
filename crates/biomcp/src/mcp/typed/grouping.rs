@@ -132,7 +132,7 @@ fn entity(
     for (action, _, command) in &actions {
         let mut input = command.input.clone();
         if let Some(fields) = input.as_object_mut() {
-            fields.remove("$schema");
+            fields.shift_remove("$schema");
             fields.insert(
                 "description".into(),
                 json!(super::description::action(action, &command.description)),

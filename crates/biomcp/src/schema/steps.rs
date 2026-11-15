@@ -151,7 +151,7 @@ pub(crate) fn remove(value: &mut Value, path: &str) {
     let key = key.replace("~1", "/").replace("~0", "~");
     match value.pointer_mut(parent) {
         Some(Value::Object(fields)) => {
-            fields.remove(&key);
+            fields.shift_remove(&key);
         }
         Some(Value::Array(items)) => {
             if let Ok(index) = key.parse::<usize>()

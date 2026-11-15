@@ -488,7 +488,7 @@ fn replacement_step(
             args.push(value.into());
         }
     }
-    for (name, value) in value.as_object()? {
+    for (name, value) in crate::key_order::sorted(value).as_object()? {
         if properties.get(name)?.get("x-positional").is_some() {
             continue;
         }

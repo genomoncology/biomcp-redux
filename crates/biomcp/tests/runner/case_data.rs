@@ -49,6 +49,9 @@ pub(crate) struct Step {
     /// JSON pointers whose values must start within this many bytes of the raw reply.
     #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
     pub(crate) starts_within: BTreeMap<String, usize>,
+    /// Exact JSON pointers to objects whose names the raw reply lists in exactly this order.
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub(crate) key_order: BTreeMap<String, Vec<String>>,
     #[serde(default)]
     pub(crate) expect: BTreeMap<String, Value>,
 }

@@ -56,13 +56,15 @@ pub(super) fn sections() -> Check {
         let actual = invalid
             .pointer("/error/valid_values")
             .ok_or("section choices")?;
-        let expected: Vec<_> = record
+        let mut names: Vec<_> = record
             .as_object()
             .ok_or("record")?
             .iter()
             .filter(|(_, v)| v.is_array())
-            .map(|(k, _)| json!(k))
+            .map(|(k, _)| k.as_str())
             .collect();
+        names.sort_unstable();
+        let expected: Vec<_> = names.into_iter().map(|k| json!(k)).collect();
         if actual != &json!(expected) {
             return Err(format!("wrong record choices: {actual}"));
         }

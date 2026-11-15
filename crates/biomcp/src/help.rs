@@ -318,8 +318,8 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
     };
     format!("{summary}{note} Sources: {sources}.")
 }
-/// Help only: FDA spells the two companion tables' headers differently, so readers need the shared names (0959).
-/// The typed tool description shares the command summary and has no room for this under its budget.
+/// FDA spells the two companion tables' headers differently, so readers need the shared names (0959).
+/// The typed `diagnostic` tool says the same in its own description (0962, mcp/typed/description.rs).
 const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, \
     before FDA's cells, whose headers differ by table.";
 
