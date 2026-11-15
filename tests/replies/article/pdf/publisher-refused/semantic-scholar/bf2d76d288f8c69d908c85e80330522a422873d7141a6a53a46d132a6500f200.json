@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "semantic-scholar",
+  "url": "http://www.cell.com/article/S0092867418302290/pdf",
+  "exchanges": [
+    {
+      "fetched": 1794759607,
+      "status": 403,
+      "content_type": "text/html; charset=UTF-8",
+      "delay_ms": 631,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "sidecar",
+        "value": "bf2d76d288f8c69d908c85e80330522a422873d7141a6a53a46d132a6500f200-0.bin"
+      }
+    }
+  ]
+}

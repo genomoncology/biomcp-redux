@@ -1,0 +1,36 @@
+{
+  "live_check": "public",
+  "feature": "article-pdf",
+  "story": "A publisher that refuses the PDF download gets named with its HTTP status, and the reply points to the paper's full text, instead of a bare rejected failure.",
+  "replay": "article/pdf/publisher-refused",
+  "steps": [
+    {
+      "run": [
+        "article",
+        "pdf",
+        "29625055",
+        "--save",
+        "refused.pdf"
+      ],
+      "exit": 4,
+      "is_error": true,
+      "expect": {
+        "/status": "failed",
+        "/result/file/state": "unavailable",
+        "/result/file/source": "semantic-scholar",
+        "/result/file/reason": "rejected",
+        "/sources/0/source": "semantic-scholar",
+        "/sources/0/state": "failed",
+        "/sources/0/notices/0/message": "www.cell.com refused the PDF at http://www.cell.com/article/S0092867418302290/pdf with HTTP 403 Forbidden, so no file was saved. This does not show that the paper is closed. Its full text, where open, is readable with the next command; the URL opens in a browser.",
+        "/next/0/args": [
+          "get",
+          "article",
+          "29625055",
+          "fulltext"
+        ]
+      },
+      "max_bytes": 2500
+    }
+  ],
+  "verified": "0965, pm job j41270 on the M5: replies BioMCP recorded live. Semantic Scholar answered 429 then 200 with Cell's open-access PDF link (HYBRID, CCBYNCND), and Cell answered HTTP 403 with a Cloudflare 'Just a moment...' browser check. Before 0965 the reply said only rejected (j41261)."
+}

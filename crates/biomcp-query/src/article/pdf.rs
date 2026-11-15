@@ -134,9 +134,10 @@ fn refusal(
         "This does not show that the paper is closed."
     };
     let next = if open.is_some_and(|input| fulltext_next(input, out)) {
-        "Read its open full text with the next command, or open the URL in a browser."
+        "Its full text, where open, is readable with the next command; the URL opens in \
+         a browser."
     } else {
-        "Open the URL in a browser."
+        "The URL opens in a browser."
     };
     SourceNotice::RequestGuidance {
         data_date: None,
@@ -167,7 +168,7 @@ fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
 
 /// Europe PMC refuses automated PDF requests (see `pdf::publisher::europepmc`), so a
 /// preprint ID gets a plain refusal and its open full text without a request.
-fn europepmc_refused(query: &ArticlePdf, id: &biodata::id::article::EuropePmcId, out: &mut Outcome) {
+fn europepmc_refused(query: &ArticlePdf, id: &impl std::fmt::Display, out: &mut Outcome) {
     let mut source = biomcp_adapters::registry::outcome(
         Source::EuropePmc,
         biomcp_types::SourceStatus::Skipped(Some(Reason::Rejected)),
