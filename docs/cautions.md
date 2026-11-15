@@ -228,7 +228,7 @@ These commands return terminology. `search diagnostic --biomarker` filters diagn
 
 ## Drug names across sources
 
-After an empty name lookup, BioMCP may consult existing MyChem, openFDA label or ChEMBL records for source-stated names. ChEMBL first tries its native exact synonym filter when no selector was supplied. Cross-source retries require one exact name-resolution candidate and preserve the selected source's filters, IDs and native counts. Ambiguous names offer a source search instead of selecting an alias. The reply identifies any source supplying names, shows the actual successful search spelling and preserves it in continuation commands. A matching record in another source does not establish presence in the selected source. Source exclusions and the command budget also govern alias lookups; failed or disabled reads remain visible.
+After an empty name lookup, BioMCP may consult existing MyChem, openFDA label or ChEMBL records for source-stated names. It reads ChEMBL's records from MyChem's copy of them, so a slow ChEMBL API does not hold the lookup. ChEMBL first tries its native exact synonym filter when no selector was supplied. Cross-source retries require one exact name-resolution candidate and preserve the selected source's filters, IDs and native counts. Ambiguous names offer a source search instead of selecting an alias. The reply identifies any source supplying names, shows the actual successful search spelling and preserves it in continuation commands. A matching record in another source does not establish presence in the selected source. Source exclusions and the command budget also govern alias lookups; failed or disabled reads remain visible.
 
 ## Medical device recalls
 

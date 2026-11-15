@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22Unlisted%20medicine%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22Unlisted%20medicine%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
+  "exchanges": [
+    {
+      "fetched": 1793329799,
+      "status": 200,
+      "content_type": "application/json; charset=UTF-8",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "took": 2,
+          "total": 0,
+          "max_score": null,
+          "hits": []
+        }
+      }
+    }
+  ]
+}

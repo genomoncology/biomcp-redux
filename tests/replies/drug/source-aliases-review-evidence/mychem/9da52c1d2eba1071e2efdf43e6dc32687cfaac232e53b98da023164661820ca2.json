@@ -1,7 +1,7 @@
 {
   "method": "GET",
-  "source": "chembl",
-  "url": "https://www.ebi.ac.uk/chembl/api/data/molecule.json?pref_name__iexact=EX-66&limit=50&offset=0",
+  "source": "mychem",
+  "url": "https://mychem.info/v1/query?q=chembl.pref_name%3A%22EX-66%22%20OR%20chembl.molecule_synonyms.molecule_synonym%3A%22EX-66%22&size=50&fields=chembl.molecule_chembl_id%2Cchembl.pref_name%2Cchembl.molecule_synonyms",
   "exchanges": [
     {
       "fetched": 1793329799,

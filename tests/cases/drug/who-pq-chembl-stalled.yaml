@@ -1,0 +1,41 @@
+{
+  "feature": "drug-who-medicines",
+  "story": "A WHO PQ search for a real drug that finds nothing under the typed name retries under the name ChEMBL's record states, read from MyChem's copy of ChEMBL, so it widens and completes while ChEMBL's own API stalls.",
+  "live_check": "real MyChem, MyChem-copy, openFDA label and ChEMBL replies recorded live in j41412; synthetic WHO PQ export rows; authored ChEMBL delay",
+  "replay": "drug/who-pq-chembl-stalled-synthetic",
+  "config": {
+    "command_timeout_seconds": 15
+  },
+  "steps": [
+    {
+      "run": [
+        "sync",
+        "who-pq"
+      ],
+      "expect": {
+        "/result/rows": 2
+      },
+      "max_bytes": 500
+    },
+    {
+      "run": [
+        "search",
+        "drug",
+        "rifampicin",
+        "--source",
+        "who-pq"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/query": "RIFAMPIN",
+        "/page/total": 1,
+        "/result/items/*/reference": [
+          "SYN-RF01"
+        ],
+        "/sources/0/source": "who-pq",
+        "/sources/0/notices/0/message": "The search for \"rifampicin\" returned no rows. chembl record CHEMBL374478 supplies the name \"RIFAMPIN\"; tried the selected source with that name. Returned rows and totals belong to the selected source."
+      },
+      "max_bytes": 40000
+    }
+  ]
+}
