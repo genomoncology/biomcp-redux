@@ -5,6 +5,15 @@ use std::borrow::Cow;
 /// (live, 2026-11-15). Its tokenizer splits words at them, so a space finds the same words.
 const REFUSED: &[char] = &['!', '#', '$', ';', '?', '^', '|', '~', '`'];
 
+/// Unicode's combining mark blocks; each mark follows the letter it marks.
+const COMBINING: [std::ops::RangeInclusive<char>; 5] = [
+    '\u{0300}'..='\u{036F}',
+    '\u{1AB0}'..='\u{1AFF}',
+    '\u{1DC0}'..='\u{1DFF}',
+    '\u{20D0}'..='\u{20FF}',
+    '\u{FE20}'..='\u{FE2F}',
+];
+
 fn sent(c: char) -> bool {
     c.is_ascii() && !REFUSED.contains(&c)
 }
@@ -23,8 +32,8 @@ fn base(c: char) -> Option<String> {
 
 /// Text as openFDA accepts it. openFDA also answers HTTP 400 to every character outside ASCII
 /// (live, 2026-11-15), and FDA records spell names in ASCII, so an accented Latin letter becomes
-/// its base letter (Nestlé, NESTLE); a combining accent mark (U+0300 to U+036F, as macOS pastes
-/// a decomposed letter) is dropped, so its base letter keeps the word whole (0976); a refused
+/// its base letter (Nestlé, NESTLE); a combining mark (one of the COMBINING blocks, as macOS
+/// pastes a decomposed letter) is dropped, so its base letter keeps the word whole (0976); a refused
 /// character or any other non-ASCII character becomes a space, and spaces collapse. Text openFDA
 /// accepts is returned unchanged.
 pub fn openfda_words(text: &str) -> Cow<'_, str> {
@@ -37,7 +46,7 @@ pub fn openfda_words(text: &str) -> Cow<'_, str> {
             out.push(c);
         } else if let Some(base) = base(c) {
             out.push_str(&base);
-        } else if !('\u{0300}'..='\u{036F}').contains(&c) {
+        } else if !COMBINING.iter().any(|range| range.contains(&c)) {
             out.push(' ');
         }
     }
