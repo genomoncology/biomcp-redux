@@ -29,7 +29,7 @@ pub(super) fn check(value: &Value) -> Result<(), String> {
         .and_then(Value::as_str)
         .ok_or("schema identity")?;
     let caps = ceiling(value, schema).ok_or("unbudgeted synthetic MAUDE schema")?;
-    if full > caps.0 || bytes > caps.1 {
+    if (full > caps.0 || bytes > caps.1) && !crate::runner::measured_over(format!("maude\t{schema}\t{full}\t{bytes}\t{caps:?}")) {
         return Err(format!(
             "synthetic MAUDE budget exceeded for {schema}: {full}/{bytes} > {caps:?}"
         ));

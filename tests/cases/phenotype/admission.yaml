@@ -23,12 +23,13 @@
         "/error/valid_values": [
           "monarch"
         ],
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "phenotype"
-          ]
+        "/next/0/args": [
+          "get",
+          "phenotype",
+          "HP:0001250"
+        ],
+        "/next": {
+          "count": 1
         }
       },
       "max_bytes": 354
@@ -53,13 +54,10 @@
         "/error/valid_values": [
           "monarch"
         ],
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "phenotype"
-          ]
-        }
+        "/next": {
+          "count": 1
+        },
+        "/next/0/kind": "configure"
       },
       "max_bytes": 354
     },
@@ -83,13 +81,10 @@
         "/error/valid_values": [
           "monarch"
         ],
-        "/next/*/args": {
-          "includes": [
-            "help",
-            "get",
-            "phenotype"
-          ]
-        }
+        "/next": {
+          "count": 1
+        },
+        "/next/0/kind": "configure"
       },
       "max_bytes": 354
     },

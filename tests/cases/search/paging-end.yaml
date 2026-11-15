@@ -16,10 +16,8 @@
       "expect": {
         "/page/total": 2,
         "/page/returned": 2,
-        "": {
-          "omits": [
-            "next"
-          ]
+        "/next/*/kind": {
+          "excludes": "page"
         }
       }
     },

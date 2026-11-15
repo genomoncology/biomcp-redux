@@ -22,8 +22,8 @@
       "expect": {
         "/status": "complete",
         "/page/total": 0,
-        "/next": [
-          {
+        "/next/0": {
+          "equals": {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -36,8 +36,10 @@
               "--limit",
               "100"
             ]
-          },
-          {
+          }
+        },
+        "/next/1": {
+          "equals": {
             "kind": "disambiguate",
             "args": [
               "search",
@@ -53,7 +55,11 @@
               "L576P"
             ]
           }
-        ]
+        },
+        "/next/2/kind": "configure",
+        "/next": {
+          "count": 3
+        }
       },
       "max_bytes": 1541
     },

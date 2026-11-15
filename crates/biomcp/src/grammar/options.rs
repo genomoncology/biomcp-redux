@@ -6,8 +6,19 @@ use biomcp_types::Request;
 use serde_json::Value;
 use std::collections::BTreeMap;
 
-/// Options that only continue a reply, never a caller's choice.
-const CONTINUATIONS: &[&str] = &["civic_cursor", "bundle_revision", "next_page", "page", "state"];
+/// Options that only continue a reply from a name or token a reply gave, never a caller's choice.
+const CONTINUATIONS: &[&str] = &[
+    "civic_cursor",
+    "bundle_revision",
+    "next_page",
+    "page",
+    "state",
+    "pool",
+    "snapshot",
+    "name_snapshot",
+];
+/// Options that write files rather than narrow the reply.
+const WRITES: &[&str] = &["save"];
 
 /// Sample spellings tried for a text option, in order; the first the call accepts wins.
 const TEXT_SAMPLES: &[&str] = &["x", "BRCA1", "1", "NDA000001", "P000001"];
@@ -29,6 +40,7 @@ pub(crate) fn options(request: &Request) -> BTreeMap<Box<str>, Box<str>> {
     for (name, property) in properties {
         if name == "source"
             || CONTINUATIONS.contains(&name.as_str())
+            || WRITES.contains(&name.as_str())
             || property.get("x-positional").is_some()
             || property.get("x-trailing-section").is_some()
             || property.get("x-alias-of").is_some()

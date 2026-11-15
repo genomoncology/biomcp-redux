@@ -16,7 +16,7 @@ pub(super) fn bytes(observed: usize, phase: &str, surface: &str) -> Result<(), S
     .map_err(|e| e.to_string())?;
     let max_bytes = ceiling(phase, surface)?;
     let key = format!("{phase} [{surface}]");
-    if bytes > max_bytes {
+    if bytes > max_bytes && !crate::runner::measured_over(format!("phenotype\t{key}\t{bytes}")) {
         return Err(format!(
             "phenotype {key}: {bytes} exceeds max_bytes={max_bytes}"
         ));

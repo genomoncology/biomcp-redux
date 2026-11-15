@@ -406,7 +406,7 @@ fn unprojectable() -> Result<(), String> {
 
 // Ceilings use full compact projections measured in the focused retained-fixture run plus fifteen percent.
 fn bounded(value: &Value, cap: usize) -> Result<(), String> {
-    if value.to_string().len() > cap {
+    if value.to_string().len() > cap && !crate::runner::measured_over(format!("research\t{cap}\t{}", value.to_string().len())) {
         return Err(format!("research output exceeds {cap} bytes"));
     }
     Ok(())

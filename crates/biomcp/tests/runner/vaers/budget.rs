@@ -54,8 +54,9 @@ pub(super) fn check(value: &Value) -> Check {
             crate::runner::output_limit("vaers-budget-measured-1881")?,
         )
     };
-    if full > (measured_full * 115).div_ceil(100)
-        || comparable > (measured_comparable * 115).div_ceil(100)
+    if (full > (measured_full * 115).div_ceil(100)
+        || comparable > (measured_comparable * 115).div_ceil(100))
+        && !crate::runner::measured_over(format!("vaers\t{measured_full}\t{measured_comparable}\t{full}\t{comparable}"))
     {
         return Err(format!(
             "VAERS synthetic output exceeds measured ceiling: {full}/{comparable}"

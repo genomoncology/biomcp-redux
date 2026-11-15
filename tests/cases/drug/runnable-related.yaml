@@ -1,8 +1,7 @@
 {
-  "live_check": "public",
+  "live_check": "recorded only; reuses the drug/approvals-page recording of openFDA Drugs@FDA BLA761445",
   "feature": "runnable-related-queries",
-  "story": "A Drugs@FDA card lists its approvals section as a runnable command with that section's options as fill-in templates; the approvals page offers its own call with its date window, letter and page options; a refused unknown option's first next step is the corrected call, not help; and each offered call and filled-in option runs, over the CLI and MCP.",
-  "verified": "Reuses the drug/approvals-page recording of openFDA Drugs@FDA BLA761445.",
+  "story": "A Drugs@FDA card lists its approvals section as a runnable command with that section's options as fill-in templates; the approvals page offers its own call with its date window, letter and page options; a refused unknown option's first next step is the corrected call, not help; and each offered call and filled-in option runs, over the CLI and typed MCP.",
   "replay": "drug/approvals-page",
   "config": {
     "mcp_tool_mode": "typed",
@@ -17,20 +16,23 @@
         "--source",
         "drugsfda"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "BLA761445",
-        "--source",
-        "drugsfda"
-      ],
       "expect": {
         "/status": "complete",
         "/next/*/kind": {
           "includes": "section"
+        },
+        "/next": {
+          "equals": []
         }
       },
       "max_bytes": 4000
+    },
+    {
+      "follow": "section",
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 2
+      }
     },
     {
       "mcp_call": {
@@ -45,21 +47,9 @@
       },
       "expect": {
         "/status": "complete",
-        "/next/*/kind": {
-          "includes": "section"
-        },
-        "/next/0/options": {
-          "equals": {
-            "decision_from": "<YYYY-MM-DD>"
-          }
+        "/next": {
+          "equals": []
         }
-      }
-    },
-    {
-      "follow": "section",
-      "expect": {
-        "/status": "complete",
-        "/page/returned": 2
       }
     },
     {
@@ -71,18 +61,10 @@
         "--source",
         "drugsfda"
       ],
-      "mcp": [
-        "get",
-        "drug",
-        "BLA761445",
-        "approvals",
-        "--source",
-        "drugsfda"
-      ],
       "expect": {
         "/status": "complete",
-        "/next/*/args/0": {
-          "includes": "get"
+        "/next": {
+          "equals": []
         }
       },
       "max_bytes": 20000
@@ -101,10 +83,8 @@
       },
       "expect": {
         "/status": "complete",
-        "/next/0/options": {
-          "equals": {
-            "decision_from": "<YYYY-MM-DD>"
-          }
+        "/next": {
+          "equals": []
         }
       }
     },
@@ -140,9 +120,13 @@
         "x"
       ],
       "exit": 2,
+      "is_error": true,
       "expect": {
         "/status": "usage",
         "/error/option": "--bogus",
+        "/next": {
+          "count": 1
+        },
         "/next/0/kind": "configure",
         "/next/0/args": [
           "get",
