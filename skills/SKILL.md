@@ -17,8 +17,7 @@ Run the command first. A refusal names the valid values and a next step: use the
 - A filter works only with the sources named after `Only with --source` or in its description.
 - `--fields` takes only names listed after `Fields:` in a refusal or in help, never keys from the returned data.
 - Follow returned `next` steps for pages and sections. When a page reports a total, stop paging at it.
-- A reply holds one page. Read its `total` before you report a count or call a list complete.
-- An empty page has `total` 0 and no `items`: read `total` before `items`.
+- A reply holds one page. Read its `total` before you report a count or call a list complete. An empty page has `total` 0 and no `items`.
 - For one named drug pair, ask DDInter for that pair: `biomcp get drug clopidogrel interactions --source ddinter --partner omeprazole`.
 - For one phenotype's CPIC advice, ask CPIC for that phenotype: `biomcp get pgx --gene CYP2C19 --source cpic recommendations --drug-id RxNorm:32968 --phenotype "Poor Metabolizer"`.
 
