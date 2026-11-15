@@ -49,6 +49,12 @@ name = "zlib-rs"
 version = "=0.6.8"
 allow = ["Zlib"]
 
+# serde_json's preserve_order feature hashes its ordered maps with foldhash (0972).
+[[licenses.exceptions]]
+name = "foldhash"
+version = "=0.2.0"
+allow = ["Zlib"]
+
 # Approved bounded tensor decompression retains the upstream BSD terms.
 [[licenses.exceptions]]
 name = "zstd"
