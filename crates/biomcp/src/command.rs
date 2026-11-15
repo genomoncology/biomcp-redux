@@ -311,7 +311,7 @@ fn finished(
     result
         .finish(fetch, request, fresh)
         .map_err(io::Error::other)?;
-    let steps = steps::next(&result, globals)?;
+    let steps = steps::next(request, &result, globals)?;
     let meta = ResponseMeta {
         encoding,
         exit: response_status(&result),

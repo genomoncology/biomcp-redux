@@ -14,6 +14,8 @@ mod errors;
 mod metadata;
 mod positional;
 pub(crate) use positional::candidate;
+mod options;
+pub(crate) use options::{first_page, options};
 mod recovery;
 mod sections;
 mod tree;

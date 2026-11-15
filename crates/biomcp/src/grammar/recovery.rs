@@ -4,14 +4,21 @@ use serde_json::Value;
 
 pub(super) fn checked(via: Rewrite, path: (&str, &str), value: Value) -> Option<Step> {
     let request = super::rewrite::request(via, path.0, path.1, value).ok()?;
-    crate::spell::step(
+    run(&request)
+}
+
+/// The corrected call, with the options it also takes, so the fix needs no help read.
+pub(super) fn run(request: &biomcp_types::Request) -> Option<Step> {
+    let mut step = crate::spell::step(
         StepKind::Configure,
         &biomcp_query::Action::Run {
-            request,
+            request: request.clone(),
             fresh: false,
         },
     )
-    .ok()
+    .ok()?;
+    step.options = super::options(request);
+    Some(step)
 }
 
 pub(super) fn corrected(
@@ -118,22 +125,16 @@ fn candidates(schema: &Value, property: &Value, missing: bool) -> Vec<Value> {
     values
 }
 
+/// A runnable correction replaces help: the refusal's first step is the call to run.
 pub(super) fn next(arguments: &mut biomcp_types::UsageArguments, corrected: Option<Step>) {
     if let Some(step) = corrected {
+        arguments.next.retain(|step| !is_help(step));
         arguments.next.insert(0, step);
     }
 }
 
-pub(super) fn guidance(next: Step, path: [&str; 2]) -> Vec<Step> {
-    let corrected = next
-        .args
-        .first()
-        .is_some_and(|word| word.as_ref() != "help");
-    let mut steps = vec![next];
-    if corrected {
-        steps.push(super::validation::help(path));
-    }
-    steps
+fn is_help(step: &Step) -> bool {
+    step.args.first().is_some_and(|word| word.as_ref() == "help")
 }
 
 /// Restart an unbound trial page without discarding its selection or source filters.

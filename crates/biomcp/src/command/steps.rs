@@ -1,16 +1,54 @@
 //! Spell checked follow-ups and retain the caller's global restrictions.
 use std::io;
 pub(super) fn next(
+    request: &biomcp_types::Request,
     result: &biomcp_query::Outcome,
     globals: &crate::grammar::Globals,
 ) -> io::Result<Vec<biomcp_types::Step>> {
-    let steps = result
+    let mut steps = result
         .next
         .iter()
         .filter(|step| !globals.hosted || !super::mcp_policy::hosted_refused(&step.1))
-        .map(|step| crate::spell::step(step.0, &step.1))
-        .collect::<Result<Vec<_>, _>>()?;
+        .map(|step| {
+            let mut spelled = crate::spell::step(step.0, &step.1)?;
+            // A section a card lists comes with the options that section takes.
+            if step.0 == biomcp_types::StepKind::Section
+                && let biomcp_query::Action::Run { request, .. } = &step.1
+            {
+                spelled.options = crate::grammar::options(request);
+            }
+            Ok(spelled)
+        })
+        .collect::<Result<Vec<_>, serde_json::Error>>()?;
+    if let Some(step) = adjust(request, result)? {
+        steps.push(step);
+    }
     Ok(source_steps(globals, steps))
+}
+
+/// A card or first page also offers its own call with the options it could add, after the
+/// follow-ups and outside their cap.
+fn adjust(
+    request: &biomcp_types::Request,
+    result: &biomcp_query::Outcome,
+) -> Result<Option<biomcp_types::Step>, serde_json::Error> {
+    use biomcp_types::Status::{Complete, Partial};
+    if !matches!(result.status(), Complete | Partial) || !crate::grammar::first_page(request) {
+        return Ok(None);
+    }
+    let options = crate::grammar::options(request);
+    if options.is_empty() {
+        return Ok(None);
+    }
+    let mut step = crate::spell::step(
+        biomcp_types::StepKind::Configure,
+        &biomcp_query::Action::Run {
+            request: request.clone(),
+            fresh: false,
+        },
+    )?;
+    step.options = options;
+    Ok(Some(step))
 }
 
 fn source_steps(

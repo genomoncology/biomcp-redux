@@ -225,7 +225,9 @@ pub(super) fn parse_invalid(
         let corrected = if registered_argument {
             parser_correction(root, &path, error, args)
         } else {
-            spelling.and_then(|spelling| flag_fix(root, &path, spelling, args))
+            spelling.and_then(|spelling| {
+                flag_fix(root, &path, spelling, args).or_else(|| dropped(root, spelling, args))
+            })
         };
         super::recovery::next(&mut arguments, corrected);
         return super::ParseInvalid {
@@ -371,7 +373,7 @@ pub(super) fn source_filter(
                     .message()
                     .or(Some(biomcp_types::ErrorMessage::UnsupportedFilter)),
                 valid_values: Some(valid.into()),
-                next: super::recovery::guidance(next, [verb, entity]),
+                next: vec![next],
             })),
             prefer_argument_error: true,
         });
@@ -478,7 +480,7 @@ fn replacement_step(
     schema: &serde_json::Value,
     value: &serde_json::Value,
 ) -> Option<biomcp_types::Step> {
-    super::rewrite::request(via, verb, entity, value.clone()).ok()?;
+    let request = super::rewrite::request(via, verb, entity, value.clone()).ok()?;
     let mut args: Vec<Box<str>> = vec![verb.into(), entity.into()];
     let properties = schema.get("properties")?.as_object()?;
     for (name, property) in properties {
@@ -508,7 +510,7 @@ fn replacement_step(
     Some(biomcp_types::Step {
         kind: biomcp_types::StepKind::Configure,
         args: args.into(),
-        options: Default::default(),
+        options: super::options(&request),
     })
 }
 
@@ -523,6 +525,48 @@ fn flag_fix(
         .or_else(|| super::positional::source_flag(root, path, spelling, args))
         .or_else(|| super::positional::respelled(root, path, spelling, args))
         .or_else(|| super::positional::hgvs_flag(root, path, spelling, args))
+}
+
+/// An option no spelling of this command takes: the same call without it, and without the
+/// word after it when that word is not an option, if that call checks.
+fn dropped(
+    root: &Command,
+    spelling: &str,
+    args: &[std::ffi::OsString],
+) -> Option<biomcp_types::Step> {
+    let spelling = spelling.split('=').next()?;
+    let at = args.iter().position(|word| {
+        word.to_str().is_some_and(|word| {
+            word == spelling
+                || word
+                    .strip_prefix(spelling)
+                    .is_some_and(|rest| rest.starts_with('='))
+        })
+    })?;
+    if args[..at].iter().any(|word| word.to_str() == Some("--")) {
+        return None;
+    }
+    let inline = args[at].to_str()?.contains('=');
+    let mut without = args.to_vec();
+    without.remove(at);
+    let mut tries = Vec::new();
+    if !inline
+        && without
+            .get(at)
+            .and_then(|word| word.to_str())
+            .is_some_and(|word| !word.starts_with('-'))
+    {
+        let mut both = without.clone();
+        both.remove(at);
+        tries.push(both);
+    }
+    tries.push(without);
+    tries.into_iter().find_map(|args| {
+        match super::parse(root, &args).ok()?.action? {
+            biomcp_query::Action::Run { request, .. } => super::recovery::run(&request),
+            _ => None,
+        }
+    })
 }
 
 /// The root parser, with errors ignored along the command path unless `strict`.

@@ -15,7 +15,8 @@ pub(super) fn for_commands(paths: &[(&str, &str, &str)]) -> io::Result<Value> {
                 "next".into(),
                 json!({"type":"array","items":{
                 "type":"object","properties":{"kind":{"type":"string"},
-                    "name":{"type":"string"},"arguments":{"type":"object"}},
+                    "name":{"type":"string"},"arguments":{"type":"object"},
+                    "options":{"type":"object","additionalProperties":{"type":"string"}}},
                 "required":["kind","name","arguments"],"additionalProperties":false}}),
             );
         }

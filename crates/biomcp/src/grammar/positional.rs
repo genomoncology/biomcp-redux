@@ -64,7 +64,7 @@ pub(super) fn fix(root: &Command, path: &[&str], args: &[OsString]) -> Option<Us
             argument: Some(argument.into()),
             message: Some(ErrorMessage::ArgumentGuidance),
             valid_values: super::validation::accepted(&schema, property),
-            next: super::recovery::guidance(step, [verb, entity]),
+            next: vec![step],
         })
     })
 }

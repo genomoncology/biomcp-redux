@@ -47,7 +47,7 @@ fn refusal(path: (&str, &str), schema: &Value, candidate: &Value) -> Option<supe
             argument: Some(argument.into()),
             message: Some(ErrorMessage::ArgumentGuidance),
             valid_values: super::validation::accepted(schema, property),
-            next: super::recovery::guidance(step, [path.0, path.1]),
+            next: vec![step],
         })),
         prefer_argument_error: true,
     })
