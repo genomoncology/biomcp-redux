@@ -63,11 +63,13 @@ pub fn search(leg: &Leg<'_>, query: &str) -> Result<crate::Mapped<Vec<DrugHeader
 }
 /// Resolve names from the existing local rows, including snapshots whose older word index omitted generic fields.
 /// Native ID lookup remains indexed; reads never synchronize or modify the stored snapshot.
-/// Each match comes with its `marketing_authorisation_date`, absent when blank or unreadable.
+/// A name match with its `marketing_authorisation_date`, absent when blank or unreadable.
+pub type Authorised = (DrugHeader, Option<biodata::PartialDate>);
+/// Each match comes with its authorisation date.
 pub fn search_names(
     leg: &Leg<'_>,
     query: &str,
-) -> Result<crate::Mapped<Vec<(DrugHeader, Option<biodata::PartialDate>)>>, RequestError> {
+) -> Result<crate::Mapped<Vec<Authorised>>, RequestError> {
     let (rows, _) = leg.stored_rows(&MEDICINES, Find::Prefix(KeyKind::Id, ""))?;
     Ok(name_headers(&rows, query, true))
 }
@@ -75,7 +77,7 @@ fn name_headers(
     rows: &[raw::Medicine],
     query: &str,
     only_matches: bool,
-) -> crate::Mapped<Vec<(DrugHeader, Option<biodata::PartialDate>)>> {
+) -> crate::Mapped<Vec<Authorised>> {
     let mut problems = fields(None);
     let value = rows
         .iter()
@@ -105,10 +107,12 @@ fn name_headers(
             problems.record = Some(row.record.clone());
             let mut header = map::header(row, &mut problems);
             header.matched_name = matched;
-            let authorised = row
-                .field("marketing_authorisation_date")
-                .and_then(Result::ok)
-                .and_then(|date| raw::date(date).ok());
+            let authorised = problems.optional(
+                "marketing_authorisation_date",
+                row.field("marketing_authorisation_date")
+                    .filter(|value| !matches!(value, Ok("")))
+                    .map(|value| value.and_then(raw::date)),
+            );
             Some((header, authorised))
         })
         .collect();
