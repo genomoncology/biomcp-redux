@@ -155,6 +155,7 @@ impl Leg<'_> {
                 &identity.url,
                 Some(&identity.post).into(),
                 limits.wire_bytes as u64,
+                false,
             )?
             .ok_or(RecordError::Missing)?;
         let rpc = exchange.rpc.ok_or(RecordError::Malformed)?;

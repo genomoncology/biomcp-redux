@@ -5,7 +5,7 @@ use std::{
     io::{Read, Write},
     path::{Component, Path},
 };
-const MAX_BINARY_BYTES: u64 = 50 * 1024 * 1024;
+pub(super) const MAX_BINARY_BYTES: u64 = 50 * 1024 * 1024;
 /// Refuse a symlink at `path` or at any folder between it and the record folder `root`. The root
 /// is held resolved (0954), so its own symlinked parents still work; a symlink inside it, even
 /// one swapped in mid-capture, could reach outside the folder (0963).
@@ -54,7 +54,6 @@ pub(super) fn read(
     if !meta.is_file() || meta.file_type().is_symlink() {
         return Err(RecordError::Malformed);
     }
-    let limit = limit.min(MAX_BINARY_BYTES);
     if meta.len() > limit {
         return Err(RecordError::Limit);
     }
@@ -74,8 +73,9 @@ pub(super) fn publish(
     owner: &Path,
     index: usize,
     bytes: &[u8],
+    limit: u64,
 ) -> Result<String, RecordError> {
-    if bytes.len() as u64 > MAX_BINARY_BYTES {
+    if bytes.len() as u64 > limit {
         return Err(RecordError::Limit);
     }
     let parent = owner

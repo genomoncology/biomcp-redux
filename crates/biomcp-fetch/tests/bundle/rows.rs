@@ -598,7 +598,9 @@ mod sets {
         }
     }
 
-    /// 0906: a set with one part over the ordinary 16 MiB record limit records and replays.
+    /// 0906: a set records each part as a sidecar under the set's own ceiling, so one part over
+    /// the ordinary 16 MiB record file limit, or over the ordinary 50 MiB binary reply limit,
+    /// records and replays.
     fn records_and_replays_large_part(big_bytes: usize) {
         static TWO: &[BundlePart] = &[
             BundlePart {
@@ -657,7 +659,7 @@ mod sets {
         records_and_replays_large_part(17 * 1024 * 1024);
     }
     #[test]
-    fn multi_file_sync_records_and_replays_a_part_over_fifty_mib() {
+    fn multi_file_sync_records_and_replays_a_part_over_the_binary_reply_limit() {
         records_and_replays_large_part(51 * 1024 * 1024);
     }
 }

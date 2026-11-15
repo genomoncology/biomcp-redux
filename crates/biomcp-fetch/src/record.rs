@@ -19,6 +19,9 @@ pub(crate) mod rpc;
 #[path = "record_sidecar.rs"]
 mod sidecar;
 const MAX_FILE_BYTES: u64 = 16 * 1024 * 1024;
+/// A bundle-set part keeps its body in a sidecar up to the largest part a set accepts, so a
+/// multi-file sync records as a single-file sync does (0906).
+const MAX_PART_BYTES: u64 = crate::bundle::MAX_STREAMED_BYTES;
 const MAX_BUNDLE_FILE_BYTES: u64 = crate::MAX_BUNDLE_BYTES * 6 + 64 * 1024;
 const MAX_METADATA_BYTES: usize = 8192;
 const MAX_EXCHANGES: usize = 128;
@@ -358,8 +361,16 @@ impl Recordings {
         url: &str,
         request: Request<'_>,
         max_body: u64,
+        part: bool,
     ) -> Result<Option<Exchange>, RecordError> {
-        self.replay_bounded(source, key, url, request, max_body, MAX_FILE_BYTES)
+        self.replay_bounded(
+            source,
+            key,
+            url,
+            request,
+            max_body,
+            (MAX_FILE_BYTES, binary_limit(part)),
+        )
     }
     pub(crate) fn replay_bundle(
         &self,
@@ -373,7 +384,7 @@ impl Recordings {
             url,
             Request::Get,
             crate::MAX_BUNDLE_BYTES,
-            MAX_BUNDLE_FILE_BYTES,
+            (MAX_BUNDLE_FILE_BYTES, binary_limit(false)),
         )
     }
     fn replay_bounded(
@@ -383,7 +394,7 @@ impl Recordings {
         url: &str,
         request: Request<'_>,
         max_body: u64,
-        file_limit: u64,
+        (file_limit, binary): (u64, u64),
     ) -> Result<Option<Exchange>, RecordError> {
         let Self::Replay { dir, cursors } = self else {
             return Ok(None);
@@ -419,7 +430,12 @@ impl Recordings {
             .ok_or(RecordError::Exhausted)?;
         let mut value = value.clone();
         if let Body::Sidecar(name) = &value.body {
-            value.body = Body::Bytes(sidecar::read(dir, &path(dir, source, key), name, max_body)?);
+            value.body = Body::Bytes(sidecar::read(
+                dir,
+                &path(dir, source, key),
+                name,
+                max_body.min(binary),
+            )?);
         }
         if matches!(request, Request::Head) && !value.body.bytes().is_empty() {
             return Err(RecordError::Malformed);
@@ -437,8 +453,16 @@ impl Recordings {
         url: &str,
         request: Request<'_>,
         exchange: Exchange,
+        part: bool,
     ) -> Result<(), RecordError> {
-        self.append_bounded(source, key, url, request, exchange, MAX_FILE_BYTES)
+        self.append_bounded(
+            source,
+            key,
+            url,
+            request,
+            exchange,
+            (MAX_FILE_BYTES, binary_limit(part)),
+        )
     }
     pub(crate) fn append_bundle(
         &self,
@@ -453,7 +477,7 @@ impl Recordings {
             url,
             Request::Get,
             exchange,
-            MAX_BUNDLE_FILE_BYTES,
+            (MAX_BUNDLE_FILE_BYTES, binary_limit(false)),
         )
     }
     fn append_bounded(
@@ -463,7 +487,7 @@ impl Recordings {
         url: &str,
         request: Request<'_>,
         exchange: Exchange,
-        limit: u64,
+        (limit, binary): (u64, u64),
     ) -> Result<(), RecordError> {
         let Self::Capture(capture) = self else {
             return Ok(());
@@ -494,6 +518,7 @@ impl Recordings {
                 &path(&capture.dir, source, key),
                 recording.exchanges.len(),
                 bytes,
+                binary,
             )?;
             exchange.body = Body::Sidecar(name);
         }
@@ -508,6 +533,14 @@ impl Recordings {
             recording.exchanges.pop();
         }
         result
+    }
+}
+/// Ordinary binary replies keep the sidecar cap; only bundle-set parts reach the set's ceiling.
+fn binary_limit(part: bool) -> u64 {
+    if part {
+        MAX_PART_BYTES
+    } else {
+        sidecar::MAX_BINARY_BYTES
     }
 }
 fn path(dir: &Path, source: biomcp_types::Source, key: &[u8; 32]) -> PathBuf {
