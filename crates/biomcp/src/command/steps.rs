@@ -33,7 +33,11 @@ fn adjust(
     result: &biomcp_query::Outcome,
 ) -> Result<Option<biomcp_types::Step>, serde_json::Error> {
     use biomcp_types::Status::{Complete, Partial};
-    if !matches!(result.status(), Complete | Partial) || !crate::grammar::first_page(request) {
+    // An identity card's options live on the sections it lists.
+    if !matches!(result.status(), Complete | Partial)
+        || !crate::grammar::first_page(request)
+        || crate::grammar::identity_card(request)
+    {
         return Ok(None);
     }
     let options = crate::grammar::options(request);

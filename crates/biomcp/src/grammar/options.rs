@@ -77,6 +77,17 @@ pub(crate) fn first_page(request: &Request) -> bool {
             .all(|name| value.get(*name).is_none_or(Value::is_null))
 }
 
+/// A get that names no section, where a section field exists: the card that lists them.
+pub(crate) fn identity_card(request: &Request) -> bool {
+    let (verb, entity) = request.path();
+    verb == "get"
+        && super::validation::schema(verb, entity)
+            .is_some_and(|schema| schema.pointer("/properties/section").is_some())
+        && super::rewrite::query_value(request).is_ok_and(|value| {
+            !set(value.get("section"), &Value::Null)
+        })
+}
+
 fn set(value: Option<&Value>, property: &Value) -> bool {
     match value {
         None | Some(Value::Null) => false,

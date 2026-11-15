@@ -159,3 +159,44 @@ pub(super) fn trial_first_page(
         .insert("offset".into(), Value::from(0));
     checked(via, path, first)
 }
+
+/// A request refused before any source is read, for one argument with named valid values:
+/// the first valid value the request accepts becomes the corrected call, in place of help.
+pub(crate) fn prepared(
+    request: &biomcp_types::Request,
+    mut error: biomcp_types::UsageError,
+) -> biomcp_types::UsageError {
+    let biomcp_types::UsageError::Arguments(arguments) = &mut error else {
+        return error;
+    };
+    if arguments.next.iter().any(|step| !is_help(step)) {
+        return error;
+    }
+    let (Some(argument), Some(values)) = (&arguments.argument, &arguments.valid_values) else {
+        return error;
+    };
+    let (verb, entity) = request.path();
+    let name = argument.trim_start_matches('-').replace('-', "_");
+    let (Some(schema), Ok(value)) = (
+        super::validation::schema(verb, entity),
+        super::rewrite::query_value(request),
+    ) else {
+        return error;
+    };
+    let array = schema
+        .pointer(&format!("/properties/{name}"))
+        .and_then(super::property_type)
+        == Some("array");
+    let corrected = values.iter().find_map(|choice| {
+        let choice = Value::from(choice.as_str());
+        let mut candidate = value.clone();
+        candidate.as_object_mut()?.insert(
+            name.clone(),
+            if array { Value::Array(vec![choice]) } else { choice },
+        );
+        let request = super::rewrite::request(request.rewrite(), verb, entity, candidate).ok()?;
+        run(&request)
+    });
+    next(arguments, corrected);
+    error
+}

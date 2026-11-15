@@ -95,9 +95,19 @@ fn dispatch_using(
     if let Action::KeyHelp(source) = action {
         return key_help(source, encoding);
     }
+    let request = match &action {
+        Action::Run { request, .. } => Some(request.clone()),
+        _ => None,
+    };
     let action = match action.prepare() {
         Ok(action) => action,
-        Err(error) => return usage_envelope(error, encoding),
+        Err(error) => {
+            let error = match &request {
+                Some(request) => crate::grammar::prepared(request, error),
+                None => error,
+            };
+            return usage_envelope(error, encoding);
+        }
     };
     let transport = match transport::fetch(&parsed.globals, settings, context)? {
         Ok(fetch) => fetch,

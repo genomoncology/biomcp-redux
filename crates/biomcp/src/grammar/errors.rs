@@ -543,30 +543,28 @@ fn dropped(
                     .is_some_and(|rest| rest.starts_with('='))
         })
     })?;
-    if args[..at].iter().any(|word| word.to_str() == Some("--")) {
+    if args
+        .iter()
+        .take(at)
+        .any(|word| word.to_str() == Some("--"))
+    {
         return None;
     }
-    let inline = args[at].to_str()?.contains('=');
     let mut without = args.to_vec();
-    without.remove(at);
-    let mut tries = Vec::new();
-    if !inline
+    let flag = without.remove(at);
+    // A word after the option is taken as its value, so the call never gains a new operand.
+    if !flag.to_str()?.contains('=')
         && without
             .get(at)
             .and_then(|word| word.to_str())
             .is_some_and(|word| !word.starts_with('-'))
     {
-        let mut both = without.clone();
-        both.remove(at);
-        tries.push(both);
+        without.remove(at);
     }
-    tries.push(without);
-    tries.into_iter().find_map(|args| {
-        match super::parse(root, &args).ok()?.action? {
-            biomcp_query::Action::Run { request, .. } => super::recovery::run(&request),
-            _ => None,
-        }
-    })
+    match super::parse(root, &without).ok()?.action? {
+        biomcp_query::Action::Run { request, .. } => super::recovery::run(&request),
+        _ => None,
+    }
 }
 
 /// The root parser, with errors ignored along the command path unless `strict`.
