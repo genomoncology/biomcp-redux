@@ -1,8 +1,8 @@
 {
   "feature": "maude-reports",
   "live_check": "public",
-  "story": "A MAUDE device phrase, manufacturer, product code or product problem holding punctuation or a symbol openFDA refuses is searched as the same words without it; source_query shows the phrase sent. A source notice names each value sent as other words.",
-  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373 and j41394, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
+  "story": "A MAUDE device phrase, manufacturer, product code or product problem holding punctuation or a symbol openFDA refuses is searched as the same words without it; source_query shows the phrase sent. A source notice names each value sent as other words. A product code of a symbol alone beside another code matches nothing itself while the other code still returns reports, and the notice says only that value matched nothing.",
+  "verified": "Native openFDA replies recorded 2026-11-15 by biomcp --record in pm jobs j41373, j41394 and j41434, without a key; bodies unchanged. Requests, sizes and SHA-256 are in tests/replies/adverse-event/openfda-punctuation/README.md. Source https://open.fda.gov/license/ and https://open.fda.gov/terms/. No rows or values invented.",
   "replay": "adverse-event/openfda-punctuation",
   "steps": [
     {
@@ -95,6 +95,29 @@
         "/sources/0/state": "ok",
         "/sources/0/notices/*/message": {
           "includes": "--problem was searched as \"leak\": openFDA refuses some punctuation and every character outside ASCII."
+        }
+      }
+    },
+    {
+      "run": [
+        "search",
+        "adverse-event",
+        "--limit",
+        "1",
+        "--source",
+        "maude",
+        "--product-code",
+        "FRN",
+        "--product-code",
+        "®"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/returned": 1,
+        "/result/source_query": "(device.device_report_product_code.exact:\"FRN\" OR device.device_report_product_code.exact:\"\")",
+        "/sources/0/state": "ok",
+        "/sources/0/notices/*/message": {
+          "includes": "--product-code held no letter or digit openFDA accepts, so that value matched nothing."
         }
       }
     }

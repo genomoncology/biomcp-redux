@@ -33,24 +33,24 @@ pub(crate) fn search_command(cx: &Ctx<'_>, query: &AdverseEventSearch) -> Outcom
     command.finish(deadline.remaining());
     disclose(out, query)
 }
-/// Name each typed openFDA value sent as other words (0841).
+/// Name each typed openFDA value sent as other words (0841), and whether it was searched in an
+/// OR group: FAERS ORs the search text with every --drug, MAUDE ORs every --product-code (0976).
 fn disclose(mut out: Outcome, query: &AdverseEventSearch) -> Outcome {
-    let source = if query.source() == biomcp_types::AdverseEventSource::Faers {
-        Source::Faers
-    } else {
-        Source::Maude
-    };
+    let faers = query.source() == biomcp_types::AdverseEventSource::Faers;
+    let source = if faers { Source::Faers } else { Source::Maude };
+    let names = usize::from(query.text().is_some()) + query.drug().len();
+    let codes = query.product_code().len() > 1;
     let named = [
-        ("The search text", query.text()),
-        ("--manufacturer", query.manufacturer()),
-        ("--problem", query.problem()),
-        ("--reaction", query.reaction()),
+        ("The search text", query.text(), faers && names > 1),
+        ("--manufacturer", query.manufacturer(), false),
+        ("--problem", query.problem(), false),
+        ("--reaction", query.reaction(), false),
     ];
-    let listed = (query.drug().iter().map(|v| ("--drug", Some(v)))).chain(
+    let listed = (query.drug().iter().map(|v| ("--drug", Some(v), names > 1))).chain(
         query
             .product_code()
             .iter()
-            .map(|v| ("--product-code", Some(v))),
+            .map(|v| ("--product-code", Some(v), codes)),
     );
     crate::openfda_text::disclose(&mut out, source, named.into_iter().chain(listed));
     out
