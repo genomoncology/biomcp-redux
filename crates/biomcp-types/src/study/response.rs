@@ -19,7 +19,8 @@ pub struct StudyPage {
     /// Snapshot-scoped matching counts and offset.
     pub page: PageInfo,
     /// Whole source headers, without expanded descriptions.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[StudyHeader]>,
     /// Catalog acquisition provenance.
     pub snapshot: StudySnapshot,
@@ -86,7 +87,8 @@ pub struct StudyFiles {
     /// Bounds within the complete received directory.
     pub page: PageInfo,
     /// Source-ordered repository file references.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[StudyFile]>,
     /// Directory acquisition wall time in Unix seconds.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -131,7 +133,8 @@ pub struct StudySamples {
     /// Bounds within the received collection.
     pub page: PageInfo,
     /// Source sample identities and types in native order.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[StudySample]>,
     /// Source collection acquisition time.
     #[serde(default, skip_serializing_if = "Option::is_none")]

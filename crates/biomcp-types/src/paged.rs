@@ -20,3 +20,12 @@ pub trait Paged: Clone {
         page
     }
 }
+
+/// Reply row lists are written even when empty (0948), so a script reading `items` finds `[]`.
+/// They stay optional in the 1.0.0 schema, as before. The schema derive writes a field's default
+/// unless the field's skip test passes on it; this test always passes, so the schema files keep
+/// no `default` and stay unchanged. Serialization ignores it.
+#[cfg(feature = "schema")]
+pub(crate) fn no_schema_default<T>(_: &[T]) -> bool {
+    true
+}

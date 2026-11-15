@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorPage {
     /// Source candidates; no deduplication by display name.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[AuthorHeader]>,
     /// Native matching-record total, if supplied.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -44,7 +45,8 @@ pub struct AuthorPublication {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct AuthorCards {
     /// Exact returned source cards, with no cross-source links.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[AuthorCardItem]>,
 }
 /// One exact input and its independent outcome.
@@ -68,7 +70,8 @@ macro_rules! papers {
             /// Requested provider record.
             pub author: AuthorId,
             /// Original source order; no native corpus total is claimed.
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+            #[serde(default)]
+            #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
             pub items: Box<[$row]>,
         }
     };

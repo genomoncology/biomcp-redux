@@ -48,7 +48,8 @@ pub struct ArticleCardItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ArticleCards {
     /// Per-input answers.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[ArticleCardItem]>,
 }
 impl super::ResponseBody for ArticleCards {

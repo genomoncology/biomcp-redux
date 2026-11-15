@@ -62,10 +62,10 @@
         ],
         "/result": {
           "omits": [
-            "items",
             "reaction_counts"
           ]
         },
+        "/result/items": [],
         "": {
           "omits": [
             "page",

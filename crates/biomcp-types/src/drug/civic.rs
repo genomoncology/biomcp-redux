@@ -23,7 +23,8 @@ pub struct DrugCivicPage {
     /// Stream totals and continuation, independent of every other stream.
     pub page: CivicClaimPage<DrugGet>,
     /// Native claim order; each row carries the profile to which that claim belongs.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub records: Box<[DrugCivicClaim]>,
 }
 /// One native claim with its complete source therapy set and molecular profile.

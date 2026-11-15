@@ -46,7 +46,8 @@ pub struct GeneItem {
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GeneCards {
     /// Requested inputs and their answers.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[GeneItem]>,
 }
 /// One page of gene headers.
@@ -57,7 +58,8 @@ pub struct GenePage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub clingen_regions_matched: Option<u64>,
     /// Headers after ranking and paging.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[GeneHeader]>,
     // The total comes before the rows (0942): a reader of only the start sees it.
     /// Matching ClinGen regions, present only when more matched than `regions` holds; narrow the band or interval for the rest.

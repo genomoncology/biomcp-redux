@@ -20,11 +20,7 @@
         "/next/0/args": {
           "includes": "--offset"
         },
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items": []
       }
     },
     {
@@ -43,11 +39,7 @@
         "/next/0/args": {
           "includes": "--offset"
         },
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        }
+        "/result/items": []
       }
     }
   ]

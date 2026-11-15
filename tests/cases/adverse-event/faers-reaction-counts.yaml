@@ -30,11 +30,7 @@
         "/result/reaction_counts/limit_reached": true,
         "/result/unit": "reports",
         "/result/components/0/component": "meddra",
-        "/result": {
-          "omits": [
-            "items"
-          ]
-        },
+        "/result/items": [],
         "": {
           "omits": [
             "page",
@@ -72,10 +68,10 @@
         },
         "/result": {
           "omits": [
-            "reaction_counts",
-            "items"
+            "reaction_counts"
           ]
         },
+        "/result/items": [],
         "/query/aggregate": "reactions"
       }
     },

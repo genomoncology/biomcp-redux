@@ -73,7 +73,8 @@ pub struct DrugRecallPage {
     /// Number of native recall records.
     pub total: u64,
     /// Native source order, without event deduplication.
-    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    #[serde(default)]
+    #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
     pub items: Box<[DrugRecallHeader]>,
 }
 impl crate::ResponseBody for DrugRecallPage {

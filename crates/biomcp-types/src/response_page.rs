@@ -63,7 +63,8 @@ macro_rules! page {
         pub struct $name {
             $($before)*
             #[doc = $items_doc]
-            #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+            #[serde(default)]
+            #[cfg_attr(feature = "schema", schemars(skip_serializing_if = "crate::no_schema_default"))]
             pub items: Box<[$row]>,
             $($after)*
         }
