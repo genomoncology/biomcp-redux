@@ -397,6 +397,21 @@ fn steps(value: &Value, schema: &Value, root: &Value, out: &mut String) {
         let longest = args.split(|c| c != '`').map(str::len).max().unwrap_or(0);
         let fence = "`".repeat(3.max(longest + 1));
         out.push_str(&format!("{fence}sh\nbiomcp {args}\n{fence}\n\n"));
+        if let Some(options) = step
+            .get("options")
+            .and_then(Value::as_object)
+            .filter(|options| !options.is_empty())
+        {
+            let listed = options
+                .iter()
+                .map(|(name, form)| {
+                    let text = format!("{name} {}", form.as_str().unwrap_or_default());
+                    format!("`{}`", controls(&text).replace('`', "'"))
+                })
+                .collect::<Vec<_>>()
+                .join(", ");
+            out.push_str(&format!("Options to add: {listed}\n\n"));
+        }
     }
 }
 fn resolve<'a>(node: &'a Value, root: &'a Value) -> &'a Value {
