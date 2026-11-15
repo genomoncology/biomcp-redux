@@ -1,6 +1,7 @@
 # 0958 — skill-shows-one-cpic-phenotype-row
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 3113a8a71b28c0a1ea78e939f81983271bee65c6
 
 Milestone: 7
 
@@ -31,3 +32,8 @@ dx-lab-director round 3 (bench 0050, 2026-11-14), the first persona run with the
 ## Changes
 
 - Changes: `skills/SKILL.md`, a pgx case if none covers the line.
+
+## Progress
+
+- Skill (`skills/SKILL.md`) gains one line after the DDInter pair line: "For one phenotype's CPIC advice, ask CPIC for that phenotype:" with the ticket's command word for word. The skill is 4,038 bytes (was 3,857), inside its 4,096-byte cap in `crates/biomcp/build.rs` and `scripts/check_docs.py`, so no cap moved and nothing else was trimmed.
+- `tests/cases/pgx/recommendations-filter-by-phenotype.yaml` (0936's recorded case) gains a step that runs the skill line in its written argument order (section after `--source`) against the same recorded CPIC replies; it expects the three Poor Metabolizer rows and the "Avoid clopidogrel if possible" advice. `tests/cases/local/skill.yaml` asserts the line in the rendered skill.

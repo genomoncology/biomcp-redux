@@ -6,20 +6,13 @@
   "replay": "pathway/empty-relations",
   "steps": [
     {
-      "run": [
-        "sync",
-        "wikipathways"
-      ],
+      "run": ["sync", "wikipathways"],
       "expect": {
         "/status": "complete"
       }
     },
     {
-      "run": [
-        "pathway",
-        "genes",
-        "WP5034"
-      ],
+      "run": ["pathway", "genes", "WP5034"],
       "expect": {
         "/status": "complete",
         "/result/page/total": 0,
@@ -30,12 +23,7 @@
       }
     },
     {
-      "run": [
-        "get",
-        "pathway",
-        "WP5034",
-        "genes"
-      ],
+      "run": ["get", "pathway", "WP5034", "genes"],
       "expect": {
         "/status": "complete",
         "/result/genes/data/page/total": 0,
@@ -43,12 +31,7 @@
       }
     },
     {
-      "run": [
-        "get",
-        "pathway",
-        "WP9999999",
-        "genes"
-      ],
+      "run": ["get", "pathway", "WP9999999", "genes"],
       "expect": {
         "/status": "absent",
         "/sources/0/source": "wikipathways",
@@ -57,11 +40,7 @@
       "exit": 1
     },
     {
-      "run": [
-        "pathway",
-        "genes",
-        "WP9999999"
-      ],
+      "run": ["pathway", "genes", "WP9999999"],
       "expect": {
         "/status": "absent",
         "/sources/0/source": "wikipathways",
@@ -70,11 +49,7 @@
       "exit": 1
     },
     {
-      "run": [
-        "pathway",
-        "genes",
-        "R-HSA-9999999"
-      ],
+      "run": ["pathway", "genes", "R-HSA-9999999"],
       "expect": {
         "/status": "absent",
         "/sources/0/source": "reactome",
@@ -83,11 +58,7 @@
       "exit": 1
     },
     {
-      "run": [
-        "pathway",
-        "events",
-        "R-HSA-9999999"
-      ],
+      "run": ["pathway", "events", "R-HSA-9999999"],
       "expect": {
         "/status": "absent",
         "/sources/0/source": "reactome",

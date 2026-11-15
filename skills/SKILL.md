@@ -19,6 +19,7 @@ Run the command first. A refusal names the valid values and a next step: use the
 - Follow returned `next` steps for pages and sections. When a page reports a total, stop paging at it.
 - A reply holds one page. Read its `total` before you report a count or call a list complete.
 - For one named drug pair, ask DDInter for that pair: `biomcp get drug clopidogrel interactions --source ddinter --partner omeprazole`.
+- For one phenotype's CPIC advice, ask CPIC for that phenotype: `biomcp get pgx --gene CYP2C19 --source cpic recommendations --drug-id RxNorm:32968 --phenotype "Poor Metabolizer"`.
 
 Preserve source identifiers, dates, terms and uncertainty. Errors differ from empty results: read `problems` and `next`. A `no-key` reply will not change on retry: report that the source needs a key and move on.
 

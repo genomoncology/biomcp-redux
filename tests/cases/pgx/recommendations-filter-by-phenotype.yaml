@@ -1,7 +1,7 @@
 {
   "feature": "cpic-pgx",
   "live_check": "public",
-  "story": "CPIC recommendations for one gene and drug can be filtered to one phenotype, and the unfiltered first page lists every phenotype CPIC holds with its row count, so a Poor Metabolizer row past the first page is not missed.",
+  "story": "CPIC recommendations for one gene and drug can be filtered to one phenotype, and the unfiltered first page lists every phenotype CPIC holds with its row count, so a Poor Metabolizer row past the first page is not missed. The skill's CPIC line runs as written.",
   "verified": "CPIC API checked live 2026-11-14: RxNorm:32968 (clopidogrel) has 24 CYP2C19 recommendation rows, three for each of eight phenotypes, and the three Poor Metabolizer rows say \"Avoid clopidogrel if possible\"; the phenotype filter is exact (\"poor metabolizer\" matches nothing). HLA-B with abacavir (RxNorm:190521) has two rows whose phenotypes are empty, so a phenotype filter must say so rather than call the pair empty. Replies recorded by biomcp --record in a pm job. Before 0936 the persona's first page held only the Ultrarapid and Rapid Metabolizer rows (bench dx-lab-director 2026-11-14 log.md:254-256).",
   "replay": "pgx/recommendations-filter-by-phenotype",
   "steps": [
@@ -54,6 +54,36 @@
         "CYP2C19",
         "--source",
         "cpic",
+        "--phenotype",
+        "Poor Metabolizer"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/query/phenotype": "Poor Metabolizer",
+        "/result/page/total": 3,
+        "/result/items/*/phenotypes/CYP2C19": {
+          "equals": [
+            "Poor Metabolizer",
+            "Poor Metabolizer",
+            "Poor Metabolizer"
+          ]
+        },
+        "/result/items/0/drugrecommendation": "Avoid clopidogrel if possible. Use prasugrel or ticagrelor at standard dose if no contraindication.",
+        "/result/items/2/drugrecommendation": "Avoid clopidogrel if possible. Consider an alternative P2Y12 inhibitor at standard dose if clinically indicated and no contraindication."
+      },
+      "max_bytes": 4986
+    },
+    {
+      "run": [
+        "get",
+        "pgx",
+        "--gene",
+        "CYP2C19",
+        "--source",
+        "cpic",
+        "recommendations",
+        "--drug-id",
+        "RxNorm:32968",
         "--phenotype",
         "Poor Metabolizer"
       ],

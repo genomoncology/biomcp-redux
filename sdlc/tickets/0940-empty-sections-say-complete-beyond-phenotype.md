@@ -1,6 +1,7 @@
 # 0940 — empty-sections-say-complete-beyond-phenotype
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: ed7bb0e71431f0d02f0c37dae2e78852fdfa5e6f
 
 Milestone: 7
 
