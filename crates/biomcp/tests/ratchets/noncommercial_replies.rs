@@ -141,7 +141,8 @@ fn justified(path: &Path, text: &str) -> bool {
     field
         || text.lines().any(|line| {
             let line = line.trim_start();
-            (line.starts_with("//") || (hash && line.starts_with('#'))) && line.contains("real record")
+            (line.starts_with("//") || (hash && line.starts_with('#')))
+                && line.contains("real record")
         })
 }
 
@@ -161,7 +162,11 @@ fn real_ids(text: &str) -> Vec<String> {
             ids.insert(format!("DDInter{digits}"));
         }
     }
-    for prefix in ["semantic-scholar:", "semanticscholar.org/author/", "/graph/v1/author/"] {
+    for prefix in [
+        "semantic-scholar:",
+        "semanticscholar.org/author/",
+        "/graph/v1/author/",
+    ] {
         for (start, _) in text.match_indices(prefix) {
             let digits = digits_after(text, start + prefix.len());
             if (4..=17).contains(&digits.len()) {
@@ -203,7 +208,8 @@ fn orcid_at(bytes: &[u8], start: usize) -> Option<String> {
     let (check, body) = digits.split_last()?;
     let total = body.iter().fold(0, |total, digit| (total + digit) * 2);
     let token = std::str::from_utf8(token).ok()?;
-    if (12 - total % 11) % 11 != *check || token.starts_with("0000-0000") || token == ORCID_EXAMPLE {
+    if (12 - total % 11) % 11 != *check || token.starts_with("0000-0000") || token == ORCID_EXAMPLE
+    {
         return None;
     }
     Some(token.to_owned())
@@ -305,7 +311,10 @@ fn real_ids_outside_replies_fail() -> Check {
     let orcid = format!("0000-0001-0000-{}", "0009");
     let ddinter = format!("DDInter{}", 12);
     let scholar = format!("semantic-scholar:{}", 2_000_000);
-    fs::write(tests.join("a.rs"), format!("\"{orcid}\" \"{ddinter}\" \"{scholar}\"\n"))?;
+    fs::write(
+        tests.join("a.rs"),
+        format!("\"{orcid}\" \"{ddinter}\" \"{scholar}\"\n"),
+    )?;
     let error = ids(root.path()).err().ok_or("real IDs passed")?.to_string();
     for id in [&orcid, &ddinter, &scholar] {
         if !error.contains(id.as_str()) {
@@ -320,18 +329,25 @@ fn real_ids_outside_replies_fail() -> Check {
     ids(root.path())?;
     let planning = root.path().join("sdlc/planning");
     fs::create_dir_all(&planning)?;
-    fs::write(planning.join("a.md"), format!("# A real record\n\n{orcid}\n"))?;
+    fs::write(
+        planning.join("a.md"),
+        format!("# A real record\n\n{orcid}\n"),
+    )?;
     if ids(root.path()).is_ok() {
         return Err("a Markdown heading excused a real ID".into());
     }
     fs::remove_file(planning.join("a.md"))?;
     let native = root.path().join("tests/native");
     fs::create_dir_all(&native)?;
-    let case = |reason: &str| serde_json::json!({"live_check": reason, "run": [&scholar]}).to_string();
+    let case =
+        |reason: &str| serde_json::json!({"live_check": reason, "run": [&scholar]}).to_string();
     fs::write(native.join("a.yaml"), case("live call"))?;
     if ids(root.path()).is_ok() {
         return Err("a live check without its reason passed".into());
     }
-    fs::write(native.join("a.yaml"), case("a live call needs a real record"))?;
+    fs::write(
+        native.join("a.yaml"),
+        case("a live call needs a real record"),
+    )?;
     ids(root.path())
 }

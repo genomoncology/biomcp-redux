@@ -66,7 +66,10 @@ fn requests_validate_before_io_and_preserve_selection() {
     assert!(serde_json::from_value::<AuthorGet>(json!({"ids":["123"]})).is_err());
     let ids = json!({"ids":["semantic-scholar:123","orcid:0000-0000-0000-0925"]});
     assert_eq!(roundtrip::<AuthorGet>(ids.clone()).unwrap(), ids);
-    let p: AuthorPapersQuery = serde_json::from_value(json!({"id":"semantic-scholar:123","full":true,"limit":25,"offset":5,"pool":"native-pool"})).unwrap();
+    let p: AuthorPapersQuery = serde_json::from_value(
+        json!({"id":"semantic-scholar:123","full":true,"limit":25,"offset":5,"pool":"native-pool"}),
+    )
+    .unwrap();
     assert_eq!(p.section(), Some(AuthorPaperSection::Details));
     assert_eq!(p.limit(), 25);
     assert_eq!(p.offset(), 5);
