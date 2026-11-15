@@ -5,6 +5,7 @@ type Check<T> = Result<T, String>;
 pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     validate_cli_flags(object.get("x-cli-flags"))?;
     validate_enum_scope(object)?;
+    validate_alias(object)?;
     let source = |value: &Value| {
         value
             .as_str()
@@ -72,6 +73,25 @@ pub(super) fn validate(object: &serde_json::Map<String, Value>) -> Check<()> {
     Ok(())
 }
 
+/// A field that renames a sibling names that sibling, which must exist (0901).
+fn validate_alias(object: &serde_json::Map<String, Value>) -> Check<()> {
+    if object
+        .get("x-alias-of")
+        .is_some_and(|value| value.as_str().is_none_or(str::is_empty))
+    {
+        return Err("invalid alias annotation".into());
+    }
+    if let Some(properties) = object.get("properties").and_then(Value::as_object)
+        && properties.iter().any(|(key, node)| {
+            node.get("x-alias-of")
+                .and_then(Value::as_str)
+                .is_some_and(|name| name == key || !properties.contains_key(name))
+        })
+    {
+        return Err("alias annotation names no sibling field".into());
+    }
+    Ok(())
+}
 fn validate_cli_flags(flags: Option<&Value>) -> Check<()> {
     if let Some(flags) = flags {
         let flags = flags.as_object().ok_or("unsupported CLI flag annotation")?;
@@ -147,6 +167,9 @@ pub(super) fn required_component_annotations_are_metadata_with_checked_sources()
         json!({"x-required-components":{}}),
         json!({"x-required-components":{"maude":false}}),
         json!({"x-required-components":{"unknown":"gmdn"}}),
+        json!({"x-alias-of":""}),
+        json!({"x-alias-of":"name"}),
+        json!({"x-alias-of":"missing"}),
     ] {
         let new = annotated(&old, &annotation)?;
         assert!(

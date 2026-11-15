@@ -118,6 +118,7 @@ fn catalog(context: crate::command::Context<'_>, read_only: bool) -> io::Result<
             let description = description::render(verb, entity, &schema, &excluded);
             let mut input = arguments::input_with_limit(&schema, enum_limit);
             forms::advertise(&mut input, &forms::forms(verb, &schema));
+            forms::unadvertise(&mut input, &schema);
             let caller_schema = catalog::caller_schema(schema, verb, entity, &excluded);
             let canonical = json!({"name":name(verb, entity),
                 "inputSchema":arguments::input_with_limit(&caller_schema, usize::MAX)});

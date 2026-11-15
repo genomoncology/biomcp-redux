@@ -1,0 +1,67 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/enforcement.json?search=recall_number.exact%3A%28%22Z-1020-2026%22%20OR%20%22Z-1021-2026%22%20OR%20%22Z-1022-2026%22%20OR%20%22Z-1023-2026%22%20OR%20%22Z-0961-2026%22%29&limit=5&skip=0",
+  "exchanges": [
+    {
+      "fetched": 1794746484,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 672,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-04",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 5
+            }
+          },
+          "results": [
+            {
+              "recall_number": "Z-0961-2026",
+              "classification": "Class II",
+              "recalling_firm": "Abbott Laboratories",
+              "recall_initiation_date": "20251113",
+              "reason_for_recall": "Abbott Laboratories is recalling their Alinity ci-series System Control Module, a chemistry/immunoassay anayzer, by correction. The reason for the recall is potential performance issues found in the Alinity ci-series System software versions 3.6.1. and lower that could lead to erroneous results for multiple analytes. The issue was identified by Abbott during the internal testing of complaint investigations."
+            },
+            {
+              "recall_number": "Z-1020-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-1021-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-1022-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            },
+            {
+              "recall_number": "Z-1023-2026",
+              "classification": "Class I",
+              "recalling_firm": "Abbott Diabetes Care, Inc.",
+              "recall_initiation_date": "20251124",
+              "reason_for_recall": "Due to a manufacturing process issue that may cause carbon build up in the sensor that may result in incorrect low glucose results"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "method": "GET",
+  "source": "fda-device-recall",
+  "url": "https://api.fda.gov/device/recall.json?search=product_description%3A%22Alaris%20pump%22&limit=5&skip=0&sort=event_date_initiated%3Adesc",
+  "exchanges": [
+    {
+      "fetched": 1794746491,
+      "status": 200,
+      "content_type": "application/json; charset=utf-8",
+      "delay_ms": 414,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "meta": {
+            "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+            "terms": "https://open.fda.gov/terms/",
+            "license": "https://open.fda.gov/license/",
+            "last_updated": "2026-11-12",
+            "results": {
+              "skip": 0,
+              "limit": 5,
+              "total": 49
+            }
+          },
+          "results": [
+            {
+              "product_res_number": "Z-0212-2027",
+              "res_event_number": "100058",
+              "recalling_firm": "Cardinal Health 200, LLC",
+              "product_code": "OFQ",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-09-24",
+              "reason_for_recall": "Kits contain infusion sets which were recalled for performance issues.",
+              "root_cause_description": "Nonconforming Material/Component",
+              "product_description": "Cardinal Health Presource PBDS kits, Containing BD Alaris Pump Infusion Sets used with BD Alaris Pump Module Model 8100, labeled as: \n1) KIT, ANESTHESIA, CATALOG # IVSVM41612; \n2) KIT, ANESTHESIA, CATALOG # IVSVM41611; \n3) KIT, ANESTHESIA, CATALOG # IVSVM41610; \n4) KIT, ANESTHESIA, CATALOG # IVSVM41669; \n5) KIT, ANESTHESIA, CATALOG # IVSVM41668; \n6) KIT, ANESTHESIA, CATALOG # IVSVM41667; \n7) KIT, ANESTHESIA, CATALOG # IVSVM4166C; \n8) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS16; \n9) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS15; \n10) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS14; \n11) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS13; \n12) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS12; \n13) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS11; \n14) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHS10; \n15) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSC9; \n16) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSC8; \n17) KIT, ANESTHESIA, CATALOG # IVSVM4166B; \n18) KIT, ANESTHESIA, CATALOG # IVSVM41666; \n19) OPEN HEART ANESTHESIA, , CATALOG # PC4KOHSC7; \n20) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSC6; \n21) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSC5; \n22) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSC4; \n23) OPEN HEART ANESTHESIA KIT, CATALOG # PC4KOHSCB; \n24) OPEN HEART ANESTHESIA KIT, CATALOG # PC4KOHSCA; \n25) KIT,ANESTHESIA, CATALOG # PZVMANMOP; \n26) KIT, ANESTHESIA, CATALOG # IVSVM41665; \n27) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSC2; \n28) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSCG; \n29) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSCF; \n30) KIT,OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSCE; \n31) OPEN HEART ANESTHESIA,, CATALOG # PC4KOHSCE; \n32) KIT, ANESTHESIA               , CATALOG # IVSVM4166A; \n33) KIT,ANESTHESIA                , CATALOG # PZVMANMO3; \n34) KIT,OPEN HEART ANESTHESIA     , CATALOG # PC4KOHSCD; \n35) OPEN HEART ANESTHESIA KIT     , CATALOG # PC4KOHSCD; \n36) KIT,ANESTHESIA                , CATALOG # PZVMANMOQ; \n37) OPEN HEART ANESTHESIA KIT     , CATALOG # PC4KOHSCC."
+            },
+            {
+              "product_res_number": "Z-0213-2027",
+              "res_event_number": "100058",
+              "recalling_firm": "Cardinal Health 200, LLC",
+              "product_code": "OEQ",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-09-24",
+              "reason_for_recall": "Kits contain infusion sets which were recalled for performance issues.",
+              "root_cause_description": "Nonconforming Material/Component",
+              "product_description": "Cardinal Health Presource PBDS kits, Containing BD Alaris Pump Infusion Sets used with BD Alaris Pump Module Model 8100, labeled as: \n1) STR CATH ANGIO PEDIATRIC PACK , CATALOG #SAN68PAVU3; \n2) CATH ANGIO PEDIATRIC PACK     , CATALOG #SAN68PAVUN; \n3) PACK CATH ANGIO PEDIATRIC     , CATALOG #SAN68PAVUN; \n4) STR CATH ANGIO PEDIATRIC PACK , CATALOG #SAN68PAVUN; \n5) STERILE PEDI EP PACK          , CATALOG #SAN68PEVUL; \n6) CATH ANGIO PEDIATRIC  PACK    , CATALOG #SAN68PAVUM; \n7) CATH ANGIO PEDIATRIC PACK     , CATALOG #SAN68PAVUM; \n8) STR CATH ANGIO PEDIATRIC PACK , CATALOG #SAN68PAVUM; \n9) STRL CATH ANGIO PEDIATRIC PACK, CATALOG #SAN68PAVUM; \n10) STR CATH ANGIO PEDIATRIC PACK , CATALOG #SAN68PAVUL."
+            },
+            {
+              "product_res_number": "Z-0214-2027",
+              "res_event_number": "100058",
+              "recalling_firm": "Cardinal Health 200, LLC",
+              "product_code": "OES",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-09-24",
+              "reason_for_recall": "Kits contain infusion sets which were recalled for performance issues.",
+              "root_cause_description": "Nonconforming Material/Component",
+              "product_description": "Cardinal Health Presource PBDS kits, Containing BD Alaris Pump Infusion Sets used with BD Alaris Pump Module Model 8100, labeled as:  KIT, CATH LAB ADMIT, CATALOG # ADMMH2133A."
+            },
+            {
+              "product_res_number": "Z-0215-2027",
+              "res_event_number": "100058",
+              "recalling_firm": "Cardinal Health 200, LLC",
+              "product_code": "OEZ",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-09-24",
+              "reason_for_recall": "Kits contain infusion sets which were recalled for performance issues.",
+              "root_cause_description": "Nonconforming Material/Component",
+              "product_description": "Cardinal Health Presource PBDS kits, Containing BD Alaris Pump Infusion Sets used with BD Alaris Pump Module Model 8100, labeled as:  \n1) KIT, CABG,            , CATALOG # PCOCCG3A12; \n2) KIT, CABG,            , CATALOG # PCOCCG3A11; \n3) KIT, TAVR             , CATALOG # PCOCTVWP6; \n4) KIT, TAVR             , CATALOG # PCOCTVWP5; \n5) KIT, VALVE,           , CATALOG # PCOC49365; \n6) KIT, VALVE,           , CATALOG # PCOC49364; \n7) KIT, VALVE,           , CATALOG # PCOC49363; \n8) KIT, CABG,            , CATALOG # PCOCCG3A10; \n9) KIT, VALVE,           , CATALOG # PCOC4936B; \n10) KIT, CABG,            , CATALOG # PCOCCG3A9; \n11) KIT, VALVE,           , CATALOG # PCOC49362; \n12) KIT, CABG,            , CATALOG # PCOCCG3A8; \n13) KIT, VALVE,           , CATALOG # PCOC49361; \n14) KIT, CABG,            , CATALOG # PCOCCG3A7; \n15) KIT, CABG,            , CATALOG # PCOCCG3AM; \n16) KIT, TAVR             , CATALOG # PCOCTVWPM; \n17) KIT,VALVE,            , CATALOG # PCOCVR3671; \n18) KIT,CABG,             , CATALOG # PCOCCG3A6; \n19) KIT,TAVR              , CATALOG # PCOCTVWPK; \n20) KIT,VALVE,            , CATALOG # PCOCVR3670; \n21) KIT,CABG,             , CATALOG # PCOCCG3A5; \n22) KIT,CABG,             , CATALOG # PCOCCG3AJ; \n23) CABG,, KIT            , CATALOG # PCOCCG3A4; \n24) KIT,TAVR              , CATALOG # PCOCTVWP4; \n25) TAVR ,KIT             , CATALOG # PCOCTVWP3; \n26) CABG,,KIT             , CATALOG # PCOCCG3A3; \n27) VALVE,,KIT            , CATALOG # PCOCVR369; \n28) CABG,,KIT             , CATALOG # PCOCCG3A2; \n29) CABG,,KIT             , CATALOG # PCOCCG3AI; \n30) TAVR ,KIT             , CATALOG # PCOCTVWPJ; \n31) KIT,VALVE,            , CATALOG # PCOCVR36X; \n32) VALVE,, KIT           , CATALOG # PCOCVR36X; \n33) VALVE,,KIT            , CATALOG # PCOCVR36X; \n34) CABG,,KIT             , CATALOG # PCOCCG3AH; \n35) TAVR ,KIT             , CATALOG # PCOCTVWPH; \n36) CABG,,KIT             , CATALOG # PCOCCG3AE; \n37) VALVE,,KIT            , CATALOG # PCOCVR368; \n38) VALVE,,KIT            , CATALOG # PCOCVR36U; \n39) CABG,,KIT             , CATALOG # PCOCCG3AD; \n40) VALVE,,KIT            , CATALOG # PCOCVR367; \n41) CABG,,KIT             , CATALOG # PCOCCG3AC; \n42) TAVR ,KIT             , CATALOG # PCOCTVWPG; \n43) CABG,,KIT             , CATALOG # PCOCCG3AB; \n44) TAVR , KIT            , CATALOG # PCOCTVWPF; \n45) TAVR ,KIT             , CATALOG # PCOCTVWPF; \n46) CABG,,KIT             , CATALOG # PCOCCG3A1; \n47) VALVE,,KIT            , CATALOG # PCOCVR36S; \n48) CABG,,KIT             , CATALOG # PCOCCG3AA; \n49) TAVR , KIT            , CATALOG # PCOCTVWPE; \n50) TAVR , KIT            , CATALOG # PCOCTVWPD; \n51) TAVR , KIT            , CATALOG # PCOCTVWP2; \n52) TAVR , KIT            , CATALOG # PCOCTVWPC; \n53) CABG,, KIT            , CATALOG # PCOCCG36Z; \n54) CABG,,KIT             , CATALOG # PCOCCG36Z; \n55) KIT,CABG,             , CATALOG # PCOCCG36Z; \n56) KIT,CABG,             , CATALOG # PCOCCG36Y; \n57) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB28; \n58) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB27; \n59) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB26; \n60) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB24; \n61) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB23; \n62) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB22; \n63) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB21; \n64) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB20; \n65) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB19; \n66) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB18; \n67) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB17; \n68) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB16; \n69) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB15; \n70) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB14; \n71) KIT, BAL OPEN HEART           , CATALOG # PVCGOHB13; \n72) VALVE,,KIT            , CATALOG # PCOCVR365; \n73) CABG, KIT              , CATALOG # PCOCCG366; \n74) CV  A  B  C,2,KIT, CATALOG # UCV63CVM11; \n75) CV A B C,2,KIT   , CATALOG # UCV63CVM10; \n76) VA"
+            },
+            {
+              "product_res_number": "Z-0216-2027",
+              "res_event_number": "100058",
+              "recalling_firm": "Cardinal Health 200, LLC",
+              "product_code": "LRO",
+              "recall_status": "Open, Classified",
+              "event_date_initiated": "2026-09-24",
+              "reason_for_recall": "Kits contain infusion sets which were recalled for performance issues.",
+              "root_cause_description": "Nonconforming Material/Component",
+              "product_description": "Cardinal Health Presource PBDS kits, Containing BD Alaris Pump Infusion Sets used with BD Alaris Pump Module Model 8100, labeled as:  \n1) KIT,C SECTION ADMIT,, CATALOG # MATJV8300D; \n2) KIT,C SECTION ADMIT,, CATALOG # MATJV8300C; \n3) KIT, EMERGENCY C SECTION ADMIT, CATALOG # MAT216337B; \n4) IN PATIENT KIT   , CATALOG # PG21OTAUHA."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

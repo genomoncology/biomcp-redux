@@ -131,10 +131,20 @@ fn section_help(
     let sources = biomcp_types::command_section_sources("get", entity, section, &candidates)
         .unwrap_or_default();
     let names = sources.iter().map(ToString::to_string).collect::<Vec<_>>();
+    // The markets section is its own request, which takes a name and no other option.
+    let alone = entity == "drug" && section == "markets";
+    if alone {
+        command.arguments.retain(|argument| {
+            let field = argument.name.trim_start_matches("--").replace('-', "_");
+            crate::grammar::rewrite::MARKETS_FIELDS.contains(&field.as_str())
+        });
+    }
     if !sources.is_empty() {
         command.arguments.retain(|argument| {
             let only = only_sources(&argument.description);
-            only.is_empty() || only.iter().any(|source| sources.contains(source))
+            let sections = only_sections(&argument.description);
+            (only.is_empty() || only.iter().any(|source| sources.contains(source)))
+                && (sections.is_empty() || sections.contains(&section))
         });
         for argument in &mut command.arguments {
             if matches!(argument.name.as_str(), "--source" | "--sources") {
@@ -157,7 +167,7 @@ fn section_help(
         command.examples.retain(|example| {
             example
                 .iter()
-                .any(|word| word == section || names.contains(word))
+                .any(|word| word == section || (!alone && names.contains(word)))
         });
     }
     // Stable: the first recorded example that reads this section leads.
@@ -177,6 +187,16 @@ fn only_sources(description: &str) -> Vec<biomcp_types::Source> {
         .filter_map(|rest| rest.split(['.', ';']).next())
         .flat_map(|list| list.split([',', ' ']))
         .filter_map(|word| word.parse().ok())
+        .collect()
+}
+/// Sections an option names after "Only with section", such as the variant CIViC options.
+fn only_sections(description: &str) -> Vec<&str> {
+    description
+        .split("Only with section ")
+        .skip(1)
+        .filter_map(|rest| rest.split(['.', ';']).next())
+        .flat_map(|list| list.split([',', ' ']))
+        .filter(|word| !word.is_empty() && *word != "or")
         .collect()
 }
 /// Search help names the row fields a caller may choose.
@@ -300,8 +320,8 @@ fn command_description(verb: &str, entity: &str, schema: &Value) -> String {
 }
 /// Help only: FDA spells the two companion tables' headers differently, so readers need the shared names (0959).
 /// The typed tool description shares the command summary and has no room for this under its budget.
-const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables carry diagnostic, indication, device, drug and row_date \
-    beside FDA's cells, whose headers differ by table.";
+const CDX_SHARED_FIELDS: &str = " FDA CDx rows of both tables start with row_date, diagnostic, indication, device and drug, \
+    before FDA's cells, whose headers differ by table.";
 
 fn extra_commands(commands: &mut Vec<HelpCommand>, examples: &BTreeMap<String, Vec<Vec<String>>>) {
     for (command, description) in [

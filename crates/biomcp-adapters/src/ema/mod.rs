@@ -110,7 +110,6 @@ fn name_headers(
             let authorised = problems.optional(
                 "marketing_authorisation_date",
                 row.field("marketing_authorisation_date")
-                    .filter(|value| !matches!(value, Ok("")))
                     .map(|value| value.and_then(raw::date)),
             );
             Some((header, authorised))

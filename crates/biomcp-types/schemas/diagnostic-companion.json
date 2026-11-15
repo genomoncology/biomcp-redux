@@ -22,7 +22,7 @@
       "type": "string"
     },
     "Reply_CompanionDiagnosticRow": {
-      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.\nBoth kinds also carry the row date and shared cell names copied as text from FDA's original cells.",
+      "description": "A physical companion-table row; the two table layouts cannot acquire each other’s cells.\nBoth kinds lead with the row date and shared cell names copied as text from FDA's original cells.",
       "oneOf": [
         {
           "description": "One complete native individual table row.",
@@ -32,7 +32,7 @@
               "description": "Whole cells keyed by this table’s exact headers."
             },
             "device": {
-              "description": "Device number and date cell text.",
+              "description": "FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.",
               "type": [
                 "string",
                 "null"
@@ -115,7 +115,7 @@
               "description": "Whole cells keyed by this table’s exact headers."
             },
             "device": {
-              "description": "Device number and date cell text.",
+              "description": "FDA's device number and date (a PMA, 510(k) or De Novo number), copied from the device cell; not the test's name, which is in diagnostic.",
               "type": [
                 "string",
                 "null"
@@ -507,6 +507,19 @@
           ],
           "description": "NDA/BLA application.\nCell-owned typed NDA/BLA application.",
           "x-required-component": "fda-cdx"
+        },
+        "firm": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Recall firm phrase.\nThe drug recall search's name for --manufacturer on FDA device recalls: the same recalling_firm phrase; fda-device-recall only.",
+          "x-alias-of": "manufacturer",
+          "x-required-component": "fda-device-recall"
         },
         "gene": {
           "anyOf": [
