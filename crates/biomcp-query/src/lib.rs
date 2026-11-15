@@ -1,7 +1,6 @@
 //! Resolve checked human gene inputs through authoritative source adapters.
 pub mod article;
 mod gene;
-pub mod saved;
 pub mod store;
 
 mod context;

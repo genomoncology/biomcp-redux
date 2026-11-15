@@ -253,13 +253,14 @@ fn search_name_free(
             |row| row.get(0),
         )
         .optional()?;
-    match stored {
-        Some(stored)
-            if serde_json::from_str::<Vec<String>>(&stored).ok().as_deref() != Some(args) =>
-        {
-            Err(SavedError::Taken)
-        }
-        _ => Ok(()),
+    let Some(stored) = stored else {
+        return Ok(());
+    };
+    let words: Vec<String> = serde_json::from_str(&stored).map_err(|_| SavedError::Database)?;
+    if words == args {
+        Ok(())
+    } else {
+        Err(SavedError::Taken)
     }
 }
 

@@ -6,7 +6,7 @@
 use crate::command::{Encoding, Outcome};
 use crate::exit::Status as Exit;
 use biodata::Text;
-use biomcp_query::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
+use biomcp_query::store::saved::{NAME_CHARS, NOTE_CHARS, NewItem, SavedError, SavedStore};
 use biomcp_types::{
     Envelope, ErrorEnvelope, ErrorMessage, Help, HelpArgument, HelpCommand, HelpQuery,
     ResponseBody, Saved, Source, Status, UsageArguments, UsageError,
@@ -111,8 +111,15 @@ pub(crate) fn cli(
     let words: Vec<&str> = crate::grammar::command_words(root, args).collect();
     let saves = save_as_position(args).is_some();
     match words.as_slice() {
-        ["saved", ..] => Some(run(root, args)),
-        ["help", "saved", rest @ ..] => Some(help(root, settings, args, rest)),
+        ["saved", ..] => Some(run(root, settings, args)),
+        ["help", "saved", rest @ ..] => {
+            let path: Vec<&str> = rest
+                .iter()
+                .copied()
+                .take_while(|word| !word.starts_with('-'))
+                .collect();
+            Some(help(root, settings, args, &path))
+        }
         ["search", ..] if saves => Some(save_search(root, settings, args)),
         _ if saves => Some(usage(
             Encoding::cli(root, settings, args),
@@ -211,7 +218,7 @@ fn save_search(
         &name,
         &words,
         request.schema(),
-        &biomcp_query::saved::request_key(&request),
+        &biomcp_query::store::saved::request_key(&request),
     ) {
         Ok(_) => Ok(outcome),
         Err(error) => failure(encoding, error, "--save-as"),
@@ -249,12 +256,15 @@ fn open(encoding: Encoding, create: bool) -> io::Result<Result<Option<SavedStore
     })
 }
 
-fn run(root: &crate::grammar::Root, args: &[OsString]) -> io::Result<Outcome> {
+fn run(
+    root: &crate::grammar::Root,
+    settings: &crate::config::Settings,
+    args: &[OsString],
+) -> io::Result<Outcome> {
     let Ok((globals, matches)) = crate::grammar::saved(args) else {
         return usage(Encoding::Json, help_usage(UsageError::arguments()));
     };
-    let settings = crate::config::file::read_file(globals.config.as_ref());
-    let encoding = match globals.format.or_else(|| crate::config::format(&settings)) {
+    let encoding = match globals.format.or_else(|| crate::config::format(settings)) {
         Some(crate::grammar::Format::Md) => Encoding::Markdown,
         _ => Encoding::Json,
     };
@@ -390,7 +400,7 @@ fn new_items(
         items.push(NewItem {
             entity,
             id,
-            source: source.clone(),
+            source,
             note: note.clone(),
         });
     }

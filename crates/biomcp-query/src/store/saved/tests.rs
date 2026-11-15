@@ -104,31 +104,38 @@ fn lists_and_searches_round_trip() {
 }
 
 #[test]
-#[expect(
-    clippy::disallowed_methods,
-    reason = "The test compares the refused file's bytes"
-)]
 fn newer_file_is_refused_untouched() {
     let folder = tempfile::tempdir().unwrap();
     let path = folder.path().join("saved.sqlite");
-    drop(SavedStore::open(&path).unwrap());
+    let mut store = SavedStore::open(&path).unwrap();
+    store
+        .list_add(&text("genes"), &[NewItem { entity: text("gene"), id: text("BRAF"), source: None, note: None }])
+        .unwrap();
+    drop(store);
+    let newer = i64::try_from(MIGRATIONS.len() + 1).unwrap();
     let connection = rusqlite::Connection::open(&path).unwrap();
     connection
-        .execute(
-            "UPDATE meta SET value=?1 WHERE key='schema'",
-            [i64::try_from(MIGRATIONS.len() + 1).unwrap()],
-        )
+        .execute("UPDATE meta SET value=?1 WHERE key='schema'", [newer])
         .unwrap();
-    drop(connection);
-    let before = std::fs::read(&path).unwrap();
-    assert_eq!(
-        SavedStore::open(&path).err(),
-        Some(SavedError::Newer),
-        "newer file refused"
-    );
-    assert_eq!(
-        std::fs::read(&path).unwrap(),
-        before,
-        "refused file unchanged"
-    );
+    let state = |connection: &rusqlite::Connection| -> (i64, i64, i64) {
+        connection
+            .query_row(
+                "SELECT (SELECT value FROM meta WHERE key='schema'), \
+                 (SELECT count(*) FROM sqlite_master), (SELECT count(*) FROM saved_list_item)",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            )
+            .unwrap()
+    };
+    let before = state(&connection);
+    let changes: i64 = connection
+        .query_row("PRAGMA data_version", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(SavedStore::open(&path).err(), Some(SavedError::Newer), "newer file refused");
+    let after: i64 = connection
+        .query_row("PRAGMA data_version", [], |row| row.get(0))
+        .unwrap();
+    assert_eq!(after, changes, "no other connection wrote the refused file");
+    assert_eq!(state(&connection), before, "refused file keeps its version, tables and items");
+    assert_eq!(before.0, newer, "the newer version stays");
 }

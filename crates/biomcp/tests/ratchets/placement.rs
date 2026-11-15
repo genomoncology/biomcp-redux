@@ -433,7 +433,7 @@ const ALLOWED: &[(&str, &str)] = &[
         before retained routes publish continuations.",
     ),
     (
-        "crates/biomcp-query/src/saved/tests.rs",
+        "crates/biomcp-query/src/store/saved/tests.rs",
         "Check that saved-work migrations only add and a newer file stays unchanged, at the private saved store boundary.",
     ),
     (
