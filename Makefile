@@ -60,7 +60,8 @@ TOOL_PROOFS = BIOMCP_TEST_PYTHON="$(PYTHON)" cargo test --locked -p biomcp --tes
 proof: pre-job
 	$(if $(strip $(PROOFS)),$(PYTHON) scripts/trials.py --target tools --proofs $(PROOFS),$(TOOL_PROOFS))
 
-# The full suite runs every proof and the landing gate the proofs the branch changed;
+# The full suite runs every proof and the landing gate the proofs the branch changed, as
+# scripts/changed_tool_proofs.py selects them;
 # pre-job has already linted them (0944).
 tool-proofs:
 	$(TOOL_PROOFS) $(if $(strip $(RUST_TEST_THREADS)),--test-threads $(RUST_TEST_THREADS))
