@@ -151,10 +151,10 @@ pub struct StudyMutations {
     pub molecular_profile_id: biodata::StudyProfileId,
     /// Exact cBioPortal gene identifier.
     pub entrez_gene_id: biodata::NcbiGeneId,
-    /// Source mutation observations in source order.
-    pub items: Box<[StudyMutation]>,
     /// Bounds within the received collection.
     pub page: PageInfo,
+    /// Source mutation observations in source order.
+    pub items: Box<[StudyMutation]>,
     /// Source collection acquisition time.
     pub acquired: Option<u64>,
 }

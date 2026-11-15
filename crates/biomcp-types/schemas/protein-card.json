@@ -1421,8 +1421,8 @@
         }
       },
       "required": [
-        "items",
-        "total"
+        "total",
+        "items"
       ],
       "type": "object"
     },
@@ -1444,8 +1444,8 @@
         }
       },
       "required": [
-        "items",
-        "total"
+        "total",
+        "items"
       ],
       "type": "object"
     },
@@ -1467,8 +1467,8 @@
         }
       },
       "required": [
-        "items",
-        "total"
+        "total",
+        "items"
       ],
       "type": "object"
     },

@@ -190,8 +190,8 @@ impl ResponseBody for ProteinFunctionResult {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct ProteinSectionPage<T> {
-    /// Whole native rows in source order.
-    pub items: Box<[T]>,
     /// Number of source rows before card bounding.
     pub total: u64,
+    /// Whole native rows in source order.
+    pub items: Box<[T]>,
 }

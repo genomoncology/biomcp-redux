@@ -139,10 +139,10 @@
       },
       "required": [
         "accession",
+        "offset",
         "species",
         "diseases",
-        "warnings",
-        "offset"
+        "warnings"
       ],
       "type": "object"
     },

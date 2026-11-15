@@ -856,8 +856,8 @@
         "study_id",
         "molecular_profile_id",
         "entrez_gene_id",
-        "items",
-        "page"
+        "page",
+        "items"
       ],
       "type": "object"
     },
