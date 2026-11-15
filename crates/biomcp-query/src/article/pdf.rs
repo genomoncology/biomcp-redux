@@ -80,9 +80,12 @@ fn execute<'a>(
     if let Err(error) = &result
         && let Some(refused) = pdf::refused(error)
     {
-        source
-            .notices
-            .push(refusal(&link.url, refused, open_text(&link.url, &query.input), out));
+        source.notices.push(refusal(
+            &link.url,
+            refused,
+            open_text(&link.url, &query.input),
+            out,
+        ));
     }
     if let Some(existing) = out
         .sources
@@ -148,7 +151,8 @@ fn refusal(
 
 /// Offer `get article ID fulltext`, the open text reader for PMC and Europe PMC.
 fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
-    let Ok(query) = ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into())
+    let Ok(query) =
+        ArticleGet::with_sections([input].into(), [ArticleSectionWord::Fulltext].into())
     else {
         return false;
     };
@@ -163,7 +167,7 @@ fn fulltext_next(input: ArticleInput, out: &mut Outcome) -> bool {
 
 /// Europe PMC refuses automated PDF requests (see `pdf::publisher::europepmc`), so a
 /// preprint ID gets a plain refusal and its open full text without a request.
-fn europepmc_refused(query: &ArticlePdf, id: &biomcp_types::EuropePmcId, out: &mut Outcome) {
+fn europepmc_refused(query: &ArticlePdf, id: &biodata::id::article::EuropePmcId, out: &mut Outcome) {
     let mut source = biomcp_adapters::registry::outcome(
         Source::EuropePmc,
         biomcp_types::SourceStatus::Skipped(Some(Reason::Rejected)),
